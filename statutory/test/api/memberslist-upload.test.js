@@ -1,4 +1,5 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -22,6 +23,7 @@ describe('Memberslist uploading', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -323,6 +325,111 @@ describe('Memberslist uploading', () => {
             memberslist_submission_deadline: moment().subtract(1, 'days'),
             starts: moment().add(20, 'days'),
             ends: moment().add(21, 'days')
+        });
+
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
+    test('should allow local edit before submission deadline without dedicated between-deadlines permission', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const now = moment.utc('2026-03-01T12:00:00Z');
+        tk.travel(now.toDate());
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: now.clone().subtract(21, 'days'),
+            application_period_ends: now.clone().subtract(20, 'days'),
+            board_approve_deadline: now.clone().subtract(19, 'days'),
+            participants_list_publish_deadline: now.clone().subtract(18, 'days'),
+            memberslist_submission_deadline: now.clone().add(1, 'minutes'),
+            starts: now.clone().add(20, 'days'),
+            ends: now.clone().add(21, 'days')
+        });
+
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
+    test('should fail before edit deadline with global approve permission only and no dedicated between-deadlines permission', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const now = moment.utc('2026-03-01T12:00:00Z');
+        tk.travel(now.toDate());
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: now.clone().subtract(21, 'days'),
+            application_period_ends: now.clone().subtract(20, 'days'),
+            board_approve_deadline: now.clone().subtract(19, 'days'),
+            participants_list_publish_deadline: now.clone().subtract(18, 'days'),
+            memberslist_submission_deadline: now.clone().subtract(2, 'days'),
+            starts: now.clone().add(14, 'days').add(1, 'minutes'),
+            ends: now.clone().add(15, 'days').add(1, 'minutes')
+        });
+
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should keep post-edit-deadline behavior unchanged for global approve permission', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const now = moment.utc('2026-03-01T12:01:00Z');
+        tk.travel(now.toDate());
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: now.clone().subtract(22, 'days'),
+            application_period_ends: now.clone().subtract(21, 'days'),
+            board_approve_deadline: now.clone().subtract(20, 'days'),
+            participants_list_publish_deadline: now.clone().subtract(19, 'days'),
+            memberslist_submission_deadline: now.clone().subtract(2, 'days'),
+            starts: now.clone().add(14, 'days'),
+            ends: now.clone().add(15, 'days')
         });
 
         await generator.createMembersList({
