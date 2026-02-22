@@ -7,6 +7,14 @@ const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
 const { Event, Image, Application } = require('../models');
 
+function hasManageApplicationPermission(corePermissions, eventType) {
+    if (!Array.isArray(corePermissions)) {
+        return false;
+    }
+
+    return corePermissions.some((permission) => permission.combined.endsWith('manage_applications:' + eventType));
+}
+
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event[req.body.type]) {
         return errors.makeForbiddenError(res, 'You are not allowed to create events of this type.');
@@ -25,6 +33,13 @@ exports.addEvent = async (req, res) => {
         });
 
         if (previousAgora) req.body.previous_agora_id = previousAgora.id;
+    }
+
+    if (!req.body.application_status_revealed_at
+        && req.body.participants_list_publish_deadline
+        && moment(req.body.participants_list_publish_deadline).isValid()
+        && moment().isSameOrAfter(moment(req.body.participants_list_publish_deadline))) {
+        req.body.application_status_revealed_at = new Date();
     }
 
     const newEvent = await Event.create(req.body);
@@ -109,6 +124,14 @@ exports.editEvent = async (req, res) => {
     delete req.body.type;
     delete req.body.status;
     delete req.body.image_id;
+    delete req.body.application_status_revealed_at;
+
+    if (!req.event.application_status_revealed_at
+        && req.event.participants_list_publish_deadline
+        && moment(req.event.participants_list_publish_deadline).isValid()
+        && moment().isSameOrAfter(moment(req.event.participants_list_publish_deadline))) {
+        req.body.application_status_revealed_at = new Date();
+    }
 
     const dbResult = await req.event.update(req.body);
 
@@ -215,6 +238,18 @@ exports.listUserAppliedEvents = async (req, res) => {
     });
 
     const events = await Event.findAll(queryObj);
+
+    for (const event of events) {
+        if (!event.applications || event.applications.length === 0) {
+            continue;
+        }
+
+        if (helpers.shouldHideApplicationStatus(event, {
+            change_status: hasManageApplicationPermission(req.corePermissions, event.type)
+        })) {
+            event.applications[0].status = 'pending';
+        }
+    }
 
     return res.json({
         success: true,

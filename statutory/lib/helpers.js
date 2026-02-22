@@ -154,6 +154,22 @@ exports.filterObject = (object, targetObject) => {
     return true;
 };
 
+exports.shouldHideApplicationStatus = (event, permissions = {}) => {
+    if (!event) {
+        return false;
+    }
+
+    if (permissions.change_status) {
+        return false;
+    }
+
+    if (event.application_status_revealed_at) {
+        return false;
+    }
+
+    return moment().isBefore(moment(event.participants_list_publish_deadline));
+};
+
 // A helper to count objects in array by field.
 exports.countByField = (array, key) => {
     return array.reduce((acc, val) => {
