@@ -92,7 +92,15 @@ compose_wrapper ()
     service_string=$(printenv ENABLED_SERVICES)
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
-    command=( docker-compose -f "${DIR}/base-docker-compose.yml" )
+    if command -v docker-compose >/dev/null 2>&1; then
+        compose_command=( docker-compose )
+    elif docker compose version >/dev/null 2>&1; then
+        compose_command=( docker compose )
+    else
+        echo "[MyAEGEE] ERROR: neither 'docker-compose' nor 'docker compose' is available"
+        return 127
+    fi
+    command=( "${compose_command[@]}" -f "${DIR}/base-docker-compose.yml" )
     for s in "${services[@]}"; do
         if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
             if [[ "${MYAEGEE_ENV}" == "production" ]]; then
