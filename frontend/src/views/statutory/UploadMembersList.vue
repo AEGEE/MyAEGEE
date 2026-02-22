@@ -64,7 +64,8 @@
           class="message is-warning"
           v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isBetweenMemberslistDeadlines">
           <div class="message-body">
-            Editing members lists between the submission and edit deadlines requires an additional permission.
+            The upload deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
+            <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
           </div>
         </article>
 
