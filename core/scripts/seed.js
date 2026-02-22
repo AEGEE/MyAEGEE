@@ -574,6 +574,12 @@ async function createPermissions() {
         description: 'Update the is_on_memberslist status for applications for Agora. Should be assigned to Network Director.'
     },
     {
+        action: 'edit_memberslist_between_deadlines',
+        object: 'agora',
+        scope: 'global',
+        description: 'Edit memberslists between submission and edit deadlines for Agora.'
+    },
+    {
         action: 'manage_network',
         object: 'communication_exception',
         scope: 'global',

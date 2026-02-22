@@ -60,6 +60,15 @@
           </div>
         </div>
 
+        <article
+          class="message is-warning"
+          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isBetweenMemberslistDeadlines">
+          <div class="message-body">
+            The upload deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
+            <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
+          </div>
+        </article>
+
         <div v-if="selectedBody && memberslist">
           <hr />
           <span>Uploaded list:</span>
@@ -164,10 +173,20 @@ export default {
       saved: true
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    isBetweenMemberslistDeadlines () {
+      if (!this.event.memberslist_submission_deadline || !this.event.memberslist_edit_deadline) {
+        return false
+      }
+
+      const now = moment()
+      return now.isAfter(this.event.memberslist_submission_deadline) && now.isSameOrBefore(this.event.memberslist_edit_deadline)
+    }
+  },
   methods: {
     fetchMembersList () {
       this.isLoading = true
