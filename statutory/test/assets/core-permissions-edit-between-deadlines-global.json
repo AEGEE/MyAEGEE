@@ -1,0 +1,24 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "global",
+        "object": "agora",
+        "id": 1002,
+        "filters": [],
+        "description": "Approve every board.",
+        "combined": "global:approve_members:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_members"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 1003,
+        "filters": [],
+        "description": "Edit memberslists between submission and edit deadlines.",
+        "combined": "global:edit_memberslist_between_deadlines:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "edit_memberslist_between_deadlines"
+    }]
+}

@@ -85,6 +85,20 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-apply.json'));
     }
 
+    if (options.editBetweenDeadlinesLocalPermissions) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-edit-between-deadlines-local.json'));
+    }
+
+    if (options.editBetweenDeadlinesGlobalPermissions) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-edit-between-deadlines-global.json'));
+    }
+
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()

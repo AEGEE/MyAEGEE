@@ -1,0 +1,13 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "local",
+        "object": "agora",
+        "id": 1001,
+        "filters": [],
+        "description": "Edit memberslist between submission and edit deadlines for Agora statutory events.",
+        "combined": "local:edit_memberslist_between_deadlines:agora",
+        "circles": null,
+        "action": "edit_memberslist_between_deadlines"
+      }]
+}

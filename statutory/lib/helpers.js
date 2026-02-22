@@ -296,6 +296,11 @@ exports.getEventPermissions = (data) => {
         myApplication
     } = data;
 
+    const now = moment();
+    const isBetweenMemberslistDeadlines = now.isAfter(event.memberslist_submission_deadline)
+        && now.isSameOrBefore(event.memberslist_edit_deadline);
+    const hasMemberslistEditBetweenDeadlinesPermission = hasPermission(corePermissions, 'global:edit_memberslist_between_deadlines:' + event.type);
+
     // Event-related permissions
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
@@ -333,6 +338,9 @@ exports.getEventPermissions = (data) => {
     permissions.edit_memberslist = {
         global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
     };
+    if (isBetweenMemberslistDeadlines) {
+        permissions.edit_memberslist.global = permissions.edit_memberslist.global && hasMemberslistEditBetweenDeadlinesPermission;
+    }
     permissions.see_memberslist = {
         global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
     };
@@ -359,6 +367,9 @@ exports.getEventPermissions = (data) => {
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
         permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        if (isBetweenMemberslistDeadlines) {
+            permissions.edit_memberslist[body.id] = permissions.edit_memberslist[body.id] && hasMemberslistEditBetweenDeadlinesPermission;
+        }
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 

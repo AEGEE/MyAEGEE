@@ -60,6 +60,14 @@
           </div>
         </div>
 
+        <article
+          class="message is-warning"
+          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isBetweenMemberslistDeadlines">
+          <div class="message-body">
+            Editing members lists between the submission and edit deadlines requires an additional permission.
+          </div>
+        </article>
+
         <div v-if="selectedBody && memberslist">
           <hr />
           <span>Uploaded list:</span>
@@ -164,10 +172,20 @@ export default {
       saved: true
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    isBetweenMemberslistDeadlines () {
+      if (!this.event.memberslist_submission_deadline || !this.event.memberslist_edit_deadline) {
+        return false
+      }
+
+      const now = moment()
+      return now.isAfter(this.event.memberslist_submission_deadline) && now.isSameOrBefore(this.event.memberslist_edit_deadline)
+    }
+  },
   methods: {
     fetchMembersList () {
       this.isLoading = true
