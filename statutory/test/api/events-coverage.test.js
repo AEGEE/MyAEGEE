@@ -4,6 +4,7 @@ const events = require('../../lib/events');
 const helpers = require('../../lib/helpers');
 const { Event } = require('../../models');
 
+// TODO: temporary file to get 100% test coverage. We'll need to see how we want to properly tackle these cases later
 describe('Events coverage', () => {
     afterEach(() => {
         jest.restoreAllMocks();
