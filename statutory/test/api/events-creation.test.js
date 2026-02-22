@@ -239,6 +239,27 @@ describe('Events creation', () => {
         expect(res.body).not.toHaveProperty('errors');
     });
 
+    test('should set application status reveal date if publish deadline is already in the past', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().subtract(5, 'months').toDate(),
+                application_period_ends: moment().subtract(4, 'months').toDate(),
+                board_approve_deadline: moment().subtract(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().subtract(2, 'months').toDate(),
+                memberslist_submission_deadline: moment().subtract(1, 'months').toDate(),
+                starts: moment().add(1, 'months').toDate(),
+                ends: moment().add(2, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.application_status_revealed_at).toBeTruthy();
+    });
+
     test('should fail if pax list publish deadline is before event starts', async () => {
         const res = await request({
             uri: '/',
