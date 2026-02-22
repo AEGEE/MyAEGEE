@@ -58,9 +58,15 @@ const { state } = store
 
 router.beforeEach((to, from, next) => {
   const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
+  const loggedInRedirectPath = to.query.to ? decodeURI(to.query.to) : '/dashboard'
 
   // Fuck my life.
   if (state.login.user) {
+    if (to.name === 'oms.login') {
+      console.debug('User is already logged in, redirecting away from /login.')
+      return next(loggedInRedirectPath)
+    }
+
     if (!state.login.isValid && to.meta.auth && to.name !== 'oms.profile.update') {
       console.debug('User is invalid (user fetched):', state.login.validationErrors)
       console.debug('Path', from.path, to.path)
@@ -90,6 +96,11 @@ router.beforeEach((to, from, next) => {
 
   // Fetching user if not fetched.
   return router.app.$auth.fetchUserWithExistingData().then(() => {
+    if (state.login.isLoggedIn && to.name === 'oms.login') {
+      console.debug('User is already logged in after auth check, redirecting away from /login.')
+      return next(loggedInRedirectPath)
+    }
+
     if (!state.login.isLoggedIn && to.meta.auth) {
       throw new Error('Trying to access the auth-only page while being unauthorized.')
     }
