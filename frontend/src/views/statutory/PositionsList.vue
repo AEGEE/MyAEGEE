@@ -207,6 +207,11 @@ export default {
       }
 
       const body = this.bodies.find(bod => bod.id === this.selectedPosition.body_id)
+
+      if (!body || !body.task_description) {
+        return 'A description for this position has not been set.'
+      }
+
       return body.task_description
     },
     startTerm () {
