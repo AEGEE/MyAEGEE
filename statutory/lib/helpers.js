@@ -159,7 +159,7 @@ exports.shouldHideApplicationStatus = (event, permissions = {}) => {
         return false;
     }
 
-    if (permissions.change_status || permissions.manage_applications) {
+    if (permissions.change_status) {
         return false;
     }
 

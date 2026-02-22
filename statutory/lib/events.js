@@ -245,7 +245,7 @@ exports.listUserAppliedEvents = async (req, res) => {
         }
 
         if (helpers.shouldHideApplicationStatus(event, {
-            manage_applications: hasManageApplicationPermission(req.corePermissions, event.type)
+            change_status: hasManageApplicationPermission(req.corePermissions, event.type)
         })) {
             event.applications[0].status = 'pending';
         }

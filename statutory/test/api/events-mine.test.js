@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -65,8 +63,7 @@ describe('Events participating', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            status: 'published',
-            participants_list_publish_deadline: moment().add(1, 'day').toDate()
+            status: 'published'
         });
 
         await generator.createApplication({

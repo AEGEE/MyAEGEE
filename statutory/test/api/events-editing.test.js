@@ -146,9 +146,9 @@ describe('Events editing', () => {
 
     test('should set application_status_revealed_at when editing after publication date', async () => {
         const event = await generator.createEvent({
-            participants_list_publish_deadline: moment().subtract(1, 'day').toDate(),
             application_status_revealed_at: null
         });
+        await event.update({ participants_list_publish_deadline: moment().subtract(1, 'day').toDate() });
 
         const res = await request({
             uri: '/events/' + event.id,
