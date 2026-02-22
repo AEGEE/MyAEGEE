@@ -155,7 +155,7 @@ exports.getStats = async (req, res) => {
         where: { event_id: req.event.id }
     });
 
-    if (!req.permissions.change_status && moment().isBefore(moment(req.event.participants_list_publish_deadline))) {
+    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
         statsObject.numbers = {
             total: applications.length,
             accepted: 0,
@@ -289,7 +289,7 @@ exports.getApplication = async (req, res) => {
     const application = req.application.toJSON();
     application.permissions = req.permissions;
 
-    if (!req.permissions.change_status && moment().isBefore(moment(req.event.participants_list_publish_deadline))) {
+    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
         application.status = 'pending';
     }
 

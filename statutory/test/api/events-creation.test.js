@@ -218,7 +218,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('board_approve_deadline');
     });
 
-    test('should fail if pax list publish deadline is after board approve deadline', async () => {
+    test('should allow pax list publish deadline before board approve deadline', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -234,9 +234,9 @@ describe('Events creation', () => {
             })
         });
 
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body.errors).toHaveProperty('participants_list_publish_deadline');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
     });
 
     test('should fail if pax list publish deadline is before event starts', async () => {

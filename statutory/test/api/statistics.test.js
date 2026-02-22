@@ -380,4 +380,27 @@ describe('Statistics testing', () => {
         expect(res.body.data.numbers.departed).toEqual(0);
         expect(res.body.data.numbers.cancelled).toEqual(3);
     });
+
+    test('should calculate real numbers if status was revealed already', async () => {
+        await generator.createApplication({ user_id: 1, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
+        await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
+        await generator.createApplication({ user_id: 4, status: 'accepted' }, event);
+
+        await event.update({ application_status_revealed_at: new Date() });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.numbers.total).toEqual(4);
+        expect(res.body.data.numbers.rejected).toEqual(1);
+        expect(res.body.data.numbers.pending).toEqual(1);
+        expect(res.body.data.numbers.accepted).toEqual(2);
+    });
 });

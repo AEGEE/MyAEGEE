@@ -1,7 +1,10 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const Event = require('../../models/Event');
 const regularUser = require('../assets/core-valid.json').data;
 
 describe('Applications status', () => {
@@ -156,5 +159,60 @@ describe('Applications status', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.id).toEqual(application.id);
         expect(res.body.data.status).toEqual('pending');
+    });
+
+    test('should keep showing status after it was revealed once and deadline moves', async () => {
+        const event = await generator.createEvent();
+        await event.update({
+            participants_list_publish_deadline: moment().subtract(1, 'day').toDate(),
+            application_status_revealed_at: null
+        });
+
+        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+
+        await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'accepted' }
+        });
+
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const beforeRes = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(beforeRes.statusCode).toEqual(200);
+        expect(beforeRes.body.data.status).toEqual('accepted');
+
+        mock.mockAll();
+
+        const editRes = await request({
+            uri: '/events/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                participants_list_publish_deadline: moment(event.starts).subtract(1, 'day').toDate()
+            }
+        });
+
+        expect(editRes.statusCode).toEqual(200);
+
+        const updatedEvent = await Event.findOne({ where: { id: event.id } });
+        expect(updatedEvent.application_status_revealed_at).toBeTruthy();
+
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const afterRes = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(afterRes.statusCode).toEqual(200);
+        expect(afterRes.body.data.status).toEqual('accepted');
     });
 });

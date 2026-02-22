@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -140,5 +142,28 @@ describe('Events editing', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('name');
         expect(res.body.errors).toHaveProperty('description');
+    });
+
+    test('should set application_status_revealed_at when editing after publication date', async () => {
+        const event = await generator.createEvent({
+            participants_list_publish_deadline: moment().subtract(1, 'day').toDate(),
+            application_status_revealed_at: null
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                name: 'Updated event name'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.application_status_revealed_at).toBeTruthy();
+
+        const eventFromDb = await Event.findOne({ where: { id: event.id } });
+        expect(eventFromDb.application_status_revealed_at).toBeTruthy();
     });
 });

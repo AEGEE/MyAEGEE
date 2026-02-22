@@ -157,6 +157,7 @@
               :config="dateConfig"
               v-model="dates.participants_list_publish_deadline" />
           </div>
+          <p class="help is-warning" v-if="participantsListPublishBeforeBoardApprove">Suggested: keep participants list publish deadline after board approve deadline.</p>
           <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
         </div>
 
@@ -704,10 +705,19 @@ export default {
       })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    participantsListPublishBeforeBoardApprove () {
+      if (!this.dates.participants_list_publish_deadline || !this.dates.board_approve_deadline) {
+        return false
+      }
+
+      return moment(this.dates.participants_list_publish_deadline).isSameOrBefore(this.dates.board_approve_deadline)
+    }
+  },
   watch: {
     'event.name': function (newName) {
       if (!this.$route.params.id) {
@@ -722,6 +732,10 @@ export default {
     },
     'dates.board_approve_deadline': function (newDate) {
       this.event.board_approve_deadline = new Date(newDate)
+
+      if (!this.dates.participants_list_publish_deadline) {
+        this.dates.participants_list_publish_deadline = moment(newDate).add(1, 'day').toDate()
+      }
     },
     'dates.participants_list_publish_deadline': function (newDate) {
       this.event.participants_list_publish_deadline = new Date(newDate)
