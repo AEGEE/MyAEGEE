@@ -57,6 +57,16 @@ function install (Vue, options = {}) {
         }, latencyThreshold + 50)
       }
 
+      function getShowProgressBar (value, fallback) {
+        if (!value || typeof value !== 'object') {
+          return fallback
+        }
+
+        return Object.prototype.hasOwnProperty.call(value, 'showProgressBar')
+          ? value.showProgressBar
+          : fallback
+      }
+
       this._nprogress = np
       np.init(this)
 
@@ -66,7 +76,7 @@ function install (Vue, options = {}) {
 
         if (http) {
           http.interceptors.push((request, next) => {
-            const showProgressBar = 'showProgressBar' in request ? request.showProgressBar : applyOnHttp
+            const showProgressBar = getShowProgressBar(request, applyOnHttp)
             if (showProgressBar) initProgress()
 
             next(response => {
@@ -76,13 +86,14 @@ function install (Vue, options = {}) {
           })
         } else if (axios) {
           axios.interceptors.request.use((request) => {
-            if (!('showProgressBar' in request)) request.showProgressBar = applyOnHttp
-            if (request.showProgressBar) initProgress()
+            const showProgressBar = getShowProgressBar(request, applyOnHttp)
+            if (request && !Object.prototype.hasOwnProperty.call(request, 'showProgressBar')) request.showProgressBar = applyOnHttp
+            if (showProgressBar) initProgress()
             return request
           }, (error) => Promise.reject(error))
 
           axios.interceptors.response.use((response) => {
-            if (response.config.showProgressBar) increase()
+            if (response && response.config && response.config.showProgressBar) increase()
             return response
           }, (error) => {
             if ((error.config && error.config.showProgressBar) || axios.isCancel(error)) increase()
@@ -94,7 +105,7 @@ function install (Vue, options = {}) {
       const router = applyOnRouter && this.$options.router
       if (router) {
         router.beforeEach((route, from, next) => {
-          const showProgressBar = 'showProgressBar' in route.meta ? route.meta.showProgressBar : applyOnRouter
+          const showProgressBar = getShowProgressBar(route && route.meta, applyOnRouter)
           if (showProgressBar && confirmed) {
             initProgress()
             confirmed = false
@@ -102,7 +113,7 @@ function install (Vue, options = {}) {
           next()
         })
         router.afterEach(route => {
-          const showProgressBar = 'showProgressBar' in route.meta ? route.meta.showProgressBar : applyOnRouter
+          const showProgressBar = getShowProgressBar(route && route.meta, applyOnRouter)
           if (showProgressBar) {
             increase()
             confirmed = true
