@@ -1,9 +1,20 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const { userProfile: user } = require('../assets');
 const { Code } = require('../../models');
+
+async function setCodeUpdatedAt(code, timestamp) {
+    await Code.sequelize.query('UPDATE codes SET updated_at = :timestamp WHERE id = :id', {
+        replacements: {
+            timestamp,
+            id: code.id
+        }
+    });
+}
 
 describe('Codes claiming', () => {
     beforeEach(async () => {
@@ -50,6 +61,50 @@ describe('Codes claiming', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test.each(['day', 'month', 'year'])('should ignore claims outside the current %s quota window', async (quotaPeriod) => {
+        const integration = await generator.createIntegration({
+            quota_period: quotaPeriod,
+            quota_amount: 1
+        });
+
+        const previousClaim = await generator.createCode({ claimed_by: user.id }, integration);
+        await setCodeUpdatedAt(previousClaim, moment().startOf(quotaPeriod).subtract(1, 'second').toDate());
+
+        const availableCode = await generator.createCode({}, integration);
+
+        const res = await request({
+            uri: '/integrations/' + integration.id + '/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(availableCode.id);
+        expect(res.body.data.claimed_by).toEqual(user.id);
+    });
+
+    test('should allow another claim while user is still under quota', async () => {
+        const integration = await generator.createIntegration({
+            quota_period: 'month',
+            quota_amount: 2
+        });
+
+        await generator.createCode({ claimed_by: user.id }, integration);
+        const availableCode = await generator.createCode({}, integration);
+
+        const res = await request({
+            uri: '/integrations/' + integration.id + '/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(availableCode.id);
+        expect(res.body.data.claimed_by).toEqual(user.id);
     });
 
     test('should fail if there are no codes', async () => {
@@ -106,7 +161,7 @@ describe('Codes claiming', () => {
         });
 
         // 1 code available
-        await generator.createCode({}, integration);
+        const code = await generator.createCode({}, integration);
 
         const res = await request({
             uri: '/integrations/' + integration.id + '/claim',
@@ -118,6 +173,9 @@ describe('Codes claiming', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+
+        const codeFromDb = await Code.findByPk(code.id);
+        expect(codeFromDb.claimed_by).toEqual(user.id);
     });
 
     test('should return 500 if mailer returns bad response', async () => {
@@ -128,7 +186,7 @@ describe('Codes claiming', () => {
         });
 
         // 1 code available
-        await generator.createCode({}, integration);
+        const code = await generator.createCode({}, integration);
 
         const res = await request({
             uri: '/integrations/' + integration.id + '/claim',
@@ -140,6 +198,9 @@ describe('Codes claiming', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+
+        const codeFromDb = await Code.findByPk(code.id);
+        expect(codeFromDb.claimed_by).toEqual(user.id);
     });
 
     test('should return 500 if mailer returns unsuccessful response', async () => {
@@ -150,7 +211,7 @@ describe('Codes claiming', () => {
         });
 
         // 1 code available
-        await generator.createCode({}, integration);
+        const code = await generator.createCode({}, integration);
 
         const res = await request({
             uri: '/integrations/' + integration.id + '/claim',
@@ -162,5 +223,8 @@ describe('Codes claiming', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+
+        const codeFromDb = await Code.findByPk(code.id);
+        expect(codeFromDb.claimed_by).toEqual(user.id);
     });
 });

@@ -300,3 +300,14 @@ Suggested issue titles:
 - `frontend: test discounts catalog and claim flows`
 - `frontend: test discounts management flows`
 - `discounts: add helper model and metrics coverage`
+
+## 8. Implementation Notes And Reusable Findings
+
+These notes came out of the first implementation passes and should help when repeating the workflow in other packages.
+
+- Normalize external fixtures behind a package-local registry instead of scattering file names across tests.
+- Keep legacy mock options working while adding named fixtures so tests can migrate incrementally.
+- Prefer realistic "unrelated permissions" fixtures over only empty-permission fixtures, because they better match real authorization drift.
+- When testing quota or time-window logic, use direct timestamp control at the database level when ORM timestamp helpers are unreliable.
+- Verify post-side-effect state explicitly: for example, mailer failure tests should also assert whether the database mutation already happened.
+- For local package work, a standalone Docker Postgres with env overrides is enough; full Traefik wiring is not required for backend test coverage.
