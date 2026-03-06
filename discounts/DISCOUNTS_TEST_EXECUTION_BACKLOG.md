@@ -311,3 +311,4 @@ These notes came out of the first implementation passes and should help when rep
 - When testing quota or time-window logic, use direct timestamp control at the database level when ORM timestamp helpers are unreliable.
 - Verify post-side-effect state explicitly: for example, mailer failure tests should also assert whether the database mutation already happened.
 - For local package work, a standalone Docker Postgres with env overrides is enough; full Traefik wiring is not required for backend test coverage.
+- Add direct adapter tests for outbound headers and payloads so contract coverage does not depend only on higher-level API tests.
