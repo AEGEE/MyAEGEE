@@ -1,8 +1,19 @@
+/* eslint-env jest */
+
 import Vuex from 'vuex'
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import filters from 'src/filters'
 
-export function createAxiosMock ({ get = {}, post = {} } = {}) {
+function getHandler (handlers, url, method) {
+  const handler = handlers[url]
+  if (!handler) {
+    return Promise.reject(new Error(`Unexpected ${method} ${url}`))
+  }
+
+  return handler
+}
+
+export function createAxiosMock ({ get = {}, post = {}, put = {}, del = {} } = {}) {
   return {
     get: jest.fn((url) => {
       const handler = get[url]
@@ -19,10 +30,17 @@ export function createAxiosMock ({ get = {}, post = {} } = {}) {
       }
 
       return typeof handler === 'function' ? handler(body) : Promise.resolve(handler)
+    }),
+    put: jest.fn((url, body) => {
+      const handler = getHandler(put, url, 'PUT')
+      return typeof handler === 'function' ? handler(body) : Promise.resolve(handler)
+    }),
+    delete: jest.fn((url) => {
+      const handler = getHandler(del, url, 'DELETE')
+      return typeof handler === 'function' ? handler() : Promise.resolve(handler)
     })
   }
 }
-
 export function mountDiscountsView (component, options = {}) {
   const localVue = createLocalVue()
   localVue.use(Vuex)
@@ -47,7 +65,10 @@ export function mountDiscountsView (component, options = {}) {
     localVue,
     store,
     mocks: {
-      axios: options.axios
+      axios: options.axios,
+      $route: options.route || { params: {} },
+      $router: options.router || { push: jest.fn() },
+      $buefy: options.buefy || { dialog: { confirm: jest.fn() } }
     },
     parentComponent: {
       methods: {
@@ -67,6 +88,7 @@ export function mountDiscountsView (component, options = {}) {
         name: 'BTableColumn',
         template: '<div />'
       },
+      'b-loading': true,
       'empty-table-stub': true,
       'b-icon': true
     }

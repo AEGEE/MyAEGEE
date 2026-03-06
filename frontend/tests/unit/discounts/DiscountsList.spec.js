@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 import flushPromises from 'flush-promises'
 
 import DiscountsList from 'src/views/discounts/DiscountsList.vue'
