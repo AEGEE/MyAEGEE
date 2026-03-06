@@ -305,7 +305,12 @@ exports.updateApplication = async (req, res) => {
     }
 
     const user = await core.getMember(req, req.application.user_id);
-    if (req.body.body_id && !helpers.isMemberOf(user, req.body.body_id)) {
+    const bodyIdChanged = req.body.body_id && req.body.body_id !== req.application.body_id;
+    if (bodyIdChanged && moment().isAfter(req.event.application_period_ends) && !req.permissions.manage_applications) {
+        return errors.makeForbiddenError(res, 'Only users with manage applications permission can change body after the application deadline.');
+    }
+
+    if (bodyIdChanged && !helpers.isMemberOf(user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
@@ -333,7 +338,7 @@ exports.updateApplication = async (req, res) => {
     }
 
     // If user changed his body (by himself), reset his board comment and participant type/order.
-    if (req.application.user_id === req.user.id && req.body.body_id && req.body.body_id !== req.application.body_id) {
+    if (req.application.user_id === req.user.id && bodyIdChanged) {
         req.body.participant_type = null;
         req.body.participant_order = null;
         req.body.board_comment = null;

@@ -136,6 +136,32 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should return 403 for user with apply permissions changing body after deadline', async () => {
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
+
+        mock.mockAll({ mainPermissions: { applyPermissions: true } });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[1].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should succeed for user who has permissions', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
@@ -316,6 +342,54 @@ describe('Applications editing', () => {
         }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: 1337 }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed for manage applications user changing body after deadline', async () => {
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+        }, event);
+
+        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[1].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.body_id).toEqual(regularUser.bodies[1].id);
+    });
+
+    test('should return 403 for manage applications user changing to body applicant is not member of after deadline', async () => {
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+        }, event);
+
+        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id,
