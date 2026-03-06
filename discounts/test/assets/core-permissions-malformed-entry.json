@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "data": [
+        {
+            "scope": "global",
+            "object": "discounts",
+            "id": 73,
+            "filters": [],
+            "description": "Malformed discounts permission",
+            "circles": null,
+            "action": "manage"
+        }
+    ]
+}

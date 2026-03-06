@@ -18,7 +18,7 @@ describe('Integrations creation', () => {
     });
 
     test('should fail if user does not have rights', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        mock.mockAll({ mainPermissions: { fixture: 'unrelatedOnly' } });
         const res = await request({
             uri: '/integrations',
             method: 'POST',
