@@ -38,6 +38,10 @@ exports.removeNetcomAssignment = async (req, res) => {
         }
     });
 
+    if (!assignment) {
+        return errors.makeNotFoundError(res, 'NetCom assignment is not found.');
+    }
+
     await assignment.destroy();
 
     return res.json({
