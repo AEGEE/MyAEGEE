@@ -218,13 +218,79 @@ A package effort is complete when:
 - tests pass locally and in CI;
 - the package plan is updated to reflect any deferred gaps.
 
-## 12. Recommended File Locations
+## 12. Turning A Plan Into Parallel Work
+
+Once a package plan is drafted, the next step is to convert it into a small execution backlog that parallel subagents can pick up with minimal coordination.
+
+### Step 1: Define Workstream Boundaries
+
+Create workstreams that avoid overlapping edits as much as possible.
+
+Preferred boundaries:
+
+- backend contract tests;
+- adapter and fixture work;
+- helper and model tests;
+- frontend harness work;
+- frontend flow tests;
+- metrics and operational paths.
+
+Each workstream should have:
+
+- a clear goal;
+- specific files or directories in scope;
+- fixture dependencies;
+- explicit out-of-scope items;
+- a suggested validation command.
+
+### Step 2: Define A Handoff Format
+
+Each review or implementation subagent should return findings in this shape:
+
+- `scope`
+- `files`
+- `goal`
+- `changes proposed`
+- `fixtures required`
+- `tests to add`
+- `validation`
+- `blocked by`
+
+This makes it easier for a second batch of subagents to execute without repeating discovery.
+
+### Step 3: Sequence Shared Foundations First
+
+Before splitting broad implementation work, land any shared foundations that would otherwise cause conflicts:
+
+- reusable fixtures;
+- common test helpers;
+- frontend test harness setup;
+- shared factories or generators.
+
+### Step 4: Prefer Thin, Reviewable Commits
+
+For visibility across agents and humans, keep execution commits small and focused.
+
+Recommended commit order:
+
+1. fixture and helper groundwork;
+2. highest-risk backend regression tests;
+3. consumer-facing frontend tests;
+4. lower-level cleanup and edge cases.
+
+### Step 5: Track Deferred Gaps Explicitly
+
+If a workstream discovers missing infrastructure or larger refactors, add them back to the package plan or issue tracker as explicit follow-up items instead of leaving them implicit.
+
+## 13. Recommended File Locations
 
 - Reusable workflow: `docs/TEST_COVERAGE_WORKFLOW.md`
 - Package plans: `<package>/<PACKAGE_NAME>_TEST_COVERAGE_PLAN.md`
+- Execution backlogs: `<package>/<PACKAGE_NAME>_TEST_EXECUTION_BACKLOG.md`
 
 Examples:
 
 - `discounts/DISCOUNTS_TEST_COVERAGE_PLAN.md`
+- `discounts/DISCOUNTS_TEST_EXECUTION_BACKLOG.md`
 - `core/CORE_TEST_COVERAGE_PLAN.md`
 - `events/EVENTS_TEST_COVERAGE_PLAN.md`
