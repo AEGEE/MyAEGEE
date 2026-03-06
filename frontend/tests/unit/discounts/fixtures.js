@@ -46,11 +46,17 @@ export const integrationsResponse = [
   {
     id: 7,
     name: 'FlixBus',
+    code: 'flixbus',
+    quota_amount: 1,
+    quota_period: 'month',
     description: 'Existing description'
   },
   {
     id: 8,
     name: 'Rail Europe',
+    code: 'rail-europe',
+    quota_amount: 2,
+    quota_period: 'year',
     description: 'Rail description'
   }
 ]
