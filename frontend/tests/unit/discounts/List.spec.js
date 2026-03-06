@@ -44,4 +44,21 @@ describe('Discounts integrations list', () => {
 
     expect(wrapper.vm.can.create).toEqual(false)
   })
+
+  test('surfaces an error when permissions fetch fails after integrations load', async () => {
+    const failure = new Error('permissions failed')
+    const axios = createAxiosMock({
+      get: {
+        '/api/discounts/integrations': { data: { data: integrationsResponse } },
+        '/api/core/my_permissions': () => Promise.reject(failure)
+      }
+    })
+
+    const { wrapper, showError } = mountDiscountsView(List, { axios, services })
+
+    await flushPromises()
+
+    expect(wrapper.vm.integrations).toEqual(integrationsResponse)
+    expect(showError).toHaveBeenCalledWith('Could not fetch integrations list', failure)
+  })
 })

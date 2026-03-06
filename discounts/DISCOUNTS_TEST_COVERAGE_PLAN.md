@@ -1,6 +1,6 @@
 # Discounts Test Coverage Plan
 
-**Status:** Draft
+**Status:** Implemented for planned streams in this document
 **Owner:** `discounts` contributors
 **Last updated:** 2026-03-06
 
@@ -15,6 +15,7 @@ Implemented on branch `docs/discounts-test-coverage-plan` so far:
 - direct helper and model validation tests;
 - frontend Vue unit-test harness for discounts views;
 - frontend component coverage for catalog, claim, and key management flows.
+- frontend unit tests wired into CircleCI.
 
 ## 1. Objective
 
@@ -405,6 +406,11 @@ This effort is complete when:
 - reusable fixtures exist for realistic `core`, `mailer`, and discounts API contracts;
 - tests assert contract behavior rather than current implementation structure;
 - the package can be reimplemented behind the same observable behavior with minimal test changes.
+
+Current status:
+
+- complete for the streams and priorities described in this plan;
+- follow-up work, if any, should be treated as new incremental coverage rather than unfinished baseline work.
 
 ## 11. Reuse Notes For Other Packages
 

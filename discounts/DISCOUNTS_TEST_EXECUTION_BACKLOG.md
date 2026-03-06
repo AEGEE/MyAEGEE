@@ -1,6 +1,6 @@
 # Discounts Test Execution Backlog
 
-**Status:** Draft
+**Status:** Implemented
 **Source plan:** `discounts/DISCOUNTS_TEST_COVERAGE_PLAN.md`
 **Last updated:** 2026-03-06
 
@@ -9,6 +9,17 @@
 This backlog turns the discounts test coverage plan into parallel workstreams that can be executed by subagents or contributors with minimal rediscovery.
 
 The goal is to strengthen tests around contracts and observable behavior so the discounts backend can later be replaced with minimal test churn.
+
+Execution status:
+
+- Foundation A completed
+- Foundation B completed
+- Stream 1 completed
+- Stream 2 completed
+- Stream 3 completed
+- Stream 4 completed
+- Stream 5 completed
+- Stream 6 completed
 
 ## 2. Shared Foundations To Land Early
 
