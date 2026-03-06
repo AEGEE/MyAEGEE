@@ -314,3 +314,4 @@ These notes came out of the first implementation passes and should help when rep
 - Add direct adapter tests for outbound headers and payloads so contract coverage does not depend only on higher-level API tests.
 - For frontend consumer coverage, start with a thin Vue test harness that mocks `axios` and Vuex getters before trying to mount the full application shell.
 - If Buefy table slots make component tests noisy, stub table primitives and assert component state plus side effects instead of full table rendering.
+- Add a small helper-and-model suite even when API coverage is strong, so validation and formatting behavior stay visible during backend replacement.
