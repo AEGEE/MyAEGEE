@@ -4,6 +4,18 @@
 **Owner:** `discounts` contributors
 **Last updated:** 2026-03-06
 
+## Progress Snapshot
+
+Implemented on branch `docs/discounts-test-coverage-plan` so far:
+
+- normalized external `core` and `mailer` fixtures for backend tests;
+- stronger claim-flow regression coverage around quotas and post-claim mailer failures;
+- direct adapter and permission contract tests;
+- stronger metrics assertions for named metrics and endpoint labels;
+- direct helper and model validation tests;
+- frontend Vue unit-test harness for discounts views;
+- frontend component coverage for catalog, claim, and key management flows.
+
 ## 1. Objective
 
 Improve `discounts` test coverage so the package can keep the same behavior and contracts even if the backend implementation changes later.
