@@ -5,7 +5,6 @@
 
 ## Bugs
 
-- `network/lib/cron.js:8` - scheduled email sends are not awaited, which can hide failures.
 - `network/lib/server.js:68` and `network/lib/server.js:82` - current full-suite runs show intermittent `EADDRINUSE` and `app.close()` crashes, which suggests server lifecycle handling is fragile across test files.
 
 ## Fragile Behavior
