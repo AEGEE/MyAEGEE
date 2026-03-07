@@ -5,7 +5,6 @@
 
 ## Bugs
 
-- `summeruniversity/models/Event.js:523` - `afterSave` mutates `open_call` without clearly persisting it.
 - `summeruniversity/lib/imageserv.js:86` - upload replacement can fail after partial success if the previous image file is already missing.
 
 ## Fragile Behavior
@@ -25,5 +24,4 @@
 
 - application creation tests for duplicate applications and season constraints;
 - listing tests for publication filters and application status filters;
-- model tests for event/application invariants;
 - file upload tests for missing-old-file recovery.

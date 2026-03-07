@@ -522,7 +522,7 @@ Event.beforeValidate(async (event) => {
 
 Event.afterSave(async (event) => {
     if (event.available_spots === 0 && event.open_call === true) {
-        event.open_call = false;
+        await event.update({ open_call: false }, { hooks: false });
     }
 });
 

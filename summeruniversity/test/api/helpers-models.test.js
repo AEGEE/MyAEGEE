@@ -119,4 +119,18 @@ describe('Helpers and model contracts', () => {
             answers: []
         }))).rejects.toHaveProperty('name', 'SequelizeValidationError');
     });
+
+    test('should persist closing open call when no spots remain', async () => {
+        const event = await generator.createEvent({
+            questions: [],
+            max_participants: 10,
+            accepted_participants: 9,
+            open_call: true
+        });
+
+        await event.update({ accepted_participants: 10 });
+
+        const eventFromDb = await Event.findByPk(event.id);
+        expect(eventFromDb.open_call).toEqual(false);
+    });
 });
