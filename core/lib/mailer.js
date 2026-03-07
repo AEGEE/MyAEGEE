@@ -1,6 +1,5 @@
-const request = require('request-promise-native');
-
 const config = require('../config');
+const { requestJson } = require('./http');
 
 /**
  * @param {Object} options
@@ -11,11 +10,9 @@ const config = require('../config');
  * @param {object} options.parameters
  */
 module.exports.sendMail = async (options) => {
-    const mailerBody = await request({
+    const mailerBody = await requestJson({
         url: config.mailer.url + ':' + config.mailer.port + '/',
         method: 'POST',
-        simple: false,
-        json: true,
         body: {
             from: options.from,
             to: options.to,

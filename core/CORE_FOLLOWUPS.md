@@ -14,6 +14,6 @@
 
 - add refresh-token expiry or session-management limits on top of the new rotation semantics;
 - tighten create/update field whitelists;
-- replace deprecated HTTP client usage and reduce request-time graph recomputation.
+- reduce request-time graph recomputation.
 
 ## Future Test Additions

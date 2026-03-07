@@ -32,12 +32,35 @@ exports.mockMailer = (options) => {
         .reply(200, { success: true });
 };
 
+exports.mockListserv = (options) => {
+    if (options.netError) {
+        return nock(config.listserv_endpoint)
+            .persist()
+            .post('')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(config.listserv_endpoint)
+            .persist()
+            .post('')
+            .reply(500, 'Some error happened.');
+    }
+
+    return nock(config.listserv_endpoint)
+        .persist()
+        .post('')
+        .reply(200, 'OK');
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
 
     const mailer = exports.mockMailer(options.mailer || {});
+    const listserv = exports.mockListserv(options.listserv || {});
 
     return {
-        mailer
+        mailer,
+        listserv
     };
 };
