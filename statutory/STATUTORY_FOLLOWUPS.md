@@ -5,9 +5,6 @@
 
 ## Bugs
 
-- `statutory/models/Plenary.js:17` - `name` is typed as an integer, which looks inconsistent with plenary naming usage.
-- `statutory/lib/plenaries.js:215` - helper arguments for body attendance export appear reversed, which likely corrupts exported stats.
-- `statutory/lib/middlewares.js:180` and `statutory/lib/middlewares.js:210` - incoming-only application mail enrichment likely loses `notification_email`.
 - `statutory/models/Application.js:507` - `statutory_id` is derived from `COUNT(*) + 1`, which is race-prone under concurrent creates.
 
 ## Fragile Behavior
@@ -25,6 +22,4 @@
 
 ## Future Test Additions
 
-- plenary export correctness tests;
-- incoming-only application notification-email visibility tests;
 - concurrent statutory-id uniqueness tests.
