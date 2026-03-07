@@ -22,8 +22,11 @@ Turn the events coverage plan into parallel implementation streams that protect 
 Execution status:
 
 - Foundation A completed
-- Stream 1 partially completed
-- Stream 2 partially completed
+- Foundation B completed
+- Stream 1 completed
+- Stream 2 completed
+- Stream 3 completed
+- Stream 5 partially completed
 
 ## 3. Parallel Workstreams
 
@@ -40,25 +43,11 @@ Execution status:
 
 ## Stream 2: Helper And Model Contracts
 
-### Scope
-
-- `events/lib/helpers.js`
-- `events/models/Event.js`
-- `events/models/Application.js`
-
-### Goal
-
-- make validation and permission behavior explicit outside broad API tests.
+Completed via `events/test/api/helpers-models.test.js` and related API contract coverage.
 
 ## Stream 3: Application Error Paths
 
-### Scope
-
-- application creation/update API suites
-
-### Goal
-
-- ensure invalid `body_id`, malformed answers, and edge-case inputs fail cleanly.
+Completed via `events/test/api/applications-creating.test.js` and `events/test/api/applications-editing.test.js`.
 
 ## Stream 4: Upload And Export Reliability
 

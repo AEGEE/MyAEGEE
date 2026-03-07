@@ -6,10 +6,6 @@
 
 ## Workstreams
 
-- cron cancellation and reschedule integrity
-- plenary export/body-stats correctness
-- incoming-only application field visibility
-- statutory-id concurrency and model edge cases
 - frontend edit/board/upload regression specs
 
 ## Notes

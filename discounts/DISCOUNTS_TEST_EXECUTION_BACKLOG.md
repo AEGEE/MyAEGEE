@@ -21,56 +21,13 @@ Execution status:
 - Stream 5 completed
 - Stream 6 completed
 
-## 2. Shared Foundations To Land Early
+## 2. Notes
 
-These items should be done first because several later streams depend on them.
-
-### Foundation A: Fixture Inventory Cleanup
-
-Scope:
-
-- `discounts/test/assets`
-- `discounts/test/scripts/mock.js`
-
-Goal:
-
-- normalize core and mailer fixtures into named, reusable contract cases.
-
-Expected changes:
-
-- add fixtures for permission variants and unsuccessful envelopes;
-- reduce ad hoc inline response setup in tests where possible;
-- document which fixtures are backend-owned versus consumer-owned.
-
-Validation:
-
-- `npm test` in `discounts`
-
-### Foundation B: Frontend Test Harness
-
-Scope:
-
-- `frontend/package.json`
-- frontend test setup files
-- shared test fixture utilities for discounts and core responses
-
-Goal:
-
-- create a minimal component-test base for discounts views.
-
-Expected changes:
-
-- add test runner and Vue test utilities;
-- add shared HTTP mocking approach;
-- add fixture helpers for `core` and `discounts` envelopes.
-
-Validation:
-
-- frontend test command for the new harness
+This backlog is now largely archival: the foundations and named streams below have matching backend and frontend coverage in place.
 
 ## 3. Parallel Workstreams
 
-## Stream 1: Claim Flow Regression
+## Stream 1: Claim Flow Regression (completed)
 
 ### Scope
 
@@ -105,7 +62,7 @@ Lock down the highest-risk user workflow: claiming a discount code.
 
 - `npm test` in `discounts`
 
-## Stream 2: Permission And Adapter Contracts
+## Stream 2: Permission And Adapter Contracts (completed)
 
 ### Scope
 
@@ -137,7 +94,7 @@ Ensure the package behaves consistently across realistic `core` and `mailer` res
 
 - `npm test` in `discounts`
 
-## Stream 3: Helper And Model Validation
+## Stream 3: Helper And Model Validation (completed)
 
 ### Scope
 
@@ -166,7 +123,7 @@ Pull behavior out of broad API tests and make validation expectations explicit.
 
 - `npm test` in `discounts`
 
-## Stream 4: Metrics And Error Paths
+## Stream 4: Metrics And Error Paths (completed)
 
 ### Scope
 
@@ -193,7 +150,7 @@ Cover operational contracts and failure semantics, not just success status codes
 
 - `npm test` in `discounts`
 
-## Stream 5: Frontend Catalog And Claim Flows
+## Stream 5: Frontend Catalog And Claim Flows (completed)
 
 ### Scope
 
@@ -227,7 +184,7 @@ Protect the highest-value frontend behaviors that depend on discounts and core c
 
 - frontend test command for discounts views
 
-## Stream 6: Frontend Management Flows
+## Stream 6: Frontend Management Flows (completed)
 
 ### Scope
 

@@ -7,9 +7,7 @@
 ## Workstreams
 
 - board route/body mismatch regression tests
-- missing netcom delete handling
 - antenna-criteria permission TODO coverage
-- cron await behavior and metrics content tests
 - frontend BoardListing and AntennaCriteriaCheck specs
 
 ## Notes

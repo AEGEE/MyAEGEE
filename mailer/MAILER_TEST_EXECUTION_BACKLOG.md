@@ -6,9 +6,6 @@
 
 ## Workstreams
 
-- `Omsmailer.Page` render/fan-out unit tests
-- healthcheck response contract coverage
-- fallback/error payload assertions
 - fragile template input regression tests
 
 ## Notes

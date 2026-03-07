@@ -20,7 +20,4 @@
 
 ## Future Test Additions
 
-- healthcheck response contract tests;
-- `Omsmailer.Page.render_template/2` unit tests;
-- recipient/body fan-out edge-case tests;
-- fallback JSON error payload assertions.
+- fragile template input regression tests.

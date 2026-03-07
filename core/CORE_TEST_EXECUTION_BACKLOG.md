@@ -6,12 +6,8 @@
 
 ## Workstreams
 
-- body-campaign create/fetch linkage regression tests
-- permission-manager unit tests
-- renew/logout lifecycle edge cases
-- image cleanup and missing-old-file tests
-- cron clearAll stop tests
-- metrics content and label assertions
+- remaining targeted allowlist regressions outside the already covered body/campaign/circle/payment paths
+- request-time permission recomputation and performance-oriented coverage
 
 ## Notes
 
