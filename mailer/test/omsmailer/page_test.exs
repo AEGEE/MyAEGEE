@@ -47,7 +47,7 @@ defmodule Omsmailer.PageTest do
     assert {:ok, mails} =
              Page.create_mails("mailer@aegee.org", ["one@aegee.org", "two@aegee.org"], "Ahoy")
 
-    assert {:error, "Mismatch in amounts of mails and amounts of template bodies"} =
+    assert {:error, :unprocessable_entity, "Mismatch in amounts of mails and amounts of template bodies"} =
              Page.set_body(mails, ["only one body"])
   end
 

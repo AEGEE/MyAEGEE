@@ -62,5 +62,6 @@ describe('DiscountsList', () => {
 
     expect(wrapper.vm.categories).toHaveLength(1)
     expect(showError).toHaveBeenCalledWith('Could not fetch categories list', failure)
+    expect(wrapper.vm.isLoading).toEqual(false)
   })
 })

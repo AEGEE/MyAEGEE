@@ -51,15 +51,19 @@ export function mountDiscountsView (component, options = {}) {
 
   const store = new Vuex.Store({
     state: {
-      services: options.services
+      services: options.services,
+      user: options.user || { bodies: [] }
     },
     getters: {
-      services: (state) => state.services
+      services: (state) => state.services,
+      user: (state) => state.user
     }
   })
 
   const showError = jest.fn()
   const showSuccess = jest.fn()
+  const showInfo = jest.fn()
+  const showWarning = jest.fn()
 
   const wrapper = shallowMount(component, {
     localVue,
@@ -73,7 +77,9 @@ export function mountDiscountsView (component, options = {}) {
     parentComponent: {
       methods: {
         showError,
-        showSuccess
+        showSuccess,
+        showInfo,
+        showWarning
       }
     },
     stubs: {
@@ -97,6 +103,8 @@ export function mountDiscountsView (component, options = {}) {
   return {
     wrapper,
     showError,
-    showSuccess
+    showSuccess,
+    showInfo,
+    showWarning
   }
 }

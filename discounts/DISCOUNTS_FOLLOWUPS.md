@@ -1,13 +1,12 @@
 # Discounts Follow-Ups
 
 **Status:** Living document
-**Last updated:** 2026-03-06
+**Last updated:** 2026-03-07
 
 ## Bugs
 
 - `discounts/lib/integrations.js:128` - claim flow is still non-atomic; concurrent requests can race between selecting and updating a free code.
 - `discounts/lib/integrations.js:140` - mailer failure leaves the code claimed but returns `500`, which creates a partial-success state for users and admins.
-- `discounts/lib/helpers.js:27` - `moment(...).format('YYYY-MM-DD HH:MM')` uses month instead of minutes, so claim emails can show the wrong time.
 
 ## Fragile Behavior
 

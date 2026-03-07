@@ -60,5 +60,6 @@ describe('Discounts integrations list', () => {
 
     expect(wrapper.vm.integrations).toEqual(integrationsResponse)
     expect(showError).toHaveBeenCalledWith('Could not fetch integrations list', failure)
+    expect(wrapper.vm.isLoading).toEqual(false)
   })
 })

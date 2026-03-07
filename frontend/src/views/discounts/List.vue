@@ -91,6 +91,7 @@ export default {
         this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
         this.isLoading = false
       }).catch((err) => {
+        this.isLoading = false
         this.$root.showError('Could not fetch integrations list', err)
       })
     }

@@ -75,4 +75,22 @@ describe('Discounts categories list', () => {
     expect(showError).toHaveBeenCalledWith('Could not delete category', failure)
     expect(wrapper.vm.categories).toHaveLength(1)
   })
+
+  test('clears loading state when permissions fetch fails after categories load', async () => {
+    const failure = new Error('permissions failed')
+    const categories = [{ id: 3, ...categoriesResponse[0] }]
+    const axios = createAxiosMock({
+      get: {
+        '/api/discounts/categories': { data: { data: categories } },
+        '/api/core/my_permissions': () => Promise.reject(failure)
+      }
+    })
+
+    const { wrapper, showError } = mountDiscountsView(CategoriesList, { axios, services })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Could not fetch categories list', failure)
+    expect(wrapper.vm.isLoading).toEqual(false)
+  })
 })

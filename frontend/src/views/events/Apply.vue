@@ -296,7 +296,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.events.list' })
+      this.$router.push({ name: 'oms.events.list.all' })
     })
   }
 }

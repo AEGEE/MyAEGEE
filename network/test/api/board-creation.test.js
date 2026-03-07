@@ -26,7 +26,10 @@ describe('Board creation', () => {
     });
 
     test('should fail if no permissions', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        mock.mockAll({
+            mainPermissions: { noPermissions: true },
+            managePermissions: { noPermissions: true }
+        });
 
         const board = generator.generateBoard();
 
@@ -242,6 +245,21 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('secretary');
         expect(res.body.data).toHaveProperty('treasurer');
         expect(res.body.data).not.toHaveProperty('other_members');
+    });
+
+    test('should use the route body id instead of a mismatched request body id', async () => {
+        const board = generator.generateBoard({ body_id: body.id + 1000 });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.body_id).toEqual(body.id);
     });
 
     test('should succeed for more positions if everything is okay', async () => {

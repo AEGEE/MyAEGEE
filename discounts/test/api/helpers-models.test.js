@@ -31,6 +31,7 @@ describe('Helpers and model contracts', () => {
         expect(mailText).toContain('Hey Alex');
         expect(mailText).toContain('Partner: FlixBus');
         expect(mailText).toContain('Code: DISCOUNT-123');
+        expect(mailText).toContain('Claimed on: 2026-03-06 12:34');
         expect(mailText).toContain('Travel discount');
     });
 

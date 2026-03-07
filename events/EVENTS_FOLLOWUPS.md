@@ -1,13 +1,11 @@
 # Events Follow-Ups
 
 **Status:** Living document
-**Last updated:** 2026-03-06
+**Last updated:** 2026-03-07
 
 ## Bugs
 
-- `events/lib/applications.js:53` - application creation likely crashes on missing or unmatched `body_id` because it dereferences `.name` on a failed `find`.
 - `events/lib/imageserv.js:44` - upload replacement can fail after partial success if the previous image file is already missing.
-- `events/lib/constants.js` - public-field selection appears to omit fields the frontend expects, including `vegetarian`, causing contract drift on public event pages.
 - `events/lib/server.js:92` and `events/lib/server.js:105` - current full-suite runs show intermittent `EADDRINUSE` and null-close failures, which suggests server lifecycle handling is fragile across test files.
 
 ## Fragile Behavior
@@ -25,7 +23,6 @@
 
 ## Future Test Additions
 
-- application create tests for missing/invalid `body_id`;
 - upload replacement tests for missing old image files;
 - metrics contract tests for metric names and labels;
 - helper/model suites for permission derivation, flattening, field export names, and event/application validation.

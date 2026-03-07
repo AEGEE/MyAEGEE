@@ -11,32 +11,42 @@ const config = require('../config');
 const constants = require('./constants');
 
 exports.createBoard = async (req, res) => {
-    if (!req.permissions.manage_boards[req.body.body_id] && !req.permissions.manage_boards.global) {
+    const bodyId = Number(req.params.body_id);
+    if (Number.isNaN(bodyId)) {
+        return errors.makeBadRequestError(res, 'Body ID is invalid.');
+    }
+
+    const boardData = {
+        ...req.body,
+        body_id: bodyId
+    };
+
+    if (!req.permissions.manage_boards[bodyId] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
     }
 
-    const bodyName = (await core.fetchBody(req.body, req.headers['x-auth-token'])).body_name;
+    const bodyName = (await core.fetchBody(boardData, req.headers['x-auth-token'])).body_name;
 
     const positions = [];
-    positions.push({ function: 'President', name: (await core.fetchUser(req.body.president, req.headers['x-auth-token'])).name });
-    positions.push({ function: 'Secretary', name: (await core.fetchUser(req.body.secretary, req.headers['x-auth-token'])).name });
-    positions.push({ function: 'Treasurer', name: (await core.fetchUser(req.body.treasurer, req.headers['x-auth-token'])).name });
+    positions.push({ function: 'President', name: (await core.fetchUser(boardData.president, req.headers['x-auth-token'])).name });
+    positions.push({ function: 'Secretary', name: (await core.fetchUser(boardData.secretary, req.headers['x-auth-token'])).name });
+    positions.push({ function: 'Treasurer', name: (await core.fetchUser(boardData.treasurer, req.headers['x-auth-token'])).name });
 
-    if (req.body.other_members) {
-        for (const other of req.body.other_members) {
+    if (boardData.other_members) {
+        for (const other of boardData.other_members) {
             positions.push({ function: other.function, name: (await core.fetchUser(other.user_id, req.headers['x-auth-token'])).name });
         }
     }
 
     await sequelize.transaction(async (t) => {
-        const createdBoard = await Board.create(req.body, { transaction: t });
+        const createdBoard = await Board.create(boardData, { transaction: t });
 
         await mailer.sendMail({
             to: config.new_board_notifications,
             subject: `A new board was added for ${bodyName}`,
             template: 'network_new_board.html',
             parameters: {
-                board: req.body,
+                board: boardData,
                 body_name: bodyName,
                 positions
             }
@@ -47,7 +57,7 @@ exports.createBoard = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.body
+        data: boardData
     });
 };
 
@@ -155,8 +165,16 @@ exports.findBoard = async (req, res, next) => {
     if (!helpers.isNumber(req.params.board_id)) {
         return errors.makeBadRequestError(res, 'Board ID is invalid.');
     }
+
+    if (!helpers.isNumber(req.params.body_id)) {
+        return errors.makeBadRequestError(res, 'Body ID is invalid.');
+    }
+
     const board = await Board.findOne({
-        where: { id: Number(req.params.board_id) }
+        where: {
+            id: Number(req.params.board_id),
+            body_id: Number(req.params.body_id)
+        }
     });
 
     if (!board) {
