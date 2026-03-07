@@ -5,7 +5,7 @@
 
 ## Bugs
 
-- `statutory/models/Application.js:507` - `statutory_id` is derived from `COUNT(*) + 1`, which is race-prone under concurrent creates.
+- none currently tracked
 
 ## Fragile Behavior
 
@@ -22,4 +22,4 @@
 
 ## Future Test Additions
 
-- concurrent statutory-id uniqueness tests.
+- none currently tracked.

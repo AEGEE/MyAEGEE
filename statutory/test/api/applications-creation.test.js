@@ -1342,11 +1342,9 @@ describe('Applications creation', () => {
         });
     });
 
-    test('should calculate statutory_id correctly', async () => {
+    test('should calculate statutory_id from the persisted application id', async () => {
         const event = await generator.createEvent({ applications: [] });
 
-        // user with ID 2 applied first => statutory_id === XXX-0001
-        // current user (with ID 1) applied second => statutory_id === XXX-0002
         const firstApplication = await generator.createApplication({ user_id: 2 }, event);
         const application = generator.generateApplication({
             body_id: regularUser.bodies[0].id,
@@ -1364,8 +1362,32 @@ describe('Applications creation', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(firstApplication.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0001');
-        expect(res.body.data.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0002');
+        expect(firstApplication.statutory_id).toEqual(
+            event.id.toString().padStart(3, '0') + '-' + firstApplication.id.toString().padStart(4, '0')
+        );
+        expect(res.body.data.statutory_id).toEqual(
+            event.id.toString().padStart(3, '0') + '-' + res.body.data.id.toString().padStart(4, '0')
+        );
+    });
+
+    test('should keep statutory ids unique for concurrent creates', async () => {
+        const event = await generator.createEvent({ applications: [] });
+
+        const applications = await Promise.all([
+            generator.createApplication({ user_id: 11 }, event),
+            generator.createApplication({ user_id: 12 }, event)
+        ]);
+
+        const statutoryIds = applications.map((application) => application.statutory_id);
+
+        expect(new Set(statutoryIds).size).toEqual(2);
+        for (const application of applications) {
+            expect(application.statutory_id).toEqual(
+                event.id.toString().padStart(3, '0')
+                + '-'
+                + application.id.toString().padStart(4, '0')
+            );
+        }
     });
 
     test('should prevent applying if cannot assign pax type', async () => {
