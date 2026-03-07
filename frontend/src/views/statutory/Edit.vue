@@ -787,7 +787,7 @@ export default {
       this.can = response.data.data.permissions
 
       this.dates.starts = this.event.starts = new Date(this.event.starts)
-      this.dates.ends = this.event.starts = new Date(this.event.ends)
+      this.dates.ends = this.event.ends = new Date(this.event.ends)
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)

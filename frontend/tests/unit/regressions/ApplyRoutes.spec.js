@@ -27,6 +27,7 @@ import SummerUniversityApply from 'src/views/summeruniversity/Apply.vue'
 import SummerUniversityEdit from 'src/views/summeruniversity/Edit.vue'
 import SummerUniversityEditSecond from 'src/views/summeruniversity/EditSecond.vue'
 import SummerUniversityParticipants from 'src/views/summeruniversity/Participants.vue'
+import StatutoryEdit from 'src/views/statutory/Edit.vue'
 import UploadMembersList from 'src/views/statutory/UploadMembersList.vue'
 
 function mountView (component, { services, route, user = { bodies: [] }, axios, router }) {
@@ -48,6 +49,7 @@ function mountView (component, { services, route, user = { bodies: [] }, axios, 
   })
 
   const showError = jest.fn()
+  const showSuccess = jest.fn()
 
   const wrapper = shallowMount(component, {
     localVue,
@@ -57,11 +59,17 @@ function mountView (component, { services, route, user = { bodies: [] }, axios, 
       $route: route,
       $router: router,
       $buefy: { dialog: { confirm: jest.fn() } },
-      accessToken: 'test-token'
+      accessToken: 'test-token',
+      $root: {
+        showError,
+        showSuccess,
+        sluggify: jest.fn((value) => value)
+      }
     },
     parentComponent: {
       methods: {
-        showError
+        showError,
+        showSuccess
       }
     },
     stubs: {
@@ -291,5 +299,141 @@ describe('frontend route regressions', () => {
 
     expect(showError).toHaveBeenCalledWith('Event is not found')
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
+  })
+
+  test('events edit keeps starts and ends as separate loaded dates', async () => {
+    const router = { push: jest.fn() }
+    const axios = {
+      get: jest.fn((url) => {
+        if (url === '/api/core/bodies/') return Promise.resolve({ data: { data: [{ id: 1, name: 'AEGEE-Test' }] } })
+        if (url === '/api/core/my_permissions/') return Promise.resolve({ data: { data: [] } })
+        if (url === '/api/events/single/17') {
+          return Promise.resolve({
+            data: {
+              data: {
+                starts: '2026-04-01T10:00:00.000Z',
+                ends: '2026-04-05T15:00:00.000Z',
+                application_starts: '2026-03-01T09:00:00.000Z',
+                application_ends: '2026-03-20T09:00:00.000Z',
+                organizing_bodies: [{ body_id: 1 }],
+                organizers: [{ user_id: 1 }]
+              },
+              permissions: {}
+            }
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+    }
+
+    const { wrapper } = mountView(EventEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { events: '/api/events', core: '/api/core' },
+      user: { id: 1, first_name: 'Ada', last_name: 'Tester', bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(wrapper.vm.event.starts.toISOString()).toEqual('2026-04-01T10:00:00.000Z')
+    expect(wrapper.vm.event.ends.toISOString()).toEqual('2026-04-05T15:00:00.000Z')
+    expect(wrapper.vm.dates.starts.toISOString()).toEqual('2026-04-01T10:00:00.000Z')
+    expect(wrapper.vm.dates.ends.toISOString()).toEqual('2026-04-05T15:00:00.000Z')
+  })
+
+  test('summer university edit keeps starts and ends as separate loaded dates', async () => {
+    const router = { push: jest.fn() }
+    const axios = {
+      get: jest.fn((url) => {
+        if (url === '/api/core/bodies/') return Promise.resolve({ data: { data: [{ id: 1, name: 'AEGEE-Test' }] } })
+        if (url === '/api/core/my_permissions/') return Promise.resolve({ data: { data: [] } })
+        if (url === '/api/summeruniversity/single/17') {
+          return Promise.resolve({
+            data: {
+              data: {
+                starts: '2026-07-01T10:00:00.000Z',
+                ends: '2026-07-12T18:00:00.000Z',
+                organizing_bodies: [{ body_id: 1 }],
+                cooperation: [],
+                organizers: [{ user_id: 1 }]
+              },
+              permissions: {}
+            }
+          })
+        }
+        if (url === '/api/core/members/1') {
+          return Promise.resolve({ data: { data: { first_name: 'Ada', last_name: 'Tester' } } })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+    }
+
+    const { wrapper } = mountView(SummerUniversityEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { summeruniversity: '/api/summeruniversity', core: '/api/core' },
+      user: { id: 1, first_name: 'Ada', last_name: 'Tester', bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(wrapper.vm.event.starts.toISOString()).toEqual('2026-07-01T10:00:00.000Z')
+    expect(wrapper.vm.event.ends.toISOString()).toEqual('2026-07-12T18:00:00.000Z')
+    expect(wrapper.vm.dates.starts.toISOString()).toEqual('2026-07-01T10:00:00.000Z')
+    expect(wrapper.vm.dates.ends.toISOString()).toEqual('2026-07-12T18:00:00.000Z')
+  })
+
+  test('statutory edit keeps starts and ends as separate loaded dates', async () => {
+    const router = { push: jest.fn() }
+    const axios = {
+      get: jest.fn((url) => {
+        if (url === '/api/statutory/events/17') {
+          return Promise.resolve({
+            data: {
+              data: {
+                starts: '2026-10-01T10:00:00.000Z',
+                ends: '2026-10-05T14:00:00.000Z',
+                application_period_starts: '2026-08-01T00:00:00.000Z',
+                application_period_ends: '2026-08-20T00:00:00.000Z',
+                board_approve_deadline: '2026-08-25T00:00:00.000Z',
+                participants_list_publish_deadline: '2026-09-01T00:00:00.000Z',
+                memberslist_submission_deadline: '2026-09-05T00:00:00.000Z',
+                draft_proposal_deadline: '2026-09-10T00:00:00.000Z',
+                final_proposal_deadline: '2026-09-15T00:00:00.000Z',
+                candidature_deadline: '2026-09-20T00:00:00.000Z',
+                booklet_publication_deadline: '2026-09-22T00:00:00.000Z',
+                updated_booklet_publication_deadline: '2026-09-25T00:00:00.000Z',
+                body_id: 1,
+                permissions: {}
+              }
+            }
+          })
+        }
+        if (url === '/api/core/bodies/1') {
+          return Promise.resolve({ data: { data: { id: 1, name: 'AEGEE-Test' } } })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+    }
+
+    const { wrapper } = mountView(StatutoryEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { statutory: '/api/statutory', core: '/api/core' },
+      user: { id: 1, bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(wrapper.vm.event.starts.toISOString()).toEqual('2026-10-01T10:00:00.000Z')
+    expect(wrapper.vm.event.ends.toISOString()).toEqual('2026-10-05T14:00:00.000Z')
+    expect(wrapper.vm.dates.starts.toISOString()).toEqual('2026-10-01T10:00:00.000Z')
+    expect(wrapper.vm.dates.ends.toISOString()).toEqual('2026-10-05T14:00:00.000Z')
   })
 })

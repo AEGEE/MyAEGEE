@@ -5,9 +5,6 @@
 
 ## Bugs
 
-- `frontend/src/views/events/Edit.vue:978` - loading an existing event overwrites `starts` with `ends`.
-- `frontend/src/views/summeruniversity/Edit.vue:1130` - loading an existing SU overwrites `starts` with `ends`.
-- `frontend/src/views/statutory/Edit.vue:790` - loading an existing statutory event overwrites `starts` with `ends`.
 - `frontend/src/views/summeruniversity/List.vue:110` - Apply button depends on `can.apply`, but that flag is never populated in the component.
 - `frontend/src/views/statutory/BoardView.vue:376` - likely loading-state typo sets `loading` instead of `isLoading`.
 

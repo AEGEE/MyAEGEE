@@ -975,7 +975,7 @@ export default {
         this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member')) // override it
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.starts = new Date(this.event.ends)
+        this.dates.ends = this.event.ends = new Date(this.event.ends)
         this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
         this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
 
