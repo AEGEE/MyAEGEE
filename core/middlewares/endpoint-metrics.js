@@ -12,6 +12,25 @@ const responseCounter = new Counter({
     registers: [endpointsRegistry]
 });
 
+function escapeRegex(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildMetricsPath(req) {
+    const routePath = req.route && req.route.path ? req.route.path : req.path;
+    let baseUrl = req.baseUrl || '';
+
+    for (const [key, value] of Object.entries(req.params || {})) {
+        if (typeof value === 'undefined' || value === null) {
+            continue;
+        }
+
+        baseUrl = baseUrl.replace(new RegExp(`/${escapeRegex(String(value))}(?=/|$)`, 'g'), `/:${key}`);
+    }
+
+    return baseUrl + routePath;
+}
+
 exports.addEndpointMetrics = async (req, res, next) => {
     const callbackOnFinished = () => {
         const endpoint = req.baseUrl + req.path;
@@ -24,7 +43,7 @@ exports.addEndpointMetrics = async (req, res, next) => {
         const labelsObject = {
             endpoint,
             status: res.statusCode,
-            path: req.originalUrl,
+            path: buildMetricsPath(req),
             method: req.method
         };
 
@@ -41,3 +60,5 @@ exports.getEndpointMetrics = async (req, res) => {
     res.set('Content-Type', endpointsRegistry.contentType);
     res.end(await endpointsRegistry.metrics());
 };
+
+exports.buildMetricsPath = buildMetricsPath;
