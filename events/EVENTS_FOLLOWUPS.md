@@ -5,7 +5,7 @@
 
 ## Bugs
 
-- `events/lib/server.js:92` and `events/lib/server.js:105` - current full-suite runs show intermittent `EADDRINUSE` and null-close failures, which suggests server lifecycle handling is fragile across test files.
+- none currently tracked
 
 ## Fragile Behavior
 
