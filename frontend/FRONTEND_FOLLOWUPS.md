@@ -18,7 +18,6 @@
 - `frontend/src/views/discounts/Edit.vue:130` - same unguarded `err.response` assumption during load.
 - `frontend/src/views/discounts/CategoryEdit.vue:124` - same unguarded `err.response` assumption during save.
 - `frontend/src/views/discounts/CategoryEdit.vue:143` - same unguarded `err.response` assumption during load.
-- `frontend/src/views/summeruniversity/Edit.vue:1164` - redirects use nonexistent route name `oms.summeruniversity.list`.
 
 ## Improvement Opportunities
 
