@@ -6,7 +6,6 @@
 ## Bugs
 
 - `mailer/lib/omsmailer_web/plugs/request_logger_plug.ex:18` - request logging includes full POST params, which can leak sensitive recipient and token data.
-- `mailer/mix.exs:7` and `mailer/package.json:3` - version metadata is inconsistent.
 
 ## Fragile Behavior
 

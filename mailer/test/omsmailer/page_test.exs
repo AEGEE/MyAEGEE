@@ -3,6 +3,10 @@ defmodule Omsmailer.PageTest do
 
   alias Omsmailer.Page
 
+  test "mix project version matches published package version" do
+    assert Omsmailer.Mixfile.project()[:version] == "0.19.0"
+  end
+
   test "render_template autocompletes html filenames" do
     assert {:ok, content} = Page.render_template("custom", %{"body" => "hello"})
     assert content =~ "hello"
