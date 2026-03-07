@@ -87,6 +87,10 @@ server.use(middlewares.errorHandler);
 
 let app;
 async function startServer() {
+    if (app) {
+        return;
+    }
+
     return new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
@@ -102,7 +106,21 @@ async function startServer() {
 
 async function stopServer() {
     log.info('Stopping server...');
-    app.close();
+
+    if (!app) {
+        return;
+    }
+
+    await new Promise((resolve, reject) => {
+        app.close((err) => {
+            if (err) {
+                return reject(err);
+            }
+
+            return resolve();
+        });
+    });
+
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;

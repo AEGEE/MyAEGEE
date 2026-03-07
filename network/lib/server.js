@@ -20,6 +20,8 @@ const server = express();
 server.use(bodyParser.json());
 server.use(morgan);
 
+const sockets = new Set();
+
 const GeneralRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
@@ -63,14 +65,24 @@ server.use(middlewares.errorHandler);
 
 let app;
 async function startServer() {
+    if (app) {
+        return;
+    }
+
     return new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
             app = localApp;
             log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
-            job.start();
+            if (!job.running) {
+                job.start();
+            }
             return res();
+        });
+        localApp.on('connection', (socket) => {
+            sockets.add(socket);
+            socket.on('close', () => sockets.delete(socket));
         });
         /* istanbul ignore next */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
@@ -79,7 +91,31 @@ async function startServer() {
 
 async function stopServer() {
     log.info('Stopping server...');
-    app.close();
+
+    if (!app) {
+        return;
+    }
+
+    if (job.running) {
+        job.stop();
+    }
+
+    for (const socket of sockets) {
+        socket.destroy();
+    }
+
+    sockets.clear();
+
+    await new Promise((resolve, reject) => {
+        app.close((err) => {
+            if (err) {
+                return reject(err);
+            }
+
+            return resolve();
+        });
+    });
+
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
