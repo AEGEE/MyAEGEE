@@ -323,14 +323,18 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
+        const status = err.response && err.response.status
+
         // if there's no application, just ignore, otherwise re-throw the error
-        if (err.response.status !== 404) {
+        if (status !== 404) {
           throw err
         }
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
