@@ -88,6 +88,11 @@ describe('Events application editing', () => {
 
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.answers[0]).toEqual(2);
+        expect(applicationFromDb.user_id).toEqual(1337);
+        expect(applicationFromDb.first_name).toEqual(application.first_name);
+        expect(applicationFromDb.last_name).toEqual(application.last_name);
+        expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
+        expect(applicationFromDb.body_name).toEqual(application.body_name);
     });
 
     it('should update your application if you do not have global permissions', async () => {
