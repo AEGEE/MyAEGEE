@@ -26,6 +26,7 @@ import EventParticipants from 'src/views/events/Participants.vue'
 import SummerUniversityApply from 'src/views/summeruniversity/Apply.vue'
 import SummerUniversityEdit from 'src/views/summeruniversity/Edit.vue'
 import SummerUniversityEditSecond from 'src/views/summeruniversity/EditSecond.vue'
+import SummerUniversityList from 'src/views/summeruniversity/List.vue'
 import SummerUniversityParticipants from 'src/views/summeruniversity/Participants.vue'
 import StatutoryEdit from 'src/views/statutory/Edit.vue'
 import UploadMembersList from 'src/views/statutory/UploadMembersList.vue'
@@ -299,6 +300,59 @@ describe('frontend route regressions', () => {
 
     expect(showError).toHaveBeenCalledWith('Event is not found')
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
+  })
+
+  test('summer university list enables apply action when apply permission is returned', async () => {
+    const router = { push: jest.fn() }
+    const axios = {
+      get: jest.fn((url) => {
+        if (url === '/api/summeruniversity') {
+          return Promise.resolve({
+            data: {
+              data: [{
+                id: 17,
+                name: 'Summer University Test',
+                url: 'su-test',
+                description: 'Description',
+                type: 'regular',
+                starts: '2026-07-01T10:00:00.000Z',
+                ends: '2026-07-10T10:00:00.000Z',
+                application_status: 'open',
+                open_call: false,
+                application_ends: '2026-06-01T10:00:00.000Z',
+                organizing_bodies: [{ body_id: 1, body_name: 'AEGEE-Test' }]
+              }]
+            }
+          })
+        }
+
+        if (url === '/api/core/my_permissions') {
+          return Promise.resolve({
+            data: {
+              data: [{ combined: 'global:apply:summeruniversity' }]
+            }
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      }),
+      CancelToken: {
+        source: () => ({ token: 'cancel-token', cancel: jest.fn() })
+      },
+      isCancel: jest.fn(() => false)
+    }
+
+    const { wrapper } = mountView(SummerUniversityList, {
+      axios,
+      router,
+      route: { name: 'oms.summeruniversity.list.all', params: {} },
+      services: { summeruniversity: '/api/summeruniversity', core: '/api/core', 'summeruniversity-static': '/static/su' },
+      user: { id: 1, bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(wrapper.vm.can.apply).toEqual(true)
   })
 
   test('events edit keeps starts and ends as separate loaded dates', async () => {

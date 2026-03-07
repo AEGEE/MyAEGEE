@@ -5,7 +5,6 @@
 
 ## Bugs
 
-- `frontend/src/views/summeruniversity/List.vue:110` - Apply button depends on `can.apply`, but that flag is never populated in the component.
 - `frontend/src/views/statutory/BoardView.vue:376` - likely loading-state typo sets `loading` instead of `isLoading`.
 
 ## Fragile Behavior
