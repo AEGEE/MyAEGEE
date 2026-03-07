@@ -41,6 +41,16 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+async function unlinkIfExists(filePath) {
+    try {
+        await fs.promises.unlink(filePath);
+    } catch (err) {
+        if (err.code !== 'ENOENT') {
+            throw err;
+        }
+    }
+}
+
 exports.uploadImage = async (req, res) => {
     const oldimg = req.event.image;
 
@@ -74,6 +84,7 @@ exports.uploadImage = async (req, res) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await unlinkIfExists(req.file.path);
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
@@ -83,7 +94,7 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await fs.promises.unlink(path.join(uploadFolderName, oldimg));
+        await unlinkIfExists(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({

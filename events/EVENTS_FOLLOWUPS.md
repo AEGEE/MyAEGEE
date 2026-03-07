@@ -5,7 +5,6 @@
 
 ## Bugs
 
-- `events/lib/imageserv.js:44` - upload replacement can fail after partial success if the previous image file is already missing.
 - `events/lib/server.js:92` and `events/lib/server.js:105` - current full-suite runs show intermittent `EADDRINUSE` and null-close failures, which suggests server lifecycle handling is fragile across test files.
 
 ## Fragile Behavior
@@ -23,5 +22,4 @@
 
 ## Future Test Additions
 
-- upload replacement tests for missing old image files;
 - helper/model suites for permission derivation, flattening, and field export names.
