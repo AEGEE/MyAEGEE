@@ -5,9 +5,6 @@
 
 ## Bugs
 
-- `core/lib/cron.js:102` - clearing jobs removes bookkeeping without clearly cancelling the underlying scheduled task.
-- `core/lib/imageserv.js:71` - malformed uploads can leave temp files behind.
-- `core/lib/imageserv.js:81` and `core/lib/imageserv.js:96` - unlink paths appear unguarded for missing files.
 
 ## Fragile Behavior
 
@@ -25,6 +22,4 @@
 ## Future Test Additions
 
 - refresh-token lifecycle tests;
-- upload cleanup and missing-old-file tests;
-- cron clearAll stop-behavior tests;
 - metrics contract tests.

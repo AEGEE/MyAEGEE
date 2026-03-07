@@ -72,6 +72,38 @@ describe('Users image remove', () => {
         expect(userFromDb.image).toEqual(null);
     });
 
+    it('should clear the image even if the file is already missing', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const firstRequest = await request({
+            uri: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(firstRequest.statusCode).toEqual(200);
+
+        const userBeforeDelete = await User.findByPk(user.id);
+        const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userBeforeDelete.image);
+        fs.unlinkSync(oldImgPath);
+
+        const res = await request({
+            uri: '/members/' + user.id + '/image',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.image).toEqual(null);
+    });
+
     it('should remove a file of another user', async () => {
         const admin = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(admin);

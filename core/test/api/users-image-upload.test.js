@@ -35,7 +35,7 @@ describe('Users image upload', () => {
             }
         });
 
-        expect(fs.existsSync(config.media_dir)).toEqual(true);
+        expect(fs.existsSync(path.join(config.media_dir, 'headimages'))).toEqual(true);
     });
 
     it('should fail if the uploaded file is not an image (by extension)', async () => {
@@ -79,6 +79,10 @@ describe('Users image upload', () => {
 
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
+
+        const imagesPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages');
+        expect(fs.existsSync(imagesPath)).toEqual(true);
+        expect(fs.readdirSync(imagesPath)).toHaveLength(0);
     });
 
     it('should fail the \'head_image\' field is not specified', async () => {
@@ -177,6 +181,44 @@ describe('Users image upload', () => {
 
         const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
         expect(fs.existsSync(oldImgPath)).toEqual(false);
+    });
+
+    it('should still upload a replacement if the old file is already missing', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const firstRequest = await request({
+            uri: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(firstRequest.statusCode).toEqual(200);
+
+        const userBeforeReplacement = await User.findByPk(user.id);
+        const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userBeforeReplacement.image);
+        fs.unlinkSync(oldImgPath);
+
+        const res = await request({
+            uri: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.image).not.toEqual(userBeforeReplacement.image);
+
+        const newImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
+        expect(fs.existsSync(newImgPath)).toEqual(true);
     });
 
     it('should update a valid image to only another user if other user is selected', async () => {
