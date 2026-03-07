@@ -43,7 +43,7 @@ exports.createCampaign = async (req, res) => {
     // TODO: filter out fields that are changed in the other way
     const circle = await Campaign.create({
         ...req.body,
-        body_id: req.currentBody.idd
+        autojoin_body_id: req.currentBody.id
     });
 
     return res.json({
