@@ -294,3 +294,22 @@ Examples:
 - `discounts/DISCOUNTS_TEST_EXECUTION_BACKLOG.md`
 - `core/CORE_TEST_COVERAGE_PLAN.md`
 - `events/EVENTS_TEST_COVERAGE_PLAN.md`
+
+## 14. Local Shared Postgres For Test Runs
+
+Several packages use the same Postgres credentials in `test` config while pointing at `localhost:8085` for the app server.
+
+Recommended local setup:
+
+1. Start the shared database container:
+   - `./scripts-server/shared-test-postgres.sh start`
+2. Export the shared connection variables in your shell:
+   - `eval "$(./scripts-server/shared-test-postgres.sh env)"`
+3. Run package-local test setup and focused suites:
+   - `cd events && NODE_ENV=test npm run db:setup && NODE_ENV=test npx jest --runInBand --forceExit --runTestsByPath test/api/helpers-models.test.js`
+
+Notes:
+
+- the shared DB listens on `127.0.0.1:55433`;
+- credentials are `postgres` / `5ecr3t` to match package test configs;
+- packages still use their own databases (`events-testing`, `network-testing`, `core-testing`, etc.), so the same container can be reused safely across packages.
