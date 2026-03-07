@@ -5,8 +5,6 @@
 
 ## Bugs
 
-- `summeruniversity/lib/events.js:173` - default season logic is hardcoded to `2026`.
-- `summeruniversity/lib/events.js:272` - edit path also defaults season logic to `2026`.
 - `summeruniversity/models/Event.js:523` - `afterSave` mutates `open_call` without clearly persisting it.
 - `summeruniversity/lib/imageserv.js:86` - upload replacement can fail after partial success if the previous image file is already missing.
 

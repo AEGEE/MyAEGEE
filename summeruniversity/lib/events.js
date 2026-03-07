@@ -9,6 +9,10 @@ const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
 
+function getCurrentSeason() {
+    return new Date().getFullYear();
+}
+
 exports.listEvents = async (req, res) => {
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
@@ -171,7 +175,7 @@ exports.addEvent = async (req, res) => {
     data.status = 'first submission';
 
     if (!data.season) {
-        data.season = 2026;
+        data.season = getCurrentSeason();
     }
 
     const event = new Event(data);
@@ -270,7 +274,7 @@ exports.editEvent = async (req, res) => {
     delete data.published;
 
     if (!data.season) {
-        data.season = 2026;
+        data.season = getCurrentSeason();
     }
 
     if (Object.keys(data).length === 0) {
