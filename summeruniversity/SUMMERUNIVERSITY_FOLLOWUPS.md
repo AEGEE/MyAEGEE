@@ -5,7 +5,6 @@
 
 ## Bugs
 
-- `summeruniversity/lib/applications.js:53` - application creation likely crashes on missing or unmatched `body_id` because it dereferences `.name` on a failed lookup.
 - `summeruniversity/lib/helpers.js:242` - apply-permission season logic is hardcoded to `2026`.
 - `summeruniversity/lib/events.js:173` - default season logic is hardcoded to `2026`.
 - `summeruniversity/lib/events.js:272` - edit path also defaults season logic to `2026`.
@@ -27,7 +26,7 @@
 
 ## Future Test Additions
 
-- application creation tests for invalid `body_id`, duplicates, and season constraints;
+- application creation tests for duplicate applications and season constraints;
 - listing tests for publication filters and application status filters;
 - model tests for event/application invariants;
 - file upload tests for missing-old-file recovery.
