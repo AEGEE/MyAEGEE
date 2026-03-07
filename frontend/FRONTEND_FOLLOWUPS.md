@@ -10,11 +10,7 @@
 
 ## Fragile Behavior
 
-- `frontend/src/views/discounts/AddCodes.vue:76` - several error handlers dereference `err.response.status` without guarding missing `response`, so network failures can throw inside catch blocks.
-- `frontend/src/views/discounts/Edit.vue:111` - same unguarded `err.response` assumption during save.
-- `frontend/src/views/discounts/Edit.vue:130` - same unguarded `err.response` assumption during load.
-- `frontend/src/views/discounts/CategoryEdit.vue:124` - same unguarded `err.response` assumption during save.
-- `frontend/src/views/discounts/CategoryEdit.vue:143` - same unguarded `err.response` assumption during load.
+- none currently tracked
 
 ## Improvement Opportunities
 

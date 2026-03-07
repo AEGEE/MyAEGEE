@@ -7,7 +7,7 @@ import AddCodes from 'src/views/discounts/AddCodes.vue'
 import { services } from './fixtures'
 import { createAxiosMock, mountDiscountsView } from './test-utils'
 
-describe('AddCodes', () => {
+describe('Discounts add codes', () => {
   test('adds parsed codes and redirects back to the list', async () => {
     const router = { push: jest.fn() }
     const axios = createAxiosMock({
@@ -110,5 +110,27 @@ describe('AddCodes', () => {
     await flushPromises()
 
     expect(showError).toHaveBeenCalledWith('Could not add codes', failure)
+  })
+
+  test('handles missing response data when integration load fails', async () => {
+    const failure = new Error('network failed')
+    const router = { push: jest.fn() }
+    const axios = createAxiosMock({
+      get: {
+        '/api/discounts/integrations/3': () => Promise.reject(failure)
+      }
+    })
+
+    const { showError } = mountDiscountsView(AddCodes, {
+      axios,
+      services,
+      route: { params: { id: 3 } },
+      router
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.discounts.list' })
   })
 })

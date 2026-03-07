@@ -73,7 +73,9 @@ export default {
       this.integration = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Integration is not found')
       } else {
         this.$root.showError('Some error happened', err)

@@ -7,7 +7,7 @@ import Edit from 'src/views/discounts/Edit.vue'
 import { integrationsResponse, services } from './fixtures'
 import { createAxiosMock, mountDiscountsView } from './test-utils'
 
-describe('Edit integration', () => {
+describe('Discounts edit integration', () => {
   test('saves a new integration and redirects to the list', async () => {
     const router = { push: jest.fn() }
     const axios = createAxiosMock({
@@ -103,7 +103,62 @@ describe('Edit integration', () => {
 
     await flushPromises()
 
-    expect(showError).toHaveBeenCalledWith('Some error happened', 'Forbidden')
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.discounts.list' })
+  })
+
+  test('handles missing response data when saving fails', async () => {
+    const failure = new Error('network failed')
+    const axios = createAxiosMock({
+      post: {
+        '/api/discounts/integrations/': () => Promise.reject(failure)
+      }
+    })
+
+    const { wrapper, showError } = mountDiscountsView(Edit, {
+      axios,
+      services,
+      route: { params: {} }
+    })
+
+    wrapper.setData({
+      integration: {
+        name: 'Test integration',
+        description: 'Description',
+        id: null,
+        code: 'TEST',
+        quota_period: 'month',
+        quota_amount: 1
+      }
+    })
+
+    await wrapper.vm.saveIntegration()
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Could not save integration', failure)
+    expect(wrapper.vm.isSaving).toEqual(false)
+    expect(wrapper.vm.errors).toEqual({})
+  })
+
+  test('handles missing response data when loading fails', async () => {
+    const failure = new Error('network failed')
+    const router = { push: jest.fn() }
+    const axios = createAxiosMock({
+      get: {
+        '/api/discounts/integrations/4': () => Promise.reject(failure)
+      }
+    })
+
+    const { showError } = mountDiscountsView(Edit, {
+      axios,
+      services,
+      route: { params: { id: 4 } },
+      router
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.discounts.list' })
   })
 })
