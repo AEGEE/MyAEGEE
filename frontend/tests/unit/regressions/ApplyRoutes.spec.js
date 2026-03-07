@@ -15,10 +15,6 @@ jest.mock('vue-mapbox', () => ({
 
 import flushPromises from 'flush-promises'
 
-import Vuex from 'vuex'
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import filters from 'src/filters'
-
 import EventApply from 'src/views/events/Apply.vue'
 import EventAccepted from 'src/views/events/Accepted.vue'
 import EventEdit from 'src/views/events/Edit.vue'
@@ -31,97 +27,7 @@ import SummerUniversityParticipants from 'src/views/summeruniversity/Participant
 import StatutoryEdit from 'src/views/statutory/Edit.vue'
 import StatutoryBoardView from 'src/views/statutory/BoardView.vue'
 import UploadMembersList from 'src/views/statutory/UploadMembersList.vue'
-
-function mountView (component, { services, route, user = { bodies: [] }, axios, router }) {
-  const localVue = createLocalVue()
-  localVue.use(Vuex)
-  Object.keys(filters).forEach((key) => {
-    localVue.filter(key, filters[key])
-  })
-
-  const store = new Vuex.Store({
-    state: {
-      services,
-      user
-    },
-    getters: {
-      services: (state) => state.services,
-      user: (state) => state.user
-    }
-  })
-
-  const showError = jest.fn()
-  const showSuccess = jest.fn()
-
-  const wrapper = shallowMount(component, {
-    localVue,
-    store,
-    mocks: {
-      axios,
-      $route: route,
-      $router: router,
-      $buefy: { dialog: { confirm: jest.fn() } },
-      accessToken: 'test-token',
-      $root: {
-        showError,
-        showSuccess,
-        sluggify: jest.fn((value) => value)
-      }
-    },
-    parentComponent: {
-      methods: {
-        showError,
-        showSuccess
-      }
-    },
-    stubs: {
-      'router-link': true,
-      'event-no-body-notification': true,
-      'font-awesome-icon': true,
-      'b-loading': true,
-      'b-checkbox': true,
-      'multiselect': true,
-      'draggable': true,
-      'mgl-map': true,
-      'mgl-marker': true,
-      'mgl-geolocate-control': true,
-      'mgl-navigation-control': true,
-      'mgl-fullscreen-control': true,
-      'mgl-attribution-control': true,
-      'mgl-scale-control': true,
-      'mgl-geojson-layer': true,
-      'b-field': true,
-      'b-input': true,
-      'b-select': true,
-      'b-datepicker': true,
-      'b-timepicker': true,
-      'b-upload': true,
-      'b-switch': true,
-      'b-numberinput': true,
-      'b-collapse': true,
-      'b-button': true,
-      'b-table': true,
-      'b-table-column': true,
-      'b-icon': true,
-      'b-tooltip': true,
-      'b-message': true,
-      'b-radio': true,
-      'b-tag': true,
-      'b-taginput': true,
-      'b-autocomplete': true,
-      'b-tabs': true,
-      'b-tab-item': true,
-      'b-notification': true,
-      'b-dropdown': true,
-      'b-dropdown-item': true,
-      'v-jsoneditor': true,
-      'empty-table': true,
-      'flat-pickr': true
-    }
-  })
-
-  return { wrapper, showError }
-}
+import { mountFrontendView } from '../test-utils'
 
 describe('frontend route regressions', () => {
   test('events apply redirects missing events to the published events list route', async () => {
@@ -130,7 +36,7 @@ describe('frontend route regressions', () => {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(EventApply, {
+    const { showError } = mountFrontendView(EventApply, {
       axios,
       router,
       route: { params: { id: 'missing', application_id: 'me' } },
@@ -150,7 +56,7 @@ describe('frontend route regressions', () => {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(SummerUniversityApply, {
+    const { showError } = mountFrontendView(SummerUniversityApply, {
       axios,
       router,
       route: { params: { id: 'missing', application_id: 'me' } },
@@ -164,13 +70,55 @@ describe('frontend route regressions', () => {
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
   })
 
+  test('events apply surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(EventApply, {
+      axios,
+      router,
+      route: { params: { id: 'missing', application_id: 'me' } },
+      services: { events: '/api/events' },
+      user: { bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.events.list.all' })
+  })
+
+  test('summer university apply surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(SummerUniversityApply, {
+      axios,
+      router,
+      route: { params: { id: 'missing', application_id: 'me' } },
+      services: { summeruniversity: '/api/summeruniversity' },
+      user: { bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
+  })
+
   test('statutory members list redirects to the statutory view route when event fetch fails', async () => {
     const router = { push: jest.fn() }
     const axios = {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(UploadMembersList, {
+    const { showError } = mountFrontendView(UploadMembersList, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -207,7 +155,7 @@ describe('frontend route regressions', () => {
       })
     }
 
-    const { wrapper, showError } = mountView(StatutoryBoardView, {
+    const { wrapper, showError } = mountFrontendView(StatutoryBoardView, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -227,7 +175,7 @@ describe('frontend route regressions', () => {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(EventEdit, {
+    const { showError } = mountFrontendView(EventEdit, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -241,13 +189,34 @@ describe('frontend route regressions', () => {
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.events.list.all' })
   })
 
+  test('events edit surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(EventEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { events: '/api/events', core: '/api/core' },
+      user: { id: 1, first_name: 'Ada', last_name: 'Tester', bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.events.list.all' })
+  })
+
   test('events accepted redirects missing events to the published events list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(EventAccepted, {
+    const { showError } = mountFrontendView(EventAccepted, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -267,7 +236,7 @@ describe('frontend route regressions', () => {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(EventParticipants, {
+    const { showError } = mountFrontendView(EventParticipants, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -287,7 +256,7 @@ describe('frontend route regressions', () => {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(SummerUniversityEdit, {
+    const { showError } = mountFrontendView(SummerUniversityEdit, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -301,13 +270,34 @@ describe('frontend route regressions', () => {
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
   })
 
+  test('summer university edit surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(SummerUniversityEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { summeruniversity: '/api/summeruniversity', core: '/api/core' },
+      user: { id: 1, first_name: 'Ada', last_name: 'Tester', bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
+  })
+
   test('summer university second edit redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(SummerUniversityEditSecond, {
+    const { showError } = mountFrontendView(SummerUniversityEditSecond, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -321,13 +311,34 @@ describe('frontend route regressions', () => {
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
   })
 
+  test('summer university second edit surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(SummerUniversityEditSecond, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { summeruniversity: '/api/summeruniversity', core: '/api/core' },
+      user: { id: 1, bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.summeruniversity.list.all' })
+  })
+
   test('summer university participants redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
       get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
     }
 
-    const { showError } = mountView(SummerUniversityParticipants, {
+    const { showError } = mountFrontendView(SummerUniversityParticipants, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -381,7 +392,7 @@ describe('frontend route regressions', () => {
       isCancel: jest.fn(() => false)
     }
 
-    const { wrapper } = mountView(SummerUniversityList, {
+    const { wrapper } = mountFrontendView(SummerUniversityList, {
       axios,
       router,
       route: { name: 'oms.summeruniversity.list.all', params: {} },
@@ -420,7 +431,7 @@ describe('frontend route regressions', () => {
       })
     }
 
-    const { wrapper } = mountView(EventEdit, {
+    const { wrapper } = mountFrontendView(EventEdit, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -464,7 +475,7 @@ describe('frontend route regressions', () => {
       })
     }
 
-    const { wrapper } = mountView(SummerUniversityEdit, {
+    const { wrapper } = mountFrontendView(SummerUniversityEdit, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -514,7 +525,7 @@ describe('frontend route regressions', () => {
       })
     }
 
-    const { wrapper } = mountView(StatutoryEdit, {
+    const { wrapper } = mountFrontendView(StatutoryEdit, {
       axios,
       router,
       route: { params: { id: '17' } },
@@ -528,5 +539,26 @@ describe('frontend route regressions', () => {
     expect(wrapper.vm.event.ends.toISOString()).toEqual('2026-10-05T14:00:00.000Z')
     expect(wrapper.vm.dates.starts.toISOString()).toEqual('2026-10-01T10:00:00.000Z')
     expect(wrapper.vm.dates.ends.toISOString()).toEqual('2026-10-05T14:00:00.000Z')
+  })
+
+  test('statutory edit surfaces generic network failures without crashing', async () => {
+    const router = { push: jest.fn() }
+    const failure = new Error('network failed')
+    const axios = {
+      get: jest.fn(() => Promise.reject(failure))
+    }
+
+    const { showError } = mountFrontendView(StatutoryEdit, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { statutory: '/api/statutory', core: '/api/core' },
+      user: { id: 1, bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).toHaveBeenCalledWith('Some error happened', failure)
+    expect(router.push).toHaveBeenCalledWith({ name: 'oms.statutory.list.all' })
   })
 })

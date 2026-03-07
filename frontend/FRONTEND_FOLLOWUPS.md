@@ -15,7 +15,6 @@
 
 - Add route-level permission handling for discounts admin pages instead of only hiding admin controls in the UI.
 - Normalize error handling so all view catches tolerate network-level failures and report consistent messages.
-- Generalize the Vue unit-test harness created for discounts into shared frontend test utilities for events, SU, and statutory.
 - Surface nested backend validation errors in form UIs instead of only top-level generic messages.
 
 ## Future Test Additions

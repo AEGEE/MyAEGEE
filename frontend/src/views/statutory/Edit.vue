@@ -691,8 +691,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           if (!err.response.data.errors) {
             return this.$root.showError('Some of the event data is invalid', err)
           }
@@ -810,7 +811,9 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
