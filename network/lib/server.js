@@ -64,61 +64,104 @@ server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
 let app;
+let startPromise = null;
+let stopPromise = null;
+
 async function startServer() {
+    if (startPromise) {
+        return startPromise;
+    }
+
     if (app) {
         return;
     }
 
-    return new Promise((res, rej) => {
+    if (stopPromise) {
+        await stopPromise;
+    }
+
+    startPromise = new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
-            app = localApp;
-            log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
-            await db.authenticate();
-            if (!job.running) {
-                job.start();
+            try {
+                await db.authenticate();
+                app = localApp;
+                log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
+                if (!job.running) {
+                    job.start();
+                }
+                return res();
+            } catch (err) {
+                app = null;
+                localApp.close(() => rej(err));
             }
-            return res();
         });
         localApp.on('connection', (socket) => {
             sockets.add(socket);
             socket.on('close', () => sockets.delete(socket));
         });
         /* istanbul ignore next */
-        localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
+        localApp.on('error', (err) => {
+            app = null;
+            rej(new Error('Error starting server: ' + err.stack));
+        });
     });
+
+    try {
+        await startPromise;
+    } finally {
+        startPromise = null;
+    }
 }
 
 async function stopServer() {
     log.info('Stopping server...');
 
+    if (stopPromise) {
+        return stopPromise;
+    }
+
+    if (startPromise) {
+        await startPromise.catch(() => {});
+    }
+
     if (!app) {
         return;
     }
 
-    if (job.running) {
-        job.stop();
-    }
+    stopPromise = (async () => {
+        if (job.running) {
+            job.stop();
+        }
 
-    for (const socket of sockets) {
-        socket.destroy();
-    }
+        for (const socket of sockets) {
+            socket.destroy();
+        }
 
-    sockets.clear();
+        sockets.clear();
 
-    await new Promise((resolve, reject) => {
-        app.close((err) => {
-            if (err) {
-                return reject(err);
-            }
+        const localApp = app;
+        app = null;
 
-            return resolve();
+        await new Promise((resolve, reject) => {
+            localApp.close((err) => {
+                if (err && err.message !== 'Server is not running.') {
+                    return reject(err);
+                }
+
+                return resolve();
+            });
         });
-    });
 
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'test') await db.close();
-    app = null;
+        /* istanbul ignore next */
+        if (process.env.NODE_ENV !== 'test') await db.close();
+    })();
+
+    try {
+        await stopPromise;
+    } finally {
+        stopPromise = null;
+    }
 }
 
 module.exports = {
