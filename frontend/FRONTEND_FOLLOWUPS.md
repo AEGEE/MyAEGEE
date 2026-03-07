@@ -5,7 +5,7 @@
 
 ## Bugs
 
-- `frontend/src/views/statutory/BoardView.vue:376` - likely loading-state typo sets `loading` instead of `isLoading`.
+- none currently tracked
 
 ## Fragile Behavior
 
