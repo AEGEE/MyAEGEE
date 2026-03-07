@@ -5,7 +5,7 @@
 
 ## Bugs
 
-- `summeruniversity/lib/imageserv.js:86` - upload replacement can fail after partial success if the previous image file is already missing.
+- none currently tracked
 
 ## Fragile Behavior
 
@@ -23,5 +23,4 @@
 ## Future Test Additions
 
 - application creation tests for duplicate applications and season constraints;
-- listing tests for publication filters and application status filters;
-- file upload tests for missing-old-file recovery.
+- listing tests for publication filters and application status filters.
