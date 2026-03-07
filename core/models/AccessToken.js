@@ -29,7 +29,7 @@ const AccessToken = sequelize.define('access_token', {
     updatedAt: 'updated_at'
 });
 
-AccessToken.createForUser = async function createForUser(userId) {
+AccessToken.createForUser = async function createForUser(userId, transaction) {
     const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.ACCESS_TOKEN);
     const expiresAt = moment().add(config.ttl.access_token, 'seconds');
 
@@ -37,7 +37,7 @@ AccessToken.createForUser = async function createForUser(userId) {
         user_id: userId,
         value,
         expires_at: expiresAt
-    });
+    }, transaction ? { transaction } : undefined);
 };
 
 module.exports = AccessToken;

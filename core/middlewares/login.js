@@ -38,8 +38,14 @@ module.exports.login = async (req, res) => {
     //     return errors.makeValidationError(res, notValidFields);
     // }
 
-    const accessToken = await AccessToken.createForUser(user.id);
-    const refreshToken = await RefreshToken.createForUser(user.id);
+    const { accessToken, refreshToken } = await sequelize.transaction(async (t) => {
+        await RefreshToken.destroy({ where: { user_id: user.id }, transaction: t });
+
+        return {
+            accessToken: await AccessToken.createForUser(user.id, t),
+            refreshToken: await RefreshToken.createForUser(user.id, t)
+        };
+    });
 
     await user.update({
         last_logged_in: new Date(),
@@ -119,11 +125,36 @@ module.exports.renew = async (req, res) => {
         });
     }
 
-    const accessToken = await AccessToken.createForUser(token.user_id);
+    const result = await sequelize.transaction(async (t) => {
+        const currentToken = await RefreshToken.findOne({
+            where: { value: req.body.refresh_token },
+            transaction: t,
+            lock: t.LOCK.UPDATE
+        });
+
+        if (!currentToken) {
+            return null;
+        }
+
+        await currentToken.destroy({ transaction: t });
+
+        return {
+            accessToken: await AccessToken.createForUser(currentToken.user_id, t),
+            refreshToken: await RefreshToken.createForUser(currentToken.user_id, t)
+        };
+    });
+
+    if (!result) {
+        return res.status(403).json({
+            success: false,
+            message: 'Token is not found.'
+        });
+    }
 
     return res.json({
         success: true,
-        access_token: accessToken.value
+        access_token: result.accessToken.value,
+        refresh_token: result.refreshToken.value
     });
 };
 

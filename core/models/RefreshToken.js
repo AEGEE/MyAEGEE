@@ -23,12 +23,12 @@ const RefreshToken = sequelize.define('refresh_token', {
     updatedAt: 'updated_at'
 });
 
-RefreshToken.createForUser = async function createForUser(userId) {
+RefreshToken.createForUser = async function createForUser(userId, transaction) {
     const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.REFRESH_TOKEN);
     return RefreshToken.create({
         user_id: userId,
         value
-    });
+    }, transaction ? { transaction } : undefined);
 };
 
 module.exports = RefreshToken;

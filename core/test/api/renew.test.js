@@ -47,6 +47,7 @@ describe('Tokens renewal', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
 
         const accessToken = await AccessToken.findOne({
@@ -54,10 +55,42 @@ describe('Tokens renewal', () => {
         });
 
         const refreshTokenFromDb = await RefreshToken.findOne({
+            where: { value: res.body.refresh_token }
+        });
+
+        const oldRefreshTokenFromDb = await RefreshToken.findOne({
             where: { value: refreshToken.value }
         });
 
         expect(accessToken.user_id).toEqual(user.id);
         expect(refreshTokenFromDb.user_id).toEqual(user.id);
+        expect(oldRefreshTokenFromDb).toEqual(null);
+    });
+
+    test('should reject reusing a refresh token after rotation', async () => {
+        const user = await generator.createUser({ mail_confirmed_at: new Date() });
+        const refreshToken = await generator.createRefreshToken(user);
+
+        const firstRenew = await request({
+            uri: '/renew',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                refresh_token: refreshToken.value
+            }
+        });
+
+        const secondRenew = await request({
+            uri: '/renew',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                refresh_token: refreshToken.value
+            }
+        });
+
+        expect(firstRenew.statusCode).toEqual(200);
+        expect(secondRenew.statusCode).toEqual(403);
+        expect(secondRenew.body.success).toEqual(false);
     });
 });
