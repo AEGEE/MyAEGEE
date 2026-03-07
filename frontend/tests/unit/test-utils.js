@@ -57,7 +57,8 @@ export function mountFrontendView (component, options = {}) {
     },
     getters: {
       services: (state) => state.services,
-      user: (state) => state.user
+      user: (state) => state.user,
+      ...(options.getters || {})
     }
   })
 

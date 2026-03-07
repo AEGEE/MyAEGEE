@@ -141,8 +141,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the campaign data is invalid.')
         }
@@ -173,7 +174,9 @@ export default {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Campaign is not found')
       } else {
         this.$root.showError('Some error happened', err)
