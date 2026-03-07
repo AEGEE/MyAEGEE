@@ -10,7 +10,6 @@
 ## Fragile Behavior
 
 - `network/lib/helpers.js:18` passes sort fields straight through to Sequelize;
-- `network/lib/endpoints_metrics.js:20` labels metrics with full `originalUrl`, creating high-cardinality metrics;
 - `network/lib/antenna_criteria.js` and `network/lib/mail_component.js` do not clearly validate numeric route params.
 
 ## Improvement Opportunities
@@ -21,5 +20,4 @@
 
 ## Future Test Additions
 
-- antenna-criteria permission edge cases;
-- metrics content/label assertions.
+- antenna-criteria permission edge cases.
