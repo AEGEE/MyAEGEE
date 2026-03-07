@@ -34,6 +34,10 @@ MyAEGEE discounts team.`;
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
     return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 

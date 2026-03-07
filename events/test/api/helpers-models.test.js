@@ -32,6 +32,10 @@ describe('Helpers and model contracts', () => {
         expect(helpers.isNumber(false)).toEqual(false);
     });
 
+    test('should beautify dates with two-digit seconds', () => {
+        expect(helpers.beautify(new Date('2026-03-06T12:34:07.000Z'))).toMatch(/^2026-03-06 \d{2}:34:07$/);
+    });
+
     test('should reset and populate gauge data', () => {
         const gauge = {
             reset: jest.fn(),

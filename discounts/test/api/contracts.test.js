@@ -23,6 +23,12 @@ describe('Adapter and permission contracts', () => {
         expect(permissions.manage_discounts).toEqual(false);
     });
 
+    test('should not throw on missing permissions payload', () => {
+        const permissions = helpers.getPermissions(null, undefined);
+
+        expect(permissions.manage_discounts).toEqual(false);
+    });
+
     test('should fetch my profile with auth and service headers', async () => {
         const scope = nock(`${config.core.url}:${config.core.port}`)
             .matchHeader('x-auth-token', 'test-token')

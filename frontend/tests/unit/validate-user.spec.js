@@ -19,6 +19,16 @@ describe('validate user', () => {
     }))
   })
 
+  test('does not reject unrelated domains that only share the suffix text', () => {
+    expect(validate({
+      superadmin: false,
+      email: 'member@notaegee.org',
+      bodies: [{ type: 'antenna' }],
+      privacy_consent: true,
+      username: 'valid_user'
+    })).toEqual({})
+  })
+
   test('requires a membership in an allowed body type', () => {
     expect(validate({
       superadmin: false,

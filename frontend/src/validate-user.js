@@ -9,7 +9,7 @@ const validate = (user) => {
   }
 
   const errorsMap = {}
-  if (RESTRICTED_EMAILS.some(email => user.email.endsWith(email))) {
+  if (RESTRICTED_EMAILS.some(email => user.email.endsWith(`@${email}`))) {
     errorsMap.email = 'Your email can not be in one of the following domains: ' + RESTRICTED_EMAILS.join(', ').trim() + '.'
   }
 

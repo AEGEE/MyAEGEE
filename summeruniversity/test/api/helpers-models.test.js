@@ -35,6 +35,10 @@ describe('Helpers and model contracts', () => {
         ]);
     });
 
+    test('should beautify dates with two-digit seconds', () => {
+        expect(helpers.beautify(new Date('2026-03-06T12:34:07.000Z'))).toMatch(/^2026-03-06 \d{2}:34:07$/);
+    });
+
     test('should derive SU permissions from core and board permissions', () => {
         const permissions = helpers.getPermissions(
             { bodies: [{ id: 10 }, { id: 20 }] },
