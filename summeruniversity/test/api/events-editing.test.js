@@ -187,4 +187,74 @@ describe('Summer University editing regressions', () => {
             expect.any(Object)
         );
     });
+
+    test('promotes first approval edits to second submission when allowed', async () => {
+        const res = createResponse();
+        const event = {
+            id: 10,
+            status: 'first approval',
+            organizers: [{ user_id: 5 }],
+            update: jest.fn(async (data) => {
+                Object.assign(event, data);
+                return event;
+            }),
+            toJSON: jest.fn(() => ({ id: 10, status: event.status }))
+        };
+
+        await events.editEvent({
+            body: { name: 'Second submission update' },
+            event,
+            permissions: {
+                edit_summeruniversity: true,
+                change_status: { second_submission: true }
+            },
+            headers: { 'x-auth-token': 'user-token' }
+        }, res);
+
+        expect(event.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'Second submission update',
+                status: 'second submission'
+            }),
+            expect.any(Object)
+        );
+        expect(mailer.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+            to: ['user-5@aegee.test'],
+            subject: 'The event was updated'
+        }));
+        expect(mailer.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+            to: expect.any(Array),
+            template: 'summeruniversity_submitted.html'
+        }));
+        expect(res.json).toHaveBeenCalledWith({ success: true, data: { id: 10, status: 'second submission' } });
+    });
+
+    test('rejects second submission promotion when permission is missing', async () => {
+        const res = createResponse();
+        const event = {
+            id: 11,
+            status: 'second draft',
+            organizers: [{ user_id: 6 }],
+            update: jest.fn(async (data) => {
+                Object.assign(event, data);
+                return event;
+            }),
+            toJSON: jest.fn(() => ({ id: 11, status: event.status }))
+        };
+
+        await events.editEvent({
+            body: { name: 'Blocked update' },
+            event,
+            permissions: {
+                edit_summeruniversity: true,
+                change_status: {}
+            },
+            headers: { 'x-auth-token': 'user-token' }
+        }, res);
+
+        expect(event.update).not.toHaveBeenCalled();
+        expect(mailer.sendMail).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.json).toHaveBeenCalledWith({ success: false, message: 'You are not allowed to change status.' });
+    });
 });
