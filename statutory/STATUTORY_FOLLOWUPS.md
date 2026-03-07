@@ -1,11 +1,10 @@
 # Statutory Follow-Ups
 
 **Status:** Living document
-**Last updated:** 2026-03-06
+**Last updated:** 2026-03-07
 
 ## Bugs
 
-- `statutory/lib/cron.js:96` and `statutory/lib/cron.js:136` - scheduled job handles are not stored, so clear/cancel logic likely does not stop real scheduled work.
 - `statutory/models/Plenary.js:17` - `name` is typed as an integer, which looks inconsistent with plenary naming usage.
 - `statutory/lib/plenaries.js:215` - helper arguments for body attendance export appear reversed, which likely corrupts exported stats.
 - `statutory/lib/middlewares.js:180` and `statutory/lib/middlewares.js:210` - incoming-only application mail enrichment likely loses `notification_email`.
@@ -26,7 +25,6 @@
 
 ## Future Test Additions
 
-- cron clear/edit cancellation tests;
 - plenary export correctness tests;
 - incoming-only application notification-email visibility tests;
 - concurrent statutory-id uniqueness tests.
