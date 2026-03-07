@@ -53,6 +53,37 @@ describe('Helpers and model contracts', () => {
         expect(permissions.see_boardview[20]).toEqual(true);
     });
 
+    test('should scope apply checks to the target event season', async () => {
+        const countSpy = jest.spyOn(Application, 'count')
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+
+        const permissions = await helpers.getEventPermissions({
+            permissions: {
+                approve_summeruniversity: { regular: false, pilot: false },
+                manage_summeruniversity: { regular: false, pilot: false },
+                apply_general: true
+            },
+            event: {
+                id: 12,
+                season: 2031,
+                published: 'full',
+                application_status: 'open',
+                type: 'regular',
+                deleted: false,
+                status: 'first submission',
+                organizers: []
+            },
+            user: { id: 77 }
+        });
+
+        expect(countSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({ where: expect.objectContaining({ '$event.season$': 2031 }) }));
+        expect(permissions.apply).toEqual(true);
+
+        countSpy.mockRestore();
+    });
+
     test('should create a summer university with valid nested payloads', async () => {
         const event = await Event.create(generator.generateEvent({
             name: 'SU Test',

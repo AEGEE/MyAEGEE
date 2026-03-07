@@ -239,7 +239,7 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
             event_id: { [Sequelize.Op.ne]: event.id },
             status: { [Sequelize.Op.ne]: 'rejected' },
             cancelled: false,
-            '$event.season$': 2026
+            '$event.season$': event.season
         },
         include: [{
             model: Event,
