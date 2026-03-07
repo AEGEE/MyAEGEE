@@ -24,5 +24,4 @@
 ## Future Test Additions
 
 - upload replacement tests for missing old image files;
-- metrics contract tests for metric names and labels;
-- helper/model suites for permission derivation, flattening, field export names, and event/application validation.
+- helper/model suites for permission derivation, flattening, and field export names.
