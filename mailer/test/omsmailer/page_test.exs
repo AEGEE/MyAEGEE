@@ -37,9 +37,9 @@ defmodule Omsmailer.PageTest do
 
   test "create_mails creates one mail per recipient" do
     assert {:ok, mails} =
-             Page.create_mails("mailer@aegee.org", ["one@aegee.org", "two@aegee.org"], "Ahoy")
+              Page.create_mails("mailer@aegee.org", ["one@aegee.org", "two@aegee.org"], "Ahoy")
 
-    assert Enum.map(mails, & &1.to) == [[nil: "one@aegee.org"], [nil: "two@aegee.org"]]
+    assert Enum.map(mails, & &1.to) == ["one@aegee.org", "two@aegee.org"]
     assert Enum.all?(mails, &(&1.subject == "Ahoy"))
   end
 
@@ -65,14 +65,14 @@ defmodule Omsmailer.PageTest do
              Page.create_mails("mailer@aegee.org", "one@aegee.org", "Ahoy")
 
     assert {:ok, mail} =
-             Page.set_additional_headers(mail, %{
-               "reply_to" => "reply@aegee.org",
+              Page.set_additional_headers(mail, %{
+                "reply_to" => "reply@aegee.org",
                "cc" => "cc@aegee.org",
                "bcc" => "bcc@aegee.org"
-             })
+              })
 
     assert mail.headers["Reply-To"] == "reply@aegee.org"
-    assert mail.cc == [nil: "cc@aegee.org"]
-    assert mail.bcc == [nil: "bcc@aegee.org"]
+    assert mail.cc == "cc@aegee.org"
+    assert mail.bcc == "bcc@aegee.org"
   end
 end
