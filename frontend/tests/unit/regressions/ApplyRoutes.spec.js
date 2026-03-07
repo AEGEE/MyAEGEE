@@ -29,6 +29,7 @@ import SummerUniversityEditSecond from 'src/views/summeruniversity/EditSecond.vu
 import SummerUniversityList from 'src/views/summeruniversity/List.vue'
 import SummerUniversityParticipants from 'src/views/summeruniversity/Participants.vue'
 import StatutoryEdit from 'src/views/statutory/Edit.vue'
+import StatutoryBoardView from 'src/views/statutory/BoardView.vue'
 import UploadMembersList from 'src/views/statutory/UploadMembersList.vue'
 
 function mountView (component, { services, route, user = { bodies: [] }, axios, router }) {
@@ -180,6 +181,44 @@ describe('frontend route regressions', () => {
 
     expect(showError).toHaveBeenCalledWith('Event is not found')
     expect(router.push).toHaveBeenCalledWith({ name: 'oms.statutory.view', params: { id: '17' } })
+  })
+
+  test('statutory board view clears loading state after event fetch succeeds', async () => {
+    const router = { push: jest.fn() }
+    const axios = {
+      get: jest.fn((url) => {
+        if (url === '/api/statutory/events/17') {
+          return Promise.resolve({
+            data: {
+              data: {
+                id: 17,
+                type: 'agora',
+                questions: [],
+                permissions: {
+                  see_boardview: {},
+                  set_board_comment_and_participant_type: { global: false }
+                }
+              }
+            }
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+    }
+
+    const { wrapper, showError } = mountView(StatutoryBoardView, {
+      axios,
+      router,
+      route: { params: { id: '17' } },
+      services: { statutory: '/api/statutory', core: '/api/core' },
+      user: { id: 1, bodies: [] }
+    })
+
+    await flushPromises()
+
+    expect(showError).not.toHaveBeenCalled()
+    expect(wrapper.vm.isLoading).toEqual(false)
   })
 
   test('events edit redirects missing events to the published events list route', async () => {

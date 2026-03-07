@@ -373,7 +373,7 @@ export default {
     this.isLoading = true
 
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-      this.loading = false
+      this.isLoading = false
 
       this.event = event.data.data
       this.can = event.data.data.permissions
