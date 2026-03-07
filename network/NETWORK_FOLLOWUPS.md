@@ -14,7 +14,6 @@
 ## Improvement Opportunities
 
 - add request validation at route boundaries;
-- replace deprecated HTTP libraries;
 - add direct helper/middleware tests instead of only API coverage.
 
 ## Future Test Additions
