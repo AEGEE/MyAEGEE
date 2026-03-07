@@ -8,7 +8,7 @@
 
 ## Fragile Behavior
 
-- several create/update handlers still accept broad request bodies without strict field whitelisting.
+- some create/update handlers still accept broader request bodies than necessary, especially outside the newly tightened permission/body/campaign/circle paths.
 
 ## Improvement Opportunities
 

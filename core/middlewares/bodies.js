@@ -65,7 +65,9 @@ exports.createBody = async (req, res) => {
     }
 
     // TODO: filter out fields that are changed in the other way
-    const body = await Body.create(req.body);
+    const body = await Body.create(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.BODY.CREATE
+    });
     return res.json({
         success: true,
         data: body

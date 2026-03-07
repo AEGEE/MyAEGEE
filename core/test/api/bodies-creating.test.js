@@ -78,6 +78,25 @@ describe('Bodies creating', () => {
         expect(res.body.data.name).toEqual(body.name);
     });
 
+    test('should ignore status on normal body creation', async () => {
+        const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date(), superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'body' });
+
+        const body = generator.generateBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.status).toEqual('active');
+    });
+
     for (const type of ['antenna', 'contact antenna', 'contact']) {
         test(`should fail when foundation date is empty on ${type}`, async () => {
             const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date(), superadmin: true });

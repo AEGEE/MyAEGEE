@@ -31,6 +31,18 @@ module.exports = {
         },
         CIRCLE: {
             CREATE: ['name', 'description'],
+            UPDATE: ['name', 'description', 'gsuite_id'],
+        },
+        BODY: {
+            CREATE: ['name', 'description', 'task_description', 'code', 'abbreviation', 'email', 'phone', 'address', 'postal_address', 'type', 'fee_currency', 'pays_fees', 'founded_at', 'country', 'website', 'gsuite_id', 'google_group'],
+        },
+        CAMPAIGN: {
+            CREATE: ['name', 'url', 'active', 'description_short', 'description_long', 'activate_user'],
+            UPDATE: ['name', 'url', 'active', 'description_short', 'description_long', 'activate_user'],
+        },
+        PERMISSION: {
+            CREATE: ['scope', 'action', 'object', 'description', 'filters'],
+            UPDATE: ['scope', 'action', 'object', 'description', 'filters'],
         },
         PAYMENT: {
             UPDATE: [

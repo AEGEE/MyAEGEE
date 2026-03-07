@@ -96,4 +96,25 @@ describe('Campaign editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual('New name');
     });
+
+    test('should ignore autojoin body changes on global campaign update', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const campaign = await generator.createCampaign();
+
+        const res = await request({
+            uri: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: body.id, name: 'New name' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('New name');
+        expect(res.body.data.autojoin_body_id).toEqual(null);
+    });
 });

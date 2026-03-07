@@ -96,4 +96,24 @@ describe('Permissions details', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.scope).toEqual('local');
     });
+
+    test('should ignore combined field on permission update', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
+
+        const permission = await generator.createPermission({ scope: 'global', action: 'edit', object: 'event' });
+
+        const res = await request({
+            uri: '/permissions/' + permission.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { scope: 'local', combined: 'global:hacked:value' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.scope).toEqual('local');
+        expect(res.body.data.combined).toEqual(`local:${permission.action}:${permission.object}`);
+    });
 });
