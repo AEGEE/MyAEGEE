@@ -261,7 +261,7 @@ exports.editEvent = async (req, res) => {
 
     const data = req.body;
     const event = req.event;
-    const oldStatus = data.status;
+    const oldStatus = event.status;
 
     delete data.id;
     delete data.image;
@@ -308,7 +308,8 @@ exports.editEvent = async (req, res) => {
         await event.update(data, { transaction: t });
 
         const adminToken = await core.getAdminToken();
-        data.organizers = await Promise.all(data.organizers.map((organizer) =>
+        const organizers = Array.isArray(data.organizers) ? data.organizers : event.organizers;
+        data.organizers = await Promise.all(organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.

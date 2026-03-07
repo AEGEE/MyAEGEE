@@ -1,12 +1,10 @@
 # Summer University Follow-Ups
 
 **Status:** Living document
-**Last updated:** 2026-03-06
+**Last updated:** 2026-03-07
 
 ## Bugs
 
-- `summeruniversity/lib/events.js:264` - edit transition logic uses incoming `data.status` as old status, which likely breaks status transition rules.
-- `summeruniversity/lib/events.js:311` - edit flow assumes `data.organizers` is present and may crash on partial updates.
 - `summeruniversity/lib/applications.js:53` - application creation likely crashes on missing or unmatched `body_id` because it dereferences `.name` on a failed lookup.
 - `summeruniversity/lib/helpers.js:242` - apply-permission season logic is hardcoded to `2026`.
 - `summeruniversity/lib/events.js:173` - default season logic is hardcoded to `2026`.
@@ -29,7 +27,6 @@
 
 ## Future Test Additions
 
-- edit tests for partial payloads and correct status transitions;
 - application creation tests for invalid `body_id`, duplicates, and season constraints;
 - listing tests for publication filters and application status filters;
 - model tests for event/application invariants;
