@@ -45,6 +45,15 @@ module.exports = {
             UPDATE: ['scope', 'action', 'object', 'description', 'filters'],
         },
         PAYMENT: {
+            CREATE: [
+                'starts',
+                'expires',
+                'amount',
+                'currency',
+                'comment',
+                'invoice_name',
+                'invoice_address',
+            ],
             UPDATE: [
                 'starts',
                 'expires',

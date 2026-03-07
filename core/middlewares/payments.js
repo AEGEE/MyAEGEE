@@ -43,6 +43,8 @@ exports.createPayment = async (req, res) => {
         ...req.body,
         user_id: user.id,
         body_id: req.currentBody.id
+    }, {
+        fields: [...constants.FIELDS_TO_UPDATE.PAYMENT.CREATE, 'user_id', 'body_id']
     });
 
     return res.json({

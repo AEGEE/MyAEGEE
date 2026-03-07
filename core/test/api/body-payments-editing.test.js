@@ -192,4 +192,28 @@ describe('Body payments editing', () => {
         expect(res.body.data.body_id).not.toEqual(1337);
         expect(res.body.data.user_id).not.toEqual(1337);
     });
+
+    test('should not override id on update', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'payment' });
+
+        const body = await generator.createBody();
+        const otherUser = await generator.createUser();
+        await generator.createBodyMembership(body, otherUser);
+
+        const payment = await generator.createPayment(body, otherUser);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { id: 1337, amount: 42 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(payment.id);
+        expect(res.body.data.amount).toEqual(42);
+    });
 });
