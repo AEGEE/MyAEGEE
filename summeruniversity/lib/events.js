@@ -9,8 +9,32 @@ const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
 
+const GENERIC_EVENT_BLOCKED_FIELDS = [
+    'id',
+    'image',
+    'status',
+    'deleted',
+    'published',
+    'application_starts',
+    'application_ends',
+    'open_call',
+    'max_participants',
+    'accepted_participants',
+    'available_spots'
+];
+
 function getCurrentSeason() {
     return new Date().getFullYear();
+}
+
+function sanitizeGenericEventPayload(payload) {
+    const data = { ...payload };
+
+    for (const field of GENERIC_EVENT_BLOCKED_FIELDS) {
+        delete data[field];
+    }
+
+    return data;
 }
 
 exports.listEvents = async (req, res) => {
@@ -166,11 +190,7 @@ exports.addEvent = async (req, res) => {
     }
 
     // Make sure the user doesn't insert malicious stuff
-    const data = req.body;
-    delete data.id;
-    delete data.image;
-    delete data.deleted;
-    delete data.published;
+    const data = sanitizeGenericEventPayload(req.body);
 
     data.status = 'first submission';
 
@@ -263,15 +283,9 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this event');
     }
 
-    const data = req.body;
+    const data = sanitizeGenericEventPayload(req.body);
     const event = req.event;
     const oldStatus = event.status;
-
-    delete data.id;
-    delete data.image;
-    delete data.status;
-    delete data.deleted;
-    delete data.published;
 
     if (!data.season) {
         data.season = getCurrentSeason();

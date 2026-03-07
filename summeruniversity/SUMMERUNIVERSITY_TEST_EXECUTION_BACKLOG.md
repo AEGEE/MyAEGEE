@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-Turn the SU coverage plan into executable workstreams, with special emphasis on bootstrapping the missing package-local test harness.
+Turn the SU coverage plan into executable workstreams, with special emphasis on expanding the now-established package-local test harness.
 
 ## 2. Shared Foundations
 
@@ -16,7 +16,7 @@ Turn the SU coverage plan into executable workstreams, with special emphasis on 
 
 ### Foundation B: Test Harness Bootstrap
 
-- copy the structure of `events/test` first, then adapt fixtures and routes.
+- extend the package-local `summeruniversity/test` tree with targeted API/unit coverage where gaps remain.
 
 ### Foundation C: Frontend Harness Reuse
 
@@ -25,7 +25,7 @@ Turn the SU coverage plan into executable workstreams, with special emphasis on 
 Execution status:
 
 - Foundation A completed
-- Foundation B partially completed
+- Foundation B completed
 
 ## 3. Parallel Workstreams
 
