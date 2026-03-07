@@ -26,9 +26,18 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.body).toContain('network_boards_total');
+        expect(res.body).toContain('network_boards_total 1');
     });
 
     test('should return data correctly on /metrics/requests', async () => {
+        await request({
+            uri: '/boards',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            json: false
+        });
+
         const res = await request({
             uri: '/metrics/requests',
             method: 'GET',
@@ -36,5 +45,9 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.body).toContain('network_requests_total');
+        expect(res.body).toContain('endpoint="/boards"');
+        expect(res.body).toContain('path="/boards"');
+        expect(res.body).toContain('method="GET"');
     });
 });
