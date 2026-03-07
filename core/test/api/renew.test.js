@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { AccessToken, RefreshToken } = require('../../models');
 
 describe('Tokens renewal', () => {
     beforeAll(async () => {
@@ -47,5 +48,16 @@ describe('Tokens renewal', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('access_token');
         expect(res.body).not.toHaveProperty('errors');
+
+        const accessToken = await AccessToken.findOne({
+            where: { value: res.body.access_token }
+        });
+
+        const refreshTokenFromDb = await RefreshToken.findOne({
+            where: { value: refreshToken.value }
+        });
+
+        expect(accessToken.user_id).toEqual(user.id);
+        expect(refreshTokenFromDb.user_id).toEqual(user.id);
     });
 });
