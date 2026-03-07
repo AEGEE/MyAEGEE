@@ -9,8 +9,7 @@
 
 ## Fragile Behavior
 
-- `network/lib/helpers.js:18` passes sort fields straight through to Sequelize;
-- `network/lib/antenna_criteria.js` and `network/lib/mail_component.js` do not clearly validate numeric route params.
+- none currently tracked
 
 ## Improvement Opportunities
 
@@ -20,4 +19,4 @@
 
 ## Future Test Additions
 
-- antenna-criteria permission edge cases.
+- none currently tracked.

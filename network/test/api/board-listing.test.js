@@ -266,6 +266,26 @@ describe('Board listing', () => {
         expect(res.body.data[2].id).toEqual(third.id);
     });
 
+    test('should ignore unsupported board sort fields', async () => {
+        const first = await generator.createBoard({
+            start_date: moment().add(2, 'years').toDate()
+        });
+        const second = await generator.createBoard({
+            start_date: moment().add(1, 'year').toDate()
+        });
+
+        const res = await request({
+            uri: '/boards?sort=created_at&direction=desc',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data[0].id).toEqual(second.id);
+        expect(res.body.data[1].id).toEqual(first.id);
+    });
+
     test('should list only most recently elected board', async () => {
         await generator.createBoard({
             body_id: 1,
