@@ -154,8 +154,8 @@ describe('API requests', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
     });
 
     test('should fail if body is not JSON', async () => {

@@ -14,7 +14,7 @@ Execution status:
 
 - Foundation A completed
 - Foundation B completed
-- Stream 1 completed
+- Stream 1 partially completed
 - Stream 2 completed
 - Stream 3 completed
 - Stream 4 completed
@@ -27,7 +27,7 @@ This backlog is now largely archival: the foundations and named streams below ha
 
 ## 3. Parallel Workstreams
 
-## Stream 1: Claim Flow Regression (completed)
+## Stream 1: Claim Flow Regression (partially completed)
 
 ### Scope
 
@@ -45,7 +45,7 @@ Lock down the highest-risk user workflow: claiming a discount code.
 - no unclaimed code available;
 - repeated claim attempts by the same user;
 - mailer failure after claim update;
-- concurrent claims targeting the same integration.
+- concurrent claims targeting the same integration (still deferred).
 
 ### Fixtures Required
 
@@ -57,6 +57,7 @@ Lock down the highest-risk user workflow: claiming a discount code.
 
 - focus on observable behavior first;
 - if concurrency is hard to assert deterministically, document the smallest reproducible regression test possible.
+- deterministic concurrency coverage is still tracked as follow-up work in `discounts/DISCOUNTS_FOLLOWUPS.md`.
 
 ### Validation
 

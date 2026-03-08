@@ -520,9 +520,12 @@ Event.beforeValidate(async (event) => {
     if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
 });
 
-Event.afterSave(async (event) => {
+Event.afterSave(async (event, options) => {
     if (event.available_spots === 0 && event.open_call === true) {
-        await event.update({ open_call: false }, { hooks: false });
+        await event.update({ open_call: false }, {
+            hooks: false,
+            transaction: options && options.transaction
+        });
     }
 });
 

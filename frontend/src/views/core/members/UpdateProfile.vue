@@ -241,7 +241,7 @@ export default {
         })
     },
     changeEmail (newEmail) {
-      if (RESTRICTED_EMAILS.some((domain) => newEmail.includes(domain))) {
+      if (RESTRICTED_EMAILS.some((domain) => newEmail.endsWith(`@${domain}`))) {
         return this.$root.showError(
           'Your email can not be in one of the following domains: '
             + RESTRICTED_EMAILS.join(', ').trim()

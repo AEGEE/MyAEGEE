@@ -8,6 +8,12 @@ HOST_PORT="55433"
 POSTGRES_USER="postgres"
 POSTGRES_PASSWORD="5ecr3t"
 
+wait_until_ready() {
+  until docker exec "${CONTAINER_NAME}" pg_isready -U "${POSTGRES_USER}" >/dev/null 2>&1; do
+    sleep 1
+  done
+}
+
 print_env() {
   cat <<EOF
 export DB_HOST=127.0.0.1
@@ -29,6 +35,8 @@ case "${1:-start}" in
         -p "${HOST_PORT}:5432" \
         "${IMAGE}" >/dev/null
     fi
+
+    wait_until_ready
 
     echo "Shared test Postgres is ready on localhost:${HOST_PORT}"
     print_env

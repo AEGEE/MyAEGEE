@@ -504,6 +504,8 @@ describe('frontend route regressions', () => {
                 ends: '2026-04-05T15:00:00.000Z',
                 application_starts: '2026-03-01T09:00:00.000Z',
                 application_ends: '2026-03-20T09:00:00.000Z',
+                questions: [],
+                locations: [],
                 organizing_bodies: [{ body_id: 1 }],
                 organizers: [{ user_id: 1 }]
               },
@@ -544,6 +546,11 @@ describe('frontend route regressions', () => {
               data: {
                 starts: '2026-07-01T10:00:00.000Z',
                 ends: '2026-07-12T18:00:00.000Z',
+                learning_objectives: [],
+                social_media: [],
+                photos: [],
+                questions: [],
+                locations: [],
                 organizing_bodies: [{ body_id: 1 }],
                 cooperation: [],
                 organizers: [{ user_id: 1 }]
@@ -596,6 +603,8 @@ describe('frontend route regressions', () => {
                 candidature_deadline: '2026-09-20T00:00:00.000Z',
                 booklet_publication_deadline: '2026-09-22T00:00:00.000Z',
                 updated_booklet_publication_deadline: '2026-09-25T00:00:00.000Z',
+                questions: [],
+                locations: [],
                 body_id: 1,
                 permissions: {}
               }

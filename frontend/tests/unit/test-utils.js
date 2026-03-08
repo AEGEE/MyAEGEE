@@ -147,6 +147,7 @@ export function mountFrontendView (component, options = {}) {
       'empty-table': true,
       'empty-table-stub': true,
       'flat-pickr': true,
+      URLTooltip: true,
       ...(options.stubs || {})
     }
   })

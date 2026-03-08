@@ -38,7 +38,9 @@ function hasPermission(permissionsList, combinedPermission) {
         return false;
     }
 
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    return permissionsList.some((permission) => permission
+        && typeof permission.combined === 'string'
+        && permission.combined.endsWith(combinedPermission));
 }
 
 exports.getPermissions = (user, corePermissions) => {

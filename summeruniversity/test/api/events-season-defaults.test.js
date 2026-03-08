@@ -74,10 +74,11 @@ describe('Summer University season defaults', () => {
         expect(mockEventFactory).toHaveBeenCalledWith(expect.objectContaining({ season: 2027 }));
     });
 
-    test('defaults edited event seasons to the current year when omitted', async () => {
+    test('preserves the existing season on edit when omitted', async () => {
         const res = createResponse();
         const event = {
             id: 9,
+            season: 2024,
             status: 'approved',
             organizers: [{ user_id: 1 }],
             update: jest.fn(async (data) => {
@@ -99,10 +100,10 @@ describe('Summer University season defaults', () => {
 
         expect(event.update).toHaveBeenCalledWith(
             expect.objectContaining({
-                name: 'Updated SU',
-                season: 2027
+                name: 'Updated SU'
             }),
             expect.any(Object)
         );
+        expect(event.update.mock.calls[0][0]).not.toHaveProperty('season');
     });
 });

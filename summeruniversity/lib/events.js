@@ -287,10 +287,6 @@ exports.editEvent = async (req, res) => {
     const event = req.event;
     const oldStatus = event.status;
 
-    if (!data.season) {
-        data.season = getCurrentSeason();
-    }
-
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }

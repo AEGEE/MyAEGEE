@@ -46,7 +46,7 @@ This plan does not choose a future migration strategy. The immediate goal is sta
 - Main test command: `discounts/package.json:14`
 - Existing suites are mostly API-style tests under `discounts/test/api`.
 - Current tests exercise real handler flows with DB setup and mocked external HTTP dependencies.
-- There are no dedicated unit-test suites for helpers, adapters, or models in isolation.
+- Dedicated contract-style suites now exist for helpers, adapters, and models in `discounts/test/api/contracts.test.js` and `discounts/test/api/helpers-models.test.js`.
 
 ### Current Mock Shape
 
@@ -109,8 +109,8 @@ The discounts test plan must cover both the package contracts and the consumer a
 
 ### Frontend Coverage State
 
-- no dedicated frontend test harness currently exists in `frontend/package.json`.
-- discounts UI flows therefore have no component-level regression coverage.
+- the frontend package now has a Jest-based component test harness for discounts and regression flows.
+- discounts UI flows now have component-level regression coverage, with follow-up gaps tracked separately where behavior remains untested.
 
 ## 5. Mocking And Fixture Gaps
 

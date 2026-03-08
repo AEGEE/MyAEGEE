@@ -33,7 +33,7 @@ defmodule OmsmailerWeb.RequestLoggerPlug do
     end)
   end
 
-  @redacted_keys ~w(access_token from password refresh_token reply_to to token)
+  @redacted_keys ~w(access_token bcc cc from password refresh_token reply_to to token)
 
   defp redact_params(params) when is_map(params) do
     params
