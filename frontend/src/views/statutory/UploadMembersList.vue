@@ -137,8 +137,17 @@
           </table>
         </div>
 
+        <article
+          class="message is-warning"
+          v-if="selectedBody && !memberslist && isBetweenMemberslistDeadlines">
+          <div class="message-body">
+            The submission deadline has passed. If your local still needs to submit a members list, reach out to the Network Director at
+            <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
+          </div>
+        </article>
+
         <div v-if="selectedBody && !memberslist">
-          <span>Your local hasn't submitted members list for this event yet.</span>
+          <span>This local hasn't submitted a members list for this event yet.</span>
         </div>
       </div>
     </div>
