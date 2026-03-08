@@ -1,18 +1,5 @@
 /* eslint-env jest */
 
-const createStubComponent = (name) => ({ name, render: (h) => h('div') })
-
-jest.mock('vue-mapbox', () => ({
-  MglMap: createStubComponent('MglMap'),
-  MglMarker: createStubComponent('MglMarker'),
-  MglNavigationControl: createStubComponent('MglNavigationControl'),
-  MglFullscreenControl: createStubComponent('MglFullscreenControl'),
-  MglGeolocateControl: createStubComponent('MglGeolocateControl'),
-  MglAttributionControl: createStubComponent('MglAttributionControl'),
-  MglScaleControl: createStubComponent('MglScaleControl'),
-  MglGeojsonLayer: createStubComponent('MglGeojsonLayer')
-}))
-
 import flushPromises from 'flush-promises'
 
 import EventApply from 'src/views/events/Apply.vue'
@@ -29,13 +16,26 @@ import StatutoryBoardView from 'src/views/statutory/BoardView.vue'
 import UploadMembersList from 'src/views/statutory/UploadMembersList.vue'
 import ViewPlenary from 'src/views/statutory/ViewPlenary.vue'
 import ViewApplication from 'src/views/statutory/ViewApplication.vue'
-import { mountFrontendView } from '../test-utils'
+import { createRejectedAxiosError, mountFrontendView } from '../test-utils'
+
+const createStubComponent = (name) => ({ name, render: (h) => h('div') })
+
+jest.mock('vue-mapbox', () => ({
+  MglMap: createStubComponent('MglMap'),
+  MglMarker: createStubComponent('MglMarker'),
+  MglNavigationControl: createStubComponent('MglNavigationControl'),
+  MglFullscreenControl: createStubComponent('MglFullscreenControl'),
+  MglGeolocateControl: createStubComponent('MglGeolocateControl'),
+  MglAttributionControl: createStubComponent('MglAttributionControl'),
+  MglScaleControl: createStubComponent('MglScaleControl'),
+  MglGeojsonLayer: createStubComponent('MglGeojsonLayer')
+}))
 
 describe('frontend route regressions', () => {
   test('events apply redirects missing events to the published events list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(EventApply, {
@@ -55,7 +55,7 @@ describe('frontend route regressions', () => {
   test('summer university apply redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(SummerUniversityApply, {
@@ -117,7 +117,7 @@ describe('frontend route regressions', () => {
   test('statutory members list redirects to the statutory view route when event fetch fails', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(UploadMembersList, {
@@ -194,7 +194,7 @@ describe('frontend route regressions', () => {
   test('events edit redirects missing events to the published events list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(EventEdit, {
@@ -235,7 +235,7 @@ describe('frontend route regressions', () => {
   test('events accepted redirects missing events to the published events list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(EventAccepted, {
@@ -276,7 +276,7 @@ describe('frontend route regressions', () => {
   test('events participants redirects missing events to the published events list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(EventParticipants, {
@@ -317,7 +317,7 @@ describe('frontend route regressions', () => {
   test('summer university edit redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(SummerUniversityEdit, {
@@ -358,7 +358,7 @@ describe('frontend route regressions', () => {
   test('summer university second edit redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(SummerUniversityEditSecond, {
@@ -399,7 +399,7 @@ describe('frontend route regressions', () => {
   test('summer university participants redirects missing events to the published SU list route', async () => {
     const router = { push: jest.fn() }
     const axios = {
-      get: jest.fn(() => Promise.reject({ response: { status: 404 } }))
+      get: jest.fn(() => Promise.reject(createRejectedAxiosError('Not found', { status: 404 })))
     }
 
     const { showError } = mountFrontendView(SummerUniversityParticipants, {

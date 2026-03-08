@@ -4,7 +4,7 @@ import flushPromises from 'flush-promises'
 
 import EventApply from 'src/views/events/Apply.vue'
 
-import { createAxiosMock, mountFrontendView } from '../test-utils'
+import { createAxiosMock, createRejectedAxiosError, mountFrontendView } from '../test-utils'
 
 describe('Events apply flow', () => {
   test('creates a new application and redirects to the event view', async () => {
@@ -12,7 +12,7 @@ describe('Events apply flow', () => {
     const axios = createAxiosMock({
       get: {
         '/api/events/single/17': { data: { data: { id: 17, url: 'spring-agora', questions: [], application_status: 'open', status: 'published' } } },
-        '/api/events/single/17/applications/me': () => Promise.reject({ response: { status: 404 } })
+        '/api/events/single/17/applications/me': () => Promise.reject(createRejectedAxiosError('Not found', { status: 404 }))
       },
       post: {
         '/api/events/single/17/applications': { data: { success: true } }
@@ -110,7 +110,7 @@ describe('Events apply flow', () => {
     const axios = createAxiosMock({
       get: {
         '/api/events/single/17': { data: { data: { id: 17, url: null, questions: [], application_status: 'open', status: 'published' } } },
-        '/api/events/single/17/applications/me': () => Promise.reject({ response: { status: 404 } })
+        '/api/events/single/17/applications/me': () => Promise.reject(createRejectedAxiosError('Not found', { status: 404 }))
       },
       post: {
         '/api/events/single/17/applications': () => Promise.reject(validationError)

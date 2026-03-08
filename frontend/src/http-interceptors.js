@@ -1,4 +1,4 @@
-export function registerAxiosInterceptors ({ axios, Vue, router, state, getCurrentRoute }) {
+function registerAxiosInterceptors ({ axios, Vue, router, state, getCurrentRoute }) {
   axios.interceptors.request.use(config => {
     const token = window.localStorage.getItem('access-token')
     config.headers['X-Auth-Token'] = token
@@ -38,3 +38,6 @@ export function registerAxiosInterceptors ({ axios, Vue, router, state, getCurre
     }
   )
 }
+
+export { registerAxiosInterceptors }
+export default registerAxiosInterceptors

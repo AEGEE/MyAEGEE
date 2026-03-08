@@ -42,6 +42,10 @@ export function createAxiosMock ({ get = {}, post = {}, put = {}, del = {} } = {
   }
 }
 
+export function createRejectedAxiosError (message, response = {}) {
+  return Object.assign(new Error(message), { response })
+}
+
 export function mountFrontendView (component, options = {}) {
   const localVue = createLocalVue()
   localVue.use(Vuex)

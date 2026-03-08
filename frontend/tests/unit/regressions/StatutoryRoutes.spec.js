@@ -1,14 +1,5 @@
 /* eslint-env jest */
 
-const createStubComponent = (name) => ({ name, render: (h) => h('div') })
-
-jest.mock('vue-mapbox', () => ({
-  MglMap: createStubComponent('MglMap'),
-  MglMarker: createStubComponent('MglMarker'),
-  MglPopup: createStubComponent('MglPopup'),
-  MglNavigationControl: createStubComponent('MglNavigationControl')
-}))
-
 import flushPromises from 'flush-promises'
 
 import StatutorySingle from 'src/views/statutory/Single.vue'
@@ -19,6 +10,15 @@ import StatutoryPositionsList from 'src/views/statutory/PositionsList.vue'
 import StatutoryNetworkListing from 'src/views/statutory/NetworkListing.vue'
 
 import { createAxiosMock, mountFrontendView } from '../test-utils'
+
+const createStubComponent = (name) => ({ name, render: (h) => h('div') })
+
+jest.mock('vue-mapbox', () => ({
+  MglMap: createStubComponent('MglMap'),
+  MglMarker: createStubComponent('MglMarker'),
+  MglPopup: createStubComponent('MglPopup'),
+  MglNavigationControl: createStubComponent('MglNavigationControl')
+}))
 
 describe('Statutory route regressions', () => {
   test('statutory single redirects cleanly on network failure', async () => {

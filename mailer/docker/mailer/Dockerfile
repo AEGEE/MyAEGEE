@@ -9,7 +9,7 @@ RUN mkdir -p /usr/src/myapp \
 
 WORKDIR /usr/src/myapp
 
-COPY mix.exs /usr/src/myapp/mix.exs
+COPY mix.exs mix.lock /usr/src/myapp/
 RUN ["mix", "deps.get"]
 
 COPY config /usr/src/myapp/config

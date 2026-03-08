@@ -1,4 +1,5 @@
 const PermissionsManager = require('../../lib/permissions-manager');
+const { Sequelize } = require('../../lib/sequelize');
 const { CirclePermission, Circle } = require('../../models');
 
 describe('PermissionsManager', () => {
@@ -77,7 +78,7 @@ describe('PermissionsManager', () => {
         expect(Circle.findAll).toHaveBeenCalledWith({
             where: {
                 id: {
-                    [require('../../lib/sequelize').Sequelize.Op.in]: [11, 12, 12, 10, 11]
+                    [Sequelize.Op.in]: [11, 12, 12, 10, 11]
                 }
             }
         });

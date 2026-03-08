@@ -1,5 +1,8 @@
 /* eslint-env jest */
 
+import store from 'vuex-store'
+import auth from 'src/auth'
+
 jest.mock('vuex-store', () => ({
   dispatch: jest.fn()
 }))
@@ -7,9 +10,6 @@ jest.mock('vuex-store', () => ({
 jest.mock('src/services', () => ({
   core: '/api/core'
 }))
-
-import store from 'vuex-store'
-import auth from 'src/auth'
 
 describe('auth plugin', () => {
   let VueStub

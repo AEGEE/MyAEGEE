@@ -419,7 +419,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-        this.$router.push({ name: 'oms.statutory.view', params: { id: this.$route.params.id } })
+      this.$router.push({ name: 'oms.statutory.view', params: { id: this.$route.params.id } })
     })
   }
 }

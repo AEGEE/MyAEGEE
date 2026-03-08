@@ -1,8 +1,9 @@
+const fs = require('fs');
 const path = require('path');
 
 const assetPath = (name) => path.join(__dirname, name);
 
-const loadJson = (name) => require(assetPath(name));
+const loadJson = (name) => JSON.parse(fs.readFileSync(assetPath(name), 'utf8'));
 
 const coreFixtures = {
     profileSuccess: {
