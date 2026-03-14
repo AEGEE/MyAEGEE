@@ -113,44 +113,90 @@ exports.mockCoreMainPermissions = (options) => {
 };
 
 exports.mockCoreApprovePermissions = (options) => {
+    const bodyFilter = (body) => body.action === 'approve_members';
+
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .post('/my_permissions')
+            .post('/my_permissions', bodyFilter)
             .replyWithError('Some random error.');
     }
 
     if (options.badResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .post('/my_permissions')
+            .post('/my_permissions', bodyFilter)
             .reply(500, 'Some error happened.');
     }
 
     if (options.unsuccessfulResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .post('/my_permissions')
+            .post('/my_permissions', bodyFilter)
             .reply(500, { success: false, message: 'Some error' });
     }
 
     if (options.unauthorized) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .post('/my_permissions')
+            .post('/my_permissions', bodyFilter)
             .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .post('/my_permissions')
+            .post('/my_permissions', bodyFilter)
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
-        .post('/my_permissions')
+        .post('/my_permissions', bodyFilter)
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-approve-permissions-full.json'));
+};
+
+exports.mockCoreMemberslistPermissions = (options) => {
+    const bodyFilter = (body) => body.action === 'manage_memberslist';
+
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/my_permissions', bodyFilter)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/my_permissions', bodyFilter)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/my_permissions', bodyFilter)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/my_permissions', bodyFilter)
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
+    }
+
+    if (options.noPermissions) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/my_permissions', bodyFilter)
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .post('/my_permissions', bodyFilter)
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-approve-permissions-full.json'));
 };
 
@@ -456,6 +502,7 @@ exports.mockAll = (options = {}) => {
     const coreStub = exports.mockCore(options.core || {});
     const mainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const approvePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
+    const memberslistPermissionsStub = exports.mockCoreMemberslistPermissions(options.memberslistPermissions || {});
     const coreMembersStub = exports.mockCoreMembers(options.members || {});
     const coreBodyMembersStub = exports.mockCoreBodyMembers(options.bodyMembers || {});
     const coreBodiesStub = exports.mockCoreBodies(options.bodies || {});
@@ -470,6 +517,7 @@ exports.mockAll = (options = {}) => {
         coreStub,
         mainPermissionsStub,
         approvePermissionsStub,
+        memberslistPermissionsStub,
         coreMembersStub,
         coreBodiesStub,
         coreBodyStub,

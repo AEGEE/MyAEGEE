@@ -55,6 +55,7 @@ exports.ensureAuthorized = async (req, res, next) => {
         req.userRequest.statusCode === 401
         || req.permissionsRequest.statusCode === 401
         || (req.approveRequest && req.approveRequest.statusCode === 401)
+        || (req.memberslistRequest && req.memberslistRequest.statusCode === 401)
     ) {
         return errors.makeUnauthorizedError(res, 'Error fetching data: user is not authenticated.');
     }
@@ -116,7 +117,10 @@ exports.fetchEvent = async (req, res, next) => {
         return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
     }
 
-    const approveRequest = await core.getApprovePermissions(req, event);
+    const [approveRequest, memberslistRequest] = await Promise.all([
+        core.getApprovePermissions(req, event),
+        core.getMemberslistPermissions(req, event)
+    ]);
 
     if (typeof approveRequest.body !== 'object') {
         throw new Error('Malformed response when fetching permissions for approve');
@@ -125,6 +129,14 @@ exports.fetchEvent = async (req, res, next) => {
     // skipping 401 there, will catch them later in ensureAuthorized
     if (!approveRequest.body.success && approveRequest.statusCode !== 401) {
         throw new Error(`Error fetching permissions for approve: ${JSON.stringify(approveRequest.body)}`);
+    }
+
+    if (typeof memberslistRequest.body !== 'object') {
+        throw new Error('Malformed response when fetching permissions for memberslist');
+    }
+
+    if (!memberslistRequest.body.success && memberslistRequest.statusCode !== 401) {
+        throw new Error(`Error fetching permissions for memberslist: ${JSON.stringify(memberslistRequest.body)}`);
     }
 
     let limits = [];
@@ -144,12 +156,15 @@ exports.fetchEvent = async (req, res, next) => {
     req.event = event;
     req.myApplication = myApplication;
     req.approveRequest = approveRequest;
+    req.memberslistRequest = memberslistRequest;
     if (req.approveRequest.body && req.approveRequest.body.success) req.approvePermissions = approveRequest.body.data;
+    if (req.memberslistRequest.body && req.memberslistRequest.body.success) req.memberslistPermissions = memberslistRequest.body.data;
 
     req.permissions = helpers.getEventPermissions({
         permissions: req.permissions,
         corePermissions: req.corePermissions,
         approvePermissions: req.approvePermissions,
+        memberslistPermissions: req.memberslistPermissions,
         user: req.user,
         event,
         limits,

@@ -27,7 +27,7 @@ describe('Memberslist uploading', () => {
     });
 
     test('should fail if user has no permissions', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
             type: 'agora',
@@ -143,6 +143,46 @@ describe('Memberslist uploading', () => {
             members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
         }, event);
 
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
+    test('should fail if user has only approve_members but not manage_memberslist permission', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should succeed if user has manage_memberslist but not approve_members permission', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
