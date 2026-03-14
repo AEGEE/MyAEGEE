@@ -1,12 +1,11 @@
 const moment = require('moment');
 const _ = require('lodash');
-const request = require('request-promise-native');
-
 const { User, Body, BodyMembership, MailChange, MailConfirmation } = require('../models');
 const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const { requestForm } = require('../lib/http');
 const mailer = require('../lib/mailer');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 
@@ -344,10 +343,9 @@ exports.subscribeListserv = async (req, res) => {
     }
 
     try {
-        await request({
+        const response = await requestForm({
             url: config.listserv_endpoint,
             method: 'POST',
-            simple: false,
             form: {
                 token: config.listserv_token,
                 email: req.user.notification_email,
@@ -355,6 +353,10 @@ exports.subscribeListserv = async (req, res) => {
                 lists: mailinglists.join(','),
             }
         });
+
+        if (!response.ok) {
+            throw new Error('Listserv returned non-successful status: ' + response.status);
+        }
     } catch (err) {
         return errors.makeInternalError(res, err);
     }

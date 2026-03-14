@@ -159,6 +159,26 @@ describe('Bodies editing', () => {
         expect(res.body.data.name).toEqual('bbb');
     });
 
+    test('should not change status on normal body update', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody({ status: 'active' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'deleted', email: 'test@test.io' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.email).toEqual('test@test.io');
+        expect(res.body.data.status).toEqual('active');
+    });
+
     for (const type of ['antenna', 'contact antenna', 'contact']) {
         test(`should fail when foundation date is empty on ${type}`, async () => {
             const user = await generator.createUser({ superadmin: true });

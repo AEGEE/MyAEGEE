@@ -50,6 +50,18 @@ describe('Antenna Criteria', () => {
         expect(res.body.data.length).toEqual(2);
     });
 
+    test('should fail listing Antenna Criteria when agora_id is invalid', async () => {
+        const res = await request({
+            uri: '/antennaCriteria/not-a-number',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Agora ID is invalid.');
+    });
+
     test('should only list Antenna Criteria of the selected Agora', async () => {
         await generator.createAntennaCriterion({ agora_id: 1 });
         await generator.createAntennaCriterion({ agora_id: 1 });

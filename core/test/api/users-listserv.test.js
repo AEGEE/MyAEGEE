@@ -116,46 +116,46 @@ describe('User subscribe listserv', () => {
         expect(res.body.message).toEqual('Mailinglists must be one of the following: AEGEE-L, AEGEENEWS-L, ANNOUNCE-L, AEGEE-EVENT-L.');
     });
 
-    // test('should fail if mailer fails', async () => {
-    //     mock.mockAll({ mailer: { netError: true } });
+    test('should fail if listserv fails', async () => {
+        mock.mockAll({ listserv: { netError: true } });
 
-    //     const user = await generator.createUser({ superadmin: true });
-    //     const token = await generator.createAccessToken(user);
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
 
-    //     await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
+        await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
-    //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
-    //         method: 'POST',
-    //         headers: { 'X-Auth-Token': token.value },
-    //         body: { mailinglists: ['ANNOUNCE-L'] }
-    //     });
+        const res = await request({
+            uri: '/members/' + user.id + '/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
 
-    //     expect(res.statusCode).toEqual(500);
-    //     expect(res.body.success).toEqual(false);
-    //     expect(res.body).not.toHaveProperty('data');
-    //     expect(res.body).toHaveProperty('message');
-    // });
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 
-    // test('should succeed for one mailinglist if everything is okay', async () => {
-    //     const user = await generator.createUser({ superadmin: true });
-    //     const token = await generator.createAccessToken(user);
+    test('should succeed for one mailinglist if everything is okay', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
 
-    //     await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
+        await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
-    //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
-    //         method: 'POST',
-    //         headers: { 'X-Auth-Token': token.value },
-    //         body: { mailinglists: ['ANNOUNCE-L'] }
-    //     });
+        const res = await request({
+            uri: '/members/' + user.id + '/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
 
-    //     expect(res.statusCode).toEqual(200);
-    //     expect(res.body.success).toEqual(true);
-    //     expect(res.body).not.toHaveProperty('errors');
-    //     expect(res.body).toHaveProperty('message');
-    //     expect(res.body.message).toEqual('Request for subscribing to ANNOUNCE-L has been sent.');
-    // });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toEqual('Request for subscribing to ANNOUNCE-L has been sent.');
+    });
 
     // test('should succeed for multiple mailinglists if everything is okay', async () => {
     //     const user = await generator.createUser({ superadmin: true });

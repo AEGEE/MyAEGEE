@@ -1037,8 +1037,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError(this.errors)
         }
@@ -1128,7 +1129,7 @@ export default {
         this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.starts = new Date(this.event.ends)
+        this.dates.ends = this.event.ends = new Date(this.event.ends)
 
         for (const body of this.event.organizing_bodies) {
           const foundBody = this.bodies.find(b => b.id === body.body_id)
@@ -1155,13 +1156,15 @@ export default {
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.summeruniversity.list' })
+      this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
   }
 }

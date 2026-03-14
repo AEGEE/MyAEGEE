@@ -506,15 +506,32 @@ Application.afterValidate(async (application, options) => {
 
 // Generating and setting statutory_id
 Application.beforeCreate(async (application, options) => {
-    const applicationsCount = await Application.count({
-        where: { event_id: application.event_id }
-    });
+    let applicationId = application.id;
+
+    if (!applicationId) {
+        const nextIdResult = await sequelize.query(
+            'SELECT nextval(pg_get_serial_sequence(\'applications\', \'id\')) AS id;',
+            {
+                type: Sequelize.QueryTypes.SELECT,
+                plain: true,
+                transaction: options.transaction
+            }
+        );
+
+        applicationId = nextIdResult.id;
+        if (!options.fields.includes('id')) {
+            options.fields.push('id');
+        }
+        application.setDataValue('id', applicationId);
+    }
 
     const newStatutoryId = application.event_id.toString().padStart(3, '0')
         + '-'
-        + (applicationsCount + 1).toString().padStart(4, '0');
+        + applicationId.toString().padStart(4, '0');
 
-    options.fields.push('statutory_id');
+    if (!options.fields.includes('statutory_id')) {
+        options.fields.push('statutory_id');
+    }
     application.setDataValue('statutory_id', newStatutoryId);
 });
 

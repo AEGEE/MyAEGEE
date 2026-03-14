@@ -1,0 +1,24 @@
+# Summer University Follow-Ups
+
+**Status:** Living document
+**Last updated:** 2026-03-07
+
+## Bugs
+
+- none currently tracked
+
+## Fragile Behavior
+
+- frontend and backend season logic drift will continue every year unless season handling becomes dynamic.
+- SU forms and flows mirror events closely, so bugs can spread if logic is copied without shared tests or shared helpers.
+
+## Improvement Opportunities
+
+- Replace hardcoded season defaults with dynamic/config-driven season computation.
+- Split controller side effects so status rules, application invariants, notifications, and exports are easier to test independently.
+- Document intended status and publication rules directly from the code so future rewrites have a stable contract target.
+
+## Future Test Additions
+
+- application creation tests for duplicate applications and season constraints;
+- listing tests for publication filters and application status filters.

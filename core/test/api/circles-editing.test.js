@@ -78,6 +78,27 @@ describe('Circle editing', () => {
         expect(res.body.data.name).toEqual('New name');
     });
 
+    test('should ignore parent circle changes on normal circle update', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const circle = await generator.createCircle();
+        const parentCircle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
+
+        const res = await request({
+            uri: '/circles/' + circle.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { name: 'New name', parent_circle_id: parentCircle.id }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('New name');
+        expect(res.body.data.parent_circle_id).toEqual(null);
+    });
+
     test('should work with local permission', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);

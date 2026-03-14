@@ -47,6 +47,8 @@ server.use(bodyParser.json());
 server.use(boolParser());
 server.use(morgan);
 
+const sockets = new Set();
+
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error('Unhandled rejection: %s', err.stack);
@@ -195,27 +197,102 @@ server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
 let app;
+let startPromise = null;
+let stopPromise = null;
 async function startServer() {
-    return new Promise((res, rej) => {
+    if (startPromise) {
+        return startPromise;
+    }
+
+    if (app) {
+        return;
+    }
+
+    if (stopPromise) {
+        await stopPromise;
+    }
+
+    startPromise = new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
-            app = localApp;
-            log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
-            await db.authenticate();
-            await cron.registerAllDeadlines();
-            return res();
+            try {
+                await db.authenticate();
+                app = localApp;
+                log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
+
+                /* istanbul ignore if */
+                if (process.env.NODE_ENV !== 'test') {
+                    await cron.registerAllDeadlines();
+                }
+
+                return res();
+            } catch (err) {
+                app = null;
+                localApp.close(() => rej(err));
+            }
+        });
+        localApp.on('connection', (socket) => {
+            sockets.add(socket);
+            socket.on('close', () => sockets.delete(socket));
         });
         /* istanbul ignore next */
-        localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
+        localApp.on('error', (err) => {
+            app = null;
+            rej(new Error('Error starting server: ' + err.stack));
+        });
     });
+
+    try {
+        await startPromise;
+    } finally {
+        startPromise = null;
+    }
 }
 
 async function stopServer() {
     log.info('Stopping server...');
-    app.close();
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'test') await db.close();
-    app = null;
+
+    if (stopPromise) {
+        return stopPromise;
+    }
+
+    if (startPromise) {
+        await startPromise.catch(() => {});
+    }
+
+    if (!app) {
+        return;
+    }
+
+    stopPromise = (async () => {
+        for (const socket of sockets) {
+            socket.destroy();
+        }
+
+        sockets.clear();
+
+        const localApp = app;
+        app = null;
+
+        await new Promise((resolve, reject) => {
+            localApp.close((err) => {
+                if (err && err.message !== 'Server is not running.') {
+                    return reject(err);
+                }
+
+                return resolve();
+            });
+        });
+
+        /* istanbul ignore next */
+        if (process.env.NODE_ENV !== 'test') await db.close();
+    })();
+
+    try {
+        await stopPromise;
+    } finally {
+        stopPromise = null;
+    }
 }
 
 module.exports = {

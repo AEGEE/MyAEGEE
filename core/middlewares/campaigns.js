@@ -100,7 +100,9 @@ exports.createCampaign = async (req, res) => {
     }
 
     // TODO: filter out fields that are changed in the other way
-    const campaign = await Campaign.create(req.body);
+    const campaign = await Campaign.create(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE
+    });
     return res.json({
         success: true,
         data: campaign
@@ -113,7 +115,9 @@ exports.updateCampaign = async (req, res) => {
     }
 
     // TODO: filter out fields that are changed in the other way
-    await req.currentCampaign.update(req.body);
+    await req.currentCampaign.update(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE
+    });
     return res.json({
         success: true,
         data: req.currentCampaign

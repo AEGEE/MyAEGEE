@@ -17,9 +17,15 @@ describe('Metrics requests', () => {
     });
 
     test('should return data correctly on /metrics', async () => {
-        await generator.createCategory({});
+        await generator.createCategory({
+            name: 'Travel',
+            discounts: [
+                generator.generateDiscount({ name: 'Rail pass' }),
+                generator.generateDiscount({ name: 'Bus pass' })
+            ]
+        });
 
-        const integration = await generator.createIntegration({});
+        const integration = await generator.createIntegration({ name: 'FlixBus' });
         await generator.createCode({ claimed_by: null }, integration);
         await generator.createCode({ claimed_by: 1337 }, integration);
 
@@ -30,9 +36,26 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.body).toContain('discounts_categories_total 1');
+        expect(res.body).toContain('discounts_integrations_total 1');
+        expect(res.body).toContain('discounts_partners_total{category_name="Travel"} 2');
+        expect(res.body).toMatch(/discounts_codes_total\{[^}]*claimed="false"[^}]*integration_name="FlixBus"[^}]*\} 1/);
+        expect(res.body).toMatch(/discounts_codes_total\{[^}]*claimed="true"[^}]*integration_name="FlixBus"[^}]*\} 1/);
     });
 
     test('should return data correctly on /metrics/requests', async () => {
+        await request({
+            uri: '/metrics',
+            method: 'GET',
+            json: false
+        });
+
+        await request({
+            uri: '/metrics/requests',
+            method: 'GET',
+            json: false
+        });
+
         const res = await request({
             uri: '/metrics/requests',
             method: 'GET',
@@ -40,5 +63,11 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.body).toContain('discounts_requests_total');
+        expect(res.body).toContain('endpoint="/metrics"');
+        expect(res.body).toContain('path="/metrics"');
+        expect(res.body).toContain('method="GET"');
+        expect(res.body).toContain('endpoint="/metrics/requests"');
+        expect(res.body).toContain('path="/metrics/requests"');
     });
 });

@@ -77,4 +77,23 @@ describe('Permissions creating', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.object).toEqual(permission.object);
     });
+
+    test('should ignore combined field on permission creation', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
+
+        const permission = generator.generatePermission({ combined: 'global:hacked:value' });
+
+        const res = await request({
+            uri: '/permissions',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: permission
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.combined).toEqual(`${permission.scope}:${permission.action}:${permission.object}`);
+    });
 });

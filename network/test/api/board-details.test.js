@@ -77,4 +77,17 @@ describe('Board details', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should not return a board that belongs to a different body route', async () => {
+        const board = await generator.createBoard({ body_id: 2 });
+
+        const res = await request({
+            uri: '/bodies/1/boards/' + board.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+    });
 });

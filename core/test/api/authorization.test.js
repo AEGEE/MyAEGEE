@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { RefreshToken } = require('../../models');
 
 describe('Authorization', () => {
     beforeAll(async () => {
@@ -123,6 +124,29 @@ describe('Authorization', () => {
         expect(res.body).toHaveProperty('access_token');
         expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should rotate away previous refresh tokens on login', async () => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const oldRefreshToken = await generator.createRefreshToken(user);
+
+        const res = await request({
+            uri: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: user.email,
+                password: 'testtest'
+            }
+        });
+
+        const staleToken = await RefreshToken.findOne({ where: { value: oldRefreshToken.value } });
+        const activeTokens = await RefreshToken.findAll({ where: { user_id: user.id } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(staleToken).toEqual(null);
+        expect(activeTokens).toHaveLength(1);
+        expect(activeTokens[0].value).toEqual(res.body.refresh_token);
     });
 
     test('should find by username', async () => {

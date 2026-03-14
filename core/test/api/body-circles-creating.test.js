@@ -131,4 +131,30 @@ describe('Body circles creating', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.body_id).not.toEqual(1337);
     });
+
+    test('should ignore parent circle and gsuite id on bound circle creation', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'circle' });
+
+        const body = await generator.createBody();
+        const parentCircle = await generator.createCircle();
+        const circle = generator.generateCircle({
+            parent_circle_id: parentCircle.id,
+            gsuite_id: 'circle@test.io'
+        });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/circles/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: circle
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.body_id).toEqual(body.id);
+        expect(res.body.data.parent_circle_id).toEqual(null);
+        expect(res.body.data.gsuite_id).toEqual(null);
+    });
 });

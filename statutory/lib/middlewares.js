@@ -222,7 +222,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
             return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
         }
 
-        incomingApplication.dataValues.notification_email = mail.notification_email;
+        incomingApplication.dataValues.notification_email = mail[0].notification_email;
 
         req.application = incomingApplication;
     }

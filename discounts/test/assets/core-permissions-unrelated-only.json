@@ -1,0 +1,15 @@
+{
+    "success": true,
+    "data": [
+        {
+            "scope": "global",
+            "object": "events",
+            "id": 72,
+            "filters": [],
+            "description": "Manage events",
+            "combined": "global:manage:events",
+            "circles": null,
+            "action": "manage"
+        }
+    ]
+}

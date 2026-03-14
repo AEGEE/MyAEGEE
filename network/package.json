@@ -50,6 +50,8 @@
     "jest-junit": "^16.0.0",
     "lint-staged": "^16.2.4",
     "nock": "^14.0.10",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
     "rimraf": "^6.0.1"
   },
   "dependencies": {
@@ -66,8 +68,6 @@
     "on-finished": "^2.4.1",
     "pg": "^8.16.3",
     "prom-client": "^15.1.3",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.9",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.3"
   }

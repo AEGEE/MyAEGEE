@@ -45,6 +45,48 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(1);
     });
 
+    test('should cancel the scheduled job itself', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate()
+        }, event);
+
+        cron.clearAll();
+
+        const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'second').toDate(), { id: position.id });
+        expect(Object.keys(cron.jobs).length).toEqual(1);
+
+        cron.cancelJob(id);
+        expect(Object.keys(cron.jobs).length).toEqual(0);
+
+        await sleep(2000);
+
+        const positionFromDb = await Position.findByPk(position.id);
+        expect(positionFromDb.status).toEqual('closed');
+    });
+
+    test('should clear scheduled jobs as well as bookkeeping', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate()
+        }, event);
+
+        cron.clearAll();
+
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'second').toDate(), { id: position.id });
+        expect(Object.keys(cron.jobs).length).toEqual(1);
+
+        cron.clearAll();
+        expect(Object.keys(cron.jobs).length).toEqual(0);
+
+        await sleep(2000);
+
+        const positionFromDb = await Position.findByPk(position.id);
+        expect(positionFromDb.status).toEqual('closed');
+    });
+
     test('should do nothing if trying to execute nonexistant job', async () => {
         const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
         expect(Object.keys(cron.jobs).length).toEqual(1);

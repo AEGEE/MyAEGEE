@@ -30,7 +30,9 @@ exports.createPermission = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:create:permission is required, but not present.');
     }
 
-    const permission = await Permission.create(req.body);
+    const permission = await Permission.create(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.PERMISSION.CREATE
+    });
     return res.json({
         success: true,
         data: permission
@@ -42,7 +44,9 @@ exports.updatePermission = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update:permission is required, but not present.');
     }
 
-    await req.currentPermission.update(req.body);
+    await req.currentPermission.update(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.PERMISSION.UPDATE
+    });
     return res.json({
         success: true,
         data: req.currentPermission

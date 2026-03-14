@@ -39,6 +39,7 @@ describe('Events details', () => {
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
         expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('vegetarian');
         expect(res.body.data).toHaveProperty('accommodation_type');
         expect(res.body.data).toHaveProperty('link_info_travel_country');
         expect(res.body.data).toHaveProperty('optional_programme');
@@ -71,6 +72,7 @@ describe('Events details', () => {
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
         expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('vegetarian');
         expect(res.body.data).toHaveProperty('accommodation_type');
         expect(res.body.data).toHaveProperty('link_info_travel_country');
         expect(res.body.data).toHaveProperty('optional_programme');

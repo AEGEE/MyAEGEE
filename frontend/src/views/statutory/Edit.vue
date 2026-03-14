@@ -691,8 +691,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           if (!err.response.data.errors) {
             return this.$root.showError('Some of the event data is invalid', err)
           }
@@ -787,7 +788,7 @@ export default {
       this.can = response.data.data.permissions
 
       this.dates.starts = this.event.starts = new Date(this.event.starts)
-      this.dates.ends = this.event.starts = new Date(this.event.ends)
+      this.dates.ends = this.event.ends = new Date(this.event.ends)
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
@@ -810,7 +811,9 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

@@ -11,17 +11,16 @@ defmodule OmsmailerWeb.PageController do
   end
 
   def healthcheck(conn, _params) do
-    package_info = File.read!("package.json")
-    |> Poison.decode!()
+    service_info = Application.fetch_env!(:omsmailer, :service_info)
 
     conn
     |> put_status(200)
     |> json(%{
       success: true,
       data: %{
-        name: package_info["name"],
-        description: package_info["description"],
-        version: package_info["version"]
+        name: service_info[:name],
+        description: service_info[:description],
+        version: service_info[:version]
       }
     })
   end

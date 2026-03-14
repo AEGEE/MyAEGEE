@@ -164,4 +164,39 @@ describe('File upload', () => {
         const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
         expect(fs.existsSync(oldImgPath)).toEqual(false);
     });
+
+    it('should replace the image even when the old file is already missing', async () => {
+        const firstRequest = await request({
+            uri: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(firstRequest.statusCode).toEqual(200);
+
+        const eventBeforeReplacement = await Event.findByPk(event.id);
+        const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventBeforeReplacement.image);
+        fs.unlinkSync(oldImgPath);
+
+        const res = await request({
+            uri: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const eventFromDb = await Event.findByPk(event.id);
+        expect(eventFromDb.image).not.toEqual(eventBeforeReplacement.image);
+
+        const newImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
+        expect(fs.existsSync(newImgPath)).toEqual(true);
+    });
 });

@@ -173,4 +173,16 @@ describe('Netcom', () => {
 
         expect(netcomFromDB).toEqual(null);
     });
+
+    test('should return 404 when deleting a missing Netcom assignment', async () => {
+        const res = await request({
+            uri: '/netcom/99999',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
 });

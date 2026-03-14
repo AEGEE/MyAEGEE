@@ -1,34 +1,29 @@
-const request = require('request-promise-native');
-
 const config = require('../config');
+const { requestJson } = require('./http');
 
 module.exports.getMyProfile = async (req) => {
-    const myProfileBody = await request({
+    const myProfileBody = await requestJson({
         url: config.core.url + ':' + config.core.port + '/members/me',
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'network'
-        },
-        simple: false,
-        json: true,
+        }
     });
 
     return myProfileBody;
 };
 
 module.exports.getMyPermissions = async (req) => {
-    const permissionsBody = await request({
+    const permissionsBody = await requestJson({
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'network'
-        },
-        simple: false,
-        json: true,
+        }
     });
 
     return permissionsBody;
@@ -43,8 +38,6 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'network'
         },
-        simple: false,
-        json: true,
         resolveWithFullResponse: options.resolveWithFullResponse || false
     };
 
@@ -52,7 +45,7 @@ const makeRequest = (options) => {
         requestOptions.body = options.body;
     }
 
-    return request(requestOptions);
+    return requestJson(requestOptions);
 };
 
 module.exports.fetchBody = async (body, token) => {

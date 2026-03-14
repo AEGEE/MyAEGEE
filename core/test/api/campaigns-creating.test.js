@@ -77,4 +77,24 @@ describe('Campaigns creating', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual(campaign.name);
     });
+
+    test('should ignore autojoin body on global campaign creation', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
+
+        const campaign = generator.generateCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({
+            uri: '/campaigns/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: campaign
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.autojoin_body_id).toEqual(null);
+    });
 });

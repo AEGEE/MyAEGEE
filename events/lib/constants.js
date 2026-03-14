@@ -33,6 +33,7 @@ module.exports = {
         'status',
         'publication_date',
         'meals_per_day',
+        'vegetarian',
         'accommodation_type',
         'optional_programme',
         'optional_fee',

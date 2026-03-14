@@ -220,8 +220,9 @@ export default {
         this.$root.showSuccess('Parent circle is ' + (circle ? 'set.' : 'unset.'))
       }).catch((err) => {
         this.autoComplete.parentCircle.loading = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) {
+        if (status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
           return this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
         }
@@ -241,8 +242,9 @@ export default {
         this.$root.showSuccess('Permission is added.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) {
+        if (status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
           return this.$root.showError('Could not add permission: ' + errors)
         }
@@ -261,8 +263,9 @@ export default {
         this.$root.showSuccess('Permission is deleted.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) {
+        if (status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
           return this.$root.showError('Could not delete permission: ' + errors)
         }
@@ -282,7 +285,9 @@ export default {
         this.$root.showSuccess('Child circle is added.')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-        if (err.response.status === 422) {
+        const status = err.response && err.response.status
+
+        if (status === 422) {
           const errors = err.response.data.errors
             ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
             : err.response.data.message
@@ -306,8 +311,9 @@ export default {
         this.$root.showSuccess('Child circle is removed')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) {
+        if (status === 422) {
           const errors = err.response.data.errors
             ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
             : err.response.data.message
@@ -341,8 +347,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the circle data is invalid.')
         }
@@ -361,7 +368,9 @@ export default {
       this.circle = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      if (err.response.status === 404) {
+      const status = err.response && err.response.status
+
+      if (status === 404) {
         this.$root.showError('Circle is not found')
       } else {
         this.$root.showError('Some error happened', err)

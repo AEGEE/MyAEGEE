@@ -168,4 +168,33 @@ describe('Body payments creating', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.body_id).not.toEqual(1337);
     });
+
+    test('should ignore non-payment fields on create', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
+
+        const body = await generator.createBody();
+        const otherUser = await generator.createUser();
+        await generator.createBodyMembership(body, otherUser);
+
+        const payment = generator.generatePayment(body, otherUser, {
+            id: 1337,
+            created_at: '2000-01-01T00:00:00.000Z',
+            updated_at: '2000-01-01T00:00:00.000Z'
+        });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/payments',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: payment
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).not.toEqual(1337);
+        expect(res.body.data.body_id).toEqual(body.id);
+        expect(res.body.data.user_id).toEqual(otherUser.id);
+    });
 });

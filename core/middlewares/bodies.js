@@ -65,7 +65,9 @@ exports.createBody = async (req, res) => {
     }
 
     // TODO: filter out fields that are changed in the other way
-    const body = await Body.create(req.body);
+    const body = await Body.create(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.BODY.CREATE
+    });
     return res.json({
         success: true,
         data: body
@@ -77,7 +79,12 @@ exports.updateBody = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:body is required, but not present.');
     }
 
-    await req.currentBody.update(req.body, { fields: req.permissions.getPermissionFilters('update:body') });
+    const permissionFields = req.permissions.getPermissionFilters('update:body');
+    const allowedFields = Array.isArray(permissionFields) && permissionFields.length > 0
+        ? permissionFields.filter((field) => constants.FIELDS_TO_UPDATE.BODY.CREATE.includes(field))
+        : constants.FIELDS_TO_UPDATE.BODY.CREATE;
+
+    await req.currentBody.update(req.body, { fields: allowedFields });
     return res.json({
         success: true,
         data: req.currentBody
@@ -146,9 +153,12 @@ exports.createBoundCircle = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission create:circle is required, but not present.');
     }
 
-    req.body.body_id = req.currentBody.id;
-
-    const circle = await Circle.create(req.body);
+    const circle = await Circle.create({
+        ...req.body,
+        body_id: req.currentBody.id
+    }, {
+        fields: [...constants.FIELDS_TO_UPDATE.CIRCLE.CREATE, 'body_id']
+    });
 
     return res.json({
         success: true,

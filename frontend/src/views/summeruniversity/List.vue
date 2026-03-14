@@ -261,6 +261,7 @@ export default {
 
       this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
         this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:summeruniversity'))
+        this.can.apply = response.data.data.some(permission => permission.combined.endsWith('apply:summeruniversity'))
 
         this.isLoading.permissions = false
       }).catch((err) => {

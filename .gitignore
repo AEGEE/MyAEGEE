@@ -17,3 +17,6 @@ secrets/*
 
 # Root node_modules from workspace
 /node_modules
+
+# Summer University test artifacts
+summeruniversity/junit.xml

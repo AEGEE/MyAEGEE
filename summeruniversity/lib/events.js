@@ -9,6 +9,34 @@ const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
 
+const GENERIC_EVENT_BLOCKED_FIELDS = [
+    'id',
+    'image',
+    'status',
+    'deleted',
+    'published',
+    'application_starts',
+    'application_ends',
+    'open_call',
+    'max_participants',
+    'accepted_participants',
+    'available_spots'
+];
+
+function getCurrentSeason() {
+    return new Date().getFullYear();
+}
+
+function sanitizeGenericEventPayload(payload) {
+    const data = { ...payload };
+
+    for (const field of GENERIC_EVENT_BLOCKED_FIELDS) {
+        delete data[field];
+    }
+
+    return data;
+}
+
 exports.listEvents = async (req, res) => {
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
@@ -162,16 +190,12 @@ exports.addEvent = async (req, res) => {
     }
 
     // Make sure the user doesn't insert malicious stuff
-    const data = req.body;
-    delete data.id;
-    delete data.image;
-    delete data.deleted;
-    delete data.published;
+    const data = sanitizeGenericEventPayload(req.body);
 
     data.status = 'first submission';
 
     if (!data.season) {
-        data.season = 2026;
+        data.season = getCurrentSeason();
     }
 
     const event = new Event(data);
@@ -259,19 +283,9 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this event');
     }
 
-    const data = req.body;
+    const data = sanitizeGenericEventPayload(req.body);
     const event = req.event;
-    const oldStatus = data.status;
-
-    delete data.id;
-    delete data.image;
-    delete data.status;
-    delete data.deleted;
-    delete data.published;
-
-    if (!data.season) {
-        data.season = 2026;
-    }
+    const oldStatus = event.status;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
@@ -308,7 +322,8 @@ exports.editEvent = async (req, res) => {
         await event.update(data, { transaction: t });
 
         const adminToken = await core.getAdminToken();
-        data.organizers = await Promise.all(data.organizers.map((organizer) =>
+        const organizers = Array.isArray(data.organizers) ? data.organizers : event.organizers;
+        data.organizers = await Promise.all(organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.

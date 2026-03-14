@@ -115,4 +115,20 @@ describe('Plenaries creation', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
     });
+
+    test('should preserve string plenary names', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = generator.generatePlenary({ name: 'Opening plenary' });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/',
+            method: 'POST',
+            body: plenary,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual('Opening plenary');
+    });
 });

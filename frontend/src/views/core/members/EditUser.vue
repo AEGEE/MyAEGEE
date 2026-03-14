@@ -80,8 +80,9 @@ export default {
         })
       }).catch((err) => {
         this.isSaving = false
+        const status = err.response && err.response.status
 
-        if (err.response.status === 422) { // validation errors
+        if (status === 422) { // validation errors
           if (!err.response.data.errors) { // incorrect old password
             this.errors = { old_password: ['Wrong password.'] }
           } else {

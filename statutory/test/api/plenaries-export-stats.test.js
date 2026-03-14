@@ -544,4 +544,42 @@ describe('Plenaries exports', () => {
         expect(row[4]).toEqual(0); // 3 delegates
         expect(row[5]).toEqual(0.0.toFixed(2) + '%'); // avg% for all
     });
+
+    test('should display 0% for unfinished attendances in bodies stats', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            name: 'Open plenary',
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(1, 'week').add(1, 'hour').toDate()
+        }, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1,
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(plenary.starts).add(5, 'minutes').toDate(),
+            ends: null
+        }, plenary);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            json: false,
+            encoding: null,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        const bodiesSheetsData = data[1].data;
+        const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[0].name);
+
+        expect(row[5]).toEqual('0.00%');
+        expect(row[6]).toEqual('0.00%');
+    });
 });

@@ -57,7 +57,7 @@ defmodule Omsmailer.Page do
 
   # Sets the body on one or several mails with one or several bodies
   # In case of both content and mail lists, these lists need to have the same length
-  def set_body([_cur_mail | mails], [_cur_content | contents]) when length(mails) != length(contents), do: {:error, "Mismatch in amounts of mails and amounts of template bodies"}
+  def set_body([_cur_mail | mails], [_cur_content | contents]) when length(mails) != length(contents), do: {:error, :unprocessable_entity, "Mismatch in amounts of mails and amounts of template bodies"}
   # Set one pair of body/mail
   def set_body([cur_mail | mails], [cur_content | contents]) do
     with {:ok, cur_result} <- set_body(cur_mail, cur_content),

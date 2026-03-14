@@ -11,10 +11,22 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
   end
 
-  # test "GET /healthcheck", %{conn: conn} do
-  #   conn = get conn, "/healthcheck"
-  #   assert json_response(conn, 200)
-  # end
+  test "GET /healthcheck", %{conn: conn} do
+    conn = get conn, "/healthcheck"
+    body = json_response(conn, 200)
+
+    assert body["success"] == true
+    assert body["data"]["name"] == "mailer"
+    assert body["data"]["description"] == "The internal mailer module of my.aegee.eu"
+    assert body["data"]["version"] == "0.19.0"
+  end
+
+  test "POST / returns validation error for mismatched bulk template bodies", %{conn: conn} do
+    conn = post conn, "/", %{template: "custom.html", parameters: [%{body: "first"}], from: "mailer@aegee.org", to: ["test1@aegee.org", "test2@aegee.org"], subject: "pirates"}
+
+    assert %{"success" => false, "error" => "Mismatch in amounts of mails and amounts of template bodies"} = json_response(conn, 422)
+    assert_no_emails_delivered()
+  end
 
   # Tests test template
   test "POST / default template", %{conn: conn} do

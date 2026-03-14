@@ -54,7 +54,22 @@ describe('API requests', () => {
     });
 
     test('should fail if oms-core returns unsuccessful response while fetching user', async () => {
-        mock.mockAll({ core: { unauthorized: true } });
+        mock.mockAll({ core: { fixture: 'unsuccessful' } });
+
+        const res = await request({
+            uri: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if oms-core returns unauthorized response while fetching user', async () => {
+        mock.mockAll({ core: { fixture: 'unauthorized' } });
 
         const res = await request({
             uri: '/integrations',
@@ -99,7 +114,7 @@ describe('API requests', () => {
     });
 
     test('should fail if oms-core returns unsuccessful response while fetching permissions', async () => {
-        mock.mockAll({ mainPermissions: { unauthorized: true } });
+        mock.mockAll({ mainPermissions: { fixture: 'unsuccessful' } });
 
         const res = await request({
             uri: '/integrations',
@@ -111,6 +126,36 @@ describe('API requests', () => {
 
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if oms-core returns unauthorized response while fetching permissions', async () => {
+        mock.mockAll({ mainPermissions: { fixture: 'unauthorized' } });
+
+        const res = await request({
+            uri: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if permissions payload contains malformed entries', async () => {
+        mock.mockAll({ mainPermissions: { fixture: 'malformedEntry' } });
+
+        const res = await request({
+            uri: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
     });
 
     test('should fail if body is not JSON', async () => {

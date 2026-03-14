@@ -16,9 +16,10 @@ exports.isNumber = (value) => {
 };
 
 exports.getSorting = (query) => {
+    const allowedSortFields = ['id', 'body_id', 'elected_date', 'start_date', 'end_date'];
     const result = [['id', 'ASC']];
 
-    if (typeof query.sort === 'string') {
+    if (typeof query.sort === 'string' && allowedSortFields.includes(query.sort)) {
         result[0][0] = query.sort;
     }
 
@@ -31,6 +32,10 @@ exports.getSorting = (query) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
     return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 

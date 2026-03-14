@@ -18,7 +18,12 @@ end
 # General application configuration
 config :omsmailer,
   ecto_repos: [Omsmailer.Repo],
-  from_address: System.get_env("SMTP_USER")
+  from_address: System.get_env("SMTP_USER"),
+  service_info: [
+    name: "mailer",
+    description: "The internal mailer module of my.aegee.eu",
+    version: "0.19.0"
+  ]
 
 # Configures the endpoint
 config :omsmailer, OmsmailerWeb.Endpoint,

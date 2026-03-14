@@ -50,6 +50,18 @@ describe('MailComponent', () => {
         expect(res.body.data.length).toEqual(2);
     });
 
+    test('should fail listing MailComponents when agora_id is invalid', async () => {
+        const res = await request({
+            uri: '/mailComponent/not-a-number',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Agora ID is invalid.');
+    });
+
     test('should only list MailComponents of the selected Agora', async () => {
         await generator.createMailComponent({ agora_id: 1, mail_component: 'introduction' });
         await generator.createMailComponent({ agora_id: 1, mail_component: 'communication' });

@@ -5,7 +5,7 @@ const boards = require('./boards');
 module.exports.sendAllEmails = async () => {
     const allBoards = await Board.findAll({});
     for (const board of allBoards) {
-        boards.sendNewBoardEmail(board.id);
+        await boards.sendNewBoardEmail(board.id);
     }
 };
 

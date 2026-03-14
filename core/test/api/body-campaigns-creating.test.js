@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Campaign } = require('../../models');
 
 describe('Campaigns creating', () => {
     beforeAll(async () => {
@@ -59,6 +60,10 @@ describe('Campaigns creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual(campaign.name);
+        expect(res.body.data.autojoin_body_id).toEqual(body.id);
+
+        const campaignFromDb = await Campaign.findByPk(res.body.data.id);
+        expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
 
     test('should override body id', async () => {
@@ -81,7 +86,7 @@ describe('Campaigns creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.autojoin_body_id).toEqual(body.id);
     });
 
     test('should succeed on local permission', async () => {
@@ -107,7 +112,7 @@ describe('Campaigns creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.autojoin_body_id).toEqual(body.id);
     });
 
     test('should fail if no permission', async () => {

@@ -44,12 +44,17 @@ exports.createApplication = async (req, res) => {
         return errors.makeBadRequestError(res, 'You are not a member of this body.');
     }
 
+    const body = req.user.bodies.find((currentBody) => currentBody.id === req.body.body_id);
+    if (!body) {
+        return errors.makeValidationError(res, 'Body should be set.');
+    }
+
     delete req.body.board_comment;
     delete req.body.status;
 
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
-    req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    req.body.body_name = body.name;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
 
@@ -91,20 +96,19 @@ exports.updateApplication = async (req, res) => {
     delete req.body.board_comment;
     delete req.body.status;
 
-    // TODO fix this so applications can be updated by EQAC/admins
-    req.body.first_name = req.user.first_name;
-    req.body.last_name = req.user.last_name;
+    req.body.first_name = req.application.first_name;
+    req.body.last_name = req.application.last_name;
     if (typeof req.body.body_id !== 'undefined') {
         req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
     }
-    req.body.user_id = req.user.id;
+    req.body.user_id = req.application.user_id;
     req.body.event_id = req.event.id;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
-        const notificationEmail = (await core.fetchUser(req.body, req.headers['x-auth-token'])).notification_email;
+        const notificationEmail = (await core.fetchUser(req.application, req.headers['x-auth-token'])).notification_email;
 
         // Sending the mail to a user.
         await mailer.sendMail({

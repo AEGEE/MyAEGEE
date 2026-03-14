@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { RefreshToken } = require('../../models');
 
 describe('Logout', () => {
     beforeAll(async () => {
@@ -64,5 +65,11 @@ describe('Logout', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('errors');
+
+        const tokenFromDb = await RefreshToken.findOne({
+            where: { value: token.value }
+        });
+
+        expect(tokenFromDb).toEqual(null);
     });
 });

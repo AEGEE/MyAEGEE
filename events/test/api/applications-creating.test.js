@@ -92,6 +92,30 @@ describe('Events application creating', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should return 422 if body_id is missing instead of crashing', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            applications: [],
+            questions: []
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                answers: [],
+                agreed_to_privacy_policy: true
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Body should be set.');
+    });
+
     it('should return 422 if agreed_to_privacy_policy = false', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(1, 'weeks').toDate(),

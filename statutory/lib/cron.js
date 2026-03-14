@@ -93,7 +93,7 @@ class JobManager {
 
         const id = ++this.currentJob;
 
-        scheduler.scheduleJob(time, () => this.executeJob(id));
+        const scheduledJob = scheduler.scheduleJob(time, () => this.executeJob(id));
 
         this.jobs[id] = {
             key,
@@ -103,6 +103,11 @@ class JobManager {
             id,
             callback
         };
+        Object.defineProperty(this.jobs[id], 'scheduledJob', {
+            value: scheduledJob,
+            enumerable: false,
+            writable: true
+        });
         logger.info({
             id,
             description,
@@ -133,7 +138,7 @@ class JobManager {
         }
 
         logger.info({ job }, 'Cancelling job');
-        scheduler.cancelJob(job.job);
+        scheduler.cancelJob(job.scheduledJob);
         delete this.jobs[id];
     }
 

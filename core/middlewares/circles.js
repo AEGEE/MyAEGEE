@@ -66,7 +66,7 @@ exports.updateCircle = async (req, res) => {
 
     // TODO: filter out fields that are changed in the other way
     // TODO: check if the parent circle's joinable is the same as child circle's one
-    await req.currentCircle.update(req.body);
+    await req.currentCircle.update(req.body, { fields: constants.FIELDS_TO_UPDATE.CIRCLE.UPDATE });
     return res.json({
         success: true,
         data: req.currentCircle

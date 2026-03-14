@@ -1,5 +1,3 @@
-const request = require('request-promise-native');
-
 const core = require('./core');
 const errors = require('./errors');
 const helpers = require('./helpers');
@@ -7,6 +5,7 @@ const logger = require('./logger');
 const config = require('../config');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
+const { requestJson } = require('./http');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -21,15 +20,13 @@ exports.authenticateUser = async (req, res, next) => {
 
     // Fetching permissions for board management, the list of bodies
     // where do you have the 'manage_network:boards' permission for it.
-    const manageRequest = await request({
+    const manageRequest = await requestJson({
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'POST',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
-        simple: false,
-        json: true,
         body: {
             action: 'manage_network',
             object: 'boards'

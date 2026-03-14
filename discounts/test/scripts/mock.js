@@ -1,9 +1,61 @@
-const path = require('path');
 const nock = require('nock');
 
 const config = require('../../config');
+const fixtures = require('../assets');
 
 exports.cleanAll = () => nock.cleanAll();
+
+function replyWithFixture(scope, fixture) {
+    return scope.replyWithFile(fixture.status, fixture.file);
+}
+
+function getCoreProfileFixture(options) {
+    if (options.fixture) {
+        return fixtures.coreFixtures[options.fixture];
+    }
+
+    if (options.unsuccessfulResponse) {
+        return fixtures.coreFixtures.unsuccessful;
+    }
+
+    if (options.unauthorized) {
+        return fixtures.coreFixtures.unauthorized;
+    }
+
+    return fixtures.coreFixtures.profileSuccess;
+}
+
+function getPermissionFixture(options) {
+    if (options.fixture) {
+        return fixtures.permissionFixtures[options.fixture];
+    }
+
+    if (options.noPermissions) {
+        return fixtures.permissionFixtures.empty;
+    }
+
+    if (options.unsuccessfulResponse) {
+        return fixtures.permissionFixtures.unsuccessful;
+    }
+
+    if (options.unauthorized) {
+        return fixtures.permissionFixtures.unauthorized;
+    }
+
+    return fixtures.permissionFixtures.discountsManager;
+}
+
+function getMailerFixture(options) {
+    if (options.fixture) {
+        return fixtures.mailerFixtures[options.fixture];
+    }
+
+    if (options.unsuccessfulResponse) {
+        return fixtures.mailerFixtures.unsuccessful;
+    }
+
+    return fixtures.mailerFixtures.success;
+}
 
 exports.mockCore = (options) => {
     if (options.netError) {
@@ -20,24 +72,12 @@ exports.mockCore = (options) => {
             .reply(500, 'Some error happened.');
     }
 
-    if (options.unsuccessfulResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
+    return replyWithFixture(
+        nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .get('/members/me')
-            .reply(500, { success: false, message: 'Some error' });
-    }
-
-    if (options.unauthorized) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members/me')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
-    }
-
-    return nock(`${config.core.url}:${config.core.port}`)
-        .persist()
-        .get('/members/me')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+            .get('/members/me'),
+        getCoreProfileFixture(options)
+    );
 };
 
 exports.mockCoreMainPermissions = (options) => {
@@ -55,31 +95,12 @@ exports.mockCoreMainPermissions = (options) => {
             .reply(500, 'Some error happened.');
     }
 
-    if (options.unsuccessfulResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
+    return replyWithFixture(
+        nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .get('/my_permissions')
-            .reply(500, { success: false, message: 'Some error' });
-    }
-
-    if (options.unauthorized) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
-    }
-
-    if (options.noPermissions) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
-    }
-
-    return nock(`${config.core.url}:${config.core.port}`)
-        .persist()
-        .get('/my_permissions')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
+            .get('/my_permissions'),
+        getPermissionFixture(options)
+    );
 };
 
 exports.mockCoreMailer = (options) => {
@@ -97,18 +118,14 @@ exports.mockCoreMailer = (options) => {
             .reply(500, 'Some error happened.');
     }
 
-    if (options.unsuccessfulResponse) {
-        return nock(`${config.mailer.url}:${config.mailer.port}`)
-            .persist()
-            .post('/')
-            .reply(500, { success: false, message: 'Some error' });
-    }
-
+    const fixture = getMailerFixture(options);
     return nock(`${config.mailer.url}:${config.mailer.port}`)
         .persist()
         .post('/')
-        .reply(200, { success: true });
+        .reply(fixture.status, fixture.body);
 };
+
+exports.fixtures = fixtures;
 
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
