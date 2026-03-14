@@ -13,6 +13,16 @@
     }, {
         "scope": "global",
         "object": "agora",
+        "id": 1004,
+        "filters": [],
+        "description": "Manage memberslists for Agora.",
+        "combined": "global:manage_memberslist:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_memberslist"
+    }, {
+        "scope": "global",
+        "object": "agora",
         "id": 1003,
         "filters": [],
         "description": "Edit memberslists between submission and edit deadlines.",

@@ -96,6 +96,41 @@ describe('Applications pax type/board comment', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should succeed for board comment when user has approve_members but not manage_memberslist', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+
+        application = await application.update({ user_id: 1337 }, { returning: ['*'] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', board_comment: 'test', participant_order: 1 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.participant_type).toEqual('delegate');
+    });
+
+    test('should return 403 for board comment when user has manage_memberslist but not approve_members', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true }, mainPermissions: { noPermissions: true } });
+
+        application = await application.update({ user_id: 1337 }, { returning: ['*'] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', participant_order: 1 }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     test('should return 404 if the application is not found', async () => {
         const res = await request({
             uri: '/events/' + event.id + '/applications/1337/board',

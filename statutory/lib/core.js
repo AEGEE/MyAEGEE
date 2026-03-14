@@ -79,6 +79,23 @@ const getApprovePermissions = async (req, event) => {
     return approveRequest;
 };
 
+const getMemberslistPermissions = async (req, event) => {
+    // Fetching permissions for memberslist management, the list of bodies
+    // where do you have the 'manage_memberslist:<event_type>' permission for it.
+    const memberslistRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/my_permissions',
+        method: 'POST',
+        token: req.headers['x-auth-token'],
+        resolveWithFullResponse: true,
+        body: {
+            action: 'manage_memberslist',
+            object: event.type
+        }
+    });
+
+    return memberslistRequest;
+};
+
 const getBodies = async (req) => {
     const bodies = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies',
@@ -191,6 +208,7 @@ module.exports = {
     getMails,
     getBody,
     getApprovePermissions,
+    getMemberslistPermissions,
     getBodies,
     getMyProfile,
     getMyPermissions,

@@ -351,7 +351,7 @@ async function createPermissions() {
             scope: 'local',
             object: 'epm',
             action: 'approve_members',
-            description: 'Approve members for a local/manage memberslists for a local for EPM'
+            description: 'Set pax type/order and board comment for EPM applications.'
         },
         {
             scope: 'local',
@@ -366,6 +366,18 @@ async function createPermissions() {
             description: 'Set pax type/order and board comment for Agora applications.'
         },
         {
+            scope: 'local',
+            object: 'agora',
+            action: 'manage_memberslist',
+            description: 'Upload, edit and view memberslists for Agora for your local.'
+        },
+        {
+            scope: 'local',
+            object: 'epm',
+            action: 'manage_memberslist',
+            description: 'Upload, edit and view memberslists for EPM for your local.'
+        },
+        {
             scope: 'join_request',
             object: 'member',
             action: 'view',
@@ -375,7 +387,13 @@ async function createPermissions() {
             scope: 'local',
             object: 'spm',
             action: 'approve_members',
-            description: ' Approve members for SPM and put board comments for boardies'
+            description: 'Set pax type/order and board comment for SPM applications.'
+        },
+        {
+            scope: 'local',
+            object: 'spm',
+            action: 'manage_memberslist',
+            description: 'Upload, edit and view memberslists for SPM for your local.'
         },
         {
             action: 'search',
@@ -485,7 +503,13 @@ async function createPermissions() {
             action: 'approve_members',
             object: 'epm',
             scope: 'global',
-            description: 'Approve EPM members'
+            description: 'Set pax type/order and board comment for EPM applications for all bodies.'
+        },
+        {
+            action: 'manage_memberslist',
+            object: 'epm',
+            scope: 'global',
+            description: 'Upload, edit and view memberslists for EPM for all bodies.'
         },
         {
             action: 'manage_applications',
@@ -620,6 +644,12 @@ async function createPermissions() {
         object: 'fulfilment_report',
         scope: 'global',
         description: 'Set the fulfilment of the `fulfilment report` Antenna Criterion'
+    },
+    {
+        action: 'manage_memberslist',
+        object: 'agora',
+        scope: 'global',
+        description: 'Upload, edit and view memberslists for Agora for all bodies.'
     }], { individualHooks: true, validate: true });
 
     permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.setMemberslistsFeePaidAgora];
@@ -746,6 +776,18 @@ async function createPermissions() {
         object: 'circle',
         scope: 'global',
         description: 'List and view the details of any circle, excluding members data'
+    },
+    {
+        action: 'approve_members',
+        object: 'agora',
+        scope: 'global',
+        description: 'Set pax type/order and board comment for Agora applications for all bodies.'
+    },
+    {
+        action: 'manage_memberslist',
+        object: 'agora',
+        scope: 'global',
+        description: 'Upload, edit and view memberslists for Agora for all bodies.'
     }], { individualHooks: true, validate: true });
 
     permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember];
@@ -783,12 +825,6 @@ async function createPermissions() {
             object: 'agora',
             scope: 'global',
             description: 'Apply to Agora/edit your application regardless if the deadline was passed or not.'
-        },
-        {
-            action: 'approve_members',
-            object: 'agora',
-            scope: 'global',
-            description: 'Approve members for Agora for all bodies'
         },
         {
             action: 'manage_applications',
@@ -1034,7 +1070,13 @@ async function createPermissions() {
             action: 'approve_members',
             object: 'spm',
             scope: 'global',
-            description: 'Approve members for SPM and put board comments'
+            description: 'Set pax type/order and board comment for SPM applications for all bodies.'
+        },
+        {
+            action: 'manage_memberslist',
+            object: 'spm',
+            scope: 'global',
+            description: 'Upload, edit and view memberslists for SPM for all bodies.'
         },
         {
             action: 'manage_applications',

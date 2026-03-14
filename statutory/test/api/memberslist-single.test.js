@@ -23,7 +23,7 @@ describe('Memberslist displaying', () => {
     });
 
     test('should fail if user has no permissions at all', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
@@ -79,6 +79,38 @@ describe('Memberslist displaying', () => {
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
+    test('should fail to view memberslist if user has only approve_members but not manage_memberslist', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should succeed to view memberslist if user has manage_memberslist but not approve_members', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

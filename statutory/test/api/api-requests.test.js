@@ -192,6 +192,56 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test('should return 500 if core returned unsuccessful response for memberslist permissions', async () => {
+        mock.mockAll({ memberslistPermissions: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 401 if the memberslist permissions request returned 401 for auth-only endpoint', async () => {
+        mock.mockAll({ memberslistPermissions: { unauthorized: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if core returns garbage while fetching memberslist permissions', async () => {
+        mock.mockAll({ memberslistPermissions: { badResponse: true } });
+        const event = await generator.createEvent({});
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
     test('should fail if body is not JSON', async () => {
         const res = await request({
             uri: '/',

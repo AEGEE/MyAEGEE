@@ -95,6 +95,26 @@
     }, {
       "scope": "global",
       "object": "agora",
+      "id": 100,
+      "filters": [],
+      "description": "Manage memberslists for Agora.",
+      "combined": "global:manage_memberslist:agora",
+      "circles": null,
+      "always_assigned": false,
+      "action": "manage_memberslist"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 101,
+      "filters": [],
+      "description": "Manage memberslists for EPM.",
+      "combined": "global:manage_memberslist:epm",
+      "circles": null,
+      "always_assigned": false,
+      "action": "manage_memberslist"
+    }, {
+      "scope": "global",
+      "object": "agora",
       "id": 6,
       "filters": [],
       "description": "See memberslists.",

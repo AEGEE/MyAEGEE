@@ -306,6 +306,7 @@ exports.getEventPermissions = (data) => {
         permissions,
         corePermissions,
         approvePermissions,
+        memberslistPermissions,
         user,
         event,
         limits,
@@ -349,16 +350,16 @@ exports.getEventPermissions = (data) => {
         global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
     };
     permissions.upload_memberslist = {
-        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+        global: hasPermission(corePermissions, 'global:manage_memberslist:' + event.type)
     };
     permissions.edit_memberslist = {
-        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+        global: hasPermission(corePermissions, 'global:manage_memberslist:' + event.type)
     };
     if (isBetweenMemberslistDeadlines) {
         permissions.edit_memberslist.global = permissions.edit_memberslist.global && hasMemberslistEditBetweenDeadlinesPermission;
     }
     permissions.see_memberslist = {
-        global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
+        global: hasPermission(corePermissions, 'global:manage_memberslist:' + event.type)
     };
     permissions.see_missing_memberslist = {
         global: hasPermission(corePermissions, 'global:see_missing_memberslists:' + event.type)
@@ -376,17 +377,18 @@ exports.getEventPermissions = (data) => {
     permissions.mark_attendance = hasPermission(corePermissions, 'global:mark_attendance:agora');
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
+    const memberslistBodiesList = getBodiesListFromPermissions(memberslistPermissions);
     const bodies = user ? user.bodies : [];
 
     for (const body of bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
-        permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
         if (isBetweenMemberslistDeadlines) {
             permissions.edit_memberslist[body.id] = permissions.edit_memberslist[body.id] && hasMemberslistEditBetweenDeadlinesPermission;
         }
-        permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.see_memberslist[body.id] = memberslistBodiesList.includes(body.id) && exports.isLocal(body);
     }
 
     permissions.apply_from_body = {};
