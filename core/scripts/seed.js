@@ -255,6 +255,12 @@ async function createPermissions() {
         scope: 'global',
         description: 'Manage the Antenna Criteria fulfilment of Locals'
     });
+    permissions.manageMemberslistAgora = await Permission.create({
+        action: 'manage_memberslist',
+        object: 'agora',
+        scope: 'global',
+        description: 'Upload, edit and view memberslists for Agora for all bodies.'
+    });
 
     permissions.members = await Permission.bulkCreate([{
         scope: 'global',
@@ -644,15 +650,9 @@ async function createPermissions() {
         object: 'fulfilment_report',
         scope: 'global',
         description: 'Set the fulfilment of the `fulfilment report` Antenna Criterion'
-    },
-    {
-        action: 'manage_memberslist',
-        object: 'agora',
-        scope: 'global',
-        description: 'Upload, edit and view memberslists for Agora for all bodies.'
     }], { individualHooks: true, validate: true });
 
-    permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.setMemberslistsFeePaidAgora];
+    permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.setMemberslistsFeePaidAgora, permissions.manageMemberslistAgora];
 
     const financialDirectorPermissions = await Permission.bulkCreate([{
         action: 'manage_network',
@@ -782,15 +782,9 @@ async function createPermissions() {
         object: 'agora',
         scope: 'global',
         description: 'Set pax type/order and board comment for Agora applications for all bodies.'
-    },
-    {
-        action: 'manage_memberslist',
-        object: 'agora',
-        scope: 'global',
-        description: 'Upload, edit and view memberslists for Agora for all bodies.'
     }], { individualHooks: true, validate: true });
 
-    permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember];
+    permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember, permissions.manageMemberslistAgora];
 
     const jcPermissions = await Permission.bulkCreate([{
         action: 'manage_juridical',
