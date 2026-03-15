@@ -130,6 +130,8 @@ axios.interceptors.request.use(config => {
   return config
 })
 
+let renewalPromise = null
+
 axios.interceptors.response.use(
   response => response, // success handler
   error => {
@@ -153,11 +155,31 @@ axios.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    return Vue.axios.post(state.services['core'] + '/renew', { refresh_token: refreshToken }).then((result) => {
-      console.debug('Renew access token successfully.')
+    if (!renewalPromise) {
+      renewalPromise = Vue.axios.post(state.services['core'] + '/renew', { refresh_token: refreshToken })
+        .then((result) => {
+          console.debug('Renew access token successfully.')
+          window.localStorage.setItem('access-token', result.data.access_token)
+          if (result.data.refresh_token) {
+            window.localStorage.setItem('refresh-token', result.data.refresh_token)
+          }
+          return result.data.access_token
+        })
+        .catch((renewError) => {
+          console.debug('Token renewal failed:', renewError)
+          window.localStorage.removeItem('access-token')
+          window.localStorage.removeItem('refresh-token')
+          if (!originalRequest.headers['X-For-Auth']) {
+            const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
+            router.push('/login' + prefix)
+          }
+          throw renewError
+        })
+        .finally(() => { renewalPromise = null })
+    }
 
-      window.localStorage.setItem('access-token', result.data.access_token)
-      originalRequest.headers['X-Auth-Token'] = result.data.access_token
+    return renewalPromise.then((newToken) => {
+      originalRequest.headers['X-Auth-Token'] = newToken
       return axios(originalRequest)
     })
   }
