@@ -1,4 +1,6 @@
 function registerAxiosInterceptors ({ axios, Vue, router, state, getCurrentRoute }) {
+  let renewalPromise = null
+
   axios.interceptors.request.use(config => {
     const token = window.localStorage.getItem('access-token')
     config.headers['X-Auth-Token'] = token
@@ -28,11 +30,32 @@ function registerAxiosInterceptors ({ axios, Vue, router, state, getCurrentRoute
         return Promise.reject(error)
       }
 
-      return Vue.axios.post(state.services['core'] + '/renew', { refresh_token: refreshToken }).then((result) => {
-        console.debug('Renew access token successfully.')
+      if (!renewalPromise) {
+        renewalPromise = Vue.axios.post(state.services['core'] + '/renew', { refresh_token: refreshToken })
+          .then((result) => {
+            console.debug('Renew access token successfully.')
+            window.localStorage.setItem('access-token', result.data.access_token)
+            if (result.data.refresh_token) {
+              window.localStorage.setItem('refresh-token', result.data.refresh_token)
+            }
+            return result.data.access_token
+          })
+          .catch((renewError) => {
+            console.debug('Token renewal failed:', renewError)
+            window.localStorage.removeItem('access-token')
+            window.localStorage.removeItem('refresh-token')
+            if (!originalRequest.headers['X-For-Auth']) {
+              const route = getCurrentRoute()
+              const prefix = route.name === 'oms.login' ? '' : '?to=' + encodeURI(route.fullPath)
+              router.push('/login' + prefix)
+            }
+            throw renewError
+          })
+          .finally(() => { renewalPromise = null })
+      }
 
-        window.localStorage.setItem('access-token', result.data.access_token)
-        originalRequest.headers['X-Auth-Token'] = result.data.access_token
+      return renewalPromise.then((newToken) => {
+        originalRequest.headers['X-Auth-Token'] = newToken
         return axios(originalRequest)
       })
     }

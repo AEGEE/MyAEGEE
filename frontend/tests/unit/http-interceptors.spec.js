@@ -70,6 +70,32 @@ describe('axios renew interceptor', () => {
     expect(result).toEqual({ data: { success: true } })
   })
 
+  test('stores the new refresh token when backend returns one', async () => {
+    const { renewPost, responseErrorHandler } = setup()
+    window.localStorage.setItem('refresh-token', 'refresh-123')
+    renewPost.mockResolvedValue({ data: { access_token: 'new-token', refresh_token: 'new-refresh' } })
+
+    await responseErrorHandler({
+      config: { headers: {}, url: '/api/core/members/me' },
+      response: { status: 401 }
+    })
+
+    expect(window.localStorage.getItem('refresh-token')).toEqual('new-refresh')
+  })
+
+  test('keeps existing refresh token when backend does not return one', async () => {
+    const { renewPost, responseErrorHandler } = setup()
+    window.localStorage.setItem('refresh-token', 'refresh-123')
+    renewPost.mockResolvedValue({ data: { access_token: 'new-token' } })
+
+    await responseErrorHandler({
+      config: { headers: {}, url: '/api/core/members/me' },
+      response: { status: 401 }
+    })
+
+    expect(window.localStorage.getItem('refresh-token')).toEqual('refresh-123')
+  })
+
   test('redirects to login when no refresh token is available', async () => {
     const { router, responseErrorHandler } = setup()
 
@@ -90,5 +116,84 @@ describe('axios renew interceptor', () => {
     })).rejects.toBeTruthy()
 
     expect(router.push).not.toHaveBeenCalled()
+  })
+
+  test('redirects to login when token renewal fails', async () => {
+    const { renewPost, router, responseErrorHandler } = setup()
+    window.localStorage.setItem('refresh-token', 'refresh-123')
+    window.localStorage.setItem('access-token', 'old-token')
+    renewPost.mockRejectedValue(new Error('Network Error'))
+
+    await expect(responseErrorHandler({
+      config: { headers: {}, url: '/api/core/members/me' },
+      response: { status: 401 }
+    })).rejects.toThrow('Network Error')
+
+    expect(window.localStorage.getItem('access-token')).toBeNull()
+    expect(window.localStorage.getItem('refresh-token')).toBeNull()
+    expect(router.push).toHaveBeenCalledWith('/login?to=/events/17')
+  })
+
+  test('does not redirect auth bootstrap requests when renewal fails', async () => {
+    const { renewPost, router, responseErrorHandler } = setup()
+    window.localStorage.setItem('refresh-token', 'refresh-123')
+    renewPost.mockRejectedValue(new Error('403'))
+
+    await expect(responseErrorHandler({
+      config: { headers: { 'X-For-Auth': 'true' }, url: '/api/core/members/me' },
+      response: { status: 401 }
+    })).rejects.toThrow()
+
+    expect(router.push).not.toHaveBeenCalled()
+  })
+
+  test('concurrent 401s share a single renewal request', async () => {
+    const { renewPost, retryRequest, responseErrorHandler } = setup()
+    window.localStorage.setItem('refresh-token', 'refresh-123')
+
+    let resolveRenewal
+    renewPost.mockReturnValue(new Promise((resolve) => {
+      resolveRenewal = resolve
+    }))
+
+    const error401 = (url) => ({
+      config: { headers: {}, url },
+      response: { status: 401 }
+    })
+
+    const promise1 = responseErrorHandler(error401('/api/core/members/me'))
+    const promise2 = responseErrorHandler(error401('/api/core/my_permissions'))
+
+    resolveRenewal({ data: { access_token: 'shared-token' } })
+
+    await Promise.all([promise1, promise2])
+
+    expect(renewPost).toHaveBeenCalledTimes(1)
+    expect(retryRequest).toHaveBeenCalledTimes(2)
+    expect(retryRequest).toHaveBeenCalledWith(expect.objectContaining({
+      headers: expect.objectContaining({ 'X-Auth-Token': 'shared-token' })
+    }))
+  })
+
+  test('rejects non-401 errors without attempting renewal', async () => {
+    const { renewPost, responseErrorHandler } = setup()
+
+    await expect(responseErrorHandler({
+      config: { headers: {} },
+      response: { status: 500 }
+    })).rejects.toBeTruthy()
+
+    expect(renewPost).not.toHaveBeenCalled()
+  })
+
+  test('rejects cancelled requests without attempting renewal', async () => {
+    const { renewPost, retryRequest, responseErrorHandler } = setup()
+    retryRequest.isCancel = jest.fn(() => true)
+
+    await expect(responseErrorHandler({
+      config: { headers: {} }
+    })).rejects.toBeTruthy()
+
+    expect(renewPost).not.toHaveBeenCalled()
   })
 })
