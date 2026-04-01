@@ -64,6 +64,7 @@ module.exports = {
         'additional_regulation',
         'application_status',
         'published',
+        'application_starts',
         'application_ends',
         'created_at',
         'updated_at'

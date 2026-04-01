@@ -431,14 +431,19 @@ exports.setApplicationPeriod = async (req, res) => {
         return errors.makeForbiddenError(res, 'This event status does not allow changing the application period');
     }
 
-    await req.event.update({
-        application_starts: new Date(),
+    const applicationStarts = typeof req.body.application_starts === 'undefined'
+        ? new Date()
+        : req.body.application_starts;
+
+    const event = await req.event.update({
+        application_starts: applicationStarts,
         application_ends: req.body.application_ends
     });
 
     return res.json({
         success: true,
         message: 'Successfully changed application period',
+        data: event
     });
 };
 

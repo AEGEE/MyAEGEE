@@ -266,7 +266,11 @@
                   <th>Application status</th>
                   <td>{{ event.application_status | capitalize }}</td>
                 </tr>
-                <tr v-if="event.application_status === 'open' && event.open_call != true">
+                <tr v-if="event.application_starts && event.open_call != true">
+                  <th>Application period starts <timezone-tooltip /></th>
+                  <td>{{ event.application_starts | datetime }}</td>
+                </tr>
+                <tr v-if="event.application_ends && event.open_call != true">
                   <th>Application period ends <timezone-tooltip /></th>
                   <td>{{ event.application_ends | datetime }}</td>
                 </tr>
