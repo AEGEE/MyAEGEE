@@ -116,12 +116,12 @@
             </div>
           </b-table-column>
 
-          <b-table-column field="application_status" label="Change application deadline" sortable v-slot="props">
+          <b-table-column field="application_status" label="Change application period" sortable v-slot="props">
             <div class="buttons">
               <button
                 class="button is-small is-info"
                 @click="askChangeApplicationPeriod(props.row)">
-                Change application deadline
+                Change application period
               </button>
             </div>
           </b-table-column>
@@ -138,6 +138,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import constants from '../../constants'
+import ApplicationPeriodModal from './ApplicationPeriodModal.vue'
 
 export default {
   name: 'ChangeEventsStatus',
@@ -174,25 +175,22 @@ export default {
       })
     },
     askChangeApplicationPeriod (event) {
-      this.$buefy.dialog.prompt({
-        message: 'Change application deadline (UTC)',
-        inputAttrs: {
-          type: 'datetime-local',
-          required: true,
-          placeholder: 'Change application deadline'
-        },
+      this.$buefy.modal.open({
+        parent: this,
+        component: ApplicationPeriodModal,
+        hasModalCard: true,
         trapFocus: true,
-        onConfirm: (newApplicationEnds) => this.changeApplicationPeriod(event, newApplicationEnds)
+        props: {
+          event,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          onUpdated: (updatedEvent) => this.changeApplicationPeriod(event, updatedEvent)
+        }
       })
     },
-    changeApplicationPeriod (event, newApplicationEnds) {
-      this.axios.put(this.services['summeruniversity'] + '/single/' + event.id + '/application_period', {
-        application_ends: newApplicationEnds
-      }).then(() => {
-        this.$root.showSuccess(`Event application deadline is now "${newApplicationEnds}".`)
-      }).catch((err) => {
-        this.$root.showError('Could not update event application deadline', err)
-      })
+    changeApplicationPeriod (event, updatedEvent) {
+      Object.assign(event, updatedEvent)
     },
     fetchData () {
       this.isLoading = true
