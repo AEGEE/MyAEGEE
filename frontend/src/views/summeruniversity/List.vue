@@ -158,8 +158,7 @@
                       <tr>
                         <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'calendar']" /></span></td>
                         <td>
-                          <span>{{ event.starts | date }}</span>
-                          <span v-if="!isOneDayEvent(event.starts, event.ends)"> - {{ event.ends | date }}</span>
+                          <span>{{ event.starts | date }} - {{ event.ends | date }}</span>
                         </td>
                       </tr>
                       <tr>
@@ -307,9 +306,6 @@ export default {
     })
   },
   methods: {
-    isOneDayEvent (start, end) {
-      return moment(start).isSame(moment(end), 'day')
-    },
     toggleDisplayPast () {
       this.displayPast = !this.displayPast
       this.refetch()
