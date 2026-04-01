@@ -27,7 +27,7 @@
 
         <div class="field">
           <div class="control">
-            <b-switch v-model="displayTiles" :rounded="true">Display experimental view</b-switch>
+            <b-switch v-model="displayListView" :rounded="true">Display classic list view</b-switch>
           </div>
         </div>
 
@@ -37,8 +37,8 @@
           </div>
         </div>
 
-        <!-- List view -->
-        <template v-if="!displayTiles">
+        <!-- Classic list view -->
+        <template v-if="displayListView">
           <div class="card" v-for="event in events" v-bind:key="event.id">
             <div class="card-content">
               <div class="media">
@@ -98,7 +98,7 @@
           </div>
         </template>
 
-        <!-- Tile view -->
+        <!-- Card grid view -->
         <template v-else>
           <div class="columns is-multiline">
             <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
@@ -233,7 +233,7 @@ export default {
       limit: 30,
       offset: 0,
       displayPast: false,
-      displayTiles: false,
+      displayListView: false,
       colors: {
         training: '#A0C514',
         conference: '#931991',

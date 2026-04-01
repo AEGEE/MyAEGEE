@@ -57,67 +57,153 @@
           </label>
         </div>
 
+        <div class="field">
+          <div class="control">
+            <b-switch v-model="displayListView" :rounded="true">Display classic list view</b-switch>
+          </div>
+        </div>
+
         <div class="field" v-if="can.createEvent">
           <div class="control">
             <router-link class="button is-primary" :to="{ name: 'oms.summeruniversity.create' }">Create event</router-link>
           </div>
         </div>
 
-        <div class="card" v-for="event in events" v-bind:key="event.id">
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-96x96">
-                  <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
-                </figure>
-              </div>
-              <div class="media-content">
-                <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }">
-                  <p class="title is-4">{{ event.name }}</p>
-                </router-link>
-              </div>
-            </div>
-
-            <div class="content">
-              <span v-if="event.application_status === 'open'" style="color: #647A16; font-weight: bold">Applications are open!</span>
-              <span v-html="$options.filters.markdown(event.description)" />
-              <ul>
-                <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
-                <li><strong>From:</strong> {{ event.starts | date }} </li>
-                <li><strong>To:</strong> {{ event.ends | date }} </li>
-                <li v-if="event.application_status === 'open' && event.open_call != true"><strong>Application deadline: </strong>
-                  <span>{{ event.application_ends | datetime }}</span>
-                </li>
-                <li v-if="event.open_call === true"><strong>Spots available:</strong> {{ event.available_spots }} </li>
-                <li>
-                  <strong>Organising bodies: </strong>
-                  <router-link
-                    v-for="(body, index) in event.organizing_bodies"
-                    v-bind:key="index"
-                    :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
-                    {{ body.body_name }}
+        <!-- Classic list view -->
+        <template v-if="displayListView">
+          <div class="card" v-for="event in events" v-bind:key="event.id">
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-96x96">
+                    <img v-if="!event.image" src="/images/logo.png">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }">
+                    <p class="title is-4">{{ event.name }}</p>
                   </router-link>
-                </li>
-              </ul>
+                </div>
+              </div>
 
-              <div class="field is-grouped">
-                <p class="control">
-                  <router-link
-                    :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
-                    class="button">Go to event page</router-link>
-                </p>
-                <p class="control" v-if="can.apply">
-                  <router-link
-                    :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
-                    class="button is-primary">
-                    Apply
-                  </router-link>
-                </p>
+              <div class="content">
+                <span v-if="event.application_status === 'open'" style="color: #647A16; font-weight: bold">Applications are open!</span>
+                <span v-html="$options.filters.markdown(event.description)" />
+                <ul>
+                  <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
+                  <li><strong>From:</strong> {{ event.starts | date }} </li>
+                  <li><strong>To:</strong> {{ event.ends | date }} </li>
+                  <li v-if="event.application_status === 'open' && event.open_call != true"><strong>Application deadline: </strong>
+                    <span>{{ event.application_ends | datetime }}</span>
+                  </li>
+                  <li v-if="event.open_call === true"><strong>Spots available:</strong> {{ event.available_spots }} </li>
+                  <li>
+                    <strong>Organising bodies: </strong>
+                    <router-link
+                      v-for="(body, index) in event.organizing_bodies"
+                      v-bind:key="index"
+                      :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                      {{ body.body_name }}
+                    </router-link>
+                  </li>
+                </ul>
+
+                <div class="field is-grouped">
+                  <p class="control">
+                    <router-link
+                      :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
+                      class="button">Go to event page</router-link>
+                  </p>
+                  <p class="control" v-if="can.apply">
+                    <router-link
+                      :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
+                      class="button is-primary">
+                      Apply
+                    </router-link>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
+
+        <!-- Card grid view -->
+        <template v-else>
+          <div class="columns is-multiline">
+            <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
+              <div class="card">
+                <div class="card-content">
+                  <figure class="image is-square">
+                    <img v-if="!event.image" src="/images/logo.png">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" style="object-fit: contain; margin: auto">
+                  </figure>
+
+                  <div class="content" style="padding-top: 1rem">
+                    <ul style="list-style-type: none; padding: 0; margin: 0">
+                      <li>
+                        <span class="title is-4">{{ event.name }}</span>
+                      </li>
+                      <li style="display: flex; justify-content: space-between; gap: 0.5rem; align-items: flex-start; flex-wrap: wrap;">
+                        <span class="tag" :style="{ 'background-color': colors[event.type], color: '#FFFFFF' }">
+                          {{ eventTypesNames[event.type] }}
+                        </span>
+                        <span v-if="event.open_call === true" class="tag is-info">Open call</span>
+                        <span v-else-if="event.application_status === 'open'" class="tag is-success">Applications open</span>
+                        <span v-else class="tag is-light">Applications closed</span>
+                      </li>
+                    </ul>
+
+                    <table>
+                      <tr>
+                        <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'calendar']" /></span></td>
+                        <td>
+                          <span>{{ event.starts | date }} - {{ event.ends | date }}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'clock']" /></span></td>
+                        <td>
+                          <span v-if="event.open_call === true">Spots available: {{ event.available_spots }}</span>
+                          <span v-else-if="event.application_status === 'open' && event.application_ends">Apply before {{ event.application_ends | datetime }}</span>
+                          <span v-else>Applications are closed</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'users']" /></span></td>
+                        <td>
+                          <ul style="list-style-type: none; padding: 0; margin: 0">
+                            <li v-for="(body, index) in event.organizing_bodies" v-bind:key="index">
+                              <router-link
+                                :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                                {{ body.body_name }}
+                              </router-link>
+                            </li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <div class="field is-grouped">
+                      <p class="control">
+                        <router-link
+                          :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
+                          class="button">Go to event page</router-link>
+                      </p>
+                      <p class="control" v-if="can.apply">
+                        <router-link
+                          :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
+                          class="button is-primary">
+                          Apply
+                        </router-link>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
 
         <div class="card" v-show="events.length === 0 && !isLoadingSomething">
           <div class="card-content">
@@ -176,6 +262,11 @@ export default {
       limit: 30,
       offset: 0,
       displayPast: false,
+      displayListView: false,
+      colors: {
+        regular: '#1468C5',
+        pilot: '#00BBD8'
+      },
       canLoadMore: true,
       source: null,
       can: {
