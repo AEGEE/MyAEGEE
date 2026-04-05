@@ -106,6 +106,12 @@ exports.calculateFeeForMember = (member, conversionRate) => {
     return Math.max(feeToAEGEE, 2);
 };
 
+// Normalize floating-point money values to euro cents and collapse signed zero.
+exports.normalizeMoney = (value) => {
+    const roundedValue = Math.round(Number(value) * 100) / 100;
+    return Object.is(roundedValue, -0) ? 0 : roundedValue;
+};
+
 // Figure out if the value is a number or a string containing only numbers
 exports.isNumber = (value) => {
     if (typeof value === 'number') {

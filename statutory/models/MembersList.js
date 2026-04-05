@@ -95,7 +95,7 @@ const MembersList = sequelize.define('memberslist', {
     fee_not_paid: {
         type: Sequelize.VIRTUAL,
         get() {
-            return this.fee_to_aegee - this.fee_paid;
+            return helpers.normalizeMoney(this.fee_to_aegee - this.fee_paid);
         }
     }
 }, {

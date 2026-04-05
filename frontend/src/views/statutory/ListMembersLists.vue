@@ -58,6 +58,11 @@
 import { mapGetters } from 'vuex'
 import DisplayMembersListModal from './DisplayMembersListModal'
 
+const normalizeMoney = (value) => {
+  const roundedValue = Math.round(Number(value) * 100) / 100
+  return Object.is(roundedValue, -0) ? 0 : roundedValue
+}
+
 export default {
   name: 'ListMembersLists',
   data () {
@@ -102,7 +107,7 @@ export default {
         this.isLoading = false
 
         memberslist.fee_paid = newFee
-        memberslist.fee_not_paid = memberslist.fee_to_aegee - newFee
+        memberslist.fee_not_paid = normalizeMoney(memberslist.fee_to_aegee - newFee)
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not set fee paid', err)
