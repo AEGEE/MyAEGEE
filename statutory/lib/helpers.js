@@ -360,6 +360,7 @@ exports.getEventPermissions = (data) => {
     }
     permissions.see_memberslist = {
         global: hasPermission(corePermissions, 'global:manage_memberslist:' + event.type)
+            || hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
     };
     permissions.see_missing_memberslist = {
         global: hasPermission(corePermissions, 'global:see_missing_memberslists:' + event.type)

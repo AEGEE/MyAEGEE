@@ -99,6 +99,13 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-edit-between-deadlines-global.json'));
     }
 
+    if (options.seeMemberslistsPermissions) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-see-memberslists.json'));
+    }
+
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
