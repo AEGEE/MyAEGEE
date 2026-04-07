@@ -68,6 +68,54 @@ describe('Memberslist fee_paid editing', () => {
         expect(res.body.data.fee_paid).toEqual(300);
     });
 
+    test('should normalize sub-cent unpaid difference to zero', async () => {
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            currency: 'EU',
+            members: [generator.generateMembersListMember({ fee: 16 })]
+        }, event);
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { fee_paid: 1.996 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.fee_not_paid).toEqual(0);
+    });
+
+    test('should normalize sub-cent overpayment difference to zero', async () => {
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            currency: 'EU',
+            members: [generator.generateMembersListMember({ fee: 16 })]
+        }, event);
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { fee_paid: 2.004 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.fee_not_paid).toEqual(0);
+    });
+
     test('should return 404 if the memberslist is not found', async () => {
         const event = await generator.createEvent({
             type: 'agora',

@@ -22,7 +22,7 @@
 
           <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
         </div>
-        <b-table :data="filteredBodies" :loading="isLoading" narrowed>
+        <b-table :data="filteredBodies" :loading="isLoading" narrowed scrollable sticky-header>
           <b-table-column sortable field="name" label="Body name" v-slot="props">
             <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
           </b-table-column>

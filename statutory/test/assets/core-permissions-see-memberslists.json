@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": [
+    {
+      "scope": "global",
+      "object": "agora",
+      "id": 6,
+      "filters": [],
+      "description": "See memberslists.",
+      "combined": "global:see_memberslists:agora",
+      "circles": null,
+      "always_assigned": false,
+      "action": "see_memberslists"
+    }
+  ]
+}

@@ -70,6 +70,34 @@ describe('Memberslist listing', () => {
         expect(res.body.data[0].body_id).toEqual(1337);
     });
 
+    test('should succeed if user has read-only memberslists permission', async () => {
+        mock.mockAll({
+            mainPermissions: { seeMemberslistsPermissions: true },
+            approvePermissions: { noPermissions: true },
+            memberslistPermissions: { noPermissions: true }
+        });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        await generator.createMembersList({ body_id: 1337 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].body_id).toEqual(1337);
+    });
+
     test('should fail if the event is not Agora', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 

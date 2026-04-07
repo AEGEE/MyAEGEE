@@ -13,6 +13,11 @@ const seedStatePath = path.resolve(__dirname, '../state/.seed-executed-' + (proc
 
 const data = {};
 
+function markSeedExecuted() {
+    fs.mkdirSync(path.dirname(seedStatePath), { recursive: true });
+    fs.closeSync(fs.openSync(seedStatePath, 'w'));
+}
+
 async function createEvents() {
     const events = [];
 
@@ -231,11 +236,21 @@ if (process.env.NODE_ENV === 'production') {
 authenticate().then(async () => {
     logger.info('[seeds         ]: DB connected');
 
+    const existingEvents = await Event.count();
+    if (existingEvents > 0) {
+        logger.info('[seeds         ]: Seed data already exists, marking seed as executed.');
+        markSeedExecuted();
+        await close();
+        process.exit(0);
+    }
+
     logger.info('[seeds         ]: Create events');
     data.events = await createEvents();
 
     logger.info('[seeds         ]: Create applications');
     data.applications = await createApplications();
+
+    markSeedExecuted();
 
     await close();
 }).catch((err) => {
