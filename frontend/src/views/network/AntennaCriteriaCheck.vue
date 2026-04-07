@@ -1,98 +1,105 @@
 <template>
-  <div class="tile is-ancestor">
+  <div class="tile is-ancestor antenna-criteria-check">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
         <h4 class="title">Antenna Criteria Check</h4>
 
-        <div class="field">
-          <label class="label">Selected Agora</label>
-          <div class="select">
-            <select v-model="selectedAgora" @change="fetchData()">
-              <option v-for="agora in agorae" v-bind:key="agora.id" :value="agora">{{ agora.name }}</option>
-            </select>
+        <div class="antenna-criteria-check-content">
+          <div class="antenna-criteria-check-inner">
+            <div class="field">
+              <label class="label">Selected Agora</label>
+              <div class="select">
+                <select v-model="selectedAgora" @change="fetchData()">
+                  <option v-for="agora in agorae" v-bind:key="agora.id" :value="agora">{{ agora.name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="buttons">
+              <a class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</a>
+              <a class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</a>
+
+              <a class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</a>
+              <a class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</a>
+
+              <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
+            </div>
+
+            <div class="antenna-criteria-check-table-scroll">
+              <b-table class="antenna-criteria-check-table" :data="filteredBodies" :loading="isLoading" :height="tableHeight" :mobile-cards="false" narrowed scrollable sticky-header>
+                <b-table-column sortable field="name" label="Body name" v-slot="props">
+                  <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
+                </b-table-column>
+
+                <b-table-column sortable field="type" label="Type" v-slot="props">
+                  {{ props.row.type | capitalize }}
+                </b-table-column>
+
+                <b-table-column sortable field="netcom" label="NetCom" v-slot="props">
+                  {{ props.row.netcom?.first_name }}
+                </b-table-column>
+
+                <b-table-column sortable field="status" label="Status" v-slot="props">
+                  <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="communication" label="Communication (C)" v-slot="props">
+                  <b-tag :type="criterionTagType('communication', props.row)" size="is-medium">{{ criterionTagValue("communication", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="boardElection" label="Board election (BE)" v-slot="props">
+                  <b-tag :type="criterionTagType('boardElection', props.row)" size="is-medium">{{ criterionTagValue("boardElection", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="membersList" label="Members list (ML)" v-slot="props">
+                  <b-tag :type="criterionTagType('membersList', props.row)" size="is-medium">{{ criterionTagValue("membersList", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="membershipFee" label="Membership fee (F)" v-slot="props">
+                  <b-tag :type="criterionTagType('membershipFee', props.row)" size="is-medium">{{ criterionTagValue("membershipFee", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="mostRecentEvent" label="Events (E)" v-slot="props">
+                  <b-tag :type="criterionTagType('events', props.row)" size="is-medium">{{ criterionTagValue("events", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="attendance" label="Agora attendance (AA)" v-slot="props">
+                  <b-tag :type="criterionTagType('agoraAttendance', props.row)" size="is-medium">{{ criterionTagValue("agoraAttendance", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="development" label="Development plan (DP)" v-slot="props">
+                  <b-tag :type="criterionTagType('developmentPlan', props.row)" size="is-medium">{{ criterionTagValue("developmentPlan", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column field="fulfilment" label="Fulfilment report (FR)" v-slot="props">
+                  <b-tag :type="criterionTagType('fulfilmentReport', props.row)" size="is-medium">{{ criterionTagValue("fulfilmentReport", props.row) }}</b-tag>
+                </b-table-column>
+
+                <b-table-column v-slot="props">
+                  <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link">
+                    <span class="white"><font-awesome-icon :icon="['fa', 'eye']" /></span>
+                  </b-button>
+                </b-table-column>
+
+                <b-table-column v-slot="props">
+                  <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning">
+                    <span class="white"><font-awesome-icon :icon="['fa', 'pencil-alt']" /></span>
+                  </b-button>
+                </b-table-column>
+
+                <b-table-column v-if="can.sendFulfilmentEmails" v-slot="props">
+                  <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
+                    <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
+                  </b-button>
+                </b-table-column>
+
+                <template slot="empty">
+                  <empty-table-stub />
+                </template>
+              </b-table>
+            </div>
           </div>
         </div>
-
-        <div class="buttons">
-          <a class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</a>
-          <a class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</a>
-
-          <a class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</a>
-          <a class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</a>
-
-          <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
-        </div>
-        <b-table :data="filteredBodies" :loading="isLoading" narrowed scrollable sticky-header>
-          <b-table-column sortable field="name" label="Body name" v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
-          </b-table-column>
-
-          <b-table-column sortable field="type" label="Type" v-slot="props">
-            {{ props.row.type | capitalize }}
-          </b-table-column>
-
-          <b-table-column sortable field="netcom" label="NetCom" v-slot="props">
-            {{ props.row.netcom?.first_name }}
-          </b-table-column>
-
-          <b-table-column sortable field="status" label="Status" v-slot="props">
-            <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="communication" label="Communication (C)" v-slot="props">
-            <b-tag :type="criterionTagType('communication', props.row)" size="is-medium">{{ criterionTagValue("communication", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="boardElection" label="Board election (BE)" v-slot="props">
-            <b-tag :type="criterionTagType('boardElection', props.row)" size="is-medium">{{ criterionTagValue("boardElection", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="membersList" label="Members list (ML)" v-slot="props">
-            <b-tag :type="criterionTagType('membersList', props.row)" size="is-medium">{{ criterionTagValue("membersList", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="membershipFee" label="Membership fee (F)" v-slot="props">
-            <b-tag :type="criterionTagType('membershipFee', props.row)" size="is-medium">{{ criterionTagValue("membershipFee", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="mostRecentEvent" label="Events (E)" v-slot="props">
-            <b-tag :type="criterionTagType('events', props.row)" size="is-medium">{{ criterionTagValue("events", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="attendance" label="Agora attendance (AA)" v-slot="props">
-            <b-tag :type="criterionTagType('agoraAttendance', props.row)" size="is-medium">{{ criterionTagValue("agoraAttendance", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="development" label="Development plan (DP)" v-slot="props">
-            <b-tag :type="criterionTagType('developmentPlan', props.row)" size="is-medium">{{ criterionTagValue("developmentPlan", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column field="fulfilment" label="Fulfilment report (FR)" v-slot="props">
-            <b-tag :type="criterionTagType('fulfilmentReport', props.row)" size="is-medium">{{ criterionTagValue("fulfilmentReport", props.row) }}</b-tag>
-          </b-table-column>
-
-          <b-table-column v-slot="props">
-            <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link">
-              <span class="white"><font-awesome-icon :icon="['fa', 'eye']" /></span>
-            </b-button>
-          </b-table-column>
-
-          <b-table-column v-slot="props">
-            <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning">
-              <span class="white"><font-awesome-icon :icon="['fa', 'pencil-alt']" /></span>
-            </b-button>
-          </b-table-column>
-
-          <b-table-column v-if="can.sendFulfilmentEmails" v-slot="props">
-            <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
-              <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
-            </b-button>
-          </b-table-column>
-
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
       </article>
     </div>
   </div>
@@ -121,6 +128,7 @@ export default {
       summerUniversities: [],
       isLoading: false,
       isLoadingAgora: false,
+      viewportWidth: window.innerWidth,
       permissions: [],
       can: {
         sendFulfilmentEmails: false
@@ -137,6 +145,13 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
+    tableHeight () {
+      const viewportOffset = this.viewportWidth <= 1023 ? 18 * 16 : 24 * 16
+      const maxHeight = Math.max(window.innerHeight - viewportOffset, 240)
+      const contentHeight = 72 + Math.max(this.filteredBodies.length, 1) * 88
+
+      return `${Math.min(maxHeight, contentHeight)}px`
+    },
     filteredBodies () {
       if (!this.hideSafeLocals) return this.bodies
       return this.bodies.filter(body => { return this.statusValue(body) === 'Danger' })
@@ -208,6 +223,9 @@ export default {
     },
     toggleHideSafeLocals () {
       this.hideSafeLocals = !this.hideSafeLocals
+    },
+    updateViewportWidth () {
+      this.viewportWidth = window.innerWidth
     },
     criterionTagType (criterion, local) {
       if (local.antennaCriteria[criterion] === 'true') return 'is-success'
@@ -457,13 +475,61 @@ export default {
     }
   },
   mounted () {
+    window.addEventListener('resize', this.updateViewportWidth)
     this.fetchAgorae()
 
     this.axios.get(this.services['core'] + '/my_permissions').then((permissionResponse) => {
       this.permissions = permissionResponse.data.data
       this.can.sendFulfilmentEmails = this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
     })
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.updateViewportWidth)
   }
 }
 
 </script>
+
+<style>
+.antenna-criteria-check,
+.antenna-criteria-check > .tile,
+.antenna-criteria-check > .tile > .tile.is-child {
+  min-width: 0;
+}
+
+.antenna-criteria-check-content {
+  max-width: 100%;
+}
+
+.antenna-criteria-check-content,
+.antenna-criteria-check-inner,
+.antenna-criteria-check-table-scroll,
+.antenna-criteria-check-table-scroll .b-table {
+  min-width: 0;
+}
+
+.antenna-criteria-check .buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.antenna-criteria-check .buttons .button {
+  white-space: normal;
+}
+
+.antenna-criteria-check-table-scroll {
+  width: 100%;
+  max-width: 100%;
+}
+
+.antenna-criteria-check-table-scroll .table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+.antenna-criteria-check-table-scroll .table-wrapper .table {
+  width: max-content;
+  min-width: 100%;
+}
+</style>
