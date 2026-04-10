@@ -1,5 +1,5 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM node:22-alpine
+FROM --platform=$BUILDPLATFORM node:24-alpine
 
 RUN mkdir -p /usr/app/src \
  && chown -R node:node /usr/app
