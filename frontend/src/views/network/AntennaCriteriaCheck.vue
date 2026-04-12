@@ -32,7 +32,7 @@
                 </b-table-column>
 
                 <b-table-column sortable field="type" label="Type" v-slot="props">
-                  <span v-if="isCompactTable" v-tooltip="compactHeaderTooltip(bodyTypeTitle(props.row.type))">{{ bodyTypeLabel(props.row.type) }}</span>
+                  <span v-if="isCompactTable" :title="bodyTypeTitle(props.row.type)" v-tooltip="compactHeaderTooltip(bodyTypeTitle(props.row.type))">{{ bodyTypeLabel(props.row.type) }}</span>
                   <span v-else>{{ bodyTypeLabel(props.row.type) }}</span>
                 </b-table-column>
 
@@ -44,68 +44,84 @@
                   <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
                 </b-table-column>
 
-                <b-table-column field="communication" :label="criterionHeaderLabel('Communication', 'C')" v-slot="props">
+                <b-table-column field="communication" :label="criterionHeaderLabel('Communication', 'C')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Communication')" v-tooltip="compactHeaderTooltip('Communication')">C</span>
                     <span v-else>Communication (C)</span>
                   </template>
-                  <b-tag :type="criterionTagType('communication', props.row)" size="is-medium">{{ criterionTagValue("communication", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('communication', props.row)" size="is-medium">{{ criterionTagValue("communication", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="boardElection" :label="criterionHeaderLabel('Board election', 'BE')" v-slot="props">
+                <b-table-column field="boardElection" :label="criterionHeaderLabel('Board election', 'BE')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Board election')" v-tooltip="compactHeaderTooltip('Board election')">BE</span>
                     <span v-else>Board election (BE)</span>
                   </template>
-                  <b-tag :type="criterionTagType('boardElection', props.row)" size="is-medium">{{ criterionTagValue("boardElection", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('boardElection', props.row)" size="is-medium">{{ criterionTagValue("boardElection", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="membersList" :label="criterionHeaderLabel('Members list', 'ML')" v-slot="props">
+                <b-table-column field="membersList" :label="criterionHeaderLabel('Members list', 'ML')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Members list')" v-tooltip="compactHeaderTooltip('Members list')">ML</span>
                     <span v-else>Members list (ML)</span>
                   </template>
-                  <b-tag :type="criterionTagType('membersList', props.row)" size="is-medium">{{ criterionTagValue("membersList", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('membersList', props.row)" size="is-medium">{{ criterionTagValue("membersList", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="membershipFee" :label="criterionHeaderLabel('Membership fee', 'F')" v-slot="props">
+                <b-table-column field="membershipFee" :label="criterionHeaderLabel('Membership fee', 'F')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Membership fee')" v-tooltip="compactHeaderTooltip('Membership fee')">F</span>
                     <span v-else>Membership fee (F)</span>
                   </template>
-                  <b-tag :type="criterionTagType('membershipFee', props.row)" size="is-medium">{{ criterionTagValue("membershipFee", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('membershipFee', props.row)" size="is-medium">{{ criterionTagValue("membershipFee", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="mostRecentEvent" :label="criterionHeaderLabel('Events', 'E')" v-slot="props">
+                <b-table-column field="mostRecentEvent" :label="criterionHeaderLabel('Events', 'E')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Events')" v-tooltip="compactHeaderTooltip('Events')">E</span>
                     <span v-else>Events (E)</span>
                   </template>
-                  <b-tag :type="criterionTagType('events', props.row)" size="is-medium">{{ criterionTagValue("events", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('events', props.row)" size="is-medium">{{ criterionTagValue("events", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="attendance" :label="criterionHeaderLabel('Agora attendance', 'AA')" v-slot="props">
+                <b-table-column field="attendance" :label="criterionHeaderLabel('Agora attendance', 'AA')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Agora attendance')" v-tooltip="compactHeaderTooltip('Agora attendance')">AA</span>
                     <span v-else>Agora attendance (AA)</span>
                   </template>
-                  <b-tag :type="criterionTagType('agoraAttendance', props.row)" size="is-medium">{{ criterionTagValue("agoraAttendance", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('agoraAttendance', props.row)" size="is-medium">{{ criterionTagValue("agoraAttendance", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="development" :label="criterionHeaderLabel('Development plan', 'DP')" v-slot="props">
+                <b-table-column field="development" :label="criterionHeaderLabel('Development plan', 'DP')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Development plan')" v-tooltip="compactHeaderTooltip('Development plan')">DP</span>
                     <span v-else>Development plan (DP)</span>
                   </template>
-                  <b-tag :type="criterionTagType('developmentPlan', props.row)" size="is-medium">{{ criterionTagValue("developmentPlan", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('developmentPlan', props.row)" size="is-medium">{{ criterionTagValue("developmentPlan", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
-                <b-table-column field="fulfilment" :label="criterionHeaderLabel('Fulfilment report', 'FR')" v-slot="props">
+                <b-table-column field="fulfilment" :label="criterionHeaderLabel('Fulfilment report', 'FR')">
                   <template #header>
                     <span v-if="isCompactTable" :title="compactHeaderTitle('Fulfilment report')" v-tooltip="compactHeaderTooltip('Fulfilment report')">FR</span>
                     <span v-else>Fulfilment report (FR)</span>
                   </template>
-                  <b-tag :type="criterionTagType('fulfilmentReport', props.row)" size="is-medium">{{ criterionTagValue("fulfilmentReport", props.row) }}</b-tag>
+                  <template v-slot="props">
+                    <b-tag :type="criterionTagType('fulfilmentReport', props.row)" size="is-medium">{{ criterionTagValue("fulfilmentReport", props.row) }}</b-tag>
+                  </template>
                 </b-table-column>
 
                 <b-table-column v-slot="props">
