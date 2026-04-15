@@ -186,7 +186,7 @@ jobs:
           name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -405,7 +405,7 @@ jobs:
           name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -641,7 +641,7 @@ jobs:
           name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -834,7 +834,7 @@ jobs:
           name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -1049,7 +1049,7 @@ jobs:
           name: Build and push gsuite-wrapper Docker image (multi-platform)
           working_directory: ~/project/gsuite-wrapper
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -1268,7 +1268,7 @@ jobs:
           name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -1436,7 +1436,7 @@ jobs:
           name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -1547,7 +1547,7 @@ jobs:
           name: Build and push nginx-static Docker image (multi-platform)
           working_directory: ~/project
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --tag aegee/nginx-static:1.28.1 \
@@ -1766,7 +1766,7 @@ jobs:
           name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
@@ -1985,7 +1985,7 @@ jobs:
           name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
