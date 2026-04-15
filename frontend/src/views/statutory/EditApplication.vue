@@ -15,9 +15,6 @@
                     <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                   </select>
                 </div>
-                <p class="help is-info" v-if="isManagerEditingOtherApplication">
-                  Use this field to correct the member's application body, including after the regular application period has ended.
-                </p>
               </div>
 
               <event-no-body-notification v-if="bodies.length == 0" />
@@ -512,9 +509,6 @@ export default {
     },
     isOwn () {
       return this.isNew || this.loginUser.id === this.application.user_id
-    },
-    isManagerEditingOtherApplication () {
-      return !this.isNew && !this.isOwn && this.can.manage_applications
     },
     selectedMailinglists () {
       return Object.keys(this.subscription).filter(value => this.subscription[value] === true)
