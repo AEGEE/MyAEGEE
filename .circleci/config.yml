@@ -2195,7 +2195,7 @@ jobs:
           name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
           command: |
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
