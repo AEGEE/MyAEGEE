@@ -1,0 +1,52 @@
+{
+    "success": true,
+    "data": {
+        "id": 1337,
+        "username": "microservice",
+        "email": "microservice@example.com",
+        "mail_confirmed_at": "2020-01-01T00:00:00.000Z",
+        "active": true,
+        "superadmin": false,
+        "privacy_consent": null,
+        "first_name": "Micro",
+        "last_name": "Service",
+        "date_of_birth": "1994-07-01",
+        "gender": "non-binary",
+        "phone": "+32123456789",
+        "image": null,
+        "primary_email": "personal",
+        "gsuite_id": null,
+        "bodies": [
+            {
+                "type": "antenna",
+                "shadow_circle_id": 1,
+                "shadow_circle": null,
+                "seo_url": 1,
+                "phone": null,
+                "name": "AEGEE-Test",
+                "code": "TST",
+                "id": 1,
+                "email": "test@example.com",
+                "description": "Test local body",
+                "circles": null,
+                "address": "Europe"
+            },
+            {
+                "type": "antenna",
+                "shadow_circle_id": 133,
+                "shadow_circle": null,
+                "seo_url": 34,
+                "phone": null,
+                "name": "AEGEE-Alicante",
+                "code": "ALC",
+                "id": 34,
+                "email": "junta@aegeealicante.org",
+                "description": "Local in Alicante, see also http://www.aegeealicante.org/",
+                "circles": null,
+                "address": "Alicante"
+            }
+        ],
+        "address": "Europe",
+        "about_me": "Test member with a body outside the editor memberships."
+    }
+}

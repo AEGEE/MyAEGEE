@@ -80,6 +80,34 @@ describe('Applications displaying', () => {
         expect(res.body.data.user_id).toEqual(userId);
     });
 
+    test('should expose apply_from_body for the application user bodies when editing another application', async () => {
+        mock.mockAll({
+            bodies: { file: 'core-bodies-with-extra.json' },
+            member: { file: 'core-valid-with-extra-body.json' }
+        });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: 1,
+            delegate: 1,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
+        const application = await generator.createApplication({ user_id: 1337, body_id: regularUser.bodies[0].id }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.permissions.apply_from_body[1]).toEqual(true);
+    });
+
     test('should find application by statutory_id', async () => {
         const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
         const event = await generator.createEvent({ applications: [] });

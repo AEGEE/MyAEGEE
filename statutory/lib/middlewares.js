@@ -148,9 +148,8 @@ exports.fetchEvent = async (req, res, next) => {
                 event_id: event.id
             }
         });
-        const bodies = await core.getBodies(req);
         limits = await Promise.all(
-            bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, event.type))
+            req.user.bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, event.type))
         );
     }
 
@@ -209,6 +208,18 @@ exports.fetchSingleApplication = async (req, res, next) => {
         application: req.application,
         mine: req.user.id === req.application.user_id
     });
+
+    if (req.permissions.edit_application && req.user.id !== req.application.user_id) {
+        const applicationUser = await core.getMember(req, req.application.user_id);
+        const applicationLimits = await Promise.all(
+            applicationUser.bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, req.event.type))
+        );
+
+        req.permissions.apply_from_body = {};
+        for (const limit of applicationLimits) {
+            req.permissions.apply_from_body[limit.body_id] = limit.hasAnyLimits();
+        }
+    }
 
     if (req.permissions.see_application_incoming && !req.permissions.see_application) {
         whereObj.status = 'accepted';

@@ -358,6 +358,13 @@ exports.mockCoreMember = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    if (options.file) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members\/[0-9].*/)
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', options.file));
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/members\/[0-9].*/)
