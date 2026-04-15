@@ -80,6 +80,30 @@ describe('Events listing for single', () => {
         expect(res.body.data.name).toEqual(event.name);
     });
 
+    test('should expose apply_from_body for bodies outside the current user memberships', async () => {
+        mock.mockAll({ bodies: { file: 'core-bodies-with-extra.json' } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: 1,
+            delegate: 1,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.permissions.apply_from_body[1]).toEqual(true);
+    });
+
     test('should find latest event', async () => {
         await generator.createEvent({
             application_period_starts: moment().subtract(14, 'days'),

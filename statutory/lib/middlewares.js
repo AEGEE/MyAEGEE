@@ -148,8 +148,9 @@ exports.fetchEvent = async (req, res, next) => {
                 event_id: event.id
             }
         });
+        const bodies = await core.getBodies(req);
         limits = await Promise.all(
-            req.user.bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, event.type))
+            bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, event.type))
         );
     }
 
