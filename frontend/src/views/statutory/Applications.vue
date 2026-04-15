@@ -107,6 +107,12 @@
             </router-link>
           </b-table-column>
 
+          <b-table-column label="Edit" centered v-slot="props" v-if="event.permissions && event.permissions.manage_applications">
+            <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              Edit
+            </router-link>
+          </b-table-column>
+
           <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSaving }">
               <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">

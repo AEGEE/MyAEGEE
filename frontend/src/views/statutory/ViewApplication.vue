@@ -170,17 +170,20 @@
         <div class="tile is-parent" v-if="application && !application.cancelled">
           <div class="tile is-child">
             <div class="notification is-warning" v-if="application.status === 'pending'">
-              Your application is recorded, please wait for the organisers to evaluate your application.
-              <span v-show="can.edit_application">You can still edit it till the application period ends.</span>
+              {{ applicationStatusMessage }}
+              <span v-if="showOwnDeadlineEditHint">You can still edit it till the application period ends.</span>
             </div>
             <div class="notification is-success" v-if="application.status === 'accepted'">
-              Congratulations, you have been accepted to the event!
+              <span v-if="isOwnApplication">Congratulations, you have been accepted to the event!</span>
+              <span v-else>This application has been accepted to the event.</span>
             </div>
             <div class="notification is-warning" v-if="application.status === 'waiting_list'">
-              Unfortunately you've been put to a waiting list. Please contact organisers to get more info on that.
+              <span v-if="isOwnApplication">Unfortunately you've been put to a waiting list. Please contact organisers to get more info on that.</span>
+              <span v-else>This application is on the waiting list.</span>
             </div>
             <div class="notification is-danger" v-if="application.status === 'rejected'">
-              Sorry, but you were not accepted to the event.
+              <span v-if="isOwnApplication">Sorry, but you were not accepted to the event.</span>
+              <span v-else>This application was not accepted.</span>
             </div>
           </div>
         </div>
@@ -189,8 +192,9 @@
         <div class="tile is-parent" v-if="application && application.cancelled">
           <div class="tile is-child">
             <div class="notification is-danger">
-              Your application is cancelled.
-              <span v-if="can.set_application_cancelled">You can uncancel it till the application period ends.</span>
+              <span v-if="isOwnApplication">Your application is cancelled.</span>
+              <span v-else>This application is cancelled.</span>
+              <span v-if="showOwnDeadlineCancelHint">You can uncancel it till the application period ends.</span>
             </div>
           </div>
         </div>
@@ -208,7 +212,7 @@
           </div>
         </div>
 
-        <div class="tile is-parent" v-if="application && !application.cancelled && !can.edit_application && new Date() > event.application_period_ends">
+        <div class="tile is-parent" v-if="showOwnDeadlineExpiredMessage">
           <div class="tile is-child">
             <div class="notification is-danger">
               You cannot edit your application anymore: application period is over.
@@ -234,7 +238,7 @@
             type="submit"
             class="button is-warning"
             v-if="application && can.edit_application">
-            Edit your application
+            {{ isOwnApplication ? 'Edit your application' : 'Edit application' }}
           </router-link>
 
           <button
@@ -286,7 +290,30 @@ export default {
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
-    })
+    }),
+    isOwnApplication () {
+      return this.application && this.application.user_id === this.loginUser.id
+    },
+    applicationStatusMessage () {
+      if (this.isOwnApplication) {
+        return 'Your application is recorded, please wait for the organisers to evaluate your application.'
+      }
+
+      return 'This application is recorded and waiting for organiser review.'
+    },
+    showOwnDeadlineEditHint () {
+      return this.isOwnApplication && this.can.edit_application
+    },
+    showOwnDeadlineCancelHint () {
+      return this.isOwnApplication && this.can.set_application_cancelled
+    },
+    showOwnDeadlineExpiredMessage () {
+      return this.isOwnApplication
+        && this.application
+        && !this.application.cancelled
+        && !this.can.edit_application
+        && new Date() > this.event.application_period_ends
+    }
   },
   methods: {
     askSetCancelled (value) {

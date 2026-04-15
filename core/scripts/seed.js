@@ -772,6 +772,12 @@ async function createPermissions() {
         description: 'Use massmailer for Agora.'
     },
     {
+        action: 'manage_applications',
+        object: 'agora',
+        scope: 'global',
+        description: 'Manage Agora applications.'
+    },
+    {
         action: 'view',
         object: 'circle',
         scope: 'global',

@@ -172,6 +172,12 @@
               </router-link>
             </b-table-column>
 
+            <b-table-column label="Edit" centered v-slot="props" v-if="can.manage_applications">
+              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                Edit
+              </router-link>
+            </b-table-column>
+
             <b-table-column field="status" label="Status" centered v-slot="props">
               <span v-if="props.row.status === 'accepted'">Accepted</span>
               <span v-if="props.row.status === 'rejected'">Rejected</span>
