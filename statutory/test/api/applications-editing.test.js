@@ -336,6 +336,14 @@ describe('Applications editing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: regularUser.bodies[1].id,
+            delegate: 1,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
         const application = await generator.createApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
@@ -372,6 +380,14 @@ describe('Applications editing', () => {
         mock.mockAll();
 
         const event = await generator.createEvent();
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: regularUser.bodies[1].id,
+            delegate: 1,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
         const application = await generator.createApplication({
             user_id: 1337,
             body_id: regularUser.bodies[0].id,
@@ -401,6 +417,43 @@ describe('Applications editing', () => {
         expect(newApplication.participant_type).toEqual('envoy');
         expect(newApplication.participant_order).toEqual(1);
         expect(newApplication.board_comment).toEqual('Awesome guy, accept');
+    });
+
+    test('should return 403 when switching to a body without pax limits for other user', async () => {
+        mock.mockAll();
+
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id
+        }, event);
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: regularUser.bodies[1].id,
+            delegate: 0,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[1].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+
+        const unchangedApplication = await Application.findOne({ where: { id: application.id } });
+        expect(unchangedApplication.body_id).toEqual(regularUser.bodies[0].id);
     });
 
     test('should return 500 if members query returns net error', async () => {
