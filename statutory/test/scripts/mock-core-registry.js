@@ -354,7 +354,7 @@ exports.mockCoreMember = (options) => {
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/members\/[0-9].*/)
-        .reply(200, { success: true, data: regularUser });
+        .reply(200, { success: true, data: options.user || regularUser });
 };
 
 exports.mockCoreMailer = (options) => {
