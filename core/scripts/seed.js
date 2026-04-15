@@ -261,6 +261,12 @@ async function createPermissions() {
         scope: 'global',
         description: 'Upload, edit and view memberslists for Agora for all bodies.'
     });
+    permissions.manageApplicationsAgora = await Permission.create({
+        action: 'manage_applications',
+        object: 'agora',
+        scope: 'global',
+        description: 'Manage Agora applications.'
+    });
 
     permissions.members = await Permission.bulkCreate([{
         scope: 'global',
@@ -784,7 +790,7 @@ async function createPermissions() {
         description: 'Set pax type/order and board comment for Agora applications for all bodies.'
     }], { individualHooks: true, validate: true });
 
-    permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember, permissions.manageMemberslistAgora];
+    permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember, permissions.manageMemberslistAgora, permissions.manageApplicationsAgora];
 
     const jcPermissions = await Permission.bulkCreate([{
         action: 'manage_juridical',
@@ -819,12 +825,6 @@ async function createPermissions() {
             object: 'agora',
             scope: 'global',
             description: 'Apply to Agora/edit your application regardless if the deadline was passed or not.'
-        },
-        {
-            action: 'manage_applications',
-            object: 'agora',
-            scope: 'global',
-            description: 'Manage Agora applications'
         },
         {
             action: 'manage_event',
@@ -1235,7 +1235,7 @@ async function createPermissions() {
             description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
         }], { individualHooks: true, validate: true });
 
-    permissions.admin = [...permissions.board, ...adminPermissions, ...comiteDirecteurPermissions, ...netComPermissions, ...networkDirectorPermissions, ...suctPermissions, ...eqacPermissions, ...chairPermissions, ...jcPermissions, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora, permissions.viewMembersCircle, permissions.approveEventNwm, permissions.viewMember, permissions.addMemberCircle];
+    permissions.admin = [...permissions.board, ...adminPermissions, ...comiteDirecteurPermissions, ...netComPermissions, ...networkDirectorPermissions, ...suctPermissions, ...eqacPermissions, ...chairPermissions, ...jcPermissions, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora, permissions.viewMembersCircle, permissions.approveEventNwm, permissions.viewMember, permissions.addMemberCircle, permissions.manageApplicationsAgora];
 
     for (const permission of permissions.members) {
         await CirclePermission.create({ circle_id: data.circles.membersCircle.id, permission_id: permission.id });

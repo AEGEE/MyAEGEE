@@ -306,10 +306,10 @@
           <b-loading is-full-page="false" :active.sync="isLoading" />
         </form>
 
-        <hr v-show="!isNew && can.set_board_comment_and_participant_type_global" />
+        <hr v-show="!isNew && can.set_board_comment_and_participant_type && can.set_board_comment_and_participant_type.global" />
 
         <!-- Editing board stuff for Chair Team/CD -->
-        <div class="tile is-parent" v-show="!isNew && can.set_board_comment_and_participant_type_global">
+        <div class="tile is-parent" v-show="!isNew && can.set_board_comment_and_participant_type && can.set_board_comment_and_participant_type.global">
           <div class="tile is-child">
             <div class="field is-fullwidth">
               <div class="control">

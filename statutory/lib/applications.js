@@ -305,8 +305,16 @@ exports.updateApplication = async (req, res) => {
     }
 
     const user = await core.getMember(req, req.application.user_id);
+    const requestedBody = req.body.body_id ? user.bodies.find((body) => req.body.body_id === body.id) : null;
     if (req.body.body_id && !helpers.isMemberOf(user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
+    }
+
+    if (requestedBody && req.body.body_id !== req.application.body_id) {
+        const limit = await PaxLimit.fetchOrUseDefaultForBody(requestedBody, req.event.type);
+        if (!limit.hasAnyLimits()) {
+            return errors.makeForbiddenError(res, 'You cannot apply as this body cannot send any participants.');
+        }
     }
 
     delete req.body.statutory_id;
@@ -329,7 +337,7 @@ exports.updateApplication = async (req, res) => {
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
-        req.body.body_name = user.bodies.find((b) => req.body.body_id === b.id).name;
+        req.body.body_name = requestedBody.name;
     }
 
     // If user changed his body (by himself), reset his board comment and participant type/order.
