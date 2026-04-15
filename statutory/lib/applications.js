@@ -11,6 +11,17 @@ const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
 const logger = require('./logger');
 
+async function getEditableBodiesForUser(req, user) {
+    const limits = await Promise.all(
+        user.bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, req.event.type))
+    );
+
+    return user.bodies.filter((body) => {
+        const limit = limits.find((item) => item.body_id === body.id);
+        return limit && limit.hasAnyLimits();
+    });
+}
+
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.see_applications) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
@@ -287,6 +298,16 @@ exports.getApplication = async (req, res) => {
     }
 
     const application = req.application.toJSON();
+    application.editable_bodies = [];
+
+    if (req.permissions.edit_application) {
+        const user = req.user.id === req.application.user_id
+            ? req.user
+            : await core.getMember(req, req.application.user_id);
+
+        application.editable_bodies = await getEditableBodiesForUser(req, user);
+    }
+
     application.permissions = req.permissions;
 
     if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {

@@ -573,11 +573,7 @@ export default {
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.can = application.data.data.permissions
-
-        // Fetching user to get his/her bodies
-        return this.axios.get(this.services['core'] + '/members/' + this.application.user_id)
-      }).then((user) => {
-        this.bodies = user.data.data.bodies.filter(body => this.can.apply_from_body[body.id])
+        this.bodies = this.application.editable_bodies || []
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
