@@ -97,7 +97,13 @@ exports.setBodyStatus = async (req, res) => {
         }
 
         // Deleting all the stuff related to body.
-        await JoinRequest.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
+        await JoinRequest.destroy({
+            where: {
+                body_id: req.currentBody.id,
+                status: 'approved'
+            },
+            transaction: t
+        });
         await BodyMembership.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
         await Circle.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
         await Payment.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
