@@ -71,9 +71,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '~flatpickr/dist/flatpickr.css';
-@import '~vue-multiselect/dist/vue-multiselect.min.css';
-
 @import './styles/main.scss';
 
 html, body, #app, .app-main {

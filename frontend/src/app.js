@@ -4,10 +4,27 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { sync } from 'vuex-router-sync'
-import Buefy from 'buefy'
-import flatPickr from 'vue-flatpickr-component'
-import Multiselect from 'vue-multiselect'
-import InputTag from 'vue-input-tag'
+import {
+  Autocomplete,
+  Button,
+  Checkbox,
+  Collapse,
+  ConfigProgrammatic,
+  Datepicker,
+  Dialog,
+  Field,
+  Icon,
+  Input,
+  Loading,
+  Message,
+  Modal,
+  Radio,
+  Select,
+  Switch,
+  Table,
+  Tag,
+  Toast
+} from 'buefy'
 import qs from 'qs'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VTooltip from 'v-tooltip'
@@ -34,12 +51,27 @@ Vue.router = router
 Vue.use(VueAxios, axios)
 Vue.use(Auth)
 Vue.use(NProgress)
-Vue.use(Buefy, { defaultNoticeQueue: false, defaultIconPack: 'fa' })
-Vue.use(flatPickr)
+ConfigProgrammatic.setOptions({ defaultNoticeQueue: false, defaultIconPack: 'fa' })
+Vue.use(Autocomplete)
+Vue.use(Button)
+Vue.use(Checkbox)
+Vue.use(Collapse)
+Vue.use(Datepicker)
+Vue.use(Dialog)
+Vue.use(Field)
+Vue.use(Icon)
+Vue.use(Input)
+Vue.use(Loading)
+Vue.use(Message)
+Vue.use(Modal)
+Vue.use(Radio)
+Vue.use(Select)
+Vue.use(Switch)
+Vue.use(Table)
+Vue.use(Tag)
+Vue.use(Toast)
 Vue.use(Vue2TouchEvents)
 Vue.use(VTooltip)
-Vue.component('multiselect', Multiselect)
-Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)
 Vue.component('password-toggle', PasswordToggle)
 Vue.component('empty-table-stub', EmptyTableStub)

@@ -73,12 +73,17 @@
 </template>
 
 <script>
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
 import moment from 'moment'
 
 import currencies from '../../../currencies'
 
 export default {
   name: 'AddFeePaymentModal',
+  components: {
+    flatPickr
+  },
   props: ['member', 'body', 'services', 'showSuccess', 'showError'],
   data () {
     return {

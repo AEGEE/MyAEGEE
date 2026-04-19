@@ -154,10 +154,13 @@
 </template>
 
 <script>
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
 import MarkdownTooltip from '../../../components/tooltips/MarkdownTooltip'
 
 export default {
   components: {
+    flatPickr,
     MarkdownTooltip
   },
   name: 'ChangeBoardModal',

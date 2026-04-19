@@ -767,6 +767,8 @@
 <script>
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -777,6 +779,7 @@ import URLTooltip from '../../components/tooltips/URLTooltip'
 // TODO: check that all unused code is removed
 export default {
   components: {
+    flatPickr,
     MglMap,
     MglMarker,
     MglNavigationControl,
