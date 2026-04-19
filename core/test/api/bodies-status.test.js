@@ -120,8 +120,9 @@ describe('Bodies status', () => {
         expect(res.body.data.status).toEqual('active');
     });
 
-    test('should remove all stuff from body once deleted', async () => {
+    test('should preserve pending join requests when body is deleted', async () => {
         const user = await generator.createUser({ superadmin: true });
+        const otherUser = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
@@ -129,7 +130,12 @@ describe('Bodies status', () => {
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
 
-        await generator.createJoinRequest(body, user);
+        const pendingJoinRequest = await generator.createJoinRequest(body, user);
+        const approvedJoinRequest = await JoinRequest.create({
+            body_id: body.id,
+            user_id: otherUser.id,
+            status: 'approved'
+        });
         await generator.createCircleMembership(circle, user);
         await generator.createBodyMembership(body, user);
         await generator.createPayment(body, user);
@@ -149,7 +155,8 @@ describe('Bodies status', () => {
 
         expect(await Circle.count({ where: { body_id: body.id } })).toEqual(0);
         expect(await BodyMembership.count({ where: { body_id: body.id } })).toEqual(0);
-        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(await JoinRequest.findByPk(pendingJoinRequest.id)).not.toEqual(null);
+        expect(await JoinRequest.findByPk(approvedJoinRequest.id)).toEqual(null);
         expect(await Payment.count({ where: { body_id: body.id } })).toEqual(0);
     });
 });
