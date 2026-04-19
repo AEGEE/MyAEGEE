@@ -197,6 +197,19 @@ describe('Codes claiming', () => {
         expect(res.body.data.claimed_by).toEqual(user.id);
     });
 
+    test('should return 404 for malformed numeric-like integration IDs when claiming', async () => {
+        const res = await request({
+            uri: '/integrations/1e3/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should return 500 if mailer returns net error', async () => {
         mock.mockAll({ mailer: { netError: true } });
         const integration = await generator.createIntegration({

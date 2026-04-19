@@ -95,4 +95,18 @@ describe('Integrations codes population', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should return 404 for malformed numeric-like integration IDs', async () => {
+        const res = await request({
+            uri: '/integrations/12.5/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: ['first']
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });
