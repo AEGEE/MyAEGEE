@@ -460,7 +460,7 @@ exports.setApplicationDeparted = setApplicationBoolean('departed');
 exports.setApplicationIsOnMemberslist = setApplicationBoolean('is_on_memberslist');
 
 exports.setApplicationStatus = async (req, res) => {
-    if (Number.isNaN(Number(req.params.application_id, 10))) {
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) {
         return errors.makeForbiddenError(res, 'You cannot edit status of yourself.');
     }
 
@@ -488,7 +488,7 @@ exports.setApplicationStatus = async (req, res) => {
 
 // For single application
 exports.setApplicationBoard = async (req, res) => {
-    if (Number.isNaN(Number(req.params.application_id, 10))) {
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) {
         return errors.makeForbiddenError(res, 'You cannot edit board comment or participant type of yourself.');
     }
 

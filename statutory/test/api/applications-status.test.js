@@ -63,6 +63,25 @@ describe('Applications status', () => {
         expect(res.body.data.status).toEqual('accepted');
     });
 
+    test('should succeed when addressed by statutory ID', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.statutory_id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'accepted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.status).toEqual('accepted');
+    });
+
     test('should return 403 when user does not have permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
