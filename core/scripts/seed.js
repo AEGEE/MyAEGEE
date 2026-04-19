@@ -21,6 +21,10 @@ const seedStatePath = path.resolve(__dirname, '../state/.seed-executed-' + (proc
 
 const data = {};
 
+function uniquePermissions(permissionList) {
+    return [...new Map(permissionList.map((permission) => [permission.id, permission])).values()];
+}
+
 async function createAdmin() {
     return User.create({
         first_name: 'Admin',
@@ -592,10 +596,34 @@ async function createPermissions() {
         object: 'communication',
         scope: 'global',
         description: 'Set the fulfilment of the `communication` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'netcom_assignment',
+        scope: 'global',
+        description: 'Set the assignment of NetCom to body'
+    },
+    {
+        action: 'manage_network',
+        object: 'fulfilment_email',
+        scope: 'global',
+        description: 'Send Antenna Criteria fulfilment email to Locals'
+    },
+    {
+        action: 'view',
+        object: 'board',
+        scope: 'global',
+        description: 'View boards of a body'
     }
     ], { individualHooks: true, validate: true });
 
-    permissions.netCom = [...netComPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.seeMemberslistsAgora, permissions.manageAntennaCriteria];
+    permissions.netCom = [
+        ...netComPermissions,
+        permissions.viewMembersCircle,
+        permissions.addMemberCircle,
+        permissions.seeMemberslistsAgora,
+        permissions.manageAntennaCriteria
+    ];
 
     const networkDirectorPermissions = await Permission.bulkCreate([{
         action: 'view_deleted',
@@ -1235,7 +1263,17 @@ async function createPermissions() {
             description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
         }], { individualHooks: true, validate: true });
 
-    permissions.admin = [...permissions.board, ...adminPermissions, ...comiteDirecteurPermissions, ...netComPermissions, ...networkDirectorPermissions, ...suctPermissions, ...eqacPermissions, ...chairPermissions, ...jcPermissions, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora, permissions.viewMembersCircle, permissions.approveEventNwm, permissions.viewMember, permissions.addMemberCircle, permissions.manageApplicationsAgora];
+    permissions.admin = uniquePermissions([
+        ...permissions.board,
+        ...adminPermissions,
+        ...permissions.comiteDirecteur,
+        ...permissions.networkDirector,
+        ...permissions.financialDirector,
+        ...permissions.suct,
+        ...permissions.eqac,
+        ...permissions.chair,
+        ...permissions.jc
+    ]);
 
     for (const permission of permissions.members) {
         await CirclePermission.create({ circle_id: data.circles.membersCircle.id, permission_id: permission.id });
