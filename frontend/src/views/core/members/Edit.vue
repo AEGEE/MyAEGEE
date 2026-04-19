@@ -134,7 +134,7 @@
 
 <script>
 import moment from 'moment'
-import _ from 'lodash'
+import pick from 'lodash/pick'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -182,7 +182,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      const body = _.pick(this.user, [
+      const body = pick(this.user, [
         'id',
         'first_name',
         'last_name',

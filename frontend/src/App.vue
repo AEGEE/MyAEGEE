@@ -74,10 +74,6 @@ export default {
 @import '~flatpickr/dist/flatpickr.css';
 @import '~vue-multiselect/dist/vue-multiselect.min.css';
 
-.animated {
-  animation-duration: .377s;
-}
-
 @import './styles/main.scss';
 
 html, body, #app, .app-main {

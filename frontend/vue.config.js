@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   lintOnSave: true,
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === 'production') {
   const CompressionPlugin = require('compression-webpack-plugin');
 
   module.exports.configureWebpack.plugins = [
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new CompressionPlugin({
       algorithm: require('@gfx/zopfli').gzip,
       compressionOptions: {

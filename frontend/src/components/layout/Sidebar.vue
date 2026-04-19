@@ -1,5 +1,5 @@
 <template>
-  <aside class="menu app-sidebar animate__animated" :class="{ animate__slideInLeft: show, animate__slideOutLeft: !show, 'is-menu-opened': navbar.menuOpened }">
+  <aside class="menu app-sidebar" :class="{ 'is-visible': show, 'is-hidden': !show, 'is-menu-opened': navbar.menuOpened }">
     <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
       <p class="menu-label">
         {{ category.categoryName }}
@@ -214,6 +214,25 @@ export default {
   box-shadow: 0 2px 3px rgba(17, 17, 17, 0.1), 0 0 0 1px rgba(17, 17, 17, 0.1);
   overflow-y: auto;
   overflow-x: hidden;
+  transition: transform .377s ease, opacity .377s ease;
+
+  &.is-visible {
+    opacity: 1;
+  }
+
+  &.is-hidden {
+    opacity: 0;
+  }
+
+  @include mobile() {
+    &.is-visible {
+      transform: translate3d(0, 0, 0);
+    }
+
+    &.is-hidden {
+      transform: translate3d(-180px, 0, 0);
+    }
+  }
 
   &.is-menu-opened {
     @include mobile() {

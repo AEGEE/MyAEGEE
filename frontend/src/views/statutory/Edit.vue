@@ -430,6 +430,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import moment from 'moment'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
