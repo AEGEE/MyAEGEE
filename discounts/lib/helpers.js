@@ -24,7 +24,7 @@ You've claimed the code for the discount, here are the details.<br/>
 <br/>
 Partner: ${integration.name}<br/>
 Code: ${code.value}<br/>
-Claimed on: ${moment(code.updated_at).format('YYYY-MM-DD HH:MM')}<br/>
+Claimed on: ${moment.utc(code.updated_at).format('YYYY-MM-DD HH:mm')}<br/>
 <br/>
 ${integration.description}<br/>
 <br/>
@@ -34,7 +34,13 @@ MyAEGEE discounts team.`;
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
+    return permissionsList.some((permission) => permission
+        && typeof permission.combined === 'string'
+        && permission.combined.endsWith(combinedPermission));
 }
 
 exports.getPermissions = (user, corePermissions) => {

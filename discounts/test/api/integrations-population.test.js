@@ -81,4 +81,18 @@ describe('Integrations codes population', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should fail if integration is not found', async () => {
+        const res = await request({
+            uri: '/integrations/1337/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: ['first']
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });
