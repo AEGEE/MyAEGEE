@@ -3,13 +3,17 @@ const { Gauge } = require('prom-client');
 const helpers = require('../../lib/helpers');
 
 describe('Helpers', () => {
-    test('isNumber should accept numbers and numeric strings', () => {
+    test('isNumber should accept integers and digit-only strings', () => {
         expect(helpers.isNumber(123)).toEqual(true);
         expect(helpers.isNumber('123')).toEqual(true);
-        expect(helpers.isNumber('12.5')).toEqual(true);
     });
 
-    test('isNumber should reject non-numeric values', () => {
+    test('isNumber should reject non-integer and malformed values', () => {
+        expect(helpers.isNumber(12.5)).toEqual(false);
+        expect(helpers.isNumber('12.5')).toEqual(false);
+        expect(helpers.isNumber('1e3')).toEqual(false);
+        expect(helpers.isNumber(' 123 ')).toEqual(false);
+        expect(helpers.isNumber('')).toEqual(false);
         expect(helpers.isNumber('abc')).toEqual(false);
         expect(helpers.isNumber({})).toEqual(false);
         expect(helpers.isNumber(undefined)).toEqual(false);

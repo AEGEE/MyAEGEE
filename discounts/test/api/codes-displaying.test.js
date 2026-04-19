@@ -63,10 +63,8 @@ describe('Codes displaying', () => {
         const integration = await generator.createIntegration();
 
         const firstCode = await generator.createCode({ claimed_by: user.id }, integration);
-        await new Promise((resolve) => {
-            setTimeout(resolve, 20);
-        });
         const secondCode = await generator.createCode({ claimed_by: user.id }, integration);
+        await firstCode.update({ value: 'newer-code-value' });
 
         const res = await request({
             uri: '/codes/mine',
@@ -77,7 +75,7 @@ describe('Codes displaying', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body.data.length).toEqual(2);
-        expect(res.body.data[0].id).toEqual(secondCode.id);
-        expect(res.body.data[1].id).toEqual(firstCode.id);
+        expect(res.body.data[0].id).toEqual(firstCode.id);
+        expect(res.body.data[1].id).toEqual(secondCode.id);
     });
 });
