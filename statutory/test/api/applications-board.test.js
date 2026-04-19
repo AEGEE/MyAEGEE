@@ -78,6 +78,26 @@ describe('Applications pax type/board comment', () => {
         expect(res.body.data.board_comment).toEqual('test');
     });
 
+    test('should succeed when addressed by statutory ID', async () => {
+        application = await application.update({ user_id: 1337 }, { returning: ['*'] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.statutory_id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', board_comment: 'test', participant_order: 1 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.participant_type).toEqual('delegate');
+        expect(res.body.data.participant_order).toEqual(1);
+        expect(res.body.data.board_comment).toEqual('test');
+    });
+
     test('should return 403 when user does not have permissions', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true }, mainPermissions: { noPermissions: true } });
 
