@@ -16,31 +16,6 @@ module.exports = {
         'vuex-store': path.resolve(__dirname, 'src/store'),
       },
     },
-    // https://stackoverflow.com/a/55372086/1206421
-    optimization: {
-      splitChunks: {
-        cacheGroups: {
-          app: {
-            chunks: 'all',
-            name: 'all',
-            test: /[\\/]src[\\/](.*)[\\/]/,
-          },
-          vendor: {
-            chunks: 'all',
-            name: 'vendor',
-            test: /[\\/]node_modules[\\/](.*)[\\/]/,
-          },
-          styles: {
-            name: 'styles',
-            test: /\.s?css$/,
-            chunks: 'all',
-            minChunks: 1,
-            reuseExistingChunk: true,
-            enforce: true,
-          },
-        },
-      },
-    },
     // so it'd work with Webpack 4, which doesn't like [contenthash], which is there by default
     output: {
       filename: '[name].[hash].js',
@@ -65,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
 
     module.exports.configureWebpack.plugins.push(
       new CompressionPlugin({
-        filename: '[path].br[query]',
+        filename: '[path][base].br[query]',
         algorithm: 'brotliCompress',
         compressionOptions: { level: 11 }, // matches BROTLI_MAX_QUALITY
         minRatio: 0.99,

@@ -72,7 +72,6 @@ export default {
 
 <style lang="scss">
 @import '~flatpickr/dist/flatpickr.css';
-@import '~animate.css';
 @import '~vue-multiselect/dist/vue-multiselect.min.css';
 
 .animated {
