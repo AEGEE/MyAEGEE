@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/AEGEE/statutory",
   "dependencies": {
-    "@bugsnag/js": "^8.4.0",
+    "@bugsnag/js": "^8.8.1",
     "body-parser": "^2.2.0",
     "bunyan": "^1.8.15",
     "cors": "^2.8.5",
