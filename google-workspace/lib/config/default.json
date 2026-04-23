@@ -1,0 +1,9 @@
+{
+  "url": "http://localhost",
+  "port": 8084,
+  "redis": {
+    "host": "redis-gsuite-wrapper",
+    "port": "6379",
+    "lazyConnect": "true"
+  }
+}

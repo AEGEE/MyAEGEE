@@ -1,0 +1,8 @@
+services:
+  app:
+    image: docker/welcome-to-docker
+    ports: 
+      - 8080:80
+      # I guess that now I have to build an image and then expose it.
+      # This file will be useful only when I create things that can be used
+      # from outside. 

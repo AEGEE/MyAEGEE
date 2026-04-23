@@ -1,0 +1,25 @@
+{
+  "name": "csuite-wrapper",
+  "version": "1.0.0",
+  "description": "Winging it till it works. Vamonos!",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.3.12",
+    "express": "^5.2.1",
+    "express-promise-router": "^4.1.1",
+    "googleapis": "^171.4.0",
+    "request-promise-native": "^1.0.9"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0"
+  }
+}
