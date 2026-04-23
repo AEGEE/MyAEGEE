@@ -8,7 +8,7 @@ const { createUserPayload } = require('../lib/util/userPayload');
 
 describe('Accounts', () => {
     const name = 'test';
-    const surname = 'isTesting';
+    const surname = 'isTestinging';
 
     // Generates the standard user object/payload required by Google APIs
     const data = createUserPayload({ givenName: name, surname: surname });
@@ -24,7 +24,9 @@ describe('Accounts', () => {
             const payload = structuredClone(data);
             
             const res = await runGsuiteOperation(gsuiteOperations.addAccount, payload);
+            // console.log(res);
             res.code.should.equal(201);
+            res.data.primaryEmail.should.equal(payload.primaryEmail);
         });
 
         it('Should get an account', async function() {
