@@ -1,13 +1,13 @@
 /**
- * G-Suite Microservice Entry Point
- * This module handles the Express server lifecycle and routing for G-Suite account management.
+ * Google-Workspace Microservice Entry Point
+ * This module handles the Express server lifecycle and routing for Google Workspace account management.
  */
 
 const express = require('express');
 const router = require('express-promise-router'); // Middleware to handle async/await in routes without try-catch blocks
 const bodyParser = require('body-parser');
 const CsuiteRouter = router({ mergeParams: true }); // Allows access to params from parent routers if nested
-const wrapper = require('./gsuite-wrapper'); // Logic layer for interacting with Google APIs
+const wrapper = require('./wrapper'); // Logic layer for interacting with Google APIs
 const config = require('./config/configFile');
 
 /**

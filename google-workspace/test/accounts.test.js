@@ -3,7 +3,7 @@
 // npx mocha test/accounts.test.js --grep "Should add an account"
 const chai = require('chai');
 const should = chai.should();
-const { runGsuiteOperation, gsuiteOperations } = require('../lib/google-suite');
+const { runGsuiteOperation, gsuiteOperations } = require('../lib/google-workspace');
 const { createUserPayload } = require('../lib/util/userPayload');
 
 describe('Accounts', () => {

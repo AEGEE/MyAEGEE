@@ -91,6 +91,7 @@ async function runGsuiteOperation(operation, payload) {
 // Design note: none of these functions handle authentication themselves —
 // they all receive an already-authorised `jwt` object from runGsuiteOperation.
 // This keeps each function focused on a single responsibility.
+// We assume that the data provided is correct. Controls are done in the wrapper. 
 const gsuiteOperations = {
 
     // CRUD for accounts

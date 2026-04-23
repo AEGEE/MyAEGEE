@@ -1,4 +1,4 @@
-const { runGsuiteOperation, gsuiteOperations } = require('./google-suite');
+const { runGsuiteOperation, gsuiteOperations } = require('./google-workspace');
 const config = require('./config/configFile');
 
 // ─── Controller Functions ─────────────────────────────────────────────────────
