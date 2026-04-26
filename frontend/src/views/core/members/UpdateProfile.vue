@@ -98,11 +98,11 @@
 
       <hr v-if="validationErrors.bodies" />
 
-      <div class="field" v-if="validationErrors.bodies">
-        <label class="label">
-          Body <span class="has-text-danger">*</span>
-          <tooltip text="You can change your notification email in your profile" />
-        </label>
+        <div class="field" v-if="validationErrors.bodies">
+          <label class="label">
+            Body <span class="has-text-danger">*</span>
+            <tooltip text="You can change your notification email in your profile" />
+          </label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">
@@ -117,6 +117,16 @@
             <button class="button is-info" @click="askToJoinBody(tmpBodyId)">Join body</button>
           </div>
         </div>
+        <p class="help">
+          Cannot find an AEGEE Local in your city? You can start one yourself.
+          <a
+            href="https://docs.google.com/document/d/1rQRddt8H3J1RUYMpdxRxuhNqyV3BcP8mV8ykNLNup3o/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >This toolkit</a>
+          will guide and support you throughout the process. If you have any questions,
+          contact us at <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
+        </p>
       </div>
     </div>
   </div>
