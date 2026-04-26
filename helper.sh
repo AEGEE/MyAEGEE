@@ -155,17 +155,20 @@ function retry {
   done
 }
 
-WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
-HOST=$(hostname -f)
-# TODO: ignore this when using --no-vagrant in start.sh
-if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
-  echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
-  exit 1
-fi
-
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Skip the host/guest check when running outside Vagrant (e.g. WSL2 on Windows,
+# or `start.sh --no-vagrant` on Linux/Mac). The marker file is created by start.sh.
+if [[ ! -f "${DIR}/.no-vagrant" ]]; then
+  WANTEDNAME=$(head -n1 "${DIR}/Vagrantfile" | grep -oP 'machine_name = "\K[^"]+' )
+  HOST=$(hostname -f)
+  if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
+    echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
+    exit 1
+  fi
+fi
 
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
 # shellcheck disable=SC2046

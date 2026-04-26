@@ -20,18 +20,33 @@ A short perspective: the educational value of this project. Head to [roadmap.sh]
 # Installation
 ## Pre-requisites: installations required
 
-Install
-1. First [Git](https://git-scm.com/downloads) (you might already have Git installed through other sources if you worked with git/GitHub before)
-2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads),
-3. and finally [Vagrant](https://www.vagrantup.com/downloads.html).
+The setup is different on Linux/Mac vs Windows because the underlying tooling is different. Pick the section that matches your OS:
+
+- **Linux / Mac**: VirtualBox + Vagrant (a real Linux VM is created and provisioned via Ansible).
+- **Windows**: WSL2 + Docker Desktop (no separate VM, Docker runs natively in WSL2).
+
+In both cases, install [Git](https://git-scm.com/downloads) first (you might already have it).
+
+If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions, they can be found in the provisioning scripts --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
+
+### Linux / Mac specifics
+1. Install [Virtualbox](https://www.virtualbox.org/wiki/Downloads).
+2. Install [Vagrant](https://www.vagrantup.com/downloads.html).
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
-
-If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions, they can be found in the provisioning scripts --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
 
 Note: if you use Vagrant, Docker will be already automatically on the virtual machine.
 
 Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a machine with at least 3GB physical RAM)
+
+### Windows specifics
+1. Windows 10 (build 19041 / version 2004 or newer) or Windows 11.
+2. Administrator rights on your machine (the bootstrap script will request elevation via UAC).
+3. [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) — install it and make sure the "Use WSL 2 instead of Hyper-V" option is enabled.
+
+You don't need to install VirtualBox, Vagrant, Ansible or anything else: the Windows path uses WSL2 and Docker Desktop only. The `bootstrap-windows.bat` script (see below) takes care of installing WSL2 + Ubuntu for you.
+
+Memory requirements: 4GB free RAM during provisioning is comfortable.
 
 ## Pre-requisites: terminology
 Explanation of the installation are here. Explanation of why we're doing it this way is [at the bottom](#under-the-hood).
@@ -60,49 +75,64 @@ You will have to wait for up to 20'. A message appears when the bootstrap comple
 
 See [below](#startsh-and-makefile) for explanation of `start.sh`
 
-### Non-linux
+### Windows (WSL2)
 
-Foreword: if you want to learn WSL (windows subsystem for linux) and help us improve the next steps, you're most welcome!
+The Windows setup uses WSL2 + Docker Desktop. There is no separate virtual machine to manage: Docker runs through Docker Desktop, and you run the development commands inside the Ubuntu (WSL2) shell as if it was a regular Linux box.
 
-> On the _HOST_
-```
-git clone --recursive https://github.com/AEGEE/MyAEGEE.git
-cd MyAEGEE
-```
-**URL MAPPING for Windows:**
-As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced). When you open it, it will tell you what to do, which is written below. To open it:
-1. To open it you have to right-click it and click "run as administrator".
-2. It will open the file you need to edit in notepad, AND open a different terminal window that will tell you the line to copy (which you can find below).
-3. Paste the content at the last line of the file
-	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
-4. Delete the file called `Vagrantfile` and rename `Vagrantfile.windows` into `Vagrantfile`
-5. Save, and exit.
+**Step 1 — One-time bootstrap (on the Windows _HOST_):**
 
-For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
+1. Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) (with the WSL2 backend, which is the default).
+2. Download the MyAEGEE source code on Windows. The easiest way is to clone it into your Documents folder, but ANY location works for this step (we will re-clone it inside Ubuntu later):
+	```
+	git clone --recursive https://github.com/AEGEE/MyAEGEE.git
+	cd MyAEGEE
+	```
+3. In File Explorer, right-click `bootstrap-windows.bat` and choose **"Run as administrator"** (or just double-click it: a UAC prompt will appear).
 
-Once set up the mapping, you can continue the installation:
-```
-vagrant up
-```
+	The script will:
+	- Verify your Windows version supports WSL2.
+	- Install WSL2 and Ubuntu if they are not already installed (this might require a reboot; if it does, log back in and run the script again).
+	- Add the `appserver.test` entries to your Windows `hosts` file.
+	- Remind you to install Docker Desktop and enable the WSL Integration for Ubuntu.
+
+4. After the script completes, **make sure Docker Desktop is running** (whale icon in the system tray) and that under `Settings > Resources > WSL Integration` your `Ubuntu` distro is enabled.
+
+**Step 2 — Start the system (inside _GUEST_, i.e. Ubuntu / WSL2):**
+
+5. Open the **Ubuntu** app from the Start menu. The very first time, it will ask you to create a Linux username and password.
+
+6. Inside the Ubuntu terminal, clone the repository **inside the Linux home directory** (NOT under `/mnt/c/...` — that is slow and breaks file permissions and line endings):
+	```
+	cd ~
+	git clone --recursive https://github.com/AEGEE/MyAEGEE.git myaegee
+	cd myaegee
+	./start.sh --wsl
+	```
 
 You will have to wait for up to 25 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
+
+For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
 
 ## Advanced URL mapping and troubleshoot
 **MANUAL EDIT**
-If the script above did not work, you can also manually edit the `/etc/hosts` file on the _HOST_ machine (on Windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+If the bootstrap script did not work, you can also manually edit the `hosts` file on the _HOST_ machine to add the entry:
 
-Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+| OS | hosts file location | Line to add |
+|---|---|---|
+| Linux / Mac | `/etc/hosts` (Vagrant case) | `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test` |
+| Linux / Mac (no Vagrant) | `/etc/hosts` | `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test` |
+| Windows (WSL2) | `C:\Windows\System32\drivers\etc\hosts` | `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test` |
 
-Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+On Windows, edit the **Windows** hosts file (the one above), NOT the `/etc/hosts` inside WSL2: the browser runs on Windows and only reads the Windows hosts file.
 
 **Windows write-permission issue**
-For security reason, Windows could have rescrited writing permession. A workaround (original [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
+For security reason, Windows could have restricted writing permission. A workaround (original [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
 
-1. Go to `C:\Windows\system32\drivers\etc\hosts` and locate `hosts` file.
+1. Go to `C:\Windows\System32\drivers\etc\hosts` and locate the `hosts` file.
 2. Copy it to your Desktop, or any other folder that you can easily access.
 3. Open the `hosts` file on your Desktop with Notepad or any other text editor.
-4. Make the necessary changes (see above) and move the hosts file back to `C:\Windows\system32\drivers\etc\hosts` directory.
+4. Make the necessary changes (see above) and move the hosts file back to `C:\Windows\System32\drivers\etc\hosts` directory.
 
 ## Configuration file
 Everything related to the behaviour of the app is defined in the top-most `.env` file. Most important parameters are:
@@ -305,13 +335,16 @@ Apache License 2.0, see LICENSE.txt for more information.
 
 > `start.sh`
 
-On the _HOST_, i.e. the machine that runs the virtual machine, you use `start.sh` which can either:
-- Start the vm
-  - Use `./start.sh` for normal development cycle: app runs in development mode
-  - Use `./start.sh --fast` for sysops/integration development cycle: app runs in production mode so you can concentrate on developing integration to the app, not the app itself
-- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code.
+On the _HOST_, i.e. the machine that runs the virtual machine (or, on Windows, the WSL2 distro), you use `start.sh` which can either:
+- Start the system
+  - Use `./start.sh` for normal development cycle on Linux/Mac with Vagrant: app runs in development mode
+  - Use `./start.sh --wsl` on Windows from inside the Ubuntu/WSL2 shell: app runs in development mode against Docker Desktop, no Vagrant involved
+  - Use `./start.sh --fast` for sysops/integration development cycle: app runs in production mode so you can concentrate on developing integration to the app, not the app itself (works together with `--wsl` and `--no-vagrant` too)
+- Reset the settings to recreate the system (`./start.sh --reset`, optionally combined with `--wsl` on Windows). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code.
 
-If you are a know-it-all who doesn't want to use Vagrant, use `./start.sh --no-vagrant` (but again, if you're in trouble you will only get superficial support from our side)
+If you are a know-it-all on Linux/Mac who doesn't want to use Vagrant, use `./start.sh --no-vagrant` (but again, if you're in trouble you will only get superficial support from our side).
+
+> Note: `--wsl` and `--no-vagrant` create a marker file `.no-vagrant` at the repository root. This tells `helper.sh` to skip the "are we on the GUEST?" check (because there is no GUEST when there is no Vagrant). The file is git-ignored.
 
 > Makefile
 

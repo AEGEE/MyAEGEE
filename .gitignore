@@ -1,6 +1,7 @@
 .vagrant
 .env
 .init
+.no-vagrant
 *.log
 *.swp
 current-config.yml
