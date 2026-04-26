@@ -52,6 +52,7 @@ GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.li
 GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
 GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.listBodyApplications);
 
+GeneralRouter.get('/applications/future/:user_id', middlewares.ensureAuthorized, applications.listFutureApplicationsForUser);
 GeneralRouter.get('/applications', middlewares.ensureAuthorized, applications.getStats);
 
 GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);

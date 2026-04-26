@@ -43,6 +43,21 @@ exports.mockCore = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
     }
 
+    if (options.eventApplicationBanned) {
+        return nock(config.core.url + ':' + config.core.port)
+            .persist()
+            .get('/members/me')
+            .reply(200, {
+                success: true,
+                data: {
+                    ...regularUser,
+                    event_application_ban: {
+                        ban_until: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)
+                    }
+                }
+            });
+    }
+
     return nock(config.core.url + ':' + config.core.port)
         .persist()
         .get('/members/me')

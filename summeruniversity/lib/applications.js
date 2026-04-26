@@ -7,6 +7,50 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
 
+function isApplicationBanActive(user) {
+    return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
+}
+
+exports.listFutureApplicationsForUser = async (req, res) => {
+    if (!Object.values(req.permissions.manage_summeruniversity).some(Boolean)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see future applications.');
+    }
+
+    if (!helpers.isNumber(req.params.user_id)) {
+        return errors.makeBadRequestError(res, 'User ID should be a number.');
+    }
+
+    const applications = await Application.findAll({
+        where: {
+            user_id: Number(req.params.user_id),
+            cancelled: false,
+            status: { [Sequelize.Op.in]: ['pending', 'accepted'] }
+        },
+        include: [{
+            model: Event,
+            required: true,
+            where: {
+                starts: { [Sequelize.Op.gt]: new Date() },
+                deleted: false
+            }
+        }],
+        order: [[Event, 'starts', 'ASC']]
+    });
+
+    return res.json({
+        success: true,
+        data: applications.map((application) => ({
+            service: 'summeruniversity',
+            application_id: application.id,
+            application_status: application.status,
+            event_id: application.event.id,
+            event_name: application.event.name,
+            event_type: application.event.type,
+            event_starts: application.event.starts
+        }))
+    });
+};
+
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.list_applications) {
         return errors.makeForbiddenError(res, 'You cannot see applications for this event.');
@@ -39,6 +83,10 @@ exports.createApplication = async (req, res) => {
     // Check for permission
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'You cannot apply to this event.');
+    }
+
+    if (isApplicationBanActive(req.user)) {
+        return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
     }
 
     if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {

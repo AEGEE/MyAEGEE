@@ -136,6 +136,11 @@
             >!
           </div>
 
+          <div class="notification is-warning" v-if="activeEventApplicationBan">
+            You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
+            Existing applications can still be managed.
+          </div>
+
           <div class="content">
             <table class="table is-narrow">
               <tbody>
@@ -579,6 +584,9 @@ export default {
     },
     isOnlineEvent () {
       return this.event.method === 'online'
+    },
+    activeEventApplicationBan () {
+      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
   }
 }

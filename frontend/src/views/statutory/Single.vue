@@ -284,6 +284,11 @@
         <div class="content">
           <p class="title">{{ event.name }}</p>
 
+          <div class="notification is-warning" v-if="activeEventApplicationBan">
+            You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
+            Existing applications can still be managed and position applications remain available.
+          </div>
+
           <div class="content">
             <table class="table is-narrow">
               <tbody>
@@ -618,6 +623,9 @@ export default {
         this.event.type === 'agora'
         && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
       )
+    },
+    activeEventApplicationBan () {
+      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
   }
 }

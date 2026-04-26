@@ -2,13 +2,29 @@ const moment = require('moment');
 const _ = require('lodash');
 const { request } = require('../lib/http');
 
-const { User, Body, BodyMembership, MailChange, MailConfirmation } = require('../models');
+const { User, Body, BodyMembership, MailChange, MailConfirmation, EventApplicationBan } = require('../models');
 const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
 const mailer = require('../lib/mailer');
 const { sequelize, Sequelize } = require('../lib/sequelize');
+
+const MAX_EVENT_APPLICATION_BAN_MONTHS = 3;
+
+function canViewEventApplicationBan(req, user) {
+    return req.user.id === user.id || req.permissions.hasPermission('global:update_application_ban:member');
+}
+
+async function addActiveEventApplicationBan(req, user) {
+    if (!canViewEventApplicationBan(req, user)) {
+        delete user.dataValues.event_application_ban;
+        return user;
+    }
+
+    user.dataValues.event_application_ban = await EventApplicationBan.findActiveForUser(user.id);
+    return user;
+}
 
 exports.listAllUsers = async (req, res) => {
     if (!req.permissions.hasPermission('global:view:member')) {
@@ -104,6 +120,8 @@ exports.getUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission view:member is required, but not present.');
     }
 
+    await addActiveEventApplicationBan(req, req.currentUser);
+
     return res.json({
         success: true,
         data: req.currentUser
@@ -191,6 +209,72 @@ exports.setUserActive = async (req, res) => {
     return res.json({
         success: true,
         data: req.currentUser
+    });
+};
+
+exports.setEventApplicationBan = async (req, res) => {
+    if (!req.permissions.hasPermission('global:update_application_ban:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:update_application_ban:member is required, but not present.');
+    }
+
+    const banUntil = moment(req.body.ban_until);
+    if (!banUntil.isValid()) {
+        return errors.makeValidationError(res, { ban_until: ['Ban end date should be valid.'] });
+    }
+
+    if (banUntil.isSameOrBefore(moment())) {
+        return errors.makeValidationError(res, { ban_until: ['Ban end date should be in the future.'] });
+    }
+
+    if (banUntil.isAfter(moment().add(MAX_EVENT_APPLICATION_BAN_MONTHS, 'months'))) {
+        return errors.makeValidationError(res, { ban_until: ['Ban end date cannot be more than 3 months in the future.'] });
+    }
+
+    await sequelize.transaction(async (t) => {
+        await EventApplicationBan.update({
+            lifted_at: new Date(),
+            lifted_by_user_id: req.user.id
+        }, {
+            where: {
+                user_id: req.currentUser.id,
+                lifted_at: null
+            },
+            transaction: t
+        });
+
+        await EventApplicationBan.create({
+            user_id: req.currentUser.id,
+            banned_by_user_id: req.user.id,
+            ban_until: banUntil.toDate()
+        }, { transaction: t });
+    });
+
+    await addActiveEventApplicationBan(req, req.currentUser);
+
+    return res.json({
+        success: true,
+        data: req.currentUser.dataValues.event_application_ban
+    });
+};
+
+exports.liftEventApplicationBan = async (req, res) => {
+    if (!req.permissions.hasPermission('global:update_application_ban:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:update_application_ban:member is required, but not present.');
+    }
+
+    const activeBan = await EventApplicationBan.findActiveForUser(req.currentUser.id);
+    if (!activeBan) {
+        return errors.makeNotFoundError(res, 'This user does not have an active event application ban.');
+    }
+
+    await activeBan.update({
+        lifted_at: new Date(),
+        lifted_by_user_id: req.user.id
+    });
+
+    return res.json({
+        success: true,
+        message: 'Event application ban was lifted.'
     });
 };
 

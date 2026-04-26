@@ -558,6 +558,12 @@ async function createPermissions() {
             description: 'See all memberslists for EPM>'
         },
         {
+            action: 'update_application_ban',
+            object: 'member',
+            scope: 'global',
+            description: 'Set or lift temporary bans from applying to events.'
+        },
+        {
             action: 'use_massmailer',
             object: 'epm',
             scope: 'global',

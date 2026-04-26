@@ -5,10 +5,10 @@ const xlsx = require('node-xlsx').default;
 const errors = require('./errors');
 const core = require('./core');
 const mailer = require('./mailer');
-const { Application, VotesPerAntenna, PaxLimit } = require('../models');
+const { Application, VotesPerAntenna, PaxLimit, Event } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
-const { sequelize } = require('./sequelize');
+const { sequelize, Sequelize } = require('./sequelize');
 const logger = require('./logger');
 
 async function getEditableBodiesForUser(req, user) {
@@ -21,6 +21,55 @@ async function getEditableBodiesForUser(req, user) {
         return limit && limit.hasAnyLimits();
     });
 }
+
+function hasManageApplicationsPermission(corePermissions) {
+    return Array.isArray(corePermissions)
+        && corePermissions.some((permission) => permission.combined.match(/^global:manage_applications:(agora|epm|spm)$/));
+}
+
+function isApplicationBanActive(user) {
+    return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
+}
+
+exports.listFutureApplicationsForUser = async (req, res) => {
+    if (!hasManageApplicationsPermission(req.corePermissions)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see future applications.');
+    }
+
+    if (!helpers.isNumber(req.params.user_id)) {
+        return errors.makeBadRequestError(res, 'User ID should be a number.');
+    }
+
+    const applications = await Application.findAll({
+        where: {
+            user_id: Number(req.params.user_id),
+            cancelled: false,
+            status: { [Sequelize.Op.in]: ['pending', 'waiting_list', 'accepted'] }
+        },
+        include: [{
+            model: Event,
+            required: true,
+            where: {
+                starts: { [Sequelize.Op.gt]: new Date() },
+                status: 'published'
+            }
+        }],
+        order: [[Event, 'starts', 'ASC']]
+    });
+
+    return res.json({
+        success: true,
+        data: applications.map((application) => ({
+            service: 'statutory',
+            application_id: application.id,
+            application_status: application.status,
+            event_id: application.event.id,
+            event_name: application.event.name,
+            event_type: application.event.type,
+            event_starts: application.event.starts
+        }))
+    });
+};
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.see_applications) {
@@ -679,6 +728,10 @@ exports.setBoardForBody = async (req, res) => {
 exports.postApplication = async (req, res) => {
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.');
+    }
+
+    if (isApplicationBanActive(req.user)) {
+        return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
     }
 
     req.body.user_id = req.user.id;

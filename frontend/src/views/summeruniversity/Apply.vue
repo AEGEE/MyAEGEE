@@ -7,6 +7,9 @@
         <div class="title" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
 
         <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply to this event.</div>
+        <div class="notification is-warning" v-if="isNew && activeEventApplicationBan">
+          You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
+        </div>
 
         <div class="tile is-parent" v-if="application && application.cancelled">
           <div class="tile is-child">
@@ -19,7 +22,7 @@
 
         <!-- TODO: add all fields -->
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="this.can.apply">
+          <div class="tile is-parent" v-show="canSubmitApplication">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>
@@ -548,6 +551,10 @@ export default {
   },
   methods: {
     saveApplication () {
+      if (this.isNew && this.activeEventApplicationBan) {
+        return this.$root.showError('You are temporarily banned from submitting new event applications.')
+      }
+
       if (!this.application.body_id) {
         return this.$root.showError('Please select a body.')
       }
@@ -603,6 +610,12 @@ export default {
     }),
     isNew () {
       return !this.application.id
+    },
+    activeEventApplicationBan () {
+      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+    },
+    canSubmitApplication () {
+      return this.can.apply && (!this.isNew || !this.activeEventApplicationBan)
     }
   },
   mounted () {
