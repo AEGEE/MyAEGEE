@@ -98,11 +98,11 @@
 
       <hr v-if="validationErrors.bodies" />
 
-        <div class="field" v-if="validationErrors.bodies">
-          <label class="label">
-            Body <span class="has-text-danger">*</span>
-            <tooltip text="You can change your notification email in your profile" />
-          </label>
+      <div class="field" v-if="validationErrors.bodies">
+        <label class="label">
+          Body <span class="has-text-danger">*</span>
+          <tooltip text="You can change your notification email in your profile" />
+        </label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">
