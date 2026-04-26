@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: Tips on make your event a safer space") %>
+<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: Make your event a safer space") %>
 
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
@@ -39,7 +39,7 @@
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Dear Local Organizers,</strong></div>
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">Congrats for launching your event!</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">Congrats for launching "<%= @parameters["event"]["name"] %>"!</div>
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">We are reaching out to inform you about some important opportunities on how to make your event a safer space for everyone!</div>
                         </td>
                       </tr>
