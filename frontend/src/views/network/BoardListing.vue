@@ -91,10 +91,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
+import Multiselect from 'vue-multiselect'
 import moment from 'moment'
 
 export default {
   name: 'Boardslist',
+  components: {
+    Multiselect
+  },
   data () {
     return {
       bodies: [],

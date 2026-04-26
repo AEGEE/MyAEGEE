@@ -430,6 +430,10 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'mapbox-gl/dist/mapbox-gl.css'
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
+import InputTag from 'vue-input-tag'
 import moment from 'moment'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
@@ -439,6 +443,8 @@ import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 export default {
   name: 'EditStatutory',
   components: {
+    flatPickr,
+    InputTag,
     TimezoneNotification,
     MglMap,
     MglMarker,

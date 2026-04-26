@@ -153,7 +153,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import _ from 'lodash'
+import pick from 'lodash/pick'
 
 export default {
   name: 'EditCircle',
@@ -321,7 +321,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      const body = _.pick(this.circle, [
+      const body = pick(this.circle, [
         'name',
         'description'
       ])

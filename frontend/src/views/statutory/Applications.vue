@@ -135,9 +135,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
+import Multiselect from 'vue-multiselect'
 
 export default {
   name: 'AcceptParticipantsStatutoryList',
+  components: {
+    Multiselect
+  },
   data () {
     return {
       applications: [],

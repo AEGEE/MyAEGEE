@@ -204,9 +204,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
+import Multiselect from 'vue-multiselect'
 
 export default {
   name: 'StatutoryBoardView',
+  components: {
+    Multiselect
+  },
   data () {
     return {
       applications: [],

@@ -462,6 +462,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'

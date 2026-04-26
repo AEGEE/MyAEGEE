@@ -196,7 +196,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import _ from 'lodash'
+import pick from 'lodash/pick'
 
 export default {
   name: 'Register',
@@ -254,7 +254,7 @@ export default {
 
       this.user.privacy_consent = moment().format()
 
-      const body = _.pick(this.user, [
+      const body = pick(this.user, [
         'username',
         'password',
         'first_name',

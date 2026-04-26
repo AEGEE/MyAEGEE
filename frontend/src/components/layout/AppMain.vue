@@ -6,9 +6,9 @@
   >
     <div class="container is-fluid is-marginless app-content">
       <levelbar />
-      <transition mode="out-in" enter-active-class="fadeIn" leave-active-class="fadeOut" appear>
+      <transition name="route-fade" mode="out-in" appear>
         <div class="box">
-          <router-view class="animated" />
+          <router-view />
         </div>
       </transition>
     </div>
@@ -36,7 +36,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../../styles/main.scss';
+@import '~bulma/sass/utilities/initial-variables';
+@import '~bulma/sass/utilities/derived-variables';
+@import '~bulma/sass/utilities/mixins';
 
 html {
   background-color: #fafafa;
@@ -64,5 +66,16 @@ html {
 
 .app-content {
   padding: 20px;
+}
+
+.route-fade-enter-active,
+.route-fade-leave-active {
+  transition: opacity .377s ease, transform .377s ease;
+}
+
+.route-fade-enter,
+.route-fade-leave-to {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
 }
 </style>

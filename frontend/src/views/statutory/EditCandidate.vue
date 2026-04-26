@@ -252,6 +252,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
+import InputTag from 'vue-input-tag'
 import moment from 'moment'
 
 import nationalities from '../../nationalities'
@@ -259,6 +262,8 @@ import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
   components: {
+    flatPickr,
+    InputTag,
     MarkdownTooltip
   },
   name: 'EditCandidate',

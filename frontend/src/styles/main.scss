@@ -58,10 +58,53 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ------ end of VI colors ------------- */
 
-@import '~bulma';
-@import '~buefy/dist/buefy.min.css';
-@import '~mapbox-gl/dist/mapbox-gl.css';
-@import '~animate.css/animate.min.css';
+@import '~bulma/sass/utilities/_all';
+@import '~bulma/sass/base/_all';
+@import '~bulma/sass/elements/box';
+@import '~bulma/sass/elements/button';
+@import '~bulma/sass/elements/container';
+@import '~bulma/sass/elements/content';
+@import '~bulma/sass/elements/icon';
+@import '~bulma/sass/elements/image';
+@import '~bulma/sass/elements/notification';
+@import '~bulma/sass/elements/table';
+@import '~bulma/sass/elements/tag';
+@import '~bulma/sass/elements/title';
+@import '~bulma/sass/elements/other';
+@import '~bulma/sass/form/_all';
+@import '~bulma/sass/components/card';
+@import '~bulma/sass/components/dropdown';
+@import '~bulma/sass/components/level';
+@import '~bulma/sass/components/media';
+@import '~bulma/sass/components/menu';
+@import '~bulma/sass/components/message';
+@import '~bulma/sass/components/modal';
+@import '~bulma/sass/components/navbar';
+@import '~bulma/sass/components/pagination';
+@import '~bulma/sass/components/tabs';
+@import '~bulma/sass/grid/_all';
+@import '~bulma/sass/helpers/_all';
+@import '~bulma/sass/layout/section';
+@import '~bulma/sass/layout/footer';
+@import '~buefy/src/scss/utils/_all';
+@import '~buefy/src/scss/utils/_variables-ext';
+@import '~buefy/src/scss/components/_autocomplete';
+@import '~buefy/src/scss/components/_checkbox';
+@import '~buefy/src/scss/components/_collapse';
+@import '~buefy/src/scss/components/_datepicker';
+@import '~buefy/src/scss/components/_dialog';
+@import '~buefy/src/scss/components/_dropdown';
+@import '~buefy/src/scss/components/_form';
+@import '~buefy/src/scss/components/_icon';
+@import '~buefy/src/scss/components/_loading';
+@import '~buefy/src/scss/components/_message';
+@import '~buefy/src/scss/components/_modal';
+@import '~buefy/src/scss/components/_notices';
+@import '~buefy/src/scss/components/_radio';
+@import '~buefy/src/scss/components/_select';
+@import '~buefy/src/scss/components/_switch';
+@import '~buefy/src/scss/components/_table';
+@import '~buefy/src/scss/components/_tag';
 
 @import '~nprogress/nprogress.css';
 

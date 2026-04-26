@@ -46,8 +46,14 @@
 </template>
 
 <script>
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
+
 export default {
   name: 'EditPlenaryModal',
+  components: {
+    flatPickr
+  },
   props: ['event', 'plenary', 'services', 'showSuccess', 'showError', 'router'],
   data () {
     return {

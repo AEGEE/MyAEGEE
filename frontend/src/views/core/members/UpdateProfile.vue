@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import pick from 'lodash/pick'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 import { RESTRICTED_EMAILS, ALLOWED_BODY_TYPES } from '../../../validate-user'
@@ -180,7 +180,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      const body = _.pick(this.user, [
+      const body = pick(this.user, [
         'id',
         'first_name',
         'last_name',
