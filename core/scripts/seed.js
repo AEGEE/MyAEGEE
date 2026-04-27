@@ -768,6 +768,18 @@ async function createPermissions() {
     },
     {
         action: 'approve_event',
+        object: 'thematic',
+        scope: 'global',
+        description: 'Approve thematic events.'
+    },
+    {
+        action: 'manage_event',
+        object: 'thematic',
+        scope: 'global',
+        description: 'Edit thematic events.'
+    },
+    {
+        action: 'approve_event',
         object: 'training',
         scope: 'global',
         description: 'Approve/publish training events.'
