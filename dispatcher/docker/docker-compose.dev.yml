@@ -6,7 +6,7 @@ services:
     build:
       context: ./${PATH_DISPATCHER}/..
       dockerfile: ./docker/Dockerfile.rabbit
-    image: aegee/rabbit:3.11-mgmt-delayxch
+    image: aegee/rabbit:3.13-mgmt-delayxch
 
   dispatcher:
     build:
@@ -17,14 +17,14 @@ services:
       - ./${PATH_DISPATCHER}/../templates:/usr/app/templates:ro
       - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
 
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
+  mailpit:
+    image: axllent/mailpit:v1.29
     restart: always
     ports:
       - 8025:8025
       - 1025:1025
     labels:
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILHOG}${BASE_URL};"
-      - "traefik.backend=mailhog"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILPIT}${BASE_URL};"
+      - "traefik.backend=mailpit"
       - "traefik.port=8025"
       - "traefik.enable=true"

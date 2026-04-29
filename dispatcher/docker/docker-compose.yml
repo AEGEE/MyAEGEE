@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   rabbit: # login with guest:guest
-    image: aegee/rabbit:3.11-mgmt-delayxch
+    image: aegee/rabbit:3.13-mgmt-delayxch
     restart: always
     expose:
       - 5672

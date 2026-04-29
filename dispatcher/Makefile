@@ -46,5 +46,5 @@ test: test-build
 
 rabbit:
 	DOCKER_BUILDKIT=0 docker build -t aegee/rabbit:latest -f docker/Dockerfile.rabbit .
-	docker tag aegee/rabbit:latest aegee/rabbit:3.11-mgmt-delayxch
-	@echo "To push: docker push aegee/rabbit:latest && docker push aegee/rabbit:3.11-mgmt-delayxch"
+	docker tag aegee/rabbit:latest aegee/rabbit:3.13-mgmt-delayxch
+	@echo "To push: docker push aegee/rabbit:latest && docker push aegee/rabbit:3.13-mgmt-delayxch"
