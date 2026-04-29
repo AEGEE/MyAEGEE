@@ -87,6 +87,37 @@ After the last attempt the message is dropped and an alert is sent via Apprise.
 Errors where retry is pointless (e.g. `parameter_undefined`) are dropped immediately
 without entering the wait loop.
 
+### Message schema validation
+
+Before any processing, every message dequeued from `email` is validated against a fixed
+set of required fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `from` | string | Sender address |
+| `to` | string or list | Recipient address(es) |
+| `reply_to` | string | Reply-To address |
+| `subject` | string | Email subject line |
+| `template` | string | Template name (without `.jinja2` extension) |
+| `parameters` | object | Variables passed to the Jinja2 template |
+
+If any field is missing the message is **dropped immediately** (acked, not NACKed) and an
+Apprise alert is fired. Retrying would be pointless because the payload cannot be fixed
+by waiting — the bug is in the producing service. The dropped message and all missing field
+names are written to the error log for investigation.
+
+### Notification rate limiting
+
+Apprise alerts are throttled per unique error title to prevent alert storms. If the same
+error occurs on many queued messages at once (e.g. a template is missing and there are
+500 messages waiting), only one alert fires per `NOTIFY_COOLDOWN_SECONDS` window (default:
+300 s). Subsequent occurrences of the same error within the window are silently dropped
+at the `notify()` level and logged at DEBUG.
+
+The throttle state is in-process only — it resets on restart. This is intentional: after
+a restart one alert will fire before throttling kicks in, which is the desired behaviour
+(you always want to know about the first occurrence after a redeploy).
+
 ### Templates
 
 Templates live in `templates/` as `.jinja2` files. Because the template is loaded from
