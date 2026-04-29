@@ -19,6 +19,19 @@ from notify import slack_alert
 
 ONCALL_HANDLER = "@grasshopper"
 
+# All fields that must be present in every message published to the email queue.
+# A missing field means the producer sent a malformed payload; retrying will never fix it,
+# so the message is dropped immediately with an ack and an alert.
+REQUIRED_MESSAGE_FIELDS: frozenset[str] = frozenset({
+    "from", "to", "reply_to", "subject", "template", "parameters",
+})
+
+
+def validate_message(msg: dict) -> list[str]:
+    """Return a sorted list of missing required field names, empty if the message is valid."""
+    return sorted(REQUIRED_MESSAGE_FIELDS - msg.keys())
+
+
 # Exponential-backoff delay tiers (milliseconds) used by the wait_exchange retry mechanism.
 # IMPORTANT: this list is the single source of truth — do not duplicate it.
 # Each tier corresponds to one retry attempt; the index is stored in the x-delay header.
@@ -116,6 +129,14 @@ def send_email(ch, method, properties, body):
     Output: publish to wait_exchange (template missing or rendering error)
     """
     msg = json.loads(body)
+
+    missing = validate_message(msg)
+    if missing:
+        logging.error(f"Dropping malformed message: missing fields {missing}. Body: {body}")
+        slack_alert(f"Malformed message dropped: missing fields {missing}",
+                    submessage="The producer sent an incomplete payload. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
 
     try:
         template = tpl_environment.get_template(f"{msg['template']}.jinja2")
