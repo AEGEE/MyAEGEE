@@ -12,5 +12,11 @@ COPY ./dispatcher/notify.py /usr/app/src/notify.py
 RUN useradd -s /bin/bash python
 USER python
 
+# Checks that the RabbitMQ AMQP port is reachable from this container's network namespace.
+# If rabbit becomes unavailable the container is marked unhealthy, making the degradation
+# visible to Docker and any monitoring stack watching container health.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD python -c "import socket; socket.create_connection(('rabbit', 5672), 3)"
+
 ENTRYPOINT [ "python", "-u" ]
 CMD ["main.py"]

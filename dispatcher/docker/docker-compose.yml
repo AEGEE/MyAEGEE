@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
 
   rabbit: # login with guest:guest
@@ -21,6 +19,9 @@ services:
   dispatcher:
     image: aegee/dispatcher
     restart: always
+    depends_on:
+      rabbit:
+        condition: service_healthy
     environment:
       ENV: "${MYAEGEE_ENV}"
       EMAIL_HOST: "${ETHEREAL_SMTP_HOST}"

@@ -7,3 +7,7 @@ ADD https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/downl
 RUN chown rabbitmq:rabbitmq /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.13.0.ez \
   && chmod 755 /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.13.0.ez \
   && rabbitmq-plugins enable rabbitmq_delayed_message_exchange --offline
+
+# start-period gives the broker time to initialize before failures count toward retries.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD rabbitmq-diagnostics -q ping

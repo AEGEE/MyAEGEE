@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
 
   rabbit:
@@ -13,6 +11,9 @@ services:
       context: ./${PATH_DISPATCHER}/..
       dockerfile: ./docker/Dockerfile
     image: aegee/dispatcher:dev
+    depends_on:
+      rabbit:
+        condition: service_healthy
     volumes:
       - ./${PATH_DISPATCHER}/../templates:/usr/app/templates:ro
       - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
