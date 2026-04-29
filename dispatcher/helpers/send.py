@@ -40,6 +40,8 @@ MAIL_SUBJECTS = {
         "MAIL_EVENT_CREATED": "The event was created",
         "MAIL_EVENT_UPDATED": "The event was updated",
         "MAIL_EVENT_STATUS_CHANGED": "Your event's status was changed",
+        "MAIL_EVENT_EUROPEAN_STATUS_CHANGED": "Your event's status was changed",
+        "MAIL_EVENT_SPC_INFO": "MyAEGEE: Tips on making your event a safer space",
         "MAIL_EVENT_SUBMITTED": "An event was submitted",
     },
     "STATUTORY": {
@@ -66,10 +68,15 @@ MAIL_SUBJECTS = {
     },
     "NETWORK": {
         "MAIL_NEW_BOARD": f'A new board was added for { random.choice(BODIES_LIST) }',
+        "MAIL_BOARD_WELCOME": 'MyAEGEE: Welcome to AEGEE',
     },
     "OTHER": {
-        "MAIL_EXPIRED_MEMBERSHIP": 'member_expired',
+        "MAIL_EXPIRED_MEMBERSHIP": 'MyAEGEE: Membership expired',
         "MAIL_CUSTOM": 'custom',
+    },
+    "WORKSPACE": {
+        "WORKSPACE_NEW_MEMBER": 'MyAEGEE: A new member has joined their first local',
+        "WORKSPACE_DELETED_MEMBER": 'MyAEGEE: A member has been removed from their last body',
     },
 }
 # should exist in constants.js but it does not yet.
@@ -90,6 +97,8 @@ MAIL_TEMPLATES = {
         "MAIL_EVENT_CREATED": "events_event_created",
         "MAIL_EVENT_UPDATED": "events_event_updated",
         "MAIL_EVENT_STATUS_CHANGED": "events_status_changed",
+        "MAIL_EVENT_EUROPEAN_STATUS_CHANGED": "events_european_status_changed",
+        "MAIL_EVENT_SPC_INFO": "events_spc_info",
         "MAIL_EVENT_SUBMITTED": "events_submitted",
     },
     "STATUTORY": {
@@ -116,10 +125,15 @@ MAIL_TEMPLATES = {
     },
     "NETWORK": {
         "MAIL_NEW_BOARD": 'network_new_board',
+        "MAIL_BOARD_WELCOME": 'network_board_welcome',
     },
     "OTHER": {
-        "MAIL_EXPIRED_MEMBERSHIP": 'member_expired',
+        "MAIL_EXPIRED_MEMBERSHIP": 'membership_expired',
         "MAIL_CUSTOM": 'custom',
+    },
+    "WORKSPACE": {
+        "WORKSPACE_NEW_MEMBER": 'workspace_new_member',
+        "WORKSPACE_DELETED_MEMBER": 'workspace_deleted_member',
     },
 }
 
@@ -158,6 +172,9 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
         "parameters": { # Not all will be used at the same time but this is not important, it's a test
             "member_firstname": faker.first_name(),
             "member_lastname": faker.last_name(),
+            "member_email": faker.email(),
+            "member_workspace_email": faker.email(),
+            "user_id": faker.uuid4(),
             "body": f"AEGEE-{faker.city()}",
             "last_payment": faker.date(),
             "body_name": random.choice(BODIES_LIST), #note: discrepancy in the microservices on the use of body vs body_name

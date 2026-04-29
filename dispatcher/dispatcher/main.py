@@ -22,8 +22,10 @@ ONCALL_HANDLER = "@grasshopper"
 # All fields that must be present in every message published to the email queue.
 # A missing field means the producer sent a malformed payload; retrying will never fix it,
 # so the message is dropped immediately with an ack and an alert.
+# `from` and `reply_to` are intentionally absent: `from` falls back to EMAIL_ADDRESS,
+# `reply_to` is simply omitted when not provided. `cc` and `bcc` are always optional.
 REQUIRED_MESSAGE_FIELDS: frozenset[str] = frozenset({
-    "from", "to", "reply_to", "subject", "template", "parameters",
+    "to", "subject", "template", "parameters",
 })
 
 
@@ -55,6 +57,10 @@ _TEMPLATES_DIR: str = os.environ.get(
 # Initialised to None; set by connect_to_smtp(). Kept as a module-level variable so
 # all callbacks share a single SMTP connection without passing it through pika callbacks.
 smtpObj: smtplib.SMTP | None = None
+
+# Fallback sender address used when a message does not include an explicit `from` field.
+# Set once at startup from the EMAIL_ADDRESS env var (same value used for SMTP login).
+EMAIL_ADDRESS: str | None = None
 
 
 def connect_to_smtp():
@@ -181,10 +187,17 @@ def send_email(ch, method, properties, body):
     try:
         email = EmailMessage()
         email.set_content(rendered, subtype='html')
-        email['From'] = msg['from']
-        email['Reply-To'] = msg['reply_to']
+        email['From'] = msg.get('from') or EMAIL_ADDRESS or ''
         email['To'] = msg['to']
         email['Subject'] = msg['subject']
+        if msg.get('reply_to'):
+            email['Reply-To'] = msg['reply_to']
+        if msg.get('cc'):
+            cc = msg['cc']
+            email['Cc'] = ', '.join(cc) if isinstance(cc, list) else cc
+        if msg.get('bcc'):
+            bcc = msg['bcc']
+            email['Bcc'] = ', '.join(bcc) if isinstance(bcc, list) else bcc
         smtpObj.send_message(email)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except smtplib.SMTPServerDisconnected:
@@ -256,12 +269,14 @@ def main():
     global tpl_environment
     global env
     global channel
+    global EMAIL_ADDRESS
 
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('pika').setLevel(logging.WARNING)
 
     tpl_environment = Environment(loader=FileSystemLoader(_TEMPLATES_DIR))
     env = os.environ.get("ENV") or 'development'
+    EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
     RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbit")
     RABBITMQ_USER = os.environ.get("RABBITMQ_USER", "guest")
