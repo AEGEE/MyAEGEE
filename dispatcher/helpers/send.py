@@ -123,8 +123,15 @@ MAIL_TEMPLATES = {
     },
 }
 
-RABBIT_HOST="172.18.0.X" #FIXME (as this is a python script launched on host we cant use docker's dns)
-connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
+# RabbitMQ connection with credentials
+RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbit")
+RABBITMQ_USER = os.environ.get("RABBITMQ_USER", "guest")
+RABBITMQ_PASS = os.environ.get("RABBITMQ_PASS", "guest")
+
+credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+)
 channel = connection.channel()
 
 channel.exchange_declare(exchange='eml',

@@ -18,7 +18,7 @@ ONCALL_HANDLER = "@grasshopper"
 def connect_to_smtp():
     global smtpObj
 
-    EMAIL_HOST='mailhog'
+    EMAIL_HOST='mailpit'
     EMAIL_PORT=1025
     EMAIL_ADDRESS=None
     EMAIL_PASSWORD=None
@@ -213,8 +213,15 @@ def main():
     tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
     env = os.environ.get("ENV") or 'development'
 
-    RABBIT_HOST='rabbit'
-    connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
+    # RabbitMQ connection with credentials
+    RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbit")
+    RABBITMQ_USER = os.environ.get("RABBITMQ_USER", "guest")
+    RABBITMQ_PASS = os.environ.get("RABBITMQ_PASS", "guest")
+
+    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+    )
     channel = connection.channel()
 
     channel.exchange_declare(exchange='eml',
