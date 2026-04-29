@@ -1,0 +1,14 @@
+FROM python:3.9-slim
+
+WORKDIR /usr/app
+
+RUN pip install --no-cache-dir pika faker
+
+COPY ./helpers /usr/app/helpers
+COPY ./templates /usr/app/templates
+
+WORKDIR /usr/app/helpers
+
+ENV RABBIT_HOST=rabbit
+
+ENTRYPOINT ["python", "-u", "send.py"]

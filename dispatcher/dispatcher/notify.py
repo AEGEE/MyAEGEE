@@ -1,65 +1,93 @@
 import os
+import logging
+import urllib.request
+import urllib.error
 import json
-import datetime
-import slack_notifications as slack
+
+"""
+Notification module using Apprise-API.
+
+Sends notifications to a centralized Apprise service via HTTP POST.
+Configure notification channels (Slack, Telegram, etc.) in the Apprise service,
+not here. This module just sends the message.
+
+Environment variables:
+  APPRISE_URL  - Base URL of Apprise-API (default: http://apprise:8000)
+  APPRISE_TAG  - Notification tag/channel (default: myaegee)
+"""
+
+APPRISE_URL = os.environ.get("APPRISE_URL", "http://apprise:8000")
+APPRISE_TAG = os.environ.get("APPRISE_TAG", "myaegee")
+NOTIFICATIONS_ENABLED = True
 
 
-#the ?? notification channels:
-# - slack
-# - telegram (wip)
+def notify(title, body, tag=None, notify_type="warning"):
+    """
+    Send a notification via Apprise-API.
 
-# example of tokens.json:
-# {
-#   "slack": "xoxb-123",            # a single token
-#   "telegram": ["456", "789"],  # an array of tokens
-# }
+    Args:
+        title: Notification title
+        body: Notification body/message
+        tag: Override the default tag (optional)
+        notify_type: One of: info, success, warning, failure (default: warning)
+    """
+    global NOTIFICATIONS_ENABLED
 
-tokens = None
-NOTIFY_CHANNEL = os.environ.get("NOTIFY_CHANNEL") or "----monitoring"
+    if not NOTIFICATIONS_ENABLED:
+        return False
 
-payload_nice = {
-        "title": 'Something going on with the dispatcher',
-        # "author_name": f'Host: {os.uname()[1]}',
-        #"text": "REPLACEME",
-        "footer": f'Error happened SOMETIME',
-        "color": '#FF5A36',
-        # "fields": [
-        #     slack.Attachment.Field(
-        #         title='Error happened at:',
-        #         value=f'{datetime.datetime.now().strftime("%d %b %Y, %H:%M:%S %Z")}',
-        #         short=False
-        #     ),
-        # ]
-        }
+    tag = tag or APPRISE_TAG
+    url = f"{APPRISE_URL}/notify/{tag}"
 
-def open_credentials_file():
-    token_file = f'{os.path.realpath(os.path.dirname(__file__))}/../tokens.json'
-    with open(token_file, encoding="utf-8") as tokens_json:
-        return json.load(tokens_json)
+    payload = {
+        "title": title,
+        "body": body,
+        "type": notify_type,
+    }
+
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                logging.debug(f"Notification sent: {title}")
+                return True
+            else:
+                logging.warning(f"Apprise returned status {response.status}")
+                return False
+    except urllib.error.URLError as e:
+        logging.warning(f"Failed to send notification (Apprise unreachable): {e}")
+        # Don't disable permanently - Apprise might come back
+        return False
+    except Exception as e:
+        logging.warning(f"Failed to send notification: {e}")
+        return False
 
 
-def slack_alert(message_title, submessage = None):
-    global tokens
-    if tokens is None:
-        tokens = open_credentials_file()
-    api_key = tokens["slack"]
-
-    slack.ACCESS_TOKEN = api_key
-
-    payload_nice["title"] = f"Dispatcher says: {message_title}"
-    payload_nice["footer"] = f'Error happened {datetime.datetime.now().strftime("%d %b %Y, %H:%M:%S %Z")}'
-    if submessage:
-        payload_nice["text"] = submessage
-
-    attachment = slack.Attachment(
-        **payload_nice
+# Backwards compatibility alias for existing code
+def slack_alert(message_title, submessage=None):
+    """
+    Legacy function for backwards compatibility.
+    Sends notification via Apprise-API instead of direct Slack.
+    """
+    body = submessage or message_title
+    return notify(
+        title=f"Dispatcher: {message_title}",
+        body=body,
+        notify_type="warning"
     )
 
-    slack.send_notify(NOTIFY_CHANNEL, icon_emoji=':hole:', username='Dispatcher template notifier',
-        attachments=[attachment])
 
 if __name__ == "__main__":
     import sys
-    tokens = open_credentials_file()
-    EVENT = sys.argv[1]
-    slack_alert(EVENT)
+    if len(sys.argv) > 1:
+        message = " ".join(sys.argv[1:])
+        notify("Test Notification", message)
+        print(f"Sent: {message}")
+    else:
+        print("Usage: python notify.py <message>")
