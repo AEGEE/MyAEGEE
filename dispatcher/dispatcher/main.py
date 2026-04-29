@@ -274,7 +274,14 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('pika').setLevel(logging.WARNING)
 
-    tpl_environment = Environment(loader=FileSystemLoader(_TEMPLATES_DIR))
+    def _jinja2_finalize(value):
+        if value is None:
+            return ''
+        if isinstance(value, bool):
+            return str(value).lower()
+        return value
+
+    tpl_environment = Environment(loader=FileSystemLoader(_TEMPLATES_DIR), finalize=_jinja2_finalize)
     env = os.environ.get("ENV") or 'development'
     EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
