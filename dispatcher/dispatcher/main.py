@@ -45,6 +45,17 @@ REQUEUE_DELAY_DURATIONS = [
     100 * 60 * 60_000,   # attempt 5: 100 h  ← last attempt, operator alerted
 ]
 
+# Resolved once at import time so the path is independent of the working directory.
+# Can be overridden via the TEMPLATES_PATH env var for non-Docker environments.
+_TEMPLATES_DIR: str = os.environ.get(
+    "TEMPLATES_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "templates"),
+)
+
+# Initialised to None; set by connect_to_smtp(). Kept as a module-level variable so
+# all callbacks share a single SMTP connection without passing it through pika callbacks.
+smtpObj: smtplib.SMTP | None = None
+
 
 def connect_to_smtp():
     global smtpObj
@@ -159,6 +170,14 @@ def send_email(ch, method, properties, body):
         requeue_wait(ch, method, properties, body, reason=f"subtemplate_not_found-{msg['template']}")
         return
 
+    if smtpObj is None:
+        logging.warning("SMTP not connected, attempting to reconnect before sending")
+        connect_to_smtp()
+    if smtpObj is None:
+        logging.error("SMTP still unavailable after reconnect attempt, requeueing message")
+        requeue_wait(ch, method, properties, body, reason="smtp_unavailable")
+        return
+
     try:
         email = EmailMessage()
         email.set_content(rendered, subtype='html')
@@ -241,7 +260,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('pika').setLevel(logging.WARNING)
 
-    tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
+    tpl_environment = Environment(loader=FileSystemLoader(_TEMPLATES_DIR))
     env = os.environ.get("ENV") or 'development'
 
     RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbit")
@@ -250,7 +269,13 @@ def main():
 
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+        pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            credentials=credentials,
+            # Keep-alive interval (seconds). Without this, idle connections can be
+            # silently dropped by firewalls or NAT, causing a StreamLostError mid-consume.
+            heartbeat=600,
+        )
     )
     channel = connection.channel()
 
@@ -314,7 +339,8 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         logging.error('Interrupted')
-        smtpObj.quit()
+        if smtpObj is not None:
+            smtpObj.quit()
         try:
             sys.exit(0)
         except SystemExit:
