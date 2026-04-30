@@ -3,18 +3,21 @@ COMPOSE_PROJECT_NAME ?= myaegee
 #DOCKER_NETWORK ?= $(COMPOSE_PROJECT_NAME)_backend
 DOCKER_NETWORK ?= backend
 
-.PHONY: default build-dev build down test test-build rabbit help
+.PHONY: default build-dev build down test test-build rabbit lint format format-check help
 
 default: build-dev
 
 help:
 	@echo "Available targets:"
-	@echo "  build-dev   - Start dispatcher stack in development mode"
-	@echo "  build       - Start dispatcher stack in production mode"
-	@echo "  down        - Stop the dispatcher stack"
-	@echo "  test-build  - Build the test container image"
-	@echo "  test        - Run send.py to inject test messages into RabbitMQ"
-	@echo "  rabbit      - Build and push the custom RabbitMQ image"
+	@echo "  build-dev     - Start dispatcher stack in development mode"
+	@echo "  build         - Start dispatcher stack in production mode"
+	@echo "  down          - Stop the dispatcher stack"
+	@echo "  test-build    - Build the test container image"
+	@echo "  test          - Run send.py to inject test messages into RabbitMQ"
+	@echo "  rabbit        - Build and push the custom RabbitMQ image"
+	@echo "  lint          - Check Python code with ruff (requires: pip install ruff)"
+	@echo "  format        - Auto-format Python code with ruff"
+	@echo "  format-check  - Check formatting without making changes"
 
 build-dev:
 	BASE_URL=appserver.test \
@@ -48,3 +51,12 @@ rabbit:
 	DOCKER_BUILDKIT=0 docker build -t aegee/rabbit:latest -f docker/Dockerfile.rabbit .
 	docker tag aegee/rabbit:latest aegee/rabbit:3.13-mgmt-delayxch
 	@echo "To push: docker push aegee/rabbit:latest && docker push aegee/rabbit:3.13-mgmt-delayxch"
+
+lint:
+	ruff check .
+
+format:
+	ruff format .
+
+format-check:
+	ruff format --check .
