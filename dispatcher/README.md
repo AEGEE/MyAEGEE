@@ -124,6 +124,22 @@ Templates live in `templates/` as `.jinja2` files. Because the template is loade
 disk at message-processing time, **adding or editing a template takes effect immediately**
 without restarting the container — hot-reload is built-in.
 
+#### ⚠ Known naming debt: `body` vs `body_name` vs `email_body`
+
+Three template parameters share confusingly similar names and mean completely different things:
+
+| Parameter | Meaning | Used in |
+|---|---|---|
+| `body` | A European body (local/antenna), e.g. `AEGEE-Padova` | `membership_expired.jinja2` |
+| `body_name` | Short name of a body or commission, e.g. `ITC`, `HRC` | most other templates |
+| `email_body` | Raw HTML content of a fully custom email | `custom.jinja2` only |
+
+The ideal end state is to drop the standalone `body` key entirely and use `body_name`
+everywhere for the "European body" concept. This is blocked by the **CORE microservice**,
+which currently publishes `body` (not `body_name`) in the `membership_expired` payload.
+Until a coordinated change is made in CORE, `membership_expired.jinja2` must keep using
+`{{ body }}` and the field must remain in the test payload in `helpers/send.py`.
+
 ## Queues reference
 
 | Queue | Exchange | Purpose |

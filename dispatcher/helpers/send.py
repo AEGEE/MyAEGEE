@@ -1,7 +1,9 @@
-import pika
 import json
-import random
 import os
+import random
+
+import pika
+from faker import Faker
 
 """
 creates between 1 and 8 fake emails and puts in the queue
@@ -9,7 +11,6 @@ OR
 tests all templates it finds in the folder
 """
 
-from faker import Faker
 faker = Faker()
 
 ERROR_TEST=True
@@ -175,9 +176,22 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
             "member_email": faker.email(),
             "member_workspace_email": faker.email(),
             "user_id": faker.uuid4(),
+            # NOTE: "body" here means a *European body* (a local/commission), e.g. "AEGEE-Padova".
+            # This is the parameter name used by the CORE microservice in the membership_expired payload.
+            # ──────────────────────────────────────────────────────────────────────────────────────
+            # KNOWN NAMING DEBT:
+            #   - `body`       → European body (AEGEE-<city>), used by CORE in membership_expired
+            #   - `body_name`  → short name of a body/commission (e.g. "ITC", "HRC"), used elsewhere
+            #   - `email_body` → raw HTML content of a custom email, used only by the custom template
+            #
+            # Ideally all templates would use `body_name` for the European body concept and drop the
+            # standalone `body` key entirely. That would require a coordinated change in the CORE
+            # microservice (which currently publishes `body`, not `body_name`, for membership_expired).
+            # Until that cross-repo change is made, `body` must stay as-is in membership_expired.jinja2.
+            # ──────────────────────────────────────────────────────────────────────────────────────
             "body": f"AEGEE-{faker.city()}",
             "last_payment": faker.date(),
-            "body_name": random.choice(BODIES_LIST), #note: discrepancy in the microservices on the use of body vs body_name
+            "body_name": random.choice(BODIES_LIST),  # discrepancy across microservices: some send body, some body_name
             "body_id": random.choice(range(random.randrange(10,70))),
             "place": faker.city(),
             "token": faker.md5(),
@@ -231,7 +245,7 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
                 "event_id": "42",
                 "name": "This gran C commissioner",
             },
-            "body": """
+            "email_body": """
                 <ul>
                     <li><strong>Who is cool: </strong>Accountable people</li>
                     <li><strong>Who is not: </strong>People hiding behind the excuse of 'volunteer'</li>

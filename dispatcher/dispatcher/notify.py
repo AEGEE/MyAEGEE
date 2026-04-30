@@ -20,7 +20,6 @@ import time
 import urllib.error
 import urllib.request
 
-
 APPRISE_URL = os.environ.get("APPRISE_URL", "http://apprise:8000")
 APPRISE_TAG = os.environ.get("APPRISE_TAG", "myaegee")
 NOTIFY_COOLDOWN_SECONDS = int(os.environ.get("NOTIFY_COOLDOWN_SECONDS", "300"))

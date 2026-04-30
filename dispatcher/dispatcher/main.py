@@ -13,9 +13,7 @@ from email.message import EmailMessage
 
 import pika
 from jinja2 import Environment, FileSystemLoader, exceptions
-
 from notify import operator_alert
-
 
 ONCALL_HANDLER = "@grasshopper"
 
