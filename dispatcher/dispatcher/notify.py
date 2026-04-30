@@ -85,10 +85,10 @@ def notify(title: str, body: str, tag: str | None = None,
         return False
 
 
-def slack_alert(message_title: str, submessage: str | None = None) -> bool:
+def operator_alert(message_title: str, submessage: str | None = None) -> bool:
     """
-    Backwards-compatibility alias.
-    Originally sent to Slack directly; now routes through Apprise-API.
+    Send an alert to operators via Apprise-API.
+    Routes to whichever channels are configured in Apprise (Slack, Telegram, etc.).
     The throttle key is the title so that repeated alerts for the same error
     (e.g. hundreds of queued messages hitting the same missing template) are collapsed.
     """

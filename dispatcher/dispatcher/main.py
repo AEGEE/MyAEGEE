@@ -14,7 +14,7 @@ from email.message import EmailMessage
 import pika
 from jinja2 import Environment, FileSystemLoader, exceptions
 
-from notify import slack_alert
+from notify import operator_alert
 
 
 ONCALL_HANDLER = "@grasshopper"
@@ -101,7 +101,7 @@ def requeue_wait(ch, method, properties, body, reason):
 
     if next_index >= len(RETRY_QUEUE_NAMES):
         logging.warning('Max retry time hit, dropping message')
-        slack_alert(f"Time over, a message was dropped ({reason})", submessage=":poop:")
+        operator_alert(f"Time over, a message was dropped ({reason})", submessage=":poop:")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
@@ -112,7 +112,7 @@ def requeue_wait(ch, method, properties, body, reason):
     if next_index + 1 == len(RETRY_QUEUE_NAMES):
         last_chance = f'-- LAST ATTEMPT TO FIX: within {int(wait_ms/1000)} sec {ONCALL_HANDLER}'
         logging.error(last_chance)
-    slack_alert(f"A template is missing! ({reason})",
+    operator_alert(f"A template is missing! ({reason})",
                 submessage=retry_message + " " + last_chance)
 
     # Publish a *new* message carrying the original body rather than NACKing.
@@ -146,7 +146,7 @@ def send_email(ch, method, properties, body):
     missing = validate_message(msg)
     if missing:
         logging.error(f"Dropping malformed message: missing fields {missing}. Body: {body}")
-        slack_alert(f"Malformed message dropped: missing fields {missing}",
+        operator_alert(f"Malformed message dropped: missing fields {missing}",
                     submessage="The producer sent an incomplete payload. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
@@ -166,7 +166,7 @@ def send_email(ch, method, properties, body):
         # NON-requeuable: the payload is malformed and retrying will never fix it.
         # Drop immediately — with native TTL+DLX there is no filter step that would
         # intercept a re-delivered copy, so requeueing would cause an infinite loop.
-        slack_alert("Malformed message dropped: undefined template parameter",
+        operator_alert("Malformed message dropped: undefined template parameter",
                     submessage="The producer sent an incomplete payload. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
@@ -221,7 +221,7 @@ def process_dead_letter_messages(ch, method, properties, body):
     See https://stackoverflow.com/a/58500336 on why we republish instead of NACKing.
     """
     logging.error("DLQ handler triggered — a message ended up in error_queue unexpectedly.")
-    slack_alert("For some reason there's the DLQ handler that was triggered!")
+    operator_alert("For some reason there's the DLQ handler that was triggered!")
 
     # Set x-retry-index to the last tier so that if send_email still cannot process the
     # message after the TTL expires, requeue_wait will drop it and alert rather than retry.
