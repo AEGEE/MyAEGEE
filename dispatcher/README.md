@@ -215,9 +215,9 @@ The `error_queue` / `dead_letter_exchange` remain unchanged.
 - [x] Traefik labels so RabbitMQ and Mailpit are on subdomains instead of `host:port`
 - [x] Mark queues and messages as durable so RabbitMQ survives restarts
 - [x] Exponential-backoff retry with wait exchange (DLQ-based, up to 5 attempts)
-- [ ] Migrate retry mechanism from `x-delayed-message` plugin to native DLX+TTL (required before RabbitMQ 4.x)
-- [ ] RabbitMQ connection retry loop at startup (race condition with Docker Compose ordering)
-- [ ] Add `pika.ConnectionParameters(heartbeat=600)` to prevent silent disconnects
-- [ ] Add `HEALTHCHECK` to Dockerfile
+- [x] Migrate retry mechanism from `x-delayed-message` plugin to native DLX+TTL (required before RabbitMQ 4.x)
+- [~] RabbitMQ connection retry loop at startup (race condition with Docker Compose ordering) [mitigated by the docker health conditions]
+- [x] Add `pika.ConnectionParameters(heartbeat=600)` to prevent silent disconnects
+- [x] Add `HEALTHCHECK` to Dockerfile
 - [ ] Add telegram queue
 - [ ] Investigate mass-mailer queue (BCC batching) — unclear if feasible given personalised content

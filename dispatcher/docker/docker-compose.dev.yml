@@ -1,10 +1,13 @@
 services:
 
   rabbit:
-    build:
-      context: ./${PATH_DISPATCHER}/..
-      dockerfile: ./docker/Dockerfile.rabbit
-    image: aegee/rabbit:3.13-mgmt-delayxch
+    image: rabbitmq:4-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
 
   dispatcher:
     build:

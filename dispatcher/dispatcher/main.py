@@ -34,18 +34,19 @@ def validate_message(msg: dict) -> list[str]:
     return sorted(REQUIRED_MESSAGE_FIELDS - msg.keys())
 
 
-# Exponential-backoff delay tiers (milliseconds) used by the wait_exchange retry mechanism.
+# Exponential-backoff delay tiers used by the native DLX+TTL retry mechanism.
 # IMPORTANT: this list is the single source of truth — do not duplicate it.
-# Each tier corresponds to one retry attempt; the index is stored in the x-delay header.
-# See README § "Migrating away from rabbitmq-delayed-message-exchange" for the DLX+TTL
-# replacement that will be needed before upgrading to RabbitMQ 4.x.
-REQUEUE_DELAY_DURATIONS = [
-    5        * 60_000,   # attempt 1:  5 min
-    50       * 60_000,   # attempt 2: 50 min
-    5  * 60  * 60_000,   # attempt 3:  5 h
-    50 * 60  * 60_000,   # attempt 4: 50 h
-    100 * 60 * 60_000,   # attempt 5: 100 h  ← last attempt, operator alerted
+# Each tuple is (queue_name, ttl_ms). The retry tier is tracked via the x-retry-index
+# message header. When a message expires in a parking queue the broker automatically
+# dead-letters it back to the eml exchange (routing key: mail) — no plugin required.
+RETRY_QUEUES = [
+    ("wait_5min",  5        * 60_000),   # attempt 1:  5 min
+    ("wait_50min", 50       * 60_000),   # attempt 2: 50 min
+    ("wait_5h",    5  * 60  * 60_000),   # attempt 3:  5 h
+    ("wait_50h",   50 * 60  * 60_000),   # attempt 4: 50 h
+    ("wait_100h",  100 * 60 * 60_000),   # attempt 5: 100 h  ← last attempt, operator alerted
 ]
+RETRY_QUEUE_NAMES = [name for name, _ in RETRY_QUEUES]
 
 # Resolved once at import time so the path is independent of the working directory.
 # Can be overridden via the TEMPLATES_PATH env var for non-Docker environments.
@@ -95,46 +96,41 @@ def connect_to_smtp():
 
 
 def requeue_wait(ch, method, properties, body, reason):
-    current_delay = properties.headers.get("x-delay") if properties.headers else 0
-    try:
-        index = REQUEUE_DELAY_DURATIONS.index(int(current_delay))
-    except ValueError:
-        index = -1
+    current_index = (properties.headers or {}).get("x-retry-index", -1)
+    next_index = int(current_index) + 1
 
-    next_index = index + 1
-
-    if next_index >= len(REQUEUE_DELAY_DURATIONS):
+    if next_index >= len(RETRY_QUEUE_NAMES):
         logging.warning('Max retry time hit, dropping message')
         slack_alert(f"Time over, a message was dropped ({reason})", submessage=":poop:")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
-    wait = REQUEUE_DELAY_DURATIONS[next_index]
-    retry_message = f'Retry attempt {next_index + 1}/{len(REQUEUE_DELAY_DURATIONS)} will happen in {int(wait/1000)} sec'
+    _, wait_ms = RETRY_QUEUES[next_index]
+    retry_message = f'Retry attempt {next_index + 1}/{len(RETRY_QUEUE_NAMES)} will happen in {int(wait_ms/1000)} sec'
     logging.info(retry_message)
     last_chance = ''
-    if next_index + 1 == len(REQUEUE_DELAY_DURATIONS):
-        last_chance = f'-- LAST ATTEMPT TO FIX: within {int(wait/1000)} sec {ONCALL_HANDLER}'
+    if next_index + 1 == len(RETRY_QUEUE_NAMES):
+        last_chance = f'-- LAST ATTEMPT TO FIX: within {int(wait_ms/1000)} sec {ONCALL_HANDLER}'
         logging.error(last_chance)
     slack_alert(f"A template is missing! ({reason})",
                 submessage=retry_message + " " + last_chance)
 
-    headers = {
-        'reason': reason,
-        'x-delay': wait,
-    }
-    prop = pika.BasicProperties(
-        headers=headers,
-        delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
-    )
     # Publish a *new* message carrying the original body rather than NACKing.
     # NACK with requeue=True would cause an immediate retry loop; NACK with requeue=False
     # would send it to the DLQ. Neither gives us the exponential backoff we want.
     # See https://stackoverflow.com/a/58500336
-    channel.basic_publish(exchange='wait_exchange',
-                          routing_key='wait',
-                          body=body,
-                          properties=prop)
+    # Publishing to exchange="" (the default exchange) routes directly to the named parking
+    # queue. The broker will dead-letter the message back to eml/mail after x-message-ttl
+    # expires — no plugin required.
+    channel.basic_publish(
+        exchange="",
+        routing_key=RETRY_QUEUE_NAMES[next_index],
+        body=body,
+        properties=pika.BasicProperties(
+            headers={"reason": reason, "x-retry-index": next_index},
+            delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+        ),
+    )
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
@@ -143,7 +139,7 @@ def send_email(ch, method, properties, body):
     Callback for the NORMAL MESSAGE.
     Output: send an email
         OR
-    Output: publish to wait_exchange (template missing or rendering error)
+    Output: publish to a parking queue (template missing or rendering error)
     """
     msg = json.loads(body)
 
@@ -168,7 +164,11 @@ def send_email(ch, method, properties, body):
     except exceptions.UndefinedError as e:
         logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
         # NON-requeuable: the payload is malformed and retrying will never fix it.
-        requeue_wait(ch, method, properties, body, reason="parameter_undefined")
+        # Drop immediately — with native TTL+DLX there is no filter step that would
+        # intercept a re-delivered copy, so requeueing would cause an infinite loop.
+        slack_alert("Malformed message dropped: undefined template parameter",
+                    submessage="The producer sent an incomplete payload. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
         return
     except exceptions.TemplateNotFound:
         logging.error(f"A sub-template in {msg['template']}.jinja2 was not found")
@@ -215,52 +215,27 @@ def process_dead_letter_messages(ch, method, properties, body):
     """
     Callback for the ERROR MESSAGE (dead-letter queue).
     This queue should normally stay empty. Its presence is a safety net: if a message
-    somehow ends up here (unexpected NACK), we push it into the wait loop at the maximum
-    delay so an operator has time to investigate before it is retried.
+    somehow ends up here (unexpected NACK), we push it into the last parking queue so an
+    operator has time to investigate before the broker re-delivers it to email.
 
     See https://stackoverflow.com/a/58500336 on why we republish instead of NACKing.
     """
-    wait_for = REQUEUE_DELAY_DURATIONS[-1]
-
     logging.error("DLQ handler triggered — a message ended up in error_queue unexpectedly.")
     slack_alert("For some reason there's the DLQ handler that was triggered!")
 
-    headers = {'x-delay': wait_for}
-    fullheaders = {**properties.headers, **headers}
-    prop = pika.BasicProperties(
-        headers=fullheaders,
-        delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+    # Set x-retry-index to the last tier so that if send_email still cannot process the
+    # message after the TTL expires, requeue_wait will drop it and alert rather than retry.
+    last_index = len(RETRY_QUEUE_NAMES) - 1
+    channel.basic_publish(
+        exchange="",
+        routing_key=RETRY_QUEUE_NAMES[last_index],
+        body=body,
+        properties=pika.BasicProperties(
+            headers={"x-retry-index": last_index},
+            delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+        ),
     )
-    channel.basic_publish(exchange='wait_exchange',
-                          routing_key='wait',
-                          body=body,
-                          properties=prop)
 
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-
-
-def process_requeue(ch, method, properties, body):
-    """
-    Callback for WAITING MESSAGES (requeue_queue).
-    Output: re-enqueue on eml exchange (if the error was a missing template — fixable)
-        OR
-    Output: drop (if the error was a malformed payload — not fixable by retrying)
-    """
-
-    if properties.headers["reason"] == 'parameter_undefined':
-        # The payload is structurally wrong (missing field). Retrying will never succeed,
-        # so we drop the message. The original error was already logged in send_email.
-        logging.warning('Impossible to fix error, dropping message')
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-        return
-
-    channel.basic_publish(exchange='eml',
-                          routing_key='mail',
-                          body=body,
-                          properties=pika.BasicProperties(
-                              headers=properties.headers,  # carry x-delay forward to detect the retry tier
-                              delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
-                          ))
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
@@ -330,15 +305,16 @@ def main():
                        queue='error_queue',
                        routing_key='dead_letter_routing_key')
 
-    channel.exchange_declare(exchange="wait_exchange",
-                             exchange_type='x-delayed-message',
-                             durable=True,
-                             arguments={"x-delayed-type": "direct"})
-    channel.queue_declare(queue='requeue_queue',
-                          durable=True)
-    channel.queue_bind(exchange='wait_exchange',
-                       queue='requeue_queue',
-                       routing_key='wait')
+    for queue_name, ttl_ms in RETRY_QUEUES:
+        channel.queue_declare(
+            queue=queue_name,
+            durable=True,
+            arguments={
+                "x-message-ttl": ttl_ms,
+                "x-dead-letter-exchange": "eml",
+                "x-dead-letter-routing-key": "mail",
+            },
+        )
 
     channel.basic_consume(queue='email',
                           auto_ack=False,
@@ -346,9 +322,6 @@ def main():
     channel.basic_consume(queue='error_queue',
                           auto_ack=False,
                           on_message_callback=process_dead_letter_messages)
-    channel.basic_consume(queue='requeue_queue',
-                          auto_ack=False,
-                          on_message_callback=process_requeue)
 
     logging.info(' [*] Connecting to smtp')
     connect_to_smtp()

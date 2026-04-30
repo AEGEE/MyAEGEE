@@ -1,8 +1,14 @@
 services:
 
   rabbit:
-    image: aegee/rabbit:3.13-mgmt-delayxch
+    image: rabbitmq:4-management
     restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
     expose:
       - 5672
       - 15672
