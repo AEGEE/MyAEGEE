@@ -45,7 +45,7 @@
   },
   "homepage": "https://github.com/AEGEE/events#readme",
   "dependencies": {
-    "@bugsnag/js": "^8.4.0",
+    "@bugsnag/js": "^8.8.1",
     "@faker-js/faker": "^9.9.0",
     "body-parser": "^2.2.0",
     "bunyan": "^1.8.15",
