@@ -34,6 +34,6 @@ RUN npm install -g nodemon@3.1.4 \
  && npm install -g bunyan@1.8.15 \
  && npm cache clean --force
 
-CMD ["sh", "-c", "sh /usr/app/scripts/bootstrap.sh && nodemon -e js,json lib/run.js"]
+CMD ["sh", "-c", "sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start"]
 
 EXPOSE 8084
