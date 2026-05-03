@@ -1,4 +1,3 @@
-version: "3.4"
 ### OMS DISCOUNTS     #######################################
 services:
     postgres-discounts:
@@ -55,5 +54,5 @@ volumes:
 
 networks:
     default:
-        external:
-            name: OMS
+        name: OMS
+        external: true
