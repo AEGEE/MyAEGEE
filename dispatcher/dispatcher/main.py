@@ -62,6 +62,22 @@ smtpObj: smtplib.SMTP | None = None
 EMAIL_ADDRESS: str | None = None
 
 
+def create_template_environment(templates_dir: str = _TEMPLATES_DIR) -> Environment:
+    def _jinja2_finalize(value):
+        if value is None:
+            return ''
+        if isinstance(value, bool):
+            return str(value).lower()
+        return value
+
+    return Environment(
+        loader=FileSystemLoader(templates_dir),
+        autoescape=select_autoescape(enabled_extensions=("jinja2",)),
+        finalize=_jinja2_finalize,
+        undefined=StrictUndefined,
+    )
+
+
 def connect_to_smtp():
     global smtpObj
 
@@ -247,19 +263,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('pika').setLevel(logging.WARNING)
 
-    def _jinja2_finalize(value):
-        if value is None:
-            return ''
-        if isinstance(value, bool):
-            return str(value).lower()
-        return value
-
-    tpl_environment = Environment(
-        loader=FileSystemLoader(_TEMPLATES_DIR),
-        autoescape=select_autoescape(enabled_extensions=("jinja2",)),
-        finalize=_jinja2_finalize,
-        undefined=StrictUndefined,
-    )
+    tpl_environment = create_template_environment()
     env = os.environ.get("ENV") or 'development'
     EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
