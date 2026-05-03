@@ -12,7 +12,7 @@ import sys
 from email.message import EmailMessage
 
 import pika
-from jinja2 import Environment, FileSystemLoader, exceptions
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, exceptions, select_autoescape
 from notify import operator_alert
 
 ONCALL_HANDLER = "@grasshopper"
@@ -254,7 +254,12 @@ def main():
             return str(value).lower()
         return value
 
-    tpl_environment = Environment(loader=FileSystemLoader(_TEMPLATES_DIR), finalize=_jinja2_finalize)
+    tpl_environment = Environment(
+        loader=FileSystemLoader(_TEMPLATES_DIR),
+        autoescape=select_autoescape(enabled_extensions=("jinja2",)),
+        finalize=_jinja2_finalize,
+        undefined=StrictUndefined,
+    )
     env = os.environ.get("ENV") or 'development'
     EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
