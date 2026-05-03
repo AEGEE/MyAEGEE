@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
   network:
     build:
@@ -12,4 +10,4 @@ services:
       - ./${PATH_NETWORK}/../migrations:/usr/app/src/migrations
       - ./${PATH_NETWORK}/../models:/usr/app/src/models
       - ./${PATH_NETWORK}/../cli.js:/usr/app/src/cli.js
-    command: "sh -c '/usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
+    command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"

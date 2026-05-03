@@ -1,4 +1,3 @@
-version: "3.4"
 ### CORE     #######################################
 services:
   core:
@@ -6,7 +5,7 @@ services:
       context: ./${PATH_CORE}/..
       dockerfile: ./docker/core/Dockerfile
     image: aegee/core:dev
-    command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -L -e 'js,json' lib/run.js | bunyan --color"
+    command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
     volumes:
       - ./${PATH_CORE}/../config/:/usr/app/src/config
       - ./${PATH_CORE}/../lib/:/usr/app/src/lib

@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
     "lint": "eslint .",

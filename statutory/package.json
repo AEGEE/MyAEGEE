@@ -4,6 +4,7 @@
   "description": "Statutory events module for MyAEGEE",
   "main": "lib/server.js",
   "scripts": {
+    "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "db:create": "sequelize db:create",

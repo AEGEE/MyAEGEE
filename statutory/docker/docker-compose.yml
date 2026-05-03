@@ -1,4 +1,3 @@
-version: "3.4"
 services:
     postgres-statutory:
         restart: always
@@ -81,5 +80,5 @@ volumes:
 
 networks:
     default:
-        external:
-            name: OMS
+        name: OMS
+        external: true
