@@ -62,11 +62,11 @@ exports.sendAll = async (req, res) => {
             .replace(/\{body_name\}/ig, application.body_name)
             .replace(/\{statutory_id\}/ig, application.statutory_id);
 
-        // Using the custom mailer template, it accepts only body as a parameter
+        // Using the custom mailer template, it accepts only email_body as a parameter
         // and sends the body as it was passed.
         const notificationEmail = user.notification_email;
         to.push(notificationEmail);
-        bodies.push({ body: text });
+        bodies.push({ email_body: text });
 
         logger.info({ notificationEmail }, 'Prepared email');
     }

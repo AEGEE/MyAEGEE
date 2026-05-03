@@ -44,18 +44,18 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A new event is submitted for {{event["status"]}}</strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A new event is submitted for {{ event["status"] }}</strong></div>
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
                             A new event
-                            <strong>{{event["name"]}}</strong>
-                            is submitted as {{event["status"]}}.
+                            <strong>"{{ event["name"] }}"</strong>,
+                            is submitted as {{ event["status"] }}.
                           </div>
                         </td>
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div>
-                            <a href="https://my.aegee.eu/summeruniversity/{{event["url"]}}" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
+                            <a href="https://my.aegee.eu/summeruniversity/{{ event["url"] }}" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
                               target="_blank">Approve or reject</a>
                           </div>
                         </td>
