@@ -54,7 +54,7 @@
     ]
   },
   "dependencies": {
-    "@bugsnag/js": "^8.4.0",
+    "@bugsnag/js": "^8.9.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
     "bunyan": "^1.8.15",
