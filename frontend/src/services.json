@@ -6,7 +6,6 @@
   "statutory": "/api/statutory",
   "discounts": "/api/discounts",
   "network": "/api/network",
-  "gsuite-wrapper": "/api/gsuite-wrapper",
   "oms-frontend": "",
   "core-static": "/media/core",
   "events-static": "/media/events",

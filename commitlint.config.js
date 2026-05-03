@@ -19,7 +19,6 @@ module.exports = {
         'statutory',
         'summeruniversity',
         'mailer',
-        'gsuite-wrapper',
         
         // Infrastructure scopes (trigger all modules)
         'ci',

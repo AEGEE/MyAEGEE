@@ -103,14 +103,6 @@ export default {
           isAlive: 'Waiting...',
           releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=network'
         },
-        'gsuite-wrapper': {
-          roundTrip: null,
-          version: '-',
-          latestVersion: '-',
-          latestTag: '-',
-          isAlive: 'Waiting...',
-          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=gsuite-wrapper'
-        },
         frontend: {
           roundTrip: null,
           version: this.$store.state.pkg.version,

@@ -4,7 +4,7 @@ if [ -z "$2" ]; then
   echo "#" >> $1
   echo "# Valid scopes: core, events, frontend, discounts, knowledge," >> $1
   echo "#                network, statutory, summeruniversity, mailer," >> $1
-  echo "#                gsuite-wrapper, ci, docker, deps, docs" >> $1
+  echo "#                ci, docker, deps, docs" >> $1
   echo "#" >> $1
   echo "# Examples:" >> $1
   echo "#   feat(core): add new user authentication" >> $1

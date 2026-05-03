@@ -43,23 +43,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "${PW_PGADMIN}"
       PGADMIN_LISTEN_PORT: 5050
 
-### redis Admin Container #######################################
-  redisadmin:
-    image: erikdubbelboer/phpredisadmin:v1.11.4
-    # environment:
-      # ADMIN_USER: admin
-      # ADMIN_PASS: ${PW_TRAEFIK}
-      # REDIS_1_HOST: redis-oms-gsuite-wrapper
-      # REDIS_1_PORT: 6379
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=redisadmin"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_REDISADMIN}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
-
-
 ### show api docs Container #######################################
   swagger:
     image: swaggerapi/swagger-ui:v3.28.0
