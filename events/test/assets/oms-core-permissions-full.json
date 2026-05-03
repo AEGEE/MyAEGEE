@@ -351,5 +351,32 @@
         "combined": "global:change_european_event_status:cultural",
         "circles": null,
         "action": "change_european_event_status"
-}]
+      }, {
+        "scope": "global",
+        "object": "thematic",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:thematic",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "thematic",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:thematic",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "thematic",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:thematic",
+        "circles": null,
+        "action": "change_european_event_status"
+      }]
 }
