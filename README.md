@@ -171,7 +171,6 @@ f60476fa4a6c        aegee/events:dev                       "docker-entrypoint.s�
 f3110b11d9c6        postgres:10                            "docker-entrypoint.s…"   5 hours ago         Up 5 hours             5432/tcp                                   myaegee_postgres-discounts_1
 9985f6cd3042        postgres:10                            "docker-entrypoint.s…"   5 hours ago         Up 5 hours             5432/tcp                                   myaegee_postgres-events_1
 623356e7ef0d        dpage/pgadmin4:4.23                    "/entrypoint.sh"         6 hours ago         Up 6 hours             80/tcp, 443/tcp, 5050/tcp                  myaegee_pgadmin_1
-0728da470558        erikdubbelboer/phpredisadmin:v1.11.4   "tini -- php -S 0.0.…"   6 hours ago         Up 6 hours             80/tcp                                     myaegee_redisadmin_1
 8263f843df15        portainer/portainer:1.22.1             "/portainer -H unix:…"   6 hours ago         Up 6 hours             9000/tcp                                   myaegee_portainer_1
 d056ce2c92e3        swaggerapi/swagger-ui:v3.28.0          "/docker-entrypoint.…"   6 hours ago         Up 6 hours             80/tcp, 8080/tcp                           myaegee_swagger_1
 4ee964dede44        traefik:v1.7.4-alpine                  "/entrypoint.sh --we…"   6 hours ago         Up 6 hours (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   myaegee_traefik_1

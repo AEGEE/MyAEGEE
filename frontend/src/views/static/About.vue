@@ -168,11 +168,6 @@
                 <td><a href="https://github.com/AEGEE/network">network</a></td>
                 <td>Network history and status.</td>
               </tr>
-
-              <tr>
-                <td><a href="https://github.com/AEGEE/gsuite-wrapper">gsuite-wrapper</a></td>
-                <td>Integrates Google Workspace (formerly GSuite) with MyAEGEE.</td>
-              </tr>
             </tbody>
           </table>
 

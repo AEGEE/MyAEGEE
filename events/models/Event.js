@@ -193,14 +193,14 @@ const Event = sequelize.define(
             }
         },
         type: {
-            type: Sequelize.ENUM('training', 'nwm', 'conference', 'cultural'),
+            type: Sequelize.ENUM('training', 'nwm', 'conference', 'cultural', 'thematic'),
             allowNull: false,
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event type should be set.' },
                 isIn: {
-                    args: [['training', 'nwm', 'conference', 'cultural']],
-                    msg: 'Event type should be one of these: training, nwm, conference, cultural.'
+                    args: [['training', 'nwm', 'conference', 'cultural', 'thematic']],
+                    msg: 'Event type should be one of these: training, nwm, conference, cultural, thematic.'
                 }
             }
         },

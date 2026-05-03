@@ -18,7 +18,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) with MANDATO
 
 **Module scopes** (use when changing a specific module):
 - `core`, `events`, `frontend`, `discounts`, `knowledge`
-- `network`, `statutory`, `summeruniversity`, `mailer`, `gsuite-wrapper`
+- `network`, `statutory`, `summeruniversity`, `mailer`
 
 **Infrastructure scopes** (use for CI/Docker/root-level changes):
 - `ci` - CircleCI configuration
@@ -167,7 +167,6 @@ This ensures all modules stay synchronized with infrastructure updates.
 | statutory | 1.14.8 |
 | summeruniversity | 1.6.6 |
 | mailer | 0.19.0 |
-| gsuite-wrapper | 1.3.3 |
 
 ## Questions?
 

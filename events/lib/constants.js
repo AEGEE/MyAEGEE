@@ -42,6 +42,6 @@ module.exports = {
         'created_at',
         'updated_at'
     ],
-    EVENT_TYPES: ['training', 'nwm', 'conference', 'cultural'],
+    EVENT_TYPES: ['training', 'nwm', 'conference', 'cultural', 'thematic'],
     CURRENT_USER_PREFIX: 'me'
 };

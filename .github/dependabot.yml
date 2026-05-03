@@ -22,7 +22,6 @@ updates:
       - "/statutory"
       - "/summeruniversity"
       - "/mailer"
-      - "/gsuite-wrapper"
     schedule:
       interval: "weekly"
       day: "friday"
@@ -37,7 +36,6 @@ updates:
       - "/discounts/docker/discounts"
       - "/events/docker/events"
       - "/frontend/docker"
-      - "/gsuite-wrapper/docker"
       - "/knowledge/docker/knowledge"
       - "/mailer/docker/mailer"
       - "/mailer/docker/mail_transfer_agent"
@@ -60,7 +58,6 @@ updates:
       - "/discounts"
       - "/events"
       - "/frontend"
-      - "/gsuite-wrapper"
       - "/knowledge"
       - "/network"
       - "/statutory"

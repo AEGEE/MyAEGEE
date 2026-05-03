@@ -238,7 +238,8 @@ export default {
         training: '#A0C514',
         conference: '#931991',
         nwm: '#FBBA00',
-        cultural: '#C51C13'
+        cultural: '#C51C13',
+        thematic: 'var(--purple-light)'
       },
       today: moment(),
       canLoadMore: true,
