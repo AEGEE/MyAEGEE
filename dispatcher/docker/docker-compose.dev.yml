@@ -1,0 +1,34 @@
+services:
+
+  rabbit:
+    image: rabbitmq:4-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+  dispatcher:
+    build:
+      context: ./${PATH_DISPATCHER}/..
+      dockerfile: ./docker/Dockerfile
+    image: aegee/dispatcher:dev
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    volumes:
+      - ./${PATH_DISPATCHER}/../templates:/usr/app/templates:ro
+      - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
+
+  mailpit:
+    image: axllent/mailpit:v1.29
+    restart: always
+    ports:
+      - 8025:8025
+      - 1025:1025
+    labels:
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILPIT}${BASE_URL};"
+      - "traefik.backend=mailpit"
+      - "traefik.port=8025"
+      - "traefik.enable=true"

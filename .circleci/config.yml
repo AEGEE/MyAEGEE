@@ -20,6 +20,29 @@ jobs:
       - run: pip install pylint
       # FIXME: enable W0511 and E0401 as well
       - run: pylint scripts-server --disable C0114,C0116,W0511,E0401
+  dispatcher-ruff:
+    docker:
+      - image: cimg/python:3.13.11
+    steps:
+      - checkout
+      - run:
+          name: Run dispatcher ruff
+          working_directory: ~/project/dispatcher
+          command: |
+            pip install ruff
+            ruff check .
+  dispatcher-test:
+    docker:
+      - image: cimg/python:3.13.11
+    steps:
+      - checkout
+      - run:
+          name: Run dispatcher tests
+          working_directory: ~/project/dispatcher
+          command: |
+            pip install poetry
+            poetry install --with dev
+            poetry run pytest
   hadolint:
     docker:
       - image: hadolint/hadolint:latest-alpine
@@ -2081,6 +2104,10 @@ workflows:
   lint-dockerfile:
     jobs:
       - hadolint
+  dispatcher-linters:
+    jobs:
+      - dispatcher-ruff
+      - dispatcher-test
   core-linters:
     jobs:
       - core-eslint

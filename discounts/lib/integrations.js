@@ -144,7 +144,7 @@ exports.claimCode = async (req, res) => {
         subject: `Your ${req.integration.name} discount code`,
         template: 'custom.html',
         parameters: {
-            body: helpers.getMailText({
+            email_body: helpers.getMailText({
                 user: req.user,
                 integration: req.integration,
                 code: codeToClaim

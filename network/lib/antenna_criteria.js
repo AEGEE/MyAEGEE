@@ -54,7 +54,7 @@ exports.sendFulfilmentMail = async (req, res) => {
         subject: req.body.subject,
         template: 'custom.html',
         reply_to: req.body.reply_to,
-        parameters: { body: req.body.body }
+        parameters: { email_body: req.body.body }
     });
 
     return res.json({
