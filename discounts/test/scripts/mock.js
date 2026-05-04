@@ -5,12 +5,14 @@ const config = require('../../config');
 
 exports.cleanAll = () => nock.cleanAll();
 
+const randomNetworkError = () => new Error('Some random error.');
+
 exports.mockCore = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .replyWithError('Some random error.');
+            .replyWithError(randomNetworkError());
     }
 
     if (options.badResponse) {
@@ -45,7 +47,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithError('Some random error.');
+            .replyWithError(randomNetworkError());
     }
 
     if (options.badResponse) {
@@ -87,7 +89,7 @@ exports.mockCoreMailer = (options) => {
         return nock(`${config.mailer.url}:${config.mailer.port}`)
             .persist()
             .post('/')
-            .replyWithError('Some random error.');
+            .replyWithError(randomNetworkError());
     }
 
     if (options.badResponse) {

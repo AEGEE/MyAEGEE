@@ -4,12 +4,14 @@ const config = require('../../config');
 
 exports.cleanAll = () => nock.cleanAll();
 
+const randomNetworkError = () => new Error('Some random error.');
+
 exports.mockMailer = (options) => {
     if (options.netError) {
         return nock(`${config.mailer.url}:${config.mailer.port}`)
             .persist()
             .post('/')
-            .replyWithError('Some random error.');
+            .replyWithError(randomNetworkError());
     }
 
     if (options.badResponse) {
