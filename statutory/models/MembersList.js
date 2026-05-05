@@ -1,7 +1,7 @@
-const request = require('request-promise-native');
 const Joi = require('joi');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { request } = require('../lib/http');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 

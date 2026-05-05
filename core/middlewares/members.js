@@ -1,6 +1,6 @@
 const moment = require('moment');
 const _ = require('lodash');
-const request = require('request-promise-native');
+const { request } = require('../lib/http');
 
 const { User, Body, BodyMembership, MailChange, MailConfirmation } = require('../models');
 const config = require('../config');

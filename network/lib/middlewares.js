@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const { request } = require('./http');
 
 const core = require('./core');
 const errors = require('./errors');
