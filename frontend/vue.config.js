@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   lintOnSave: true,
+  transpileDependencies: ['axios'],
   configureWebpack: {
     resolve: {
       alias: {
