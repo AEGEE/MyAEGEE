@@ -9,7 +9,7 @@ exports.mockMailer = (options) => {
         return nock(`${config.mailer.url}:${config.mailer.port}`)
             .persist()
             .post('/')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {

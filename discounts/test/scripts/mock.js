@@ -10,7 +10,7 @@ exports.mockCore = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -45,7 +45,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -87,7 +87,7 @@ exports.mockCoreMailer = (options) => {
         return nock(`${config.mailer.url}:${config.mailer.port}`)
             .persist()
             .post('/')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {

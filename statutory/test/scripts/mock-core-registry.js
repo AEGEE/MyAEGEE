@@ -12,7 +12,7 @@ exports.mockCore = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -47,7 +47,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -126,7 +126,7 @@ exports.mockCoreApprovePermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions', bodyFilter)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -170,7 +170,7 @@ exports.mockCoreMemberslistPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions', bodyFilter)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -212,7 +212,7 @@ exports.mockCoreMembers = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -254,7 +254,7 @@ exports.mockCoreBodies = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/bodies')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -296,7 +296,7 @@ exports.mockCoreBody = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/^\/bodies\/[0-9].*$/)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -334,7 +334,7 @@ exports.mockCoreMember = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/members\/[0-9].*/)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -362,7 +362,7 @@ exports.mockCoreMailer = (options) => {
         return nock(`${config.mailer.url}:${config.mailer.port}`)
             .persist()
             .post('/')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -390,7 +390,7 @@ exports.mockConversionApi = (options) => {
         return nock(constants.CONVERSION_RATE_API.host)
             .persist()
             .get(constants.CONVERSION_RATE_API.path)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -411,7 +411,7 @@ exports.mockCoreLogin = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/login')
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -439,7 +439,7 @@ exports.mockCoreBodyMembers = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/bodies\/[0-9].*\/members/)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
@@ -481,7 +481,7 @@ exports.mockCoreMails = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/members_email\?query=[0-9,].*/)
-            .replyWithError('Some random error.');
+            .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
