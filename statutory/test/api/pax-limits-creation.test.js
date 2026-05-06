@@ -24,7 +24,7 @@ describe('Pax limits creation/editing', () => {
     test('should update the limit if exists', async () => {
         const limit = generator.generatePaxLimit();
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -41,7 +41,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit({ body_id: 1, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -58,7 +58,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit({ body_id: 1, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -74,7 +74,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit();
 
         const res = await request({
-            uri: '/limits/invalid/',
+            path: '/limits/invalid/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -91,7 +91,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit();
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -107,7 +107,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit({ envoy: false });
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -124,7 +124,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit({ envoy: -1 });
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -141,7 +141,7 @@ describe('Pax limits creation/editing', () => {
         const limit = generator.generatePaxLimit({ envoy: null });
 
         const res = await request({
-            uri: '/limits/agora/',
+            path: '/limits/agora/',
             method: 'POST',
             body: limit,
             headers: { 'X-Auth-Token': 'blablabla' }

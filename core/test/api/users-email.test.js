@@ -20,7 +20,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members_email',
+            path: '/members_email',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -37,7 +37,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members_email?query=' + secondUser.id,
+            path: '/members_email?query=' + secondUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -53,7 +53,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members_email?query=' + user.id,
+            path: '/members_email?query=' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -75,7 +75,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email?query=' + secondUser.id,
+            path: '/members_email?query=' + secondUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -97,7 +97,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email?query=' + user.id + ',' + secondUser.id,
+            path: '/members_email?query=' + user.id + ',' + secondUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -119,7 +119,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email?query=a,b',
+            path: '/members_email?query=a,b',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -137,7 +137,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email?query=' + user.id,
+            path: '/members_email?query=' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

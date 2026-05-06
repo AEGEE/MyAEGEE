@@ -50,7 +50,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -89,7 +89,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -118,7 +118,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -140,7 +140,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -160,7 +160,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/lalala',
+            path: '/events/' + event.id + '/applications/boardview/lalala',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -174,7 +174,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if body is not an array', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -188,7 +188,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if any of the entries is not an array', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [false]
@@ -202,7 +202,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if any of the entries does not have participant orger', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [{ participant_type: 'delegate', user_id: 1, board_comment: 'test' }]
@@ -216,7 +216,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if any of the entries does not have participant type', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [{ participant_order: 1, user_id: 1, board_comment: 'test' }]
@@ -230,7 +230,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if any of the entries does not have user ID', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [{ participant_type: 'delegate', participant_order: 1, board_comment: 'test' }]
@@ -244,7 +244,7 @@ describe('Applications pax type/board comment for a body', () => {
 
     test('should return 400 if any of the entries has user ID as not string', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [{ participant_type: 'delegate', participant_order: 1, board_comment: 'test', user_id: false }]
@@ -260,7 +260,7 @@ describe('Applications pax type/board comment for a body', () => {
         await generator.createApplication({ user_id: 10, body_id: regularUser.bodies[0].id, participant_type: null, participant_order: null }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: [{ participant_type: 'invalid', participant_order: 1, user_id: 10 }]
@@ -286,7 +286,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -312,7 +312,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -338,7 +338,7 @@ describe('Applications pax type/board comment for a body', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body

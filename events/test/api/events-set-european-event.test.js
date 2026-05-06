@@ -28,7 +28,7 @@ describe('Events set European Event', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/single/' + event.id + '/status/european_event',
+            path: '/single/' + event.id + '/status/european_event',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -43,7 +43,7 @@ describe('Events set European Event', () => {
 
     it('should return a validation error on malformed body for changing European Event status', async () => {
         const res = await request({
-            uri: '/single/' + event.id + '/status/european_event',
+            path: '/single/' + event.id + '/status/european_event',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -57,7 +57,7 @@ describe('Events set European Event', () => {
 
     it('should succeed changing European Event status on sane request', async () => {
         const res = await request({
-            uri: '/single/' + event.id + '/status/european_event',
+            path: '/single/' + event.id + '/status/european_event',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -78,7 +78,7 @@ describe('Events set European Event', () => {
         });
 
         const res = await request({
-            uri: '/single/' + europeanEvent.id + '/status/european_event',
+            path: '/single/' + europeanEvent.id + '/status/european_event',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

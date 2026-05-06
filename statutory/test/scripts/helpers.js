@@ -25,28 +25,21 @@ const appendQuery = (url, query) => {
 };
 
 const request = async (options) => {
-    const parseJson = options.json !== false;
+    const responseType = options.responseType || 'json';
     const headers = { ...(options.headers || {}) };
     const fetchOptions = { method: options.method || 'GET', headers };
 
     if (options.body !== undefined) {
-        if (parseJson) {
-            headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-            fetchOptions.body = JSON.stringify(options.body);
-        } else {
-            fetchOptions.body = options.body;
-        }
+        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        fetchOptions.body = JSON.stringify(options.body);
     }
 
-    if (options.formData) {
-        const entries = Object.entries(options.formData);
+    if (options.files) {
+        const entries = Object.entries(options.files);
         const formData = new FormData();
         for (const [key, item] of entries) {
-            const value = item && item.value ? item.value : item;
-            const filename = item && item.options && item.options.filename
-                ? item.options.filename
-                : path.basename(value.path);
-            const buffer = fs.readFileSync(value.path);
+            const filename = item.filename || path.basename(item.path);
+            const buffer = fs.readFileSync(item.path);
             formData.append(key, new Blob([buffer]), filename);
         }
         if (entries.length > 0) {
@@ -57,8 +50,8 @@ const request = async (options) => {
         }
     }
 
-    const response = await fetch(appendQuery(new URL(options.uri, baseUrl + '/').toString(), options.qs), fetchOptions);
-    if (options.encoding === null) {
+    const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
+    if (responseType === 'buffer') {
         return {
             statusCode: response.status,
             statusMessage: response.statusText,
@@ -70,7 +63,7 @@ const request = async (options) => {
     const text = await response.text();
     let body = text;
 
-    if (parseJson && text) {
+    if (responseType === 'json' && text) {
         try {
             body = JSON.parse(text);
         } catch (err) { // eslint-disable-line no-unused-vars

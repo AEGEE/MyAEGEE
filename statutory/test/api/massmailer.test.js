@@ -57,7 +57,7 @@ describe('Massmailer', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -73,7 +73,7 @@ describe('Massmailer', () => {
 
     test('should send mass mail if everything is okay', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -98,7 +98,7 @@ describe('Massmailer', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -115,7 +115,7 @@ describe('Massmailer', () => {
 
     test('should fail if body is not set', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -130,7 +130,7 @@ describe('Massmailer', () => {
 
     test('should fail if body is empty', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -146,7 +146,7 @@ describe('Massmailer', () => {
 
     test('should fail if subject is not set', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -161,7 +161,7 @@ describe('Massmailer', () => {
 
     test('should fail if subject is empty', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -178,7 +178,7 @@ describe('Massmailer', () => {
     test('should fail if mailer returns net error', async () => {
         mock.mockAll({ mailer: { netError: true } });
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -195,7 +195,7 @@ describe('Massmailer', () => {
     test('should fail if mailer returns bad response', async () => {
         mock.mockAll({ mailer: { badResponse: true } });
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -212,7 +212,7 @@ describe('Massmailer', () => {
     test('should fail if mailer returns unsuccessful response', async () => {
         mock.mockAll({ mailer: { unsuccessfulResponse: true } });
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -228,7 +228,7 @@ describe('Massmailer', () => {
 
     test('should work with filtering', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer/',
+            path: '/events/' + event.id + '/massmailer/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -246,7 +246,7 @@ describe('Massmailer', () => {
 
     test('should fail if no users match the filter', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer/',
+            path: '/events/' + event.id + '/massmailer/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -267,7 +267,7 @@ describe('Massmailer', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
+            path: '/events/' + event.id + '/massmailer',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

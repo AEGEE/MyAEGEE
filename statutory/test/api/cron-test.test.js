@@ -64,7 +64,7 @@ describe('Cron testing', () => {
         await cron.registerAllDeadlines();
 
         const res = await request({
-            uri: '/tasks',
+            path: '/tasks',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -137,7 +137,7 @@ describe('Cron testing', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/',
+                path: '/events/' + event.id + '/positions/',
                 method: 'POST',
                 body: position,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -163,7 +163,7 @@ describe('Cron testing', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/',
+                path: '/events/' + event.id + '/positions/',
                 method: 'POST',
                 body: position,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -187,7 +187,7 @@ describe('Cron testing', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/',
+                path: '/events/' + event.id + '/positions/',
                 method: 'POST',
                 body: position,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -209,7 +209,7 @@ describe('Cron testing', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/',
+                path: '/events/' + event.id + '/positions/',
                 method: 'POST',
                 body: position,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -238,7 +238,7 @@ describe('Cron testing', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/',
+                path: '/events/' + event.id + '/positions/',
                 method: 'POST',
                 body: position,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -266,7 +266,7 @@ describe('Cron testing', () => {
             const position = await generator.createPosition({}, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id,
+                path: '/events/' + event.id + '/positions/' + position.id,
                 method: 'PUT',
                 body: {
                     starts: moment().add(1, 'week').toDate(),
@@ -292,7 +292,7 @@ describe('Cron testing', () => {
             const position = await generator.createPosition({}, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id,
+                path: '/events/' + event.id + '/positions/' + position.id,
                 method: 'PUT',
                 body: {
                     starts: moment().subtract(1, 'week').toDate(),
@@ -316,7 +316,7 @@ describe('Cron testing', () => {
             const position = await generator.createPosition({}, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id,
+                path: '/events/' + event.id + '/positions/' + position.id,
                 method: 'PUT',
                 body: {
                     starts: moment().subtract(3, 'week').toDate(),

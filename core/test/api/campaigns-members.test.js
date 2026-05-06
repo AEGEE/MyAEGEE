@@ -22,7 +22,7 @@ describe('Campaign users list', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id + '/members',
+            path: '/campaigns/' + campaign.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -43,7 +43,7 @@ describe('Campaign users list', () => {
         const otherUser = await generator.createUser({ campaign_id: campaign.id });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id + '/members',
+            path: '/campaigns/' + campaign.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -69,7 +69,7 @@ describe('Campaign users list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id + '/members?limit=1&offset=1', // second one should be returned
+            path: '/campaigns/' + campaign.id + '/members?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -102,7 +102,7 @@ describe('Campaign users list', () => {
         const secondUser = await generator.createUser({ first_name: 'bbb', campaign_id: campaign.id });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id + '/members?sort=first_name&direction=desc', // second one should be returned
+            path: '/campaigns/' + campaign.id + '/members?sort=first_name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

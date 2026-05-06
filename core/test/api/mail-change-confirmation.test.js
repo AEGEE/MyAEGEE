@@ -19,7 +19,7 @@ describe('Mail change confirm', () => {
 
     test('should return 404 if the mail change is not found', async () => {
         const res = await request({
-            uri: '/confirm-email-change',
+            path: '/confirm-email-change',
             method: 'POST',
             body: { token: '1' }
         });
@@ -32,7 +32,7 @@ describe('Mail change confirm', () => {
 
     test('should return 404 if no token is provided', async () => {
         const res = await request({
-            uri: '/confirm-email-change',
+            path: '/confirm-email-change',
             method: 'POST',
             body: {}
         });
@@ -48,7 +48,7 @@ describe('Mail change confirm', () => {
         const mailChange = await generator.createMailChange(user, { expires_at: new Date() });
 
         const res = await request({
-            uri: '/confirm-email-change',
+            path: '/confirm-email-change',
             method: 'POST',
             body: { token: mailChange.value }
         });
@@ -64,7 +64,7 @@ describe('Mail change confirm', () => {
         const mailChange = await generator.createMailChange(user);
 
         const res = await request({
-            uri: '/confirm-email-change',
+            path: '/confirm-email-change',
             method: 'POST',
             body: { token: mailChange.value }
         });
@@ -86,7 +86,7 @@ describe('Mail change confirm', () => {
         const mailChange = await generator.createMailChange(user);
 
         const res = await request({
-            uri: '/confirm-email-change',
+            path: '/confirm-email-change',
             method: 'POST',
             body: { token: '\t\t\t   \t' + mailChange.value + '\t     \t' }
         });

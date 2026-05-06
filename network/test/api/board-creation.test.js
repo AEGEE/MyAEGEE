@@ -31,7 +31,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -45,7 +45,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ elected_date: null });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -62,7 +62,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ elected_date: faker.date.future() });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -79,7 +79,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ start_date: null });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -96,7 +96,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ end_date: faker.date.past() });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -113,7 +113,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ image_id: 'NaN' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -131,7 +131,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ president: user.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -147,7 +147,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ president: user.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -163,7 +163,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ president: user.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -179,7 +179,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -195,7 +195,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -211,7 +211,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -226,7 +226,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({});
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -248,7 +248,7 @@ describe('Board creation', () => {
         const board = generator.generateBoard({ other_members: [{ function: 'Test', user_id: user.id }] });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/boards',
+            path: '/bodies/' + body.id + '/boards',
             method: 'POST',
             body: board,
             headers: { 'X-Auth-Token': 'blablabla' }

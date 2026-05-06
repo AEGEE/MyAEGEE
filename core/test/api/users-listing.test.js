@@ -20,7 +20,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members',
+            path: '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -38,7 +38,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members',
+            path: '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -62,7 +62,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members?limit=1&offset=1', // second one should be returned
+            path: '/members?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -92,7 +92,7 @@ describe('Users list', () => {
         const secondUser = await generator.createUser({ first_name: 'bbb' });
 
         const res = await request({
-            uri: '/members?sort=first_name&direction=desc', // second one should be returned
+            path: '/members?sort=first_name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members?query=aaa',
+            path: '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -138,7 +138,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members?query=aaa',
+            path: '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -160,7 +160,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members?query=aaa',
+            path: '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

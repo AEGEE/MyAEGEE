@@ -28,7 +28,7 @@ describe('Plenaries edition', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Plenaries edition', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/1337',
+            path: '/events/' + event.id + '/plenaries/1337',
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -63,7 +63,7 @@ describe('Plenaries edition', () => {
         await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/NaN',
+            path: '/events/' + event.id + '/plenaries/NaN',
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -80,7 +80,7 @@ describe('Plenaries edition', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -98,7 +98,7 @@ describe('Plenaries edition', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'PUT',
             body: { starts: null },
             headers: { 'X-Auth-Token': 'blablabla' }

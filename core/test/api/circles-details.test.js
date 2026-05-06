@@ -20,7 +20,7 @@ describe('Circle details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/circles/1337',
+            path: '/circles/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -36,7 +36,7 @@ describe('Circle details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/circles/xxx',
+            path: '/circles/xxx',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -54,7 +54,7 @@ describe('Circle details', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -20,7 +20,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/unconfirmed',
+            path: '/members/unconfirmed',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -40,7 +40,7 @@ describe('Users list', () => {
         const otherUser = await generator.createUser({ mail_confirmed_at: null });
 
         const res = await request({
-            uri: '/members/unconfirmed',
+            path: '/members/unconfirmed',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

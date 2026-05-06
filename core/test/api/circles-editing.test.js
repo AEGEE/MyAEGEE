@@ -22,7 +22,7 @@ describe('Circle editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/1337',
+            path: '/circles/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -43,7 +43,7 @@ describe('Circle editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: '' }
@@ -65,7 +65,7 @@ describe('Circle editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -92,7 +92,7 @@ describe('Circle editing', () => {
         await generator.createCirclePermission(bodyCircle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -112,7 +112,7 @@ describe('Circle editing', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

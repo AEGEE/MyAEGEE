@@ -27,7 +27,7 @@ describe('Positions listing', () => {
         await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -46,7 +46,7 @@ describe('Positions listing', () => {
         await generator.createPosition({}, secondEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/positions/',
+            path: '/events/' + firstEvent.id + '/positions/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -66,7 +66,7 @@ describe('Positions listing', () => {
         const secondPosition = await generator.createPosition({}, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/positions/',
+            path: '/events/' + firstEvent.id + '/positions/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -88,7 +88,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/approved',
+            path: '/events/' + event.id + '/positions/approved',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -113,7 +113,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/approved',
+            path: '/events/' + event.id + '/positions/approved',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -136,7 +136,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/approved',
+            path: '/events/' + event.id + '/positions/approved',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -155,7 +155,7 @@ describe('Positions listing', () => {
         const secondPosition = await generator.createPosition({}, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/positions/approved',
+            path: '/events/' + firstEvent.id + '/positions/approved',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -177,7 +177,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/all',
+            path: '/events/' + event.id + '/positions/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -200,7 +200,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/all',
+            path: '/events/' + event.id + '/positions/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -226,7 +226,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/all',
+            path: '/events/' + event.id + '/positions/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -243,7 +243,7 @@ describe('Positions listing', () => {
         const secondPosition = await generator.createPosition({}, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/positions/all',
+            path: '/events/' + firstEvent.id + '/positions/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -269,7 +269,7 @@ describe('Positions listing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/candidates/mine',
+            path: '/events/' + event.id + '/positions/candidates/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -289,7 +289,7 @@ describe('Positions listing', () => {
         const thirdCandidate = await generator.createCandidate({ user_id: 3 }, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/all',
+            path: '/events/' + event.id + '/positions/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -315,7 +315,7 @@ describe('Positions listing', () => {
         const thirdCandidate = await generator.createCandidate({ user_id: 3, status: 'approved' }, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/approved',
+            path: '/events/' + event.id + '/positions/approved',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

@@ -27,7 +27,7 @@ describe('Body payments deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'payment' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/1337',
+            path: '/bodies/' + body.id + '/payments/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -49,7 +49,7 @@ describe('Body payments deleting', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -73,7 +73,7 @@ describe('Body payments deleting', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -104,7 +104,7 @@ describe('Body payments deleting', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

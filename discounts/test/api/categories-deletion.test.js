@@ -23,7 +23,7 @@ describe('Categories deletion', () => {
         const category = await generator.createCategory();
 
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -35,7 +35,7 @@ describe('Categories deletion', () => {
     test('should succeed if everything is okay', async () => {
         const category = await generator.createCategory();
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -51,7 +51,7 @@ describe('Categories deletion', () => {
 
     test('should return 404 if the integration is not found', async () => {
         const res = await request({
-            uri: '/categories/1337',
+            path: '/categories/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

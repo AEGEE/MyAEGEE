@@ -22,7 +22,7 @@ describe('Body memberships deleting own', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -40,7 +40,7 @@ describe('Body memberships deleting own', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -64,7 +64,7 @@ describe('Body memberships deleting own', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -85,7 +85,7 @@ describe('Body memberships deleting own', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

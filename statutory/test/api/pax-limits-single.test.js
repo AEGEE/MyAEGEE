@@ -24,7 +24,7 @@ describe('Pax limits single', () => {
 
     test('should display limit', async () => {
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Pax limits single', () => {
         await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -56,7 +56,7 @@ describe('Pax limits single', () => {
 
     test('should return 400 if the event type is invalid', async () => {
         const res = await request({
-            uri: '/limits/invalid/' + bodies[0].id,
+            path: '/limits/invalid/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -70,7 +70,7 @@ describe('Pax limits single', () => {
     test('should return an error if the bodies request returns net error', async () => {
         mock.mockAll({ body: { netError: true } });
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -84,7 +84,7 @@ describe('Pax limits single', () => {
     test('should return an error if the bodies request returns malformed response', async () => {
         mock.mockAll({ body: { badResponse: true } });
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -98,7 +98,7 @@ describe('Pax limits single', () => {
     test('should return an error if the bodies request returns unsuccessful response', async () => {
         mock.mockAll({ body: { unsuccessfulResponse: true } });
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

@@ -23,7 +23,7 @@ describe('Circles deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/1337',
+            path: '/circles/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -43,7 +43,7 @@ describe('Circles deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -71,7 +71,7 @@ describe('Circles deleting', () => {
         await generator.createCircleMembership(bodyCircle, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -92,7 +92,7 @@ describe('Circles deleting', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id,
+            path: '/circles/' + circle.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

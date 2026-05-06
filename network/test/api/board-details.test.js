@@ -27,7 +27,7 @@ describe('Board details', () => {
         const board = await generator.createBoard();
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -40,7 +40,7 @@ describe('Board details', () => {
         const board = await generator.createBoard();
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -54,7 +54,7 @@ describe('Board details', () => {
 
     test('should fail if board is not found', async () => {
         const res = await request({
-            uri: '/bodies/1/boards/1337',
+            path: '/bodies/1/boards/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -67,7 +67,7 @@ describe('Board details', () => {
 
     test('should fail if board id is not a number', async () => {
         const res = await request({
-            uri: '/bodies/1/boards/NaN',
+            path: '/bodies/1/boards/NaN',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

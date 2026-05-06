@@ -46,7 +46,7 @@ describe('Applications pax type/board comment', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/board',
+            path: '/events/' + event.id + '/applications/me/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate' }
@@ -62,7 +62,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', board_comment: 'test', participant_order: 1 }
@@ -82,7 +82,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.statutory_id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.statutory_id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', board_comment: 'test', participant_order: 1 }
@@ -104,7 +104,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -122,7 +122,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', board_comment: 'test', participant_order: 1 }
@@ -140,7 +140,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -153,7 +153,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 404 if the application is not found', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/1337/board',
+            path: '/events/' + event.id + '/applications/1337/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -167,7 +167,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if info is invalid', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'invalid', participant_order: 1 }
@@ -181,7 +181,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if participant type is set, but participant order is not', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_order: 1 }
@@ -195,7 +195,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if participant order is not a number', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 'invalid' }
@@ -209,7 +209,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if participant order is negative', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: -1 }
@@ -223,7 +223,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if participant order is set, but participant type is not', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate' }
@@ -250,7 +250,7 @@ describe('Applications pax type/board comment', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + otherApplication.id + '/board',
+            path: '/events/' + event.id + '/applications/' + otherApplication.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -269,7 +269,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -297,7 +297,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -318,7 +318,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: null, participant_order: null }
@@ -340,7 +340,7 @@ describe('Applications pax type/board comment', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -355,7 +355,7 @@ describe('Applications pax type/board comment', () => {
     test('should return 403 when using default limits and too much applications', async () => {
         // The body type is antenna, it cannot send observers.
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'observer', participant_order: 1 }
@@ -376,7 +376,7 @@ describe('Applications pax type/board comment', () => {
 
         // The body type is antenna, it cannot send observers.
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1 }
@@ -390,7 +390,7 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 403 when the pax order is too big', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: 'delegate', participant_order: 1337 }
@@ -411,7 +411,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: null, participant_order: null }
@@ -432,7 +432,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: null, participant_order: null }
@@ -453,7 +453,7 @@ describe('Applications pax type/board comment', () => {
         }, { returning: ['*'] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { participant_type: null, participant_order: null }

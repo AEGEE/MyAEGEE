@@ -20,7 +20,7 @@ describe('Categories creation', () => {
     test('should fail if user does not have rights', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory()
@@ -43,7 +43,7 @@ describe('Categories creation', () => {
             ]
         });
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: category
@@ -74,7 +74,7 @@ describe('Categories creation', () => {
 
     test('should fail if name is not set', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ name: null })
@@ -88,7 +88,7 @@ describe('Categories creation', () => {
 
     test('should fail if discounts is not an array', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: false })
@@ -102,7 +102,7 @@ describe('Categories creation', () => {
 
     test('should fail if discounts is an empty array', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [] })
@@ -116,7 +116,7 @@ describe('Categories creation', () => {
 
     test('should fail if discount is not an object', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [false] })
@@ -130,7 +130,7 @@ describe('Categories creation', () => {
 
     test('should fail if discount\'s name is not set', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [
@@ -146,7 +146,7 @@ describe('Categories creation', () => {
 
     test('should fail if discount\'s icon is not set', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [
@@ -162,7 +162,7 @@ describe('Categories creation', () => {
 
     test('should fail if discount\'s shortDescription is not set', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [
@@ -178,7 +178,7 @@ describe('Categories creation', () => {
 
     test('should fail if discount\'s longDescription is not set', async () => {
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCategory({ discounts: [

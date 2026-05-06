@@ -24,7 +24,7 @@ describe('Events status change', () => {
         });
 
         const res = await request({
-            uri: '/mine/approvable',
+            path: '/mine/approvable',
             headers: { 'X-Auth-Token': 'foobar' }
         });
 
@@ -42,7 +42,7 @@ describe('Events status change', () => {
         });
 
         const res = await request({
-            uri: '/mine/approvable',
+            path: '/mine/approvable',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -61,7 +61,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -82,7 +82,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -104,7 +104,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -125,7 +125,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -148,7 +148,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
@@ -172,7 +172,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
@@ -193,7 +193,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
@@ -215,7 +215,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
@@ -236,7 +236,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
@@ -260,7 +260,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
@@ -281,7 +281,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
@@ -303,7 +303,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
@@ -327,7 +327,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -348,7 +348,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -370,7 +370,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -393,7 +393,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
@@ -416,7 +416,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -435,7 +435,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -454,7 +454,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -473,7 +473,7 @@ describe('Events status change', () => {
             });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -493,7 +493,7 @@ describe('Events status change', () => {
             const event = await generator.createEvent({ status: 'draft' });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -510,7 +510,7 @@ describe('Events status change', () => {
             const event = await generator.createEvent({ status: 'draft' });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
@@ -527,7 +527,7 @@ describe('Events status change', () => {
             const event = await generator.createEvent({ status: 'draft' });
 
             const res = await request({
-                uri: '/single/' + event.id + '/status',
+                path: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }

@@ -34,7 +34,7 @@ describe('Body memberships deleting', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -58,7 +58,7 @@ describe('Body memberships deleting', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -91,7 +91,7 @@ describe('Body memberships deleting', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -123,7 +123,7 @@ describe('Body memberships deleting', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -153,7 +153,7 @@ describe('Body memberships deleting', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -171,7 +171,7 @@ describe('Body memberships deleting', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value },
         });

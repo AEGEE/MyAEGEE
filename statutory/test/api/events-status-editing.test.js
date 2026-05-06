@@ -28,7 +28,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -48,7 +48,7 @@ describe('Events status editing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/nonexistant/status',
+            path: '/events/nonexistant/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -65,7 +65,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -80,7 +80,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'not-existant' }
@@ -99,7 +99,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'published' }
@@ -117,7 +117,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'published' }
@@ -135,7 +135,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/status',
+            path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'draft' }

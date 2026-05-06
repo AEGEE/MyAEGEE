@@ -31,7 +31,7 @@ describe('Questions creation', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
             method: 'POST',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -50,7 +50,7 @@ describe('Questions creation', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
             method: 'POST',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -71,7 +71,7 @@ describe('Questions creation', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
             method: 'POST',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -89,7 +89,7 @@ describe('Questions creation', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/1337/questions',
+            path: '/events/' + event.id + '/question-lines/1337/questions',
             method: 'POST',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -107,7 +107,7 @@ describe('Questions creation', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/false/questions',
+            path: '/events/' + event.id + '/question-lines/false/questions',
             method: 'POST',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -130,7 +130,7 @@ describe('Questions creation', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions',
             method: 'POST',
             body: { text: null },
             headers: { 'X-Auth-Token': 'blablabla' }

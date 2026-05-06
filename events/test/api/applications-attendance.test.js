@@ -26,7 +26,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
+            path: '/single/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -45,7 +45,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication(event, { confirmed: false });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
+            path: '/single/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -67,7 +67,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
+            path: '/single/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -83,7 +83,7 @@ describe('Applications attendance', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/333/attended',
+            path: '/single/' + event.id + '/applications/333/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -100,7 +100,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
+            path: '/single/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: 'lalala' }

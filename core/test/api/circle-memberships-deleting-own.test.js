@@ -22,7 +22,7 @@ describe('Circle memberships deleting own', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -40,7 +40,7 @@ describe('Circle memberships deleting own', () => {
         const membership = await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

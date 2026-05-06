@@ -23,7 +23,7 @@ describe('Circle membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_members', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/lalala',
+            path: '/circles/' + circle.id + '/members/lalala',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -43,7 +43,7 @@ describe('Circle membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_members', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/1337',
+            path: '/circles/' + circle.id + '/members/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -65,7 +65,7 @@ describe('Circle membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_members', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + membership.id,
+            path: '/circles/' + circle.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { position: 'test' }
@@ -90,7 +90,7 @@ describe('Circle membership editing', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + membership.id,
+            path: '/circles/' + circle.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { comment: 'test' }
@@ -110,7 +110,7 @@ describe('Circle membership editing', () => {
         const membership = await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + membership.id,
+            path: '/circles/' + circle.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { comment: 'test' }

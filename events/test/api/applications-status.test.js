@@ -25,7 +25,7 @@ describe('Events application status', () => {
         const application = await generator.createApplication(event);
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/status',
+            path: '/single/' + event.id + '/applications/' + application.id + '/status',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { status: 'accepted' }
@@ -43,7 +43,7 @@ describe('Events application status', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/1337/status',
+            path: '/single/' + event.id + '/applications/1337/status',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { status: 'acceptedd' }
@@ -60,7 +60,7 @@ describe('Events application status', () => {
         const application = await generator.createApplication(event);
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/status',
+            path: '/single/' + event.id + '/applications/' + application.id + '/status',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { status: 'accepted' }

@@ -37,7 +37,7 @@ describe('Candidates status', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
             method: 'PUT',
             body: { status: 'approved' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -60,7 +60,7 @@ describe('Candidates status', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
             method: 'PUT',
             body: { status: false },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -84,7 +84,7 @@ describe('Candidates status', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id + '/status',
             method: 'PUT',
             body: { status: 'approved' },
             headers: { 'X-Auth-Token': 'blablabla' }

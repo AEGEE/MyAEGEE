@@ -17,7 +17,7 @@ describe('Tokens renewal', () => {
 
     test('should fail if the token is not found', async () => {
         const res = await request({
-            uri: '/renew',
+            path: '/renew',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -35,7 +35,7 @@ describe('Tokens renewal', () => {
         const user = await generator.createUser({ mail_confirmed_at: new Date() });
         const refreshToken = await generator.createRefreshToken(user);
         const res = await request({
-            uri: '/renew',
+            path: '/renew',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

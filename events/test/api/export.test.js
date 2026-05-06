@@ -26,10 +26,10 @@ describe('Export all', () => {
             ]
         });
         const res = await request({
-            uri: '/single/' + event.id + '/applications/export',
+            path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'text',
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
@@ -59,10 +59,10 @@ describe('Export all', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/export',
+            path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'text',
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
@@ -93,10 +93,10 @@ describe('Export all', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/export',
+            path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'text',
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 

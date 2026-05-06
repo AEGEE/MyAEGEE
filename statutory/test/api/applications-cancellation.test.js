@@ -34,7 +34,7 @@ describe('Applications cancellation', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/cancel',
+            path: '/events/' + event.id + '/applications/me/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -57,7 +57,7 @@ describe('Applications cancellation', () => {
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/cancel',
+            path: '/events/' + event.id + '/applications/me/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -74,7 +74,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
+            path: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -95,7 +95,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
+            path: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -115,7 +115,7 @@ describe('Applications cancellation', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/cancel',
+            path: '/events/' + event.id + '/applications/me/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -131,7 +131,7 @@ describe('Applications cancellation', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/cancel',
+            path: '/events/' + event.id + '/applications/333/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -148,7 +148,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
+            path: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: 'lalala' }

@@ -30,7 +30,7 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/all',
+            path: '/events/' + event.id + '/applications/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -53,7 +53,7 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/all',
+            path: '/events/' + event.id + '/applications/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -70,7 +70,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ status: 'pending' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/accepted',
+            path: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -89,7 +89,7 @@ describe('Applications listing', () => {
         tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/accepted',
+            path: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -118,7 +118,7 @@ describe('Applications listing', () => {
         tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/accepted',
+            path: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -137,7 +137,7 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/juridical',
+            path: '/events/' + event.id + '/applications/juridical',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -155,7 +155,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/juridical',
+            path: '/events/' + event.id + '/applications/juridical',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -179,7 +179,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ status: 'accepted', confirmed: false, cancelled: false, user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/juridical',
+            path: '/events/' + event.id + '/applications/juridical',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -196,7 +196,7 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/incoming',
+            path: '/events/' + event.id + '/applications/incoming',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -214,7 +214,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/incoming',
+            path: '/events/' + event.id + '/applications/incoming',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -240,7 +240,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ status: 'accepted', cancelled: true, user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/incoming',
+            path: '/events/' + event.id + '/applications/incoming',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -257,7 +257,7 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/network',
+            path: '/events/' + event.id + '/applications/network',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -275,7 +275,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/network',
+            path: '/events/' + event.id + '/applications/network',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -297,7 +297,7 @@ describe('Applications listing', () => {
         await generator.createApplication({ status: 'accepted', cancelled: true, user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/network',
+            path: '/events/' + event.id + '/applications/network',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -315,7 +315,7 @@ describe('Applications listing', () => {
             const application = await generator.createApplication({}, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all',
+                path: '/events/' + event.id + '/applications/all',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -341,7 +341,7 @@ describe('Applications listing', () => {
             }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all',
+                path: '/events/' + event.id + '/applications/all',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -367,7 +367,7 @@ describe('Applications listing', () => {
             }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all',
+                path: '/events/' + event.id + '/applications/all',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -393,7 +393,7 @@ describe('Applications listing', () => {
             }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all',
+                path: '/events/' + event.id + '/applications/all',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -419,7 +419,7 @@ describe('Applications listing', () => {
             }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all',
+                path: '/events/' + event.id + '/applications/all',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -442,7 +442,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 2, first_name: 'first', last_name: 'last' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?limit=1',
+                path: '/events/' + event.id + '/applications/all?limit=1',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -460,7 +460,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?offset=500',
+                path: '/events/' + event.id + '/applications/all?offset=500',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -481,7 +481,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 2, first_name: 'first1' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?sort[field]=first_name', // ORDER BY first_name DESC
+                path: '/events/' + event.id + '/applications/all?sort[field]=first_name', // ORDER BY first_name DESC
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -501,7 +501,7 @@ describe('Applications listing', () => {
             const second = await generator.createApplication({ user_id: 2, first_name: 'first1' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?sort[order]=asc', // ORDER BY id ASC
+                path: '/events/' + event.id + '/applications/all?sort[order]=asc', // ORDER BY id ASC
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -522,7 +522,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 1, first_name: 'name name' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?query=name',
+                path: '/events/' + event.id + '/applications/all?query=name',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -540,7 +540,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 1, last_name: 'surname surname' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?query=surname',
+                path: '/events/' + event.id + '/applications/all?query=surname',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -558,7 +558,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ user_id: 1, email: 'testtest@aegee.eu' }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?query=testtest',
+                path: '/events/' + event.id + '/applications/all?query=testtest',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
@@ -576,7 +576,7 @@ describe('Applications listing', () => {
             await generator.createApplication({ cancelled: true }, event);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/all?displayCancelled=true',
+                path: '/events/' + event.id + '/applications/all?displayCancelled=true',
                 method: 'GET',
                 headers: { 'X-Auth-Token': 'blablabla' }
             });

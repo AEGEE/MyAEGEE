@@ -22,7 +22,7 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337',
+            path: '/members/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }
@@ -41,7 +41,7 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'username with spaces' }
@@ -61,7 +61,7 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }
@@ -81,7 +81,7 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -99,7 +99,7 @@ describe('User editing', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }
@@ -117,7 +117,7 @@ describe('User editing', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }
@@ -143,7 +143,7 @@ describe('User editing', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }
@@ -163,7 +163,7 @@ describe('User editing', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }

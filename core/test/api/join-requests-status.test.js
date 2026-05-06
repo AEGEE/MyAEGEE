@@ -30,7 +30,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/lalala/status',
+            path: '/bodies/' + body.id + '/join-requests/lalala/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }
@@ -50,7 +50,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/1337/status',
+            path: '/bodies/' + body.id + '/join-requests/1337/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }
@@ -72,7 +72,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'unknown' }
@@ -98,7 +98,7 @@ describe('Join request status', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'rejected' }
@@ -120,7 +120,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'rejected' }
@@ -145,7 +145,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }
@@ -179,7 +179,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }
@@ -212,7 +212,7 @@ describe('Join request status', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }
@@ -232,7 +232,7 @@ describe('Join request status', () => {
         const joinRequest = await generator.createJoinRequest(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            path: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }

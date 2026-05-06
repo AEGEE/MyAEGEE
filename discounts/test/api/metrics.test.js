@@ -24,9 +24,9 @@ describe('Metrics requests', () => {
         await generator.createCode({ claimed_by: 1337 }, integration);
 
         const res = await request({
-            uri: '/metrics',
+            path: '/metrics',
             method: 'GET',
-            json: false
+            responseType: 'text'
         });
 
         expect(res.statusCode).toEqual(200);
@@ -34,9 +34,9 @@ describe('Metrics requests', () => {
 
     test('should return data correctly on /metrics/requests', async () => {
         const res = await request({
-            uri: '/metrics/requests',
+            path: '/metrics/requests',
             method: 'GET',
-            json: false
+            responseType: 'text'
         });
 
         expect(res.statusCode).toEqual(200);

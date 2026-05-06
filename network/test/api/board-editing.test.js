@@ -27,7 +27,7 @@ describe('Board editing', () => {
         const board = await generator.createBoard();
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: board
@@ -41,7 +41,7 @@ describe('Board editing', () => {
         const board = await generator.createBoard({ message: 'some text' });
 
         await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -50,7 +50,7 @@ describe('Board editing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

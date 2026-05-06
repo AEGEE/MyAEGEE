@@ -34,7 +34,7 @@ describe('Candidates displaying', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/1337',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -55,7 +55,7 @@ describe('Candidates displaying', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/false',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/false',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -79,7 +79,7 @@ describe('Candidates displaying', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -101,7 +101,7 @@ describe('Candidates displaying', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -125,7 +125,7 @@ describe('Candidates displaying', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

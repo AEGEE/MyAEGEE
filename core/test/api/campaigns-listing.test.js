@@ -22,7 +22,7 @@ describe('Campaigns list', () => {
         await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns',
+            path: '/campaigns',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -42,7 +42,7 @@ describe('Campaigns list', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns',
+            path: '/campaigns',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -67,7 +67,7 @@ describe('Campaigns list', () => {
         await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns?limit=1&offset=1', // second one should be returned
+            path: '/campaigns?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -94,7 +94,7 @@ describe('Campaigns list', () => {
         const secondCampaign = await generator.createCampaign({ url: 'bbb' });
 
         const res = await request({
-            uri: '/campaigns?sort=url&direction=desc', // second one should be returned
+            path: '/campaigns?sort=url&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -131,7 +131,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -166,7 +166,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -201,7 +201,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -236,7 +236,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -271,7 +271,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -306,7 +306,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -341,7 +341,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -376,7 +376,7 @@ describe('Campaigns list', () => {
         });
 
         const res = await request({
-            uri: '/campaigns?query=AAA',
+            path: '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

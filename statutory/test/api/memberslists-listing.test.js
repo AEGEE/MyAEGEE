@@ -35,7 +35,7 @@ describe('Memberslist listing', () => {
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/',
+            path: '/events/' + event.id + '/memberslists/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -57,7 +57,7 @@ describe('Memberslist listing', () => {
         await generator.createMembersList({ body_id: 1337 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/',
+            path: '/events/' + event.id + '/memberslists/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -85,7 +85,7 @@ describe('Memberslist listing', () => {
         await generator.createMembersList({ body_id: 1337 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/',
+            path: '/events/' + event.id + '/memberslists/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -107,7 +107,7 @@ describe('Memberslist listing', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/',
+            path: '/events/' + event.id + '/memberslists/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

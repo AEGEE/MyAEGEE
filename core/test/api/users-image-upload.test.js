@@ -27,11 +27,13 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -43,11 +45,13 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/invalid_image.txt')
+            files: {
+                head_image: {
+                    path: './test/assets/invalid_image.txt'
+                }
             }
         });
 
@@ -62,15 +66,13 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
+            files: {
                 head_image: {
-                    value: fs.createReadStream('./test/assets/invalid_image.txt'),
-                    options: {
-                        filename: 'image.jpg'
-                    }
+                    path: './test/assets/invalid_image.txt',
+                    filename: 'image.jpg'
                 }
             }
         });
@@ -86,10 +88,10 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {}
+            files: {}
         });
 
         expect(res.statusCode).toEqual(422);
@@ -103,11 +105,13 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -126,11 +130,13 @@ describe('Users image upload', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_second_image.PNG'
+                }
             }
         });
 
@@ -150,11 +156,13 @@ describe('Users image upload', () => {
 
         // Uploading
         const firstRequest = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -163,11 +171,13 @@ describe('Users image upload', () => {
         const userFromDb = await User.findByPk(user.id);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -186,11 +196,13 @@ describe('Users image upload', () => {
         const user = await generator.createUser();
 
         const firstRequest = await request({
-            uri: '/members/' + admin.id + '/upload',
+            path: '/members/' + admin.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -199,11 +211,13 @@ describe('Users image upload', () => {
         const adminFromDbBeforeChange = await User.findByPk(admin.id);
 
         const res = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_second_image.PNG'
+                }
             }
         });
 

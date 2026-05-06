@@ -23,7 +23,7 @@ describe('Body membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/lalala',
+            path: '/bodies/' + body.id + '/members/lalala',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -43,7 +43,7 @@ describe('Body membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -65,7 +65,7 @@ describe('Body membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { comment: 'test' }
@@ -91,7 +91,7 @@ describe('Body membership editing', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { comment: 'test' }
@@ -111,7 +111,7 @@ describe('Body membership editing', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { comment: 'test' }

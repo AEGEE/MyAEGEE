@@ -38,12 +38,11 @@ describe('Export all', () => {
 
     test('should return nothing if no applications', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -63,12 +62,11 @@ describe('Export all', () => {
             answers: [true, 'string']
         }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -103,12 +101,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -129,12 +126,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -142,10 +138,9 @@ describe('Export all', () => {
 
     test('should return 400 if no filter provided', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
@@ -160,12 +155,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: ['id', 'answers.0'] }
+            query: { select: ['id', 'answers.0'] }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -197,12 +191,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/incoming',
+            path: '/events/' + event.id + '/applications/export/incoming',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -217,12 +210,11 @@ describe('Export all', () => {
 
     test('should return 400 on invalid prefix', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/invalid',
+            path: '/events/' + event.id + '/applications/export/invalid',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)) }
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -248,12 +240,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: Object.keys(helpers.getApplicationFields(event)), filter: false }
+            query: { select: Object.keys(helpers.getApplicationFields(event)), filter: false }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -282,12 +273,11 @@ describe('Export all', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/all',
+            path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: {
+            query: {
                 select: Object.keys(helpers.getApplicationFields(event)),
                 filter: { status: 'accepted', confirmed: true }
             }

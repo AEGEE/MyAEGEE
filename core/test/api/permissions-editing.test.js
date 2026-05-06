@@ -22,7 +22,7 @@ describe('Permissions details', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
 
         const res = await request({
-            uri: '/permissions/1337',
+            path: '/permissions/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -43,7 +43,7 @@ describe('Permissions details', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { scope: '' }
@@ -63,7 +63,7 @@ describe('Permissions details', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { scope: 'local' }
@@ -84,7 +84,7 @@ describe('Permissions details', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { scope: 'local' }

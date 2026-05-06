@@ -22,7 +22,7 @@ describe('User confirmation', () => {
         await generator.createPermission({ scope: 'global', action: 'confirm', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/confirm',
+            path: '/members/1337/confirm',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -41,7 +41,7 @@ describe('User confirmation', () => {
         await generator.createMailConfirmation(null, { user_id: user.id });
 
         const res = await request({
-            uri: '/members/' + user.id + '/confirm',
+            path: '/members/' + user.id + '/confirm',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -58,7 +58,7 @@ describe('User confirmation', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/confirm',
+            path: '/members/' + user.id + '/confirm',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value }
         });

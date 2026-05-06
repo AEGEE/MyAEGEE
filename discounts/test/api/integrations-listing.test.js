@@ -19,7 +19,7 @@ describe('Integrations listing', () => {
     test('should succeed and list integrations', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

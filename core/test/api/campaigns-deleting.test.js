@@ -23,7 +23,7 @@ describe('Campaigns deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'campaign' });
 
         const res = await request({
-            uri: '/campaigns/1337',
+            path: '/campaigns/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -41,7 +41,7 @@ describe('Campaigns deleting', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -61,7 +61,7 @@ describe('Campaigns deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'campaign' });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

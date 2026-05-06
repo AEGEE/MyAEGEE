@@ -28,7 +28,7 @@ describe('Question lines status update', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Question lines status update', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/1337/status',
+            path: '/events/' + event.id + '/question-lines/1337/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -62,7 +62,7 @@ describe('Question lines status update', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/NaN/status',
+            path: '/events/' + event.id + '/question-lines/NaN/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -81,7 +81,7 @@ describe('Question lines status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -101,7 +101,7 @@ describe('Question lines status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
             method: 'PUT',
             body: {},
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -121,7 +121,7 @@ describe('Question lines status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
             method: 'PUT',
             body: { status: false },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -141,7 +141,7 @@ describe('Question lines status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/status',
             method: 'PUT',
             body: {
                 name: 'test new'

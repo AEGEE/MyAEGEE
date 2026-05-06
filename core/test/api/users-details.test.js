@@ -22,7 +22,7 @@ describe('User details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337',
+            path: '/members/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -40,7 +40,7 @@ describe('User details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members/test',
+            path: '/members/test',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -59,7 +59,7 @@ describe('User details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members/TEST',
+            path: '/members/TEST',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -78,7 +78,7 @@ describe('User details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -95,7 +95,7 @@ describe('User details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -112,7 +112,7 @@ describe('User details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -137,7 +137,7 @@ describe('User details', () => {
         await generator.createJoinRequest(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -162,7 +162,7 @@ describe('User details', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -183,7 +183,7 @@ describe('User details', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -202,7 +202,7 @@ describe('User details', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

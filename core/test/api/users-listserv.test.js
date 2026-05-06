@@ -28,7 +28,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            uri: '/members/1337/listserv',
+            path: '/members/1337/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: ['ANNOUNCE-L'] }
@@ -47,7 +47,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/listserv',
+            path: '/members/' + user.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: {}
@@ -66,7 +66,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/listserv',
+            path: '/members/' + user.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: 'not-valid' }
@@ -85,7 +85,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/listserv',
+            path: '/members/' + user.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: [] }
@@ -104,7 +104,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/listserv',
+            path: '/members/' + user.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: ['ANNOUNCE-L', 'BOARDINF-L'] }
@@ -125,7 +125,7 @@ describe('User subscribe listserv', () => {
     //     await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
     //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
+    //         path: '/members/' + user.id + '/listserv',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': token.value },
     //         body: { mailinglists: ['ANNOUNCE-L'] }
@@ -144,7 +144,7 @@ describe('User subscribe listserv', () => {
     //     await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
     //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
+    //         path: '/members/' + user.id + '/listserv',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': token.value },
     //         body: { mailinglists: ['ANNOUNCE-L'] }
@@ -164,7 +164,7 @@ describe('User subscribe listserv', () => {
     //     await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
     //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
+    //         path: '/members/' + user.id + '/listserv',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': token.value },
     //         body: { mailinglists: ['announce-l, AEGEE-L, AeGeEnEwS-l'] }
@@ -182,7 +182,7 @@ describe('User subscribe listserv', () => {
     //     const token = await generator.createAccessToken(user);
 
     //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
+    //         path: '/members/' + user.id + '/listserv',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': token.value },
     //         body: { mailinglists: ['ANNOUNCE-L'] }
@@ -199,7 +199,7 @@ describe('User subscribe listserv', () => {
     //     const token = await generator.createAccessToken(user);
 
     //     const res = await request({
-    //         uri: '/members/' + user.id + '/listserv',
+    //         path: '/members/' + user.id + '/listserv',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': token.value },
     //         body: { mailinglists: ['ANNOUNCE-L'] }
@@ -224,7 +224,7 @@ describe('User subscribe listserv', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/listserv',
+            path: '/members/' + otherUser.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: ['ANNOUNCE-L'] }
@@ -243,7 +243,7 @@ describe('User subscribe listserv', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/listserv',
+            path: '/members/' + otherUser.id + '/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: ['ANNOUNCE-L'] }

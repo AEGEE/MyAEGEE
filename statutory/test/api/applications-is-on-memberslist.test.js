@@ -29,7 +29,7 @@ describe('Applications is_on_memberslist', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/is_on_memberslist',
+            path: '/events/' + event.id + '/applications/me/is_on_memberslist',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { is_on_memberslist: true }
@@ -46,7 +46,7 @@ describe('Applications is_on_memberslist', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
+            path: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { is_on_memberslist: true }
@@ -67,7 +67,7 @@ describe('Applications is_on_memberslist', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
+            path: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { is_on_memberslist: true }
@@ -83,7 +83,7 @@ describe('Applications is_on_memberslist', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/is_on_memberslist',
+            path: '/events/' + event.id + '/applications/333/is_on_memberslist',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { is_on_memberslist: true }
@@ -100,7 +100,7 @@ describe('Applications is_on_memberslist', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
+            path: '/events/' + event.id + '/applications/' + application.id + '/is_on_memberslist',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { is_on_memberslist: 'lalala' }

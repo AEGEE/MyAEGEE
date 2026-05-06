@@ -24,7 +24,7 @@ describe('API requests', () => {
             ]
         });
         const res = await request({
-            uri: '/single/' + event.id + '/applications',
+            path: '/single/' + event.id + '/applications',
             method: 'GET'
         });
 
@@ -36,7 +36,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -49,7 +49,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -62,7 +62,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { unsuccessfulResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -75,7 +75,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -88,7 +88,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -101,7 +101,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -114,7 +114,7 @@ describe('API requests', () => {
         mock.mockAll({ approvePermissions: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -127,7 +127,7 @@ describe('API requests', () => {
         mock.mockAll({ approvePermissions: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -140,7 +140,7 @@ describe('API requests', () => {
         mock.mockAll({ approvePermissions: { unsuccessfulResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -151,7 +151,7 @@ describe('API requests', () => {
 
     it('should fail if body is not JSON', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: 'Some random string'
@@ -163,7 +163,7 @@ describe('API requests', () => {
 
     it('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
-            uri: '/nonexistant',
+            path: '/nonexistant',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

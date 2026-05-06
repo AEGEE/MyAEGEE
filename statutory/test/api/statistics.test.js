@@ -30,7 +30,7 @@ describe('Statistics testing', () => {
 
     test('should return nothing if no applications', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -48,7 +48,7 @@ describe('Statistics testing', () => {
     test('should return nothing if all applications are cancelled', async () => {
         await generator.createApplication({ cancelled: true }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -71,7 +71,7 @@ describe('Statistics testing', () => {
         const secondPax = await generator.createApplication({ user_id: 2, participant_order: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -93,7 +93,7 @@ describe('Statistics testing', () => {
         const secondPax = await generator.createApplication({ user_id: 2, participant_order: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -113,7 +113,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, body_id: 2, participant_order: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -133,7 +133,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, participant_type: 'visitor', participant_order: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -153,7 +153,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, gender: 'female' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -173,7 +173,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, meals: 'Vegetarian' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -195,7 +195,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, number_of_events_visited: 1 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -218,7 +218,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 6, body_id: 3, participant_type: null, participant_order: null }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -243,7 +243,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 6, gender: 'female' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -268,7 +268,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 6, participant_type: 'visitor', participant_order: 5 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -290,7 +290,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 3, number_of_events_visited: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -327,7 +327,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 10, status: 'accepted', cancelled: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -360,7 +360,7 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 10, status: 'accepted', cancelled: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -390,7 +390,7 @@ describe('Statistics testing', () => {
         await event.update({ application_status_revealed_at: new Date() });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/stats',
+            path: '/events/' + event.id + '/applications/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

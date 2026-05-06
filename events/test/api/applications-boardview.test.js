@@ -19,7 +19,7 @@ describe('Events application boardview', () => {
 
     it('should return an error if you are not a boardmember of this body', async () => {
         const res = await request({
-            uri: '/boardview/1337',
+            path: '/boardview/1337',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -32,7 +32,7 @@ describe('Events application boardview', () => {
 
     it('should return an error if bodyId is not a number', async () => {
         const res = await request({
-            uri: '/boardview/nan',
+            path: '/boardview/nan',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -49,7 +49,7 @@ describe('Events application boardview', () => {
         const application = await generator.createApplication(event, { body_id: body.id });
 
         const res = await request({
-            uri: '/boardview/' + body.id,
+            path: '/boardview/' + body.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -69,7 +69,7 @@ describe('Events application boardview', () => {
         await generator.createApplication(event, { body_id: 1337 });
 
         const res = await request({
-            uri: '/boardview/' + body.id,
+            path: '/boardview/' + body.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });

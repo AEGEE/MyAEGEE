@@ -19,7 +19,7 @@ describe('Categories displaying', () => {
     test('should succeed if everything is okay', async () => {
         const category = await generator.createCategory();
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -34,7 +34,7 @@ describe('Categories displaying', () => {
 
     test('should return 404 if the category is not found', async () => {
         const res = await request({
-            uri: '/categories/1337',
+            path: '/categories/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -47,7 +47,7 @@ describe('Categories displaying', () => {
 
     test('should return 400 if category ID is NaN', async () => {
         const res = await request({
-            uri: '/categories/false',
+            path: '/categories/false',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

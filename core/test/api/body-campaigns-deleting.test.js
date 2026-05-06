@@ -24,7 +24,7 @@ describe('Body campaigns deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'campaign' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/1337',
+            path: '/bodies/' + body.id + '/campaigns/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -46,7 +46,7 @@ describe('Body campaigns deleting', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: otherBody.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -67,7 +67,7 @@ describe('Body campaigns deleting', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -94,7 +94,7 @@ describe('Body campaigns deleting', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Body campaigns deleting', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

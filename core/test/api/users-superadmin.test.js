@@ -22,7 +22,7 @@ describe('User superadmin', () => {
         await generator.createPermission({ scope: 'global', action: 'update_superadmin', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/superadmin',
+            path: '/members/1337/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: false }
@@ -41,7 +41,7 @@ describe('User superadmin', () => {
         await generator.createPermission({ scope: 'global', action: 'update_superadmin', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/superadmin',
+            path: '/members/' + user.id + '/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: 'aaa' }
@@ -61,7 +61,7 @@ describe('User superadmin', () => {
         await generator.createPermission({ scope: 'global', action: 'update_superadmin', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/superadmin',
+            path: '/members/' + user.id + '/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: false }
@@ -79,7 +79,7 @@ describe('User superadmin', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/superadmin',
+            path: '/members/' + user.id + '/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: true }
@@ -104,7 +104,7 @@ describe('User superadmin', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/superadmin',
+            path: '/members/' + otherUser.id + '/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: true }
@@ -123,7 +123,7 @@ describe('User superadmin', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/superadmin',
+            path: '/members/' + otherUser.id + '/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: true }

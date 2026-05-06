@@ -26,7 +26,7 @@ describe('Body circles creating', () => {
         const circle = generator.generateCircle({ name: '' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/circles/',
+            path: '/bodies/' + body.id + '/circles/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: circle
@@ -50,7 +50,7 @@ describe('Body circles creating', () => {
         const circle = generator.generateCircle();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/circles/',
+            path: '/bodies/' + body.id + '/circles/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: circle
@@ -76,7 +76,7 @@ describe('Body circles creating', () => {
         const circle = generator.generateCircle();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/circles/',
+            path: '/bodies/' + body.id + '/circles/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: circle
@@ -97,7 +97,7 @@ describe('Body circles creating', () => {
         const circle = generator.generateCircle();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/circles/',
+            path: '/bodies/' + body.id + '/circles/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: circle
@@ -119,7 +119,7 @@ describe('Body circles creating', () => {
         const circle = generator.generateCircle({ body_id: 1337 });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/circles/',
+            path: '/bodies/' + body.id + '/circles/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: circle

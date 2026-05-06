@@ -19,7 +19,7 @@ describe('Password confirm', () => {
 
     test('should return 404 if the password reset is not found', async () => {
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: '1', password: 'testtest' }
         });
@@ -32,7 +32,7 @@ describe('Password confirm', () => {
 
     test('should return 404 if no token is provided', async () => {
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: {}
         });
@@ -48,7 +48,7 @@ describe('Password confirm', () => {
         const reset = await generator.createPasswordReset(user);
 
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: reset.value }
         });
@@ -65,7 +65,7 @@ describe('Password confirm', () => {
         const reset = await generator.createPasswordReset(user);
 
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: reset.value, password: 'short' }
         });
@@ -82,7 +82,7 @@ describe('Password confirm', () => {
         const reset = await generator.createPasswordReset(user, { expires_at: new Date() });
 
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: reset.value, password: 'short' }
         });
@@ -98,7 +98,7 @@ describe('Password confirm', () => {
         const reset = await generator.createPasswordReset(user);
 
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: reset.value, password: 'testtest' }
         });
@@ -126,7 +126,7 @@ describe('Password confirm', () => {
         const reset = await generator.createPasswordReset(user);
 
         const res = await request({
-            uri: '/password_confirm',
+            path: '/password_confirm',
             method: 'POST',
             body: { token: '\t\t\t   \t' + reset.value + '\t     \t', password: 'testtest' }
         });

@@ -28,7 +28,7 @@ describe('Plenaries displaying', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -46,7 +46,7 @@ describe('Plenaries displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -61,7 +61,7 @@ describe('Plenaries displaying', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/1337',
+            path: '/events/' + event.id + '/plenaries/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -76,7 +76,7 @@ describe('Plenaries displaying', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/NaN',
+            path: '/events/' + event.id + '/plenaries/NaN',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -92,7 +92,7 @@ describe('Plenaries displaying', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -117,7 +117,7 @@ describe('Plenaries displaying', () => {
         const thirdAttendance = await generator.createAttendance({ starts: moment().add(3, 'day').toDate(), application_id: secondApplication.id }, plenary);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id,
+            path: '/events/' + event.id + '/plenaries/' + plenary.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

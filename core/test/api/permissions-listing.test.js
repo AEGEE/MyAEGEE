@@ -22,7 +22,7 @@ describe('Permission list', () => {
         const permissions = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions',
+            path: '/permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -45,7 +45,7 @@ describe('Permission list', () => {
         await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions?limit=1&offset=1', // second one should be returned
+            path: '/permissions?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -70,7 +70,7 @@ describe('Permission list', () => {
         const secondPermission = await generator.createPermission({ action: 'bbb' });
 
         const res = await request({
-            uri: '/permissions?sort=action&direction=desc', // second one should be returned
+            path: '/permissions?sort=action&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -94,7 +94,7 @@ describe('Permission list', () => {
         await generator.createPermission({ scope: 'global', action: 'action2', object: 'object2' });
 
         const res = await request({
-            uri: '/permissions?query=global:action:object',
+            path: '/permissions?query=global:action:object',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Permission list', () => {
         await generator.createPermission({ description: 'zzz' });
 
         const res = await request({
-            uri: '/permissions?query=test',
+            path: '/permissions?query=test',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

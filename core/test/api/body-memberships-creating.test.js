@@ -30,7 +30,7 @@ describe('Body membership creating', () => {
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: 1337 }
@@ -51,7 +51,7 @@ describe('Body membership creating', () => {
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -76,7 +76,7 @@ describe('Body membership creating', () => {
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -114,7 +114,7 @@ describe('Body membership creating', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: otherUser.id }
@@ -133,7 +133,7 @@ describe('Body membership creating', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }

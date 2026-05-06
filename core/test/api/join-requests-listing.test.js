@@ -26,7 +26,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -56,7 +56,7 @@ describe('Join requests list', () => {
         await generator.createJoinRequest(body, thirdUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?limit=1&offset=1', // second one should be returned
+            path: '/bodies/' + body.id + '/join-requests?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -87,7 +87,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?sort=id&direction=desc', // second one should be returned
+            path: '/bodies/' + body.id + '/join-requests?sort=id&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Join requests list', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -137,7 +137,7 @@ describe('Join requests list', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -163,7 +163,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            path: '/bodies/' + body.id + '/join-requests?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -192,7 +192,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            path: '/bodies/' + body.id + '/join-requests?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -221,7 +221,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            path: '/bodies/' + body.id + '/join-requests?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -257,7 +257,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?status=approved',
+            path: '/bodies/' + body.id + '/join-requests?status=approved',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

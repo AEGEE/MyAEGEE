@@ -22,7 +22,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/active',
+            path: '/members/1337/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -41,7 +41,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/active',
+            path: '/members/' + user.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: 'aaa' }
@@ -61,7 +61,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'local', action: 'update_active', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/active',
+            path: '/members/' + user.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -79,7 +79,7 @@ describe('User activation', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/active',
+            path: '/members/' + user.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -104,7 +104,7 @@ describe('User activation', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -124,7 +124,7 @@ describe('User activation', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }

@@ -17,7 +17,7 @@ describe('API requests', () => {
 
     test('should fail if endpoint is not found', async () => {
         const res = await request({
-            uri: '/not-existant',
+            path: '/not-existant',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -33,7 +33,7 @@ describe('API requests', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/bodies',
+            path: '/bodies',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: 'garbage'

@@ -25,7 +25,7 @@ describe('Events application comments', () => {
         const application = await generator.createApplication(event);
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/comment',
+            path: '/single/' + event.id + '/applications/' + application.id + '/comment',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { board_comment: 'Not good.' }
@@ -44,7 +44,7 @@ describe('Events application comments', () => {
         await generator.createApplication(event);
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/1337/comment',
+            path: '/single/' + event.id + '/applications/1337/comment',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { board_comment: 'Not good.' }
@@ -63,7 +63,7 @@ describe('Events application comments', () => {
         await generator.createApplication(event);
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/false/comment',
+            path: '/single/' + event.id + '/applications/false/comment',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { board_comment: 'Not good.' }
@@ -83,7 +83,7 @@ describe('Events application comments', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id + '/comment',
+            path: '/single/' + event.id + '/applications/' + application.id + '/comment',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { board_comment: 'Not good.' }

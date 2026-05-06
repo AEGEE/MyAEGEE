@@ -32,7 +32,7 @@ describe('Applications status', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/status',
+            path: '/events/' + event.id + '/applications/me/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -49,7 +49,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -68,7 +68,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.statutory_id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.statutory_id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -89,7 +89,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -105,7 +105,7 @@ describe('Applications status', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/status',
+            path: '/events/' + event.id + '/applications/333/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -122,7 +122,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'lalala' }
@@ -139,7 +139,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'waiting_list' }
@@ -158,7 +158,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({ user_id: regularUser.id }, event);
 
         await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -167,7 +167,7 @@ describe('Applications status', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id,
+            path: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -190,7 +190,7 @@ describe('Applications status', () => {
         const application = await generator.createApplication({ user_id: regularUser.id }, event);
 
         await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
@@ -199,7 +199,7 @@ describe('Applications status', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const beforeRes = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id,
+            path: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -210,7 +210,7 @@ describe('Applications status', () => {
         mock.mockAll();
 
         const editRes = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -226,7 +226,7 @@ describe('Applications status', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const afterRes = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id,
+            path: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

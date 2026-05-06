@@ -19,7 +19,7 @@ describe('Categories listing', () => {
     test('should succeed and list categories', async () => {
         const category = await generator.createCategory();
         const res = await request({
-            uri: '/categories',
+            path: '/categories',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

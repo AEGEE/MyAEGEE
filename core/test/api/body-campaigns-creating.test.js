@@ -25,7 +25,7 @@ describe('Campaigns creating', () => {
         const campaign = generator.generateCampaign({ name: '' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: campaign
@@ -48,7 +48,7 @@ describe('Campaigns creating', () => {
         const campaign = generator.generateCampaign();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: campaign
@@ -71,7 +71,7 @@ describe('Campaigns creating', () => {
         const campaign = generator.generateCampaign({ body_id: 1337 });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: campaign
@@ -97,7 +97,7 @@ describe('Campaigns creating', () => {
         const campaign = generator.generateCampaign({ body_id: 1337 });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: campaign
@@ -118,7 +118,7 @@ describe('Campaigns creating', () => {
         const campaign = generator.generateCampaign({ body_id: 1337 });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: campaign

@@ -27,9 +27,9 @@ describe('Export Delegates JC', () => {
 
     test('should return nothing if no applications', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/delegates_jc',
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -44,9 +44,9 @@ describe('Export Delegates JC', () => {
         await generator.createApplication({ cancelled: false, status: 'rejected', user_id: 2 }, event);
         await generator.createApplication({ cancelled: false, status: 'accepted', participant_type: 'visitor', user_id: 3 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/delegates_jc',
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -59,9 +59,9 @@ describe('Export Delegates JC', () => {
     test('should return the application if it is not cancelled, accepted and a delegate', async () => {
         await generator.createApplication({ user_id: regularUser.id, status: 'accepted', participant_type: 'delegate', body_id: 34 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/delegates_jc',
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -76,9 +76,9 @@ describe('Export Delegates JC', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/delegates_jc',
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

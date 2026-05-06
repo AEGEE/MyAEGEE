@@ -28,7 +28,7 @@ describe('Board listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/boards',
+            path: '/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Board listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/bodies/1/boards/current',
+            path: '/bodies/1/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -54,7 +54,7 @@ describe('Board listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/boards/recents',
+            path: '/boards/recents',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -67,7 +67,7 @@ describe('Board listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/bodies/1/boards',
+            path: '/bodies/1/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -80,7 +80,7 @@ describe('Board listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/bodies/1/boards/current',
+            path: '/bodies/1/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -94,7 +94,7 @@ describe('Board listing', () => {
         await generator.createBoard();
 
         const res = await request({
-            uri: '/boards',
+            path: '/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -111,7 +111,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            uri: '/bodies/1/boards',
+            path: '/bodies/1/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -124,7 +124,7 @@ describe('Board listing', () => {
 
     test('should fail if body_id is not a number', async () => {
         const res = await request({
-            uri: 'bodies/NaN/boards',
+            path: 'bodies/NaN/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -139,7 +139,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            uri: 'bodies/1',
+            path: 'bodies/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -154,7 +154,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 1, start_date: faker.date.past(), end_date: faker.date.future() });
 
         const res = await request({
-            uri: '/bodies/1/boards/current',
+            path: '/bodies/1/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -169,7 +169,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 1, start_date: faker.date.past() });
 
         const res = await request({
-            uri: 'bodies/1/boards/current',
+            path: 'bodies/1/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -182,7 +182,7 @@ describe('Board listing', () => {
 
     test('should fail if body_id current board is not a number', async () => {
         const res = await request({
-            uri: 'bodies/NaN/boards/current',
+            path: 'bodies/NaN/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -197,7 +197,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 1, start_date: faker.date.future() });
 
         const res = await request({
-            uri: 'bodies/1/boards/current',
+            path: 'bodies/1/boards/current',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -220,7 +220,7 @@ describe('Board listing', () => {
         });
 
         const res = await request({
-            uri: '/boards?sort=start_date&direction=desc',
+            path: '/boards?sort=start_date&direction=desc',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -251,7 +251,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            uri: '/bodies/1/boards?sort=start_date&direction=desc',
+            path: '/bodies/1/boards?sort=start_date&direction=desc',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -277,7 +277,7 @@ describe('Board listing', () => {
         });
 
         const res = await request({
-            uri: '/boards/recents',
+            path: '/boards/recents',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -302,7 +302,7 @@ describe('Board listing', () => {
         const ends = moment().subtract(1, 'weeks').toISOString();
 
         const res = await request({
-            uri: '/boards/recents?ends=' + ends,
+            path: '/boards/recents?ends=' + ends,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

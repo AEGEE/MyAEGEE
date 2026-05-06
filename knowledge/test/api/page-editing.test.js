@@ -30,7 +30,7 @@ describe('Page editing', () => {
         const page = await generator.createPage({ chapter_id: chapter.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
+            path: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
@@ -46,7 +46,7 @@ describe('Page editing', () => {
         const page = await generator.createPage({ chapter_id: chapter.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
+            path: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
@@ -71,7 +71,7 @@ describe('Page editing', () => {
         const page = await generator.createPage({ chapter_id: chapter.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
+            path: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/' + page.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: null }
@@ -88,7 +88,7 @@ describe('Page editing', () => {
         const chapter = await generator.createChapter({ course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/1337',
+            path: '/courses/' + course.id + '/chapters/' + chapter.id + '/pages/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }

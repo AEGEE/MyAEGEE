@@ -22,24 +22,20 @@ const appendQuery = (url, query) => {
 };
 
 const request = async (options) => {
-    const parseJson = options.json !== false;
+    const responseType = options.responseType || 'json';
     const headers = { ...(options.headers || {}) };
     const fetchOptions = { method: options.method || 'GET', headers };
 
     if (options.body !== undefined) {
-        if (parseJson) {
-            headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-            fetchOptions.body = JSON.stringify(options.body);
-        } else {
-            fetchOptions.body = options.body;
-        }
+        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        fetchOptions.body = JSON.stringify(options.body);
     }
 
-    const response = await fetch(appendQuery(new URL(options.uri, baseUrl + '/').toString(), options.qs), fetchOptions);
+    const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
     const text = await response.text();
     let body = text;
 
-    if (parseJson && text) {
+    if (responseType === 'json' && text) {
         try {
             body = JSON.parse(text);
         } catch (err) { // eslint-disable-line no-unused-vars

@@ -37,12 +37,11 @@ describe('Export candidates', () => {
 
     test('should return nothing if no candidates', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: constants.CANDIDATE_FIELDS }
+            query: { select: constants.CANDIDATE_FIELDS }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -63,12 +62,11 @@ describe('Export candidates', () => {
         const candidate = await generator.createCandidate({}, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: ['id'] }
+            query: { select: ['id'] }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -85,12 +83,11 @@ describe('Export candidates', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: constants.CANDIDATE_FIELDS }
+            query: { select: constants.CANDIDATE_FIELDS }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -101,12 +98,11 @@ describe('Export candidates', () => {
         const candidate = await generator.createCandidate({ status: 'approved' }, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: ['id', 'status'] }
+            query: { select: ['id', 'status'] }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -134,12 +130,11 @@ describe('Export candidates', () => {
         await generator.createCandidate({ status: 'rejected' }, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: { select: constants.CANDIDATE_FIELDS, filter: {} }
+            query: { select: constants.CANDIDATE_FIELDS, filter: {} }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -157,12 +152,11 @@ describe('Export candidates', () => {
         await generator.createCandidate({ status: 'rejected' }, position);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/export',
+            path: '/events/' + event.id + '/positions/export',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            qs: {
+            query: {
                 select: constants.CANDIDATE_FIELDS,
                 filter: { status: 'approved' }
             }

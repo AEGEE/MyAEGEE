@@ -28,7 +28,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment({}, {}, { user_id: 1337 });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment
@@ -52,7 +52,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment
@@ -75,7 +75,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment
@@ -100,7 +100,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment
@@ -130,7 +130,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment
@@ -156,7 +156,7 @@ describe('Body payments creating', () => {
         const payment = generator.generatePayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: payment

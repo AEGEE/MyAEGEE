@@ -23,7 +23,7 @@ describe('Permissions deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'permission' });
 
         const res = await request({
-            uri: '/permissions/1337',
+            path: '/permissions/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -41,7 +41,7 @@ describe('Permissions deleting', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -61,7 +61,7 @@ describe('Permissions deleting', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

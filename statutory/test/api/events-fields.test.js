@@ -24,7 +24,7 @@ describe('Events fields', () => {
     test('should return all applications fields', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/events/' + event.id + '/fields/applications/all',
+            path: '/events/' + event.id + '/fields/applications/all',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -36,7 +36,7 @@ describe('Events fields', () => {
     test('should return all incoming fields', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/events/' + event.id + '/fields/applications/incoming',
+            path: '/events/' + event.id + '/fields/applications/incoming',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -48,7 +48,7 @@ describe('Events fields', () => {
     test('should return candidates fields', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/events/' + event.id + '/fields/candidates',
+            path: '/events/' + event.id + '/fields/candidates',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

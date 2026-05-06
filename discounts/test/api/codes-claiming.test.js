@@ -20,7 +20,7 @@ describe('Codes claiming', () => {
 
     test('should fail if the integration is not found', async () => {
         const res = await request({
-            uri: '/integrations/1337/claim',
+            path: '/integrations/1337/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Codes claiming', () => {
         await generator.createCode({ claimed_by: user.id }, integration);
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -60,7 +60,7 @@ describe('Codes claiming', () => {
         // no codes
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -81,7 +81,7 @@ describe('Codes claiming', () => {
         const code = await generator.createCode({}, integration);
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -109,7 +109,7 @@ describe('Codes claiming', () => {
         await generator.createCode({}, integration);
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -131,7 +131,7 @@ describe('Codes claiming', () => {
         await generator.createCode({}, integration);
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -153,7 +153,7 @@ describe('Codes claiming', () => {
         await generator.createCode({}, integration);
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/claim',
+            path: '/integrations/' + integration.id + '/claim',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

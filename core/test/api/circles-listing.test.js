@@ -22,7 +22,7 @@ describe('Circles list', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles',
+            path: '/circles',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -45,7 +45,7 @@ describe('Circles list', () => {
         await generator.createCircle();
 
         const res = await request({
-            uri: '/circles?limit=1&offset=1', // second one should be returned
+            path: '/circles?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -70,7 +70,7 @@ describe('Circles list', () => {
         const secondCircle = await generator.createCircle({ name: 'bbb' });
 
         const res = await request({
-            uri: '/circles?sort=name&direction=desc', // second one should be returned
+            path: '/circles?sort=name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -94,7 +94,7 @@ describe('Circles list', () => {
         await generator.createCircle({ name: 'bbb', description: 'zzz' });
 
         const res = await request({
-            uri: '/circles?query=aaa',
+            path: '/circles?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Circles list', () => {
         await generator.createCircle({ name: 'zzz', description: 'bbb' });
 
         const res = await request({
-            uri: '/circles?query=aaa',
+            path: '/circles?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -138,7 +138,7 @@ describe('Circles list', () => {
         await generator.createCircle({ body_id: body.id });
 
         const res = await request({
-            uri: '/circles',
+            path: '/circles',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -158,7 +158,7 @@ describe('Circles list', () => {
         const circle = await generator.createCircle({ body_id: body.id });
 
         const res = await request({
-            uri: '/circles?all=true',
+            path: '/circles?all=true',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

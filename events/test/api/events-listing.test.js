@@ -29,7 +29,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'draft' });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET'
         });
 
@@ -62,7 +62,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'draft' });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -93,7 +93,7 @@ describe('Events listing', () => {
 
     it('should use the default limit if limit is NaN', async () => {
         const res = await request({
-            uri: '/?limit=nan',
+            path: '/?limit=nan',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -111,7 +111,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/?limit=-1',
+            path: '/?limit=-1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -130,7 +130,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/?limit=1',
+            path: '/?limit=1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -146,7 +146,7 @@ describe('Events listing', () => {
 
     it('should use the default offset if offset is NaN', async () => {
         const res = await request({
-            uri: '/?offset=nan',
+            path: '/?offset=nan',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -162,7 +162,7 @@ describe('Events listing', () => {
 
     it('should use the default offset if offset is < 0', async () => {
         const res = await request({
-            uri: '/?offset=-1',
+            path: '/?offset=-1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -181,7 +181,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/?offset=100',
+            path: '/?offset=100',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -200,7 +200,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
-            uri: '/?type[]=training',
+            path: '/?type[]=training',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -218,7 +218,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
-            uri: '/?type=training',
+            path: '/?type=training',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -248,7 +248,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?starts=' + moment().format('YYYY-MM-DD'),
+            path: '/?starts=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -279,7 +279,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?ends=' + moment().format('YYYY-MM-DD'),
+            path: '/?ends=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -299,7 +299,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?search=nwm',
+            path: '/?search=nwm',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -320,7 +320,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?search=action agenda',
+            path: '/?search=action agenda',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -358,7 +358,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -395,7 +395,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/recents',
+            path: '/recents',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -430,7 +430,7 @@ describe('Events listing', () => {
         const ends = moment().subtract(10, 'days').toISOString();
 
         const res = await request({
-            uri: '/recents?ends=' + ends,
+            path: '/recents?ends=' + ends,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -463,7 +463,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/recents',
+            path: '/recents',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

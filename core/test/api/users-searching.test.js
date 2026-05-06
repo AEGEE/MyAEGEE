@@ -20,7 +20,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members_search',
+            path: '/members_search',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -38,7 +38,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
         const res = await request({
-            uri: '/members_search',
+            path: '/members_search',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -62,7 +62,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
         const res = await request({
-            uri: '/members_search?limit=1&offset=1', // second one should be returned
+            path: '/members_search?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -92,7 +92,7 @@ describe('Users list', () => {
         const secondUser = await generator.createUser({ first_name: 'bbb' });
 
         const res = await request({
-            uri: '/members_search?sort=first_name&direction=desc', // second one should be returned
+            path: '/members_search?sort=first_name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members_search?query=aaa',
+            path: '/members_search?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -138,7 +138,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members_search?query=aaa',
+            path: '/members_search?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -160,7 +160,7 @@ describe('Users list', () => {
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
 
         const res = await request({
-            uri: '/members_search?query=aaa',
+            path: '/members_search?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -181,7 +181,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
         const res = await request({
-            uri: '/members_search',
+            path: '/members_search',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -211,7 +211,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
         const res = await request({
-            uri: '/members_search',
+            path: '/members_search',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -247,7 +247,7 @@ describe('Users list', () => {
         const memberNotInBody = await generator.createUser();
 
         const res = await request({
-            uri: '/members_search?body_id=' + body.id,
+            path: '/members_search?body_id=' + body.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -278,7 +278,7 @@ describe('Users list', () => {
         const memberNotInAnyBody = await generator.createUser();
 
         const res = await request({
-            uri: '/members_search?body_id=' + body1.id + ',' + body2.id,
+            path: '/members_search?body_id=' + body1.id + ',' + body2.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -305,7 +305,7 @@ describe('Users list', () => {
         await generator.createBodyMembership(body2, memberInBothBodies);
 
         const res = await request({
-            uri: '/members_search?body_id=' + body1.id + ',' + body2.id,
+            path: '/members_search?body_id=' + body1.id + ',' + body2.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -331,7 +331,7 @@ describe('Users list', () => {
         await generator.createBodyMembership(body, nonMatchingMember);
 
         const res = await request({
-            uri: '/members_search?body_id=' + body.id + '&query=TestSearchName',
+            path: '/members_search?body_id=' + body.id + '&query=TestSearchName',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -350,7 +350,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
         const res = await request({
-            uri: '/members_search?body_id=invalid,nonsense',
+            path: '/members_search?body_id=invalid,nonsense',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

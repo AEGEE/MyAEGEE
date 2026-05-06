@@ -24,7 +24,7 @@ describe('Pax limits defaults', () => {
 
     test('should display default limits', async () => {
         const res = await request({
-            uri: '/limits/agora/defaults',
+            path: '/limits/agora/defaults',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Pax limits defaults', () => {
 
     test('should return 404 if defaults receives a body id', async () => {
         const res = await request({
-            uri: '/limits/agora/defaults/' + bodies[0].id,
+            path: '/limits/agora/defaults/' + bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -54,7 +54,7 @@ describe('Pax limits defaults', () => {
 
     test('should return 400 if the event type is invalid', async () => {
         const res = await request({
-            uri: '/limits/invalid/defaults',
+            path: '/limits/invalid/defaults',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -68,7 +68,7 @@ describe('Pax limits defaults', () => {
     test('should return an error if the default request returns net error', async () => {
         mock.mockAll({ bodies: { netError: true } });
         const res = await request({
-            uri: '/limits/agora/defaults',
+            path: '/limits/agora/defaults',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -82,7 +82,7 @@ describe('Pax limits defaults', () => {
     test('should return an error if the default request returns malformed response', async () => {
         mock.mockAll({ bodies: { badResponse: true } });
         const res = await request({
-            uri: '/limits/agora/defaults',
+            path: '/limits/agora/defaults',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -96,7 +96,7 @@ describe('Pax limits defaults', () => {
     test('should return an error if the default request returns unsuccessful response', async () => {
         mock.mockAll({ bodies: { unsuccessfulResponse: true } });
         const res = await request({
-            uri: '/limits/agora/defaults',
+            path: '/limits/agora/defaults',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

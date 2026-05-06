@@ -29,7 +29,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: 1337 }
@@ -52,7 +52,7 @@ describe('Plenary attendance marking', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -68,7 +68,7 @@ describe('Plenary attendance marking', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/1337/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/1337/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: 1337 }
@@ -84,7 +84,7 @@ describe('Plenary attendance marking', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/NaN/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/NaN/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: 1337 }
@@ -101,7 +101,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: 1337 }
@@ -122,7 +122,7 @@ describe('Plenary attendance marking', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -146,7 +146,7 @@ describe('Plenary attendance marking', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -167,7 +167,7 @@ describe('Plenary attendance marking', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -202,7 +202,7 @@ describe('Plenary attendance marking', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -237,7 +237,7 @@ describe('Plenary attendance marking', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -274,7 +274,7 @@ describe('Plenary attendance marking', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.id }
@@ -296,7 +296,7 @@ describe('Plenary attendance marking', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { application_id: application.statutory_id }

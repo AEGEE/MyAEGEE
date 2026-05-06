@@ -31,7 +31,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -61,10 +61,9 @@ describe('Plenaries exports', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -88,10 +87,9 @@ describe('Plenaries exports', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -141,10 +139,9 @@ describe('Plenaries exports', () => {
         }, plenary);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -190,10 +187,9 @@ describe('Plenaries exports', () => {
         }, plenary);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -229,10 +225,9 @@ describe('Plenaries exports', () => {
         }, plenary);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -298,10 +293,9 @@ describe('Plenaries exports', () => {
         // total: 1 + 3 + 1 = 5 minutes
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -364,10 +358,9 @@ describe('Plenaries exports', () => {
         // total: 66.67%
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -457,10 +450,9 @@ describe('Plenaries exports', () => {
         }, thirdPlenary);
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -492,10 +484,9 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -516,10 +507,9 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/stats',
+            path: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
-            json: false,
-            encoding: null, // make response body to Buffer.
+            responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

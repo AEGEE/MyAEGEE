@@ -24,7 +24,7 @@ describe('Circle memberships creating', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: 'lalala' }
@@ -45,7 +45,7 @@ describe('Circle memberships creating', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: 1337 }
@@ -68,7 +68,7 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -92,7 +92,7 @@ describe('Circle memberships creating', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -112,7 +112,7 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -134,7 +134,7 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }
@@ -163,7 +163,7 @@ describe('Circle memberships creating', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { user_id: user.id }

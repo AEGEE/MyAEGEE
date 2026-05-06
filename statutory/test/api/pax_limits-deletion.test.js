@@ -26,7 +26,7 @@ describe('Pax limits deletion', () => {
         await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -39,7 +39,7 @@ describe('Pax limits deletion', () => {
 
     test('should not allow deleting limit when there\'s no limit', async () => {
         const res = await request({
-            uri: '/limits/agora/1337',
+            path: '/limits/agora/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -53,7 +53,7 @@ describe('Pax limits deletion', () => {
         await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/invalid/' + bodies[0].id,
+            path: '/limits/invalid/' + bodies[0].id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -66,7 +66,7 @@ describe('Pax limits deletion', () => {
 
     test('should return 400 if the body_id is invalid', async () => {
         const res = await request({
-            uri: '/limits/agora/invalid',
+            path: '/limits/agora/invalid',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -82,7 +82,7 @@ describe('Pax limits deletion', () => {
         await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora' });
 
         const res = await request({
-            uri: '/limits/agora/' + bodies[0].id,
+            path: '/limits/agora/' + bodies[0].id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

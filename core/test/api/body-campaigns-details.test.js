@@ -21,7 +21,7 @@ describe('Body campaign details', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/1337',
+            path: '/bodies/' + body.id + '/campaigns/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -38,7 +38,7 @@ describe('Body campaign details', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/xxx',
+            path: '/bodies/' + body.id + '/campaigns/xxx',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -58,7 +58,7 @@ describe('Body campaign details', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: otherBody.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -79,7 +79,7 @@ describe('Body campaign details', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -104,7 +104,7 @@ describe('Body campaign details', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -124,7 +124,7 @@ describe('Body campaign details', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

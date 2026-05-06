@@ -15,7 +15,7 @@ describe('API requests', () => {
 
     test('should fail if X-Auth-Token is not specified', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET'
         });
 
@@ -27,7 +27,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -42,7 +42,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -57,7 +57,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { unauthorized: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -72,7 +72,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -87,7 +87,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -102,7 +102,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { unauthorized: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -115,7 +115,7 @@ describe('API requests', () => {
 
     test('should fail if body is not JSON', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: {
                 'X-Auth-Token': 'blablabla',
@@ -130,7 +130,7 @@ describe('API requests', () => {
 
     test('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
-            uri: '/nonexistant',
+            path: '/nonexistant',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

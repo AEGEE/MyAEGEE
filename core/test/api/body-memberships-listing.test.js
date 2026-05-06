@@ -25,7 +25,7 @@ describe('Body memberships list', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -55,7 +55,7 @@ describe('Body memberships list', () => {
         await generator.createBodyMembership(body, thirdUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members?limit=1&offset=1', // second one should be returned
+            path: '/bodies/' + body.id + '/members?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -86,7 +86,7 @@ describe('Body memberships list', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members?sort=id&direction=desc', // second one should be returned
+            path: '/bodies/' + body.id + '/members?sort=id&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -115,7 +115,7 @@ describe('Body memberships list', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -134,7 +134,7 @@ describe('Body memberships list', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -167,7 +167,7 @@ describe('Body memberships list', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members?query=aaa',
+            path: '/bodies/' + body.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -203,7 +203,7 @@ describe('Body memberships list', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members?query=aaa',
+            path: '/bodies/' + body.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -239,7 +239,7 @@ describe('Body memberships list', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members?query=aaa',
+            path: '/bodies/' + body.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

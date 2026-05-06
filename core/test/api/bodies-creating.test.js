@@ -24,7 +24,7 @@ describe('Bodies creating', () => {
         const body = generator.generateBody({ code: null });
 
         const res = await request({
-            uri: '/bodies/',
+            path: '/bodies/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body
@@ -44,7 +44,7 @@ describe('Bodies creating', () => {
         const body = generator.generateBody();
 
         const res = await request({
-            uri: '/bodies/',
+            path: '/bodies/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body
@@ -65,7 +65,7 @@ describe('Bodies creating', () => {
         const body = generator.generateBody();
 
         const res = await request({
-            uri: '/bodies/',
+            path: '/bodies/',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body
@@ -88,7 +88,7 @@ describe('Bodies creating', () => {
             const body = generator.generateBody({ type, founded_at: null });
 
             const res = await request({
-                uri: '/bodies/',
+                path: '/bodies/',
                 method: 'POST',
                 headers: { 'X-Auth-Token': token.value },
                 body
@@ -112,7 +112,7 @@ describe('Bodies creating', () => {
             const body = generator.generateBody({ type, founded_at: null });
 
             const res = await request({
-                uri: '/bodies/',
+                path: '/bodies/',
                 method: 'POST',
                 headers: { 'X-Auth-Token': token.value },
                 body

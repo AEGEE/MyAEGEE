@@ -18,7 +18,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -33,7 +33,7 @@ describe('API requests', () => {
         mock.mockAll({ core: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -48,7 +48,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { netError: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -63,7 +63,7 @@ describe('API requests', () => {
         mock.mockAll({ mainPermissions: { badResponse: true } });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -80,7 +80,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -97,7 +97,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -114,7 +114,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -131,7 +131,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -148,7 +148,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -165,7 +165,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -181,7 +181,7 @@ describe('API requests', () => {
         const event = await generator.createEvent({});
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -198,7 +198,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -215,7 +215,7 @@ describe('API requests', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -231,7 +231,7 @@ describe('API requests', () => {
         const event = await generator.createEvent({});
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -244,7 +244,7 @@ describe('API requests', () => {
 
     test('should fail if body is not JSON', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: {
                 'X-Auth-Token': 'blablabla',
@@ -259,7 +259,7 @@ describe('API requests', () => {
 
     test('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
-            uri: '/nonexistant',
+            path: '/nonexistant',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
