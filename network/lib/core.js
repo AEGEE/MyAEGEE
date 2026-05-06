@@ -11,8 +11,6 @@ module.exports.getMyProfile = async (req) => {
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'network'
         },
-        simple: false,
-        json: true,
     });
 
     return myProfileBody;
@@ -27,8 +25,6 @@ module.exports.getMyPermissions = async (req) => {
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'network'
         },
-        simple: false,
-        json: true,
     });
 
     return permissionsBody;
@@ -43,9 +39,7 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'network'
         },
-        simple: false,
-        json: true,
-        resolveWithFullResponse: options.resolveWithFullResponse || false
+        fullResponse: options.fullResponse || false
     };
 
     if (options.body) {

@@ -14,8 +14,6 @@ module.exports.sendMail = async (options) => {
     const mailerBody = await request({
         url: config.mailer.url + ':' + config.mailer.port + '/',
         method: 'POST',
-        simple: false,
-        json: true,
         body: {
             from: options.from,
             to: options.to,

@@ -28,13 +28,11 @@ exports.authenticateUser = async (req, res, next) => {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
-        simple: false,
-        json: true,
         body: {
             action: 'manage_network',
             object: 'boards'
         },
-        resolveWithFullResponse: true
+        fullResponse: true
     });
 
     req.manageRequest = manageRequest;

@@ -114,9 +114,7 @@ MembersList.beforeSave(async (memberslist, options) => {
 
     const conversion = await request({
         url: constants.CONVERSION_RATE_API.host + constants.CONVERSION_RATE_API.path,
-        method: 'GET',
-        simple: false,
-        json: true
+        method: 'GET'
     });
 
     if (typeof conversion !== 'object') {

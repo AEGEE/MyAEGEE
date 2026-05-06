@@ -1,9 +1,5 @@
-const parseBody = async (response, parseJson) => {
+const parseBody = async (response) => {
     const text = await response.text();
-
-    if (!parseJson) {
-        return text;
-    }
 
     if (!text) {
         return null;
@@ -38,7 +34,6 @@ const appendQuery = (url, query) => {
 };
 
 module.exports.request = async (options) => {
-    const parseJson = options.json !== false;
     const headers = { ...(options.headers || {}) };
     const fetchOptions = {
         method: options.method || 'GET',
@@ -47,13 +42,13 @@ module.exports.request = async (options) => {
 
     if (options.body !== undefined) {
         headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-        fetchOptions.body = parseJson ? JSON.stringify(options.body) : options.body;
+        fetchOptions.body = JSON.stringify(options.body);
     }
 
     const response = await fetch(appendQuery(options.url, options.qs), fetchOptions);
-    const body = await parseBody(response, parseJson);
+    const body = await parseBody(response);
 
-    if (options.resolveWithFullResponse) {
+    if (options.fullResponse) {
         return {
             statusCode: response.status,
             statusMessage: response.statusText,

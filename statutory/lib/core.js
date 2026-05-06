@@ -11,9 +11,7 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'statutory'
         },
-        simple: false,
-        json: true,
-        resolveWithFullResponse: options.resolveWithFullResponse || false
+        fullResponse: options.fullResponse || false
     };
 
     if (options.body) {
@@ -69,7 +67,7 @@ const getApprovePermissions = async (req, event) => {
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'POST',
         token: req.headers['x-auth-token'],
-        resolveWithFullResponse: true,
+        fullResponse: true,
         body: {
             action: 'approve_members',
             object: event.type
@@ -86,7 +84,7 @@ const getMemberslistPermissions = async (req, event) => {
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'POST',
         token: req.headers['x-auth-token'],
-        resolveWithFullResponse: true,
+        fullResponse: true,
         body: {
             action: 'manage_memberslist',
             object: event.type
@@ -110,7 +108,7 @@ const getMyProfile = async (req) => {
         url: config.core.url + ':' + config.core.port + '/members/me',
         method: 'GET',
         token: req.headers['x-auth-token'],
-        resolveWithFullResponse: true
+        fullResponse: true
     });
 
     return myProfileBody;
@@ -121,7 +119,7 @@ const getMyPermissions = async (req) => {
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'GET',
         token: req.headers['x-auth-token'],
-        resolveWithFullResponse: true
+        fullResponse: true
     });
 
     return permissionsBody;

@@ -347,7 +347,6 @@ exports.subscribeListserv = async (req, res) => {
         await request({
             url: config.listserv_endpoint,
             method: 'POST',
-            simple: false,
             form: {
                 token: config.listserv_token,
                 email: req.user.notification_email,
