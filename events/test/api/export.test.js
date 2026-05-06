@@ -28,8 +28,7 @@ describe('Export all', () => {
         const res = await request({
             path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            responseType: 'text',
-            responseType: 'buffer', // make response body to Buffer.
+            responseType: 'buffer',
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
@@ -61,8 +60,7 @@ describe('Export all', () => {
         const res = await request({
             path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            responseType: 'text',
-            responseType: 'buffer', // make response body to Buffer.
+            responseType: 'buffer',
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
@@ -95,8 +93,7 @@ describe('Export all', () => {
         const res = await request({
             path: '/single/' + event.id + '/applications/export',
             method: 'GET',
-            responseType: 'text',
-            responseType: 'buffer', // make response body to Buffer.
+            responseType: 'buffer',
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' }
         });
 
