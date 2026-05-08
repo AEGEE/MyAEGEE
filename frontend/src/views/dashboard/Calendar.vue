@@ -30,7 +30,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import ical from 'ical'
+import ical from 'ical/ical'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import constants from '../../constants'

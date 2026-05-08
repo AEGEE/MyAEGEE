@@ -18,11 +18,6 @@ module.exports = {
         'vuex-store': path.resolve(__dirname, 'src/store'),
       },
     },
-    // so it'd work with Webpack 4, which doesn't like [contenthash], which is there by default
-    output: {
-      filename: '[name].[hash].js',
-      chunkFilename: '[name].[hash].js',
-    },
   },
 };
 
@@ -30,7 +25,10 @@ if (process.env.NODE_ENV === 'production') {
   const CompressionPlugin = require('compression-webpack-plugin');
 
   module.exports.configureWebpack.plugins = [
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
+    }),
     new CompressionPlugin({
       algorithm: require('@gfx/zopfli').gzip,
       compressionOptions: {
