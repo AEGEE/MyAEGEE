@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const { request } = require('./http');
 
 const config = require('../config');
 
@@ -11,9 +11,7 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'events'
         },
-        simple: false,
-        json: true,
-        resolveWithFullResponse: options.resolveWithFullResponse || false
+        fullResponse: options.fullResponse || false
     };
 
     if (options.body) {

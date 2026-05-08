@@ -24,7 +24,7 @@ describe('Integrations codes population', () => {
         const integration = await generator.createIntegration({ code: 'first' });
 
         const res = await request({
-            uri: '/integrations/' + integration.id + '/codes',
+            path: '/integrations/' + integration.id + '/codes',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: ['first', 'second', 'third']
@@ -37,7 +37,7 @@ describe('Integrations codes population', () => {
     test('should succeed if everything is okay', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id + '/codes',
+            path: '/integrations/' + integration.id + '/codes',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: ['first', 'second', 'third']
@@ -55,7 +55,7 @@ describe('Integrations codes population', () => {
     test('should fail if body is not an array', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id + '/codes',
+            path: '/integrations/' + integration.id + '/codes',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -70,7 +70,7 @@ describe('Integrations codes population', () => {
     test('should fail if body is empty array', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id + '/codes',
+            path: '/integrations/' + integration.id + '/codes',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: []

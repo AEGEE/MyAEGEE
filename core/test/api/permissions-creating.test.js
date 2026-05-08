@@ -24,7 +24,7 @@ describe('Permissions creating', () => {
         const permission = generator.generatePermission({ scope: '' });
 
         const res = await request({
-            uri: '/permissions',
+            path: '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: permission
@@ -44,7 +44,7 @@ describe('Permissions creating', () => {
         const permission = generator.generatePermission();
 
         const res = await request({
-            uri: '/permissions',
+            path: '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: permission
@@ -65,7 +65,7 @@ describe('Permissions creating', () => {
         const permission = generator.generatePermission();
 
         const res = await request({
-            uri: '/permissions',
+            path: '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: permission

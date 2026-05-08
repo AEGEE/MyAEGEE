@@ -20,7 +20,7 @@ describe('Permission details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/permissions/1337',
+            path: '/permissions/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -36,7 +36,7 @@ describe('Permission details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/permissions/xxx',
+            path: '/permissions/xxx',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -54,7 +54,7 @@ describe('Permission details', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id,
+            path: '/permissions/' + permission.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -39,7 +39,7 @@ describe('Events application editing', () => {
         await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { body_id: user.bodies[0].id }
@@ -75,7 +75,7 @@ describe('Events application editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id,
+            path: '/single/' + event.id + '/applications/' + application.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { answers: [2] }
@@ -115,7 +115,7 @@ describe('Events application editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { answers: [2] }
@@ -155,7 +155,7 @@ describe('Events application editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { body_id: user.bodies[1].id }
@@ -196,7 +196,7 @@ describe('Events application editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'PUT',
             body: { body_id: 1337 }

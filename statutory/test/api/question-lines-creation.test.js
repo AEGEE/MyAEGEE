@@ -26,7 +26,7 @@ describe('Question line creation', () => {
         const questionLine = generator.generateQuestionLine({ name: null });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/',
+            path: '/events/' + event.id + '/question-lines/',
             method: 'POST',
             body: questionLine,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Question line creation', () => {
         const questionLine = generator.generateQuestionLine({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/',
+            path: '/events/' + event.id + '/question-lines/',
             method: 'POST',
             body: questionLine,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -63,7 +63,7 @@ describe('Question line creation', () => {
         const questionLine = generator.generateQuestionLine({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/',
+            path: '/events/' + event.id + '/question-lines/',
             method: 'POST',
             body: questionLine,
             headers: { 'X-Auth-Token': 'blablabla' }

@@ -35,7 +35,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -56,7 +56,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[1].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[1].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -77,7 +77,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -97,7 +97,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -117,7 +117,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -144,7 +144,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -164,7 +164,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -184,7 +184,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -209,7 +209,7 @@ describe('Memberslist uploading', () => {
             ends: moment().subtract(1, 'days')
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -241,7 +241,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -273,7 +273,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -305,7 +305,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -337,7 +337,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -372,7 +372,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -396,7 +396,7 @@ describe('Memberslist uploading', () => {
         body.fee_paid = 1300;
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -427,7 +427,7 @@ describe('Memberslist uploading', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -458,7 +458,7 @@ describe('Memberslist uploading', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body
@@ -480,7 +480,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(2, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -501,7 +501,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -521,7 +521,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -541,7 +541,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -559,7 +559,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/invalid',
+            path: '/events/' + event.id + '/memberslists/invalid',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -577,7 +577,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ currency: null }, event)
@@ -598,7 +598,7 @@ describe('Memberslist uploading', () => {
         delete membersList.members;
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: membersList
@@ -616,7 +616,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: 'test' }, event)
@@ -634,7 +634,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [] }, event)
@@ -652,7 +652,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -672,7 +672,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -692,7 +692,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -712,7 +712,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -732,7 +732,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -752,7 +752,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -772,7 +772,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -792,7 +792,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -812,7 +812,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -832,7 +832,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -852,7 +852,7 @@ describe('Memberslist uploading', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -878,7 +878,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -919,7 +919,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({}, event)
@@ -943,7 +943,7 @@ describe('Memberslist uploading', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
@@ -971,7 +971,7 @@ describe('Memberslist uploading', () => {
             expect(application.is_on_memberslist).toEqual(false);
 
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({
@@ -1002,7 +1002,7 @@ describe('Memberslist uploading', () => {
             expect(application.is_on_memberslist).toEqual(false);
 
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({
@@ -1045,7 +1045,7 @@ describe('Memberslist uploading', () => {
             expect(application.is_on_memberslist).toEqual(true);
 
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({
@@ -1074,7 +1074,7 @@ describe('Memberslist uploading', () => {
                 application_period_ends: moment().add(1, 'week').toDate()
             });
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({ currency: 'HU' }, event)
@@ -1097,7 +1097,7 @@ describe('Memberslist uploading', () => {
 
             // EU is BE in the conversion rate API.
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({ currency: 'EU' }, event)
@@ -1120,7 +1120,7 @@ describe('Memberslist uploading', () => {
 
             // EU is BE in the conversion rate API.
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({ currency: 'TEST' }, event)
@@ -1143,7 +1143,7 @@ describe('Memberslist uploading', () => {
 
             // EU is BE in the conversion rate API.
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({ currency: 'HU' }, event)
@@ -1166,7 +1166,7 @@ describe('Memberslist uploading', () => {
 
             // EU is BE in the conversion rate API.
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({ currency: 'HU' }, event)

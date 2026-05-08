@@ -27,9 +27,9 @@ describe('Export OpenSlides', () => {
 
     test('should return nothing if no applications', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/openslides',
+            path: '/events/' + event.id + '/applications/export/openslides',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -43,9 +43,9 @@ describe('Export OpenSlides', () => {
         await generator.createApplication({ cancelled: true, status: 'accepted', user_id: 1 }, event);
         await generator.createApplication({ cancelled: false, status: 'rejected', user_id: 2 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/openslides',
+            path: '/events/' + event.id + '/applications/export/openslides',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -58,9 +58,9 @@ describe('Export OpenSlides', () => {
     test('should return the application if there are not cancelled and accepted application', async () => {
         await generator.createApplication({ user_id: regularUser.id, status: 'accepted' }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/openslides',
+            path: '/events/' + event.id + '/applications/export/openslides',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -75,9 +75,9 @@ describe('Export OpenSlides', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/export/openslides',
+            path: '/events/' + event.id + '/applications/export/openslides',
             method: 'GET',
-            json: false,
+            responseType: 'text',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

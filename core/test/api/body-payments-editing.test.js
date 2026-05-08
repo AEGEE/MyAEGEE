@@ -26,7 +26,7 @@ describe('Body payments editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'payment' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/1337',
+            path: '/bodies/' + body.id + '/payments/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -49,7 +49,7 @@ describe('Body payments editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'payment' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/lalala',
+            path: '/bodies/' + body.id + '/payments/lalala',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -72,7 +72,7 @@ describe('Body payments editing', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -97,7 +97,7 @@ describe('Body payments editing', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -127,7 +127,7 @@ describe('Body payments editing', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -153,7 +153,7 @@ describe('Body payments editing', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: -1 }
@@ -179,7 +179,7 @@ describe('Body payments editing', () => {
         const payment = await generator.createPayment(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments/' + payment.id,
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { body_id: 1337, user_id: 1337 }

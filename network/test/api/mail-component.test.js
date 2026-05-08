@@ -25,7 +25,7 @@ describe('MailComponent', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/mailComponent/1',
+            path: '/mailComponent/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -39,7 +39,7 @@ describe('MailComponent', () => {
         await generator.createMailComponent({ agora_id: 1, mail_component: 'communication' });
 
         const res = await request({
-            uri: '/mailComponent/1',
+            path: '/mailComponent/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -56,7 +56,7 @@ describe('MailComponent', () => {
         await generator.createMailComponent({ agora_id: 2, mail_component: 'board election' });
 
         const res = await request({
-            uri: '/mailComponent/1',
+            path: '/mailComponent/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -73,7 +73,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent();
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -87,7 +87,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent({ agora_id: null });
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -104,7 +104,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent({ mail_component: null });
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -121,7 +121,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent({ mail_component: 'blabla' });
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -136,7 +136,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent({ text: null });
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -153,7 +153,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent();
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -173,7 +173,7 @@ describe('MailComponent', () => {
         const component = generator.generateMailComponent({ agora_id: 1, mail_component: 'introduction', text: 'Goodbye!' });
 
         const res = await request({
-            uri: '/mailComponent',
+            path: '/mailComponent',
             method: 'PUT',
             body: component,
             headers: { 'X-Auth-Token': 'blablabla' }

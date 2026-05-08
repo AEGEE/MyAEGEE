@@ -25,7 +25,7 @@ describe('My permissions global', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -48,7 +48,7 @@ describe('My permissions global', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -73,7 +73,7 @@ describe('My permissions global', () => {
         await generator.createCircleMembership(thirdCircle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -95,7 +95,7 @@ describe('My permissions global', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -116,7 +116,7 @@ describe('My permissions global', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

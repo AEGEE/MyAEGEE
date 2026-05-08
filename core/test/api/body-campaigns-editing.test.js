@@ -23,7 +23,7 @@ describe('Body campaign editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/1337',
+            path: '/bodies/' + body.id + '/campaigns/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -45,7 +45,7 @@ describe('Body campaign editing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: '' }
@@ -68,7 +68,7 @@ describe('Body campaign editing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -94,7 +94,7 @@ describe('Body campaign editing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -115,7 +115,7 @@ describe('Body campaign editing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            path: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

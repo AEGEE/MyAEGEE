@@ -36,7 +36,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -59,7 +59,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -82,7 +82,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/1337/candidates',
+            path: '/events/' + event.id + '/positions/1337/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -105,7 +105,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/false/candidates',
+            path: '/events/' + event.id + '/positions/false/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -128,7 +128,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: 1337 });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -155,7 +155,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -179,7 +179,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -206,7 +206,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -236,7 +236,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id, user_id: regularUser.id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -264,7 +264,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id, user_id: regularUser.id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -312,7 +312,7 @@ describe('Candidates submission', () => {
             candidate[field] = null;
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+                path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
                 method: 'POST',
                 body: candidate,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -344,7 +344,7 @@ describe('Candidates submission', () => {
             candidate[field] = false;
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+                path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
                 method: 'POST',
                 body: candidate,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -369,7 +369,7 @@ describe('Candidates submission', () => {
             candidate[field] = 'test string';
 
             const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+                path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
                 method: 'POST',
                 body: candidate,
                 headers: { 'X-Auth-Token': 'blablabla' }
@@ -397,7 +397,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -424,7 +424,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -451,7 +451,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -478,7 +478,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -505,7 +505,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -532,7 +532,7 @@ describe('Candidates submission', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }

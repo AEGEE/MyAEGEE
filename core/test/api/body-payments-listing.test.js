@@ -25,7 +25,7 @@ describe('Body payments list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'payment' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -55,7 +55,7 @@ describe('Body payments list', () => {
         await generator.createPayment(body, thirdUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments?limit=1&offset=1', // second one should be returned
+            path: '/bodies/' + body.id + '/payments?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -86,7 +86,7 @@ describe('Body payments list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'payment' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments?sort=id&direction=desc', // second one should be returned
+            path: '/bodies/' + body.id + '/payments?sort=id&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -115,7 +115,7 @@ describe('Body payments list', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -136,7 +136,7 @@ describe('Body payments list', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/payments',
+            path: '/bodies/' + body.id + '/payments',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

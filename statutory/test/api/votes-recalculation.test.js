@@ -67,7 +67,7 @@ describe('Votes per antenna/delegate recalculation', () => {
 
             // to recalculate votes amount for antenna
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: memberslist
@@ -107,7 +107,7 @@ describe('Votes per antenna/delegate recalculation', () => {
             expect(votesInDb[0].votes).toEqual(5);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
+                path: '/events/' + event.id + '/applications/' + application.id + '/registered',
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: { registered: true }
@@ -153,7 +153,7 @@ describe('Votes per antenna/delegate recalculation', () => {
             expect(votesInDb.length).toEqual(2);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
+                path: '/events/' + event.id + '/applications/' + application.id + '/departed',
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: { departed: true }
@@ -208,7 +208,7 @@ describe('Votes per antenna/delegate recalculation', () => {
 
             // to recalculate votes amount for antenna
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: memberslist

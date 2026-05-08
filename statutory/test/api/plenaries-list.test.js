@@ -25,7 +25,7 @@ describe('Plenaries listing', () => {
         const event = await generator.createEvent({ type: 'epm', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Plenaries listing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -60,7 +60,7 @@ describe('Plenaries listing', () => {
         await generator.createPlenary({}, secondEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/plenaries/',
+            path: '/events/' + firstEvent.id + '/plenaries/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -80,7 +80,7 @@ describe('Plenaries listing', () => {
         const secondPlenary = await generator.createPlenary({}, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/plenaries/',
+            path: '/events/' + firstEvent.id + '/plenaries/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

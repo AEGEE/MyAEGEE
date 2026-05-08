@@ -28,7 +28,7 @@ describe('Course deleting', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id,
+            path: '/courses/' + course.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Course deleting', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id,
+            path: '/courses/' + course.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -58,7 +58,7 @@ describe('Course deleting', () => {
 
     test('should fail if course is not found', async () => {
         const res = await request({
-            uri: '/courses/1337',
+            path: '/courses/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

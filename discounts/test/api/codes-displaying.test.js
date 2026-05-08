@@ -24,7 +24,7 @@ describe('Codes displaying', () => {
         const code = await generator.createCode({ claimed_by: user.id }, integration);
 
         const res = await request({
-            uri: '/codes/mine',
+            path: '/codes/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -46,7 +46,7 @@ describe('Codes displaying', () => {
         await generator.createCode({ claimed_by: 1337 }, integration);
 
         const res = await request({
-            uri: '/codes/mine',
+            path: '/codes/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

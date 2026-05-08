@@ -21,7 +21,7 @@ describe('Events application info', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
         });
 
@@ -44,7 +44,7 @@ describe('Events application info', () => {
         const application = await generator.createApplication(event, { user_id: 1337 });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id,
+            path: '/single/' + event.id + '/applications/' + application.id,
             headers: { 'X-Auth-Token': 'foobar' },
         });
 
@@ -61,7 +61,7 @@ describe('Events application info', () => {
         await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/me',
+            path: '/single/' + event.id + '/applications/me',
             headers: { 'X-Auth-Token': 'foobar' },
         });
 
@@ -76,7 +76,7 @@ describe('Events application info', () => {
         const application = await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications/' + application.id,
+            path: '/single/' + event.id + '/applications/' + application.id,
             headers: { 'X-Auth-Token': 'foobar' },
         });
 

@@ -30,7 +30,7 @@ describe('Question lines listing', () => {
         await generator.createQuestionLine({}, secondEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/question-lines/',
+            path: '/events/' + firstEvent.id + '/question-lines/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -50,7 +50,7 @@ describe('Question lines listing', () => {
         const secondQuestionLine = await generator.createQuestionLine({}, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/question-lines/',
+            path: '/events/' + firstEvent.id + '/question-lines/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -81,7 +81,7 @@ describe('Question lines listing', () => {
         }, firstEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/question-lines/',
+            path: '/events/' + firstEvent.id + '/question-lines/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -102,7 +102,7 @@ describe('Question lines listing', () => {
         await generator.createQuestionLine({}, secondEvent);
 
         const res = await request({
-            uri: '/events/' + firstEvent.id + '/question-lines/',
+            path: '/events/' + firstEvent.id + '/question-lines/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

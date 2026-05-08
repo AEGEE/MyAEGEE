@@ -27,7 +27,7 @@ describe('Course details', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id,
+            path: '/courses/' + course.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -40,7 +40,7 @@ describe('Course details', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id,
+            path: '/courses/' + course.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -55,7 +55,7 @@ describe('Course details', () => {
 
     test('should fail if course is not found', async () => {
         const res = await request({
-            uri: '/courses/1337',
+            path: '/courses/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -68,7 +68,7 @@ describe('Course details', () => {
 
     test('should fail if course id is not a number', async () => {
         const res = await request({
-            uri: '/courses/nan',
+            path: '/courses/nan',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

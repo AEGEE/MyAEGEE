@@ -27,7 +27,7 @@ describe('Events previous_agora_id setting', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'bla' },
             method: 'POST',
             body: event
@@ -53,7 +53,7 @@ describe('Events previous_agora_id setting', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'bla' },
             method: 'POST',
             body: event
@@ -78,7 +78,7 @@ describe('Events previous_agora_id setting', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'bla' },
             method: 'POST',
             body: event
@@ -98,7 +98,7 @@ describe('Events previous_agora_id setting', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'bla' },
             method: 'POST',
             body: event

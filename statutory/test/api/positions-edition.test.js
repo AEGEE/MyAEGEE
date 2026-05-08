@@ -30,7 +30,7 @@ describe('Positions edition', () => {
         const position = await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'PUT',
             body: { places: 3 },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -48,7 +48,7 @@ describe('Positions edition', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/1337',
+            path: '/events/' + event.id + '/positions/1337',
             method: 'PUT',
             body: { places: 3 },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -65,7 +65,7 @@ describe('Positions edition', () => {
         await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/NaN',
+            path: '/events/' + event.id + '/positions/NaN',
             method: 'PUT',
             body: { places: 3 },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -82,7 +82,7 @@ describe('Positions edition', () => {
         const position = await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'PUT',
             body: { places: 3 },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -100,7 +100,7 @@ describe('Positions edition', () => {
         const position = await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'PUT',
             body: { places: false },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -121,7 +121,7 @@ describe('Positions edition', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'PUT',
             body: {
                 id: position.id + 1,

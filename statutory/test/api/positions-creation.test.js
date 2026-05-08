@@ -28,7 +28,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({ ends: null });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({ places: 'string' });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -64,7 +64,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({ places: -1 });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -82,7 +82,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({ name: null });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -103,7 +103,7 @@ describe('Positions creation', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -123,7 +123,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -140,7 +140,7 @@ describe('Positions creation', () => {
         const position = generator.generatePosition({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -164,7 +164,7 @@ describe('Positions creation', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -188,7 +188,7 @@ describe('Positions creation', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/',
+            path: '/events/' + event.id + '/positions/',
             method: 'POST',
             body: position,
             headers: { 'X-Auth-Token': 'blablabla' }

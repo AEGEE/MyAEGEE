@@ -1,7 +1,7 @@
-const request = require('request-promise-native');
 const Joi = require('joi');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { request } = require('../lib/http');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 
@@ -114,9 +114,7 @@ MembersList.beforeSave(async (memberslist, options) => {
 
     const conversion = await request({
         url: constants.CONVERSION_RATE_API.host + constants.CONVERSION_RATE_API.path,
-        method: 'GET',
-        simple: false,
-        json: true
+        method: 'GET'
     });
 
     if (typeof conversion !== 'object') {

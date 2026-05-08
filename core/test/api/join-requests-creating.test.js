@@ -28,7 +28,7 @@ describe('Join request creating', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -50,7 +50,7 @@ describe('Join request creating', () => {
         await generator.createJoinRequest(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -78,7 +78,7 @@ describe('Join request creating', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -99,7 +99,7 @@ describe('Join request creating', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -126,7 +126,7 @@ describe('Join request creating', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -155,7 +155,7 @@ describe('Join request creating', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }
@@ -189,7 +189,7 @@ describe('Join request creating', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests',
+            path: '/bodies/' + body.id + '/join-requests',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { motivation: 'test' }

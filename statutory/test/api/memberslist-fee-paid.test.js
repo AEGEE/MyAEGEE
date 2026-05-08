@@ -34,7 +34,7 @@ describe('Memberslist fee_paid editing', () => {
         });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 300 }
@@ -54,7 +54,7 @@ describe('Memberslist fee_paid editing', () => {
         });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 300 }
@@ -80,7 +80,7 @@ describe('Memberslist fee_paid editing', () => {
             members: [generator.generateMembersListMember({ fee: 16 })]
         }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 1.996 }
@@ -104,7 +104,7 @@ describe('Memberslist fee_paid editing', () => {
             members: [generator.generateMembersListMember({ fee: 16 })]
         }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 2.004 }
@@ -123,7 +123,7 @@ describe('Memberslist fee_paid editing', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337/fee_paid',
+            path: '/events/' + event.id + '/memberslists/1337/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 300 }
@@ -142,7 +142,7 @@ describe('Memberslist fee_paid editing', () => {
             application_period_ends: moment().add(1, 'week').toDate()
         });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/false/fee_paid',
+            path: '/events/' + event.id + '/memberslists/false/fee_paid',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { fee_paid: 300 }

@@ -24,7 +24,7 @@ describe('Circle add permission', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions/' + permission.id,
+            path: '/circles/' + circle.id + '/permissions/' + permission.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -45,7 +45,7 @@ describe('Circle add permission', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions/' + permission.id,
+            path: '/circles/' + circle.id + '/permissions/' + permission.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -67,7 +67,7 @@ describe('Circle add permission', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions/' + permission.id,
+            path: '/circles/' + circle.id + '/permissions/' + permission.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

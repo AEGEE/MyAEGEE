@@ -33,7 +33,7 @@ describe('Positions status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -51,7 +51,7 @@ describe('Positions status update', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/1337/status',
+            path: '/events/' + event.id + '/positions/1337/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -67,7 +67,7 @@ describe('Positions status update', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/NaN/status',
+            path: '/events/' + event.id + '/positions/NaN/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -87,7 +87,7 @@ describe('Positions status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -108,7 +108,7 @@ describe('Positions status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: {},
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -129,7 +129,7 @@ describe('Positions status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: { status: false },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -151,7 +151,7 @@ describe('Positions status update', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            path: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: {
                 places: 5

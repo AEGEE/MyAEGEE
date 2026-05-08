@@ -19,7 +19,7 @@ describe('Integrations displaying', () => {
     test('should succeed if everything is okay', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id,
+            path: '/integrations/' + integration.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -34,7 +34,7 @@ describe('Integrations displaying', () => {
 
     test('should return 404 if the integration is not found', async () => {
         const res = await request({
-            uri: '/integrations/random',
+            path: '/integrations/random',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -48,7 +48,7 @@ describe('Integrations displaying', () => {
     test('should find integration by code', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/first',
+            path: '/integrations/first',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

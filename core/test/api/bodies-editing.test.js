@@ -22,7 +22,7 @@ describe('Bodies editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/1337',
+            path: '/bodies/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -43,7 +43,7 @@ describe('Bodies editing', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { code: null }
@@ -63,7 +63,7 @@ describe('Bodies editing', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'invalid' }
@@ -84,7 +84,7 @@ describe('Bodies editing', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -114,7 +114,7 @@ describe('Bodies editing', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -145,7 +145,7 @@ describe('Bodies editing', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io', name: 'bbb' }
@@ -169,7 +169,7 @@ describe('Bodies editing', () => {
             const body = await generator.createBody({ type });
 
             const res = await request({
-                uri: '/bodies/' + body.id,
+                path: '/bodies/' + body.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
                 body: { founded_at: null }
@@ -193,7 +193,7 @@ describe('Bodies editing', () => {
             const body = await generator.createBody({ type });
 
             const res = await request({
-                uri: '/bodies/' + body.id,
+                path: '/bodies/' + body.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
                 body: { founded_at: null }

@@ -20,7 +20,7 @@ describe('Event organizing listing', () => {
     it('should list events where the user is organizer on /mine/organizing GET', async () => {
         const event = await generator.createEvent({ organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }] });
         const res = await request({
-            uri: '/mine/organizing',
+            path: '/mine/organizing',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -35,7 +35,7 @@ describe('Event organizing listing', () => {
     it('should not include events where the user is not organizer on /mine/organizing GET', async () => {
         await generator.createEvent({ organizers: [{ first_name: 'test', last_name: 'test', user_id: 1337 }] });
         const res = await request({
-            uri: '/mine/organizing',
+            path: '/mine/organizing',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

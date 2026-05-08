@@ -23,7 +23,7 @@ describe('User primary body setting', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/primary-body',
+            path: '/members/1337/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -43,7 +43,7 @@ describe('User primary body setting', () => {
         await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/primary-body',
+            path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -63,7 +63,7 @@ describe('User primary body setting', () => {
         await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/primary-body',
+            path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: 1337 }
@@ -84,7 +84,7 @@ describe('User primary body setting', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/members/' + user.id + '/primary-body',
+            path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: body.id }
@@ -106,7 +106,7 @@ describe('User primary body setting', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/primary-body',
+            path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: body.id }
@@ -125,7 +125,7 @@ describe('User primary body setting', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/primary-body',
+            path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -150,7 +150,7 @@ describe('User primary body setting', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/primary-body',
+            path: '/members/' + otherUser.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -171,7 +171,7 @@ describe('User primary body setting', () => {
         const otherUser = await generator.createUser({ primary_body_id: body.id });
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/primary-body',
+            path: '/members/' + otherUser.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }

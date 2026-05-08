@@ -20,7 +20,7 @@ describe('Listing my circles for permission', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }
@@ -37,7 +37,7 @@ describe('Listing my circles for permission', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { object: 'object' }
@@ -54,7 +54,7 @@ describe('Listing my circles for permission', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action' }
@@ -73,7 +73,7 @@ describe('Listing my circles for permission', () => {
         await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }
@@ -96,7 +96,7 @@ describe('Listing my circles for permission', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }
@@ -121,7 +121,7 @@ describe('Listing my circles for permission', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }
@@ -150,7 +150,7 @@ describe('Listing my circles for permission', () => {
         await generator.createCircleMembership(thirdCircle, user);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }
@@ -180,7 +180,7 @@ describe('Listing my circles for permission', () => {
         await generator.createCircleMembership(otherChildCircle, otherUser);
 
         const res = await request({
-            uri: '/my_permissions',
+            path: '/my_permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { action: 'action', object: 'object' }

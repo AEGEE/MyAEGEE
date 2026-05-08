@@ -28,7 +28,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -45,7 +45,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -62,7 +62,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' },
         });
@@ -78,7 +78,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -94,7 +94,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -110,7 +110,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -126,7 +126,7 @@ describe('Memberslist displaying', () => {
         const event = await generator.createEvent({ type: 'epm' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -139,7 +139,7 @@ describe('Memberslist displaying', () => {
     test('should fail if members list is not uploaded', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
+            path: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -153,7 +153,7 @@ describe('Memberslist displaying', () => {
     test('should fail if body_id is invalid', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/invalid',
+            path: '/events/' + event.id + '/memberslists/invalid',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

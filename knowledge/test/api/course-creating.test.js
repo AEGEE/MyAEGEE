@@ -25,7 +25,7 @@ describe('Course creating', () => {
     test('should fail if no permission', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const res = await request({
-            uri: '/courses',
+            path: '/courses',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCourse()
@@ -41,7 +41,7 @@ describe('Course creating', () => {
         });
 
         const res = await request({
-            uri: '/courses',
+            path: '/courses',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: course
@@ -62,7 +62,7 @@ describe('Course creating', () => {
 
     test('should fail if name is not set', async () => {
         const res = await request({
-            uri: '/courses',
+            path: '/courses',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateCourse({ name: null })

@@ -33,7 +33,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET'
         });
 
@@ -50,7 +50,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -68,7 +68,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'draft' });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -116,7 +116,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -137,7 +137,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published', name: 'other', description: 'other' });
 
         const res = await request({
-            uri: '/?search=test',
+            path: '/?search=test',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -187,7 +187,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?starts=' + moment().format('YYYY-MM-DD'),
+            path: '/?starts=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -234,7 +234,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/?ends=' + moment().format('YYYY-MM-DD'),
+            path: '/?ends=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -253,7 +253,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published', type: 'spm' });
 
         const res = await request({
-            uri: '/?type=agora',
+            path: '/?type=agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -272,7 +272,7 @@ describe('Events listing', () => {
         await generator.createEvent({ status: 'published', type: 'spm' });
 
         const res = await request({
-            uri: '/?type[]=agora&type[]=epm',
+            path: '/?type[]=agora&type[]=epm',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -323,7 +323,7 @@ describe('Events listing', () => {
         });
 
         const res = await request({
-            uri: '/recents',
+            path: '/recents',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -372,7 +372,7 @@ describe('Events listing', () => {
         const ends = moment().subtract(10, 'days').toISOString();
 
         const res = await request({
-            uri: '/recents?ends=' + ends,
+            path: '/recents?ends=' + ends,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

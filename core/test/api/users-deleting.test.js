@@ -23,7 +23,7 @@ describe('User deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337',
+            path: '/members/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -41,7 +41,7 @@ describe('User deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -62,7 +62,7 @@ describe('User deleting', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            path: '/members/' + otherUser.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -85,7 +85,7 @@ describe('User deleting', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            path: '/members/' + user.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

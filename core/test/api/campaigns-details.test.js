@@ -22,7 +22,7 @@ describe('Campaign details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const res = await request({
-            uri: '/campaigns/1337',
+            path: '/campaigns/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -40,7 +40,7 @@ describe('Campaign details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const res = await request({
-            uri: '/campaigns/xxx',
+            path: '/campaigns/xxx',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -58,7 +58,7 @@ describe('Campaign details', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -77,7 +77,7 @@ describe('Campaign details', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -99,7 +99,7 @@ describe('Campaign details', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -120,7 +120,7 @@ describe('Campaign details', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.url,
+            path: '/campaigns/' + campaign.url,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

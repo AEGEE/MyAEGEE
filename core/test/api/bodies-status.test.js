@@ -23,7 +23,7 @@ describe('Bodies status', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/1337/status',
+            path: '/bodies/1337/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -44,7 +44,7 @@ describe('Bodies status', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/status',
+            path: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'aaa' }
@@ -64,7 +64,7 @@ describe('Bodies status', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/status',
+            path: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'aaa' }
@@ -85,7 +85,7 @@ describe('Bodies status', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/status',
+            path: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'deleted' }
@@ -107,7 +107,7 @@ describe('Bodies status', () => {
         const body = await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/status',
+            path: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'active' }
@@ -141,7 +141,7 @@ describe('Bodies status', () => {
         await generator.createPayment(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/status',
+            path: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'deleted' }

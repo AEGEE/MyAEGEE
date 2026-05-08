@@ -20,7 +20,7 @@ describe('Mail confirmation', () => {
 
     test('should fail if the token is not provided', async () => {
         const res = await request({
-            uri: '/confirm-email',
+            path: '/confirm-email',
             method: 'POST',
             body: {}
         });
@@ -33,7 +33,7 @@ describe('Mail confirmation', () => {
 
     test('should fail if the confirmation is not found', async () => {
         const res = await request({
-            uri: '/confirm-email',
+            path: '/confirm-email',
             method: 'POST',
             body: { token: 'test' }
         });
@@ -49,7 +49,7 @@ describe('Mail confirmation', () => {
         const confirmation = await generator.createMailConfirmation(user, { expires_at: moment().subtract(1, 'day').toDate() });
 
         const res = await request({
-            uri: '/confirm-email',
+            path: '/confirm-email',
             method: 'POST',
             body: { token: confirmation.value }
         });
@@ -65,7 +65,7 @@ describe('Mail confirmation', () => {
         const confirmation = await generator.createMailConfirmation(user, { expires_at: moment().add(1, 'day').toDate() });
 
         const res = await request({
-            uri: '/confirm-email',
+            path: '/confirm-email',
             method: 'POST',
             body: { token: confirmation.value }
         });

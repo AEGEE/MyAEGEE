@@ -25,7 +25,7 @@ describe('Events editing', () => {
         const notMineEvent = await generator.createEvent({ organizers: [{ first_name: 'test', last_name: 'test', user_id: 333 }] });
 
         const res = await request({
-            uri: '/single/' + notMineEvent.id,
+            path: '/single/' + notMineEvent.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -40,7 +40,7 @@ describe('Events editing', () => {
 
     it('should update an event on a sane /single/<eventid> PUT', async () => {
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -53,7 +53,7 @@ describe('Events editing', () => {
 
     it('should update the organizers if requested', async () => {
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -66,7 +66,7 @@ describe('Events editing', () => {
 
     it('should store the changes on update after a sane /single/<eventid> PUT', async () => {
         await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -75,7 +75,7 @@ describe('Events editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -85,7 +85,7 @@ describe('Events editing', () => {
 
     it('should ignore superflous fields on overly detailed /single/<eventid> PUT', async () => {
         await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -94,7 +94,7 @@ describe('Events editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -105,7 +105,7 @@ describe('Events editing', () => {
 
     it('should return a validation error on malformed /single/<eventid> PUT', async () => {
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -119,7 +119,7 @@ describe('Events editing', () => {
 
     it('should fail if no organizers are set', async () => {
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -135,7 +135,7 @@ describe('Events editing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -147,7 +147,7 @@ describe('Events editing', () => {
 
     it('should hide an event from / GET but keep it for /single GET after /single DELETE', async () => {
         const deleteRequest = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -155,7 +155,7 @@ describe('Events editing', () => {
         expect(deleteRequest.statusCode).toEqual(200);
 
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -174,7 +174,7 @@ describe('Events editing', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -189,7 +189,7 @@ describe('Events editing', () => {
 
     it('should not change the European Event status on normal edit request', async () => {
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -201,7 +201,7 @@ describe('Events editing', () => {
         expect(res.statusCode).toEqual(200);
 
         const response = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

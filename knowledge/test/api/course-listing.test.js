@@ -24,7 +24,7 @@ describe('Course listing', () => {
     test('should fail if no permission', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const res = await request({
-            uri: '/courses',
+            path: '/courses',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -37,7 +37,7 @@ describe('Course listing', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses',
+            path: '/courses',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -57,7 +57,7 @@ describe('Course listing', () => {
         await generator.createCourse();
 
         const res = await request({
-            uri: '/courses?limit=1&offset=1', // second one should be returned
+            path: '/courses?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -79,7 +79,7 @@ describe('Course listing', () => {
         const secondCourse = await generator.createCourse({ name: 'bbb' });
 
         const res = await request({
-            uri: '/courses?sort=name&direction=desc', // second one should be returned
+            path: '/courses?sort=name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

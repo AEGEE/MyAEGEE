@@ -25,7 +25,7 @@ describe('Circle memberships list', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -55,7 +55,7 @@ describe('Circle memberships list', () => {
         await generator.createCircleMembership(circle, thirdUser);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members?limit=1&offset=1', // second one should be returned
+            path: '/circles/' + circle.id + '/members?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -86,7 +86,7 @@ describe('Circle memberships list', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members?sort=id&direction=desc', // second one should be returned
+            path: '/circles/' + circle.id + '/members?sort=id&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -115,7 +115,7 @@ describe('Circle memberships list', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -134,7 +134,7 @@ describe('Circle memberships list', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members',
+            path: '/circles/' + circle.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -167,7 +167,7 @@ describe('Circle memberships list', () => {
         });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members?query=aaa',
+            path: '/circles/' + circle.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -203,7 +203,7 @@ describe('Circle memberships list', () => {
         });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members?query=aaa',
+            path: '/circles/' + circle.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -239,7 +239,7 @@ describe('Circle memberships list', () => {
         });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members?query=aaa',
+            path: '/circles/' + circle.id + '/members?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

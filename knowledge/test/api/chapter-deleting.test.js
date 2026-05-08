@@ -29,7 +29,7 @@ describe('Chapter deleting', () => {
         const chapter = await generator.createChapter({ course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id,
+            path: '/courses/' + course.id + '/chapters/' + chapter.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -43,7 +43,7 @@ describe('Chapter deleting', () => {
         const chapter = await generator.createChapter({ course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/' + chapter.id,
+            path: '/courses/' + course.id + '/chapters/' + chapter.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -62,7 +62,7 @@ describe('Chapter deleting', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters/1337',
+            path: '/courses/' + course.id + '/chapters/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

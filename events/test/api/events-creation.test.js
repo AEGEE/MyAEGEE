@@ -21,7 +21,7 @@ describe('Events creation', () => {
 
     it('should create a new event on minimal sane / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -69,7 +69,7 @@ describe('Events creation', () => {
 
     it('should create a new online event on minimal sane / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -115,7 +115,7 @@ describe('Events creation', () => {
 
     it('should create a new online event without application process on minimal sane / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -161,7 +161,7 @@ describe('Events creation', () => {
 
     it('should create a new event on exhaustive sane / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -226,7 +226,7 @@ describe('Events creation', () => {
 
     it('should discart superflous fields on overly detailed / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -254,7 +254,7 @@ describe('Events creation', () => {
 
     it('should return validation errors on malformed / POST', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
@@ -289,7 +289,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -306,7 +306,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -323,7 +323,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -340,7 +340,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -357,7 +357,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -373,7 +373,7 @@ describe('Events creation', () => {
         event.locations = [false];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -390,7 +390,7 @@ describe('Events creation', () => {
         event.locations = [null];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -407,7 +407,7 @@ describe('Events creation', () => {
         event.locations = [{ name: null, position: { lat: 1, lng: 1 } }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -424,7 +424,7 @@ describe('Events creation', () => {
         event.locations = [{ name: '', position: { lat: 1, lng: 1 } }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -441,7 +441,7 @@ describe('Events creation', () => {
         event.locations = [{ name: 'test', position: false }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -458,7 +458,7 @@ describe('Events creation', () => {
         event.locations = [{ name: 'test', position: null }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -475,7 +475,7 @@ describe('Events creation', () => {
         event.locations = [{ name: 'test', position: { lat: false, lng: 1 } }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -492,7 +492,7 @@ describe('Events creation', () => {
         event.locations = [{ name: 'test', position: { lat: 1, lng: false } }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -509,7 +509,7 @@ describe('Events creation', () => {
         event.locations = [{ name: 'test', position: { lat: 1, lng: 1 } }];
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -529,7 +529,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -551,7 +551,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -573,7 +573,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -592,7 +592,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -611,7 +611,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -630,7 +630,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -649,7 +649,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -668,7 +668,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -687,7 +687,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -706,7 +706,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -725,7 +725,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -744,7 +744,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -763,7 +763,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -782,7 +782,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -799,7 +799,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -816,7 +816,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -833,7 +833,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -849,7 +849,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -865,7 +865,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -881,7 +881,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -897,7 +897,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -913,7 +913,7 @@ describe('Events creation', () => {
         event.body_id = user.bodies[0].id;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -931,7 +931,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -950,7 +950,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -971,7 +971,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -990,7 +990,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1008,7 +1008,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1026,7 +1026,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1044,7 +1044,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1062,7 +1062,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1079,7 +1079,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent();
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1094,7 +1094,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent();
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1109,7 +1109,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent();
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1124,7 +1124,7 @@ describe('Events creation', () => {
         event.locations = false;
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event

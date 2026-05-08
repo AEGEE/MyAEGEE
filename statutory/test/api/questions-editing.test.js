@@ -35,7 +35,7 @@ describe('Questions editing', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -54,7 +54,7 @@ describe('Questions editing', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -73,7 +73,7 @@ describe('Questions editing', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
             method: 'PUT',
             body: { text: 'new' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -98,7 +98,7 @@ describe('Questions editing', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'PUT',
             body: { text: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -120,7 +120,7 @@ describe('Questions editing', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'PUT',
             body: { text: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -145,7 +145,7 @@ describe('Questions editing', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }

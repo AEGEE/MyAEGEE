@@ -22,7 +22,7 @@ describe('Integrations edition', () => {
         const integration = await generator.createIntegration({ code: 'first' });
 
         const res = await request({
-            uri: '/integrations/' + integration.id,
+            path: '/integrations/' + integration.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { code: 'test' }
@@ -35,7 +35,7 @@ describe('Integrations edition', () => {
     test('should succeed if everything is okay', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id,
+            path: '/integrations/' + integration.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { code: 'test' }
@@ -52,7 +52,7 @@ describe('Integrations edition', () => {
     test('should fail on validation errors', async () => {
         const integration = await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/' + integration.id,
+            path: '/integrations/' + integration.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { code: null }
@@ -66,7 +66,7 @@ describe('Integrations edition', () => {
 
     test('should return 404 if the integration is not found', async () => {
         const res = await request({
-            uri: '/integrations/random',
+            path: '/integrations/random',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { code: 'test' }
@@ -81,7 +81,7 @@ describe('Integrations edition', () => {
     test('should find integration by code', async () => {
         await generator.createIntegration({ code: 'first' });
         const res = await request({
-            uri: '/integrations/first',
+            path: '/integrations/first',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { code: 'test' }

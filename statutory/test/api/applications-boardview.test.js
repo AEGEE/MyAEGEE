@@ -29,7 +29,7 @@ describe('Applications boardview list', () => {
         const application = await generator.createApplication({ body_id: regularUser.bodies[0].id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -48,7 +48,7 @@ describe('Applications boardview list', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -66,7 +66,7 @@ describe('Applications boardview list', () => {
         const application = await generator.createApplication({ body_id: regularUser.bodies[0].id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -85,7 +85,7 @@ describe('Applications boardview list', () => {
         const application = await generator.createApplication({ body_id: 1337 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/1337',
+            path: '/events/' + event.id + '/applications/boardview/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -102,7 +102,7 @@ describe('Applications boardview list', () => {
     test('should result in an error if :id is malformed', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/invalid',
+            path: '/events/' + event.id + '/applications/boardview/invalid',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -163,7 +163,7 @@ describe('Applications boardview list', () => {
         ];
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

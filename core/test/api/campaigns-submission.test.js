@@ -26,7 +26,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser();
 
         const res = await request({
-            uri: '/signup/asdasdas',
+            path: '/signup/asdasdas',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -43,7 +43,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser();
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -60,7 +60,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ username: 'not valid username ' });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -78,7 +78,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ username: '123' });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -96,7 +96,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ first_name: '!@#!@#D' });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -114,7 +114,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ last_name: '!@#!@#D' });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -132,7 +132,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ email: null });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -150,7 +150,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ password: null });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -168,7 +168,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ username: null });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -186,7 +186,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser();
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -204,7 +204,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser();
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -230,7 +230,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser({ superadmin: true });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -254,7 +254,7 @@ describe('Campaign submission', () => {
         });
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
@@ -275,7 +275,7 @@ describe('Campaign submission', () => {
         const user = generator.generateUser();
 
         const res = await request({
-            uri: '/signup/' + campaign.url,
+            path: '/signup/' + campaign.url,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user

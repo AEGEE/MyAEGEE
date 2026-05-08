@@ -20,7 +20,7 @@ describe('Integrations creation', () => {
     test('should fail if user does not have rights', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration()
@@ -33,7 +33,7 @@ describe('Integrations creation', () => {
     test('should succeed if everything is okay', async () => {
         const integration = generator.generateIntegration();
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: integration
@@ -60,7 +60,7 @@ describe('Integrations creation', () => {
 
     test('should fail if code is not set', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ code: null })
@@ -74,7 +74,7 @@ describe('Integrations creation', () => {
 
     test('should fail if amount quota is not set', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ quota_amount: null })
@@ -88,7 +88,7 @@ describe('Integrations creation', () => {
 
     test('should fail if amount quota is not a number', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ quota_amount: false })
@@ -102,7 +102,7 @@ describe('Integrations creation', () => {
 
     test('should fail if amount quota is negative', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ quota_amount: -1 })
@@ -116,7 +116,7 @@ describe('Integrations creation', () => {
 
     test('should fail if amount period is negative', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ quota_period: null })
@@ -131,7 +131,7 @@ describe('Integrations creation', () => {
     test('should fail if the code is taken already', async () => {
         await generator.createIntegration({ code: 'test' });
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ code: 'test' })
@@ -145,7 +145,7 @@ describe('Integrations creation', () => {
 
     test('should fail if the quota period is invalid', async () => {
         const res = await request({
-            uri: '/integrations',
+            path: '/integrations',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateIntegration({ quota_period: 'bullshit' })

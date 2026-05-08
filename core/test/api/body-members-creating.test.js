@@ -26,7 +26,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser({ first_name: '   ' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -49,7 +49,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -74,7 +74,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -94,7 +94,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -116,7 +116,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser({ superadmin: true });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -141,7 +141,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser({ superadmin: true });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member
@@ -171,7 +171,7 @@ describe('Body members creating', () => {
         const member = generator.generateUser({ superadmin: true });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/create-member',
+            path: '/bodies/' + body.id + '/create-member',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: member

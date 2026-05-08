@@ -23,7 +23,7 @@ describe('Body campaigns listing', () => {
         await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -47,7 +47,7 @@ describe('Body campaigns listing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -71,7 +71,7 @@ describe('Body campaigns listing', () => {
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns',
+            path: '/bodies/' + body.id + '/campaigns',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -97,7 +97,7 @@ describe('Body campaigns listing', () => {
         await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?limit=1&offset=1', // second one should be returned
+            path: '/bodies/' + body.id + '/campaigns?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -125,7 +125,7 @@ describe('Body campaigns listing', () => {
         const secondCampaign = await generator.createCampaign({ autojoin_body_id: body.id, url: 'bbb' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?sort=url&direction=desc', // second one should be returned
+            path: '/bodies/' + body.id + '/campaigns?sort=url&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -164,7 +164,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=AAA',
+            path: '/bodies/' + body.id + '/campaigns?query=AAA',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -200,7 +200,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=aaa',
+            path: '/bodies/' + body.id + '/campaigns?query=aaa',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -236,7 +236,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=TEST1',
+            path: '/bodies/' + body.id + '/campaigns?query=TEST1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -272,7 +272,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=test1',
+            path: '/bodies/' + body.id + '/campaigns?query=test1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -308,7 +308,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=TEST1',
+            path: '/bodies/' + body.id + '/campaigns?query=TEST1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -344,7 +344,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=test1',
+            path: '/bodies/' + body.id + '/campaigns?query=test1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -380,7 +380,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=TEST1',
+            path: '/bodies/' + body.id + '/campaigns?query=TEST1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -416,7 +416,7 @@ describe('Body campaigns listing', () => {
         });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/campaigns?query=test1',
+            path: '/bodies/' + body.id + '/campaigns?query=test1',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

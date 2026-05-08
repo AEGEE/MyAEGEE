@@ -24,7 +24,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/parent',
+            path: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: 1337 }
@@ -44,7 +44,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/parent',
+            path: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: 'nan' }
@@ -64,7 +64,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/parent',
+            path: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: circle.id }
@@ -90,7 +90,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle1.id + '/parent',
+            path: '/circles/' + circle1.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: circle3.id }
@@ -115,7 +115,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/parent',
+            path: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: otherCircle.id }
@@ -141,7 +141,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + circle3.id + '/parent',
+            path: '/circles/' + circle3.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: circle2.id }
@@ -165,7 +165,7 @@ describe('Circle setting parent circle', () => {
         const circle3 = await generator.createCircle({});
 
         const res = await request({
-            uri: '/circles/' + circle3.id + '/parent',
+            path: '/circles/' + circle3.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: circle2.id }
@@ -187,7 +187,7 @@ describe('Circle setting parent circle', () => {
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
-            uri: '/circles/' + otherCircle.id + '/parent',
+            path: '/circles/' + otherCircle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { parent_circle_id: null }

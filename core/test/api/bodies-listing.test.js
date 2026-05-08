@@ -22,7 +22,7 @@ describe('Bodies list', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies',
+            path: '/bodies',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -49,7 +49,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'CCC' });
 
         const res = await request({
-            uri: '/bodies?limit=1&offset=1', // second one should be returned
+            path: '/bodies?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -74,7 +74,7 @@ describe('Bodies list', () => {
         const secondBody = await generator.createBody({ code: 'BBB' });
 
         const res = await request({
-            uri: '/bodies?sort=code&direction=desc', // second one should be returned
+            path: '/bodies?sort=code&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -98,7 +98,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'BBB' });
 
         const res = await request({
-            uri: '/bodies?query=AAA', // first one should be returned
+            path: '/bodies?query=AAA', // first one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -121,7 +121,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'BBB' });
 
         const res = await request({
-            uri: '/bodies?query=aaa', // first one should be returned
+            path: '/bodies?query=aaa', // first one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -144,7 +144,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'ZZZ', code: 'BBB' });
 
         const res = await request({
-            uri: '/bodies?query=AAA', // first one should be returned
+            path: '/bodies?query=AAA', // first one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -167,7 +167,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'ZZZ', code: 'BBB' });
 
         const res = await request({
-            uri: '/bodies?query=aaa', // first one should be returned
+            path: '/bodies?query=aaa', // first one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -190,7 +190,7 @@ describe('Bodies list', () => {
         await generator.createBody({ name: 'bbb', code: 'bbb' });
 
         const res = await request({
-            uri: '/bodies?query=a', // first one should be returned
+            path: '/bodies?query=a', // first one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -212,7 +212,7 @@ describe('Bodies list', () => {
         await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies',
+            path: '/bodies',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -227,7 +227,7 @@ describe('Bodies list', () => {
 
     test('should return 401 if not authorized on /bodies?all=true', async () => {
         const res = await request({
-            uri: '/bodies?all=true',
+            path: '/bodies?all=true',
             method: 'GET'
         });
 
@@ -242,7 +242,7 @@ describe('Bodies list', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/bodies?all=true',
+            path: '/bodies?all=true',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -262,7 +262,7 @@ describe('Bodies list', () => {
         await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies?all=true',
+            path: '/bodies?all=true',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

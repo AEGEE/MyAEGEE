@@ -25,7 +25,7 @@ describe('Password reset', () => {
 
     test('should return 404 if the user is not found', async () => {
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: 'test@test.io' }
         });
@@ -38,7 +38,7 @@ describe('Password reset', () => {
 
     test('should return 404 if no email is provided', async () => {
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: {}
         });
@@ -53,7 +53,7 @@ describe('Password reset', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: user.email }
         });
@@ -71,7 +71,7 @@ describe('Password reset', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: '\t\t\t   \t' + user.email + '\t     \t' }
         });
@@ -89,7 +89,7 @@ describe('Password reset', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: user.email.toUpperCase() }
         });
@@ -108,7 +108,7 @@ describe('Password reset', () => {
         const existingReset = await generator.createPasswordReset(user);
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: user.email }
         });
@@ -133,7 +133,7 @@ describe('Password reset', () => {
         });
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: user.email }
         });
@@ -151,7 +151,7 @@ describe('Password reset', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/password_reset',
+            path: '/password_reset',
             method: 'POST',
             body: { email: user.email }
         });

@@ -20,7 +20,7 @@ describe('Permission members', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/permissions/1337/members',
+            path: '/permissions/1337/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -36,7 +36,7 @@ describe('Permission members', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/permissions/xxx/members',
+            path: '/permissions/xxx/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -54,7 +54,7 @@ describe('Permission members', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id + '/members',
+            path: '/permissions/' + permission.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -74,7 +74,7 @@ describe('Permission members', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/permissions/' + permission.id + '/members',
+            path: '/permissions/' + permission.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -103,7 +103,7 @@ describe('Permission members', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/permissions/' + permission.id + '/members',
+            path: '/permissions/' + permission.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -133,7 +133,7 @@ describe('Permission members', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/permissions/' + permission.id + '/members',
+            path: '/permissions/' + permission.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -166,7 +166,7 @@ describe('Permission members', () => {
         await generator.createCirclePermission(firstCircle, permission);
 
         const res = await request({
-            uri: '/permissions/' + permission.id + '/members',
+            path: '/permissions/' + permission.id + '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

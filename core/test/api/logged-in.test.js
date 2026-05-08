@@ -17,7 +17,7 @@ describe('Logged in middleware', () => {
 
     test('should fail if the token is not provided', async () => {
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET'
         });
 
@@ -29,7 +29,7 @@ describe('Logged in middleware', () => {
 
     test('should fail if the token is invalid', async () => {
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' },
         });
@@ -44,7 +44,7 @@ describe('Logged in middleware', () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user, { expires_at: new Date() });
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value },
         });
@@ -60,7 +60,7 @@ describe('Logged in middleware', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -22,7 +22,7 @@ describe('Campaign editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
-            uri: '/campaigns/1337',
+            path: '/campaigns/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -43,7 +43,7 @@ describe('Campaign editing', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: '' }
@@ -63,7 +63,7 @@ describe('Campaign editing', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -84,7 +84,7 @@ describe('Campaign editing', () => {
         const campaign = await generator.createCampaign();
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            path: '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

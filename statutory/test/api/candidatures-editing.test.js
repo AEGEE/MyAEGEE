@@ -37,7 +37,7 @@ describe('Candidates editing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -59,7 +59,7 @@ describe('Candidates editing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/1337',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/1337',
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -81,7 +81,7 @@ describe('Candidates editing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/false',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/false',
             method: 'PUT',
             body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -106,7 +106,7 @@ describe('Candidates editing', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
             body: { first_name: 'Different', body_id: regularUser.bodies[0].id },
             headers: { 'X-Auth-Token': 'blablabla' }

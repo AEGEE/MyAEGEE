@@ -28,7 +28,7 @@ describe('Positions deletion', () => {
         const position = await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -45,7 +45,7 @@ describe('Positions deletion', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/1337',
+            path: '/events/' + event.id + '/positions/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -61,7 +61,7 @@ describe('Positions deletion', () => {
         await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/NaN',
+            path: '/events/' + event.id + '/positions/NaN',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -77,7 +77,7 @@ describe('Positions deletion', () => {
         const position = await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            path: '/events/' + event.id + '/positions/' + position.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

@@ -29,7 +29,7 @@ describe('Questions deleting', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -47,7 +47,7 @@ describe('Questions deleting', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -71,7 +71,7 @@ describe('Questions deleting', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -92,7 +92,7 @@ describe('Questions deleting', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -116,7 +116,7 @@ describe('Questions deleting', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

@@ -28,7 +28,7 @@ describe('Chapter creating', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters',
+            path: '/courses/' + course.id + '/chapters',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateChapter()
@@ -42,7 +42,7 @@ describe('Chapter creating', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters',
+            path: '/courses/' + course.id + '/chapters',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateChapter({ name: 'test' })
@@ -67,7 +67,7 @@ describe('Chapter creating', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters',
+            path: '/courses/' + course.id + '/chapters',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateChapter({ name: null })

@@ -24,7 +24,7 @@ describe('Pax limits listing', () => {
 
     test('should display limits', async () => {
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -45,7 +45,7 @@ describe('Pax limits listing', () => {
         }
 
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -62,7 +62,7 @@ describe('Pax limits listing', () => {
 
     test('should return 400 if the event type is invalid', async () => {
         const res = await request({
-            uri: '/limits/invalid',
+            path: '/limits/invalid',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -76,7 +76,7 @@ describe('Pax limits listing', () => {
     test('should return an error if the bodies request returns net error', async () => {
         mock.mockAll({ bodies: { netError: true } });
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -90,7 +90,7 @@ describe('Pax limits listing', () => {
     test('should return an error if the bodies request returns malformed response', async () => {
         mock.mockAll({ bodies: { badResponse: true } });
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -104,7 +104,7 @@ describe('Pax limits listing', () => {
     test('should return an error if the bodies request returns unsuccessful response', async () => {
         mock.mockAll({ bodies: { unsuccessfulResponse: true } });
         const res = await request({
-            uri: '/limits/agora',
+            path: '/limits/agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

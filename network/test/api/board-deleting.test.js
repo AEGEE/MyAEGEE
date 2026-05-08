@@ -28,7 +28,7 @@ describe('Board deleting', () => {
         const board = await generator.createBoard();
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Board deleting', () => {
         const board = await generator.createBoard({});
 
         const res = await request({
-            uri: '/bodies/' + board.body_id + '/boards/' + board.id,
+            path: '/bodies/' + board.body_id + '/boards/' + board.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -58,7 +58,7 @@ describe('Board deleting', () => {
 
     test('should fail if board is not found', async () => {
         const res = await request({
-            uri: '/bodies/1/boards/1337',
+            path: '/bodies/1/boards/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

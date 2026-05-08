@@ -35,7 +35,7 @@ describe('Votes amounts listing', () => {
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/votes-amounts/antenna',
+            path: '/events/' + event.id + '/votes-amounts/antenna',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -69,7 +69,7 @@ describe('Votes amounts listing', () => {
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/votes-amounts/delegate',
+            path: '/events/' + event.id + '/votes-amounts/delegate',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -109,7 +109,7 @@ describe('Votes amounts listing', () => {
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/votes-amounts/nan',
+            path: '/events/' + event.id + '/votes-amounts/nan',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -140,7 +140,7 @@ describe('Votes amounts listing', () => {
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/votes-amounts/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/votes-amounts/' + regularUser.bodies[0].id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

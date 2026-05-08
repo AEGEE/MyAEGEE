@@ -29,7 +29,7 @@ describe('Question line deletion', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -46,7 +46,7 @@ describe('Question line deletion', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/1337',
+            path: '/events/' + event.id + '/question-lines/1337',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -62,7 +62,7 @@ describe('Question line deletion', () => {
         await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/NaN',
+            path: '/events/' + event.id + '/question-lines/NaN',
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -83,7 +83,7 @@ describe('Question line deletion', () => {
         await generator.createQuestion({ application_id: application.id }, otherQuestionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

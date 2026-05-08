@@ -17,7 +17,7 @@ describe('Authorization', () => {
 
     test('should fail if the user is not found', async () => {
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -35,7 +35,7 @@ describe('Authorization', () => {
     test('should fail if the password is wrong', async () => {
         const user = await generator.createUser();
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -53,7 +53,7 @@ describe('Authorization', () => {
     test('should fail if email is empty', async () => {
         await generator.createUser();
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -71,7 +71,7 @@ describe('Authorization', () => {
     test('should fail if the email is not confirmed', async () => {
         const user = await generator.createUser({ password: 'testtest', mail_confirmed_at: null });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -90,7 +90,7 @@ describe('Authorization', () => {
     // test('should fail if user is not valid', async () => {
     //     const user = await generator.createUser({ password: 'testtest', address: null });
     //     const res = await request({
-    //         uri: '/login/',
+    //         path: '/login/',
     //         method: 'POST',
     //         headers: { 'X-Auth-Token': 'blablabla' },
     //         body: {
@@ -109,7 +109,7 @@ describe('Authorization', () => {
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ password: 'testtest' });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -128,7 +128,7 @@ describe('Authorization', () => {
     test('should find by username', async () => {
         await generator.createUser({ password: 'testtest', username: 'admin' });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -147,7 +147,7 @@ describe('Authorization', () => {
     test('should find user when trimming', async () => {
         const user = await generator.createUser({ password: 'testtest' });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -166,7 +166,7 @@ describe('Authorization', () => {
     test('should find by email case-insensitive', async () => {
         await generator.createUser({ password: 'testtest', email: 'admin@example.com' });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -185,7 +185,7 @@ describe('Authorization', () => {
     test('should find by username case-insensitive', async () => {
         await generator.createUser({ password: 'testtest', username: 'admin' });
         const res = await request({
-            uri: '/login/',
+            path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

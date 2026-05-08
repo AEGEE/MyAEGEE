@@ -25,7 +25,7 @@ describe('Antenna Criteria', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/antennaCriteria/1',
+            path: '/antennaCriteria/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -39,7 +39,7 @@ describe('Antenna Criteria', () => {
         await generator.createAntennaCriterion({ agora_id: 1 });
 
         const res = await request({
-            uri: '/antennaCriteria/1',
+            path: '/antennaCriteria/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -56,7 +56,7 @@ describe('Antenna Criteria', () => {
         await generator.createAntennaCriterion({ agora_id: 2 });
 
         const res = await request({
-            uri: '/antennaCriteria/1',
+            path: '/antennaCriteria/1',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -73,7 +73,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion();
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -89,7 +89,7 @@ describe('Antenna Criteria', () => {
     //     const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'fulfilment report' });
 
     //     const res = await request({
-    //         uri: '/antennaCriteria',
+    //         path: '/antennaCriteria',
     //         method: 'PUT',
     //         body: criterion,
     //         headers: { 'X-Auth-Token': 'blablabla' }
@@ -105,7 +105,7 @@ describe('Antenna Criteria', () => {
     //     const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'communication' });
 
     //     const res = await request({
-    //         uri: '/antennaCriteria',
+    //         path: '/antennaCriteria',
     //         method: 'PUT',
     //         body: criterion,
     //         headers: { 'X-Auth-Token': 'blablabla' }
@@ -119,7 +119,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ agora_id: null });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -136,7 +136,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ body_id: null });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -153,7 +153,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ antenna_criterion: null });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -168,7 +168,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'blabla' });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -183,7 +183,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ value: 'blabla' });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -200,7 +200,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion();
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -220,7 +220,7 @@ describe('Antenna Criteria', () => {
         const criterion = generator.generateAntennaCriterion({ agora_id: 1, body_id: 2, antenna_criterion: 'communication', value: 'true', comment: 'They are responding!' });
 
         const res = await request({
-            uri: '/antennaCriteria',
+            path: '/antennaCriteria',
             method: 'PUT',
             body: criterion,
             headers: { 'X-Auth-Token': 'blablabla' }

@@ -29,7 +29,7 @@ describe('Questions displaying', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -47,7 +47,7 @@ describe('Questions displaying', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/false',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -69,7 +69,7 @@ describe('Questions displaying', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -93,7 +93,7 @@ describe('Questions displaying', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -117,7 +117,7 @@ describe('Questions displaying', () => {
         const question = await generator.createQuestion({ application_id: application.id }, questionLine);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

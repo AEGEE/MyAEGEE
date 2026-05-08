@@ -28,7 +28,7 @@ describe('Plenaries creation', () => {
         const plenary = generator.generatePlenary({ starts: null });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'POST',
             body: plenary,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Plenaries creation', () => {
         const plenary = generator.generatePlenary({ ends: null });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'POST',
             body: plenary,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -67,7 +67,7 @@ describe('Plenaries creation', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'POST',
             body: plenary,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -87,7 +87,7 @@ describe('Plenaries creation', () => {
         const plenary = generator.generatePlenary({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'POST',
             body: plenary,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -104,7 +104,7 @@ describe('Plenaries creation', () => {
         const plenary = generator.generatePlenary({});
 
         const res = await request({
-            uri: '/events/' + event.id + '/plenaries/',
+            path: '/events/' + event.id + '/plenaries/',
             method: 'POST',
             body: plenary,
             headers: { 'X-Auth-Token': 'blablabla' }

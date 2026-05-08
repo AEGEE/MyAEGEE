@@ -19,7 +19,7 @@ describe('Events details', () => {
     it('should return a single event on /single/<eventid> GET by ID', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -51,7 +51,7 @@ describe('Events details', () => {
     it('should return a single event on /single/<eventid> GET by URL', async () => {
         const event = await generator.createEvent({ url: 'test' });
         const res = await request({
-            uri: '/single/' + event.url,
+            path: '/single/' + event.url,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -82,7 +82,7 @@ describe('Events details', () => {
 
     it('should return a 404 on arbitrary eventids on /single/id GET', async () => {
         const res = await request({
-            uri: '/single/1337',
+            path: '/single/1337',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -98,7 +98,7 @@ describe('Events details', () => {
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -120,7 +120,7 @@ describe('Events details', () => {
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });
@@ -139,7 +139,7 @@ describe('Events details', () => {
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
         const res = await request({
-            uri: '/single/' + event.id,
+            path: '/single/' + event.id,
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'GET'
         });

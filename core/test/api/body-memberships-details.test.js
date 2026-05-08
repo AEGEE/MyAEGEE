@@ -24,7 +24,7 @@ describe('Body membership details', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -43,7 +43,7 @@ describe('Body membership details', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/nan',
+            path: '/bodies/' + body.id + '/members/nan',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -62,7 +62,7 @@ describe('Body membership details', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -83,7 +83,7 @@ describe('Body membership details', () => {
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members/' + membership.id,
+            path: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

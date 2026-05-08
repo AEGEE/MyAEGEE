@@ -27,7 +27,7 @@ describe('My permissions for body', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -52,7 +52,7 @@ describe('My permissions for body', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -79,7 +79,7 @@ describe('My permissions for body', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -103,7 +103,7 @@ describe('My permissions for body', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -126,7 +126,7 @@ describe('My permissions for body', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -152,7 +152,7 @@ describe('My permissions for body', () => {
         await generator.createCircleMembership(circle, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -181,7 +181,7 @@ describe('My permissions for body', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/my_permissions',
+            path: '/bodies/' + body.id + '/my_permissions',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -1,6 +1,6 @@
 const moment = require('moment');
 const _ = require('lodash');
-const request = require('request-promise-native');
+const { request } = require('../lib/http');
 
 const { User, Body, BodyMembership, MailChange, MailConfirmation } = require('../models');
 const config = require('../config');
@@ -347,7 +347,6 @@ exports.subscribeListserv = async (req, res) => {
         await request({
             url: config.listserv_endpoint,
             method: 'POST',
-            simple: false,
             form: {
                 token: config.listserv_token,
                 email: req.user.notification_email,

@@ -29,7 +29,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/email',
+            path: '/members/1337/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -48,7 +48,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: {}
@@ -67,7 +67,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'not-valid' }
@@ -89,7 +89,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@example.com' }
@@ -108,7 +108,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@aegee.eu' }
@@ -127,7 +127,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@aegee.org' }
@@ -148,7 +148,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -167,7 +167,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -187,7 +187,7 @@ describe('User mail change', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -204,7 +204,7 @@ describe('User mail change', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/email',
+            path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -229,7 +229,7 @@ describe('User mail change', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/email',
+            path: '/members/' + otherUser.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -248,7 +248,7 @@ describe('User mail change', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/email',
+            path: '/members/' + otherUser.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }

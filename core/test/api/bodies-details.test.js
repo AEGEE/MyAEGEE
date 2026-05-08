@@ -20,7 +20,7 @@ describe('Body details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/bodies/1337',
+            path: '/bodies/1337',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -38,7 +38,7 @@ describe('Body details', () => {
         const body = await generator.createBody({ code: 'xxx' });
 
         const res = await request({
-            uri: '/bodies/xxx',
+            path: '/bodies/xxx',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -57,7 +57,7 @@ describe('Body details', () => {
         const body = await generator.createBody({ code: 'xxx' });
 
         const res = await request({
-            uri: '/bodies/XXX',
+            path: '/bodies/XXX',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -76,7 +76,7 @@ describe('Body details', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -92,7 +92,7 @@ describe('Body details', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'GET'
         });
 
@@ -107,7 +107,7 @@ describe('Body details', () => {
         const body = await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'GET'
         });
 
@@ -124,7 +124,7 @@ describe('Body details', () => {
         const body = await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -144,7 +144,7 @@ describe('Body details', () => {
         const body = await generator.createBody({ status: 'deleted' });
 
         const res = await request({
-            uri: '/bodies/' + body.id,
+            path: '/bodies/' + body.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -23,7 +23,7 @@ describe('Circle add permission', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions',
+            path: '/circles/' + circle.id + '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { permission_id: permission.id }
@@ -44,7 +44,7 @@ describe('Circle add permission', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions',
+            path: '/circles/' + circle.id + '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { permission_id: -1 }
@@ -67,7 +67,7 @@ describe('Circle add permission', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions',
+            path: '/circles/' + circle.id + '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { permission_id: permission.id }
@@ -89,7 +89,7 @@ describe('Circle add permission', () => {
         const permission = await generator.createPermission();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/permissions',
+            path: '/circles/' + circle.id + '/permissions',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { permission_id: permission.id }

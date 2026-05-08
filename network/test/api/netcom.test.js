@@ -26,7 +26,7 @@ describe('Netcom', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -39,7 +39,7 @@ describe('Netcom', () => {
         await generator.createNetcom();
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -56,7 +56,7 @@ describe('Netcom', () => {
         const netcom = generator.generateNetcom();
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'PUT',
             body: netcom,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -70,7 +70,7 @@ describe('Netcom', () => {
         const netcom = generator.generateNetcom({ body_id: null });
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'PUT',
             body: netcom,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -87,7 +87,7 @@ describe('Netcom', () => {
         const netcom = generator.generateNetcom({ netcom_id: null });
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'PUT',
             body: netcom,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -104,7 +104,7 @@ describe('Netcom', () => {
         const netcom = generator.generateNetcom();
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'PUT',
             body: netcom,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -123,7 +123,7 @@ describe('Netcom', () => {
         const netcom = generator.generateNetcom({ body_id: 1, netcom_id: 3 });
 
         const res = await request({
-            uri: '/netcom',
+            path: '/netcom',
             method: 'PUT',
             body: netcom,
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -145,7 +145,7 @@ describe('Netcom', () => {
         const netcom = await generator.createNetcom();
 
         const res = await request({
-            uri: '/netcom/' + netcom.body_id,
+            path: '/netcom/' + netcom.body_id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -158,7 +158,7 @@ describe('Netcom', () => {
         const netcom = await generator.createNetcom();
 
         const res = await request({
-            uri: '/netcom/' + netcom.body_id,
+            path: '/netcom/' + netcom.body_id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

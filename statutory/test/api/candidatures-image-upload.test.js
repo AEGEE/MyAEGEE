@@ -41,11 +41,13 @@ describe('Candidates image upload', () => {
         await rimraf(config.images_dir);
 
         await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -54,11 +56,13 @@ describe('Candidates image upload', () => {
 
     it('should fail if the uploaded file is not an image (by extension)', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/invalid_image.txt')
+            files: {
+                image: {
+                    path: './test/assets/invalid_image.txt'
+                }
             }
         });
 
@@ -70,15 +74,13 @@ describe('Candidates image upload', () => {
 
     it('should fail if the uploaded file is not an image (by content)', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
+            files: {
                 image: {
-                    value: fs.createReadStream('./test/assets/invalid_image.txt'),
-                    options: {
-                        filename: 'image.jpg'
-                    }
+                    path: './test/assets/invalid_image.txt',
+                    filename: 'image.jpg'
                 }
             }
         });
@@ -91,10 +93,10 @@ describe('Candidates image upload', () => {
 
     it('should fail the \'image\' field is not specified', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {}
+            files: {}
         });
 
         expect(res.statusCode).toEqual(422);
@@ -105,11 +107,13 @@ describe('Candidates image upload', () => {
 
     it('should upload a file if it\'s valid', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image_2.Png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image_2.Png'
+                }
             }
         });
 
@@ -131,11 +135,13 @@ describe('Candidates image upload', () => {
     it('should remove the old file', async () => {
         // Uploading
         const firstRequest = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -150,11 +156,13 @@ describe('Candidates image upload', () => {
         const oldImgId = firstRequest.body.data.image.id;
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -173,11 +181,13 @@ describe('Candidates image upload', () => {
     it('should fail if no permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -190,11 +200,13 @@ describe('Candidates image upload', () => {
     it('should not crash when the file deletion cannot be done', async () => {
         // Uploading
         const firstRequest = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -209,11 +221,13 @@ describe('Candidates image upload', () => {
         await fs.promises.unlink(oldImgPath);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 

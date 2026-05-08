@@ -30,7 +30,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -50,7 +50,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -69,7 +69,7 @@ describe('Events editing', () => {
 
     test('should return 404 if event is not found', async () => {
         const res = await request({
-            uri: '/events/notexistant',
+            path: '/events/notexistant',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -86,7 +86,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -107,7 +107,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent({ type: 'epm' });
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -128,7 +128,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -151,7 +151,7 @@ describe('Events editing', () => {
         await event.update({ participants_list_publish_deadline: moment().subtract(1, 'day').toDate() });
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

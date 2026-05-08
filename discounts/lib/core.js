@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const { request } = require('./http');
 
 const config = require('../config');
 
@@ -11,8 +11,6 @@ module.exports.getMyProfile = async (req) => {
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'discounts'
         },
-        simple: false,
-        json: true,
     });
 
     return myProfileBody;
@@ -27,8 +25,6 @@ module.exports.getMyPermissions = async (req) => {
             'X-Auth-Token': req.headers['x-auth-token'],
             'X-Service': 'discounts'
         },
-        simple: false,
-        json: true,
     });
 
     return permissionsBody;

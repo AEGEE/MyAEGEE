@@ -27,7 +27,7 @@ describe('Chapter listing', () => {
         const course = await generator.createCourse();
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters',
+            path: '/courses/' + course.id + '/chapters',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -41,7 +41,7 @@ describe('Chapter listing', () => {
         const chapter = await generator.createChapter({ course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters',
+            path: '/courses/' + course.id + '/chapters',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -63,7 +63,7 @@ describe('Chapter listing', () => {
         await generator.createChapter({ course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters?limit=1&offset=1', // second one should be returned
+            path: '/courses/' + course.id + '/chapters?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -87,7 +87,7 @@ describe('Chapter listing', () => {
         const secondChapter = await generator.createChapter({ name: 'bbb', course_id: course.id });
 
         const res = await request({
-            uri: '/courses/' + course.id + '/chapters?sort=name&direction=desc', // second one should be returned
+            path: '/courses/' + course.id + '/chapters?sort=name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

@@ -26,7 +26,7 @@ describe('Events participating', () => {
         const event = await generator.createEvent({ status: 'published' });
 
         const res = await request({
-            uri: '/mine',
+            path: '/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -45,7 +45,7 @@ describe('Events participating', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/mine',
+            path: '/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -72,7 +72,7 @@ describe('Events participating', () => {
         }, event);
 
         const hiddenRes = await request({
-            uri: '/mine',
+            path: '/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -83,7 +83,7 @@ describe('Events participating', () => {
         await event.update({ application_status_revealed_at: new Date() });
 
         const revealedRes = await request({
-            uri: '/mine',
+            path: '/mine',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

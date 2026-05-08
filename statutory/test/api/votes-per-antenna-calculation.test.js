@@ -65,7 +65,7 @@ describe('Votes per antenna calculation', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: memberslist
@@ -102,7 +102,7 @@ describe('Votes per antenna calculation', () => {
             });
 
             const res = await request({
-                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: memberslist
@@ -137,7 +137,7 @@ describe('Votes per antenna calculation', () => {
         });
 
         const res = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: memberslist
@@ -164,7 +164,7 @@ describe('Votes per antenna calculation', () => {
 
         // to recalculate votes amount for antenna
         const secondRes = await request({
-            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: memberslist

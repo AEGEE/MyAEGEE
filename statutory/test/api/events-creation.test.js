@@ -27,7 +27,7 @@ describe('Events creation', () => {
     test('should fail if user does not have rights to create events', async () => {
         mock.mockAll({ core: { regularUser: true } });
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { }
@@ -41,7 +41,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent();
 
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: event
@@ -72,7 +72,7 @@ describe('Events creation', () => {
 
     test('should fail if the event is invalid', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -88,7 +88,7 @@ describe('Events creation', () => {
 
     test('should fail if the event is numbers only', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -110,7 +110,7 @@ describe('Events creation', () => {
         });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -124,7 +124,7 @@ describe('Events creation', () => {
 
     test('should fail if event ends before it starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -151,7 +151,7 @@ describe('Events creation', () => {
 
     test('should fail if event application period ends before it starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -178,7 +178,7 @@ describe('Events creation', () => {
 
     test('should fail if event starts before application period ends', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -199,7 +199,7 @@ describe('Events creation', () => {
 
     test('should fail if board approve_deadline is before application period ends', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -220,7 +220,7 @@ describe('Events creation', () => {
 
     test('should allow pax list publish deadline before board approve deadline', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -241,7 +241,7 @@ describe('Events creation', () => {
 
     test('should set application status reveal date if publish deadline is already in the past', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -262,7 +262,7 @@ describe('Events creation', () => {
 
     test('should fail if pax list publish deadline is before event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -283,7 +283,7 @@ describe('Events creation', () => {
 
     test('should fail if memberslist_submission_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -310,7 +310,7 @@ describe('Events creation', () => {
 
     test('should fail if memberslist_submission_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -338,7 +338,7 @@ describe('Events creation', () => {
 
     test('should not fail if memberslist_submission_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -364,7 +364,7 @@ describe('Events creation', () => {
 
     test('should fail if memberslist_submission_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -392,7 +392,7 @@ describe('Events creation', () => {
 
     test('should fail if draft_proposal_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -420,7 +420,7 @@ describe('Events creation', () => {
 
     test('should fail if draft_proposal_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -448,7 +448,7 @@ describe('Events creation', () => {
 
     test('should not fail if draft_proposal_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -474,7 +474,7 @@ describe('Events creation', () => {
 
     test('should fail if draft_proposal_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -502,7 +502,7 @@ describe('Events creation', () => {
 
     test('should fail if final_proposal_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -529,7 +529,7 @@ describe('Events creation', () => {
 
     test('should fail if final_proposal_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -557,7 +557,7 @@ describe('Events creation', () => {
 
     test('should not fail if final_proposal_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -583,7 +583,7 @@ describe('Events creation', () => {
 
     test('should fail if final_proposal_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -611,7 +611,7 @@ describe('Events creation', () => {
 
     test('should fail if final_proposal_deadline is before draft_proposal_deadline', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -638,7 +638,7 @@ describe('Events creation', () => {
 
     test('should fail if candidature_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -665,7 +665,7 @@ describe('Events creation', () => {
 
     test('should fail if candidature_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -693,7 +693,7 @@ describe('Events creation', () => {
 
     test('should not fail if candidature_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -719,7 +719,7 @@ describe('Events creation', () => {
 
     test('should fail if candidature_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -747,7 +747,7 @@ describe('Events creation', () => {
 
     test('should fail if booklet_publication_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -775,7 +775,7 @@ describe('Events creation', () => {
 
     test('should fail if booklet_publication_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -803,7 +803,7 @@ describe('Events creation', () => {
 
     test('should not fail if booklet_publication_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -829,7 +829,7 @@ describe('Events creation', () => {
 
     test('should fail if booklet_publication_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -857,7 +857,7 @@ describe('Events creation', () => {
 
     test('should fail if updated_booklet_publication_deadline is after event starts', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -884,7 +884,7 @@ describe('Events creation', () => {
 
     test('should fail if updated_booklet_publication_deadline is not set for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -912,7 +912,7 @@ describe('Events creation', () => {
 
     test('should not fail if updated_booklet_publication_deadline is not set for EPM', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -938,7 +938,7 @@ describe('Events creation', () => {
 
     test('should fail if updated_booklet_publication_deadline is invalid for Agora', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -966,7 +966,7 @@ describe('Events creation', () => {
 
     test('should fail if updated_booklet_publication_deadline is before booklet_publication_deadline', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -993,7 +993,7 @@ describe('Events creation', () => {
 
     test('should fail if questions is empty array', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1007,7 +1007,7 @@ describe('Events creation', () => {
 
     test('should fail if questions is not an array', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1022,7 +1022,7 @@ describe('Events creation', () => {
 
     test('should fail if questions are malformed', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1036,7 +1036,7 @@ describe('Events creation', () => {
 
     test('should fail if question.description is not set', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1050,7 +1050,7 @@ describe('Events creation', () => {
 
     test('should fail if question.description is not string', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1064,7 +1064,7 @@ describe('Events creation', () => {
 
     test('should fail if question.required is not set', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1078,7 +1078,7 @@ describe('Events creation', () => {
 
     test('should fail if question.required is not string', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1092,7 +1092,7 @@ describe('Events creation', () => {
 
     test('should fail if question.values is not an array when type is select', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1106,7 +1106,7 @@ describe('Events creation', () => {
 
     test('should fail if question.values.* is invalid when type is select', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1120,7 +1120,7 @@ describe('Events creation', () => {
 
     test('should fail if question type is not set or invalid', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1134,7 +1134,7 @@ describe('Events creation', () => {
 
     test('should fail if question type is unknown', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1148,7 +1148,7 @@ describe('Events creation', () => {
 
     test('should fail if question value is empty', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1162,7 +1162,7 @@ describe('Events creation', () => {
 
     test('should succeed if type is select and everything is valid', async () => {
         const res = await request({
-            uri: '/',
+            path: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
@@ -1178,7 +1178,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: false });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1194,7 +1194,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: false });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1210,7 +1210,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [false] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1226,7 +1226,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: false }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1242,7 +1242,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: '       ' }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1258,7 +1258,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: 'test', position: false }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1274,7 +1274,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: false, lng: 1 } }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1290,7 +1290,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: 1, lng: false } }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event
@@ -1306,7 +1306,7 @@ describe('Events creation', () => {
         const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: 1, lng: 1 } }] });
 
         const res = await request({
-            uri: '/',
+            path: '/',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: event

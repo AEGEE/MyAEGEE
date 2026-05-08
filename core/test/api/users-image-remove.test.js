@@ -27,7 +27,7 @@ describe('Users image remove', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/image',
+            path: '/members/' + user.id + '/image',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -43,11 +43,13 @@ describe('Users image remove', () => {
 
         // Uploading
         const firstRequest = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -56,7 +58,7 @@ describe('Users image remove', () => {
         let userFromDb = await User.findByPk(user.id);
 
         const res = await request({
-            uri: '/members/' + user.id + '/image',
+            path: '/members/' + user.id + '/image',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -79,11 +81,13 @@ describe('Users image remove', () => {
         const user = await generator.createUser();
 
         const firstRequest = await request({
-            uri: '/members/' + admin.id + '/upload',
+            path: '/members/' + admin.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
             }
         });
 
@@ -92,11 +96,13 @@ describe('Users image remove', () => {
         const adminFromDbBeforeChange = await User.findByPk(admin.id);
 
         const secondRequest = await request({
-            uri: '/members/' + user.id + '/upload',
+            path: '/members/' + user.id + '/upload',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            formData: {
-                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            files: {
+                head_image: {
+                    path: './test/assets/valid_second_image.PNG'
+                }
             }
         });
 
@@ -105,7 +111,7 @@ describe('Users image remove', () => {
         let userFromDb = await User.findByPk(user.id);
 
         const res = await request({
-            uri: '/members/' + user.id + '/image',
+            path: '/members/' + user.id + '/image',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

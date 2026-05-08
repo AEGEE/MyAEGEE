@@ -25,7 +25,7 @@ describe('Events listing for single', () => {
 
     test('should return 404 if the event is not found', async () => {
         const res = await request({
-            uri: '/events/nonexistant',
+            path: '/events/nonexistant',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -45,7 +45,7 @@ describe('Events listing for single', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'GET'
         });
 
@@ -57,7 +57,7 @@ describe('Events listing for single', () => {
     test('should find event by url', async () => {
         const event = await generator.createEvent({ url: 'test-slug' });
         const res = await request({
-            uri: '/events/test-slug',
+            path: '/events/test-slug',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -70,7 +70,7 @@ describe('Events listing for single', () => {
     test('should find event by ID', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/events/' + event.id,
+            path: '/events/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -114,7 +114,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest',
+            path: '/events/latest',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -161,7 +161,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest-agora',
+            path: '/events/latest-agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -208,7 +208,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest-epm',
+            path: '/events/latest-epm',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -255,7 +255,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest-spm',
+            path: '/events/latest-spm',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -284,7 +284,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest',
+            path: '/events/latest',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -312,7 +312,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest-agora',
+            path: '/events/latest-agora',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -340,7 +340,7 @@ describe('Events listing for single', () => {
         });
 
         const res = await request({
-            uri: '/events/latest-epm',
+            path: '/events/latest-epm',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

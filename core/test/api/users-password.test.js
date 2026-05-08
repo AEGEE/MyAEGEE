@@ -23,7 +23,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337/password',
+            path: '/members/1337/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }
@@ -42,7 +42,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/password',
+            path: '/members/' + user.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'not right', password: 'short' }
@@ -61,7 +61,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/password',
+            path: '/members/' + user.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'short' }
@@ -81,7 +81,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id + '/password',
+            path: '/members/' + user.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }
@@ -101,7 +101,7 @@ describe('User activation', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + user.id + '/password',
+            path: '/members/' + user.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }
@@ -130,7 +130,7 @@ describe('User activation', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/password',
+            path: '/members/' + otherUser.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }
@@ -152,7 +152,7 @@ describe('User activation', () => {
         const otherUser = await generator.createUser({ password: 'testtest', superadmin: true });
 
         const res = await request({
-            uri: '/members/' + otherUser.id + '/password',
+            path: '/members/' + otherUser.id + '/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }

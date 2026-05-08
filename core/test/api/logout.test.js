@@ -17,7 +17,7 @@ describe('Logout', () => {
 
     test('should fail if the token is not found', async () => {
         const res = await request({
-            uri: '/logout',
+            path: '/logout',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -35,7 +35,7 @@ describe('Logout', () => {
         await generator.createUser();
 
         const res = await request({
-            uri: '/logout',
+            path: '/logout',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -52,7 +52,7 @@ describe('Logout', () => {
         const token = await generator.createRefreshToken(user);
 
         const res = await request({
-            uri: '/logout',
+            path: '/logout',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

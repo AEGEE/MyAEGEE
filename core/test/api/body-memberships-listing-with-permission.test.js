@@ -23,9 +23,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action', object: 'object' } },
+            query: { holds_permission: { action: 'action', object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -45,9 +45,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { object: 'object' } },
+            query: { holds_permission: { object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -67,9 +67,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action' } },
+            query: { holds_permission: { action: 'action' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -89,9 +89,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action', object: 'object' } },
+            query: { holds_permission: { action: 'action', object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -116,9 +116,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createCirclePermission(circle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action', object: 'object' } },
+            query: { holds_permission: { action: 'action', object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -150,9 +150,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createCirclePermission(firstCircle, permission);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action', object: 'object' } },
+            query: { holds_permission: { action: 'action', object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 
@@ -187,9 +187,9 @@ describe('Body memberships list wth permission', () => {
         await generator.createCircleMembership(otherCircle, otherUser);
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/members',
+            path: '/bodies/' + body.id + '/members',
             method: 'GET',
-            qs: { holds_permission: { action: 'action', object: 'object' } },
+            query: { holds_permission: { action: 'action', object: 'object' } },
             headers: { 'X-Auth-Token': token.value }
         });
 

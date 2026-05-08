@@ -28,7 +28,7 @@ describe('Question line edition', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id,
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -46,7 +46,7 @@ describe('Question line edition', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/1337',
+            path: '/events/' + event.id + '/question-lines/1337',
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -63,7 +63,7 @@ describe('Question line edition', () => {
         await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/NaN',
+            path: '/events/' + event.id + '/question-lines/NaN',
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -80,7 +80,7 @@ describe('Question line edition', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id,
             method: 'PUT',
             body: { name: 'test' },
             headers: { 'X-Auth-Token': 'blablabla' }
@@ -98,7 +98,7 @@ describe('Question line edition', () => {
         const questionLine = await generator.createQuestionLine({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/question-lines/' + questionLine.id,
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id,
             method: 'PUT',
             body: { name: null },
             headers: { 'X-Auth-Token': 'blablabla' }

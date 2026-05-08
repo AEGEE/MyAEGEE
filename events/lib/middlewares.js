@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const { request } = require('./http');
 
 const Bugsnag = require('./bugsnag');
 const core = require('./core');
@@ -20,9 +20,7 @@ exports.authenticateUser = async (req, res, next) => {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
-        simple: false,
-        json: true,
-        resolveWithFullResponse: true
+        fullResponse: true
     })));
 
     // Fetching permissions for members approval, the list of bodies
@@ -34,13 +32,11 @@ exports.authenticateUser = async (req, res, next) => {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
-        simple: false,
-        json: true,
         body: {
             action: 'approve_members',
             object: 'events'
         },
-        resolveWithFullResponse: true
+        fullResponse: true
     });
 
     req.userRequest = userBody;

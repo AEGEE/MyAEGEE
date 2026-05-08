@@ -22,7 +22,7 @@ describe('Categories edition', () => {
         const category = await generator.createCategory();
 
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
@@ -35,7 +35,7 @@ describe('Categories edition', () => {
     test('should succeed if everything is okay', async () => {
         const category = await generator.createCategory();
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
@@ -52,7 +52,7 @@ describe('Categories edition', () => {
     test('should fail on validation errors', async () => {
         const category = await generator.createCategory();
         const res = await request({
-            uri: '/categories/' + category.id,
+            path: '/categories/' + category.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: null }
@@ -66,7 +66,7 @@ describe('Categories edition', () => {
 
     test('should return 404 if the integration is not found', async () => {
         const res = await request({
-            uri: '/categories/1337',
+            path: '/categories/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
@@ -80,7 +80,7 @@ describe('Categories edition', () => {
 
     test('should return 400 if the integration ID is NaN', async () => {
         const res = await request({
-            uri: '/categories/false',
+            path: '/categories/false',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { name: 'test' }
