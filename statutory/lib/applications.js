@@ -27,12 +27,17 @@ function hasManageApplicationsPermission(corePermissions) {
         && corePermissions.some((permission) => permission.combined.match(/^global:manage_applications:(agora|epm|spm)$/));
 }
 
+function canListFutureApplicationsForBan(corePermissions) {
+    return Array.isArray(corePermissions)
+        && corePermissions.some((permission) => permission.combined === 'global:update_application_ban:member');
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
 
 exports.listFutureApplicationsForUser = async (req, res) => {
-    if (!hasManageApplicationsPermission(req.corePermissions)) {
+    if (!canListFutureApplicationsForBan(req.corePermissions) && !hasManageApplicationsPermission(req.corePermissions)) {
         return errors.makeForbiddenError(res, 'You are not allowed to see future applications.');
     }
 

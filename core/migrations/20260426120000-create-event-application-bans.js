@@ -1,54 +1,62 @@
 module.exports = {
-    up: (queryInterface, Sequelize) => queryInterface.createTable('event_application_bans', {
-        id: {
-            allowNull: false,
-            autoIncrement: true,
-            primaryKey: true,
-            type: Sequelize.INTEGER
-        },
-        user_id: {
-            allowNull: false,
-            type: Sequelize.INTEGER,
-            references: {
-                model: 'users',
-                key: 'id'
+    up: async (queryInterface, Sequelize) => {
+        await queryInterface.createTable('event_application_bans', {
+            id: {
+                allowNull: false,
+                autoIncrement: true,
+                primaryKey: true,
+                type: Sequelize.INTEGER
             },
-            onDelete: 'CASCADE'
-        },
-        banned_by_user_id: {
-            allowNull: false,
-            type: Sequelize.INTEGER,
-            references: {
-                model: 'users',
-                key: 'id'
+            user_id: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                },
+                onDelete: 'CASCADE'
             },
-            onDelete: 'RESTRICT'
-        },
-        ban_until: {
-            allowNull: false,
-            type: Sequelize.DATE
-        },
-        lifted_by_user_id: {
-            allowNull: true,
-            type: Sequelize.INTEGER,
-            references: {
-                model: 'users',
-                key: 'id'
+            banned_by_user_id: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                },
+                onDelete: 'RESTRICT'
             },
-            onDelete: 'SET NULL'
-        },
-        lifted_at: {
-            allowNull: true,
-            type: Sequelize.DATE
-        },
-        created_at: {
-            allowNull: false,
-            type: Sequelize.DATE
-        },
-        updated_at: {
-            allowNull: false,
-            type: Sequelize.DATE
-        }
-    }),
+            ban_until: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            lifted_by_user_id: {
+                allowNull: true,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                },
+                onDelete: 'SET NULL'
+            },
+            lifted_at: {
+                allowNull: true,
+                type: Sequelize.DATE
+            },
+            created_at: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            updated_at: {
+                allowNull: false,
+                type: Sequelize.DATE
+            }
+        });
+
+        await queryInterface.addIndex('event_application_bans', ['user_id'], {
+            name: 'event_application_bans_one_open_ban_per_user',
+            unique: true,
+            where: { lifted_at: null }
+        });
+    },
     down: (queryInterface) => queryInterface.dropTable('event_application_bans')
 };

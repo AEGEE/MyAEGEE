@@ -3,6 +3,7 @@ const moment = require('moment');
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { EventApplicationBan } = require('../../models');
 
 describe('User event application ban', () => {
     beforeAll(async () => {
@@ -23,7 +24,7 @@ describe('User event application ban', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            uri: '/members/' + target.id + '/event-application-ban',
+            path: '/members/' + target.id + '/event-application-ban',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { ban_until: moment().add(1, 'month').toISOString() }
@@ -42,7 +43,7 @@ describe('User event application ban', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + target.id + '/event-application-ban',
+            path: '/members/' + target.id + '/event-application-ban',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { ban_until: moment().add(1, 'month').toISOString() }
@@ -53,7 +54,7 @@ describe('User event application ban', () => {
         expect(res.body.data.user_id).toEqual(target.id);
 
         const userRes = await request({
-            uri: '/members/' + target.id,
+            path: '/members/' + target.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -70,7 +71,7 @@ describe('User event application ban', () => {
         await generator.createEventApplicationBan(user, banner, { ban_until: moment().add(1, 'month').toDate() });
 
         const res = await request({
-            uri: '/members/me',
+            path: '/members/me',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -88,7 +89,7 @@ describe('User event application ban', () => {
         await generator.createEventApplicationBan(target, user, { ban_until: moment().add(1, 'month').toDate() });
 
         const res = await request({
-            uri: '/members/' + target.id,
+            path: '/members/' + target.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -105,7 +106,7 @@ describe('User event application ban', () => {
         await generator.createPermission({ scope: 'global', action: 'update_application_ban', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + target.id + '/event-application-ban',
+            path: '/members/' + target.id + '/event-application-ban',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { ban_until: moment().add(3, 'months').add(1, 'day').toISOString() }
@@ -114,6 +115,41 @@ describe('User event application ban', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body.errors).toHaveProperty('ban_until');
+    });
+
+    test('should replace an existing active ban when setting a new ban', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const target = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        const firstBan = await generator.createEventApplicationBan(target, user, {
+            ban_until: moment().add(1, 'month').toDate()
+        });
+
+        await generator.createPermission({ scope: 'global', action: 'update_application_ban', object: 'member' });
+
+        const res = await request({
+            path: '/members/' + target.id + '/event-application-ban',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { ban_until: moment().add(2, 'months').toISOString() }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).not.toEqual(firstBan.id);
+
+        await firstBan.reload();
+        expect(firstBan.lifted_at).not.toBeNull();
+        expect(firstBan.lifted_by_user_id).toEqual(user.id);
+
+        const activeBans = await EventApplicationBan.findAll({
+            where: {
+                user_id: target.id,
+                lifted_at: null
+            }
+        });
+        expect(activeBans).toHaveLength(1);
+        expect(activeBans[0].id).toEqual(res.body.data.id);
     });
 
     test('should lift active ban', async () => {
@@ -126,7 +162,7 @@ describe('User event application ban', () => {
         await generator.createEventApplicationBan(target, user, { ban_until: moment().add(1, 'month').toDate() });
 
         const res = await request({
-            uri: '/members/' + target.id + '/event-application-ban',
+            path: '/members/' + target.id + '/event-application-ban',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -135,7 +171,7 @@ describe('User event application ban', () => {
         expect(res.body.success).toEqual(true);
 
         const userRes = await request({
-            uri: '/members/' + target.id,
+            path: '/members/' + target.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

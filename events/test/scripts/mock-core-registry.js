@@ -100,6 +100,16 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
+    if (options.applicationBanPermission) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .reply(200, {
+                success: true,
+                data: [{ combined: 'global:update_application_ban:member' }]
+            });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/my_permissions')

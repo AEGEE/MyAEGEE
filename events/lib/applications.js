@@ -11,8 +11,13 @@ function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
 
+function canListFutureApplicationsForBan(corePermissions) {
+    return Array.isArray(corePermissions)
+        && corePermissions.some((permission) => permission.combined === 'global:update_application_ban:member');
+}
+
 exports.listFutureApplicationsForUser = async (req, res) => {
-    if (!Object.values(req.permissions.manage_event).some(Boolean)) {
+    if (!canListFutureApplicationsForBan(req.corePermissions) && !Object.values(req.permissions.manage_event).some(Boolean)) {
         return errors.makeForbiddenError(res, 'You are not allowed to see future applications.');
     }
 

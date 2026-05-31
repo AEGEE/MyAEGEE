@@ -416,7 +416,7 @@ export default {
       this.fetchFutureApplications().then((applications) => {
         const futureApplications = applications.length > 0
           ? '<p>This user already has future applications. These applications will remain active:</p><ul>'
-            + applications.map((application) => '<li>' + application.event_name + ' (' + application.service + ', ' + application.application_status + ')</li>').join('')
+            + applications.map((application) => '<li>' + this.escapeHtml(application.event_name) + ' (' + this.escapeHtml(application.service) + ', ' + this.escapeHtml(application.application_status) + ')</li>').join('')
             + '</ul>'
           : '<p>This user has no active future applications.</p>'
 
@@ -444,6 +444,15 @@ export default {
       ]
 
       return Promise.all(links.map(link => this.axios.get(link).then(response => response.data.data))).then((responses) => responses.reduce((acc, list) => acc.concat(list), []))
+    },
+    escapeHtml (value) {
+      return String(value).replace(/[&<>'"]/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[character]))
     },
     setEventApplicationBan (banUntil) {
       this.axios
