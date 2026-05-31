@@ -44,7 +44,12 @@ $link: $blue;
 $family-primary: $family-sans-serif;
 
 :root {
+	--blue-light: #{$blue-light};
+	--red-light: #{$red-light};
+	--green-light: #{$green-light};
 	--purple-light: #{$purple-light};
+	--white-ter: #fafafa;
+	--yellow-light: #{$yellow-light};
 }
 
 $fa-font-path: "../fonts" !default;
