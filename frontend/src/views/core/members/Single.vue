@@ -10,8 +10,8 @@
         </article>
       </div>
       <div class="tile is-parent">
-        <article class="tile is-child is-info" v-if="can.edit">
-          <div class="field is-grouped">
+        <article class="tile is-child is-info" v-if="can.edit || can.setActive || can.setEventApplicationBan || can.setSuperadmin || can.delete">
+          <div class="field is-grouped" v-if="can.edit">
             <a class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>

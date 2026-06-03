@@ -519,7 +519,7 @@ export default {
       return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     },
     canSubmitApplication () {
-      return this.can.apply && (!this.isNew || !this.activeEventApplicationBan)
+      return !this.isNew || (this.can.apply && !this.activeEventApplicationBan)
     },
     isOwn () {
       return this.isNew || this.loginUser.id === this.application.user_id
