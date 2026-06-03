@@ -69,6 +69,7 @@ GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.post('/', events.addEvent);
 GeneralRouter.get('/tasks', middlewares.getTasksList);
 GeneralRouter.get('/mine', events.listUserAppliedEvents);
+GeneralRouter.get('/applications/future/:user_id', applications.listFutureApplicationsForUser);
 
 GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
 

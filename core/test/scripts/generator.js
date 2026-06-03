@@ -15,7 +15,8 @@ const {
     CircleMembership,
     BodyMembership,
     JoinRequest,
-    Payment
+    Payment,
+    EventApplicationBan
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -175,6 +176,14 @@ exports.createPayment = (body, user, options = {}) => {
     return Payment.create(exports.generatePayment(body, user, options));
 };
 
+exports.createEventApplicationBan = (user, bannedBy, options = {}) => {
+    if (notSet(options.user_id)) options.user_id = user.id;
+    if (notSet(options.banned_by_user_id)) options.banned_by_user_id = bannedBy.id;
+    if (notSet(options.ban_until)) options.ban_until = faker.date.future();
+
+    return EventApplicationBan.create(options);
+};
+
 exports.generatePayment = (body, user, options = {}) => {
     if (body && body.id) options.body_id = body.id;
     if (user && user.id) options.user_id = user.id;
@@ -202,6 +211,7 @@ exports.createMailChange = (user = null, options = {}) => {
 
 exports.clearAll = async () => {
     await MailChange.destroy({ where: {}, truncate: { cascade: true } });
+    await EventApplicationBan.destroy({ where: {}, truncate: { cascade: true } });
     await Payment.destroy({ where: {}, truncate: { cascade: true } });
     await JoinRequest.destroy({ where: {}, truncate: { cascade: true } });
     await BodyMembership.destroy({ where: {}, truncate: { cascade: true } });

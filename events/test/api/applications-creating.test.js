@@ -19,6 +19,33 @@ describe('Events application creating', () => {
         await generator.clearAll();
     });
 
+    it('should disallow application when user has an active event application ban', async () => {
+        mock.mockAll({ core: { eventApplicationBanned: true } });
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            applications: [],
+            questions: []
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [],
+                agreed_to_privacy_policy: true
+            }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     it('should disallow application for events with closed deadline', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(2, 'weeks').toDate(),

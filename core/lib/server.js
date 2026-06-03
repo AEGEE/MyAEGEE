@@ -96,6 +96,8 @@ GeneralRouter.post('/campaigns', middlewares.ensureAuthorized, campaigns.createC
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchUser);
 MemberRouter.get('/my_permissions', myPermissions.getMyPermissions);
 MemberRouter.put('/active', members.setUserActive);
+MemberRouter.put('/event-application-ban', members.setEventApplicationBan);
+MemberRouter.delete('/event-application-ban', members.liftEventApplicationBan);
 MemberRouter.put('/superadmin', members.setUserSuperadmin);
 MemberRouter.post('/confirm', members.confirmUser);
 MemberRouter.put('/primary-body', members.setPrimaryBody);

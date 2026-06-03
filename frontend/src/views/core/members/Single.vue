@@ -10,8 +10,8 @@
         </article>
       </div>
       <div class="tile is-parent">
-        <article class="tile is-child is-info" v-if="can.edit">
-          <div class="field is-grouped">
+        <article class="tile is-child is-info" v-if="can.edit || can.setActive || can.setEventApplicationBan || can.setSuperadmin || can.delete">
+          <div class="field is-grouped" v-if="can.edit">
             <a class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
@@ -80,6 +80,28 @@
               @click="askToggleActive()"
             >
               <span>Activate user</span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.setEventApplicationBan && !activeEventApplicationBan">
+            <a
+              class="button is-fullwidth is-danger"
+              :class="{ 'is-loading': isSwitchingEventApplicationBan }"
+              @click="askSetEventApplicationBan()"
+            >
+              <span>Ban event applications</span>
+              <span class="icon"><font-awesome-icon icon="minus" /></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.setEventApplicationBan && activeEventApplicationBan">
+            <a
+              class="button is-fullwidth is-primary"
+              :class="{ 'is-loading': isSwitchingEventApplicationBan }"
+              @click="askLiftEventApplicationBan()"
+            >
+              <span>Lift event application ban</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </a>
           </div>
@@ -185,6 +207,13 @@
                   <th>Login suspended?</th>
                   <td>{{ user.active ? 'No' : 'Yes' }}</td>
                 </tr>
+                <tr v-if="can.viewEventApplicationBan">
+                  <th>Event application ban</th>
+                  <td v-if="activeEventApplicationBan">
+                    Until {{ user.event_application_ban.ban_until | datetime }}
+                  </td>
+                  <td v-if="!activeEventApplicationBan">No active ban</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -248,6 +277,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
 import EditPrimaryEmailModal from './EditPrimaryEmailModal.vue'
 import PictureModal from './PictureModal.vue'
@@ -269,16 +299,20 @@ export default {
         notification_email: null,
         active: null,
         superadmin: null,
+        event_application_ban: null,
         username: null,
         image: null
       },
       isOwnProfile: false,
       isLoading: false,
       isSwitchingStatus: false,
+      isSwitchingEventApplicationBan: false,
       permissions: [],
       can: {
         edit: false,
         setActive: false,
+        setEventApplicationBan: false,
+        viewEventApplicationBan: false,
         setSuperadmin: false,
         delete: false
       }
@@ -361,6 +395,102 @@ export default {
         .catch((err) => {
           this.$root.showError('Error changing user status', err)
           this.isSwitchingStatus = false
+        })
+    },
+    askSetEventApplicationBan () {
+      this.$buefy.dialog.prompt({
+        title: 'Ban event applications',
+        message: 'Set the end date of the temporary ban. The maximum is 3 months from today.',
+        inputAttrs: {
+          type: 'date',
+          min: moment().add(1, 'day').format('YYYY-MM-DD'),
+          max: moment().add(3, 'months').format('YYYY-MM-DD'),
+          required: true
+        },
+        trapFocus: true,
+        onConfirm: (banUntil) => this.confirmEventApplicationBan(banUntil)
+      })
+    },
+    confirmEventApplicationBan (banUntil) {
+      this.isSwitchingEventApplicationBan = true
+      this.fetchFutureApplications().then((applications) => {
+        const futureApplications = applications.length > 0
+          ? '<p>This user already has future applications. These applications will remain active:</p><ul>'
+            + applications.map((application) => '<li>' + this.escapeHtml(application.event_name) + ' (' + this.escapeHtml(application.service) + ', ' + this.escapeHtml(application.application_status) + ')</li>').join('')
+            + '</ul>'
+          : '<p>This user has no active future applications.</p>'
+
+        this.$buefy.dialog.confirm({
+          title: 'Confirm event application ban',
+          message: futureApplications + '<p>Do you want to apply the ban until <b>' + moment(banUntil).format('YYYY-MM-DD') + '</b>?</p>',
+          confirmText: 'Apply ban',
+          type: 'is-danger',
+          hasIcon: true,
+          onConfirm: () => this.setEventApplicationBan(banUntil),
+          onCancel: () => {
+            this.isSwitchingEventApplicationBan = false
+          }
+        })
+      }).catch((err) => {
+        this.isSwitchingEventApplicationBan = false
+        this.$root.showError('Could not fetch future applications', err)
+      })
+    },
+    fetchFutureApplications () {
+      const links = [
+        this.services['events'] + '/applications/future/' + this.user.id,
+        this.services['statutory'] + '/applications/future/' + this.user.id,
+        this.services['summeruniversity'] + '/applications/future/' + this.user.id
+      ]
+
+      return Promise.all(links.map(link => this.axios.get(link).then(response => response.data.data))).then((responses) => responses.reduce((acc, list) => acc.concat(list), []))
+    },
+    escapeHtml (value) {
+      return String(value).replace(/[&<>'"]/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[character]))
+    },
+    setEventApplicationBan (banUntil) {
+      this.axios
+        .put(this.services['core'] + '/members/' + this.user.id + '/event-application-ban', {
+          ban_until: banUntil
+        })
+        .then((response) => {
+          this.user.event_application_ban = response.data.data
+          this.$root.showSuccess('Event application ban is active.')
+          this.isSwitchingEventApplicationBan = false
+        })
+        .catch((err) => {
+          this.$root.showError('Error setting event application ban', err)
+          this.isSwitchingEventApplicationBan = false
+        })
+    },
+    askLiftEventApplicationBan () {
+      this.$buefy.dialog.confirm({
+        title: 'Lift event application ban',
+        message: 'Are you sure you want to lift this user\'s event application ban?',
+        confirmText: 'Lift ban',
+        type: 'is-primary',
+        hasIcon: true,
+        onConfirm: () => this.liftEventApplicationBan()
+      })
+    },
+    liftEventApplicationBan () {
+      this.isSwitchingEventApplicationBan = true
+      this.axios
+        .delete(this.services['core'] + '/members/' + this.user.id + '/event-application-ban')
+        .then(() => {
+          this.user.event_application_ban = null
+          this.$root.showSuccess('Event application ban is lifted.')
+          this.isSwitchingEventApplicationBan = false
+        })
+        .catch((err) => {
+          this.$root.showError('Error lifting event application ban', err)
+          this.isSwitchingEventApplicationBan = false
         })
     },
     askToggleSuperadmin () {
@@ -456,6 +586,8 @@ export default {
           // set the permission to true if at least one set of permissions have
           // the required permission (either first for global, or others for local).
           this.can.setActive = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('update_active:member')))
+          this.can.setEventApplicationBan = responses.some((list) => list.data.data.some((permission) => permission.combined === 'global:update_application_ban:member'))
+          this.can.viewEventApplicationBan = this.isOwnProfile || this.can.setEventApplicationBan
           this.can.setSuperadmin = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('update_superadmin:member')))
           this.can.edit = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('update:member'))) || this.isOwnProfile
           this.can.delete = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('delete:member')))
@@ -481,9 +613,14 @@ export default {
   mounted () {
     this.fetchUser()
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: {
+    ...mapGetters({
+      loginUser: 'user',
+      services: 'services'
+    }),
+    activeEventApplicationBan () {
+      return this.user.event_application_ban && new Date(this.user.event_application_ban.ban_until) > new Date()
+    }
+  }
 }
 </script>

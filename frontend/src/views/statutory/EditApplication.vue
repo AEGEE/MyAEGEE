@@ -5,8 +5,12 @@
         <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
         <div class="title" v-show="!isNew">Edit application on {{ event.name }}</div>
 
+        <div class="notification is-warning" v-if="isNew && activeEventApplicationBan">
+          You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
+        </div>
+
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent">
+          <div class="tile is-parent" v-show="canSubmitApplication">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>
@@ -420,6 +424,10 @@ export default {
   },
   methods: {
     saveApplication () {
+      if (this.isNew && this.activeEventApplicationBan) {
+        return this.$root.showError('You are temporarily banned from submitting new event applications.')
+      }
+
       if (!this.application.body_id) {
         return this.$root.showError('Please select a body.')
       }
@@ -506,6 +514,12 @@ export default {
     }),
     isNew () {
       return !this.$route.params.application_id
+    },
+    activeEventApplicationBan () {
+      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+    },
+    canSubmitApplication () {
+      return !this.isNew || (this.can.apply && !this.activeEventApplicationBan)
     },
     isOwn () {
       return this.isNew || this.loginUser.id === this.application.user_id

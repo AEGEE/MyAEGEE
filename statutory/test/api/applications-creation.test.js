@@ -26,6 +26,28 @@ describe('Applications creation', () => {
         mock.cleanAll();
     });
 
+    test('should return 403 when user has an active event application ban', async () => {
+        mock.mockAll({ core: { eventApplicationBanned: true }, mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent({ applications: [] });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateApplication({
+                body_id: regularUser.bodies[0].id
+            }, event)
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should succeed if user can apply within deadline but without permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent({ applications: [] });

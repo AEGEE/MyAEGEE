@@ -25,6 +25,28 @@ describe('Candidates submission', () => {
         mock.cleanAll();
     });
 
+    test('should allow candidature submission when user has an active event application ban', async () => {
+        mock.mockAll({ core: { eventApplicationBanned: true }, mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
     test('should return 403 if the applications have not started', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 

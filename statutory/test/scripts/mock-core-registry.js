@@ -36,6 +36,21 @@ exports.mockCore = (options) => {
             .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
+    if (options.eventApplicationBanned) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members/me')
+            .reply(200, {
+                success: true,
+                data: {
+                    ...regularUser,
+                    event_application_ban: {
+                        ban_until: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)
+                    }
+                }
+            });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/members/me')
@@ -111,6 +126,16 @@ exports.mockCoreMainPermissions = (options) => {
             .persist()
             .get('/my_permissions')
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
+    }
+
+    if (options.applicationBanPermission) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .reply(200, {
+                success: true,
+                data: [{ combined: 'global:update_application_ban:member' }]
+            });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
