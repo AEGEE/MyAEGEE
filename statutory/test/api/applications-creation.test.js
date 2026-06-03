@@ -33,7 +33,7 @@ describe('Applications creation', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/',
+            path: '/events/' + event.id + '/applications/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateApplication({

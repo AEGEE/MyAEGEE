@@ -36,7 +36,7 @@ describe('Candidates submission', () => {
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
             method: 'POST',
             body: candidate,
             headers: { 'X-Auth-Token': 'blablabla' }

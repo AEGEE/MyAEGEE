@@ -31,7 +31,7 @@ describe('Events application creating', () => {
         });
 
         const res = await request({
-            uri: '/single/' + event.id + '/applications',
+            path: '/single/' + event.id + '/applications',
             headers: { 'X-Auth-Token': 'foobar' },
             method: 'POST',
             body: {
