@@ -128,6 +128,27 @@ exports.getUser = async (req, res) => {
     });
 };
 
+exports.lookupUser = async (req, res) => {
+    if (!req.permissions.hasPermission('lookup:member')
+        && !req.permissions.hasPermission('view:member')
+        && req.user.id !== req.currentUser.id) {
+        return errors.makeForbiddenError(res, 'Permission lookup:member is required, but not present.');
+    }
+
+    return res.json({
+        success: true,
+        data: {
+            id: req.currentUser.id,
+            first_name: req.currentUser.first_name,
+            last_name: req.currentUser.last_name,
+            username: req.currentUser.username,
+            email: req.currentUser.email,
+            gsuite_id: req.currentUser.gsuite_id,
+            notification_email: req.currentUser.notification_email
+        }
+    });
+};
+
 exports.getUsersEmail = async (req, res) => {
     const correctQuery = req.query.query && typeof req.query.query === 'string' && req.query.query.trim().length > 0 && req.query.query.match(/^\d+(?:,\d+)*$/g);
 

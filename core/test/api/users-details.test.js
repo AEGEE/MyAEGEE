@@ -212,4 +212,86 @@ describe('User details', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should fail with search permission on regular member details', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+        const otherUser = await generator.createUser();
+
+        const res = await request({
+            path: '/members/' + otherUser.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should fail member lookup data with only search permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+        const otherUser = await generator.createUser();
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/lookup',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return limited member lookup data with lookup permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'lookup', object: 'member' });
+        const otherUser = await generator.createUser({ gsuite_id: 'organizer@aegee.eu' });
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/lookup',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data).toEqual({
+            id: otherUser.id,
+            first_name: otherUser.first_name,
+            last_name: otherUser.last_name,
+            username: otherUser.username,
+            email: otherUser.email,
+            gsuite_id: otherUser.gsuite_id,
+            notification_email: otherUser.notification_email
+        });
+    });
+
+    test('should fail member lookup data without lookup permission', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const otherUser = await generator.createUser();
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/lookup',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
 });
