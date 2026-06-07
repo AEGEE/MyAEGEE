@@ -23,7 +23,7 @@ const makeRequest = (options) => {
 
 const fetchUser = async (user, token) => {
     const userRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/members/' + user.user_id,
+        url: config.core.url + ':' + config.core.port + '/members/' + user.user_id + '/lookup',
         token
     });
 

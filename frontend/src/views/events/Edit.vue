@@ -314,7 +314,7 @@
           <div class="content">
             <p>The user creating the event automatically becomes the organiser.</p>
             <p>People who are not listed as organisers won't be able to see and manage event manage applications, even if they are the board members.</p>
-            <p v-if="!can.viewAllMembers">
+            <p v-if="!can.searchAllMembers">
               <strong>You can only add people from your bodies.</strong>
               If a person from another body needs to be added as an organiser, you can temporarily join this body to get the permissions
               to see members of this body, add required people, then leave it.
@@ -705,7 +705,7 @@ export default {
       },
       can: {
         edit_application_status: false,
-        viewAllMembers: false
+        searchAllMembers: false
       },
       errors: {},
       isLoading: false,
@@ -722,10 +722,10 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      // If user has global permission, fetching global members list.
+      // If user has global permission, searching the global members list.
       // Otherwise, fetch all of the members of the bodies this user is a member of.
-      const endpoints = this.can.viewAllMembers
-        ? [this.services['core'] + '/members']
+      const endpoints = this.can.searchAllMembers
+        ? [this.services['core'] + '/members_search']
         : this.loginUser.bodies.map(body => this.services['core'] + '/bodies/' + body.id + '/members')
 
       // Ignoring the requests that failed (because of 403 most likely)
@@ -742,7 +742,7 @@ export default {
       Promise.all(endpoints.map(fetchEndpoint)).then((responses) => {
         this.autoComplete.members.values = responses
           .reduce((acc, val) => acc.concat(val), [])
-          .map(value => (this.can.viewAllMembers ? value : value.user))
+          .map(value => (this.can.searchAllMembers ? value : value.user))
           .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
 
         this.autoComplete.members.loading = false
@@ -961,7 +961,7 @@ export default {
 
       return this.axios.get(this.services['core'] + '/my_permissions/')
     }).then((response) => {
-      this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member'))
+      this.can.searchAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:search:member'))
 
       if (!this.$route.params.id) {
         this.isLoading = false
@@ -978,7 +978,7 @@ export default {
       return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
-        this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member')) // override it
+        this.can.searchAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:search:member')) // override it
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.starts = new Date(this.event.ends)

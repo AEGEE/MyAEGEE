@@ -247,6 +247,12 @@ async function createPermissions() {
         scope: 'global',
         description: 'View all members in the system. Assign this role to trusted persons only to avoid disclosure. For local scope, use view_members:body'
     });
+    permissions.lookupMember = await Permission.create({
+        action: 'lookup',
+        object: 'member',
+        scope: 'global',
+        description: 'Lookup limited member identity and contact routing data, including notification email.'
+    });
     permissions.addMemberCircle = await Permission.create({
         action: 'add_member',
         object: 'circle',
@@ -803,7 +809,7 @@ async function createPermissions() {
         description: ' Manage and delete LTCs. '
     }], { individualHooks: true, validate: true });
 
-    permissions.eqac = [...eqacPermissions, permissions.viewMember, permissions.approveEventNwm];
+    permissions.eqac = [...eqacPermissions, permissions.lookupMember, permissions.approveEventNwm];
 
     const chairPermissions = await Permission.bulkCreate([{
         action: 'mail',
