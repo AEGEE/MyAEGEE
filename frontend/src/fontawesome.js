@@ -68,6 +68,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome'
 import { faHandHoldingMedical } from '@fortawesome/free-solid-svg-icons/faHandHoldingMedical'
 import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage'
 import { faGlobeEurope } from '@fortawesome/free-solid-svg-icons/faGlobeEurope'
+import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList'
 
 library.add(faTimesCircle)
 library.add(faHeart)
@@ -135,5 +136,6 @@ library.add(faHome)
 library.add(faHandHoldingMedical)
 library.add(faLanguage)
 library.add(faGlobeEurope)
+library.add(faClipboardList)
 
 export default FontAwesomeIcon
