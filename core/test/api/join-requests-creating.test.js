@@ -90,13 +90,17 @@ describe('Join request creating', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should not send anything if no permission', async () => {
-        const requestMock = mock.mockAll();
-
+    test('should send mail to body email if no permission', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
+
+        const requestMock = mock.mockAll({
+            mailer: {
+                body: (b) => b.to.length === 1 && b.to[0] === body.email.toLowerCase()
+            }
+        });
 
         const res = await request({
             path: '/bodies/' + body.id + '/join-requests',
@@ -110,16 +114,20 @@ describe('Join request creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(requestMock.mailer.isDone()).toEqual(false);
+        expect(requestMock.mailer.isDone()).toEqual(true);
     });
 
-    test('should not send anything if no circles', async () => {
-        const requestMock = mock.mockAll();
-
+    test('should send mail to body email if no circles', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
+
+        const requestMock = mock.mockAll({
+            mailer: {
+                body: (b) => b.to.length === 1 && b.to[0] === body.email.toLowerCase()
+            }
+        });
 
         const otherUser = await generator.createUser();
         await generator.createPermission({ scope: 'local', action: 'process', object: 'join_request' });
@@ -137,16 +145,20 @@ describe('Join request creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(requestMock.mailer.isDone()).toEqual(false);
+        expect(requestMock.mailer.isDone()).toEqual(true);
     });
 
-    test('should not send anything if no members', async () => {
-        const requestMock = mock.mockAll();
-
+    test('should send mail to body email if no members', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
+
+        const requestMock = mock.mockAll({
+            mailer: {
+                body: (b) => b.to.length === 1 && b.to[0] === body.email.toLowerCase()
+            }
+        });
 
         const otherUser = await generator.createUser();
         const permission = await generator.createPermission({ scope: 'local', action: 'process', object: 'join_request' });
@@ -166,7 +178,7 @@ describe('Join request creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(requestMock.mailer.isDone()).toEqual(false);
+        expect(requestMock.mailer.isDone()).toEqual(true);
     });
 
     test('should send mails if there are members', async () => {
@@ -184,7 +196,9 @@ describe('Join request creating', () => {
 
         const requestMock = mock.mockAll({
             mailer: {
-                body: (b) => b.to.length === 1 && b.to[0] === otherUser.email.toLowerCase()
+                body: (b) => b.to.length === 2
+                    && b.to.includes(body.email.toLowerCase())
+                    && b.to.includes(otherUser.email.toLowerCase())
             }
         });
 

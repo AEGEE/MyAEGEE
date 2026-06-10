@@ -39,6 +39,8 @@ exports.createJoinRequest = async (req, res) => {
             motivation: req.body.motivation
         }, { transaction: t });
 
+        const recipients = [req.currentBody.email];
+
         // Fetching a permission.
         const permission = await Permission.findOne({
             where: {
@@ -49,30 +51,29 @@ exports.createJoinRequest = async (req, res) => {
         });
 
         if (!permission) {
-            logger.warn('No local:process:join_request permission, not sending mails to board.');
-            return;
-        }
+            logger.warn('No local:process:join_request permission, only sending mail to body email.');
+        } else {
+            const circles = await req.permissions.fetchPermissionCircles(permission);
+            const localCircles = circles.filter((circle) => circle.body_id === req.currentBody.id);
 
-        const circles = await req.permissions.fetchPermissionCircles(permission);
-        const localCircles = circles.filter((circle) => circle.body_id === req.currentBody.id);
+            if (!localCircles.length) {
+                logger.debug('No local circles, only sending mail to body email.');
+            } else {
+                const members = await User.findAll({
+                    where: { '$circle_memberships.circle_id$': { [Sequelize.Op.in]: localCircles.map((circle) => circle.id) } },
+                    include: [CircleMembership]
+                });
 
-        if (!localCircles.length) {
-            logger.debug('No local circles, not sending mails to user.');
-            return;
-        }
+                if (!members.length) {
+                    logger.debug('No members with local:process:join_request permission, only sending mail to body email.');
+                }
 
-        const members = await User.findAll({
-            where: { '$circle_memberships.circle_id$': { [Sequelize.Op.in]: localCircles.map((circle) => circle.id) } },
-            include: [CircleMembership]
-        });
-
-        if (!members.length) {
-            logger.debug('No members with local:process:join_request permission, not sending mails to board.');
-            return;
+                recipients.push(...members.map((member) => member.notification_email));
+            }
         }
 
         await mailer.sendMail({
-            to: members.map((member) => member.notification_email),
+            to: recipients,
             subject: constants.MAIL_SUBJECTS.NEW_JOIN_REQUEST,
             template: 'member_joined.html',
             parameters: {
