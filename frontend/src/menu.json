@@ -132,6 +132,12 @@
             "label": "Create event"
           }
         ]
+      },
+      {
+        "label": "Interest form",
+        "icon": "clipboard-list",
+        "link": "https://docs.google.com/forms/d/e/1FAIpQLSefgeBP5BTdEOEajrysQrdAALPIqDon9H1lClcC7BOp_CRFmw/viewform",
+        "auth": "logged-in"
       }
     ]
   },
