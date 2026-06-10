@@ -216,8 +216,11 @@ export default {
         })
     },
     askToJoinBody (bodyId) {
+      const selectedBody = this.bodies.find((body) => body.id === bodyId)
+
       this.$buefy.dialog.prompt({
-        message: 'Join body',
+        title: 'Join body',
+        message: this.getJoinRequestMessage(selectedBody),
         inputAttrs: {
           placeholder: 'Motivation',
           required: false
@@ -246,6 +249,24 @@ export default {
             this.$root.showError('Could not sent join request', err)
           }
         })
+    },
+    getJoinRequestMessage (body) {
+      const contactDetails = body
+        ? [
+          'Local email: ' + this.escapeHtml(body.email),
+          body.website ? 'Website: ' + this.escapeHtml(body.website) : null
+        ].filter(Boolean).join('<br>')
+        : 'Local email: automatically filled after selecting a Local'
+
+      return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
+    },
+    escapeHtml (value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
     },
     changeEmail (newEmail) {
       if (RESTRICTED_EMAILS.some((domain) => newEmail.includes(domain))) {
