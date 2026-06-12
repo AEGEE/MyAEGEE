@@ -580,13 +580,13 @@ export default {
       services: 'services'
     }),
     isOrganizer () {
-      return this.event.organizers.some((org) => org.user_id === this.loginUser.id)
+      return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
     },
     isOnlineEvent () {
       return this.event.method === 'online'
     },
     activeEventApplicationBan () {
-      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+      return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
   }
 }
