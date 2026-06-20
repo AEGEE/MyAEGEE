@@ -39,7 +39,7 @@
     "buefy": "^0.9.29",
     "chart.js": "^2.9.4",
     "compression-webpack-plugin": "^6.1.1",
-    "dompurify": "^3.4.2",
+    "dompurify": "^3.4.11",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.32.0",
     "eslint-plugin-vuejs-accessibility": "^2.5.0",
