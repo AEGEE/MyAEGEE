@@ -1,4 +1,4 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM php:8.5.1-apache
+FROM --platform=$BUILDPLATFORM php:8.5.8-apache
 
 COPY files/ /var/www/html/
