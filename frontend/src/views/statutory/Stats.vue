@@ -83,7 +83,8 @@
 
         <div class="subtitle">Quorum</div>
         <p>
-          {{ quorum.present }} of {{ quorum.total }} antennae represented by non-cancelled applications.
+          {{ quorum.present }} of {{ quorum.total }} antennae represented by
+          {{ stats.quorum.accepted_only ? 'accepted non-cancelled applications' : 'non-cancelled applications' }}.
           Required: {{ quorum.required }} (50%).
         </p>
         <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions" />
@@ -132,6 +133,7 @@ export default {
       },
       bodies: [],
       stats: {
+        quorum: { accepted_only: false, body_ids: [] },
         by_date: [],
         by_date_cumulative: [],
         by_body: [],
@@ -316,8 +318,8 @@ export default {
       }
 
       const total = Object.keys(localsMap).length
-      const present = this.stats.by_body
-        .filter((body) => body.type in localsMap)
+      const present = this.stats.quorum.body_ids
+        .filter((bodyId) => bodyId in localsMap)
         .length
 
       const required = Math.ceil(total / 2)

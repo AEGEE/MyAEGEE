@@ -24,6 +24,20 @@ The main developer of this module is Sergey Peshkov (AEGEE-Voronezh, github.com/
 
 You can specify the microservice configuration by editing the `lib/index.js` file. Check out the example at `lib/index.js.example` and the comments in `lib/index.js` for more information.
 
+## Quorum statistics
+
+`GET /events/:event_id/applications/stats` includes `data.quorum` with
+`accepted_only` (boolean) and `body_ids` (distinct represented body IDs).
+Before `participants_list_publish_deadline`, representation includes all
+non-cancelled applications. At and after that timestamp, it includes only
+accepted non-cancelled applications. The cutoff uses server time, regardless
+of staff permissions or early application-status publication. Other statistics,
+including `by_body`, retain their existing meaning.
+
+The frontend restricts these IDs to antennae and displays a 50% requirement,
+rounded up. These statistics do not determine whether statutory quorum is met.
+Deploy the updated statutory service before the updated frontend.
+
 ## LICENSE
 
 Copyright 2018 Sergey Peshkov (AEGEE-Europe) and contributors.

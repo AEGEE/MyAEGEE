@@ -8,6 +8,7 @@ const mailer = require('./mailer');
 const { Application, VotesPerAntenna, PaxLimit, Event } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
+const getQuorumStats = require('./quorum');
 const { sequelize, Sequelize } = require('./sequelize');
 const logger = require('./logger');
 
@@ -250,6 +251,7 @@ exports.getStats = async (req, res) => {
 
     // Filtering out cancelled applications.
     const notCancelledApplications = applications.filter((app) => !app.cancelled);
+    statsObject.quorum = getQuorumStats(applications, req.event);
 
     // By date
     const dates = notCancelledApplications.map((app) => moment(app.created_at).format('YYYY-MM-DD'))
