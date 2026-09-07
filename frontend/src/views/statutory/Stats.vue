@@ -82,6 +82,11 @@
         <pie-chart class="chart" :chart-data="byNumOfEventsData()" :options="byNumOfEventsOptions" />
 
         <div class="subtitle">Quorum</div>
+        <p>
+          {{ quorum.present }} of {{ quorum.total }} antennae represented by
+          {{ stats.quorum.accepted_only ? 'accepted non-cancelled applications' : 'non-cancelled applications' }}.
+          Required: {{ quorum.required }} (50%).
+        </p>
         <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions" />
       </div>
     </div>
@@ -128,6 +133,7 @@ export default {
       },
       bodies: [],
       stats: {
+        quorum: { accepted_only: false, body_ids: [] },
         by_date: [],
         by_date_cumulative: [],
         by_body: [],
@@ -303,22 +309,27 @@ export default {
         }
       }
     },
-    byQuorumData () {
+    quorum () {
       const localsMap = {}
       for (const body of this.bodies) {
-        if (['antenna', 'contact antenna', 'partner'].includes(body.type)) {
+        if (body.type === 'antenna') {
           localsMap[body.id] = true
         }
       }
 
       const total = Object.keys(localsMap).length
-      const present = this.stats.by_body
-        .filter((body) => body.type in localsMap)
+      const present = this.stats.quorum.body_ids
+        .filter((bodyId) => bodyId in localsMap)
         .length
 
-      const quorum = present * 100 / total
+      const required = Math.ceil(total / 2)
+      return { total, present, required }
+    },
+    byQuorumData () {
+      const { total, present } = this.quorum
+      const percentage = total > 0 ? present * 100 / total : 0
       return {
-        labels: [`Present (${quorum.toFixed(2)}%)`, `Not present (${(100 - quorum).toFixed(2)}%)`],
+        labels: [`Represented (${percentage.toFixed(2)}%)`, `Not represented (${(total > 0 ? 100 - percentage : 0).toFixed(2)}%)`],
         datasets: [{
           label: 'Quorum',
           backgroundColor: ['#C2DE5D', '#C45850'],

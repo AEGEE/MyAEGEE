@@ -80,7 +80,7 @@ jobs:
           name: Run core tests
           working_directory: ~/project/core
           command: |
-            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
@@ -316,7 +316,7 @@ jobs:
           name: Run discounts tests
           working_directory: ~/project/discounts
           command: |
-            TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
@@ -535,7 +535,7 @@ jobs:
           name: Run events tests
           working_directory: ~/project/events
           command: |
-            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
@@ -964,7 +964,7 @@ jobs:
           name: Run knowledge tests
           working_directory: ~/project/knowledge
           command: |
-            TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
@@ -1462,7 +1462,7 @@ jobs:
           name: Run network tests
           working_directory: ~/project/network
           command: |
-            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
@@ -1681,7 +1681,7 @@ jobs:
           name: Run statutory tests
           working_directory: ~/project/statutory
           command: |
-            TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
       - codecov/upload
       - store_test_results:
