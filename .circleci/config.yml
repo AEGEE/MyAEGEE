@@ -1181,7 +1181,7 @@ jobs:
           working_directory: ~/project/mailer
           command: |
             sudo apt-get update
-            sudo apt-get install elixir erlang
+            sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y elixir erlang
       - run:
           name: Setup mailer hex and rebar
           working_directory: ~/project/mailer
