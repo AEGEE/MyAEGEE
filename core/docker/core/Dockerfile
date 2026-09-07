@@ -18,7 +18,7 @@ ARG PACKAGE_VERSION
 # Rebuilds that only change source code will skip the npm ci step.
 COPY --chown=node:node package.json package-lock.json ./
 
-USER node
+USER 1000
 
 RUN if [ -n "$PACKAGE_VERSION" ]; then npm version "$PACKAGE_VERSION" --no-git-tag-version --allow-same-version; fi \
  && npm ci --legacy-peer-deps --omit=dev
