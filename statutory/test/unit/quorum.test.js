@@ -24,6 +24,15 @@ describe('Quorum representation', () => {
         });
     });
 
+    test.each([deadline - 1, deadline])('uses server time by default at %i', (now) => {
+        const clock = jest.spyOn(Date, 'now').mockReturnValue(now);
+        try {
+            expect(getQuorumStats(applications, event)).toEqual(getQuorumStats(applications, event, now));
+        } finally {
+            clock.mockRestore();
+        }
+    });
+
     test('an early status reveal does not move the quorum cutoff', () => {
         expect(getQuorumStats(applications, {
             ...event, application_status_revealed_at: '2026-09-01T00:00:00Z'
