@@ -216,7 +216,7 @@ jobs:
               --tag aegee/core:$PACKAGE_VERSION \
               --tag aegee/core:latest \
               -f docker/core/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -435,7 +435,7 @@ jobs:
               --tag aegee/discounts:$PACKAGE_VERSION \
               --tag aegee/discounts:latest \
               -f docker/discounts/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -671,7 +671,7 @@ jobs:
               --tag aegee/events:$PACKAGE_VERSION \
               --tag aegee/events:latest \
               -f docker/events/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -864,7 +864,7 @@ jobs:
               --tag aegee/frontend:$PACKAGE_VERSION \
               --tag aegee/frontend:latest \
               -f docker/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -1083,7 +1083,7 @@ jobs:
               --tag aegee/knowledge:$PACKAGE_VERSION \
               --tag aegee/knowledge:latest \
               -f docker/knowledge/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -1251,13 +1251,13 @@ jobs:
               --tag aegee/mailer:$PACKAGE_VERSION \
               --tag aegee/mailer:latest \
               -f docker/mailer/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
               --tag aegee/mail-transfer-agent:$PACKAGE_VERSION \
               --tag aegee/mail-transfer-agent:latest \
               -f docker/mail_transfer_agent/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -1362,7 +1362,7 @@ jobs:
               --tag aegee/nginx-static:stable \
               --tag aegee/nginx-static:latest \
               -f docker/nginx-static/Dockerfile \
-              --push docker/nginx-static/
+              --output type=registry,oci-mediatypes=false docker/nginx-static/
       - slack/notify:
           event: pass
           custom: |
@@ -1581,7 +1581,7 @@ jobs:
               --tag aegee/network:$PACKAGE_VERSION \
               --tag aegee/network:latest \
               -f docker/network/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -1800,7 +1800,7 @@ jobs:
               --tag aegee/statutory:$PACKAGE_VERSION \
               --tag aegee/statutory:latest \
               -f docker/statutory/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
@@ -2010,7 +2010,7 @@ jobs:
               --tag aegee/summeruniversity:$PACKAGE_VERSION \
               --tag aegee/summeruniversity:latest \
               -f docker/summeruniversity/Dockerfile \
-              --push .
+              --output type=registry,oci-mediatypes=false .
       - slack/notify:
           event: pass
           custom: |
