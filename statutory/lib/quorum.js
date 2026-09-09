@@ -3,7 +3,7 @@
 module.exports = (applications, event, now = Date.now()) => {
     const acceptedOnly = now >= new Date(event.participants_list_publish_deadline).getTime();
     const represented = applications.filter((application) => !application.cancelled
-        && (!acceptedOnly || application.status === 'accepted'));
+        && (!acceptedOnly || (application.status === 'accepted' && application.participant_type === 'delegate')));
 
     return {
         accepted_only: acceptedOnly,

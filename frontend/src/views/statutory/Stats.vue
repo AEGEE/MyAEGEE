@@ -84,7 +84,7 @@
         <div class="subtitle">Quorum</div>
         <p>
           {{ quorum.present }} of {{ quorum.total }} antennae represented by
-          {{ stats.quorum.accepted_only ? 'accepted non-cancelled applications' : 'non-cancelled applications' }}.
+          {{ stats.quorum.accepted_only ? 'accepted non-cancelled delegate applications' : 'non-cancelled applications' }}.
           Required: {{ quorum.required }} (50%).
         </p>
         <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions" />
