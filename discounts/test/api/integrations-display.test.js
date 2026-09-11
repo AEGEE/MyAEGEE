@@ -60,4 +60,17 @@ describe('Integrations displaying', () => {
 
         expect(res.body.data.id).toEqual(integration.id);
     });
+
+    test('should return 404 for malformed numeric-like integration IDs', async () => {
+        const res = await request({
+            uri: '/integrations/12.5',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });

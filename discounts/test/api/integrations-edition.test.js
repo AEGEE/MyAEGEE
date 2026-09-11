@@ -94,4 +94,18 @@ describe('Integrations edition', () => {
 
         expect(res.body.data.code).toEqual('test');
     });
+
+    test('should return 404 for malformed numeric-like integration IDs', async () => {
+        const res = await request({
+            uri: '/integrations/1e3',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { code: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });

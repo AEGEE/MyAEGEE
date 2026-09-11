@@ -58,4 +58,24 @@ describe('Codes displaying', () => {
 
         expect(res.body.data.length).toEqual(0);
     });
+
+    test('should return my codes ordered by updated_at descending', async () => {
+        const integration = await generator.createIntegration();
+
+        const firstCode = await generator.createCode({ claimed_by: user.id }, integration);
+        const secondCode = await generator.createCode({ claimed_by: user.id }, integration);
+        await firstCode.update({ value: 'newer-code-value' });
+
+        const res = await request({
+            uri: '/codes/mine',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(firstCode.id);
+        expect(res.body.data[1].id).toEqual(secondCode.id);
+    });
 });

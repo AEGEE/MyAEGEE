@@ -15,10 +15,14 @@ const Code = sequelize.define('code', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Integration ID should be set.' },
+            isInt: { msg: 'Integration ID should be valid.' }
         },
     },
     claimed_by: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        validate: {
+            isInt: { msg: 'Claimed by should be valid.' }
+        }
     }
 }, {
     underscored: true,

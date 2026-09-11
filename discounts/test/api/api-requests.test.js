@@ -1,3 +1,8 @@
+const nock = require('nock');
+
+const config = require('../../config');
+const validUserBody = require('../assets/oms-core-valid.json');
+const fullPermissionsBody = require('../assets/oms-core-permissions-full.json');
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
@@ -21,6 +26,55 @@ describe('API requests', () => {
 
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
+    });
+
+    test('should return healthcheck data', async () => {
+        const res = await request({
+            uri: '/healthcheck',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data).toHaveProperty('name', 'discounts');
+        expect(res.body.data).toHaveProperty('description');
+        expect(res.body.data).toHaveProperty('version');
+    });
+
+    test('should send expected headers to oms-core', async () => {
+        mock.cleanAll();
+
+        const profileScope = nock(`${config.core.url}:${config.core.port}`, {
+            reqheaders: {
+                'x-requested-with': 'XMLHttpRequest',
+                'x-auth-token': 'typed-token',
+                'x-service': 'discounts'
+            }
+        })
+            .get('/members/me')
+            .reply(200, validUserBody);
+
+        const permissionsScope = nock(`${config.core.url}:${config.core.port}`, {
+            reqheaders: {
+                'x-requested-with': 'XMLHttpRequest',
+                'x-auth-token': 'typed-token',
+                'x-service': 'discounts'
+            }
+        })
+            .get('/my_permissions')
+            .reply(200, fullPermissionsBody);
+
+        const res = await request({
+            uri: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'typed-token'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(profileScope.isDone()).toEqual(true);
+        expect(permissionsScope.isDone()).toEqual(true);
     });
 
     test('should fail if oms-core returns net error while fetching user', async () => {
