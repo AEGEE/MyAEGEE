@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Usage: dump.sh <name of the postgres hosts to backup>
+# Usage: dump.sh <name of the postgres hosts to backup> [-- <docker volumes to backup>]
 # The backup location is /opt/backups
+#
+# Example: dump.sh postgres-core postgres-events -- core-media events-media
+#
+# Uses pg_dump in custom format (-Fc) for each database, which is compressed
+# and supports parallel restore via pg_restore -j.
 
 # Idea of this script: Spawn a container which links up to any db, does the
 #   dump through the network and then save the dump outside of the container.
@@ -31,8 +36,22 @@ done
 RESTORE_REFERENCE_URL="https://github.com/AEGEE/MyAEGEE/blob/stable/scripts"
 BACKUP_REFERENCE_URL="https://myaegee.atlassian.net/wiki/spaces/AIT/pages/291897345/Using+backup+restore+scripts+for+MyAEGEE+data"
 
-#shellcheck disable=SC2206
-postgres_hosts=(${@})
+# Parse arguments: postgres hosts before --, docker volumes after --
+postgres_hosts=()
+media_volumes=()
+parsing_volumes=false
+
+for arg in "$@"; do
+  if [[ "$arg" == "--" ]]; then
+    parsing_volumes=true
+    continue
+  fi
+  if $parsing_volumes; then
+    media_volumes+=("$arg")
+  else
+    postgres_hosts+=("$arg")
+  fi
+done
 
 backup_date="$(date +%Y-%m-%d_%H%M)"
 backup_dir="/opt/backups"
@@ -55,26 +74,81 @@ error=0
 #shellcheck disable=SC2046
 export $(grep -v '^#' ${MAIN_DIR}/.env | xargs -d '\n')
 
-## BACKING UP
+## BACKING UP DATABASES
 
-# Loop through postgres host
-# For each host, spawn a container which will pull all information with pg_dumpall
+# Loop through postgres hosts
+# For each host, query the list of databases and dump each one in custom format (-Fc)
+# Custom format is compressed and supports parallel restore with pg_restore -j
 for host in "${postgres_hosts[@]}"; do
-  file="${tmp_dir}/postgres-${host}"
-  docker run --rm --name "${host}-backupper"  -t --network="OMS" -e "PGPASSWORD=${PW_POSTGRES:-5ecr3t}" "postgres:${POSTGRES_VERSION}" pg_dumpall -c -U postgres -h "${host}" > "${file}"
+  echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Host:${host} ; Querying database list" | tee -a "${log_file}"
 
-#shellcheck disable=SC2086
-  if [[ $(wc -c <${file}) -le 100 ]]
-  then
-    echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- Host:${host} ; File:${file} ; Something went wrong dumping ${host}, file ${file} is empty" | tee -a "${log_file}"
+  # Get the list of databases, excluding templates and the default postgres db
+  #shellcheck disable=SC2016
+  databases=$(docker run --rm --name "${host}-lister" -t --network="OMS" \
+    -e "PGPASSWORD=${PW_POSTGRES:-5ecr3t}" "postgres:${POSTGRES_VERSION}" \
+    psql -U postgres -h "${host}" -t -A -c \
+    "SELECT datname FROM pg_database WHERE datname NOT IN ('template0', 'template1', 'postgres')" \
+    | tr -d '\r')
+
+  if [[ -z "$databases" ]]; then
+    echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- Host:${host} ; No databases found or could not connect" | tee -a "${log_file}"
+    error=1
+    continue
+  fi
+
+  # Also dump global objects (roles, tablespaces) once per host
+  global_file="${tmp_dir}/postgres-${host}-globals.sql"
+  docker run --rm --name "${host}-globals-backupper" -t --network="OMS" \
+    -e "PGPASSWORD=${PW_POSTGRES:-5ecr3t}" "postgres:${POSTGRES_VERSION}" \
+    pg_dumpall -U postgres -h "${host}" --globals-only > "${global_file}"
+
+  echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Host:${host} ; Dumped global objects" | tee -a "${log_file}"
+
+  for dbname in $databases; do
+    file="${tmp_dir}/postgres-${host}-${dbname}.dump"
+    echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Host:${host} ; Dumping database ${dbname} in custom format" | tee -a "${log_file}"
+
+    # Note: no -t flag here - tty corrupts binary custom format output
+    docker run --rm --name "${host}-${dbname}-backupper" --network="OMS" \
+      -e "PGPASSWORD=${PW_POSTGRES:-5ecr3t}" "postgres:${POSTGRES_VERSION}" \
+      pg_dump -Fc -U postgres -h "${host}" "${dbname}" > "${file}"
+
+    #shellcheck disable=SC2086
+    if [[ $(wc -c <${file}) -le 100 ]]; then
+      echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- Host:${host} ; DB:${dbname} ; File:${file} ; Something went wrong, dump file is empty" | tee -a "${log_file}"
+      error=1
+    fi
+    echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Host:${host} ; DB:${dbname} ; Done dumping" | tee -a "${log_file}"
+  done
+done
+
+## BACKING UP VOLUMES
+
+# Loop through docker volumes and tar their contents
+for vol in "${media_volumes[@]}"; do
+  vol_file="${tmp_dir}/volume-${vol}.tar"
+  echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Volume:${vol} ; Backing up" | tee -a "${log_file}"
+
+  # Check that the volume exists
+  if ! docker volume inspect "${vol}" > /dev/null 2>&1; then
+    echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- Volume:${vol} ; Volume does not exist, skipping" | tee -a "${log_file}"
+    error=1
+    continue
+  fi
+
+  docker run --rm --name "${vol}-backupper" -v "${vol}:/data:ro" -v "${tmp_dir}:/backup" \
+    alpine:3 tar cf "/backup/volume-${vol}.tar" -C /data .
+
+  #shellcheck disable=SC2086
+  if [[ ! -f "${vol_file}" ]] || [[ $(wc -c <${vol_file}) -le 100 ]]; then
+    echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- Volume:${vol} ; File:${vol_file} ; Something went wrong, volume backup is empty" | tee -a "${log_file}"
     error=1
   fi
-  echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Host:${host} ; Done dumping ${host}" | tee -a "${log_file}"
+  echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- Volume:${vol} ; Done backing up" | tee -a "${log_file}"
 done
 
 # TODO: Loop through maria host
 # TODO: Loop through sqlite hosts (adopt the logic that as of now is on the makefile directly)
-# TODO: Loop through volumes (calling the external script)
 
 ## ARCHIVING
 
@@ -85,12 +159,14 @@ This backup was created on host "$(hostname)" on $(date +%Y-%m-%dT%H:%M:%S).
 To restore it, use restore.sh <backup-file>.tgz
 You can find restore.sh on ${RESTORE_REFERENCE_URL}
 
-Make sure you set the first lines in restore.sh like this, or with less entries:
-postgres_hosts=("${postgres_hosts[@]}")
-mongo_volumes=("${mongo_volumes[@]}")
+This backup contains:
+- PostgreSQL databases in custom format (.dump files) for hosts: ${postgres_hosts[*]}
+- Global objects (roles/tablespaces) in .sql files for each host
+- Docker volume backups (.tar files) for volumes: ${media_volumes[*]}
 
-This backup only contains the above postgres backups and volumes.
-You will find them in folders/files prefixed postgres- and volumes- in this archive.
+Database dumps use pg_dump custom format (-Fc) and can be restored with:
+  pg_restore -j 4 --clean --if-exists -d <dbname> <file>.dump
+
 For more instructions on how to perform a backup, check out:
 ${BACKUP_REFERENCE_URL}
 EOF
