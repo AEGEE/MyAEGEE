@@ -172,7 +172,7 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column label="Edit" centered v-slot="props" v-if="can.manage_applications">
+            <b-table-column label="Edit" centered v-slot="props" :visible="!!can.manage_applications">
               <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
                 Edit
               </router-link>

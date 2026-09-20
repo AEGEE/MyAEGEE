@@ -85,7 +85,7 @@
             v-bind:key="index"
             :field="field.column"
             class="has-text-pre-wrap"
-            sortable
+            :sortable="!!field.column"
             :label="field.name"
             v-slot="props">{{ field.get(props.row) | beautify }}</b-table-column>
 
@@ -107,7 +107,7 @@
             </router-link>
           </b-table-column>
 
-          <b-table-column label="Edit" centered v-slot="props" v-if="event.permissions && event.permissions.manage_applications">
+          <b-table-column label="Edit" centered v-slot="props" :visible="!!(event.permissions && event.permissions.manage_applications)">
             <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
               Edit
             </router-link>
@@ -163,7 +163,7 @@ export default {
         { name: 'First name', get: (pax) => pax.first_name },
         { name: 'Last name', get: (pax) => pax.last_name }
       ],
-      fields: [
+      baseFields: [
         { name: 'First name', column: 'first_name', get: (pax) => pax.first_name },
         { name: 'Last name', column: 'last_name', get: (pax) => pax.last_name },
         { name: 'Gender', column: 'gender', get: (pax) => pax.gender },
@@ -199,6 +199,16 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
+    // The event's questions are appended to the static field list. This has to be
+    // derived rather than pushed, as the applications are reloaded on every search,
+    // sort and page change, which would otherwise duplicate the question fields.
+    fields () {
+      const questions = this.event.questions || []
+      return this.baseFields.concat(questions.map((question, index) => ({
+        name: question.description,
+        get: (pax) => pax.answers[index]
+      })))
+    },
     queryObject () {
       const queryObj = {
         limit: this.limit,
@@ -261,13 +271,6 @@ export default {
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
         this.event = event.data.data
-
-        for (const index in this.event.questions) {
-          this.fields.push({
-            name: this.event.questions[index].description,
-            get: pax => pax.answers[index]
-          })
-        }
 
         return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject })
       }).then((application) => {
