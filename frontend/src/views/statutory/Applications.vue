@@ -101,6 +101,17 @@
             {{ props.row.attended | beautify }}
           </b-table-column>
 
+          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="waiting_list">Waiting list</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </b-table-column>
+
           <b-table-column label="View" centered v-slot="props">
             <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
               View
@@ -111,17 +122,6 @@
             <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
               Edit
             </router-link>
-          </b-table-column>
-
-          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="waiting_list">Waiting list</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
           </b-table-column>
 
           <template slot="empty">

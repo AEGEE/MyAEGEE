@@ -43,20 +43,6 @@
             </router-link>
           </b-table-column>
 
-          <b-table-column label="View" v-slot="props">
-            <a href="#" @click.prevent="showModal(props.row.id)">View</a>
-          </b-table-column>
-
-          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </b-table-column>
-
           <b-table-column label="Cancelled?" field="cancelled" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingCancelled }">
               <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled">
@@ -82,6 +68,20 @@
                 <option :value="false">No</option>
               </select>
             </div>
+          </b-table-column>
+
+          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </b-table-column>
+
+          <b-table-column label="View" v-slot="props">
+            <a href="#" @click.prevent="showModal(props.row.id)">View</a>
           </b-table-column>
 
           <template slot="empty">

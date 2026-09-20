@@ -136,7 +136,7 @@
                   </b-button>
                 </b-table-column>
 
-                <b-table-column v-if="can.sendFulfilmentEmails" v-slot="props">
+                <b-table-column :visible="!!can.sendFulfilmentEmails" v-slot="props">
                   <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
                     <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
                   </b-button>
