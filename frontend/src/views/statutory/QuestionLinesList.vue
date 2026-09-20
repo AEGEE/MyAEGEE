@@ -82,11 +82,11 @@
             </div>
           </b-table-column>
 
-          <b-table-column label="Edit" centered v-if="can.manage_question_lines" v-slot="props">
+          <b-table-column label="Edit" centered :visible="!!can.manage_question_lines" v-slot="props">
             <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
           </b-table-column>
 
-          <b-table-column label="Delete" centered v-if="can.manage_question_lines" v-slot="props">
+          <b-table-column label="Delete" centered :visible="!!can.manage_question_lines" v-slot="props">
             <a href="#" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</a>
           </b-table-column>
 
