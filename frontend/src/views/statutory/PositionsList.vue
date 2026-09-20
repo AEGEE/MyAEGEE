@@ -62,7 +62,7 @@
             </div>
           </b-table-column>
 
-          <b-table-column label="Edit" centered v-if="can.manage_candidates" v-slot="props">
+          <b-table-column label="Edit" centered :visible="!!can.manage_candidates" v-slot="props">
             <a href="#" class="button is-primary is-small" @click.prevent="openEditPositionModal(props.row)">Edit</a>
           </b-table-column>
 
@@ -84,7 +84,7 @@
             <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
           </b-table-column>
 
-          <b-table-column label="" centered v-if="can.manage_candidates" v-slot="props">
+          <b-table-column label="" centered :visible="!!can.manage_candidates" v-slot="props">
             <a href="#" class="button is-danger is-small" @click.prevent="askDeletePosition(props.row)">
               <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
             </a>
