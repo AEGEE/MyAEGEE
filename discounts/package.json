@@ -11,8 +11,8 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
-    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand",
+    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand",
     "semantic-release": "semantic-release"
   },
   "keywords": [],
@@ -25,13 +25,16 @@
   "lint-staged": {
     "*.{js,jsx}": "eslint"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true,
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "lib/**/*.js",
-      "models/**/*.js",
+    "jest": {
+      "testEnvironment": "node",
+      "verbose": true,
+      "collectCoverage": true,
+      "setupFilesAfterEnv": [
+        "<rootDir>/test/setup.js"
+      ],
+      "collectCoverageFrom": [
+        "lib/**/*.js",
+        "models/**/*.js",
       "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js"
