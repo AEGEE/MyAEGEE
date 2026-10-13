@@ -5,6 +5,7 @@
       <div class="notification is-info">
         Attaching a screenshot is not mandatory, but it will help us with reproducing the bug.
         If you do not attach a screenshot, do click the 'Remove screenshot' button before submitting.
+        You can attach up to {{ maxFiles }} screenshots of at most {{ maxFileSize / 1024 / 1024 }} MB each.
       </div>
 
       <div class="field is-grouped" v-for="(file, index) in files" v-bind:key="index">
@@ -33,7 +34,7 @@
 
       <div class="field">
         <div class="control">
-          <button class="button is-primary" @click="files.push(null)">Add screenshot</button>
+          <button class="button is-primary" :disabled="files.length >= maxFiles" @click="files.push(null)">Add screenshot</button>
         </div>
       </div>
 
@@ -96,16 +97,29 @@ export default {
         description: '',
         email: ''
       },
-      jiraId: '21430358-44e3-4787-8d72-e23b56714c03',
       files: [null],
+      // Should be the same as the bug_report limits in core's config.
+      maxFiles: 3,
+      maxFileSize: 5 * 1024 * 1024,
       isSaving: false
     }
   },
   methods: {
     setFile (event, index) {
-      this.$set(this.files, index, event.target.files[0])
+      const file = event.target.files[0]
+      if (file && file.size > this.maxFileSize) {
+        event.target.value = ''
+        this.$set(this.files, index, null)
+        return this.$root.showError(`The screenshot should be at most ${this.maxFileSize / 1024 / 1024} MB.`)
+      }
+
+      this.$set(this.files, index, file)
     },
     sendBugReport () {
+      if (this.files.length > this.maxFiles) {
+        return this.$root.showError(`You can attach at most ${this.maxFiles} screenshots.`)
+      }
+
       for (const file of this.files) {
         if (!file) {
           return this.$root.showError('Please select all the files.')
@@ -114,44 +128,21 @@ export default {
 
       this.isSaving = true
 
-      const uploadImageUrl = `https://jsd-widget.atlassian.com/api/embeddable/${this.jiraId}/upload`
-      const postIssueUrl = `https://jsd-widget.atlassian.com/api/embeddable/${this.jiraId}/request?requestTypeId=5`
+      const data = new FormData()
+      data.append('summary', this.bug.summary)
+      data.append('description', this.bug.description)
+      data.append('email', this.bug.email || '')
+      for (const file of this.files) {
+        data.append('screenshots', file)
+      }
 
-      // Using Fetch to not trigger Axios interceptors.
-      Promise.all(this.files.map(file => {
-        const data = new FormData()
-        data.append('file', file)
-
-        return fetch(uploadImageUrl, {
-          method: 'POST',
-          body: data
-        }).then(res => res.json())
-      })).then(responses => {
-        const attachmentIds = responses.map(response => response[0].temporaryAttachmentId)
-
-        return fetch(postIssueUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fields: [
-              { id: 'summary', value: this.bug.summary },
-              { id: 'description', value: this.bug.description },
-              { id: 'email', value: this.bug.email },
-              { id: 'attachment', value: attachmentIds }
-            ]
-          })
-        })
-      }).then((response) => {
+      // Sent through core, so it's logged on our side and not blocked by browser extensions.
+      this.axios.post(this.services['core'] + '/bug-report', data).then(() => {
         this.isSaving = false
-
-        if (response.status === 200) {
-          return this.$root.showSuccess('Your issue is reported.')
-        }
-
-        return this.$root.showError('There was an error reporting your issue.')
+        this.$root.showSuccess('Your issue is reported.')
       }).catch((err) => {
         this.isSaving = false
-        return this.$root.showError('There was an error reporting your issue', err)
+        this.$root.showError('There was an error reporting your issue', err)
       })
     }
   },

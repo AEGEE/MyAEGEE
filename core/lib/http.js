@@ -50,6 +50,11 @@ module.exports.request = async (options) => {
         fetchOptions.body = new URLSearchParams(options.form).toString();
     }
 
+    // fetch sets the multipart Content-Type with the boundary itself.
+    if (options.formData) {
+        fetchOptions.body = options.formData;
+    }
+
     const response = await fetch(appendQuery(options.url, options.qs), fetchOptions);
     const body = await parseBody(response);
 

@@ -17,6 +17,16 @@ const config = {
         listserv_email: process.env.LISTSERV_EMAIL || 'listserv@example.com',
         listserv_endpoint: process.env.LISTSERV_ENDPOINT || 'https://lists.example.com/subscribe',
         listserv_token: process.env.LISTSERV_TOKEN || 'CHANGEME',
+        bug_report: {
+            url: 'https://jsd-widget.atlassian.com/api/embeddable/21430358-44e3-4787-8d72-e23b56714c03',
+            request_type_id: 5,
+            max_file_size: 5 * 1024 * 1024, // 5 MB
+            max_files: 3,
+            rate_limit: {
+                window_ms: 60 * 60 * 1000, // 1 hour
+                max: 10
+            }
+        },
         google_workspace_notifications: [
             'workspace-admins@aegee.eu'
         ],

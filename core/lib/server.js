@@ -30,6 +30,7 @@ const circleMemberships = require('../middlewares/circle-memberships');
 const circlePermissions = require('../middlewares/circle-permissions');
 const endpointsMetrics = require('../middlewares/endpoint-metrics');
 const metrics = require('../middlewares/metrics');
+const bugReport = require('../middlewares/bug-report');
 
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
@@ -44,6 +45,8 @@ const PaymentsRouter = router({ mergeParams: true });
 const CircleMembershipsRouter = router({ mergeParams: true });
 
 const server = express();
+// Requests come through Traefik, which appends the client IP to X-Forwarded-For.
+server.set('trust proxy', 1);
 server.use(bodyParser.json());
 server.use(morgan);
 server.use(boolParser());
@@ -74,6 +77,7 @@ GeneralRouter.post('/renew', login.renew);
 // Endpoints allowing unauthorized and authorized access.
 GeneralRouter.use(middlewares.maybeAuthorize);
 GeneralRouter.get('/bodies', bodies.listAllBodies);
+GeneralRouter.post('/bug-report', bugReport.rateLimit, bugReport.reportBug);
 
 // Endpoints not allowing unauthorized access.
 // Not using this line here:

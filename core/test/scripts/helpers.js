@@ -37,12 +37,17 @@ const request = async (options) => {
     if (options.files) {
         const entries = Object.entries(options.files);
         const formData = new FormData();
-        for (const [key, item] of entries) {
-            const filename = item.filename || path.basename(item.path);
-            const buffer = fs.readFileSync(item.path);
-            formData.append(key, new Blob([buffer]), filename);
+        for (const [key, value] of entries) {
+            for (const item of [].concat(value)) {
+                const filename = item.filename || path.basename(item.path);
+                const buffer = fs.readFileSync(item.path);
+                formData.append(key, new Blob([buffer]), filename);
+            }
         }
-        if (entries.length > 0) {
+        for (const [key, value] of Object.entries(options.fields || {})) {
+            formData.append(key, value);
+        }
+        if (entries.length > 0 || options.fields) {
             fetchOptions.body = formData;
         } else {
             headers['Content-Type'] = 'multipart/form-data; boundary=empty-form';
