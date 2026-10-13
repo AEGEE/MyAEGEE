@@ -60,6 +60,14 @@ exports.mockAtlassian = (options) => {
             .reply(400, { friendlyReason: { title: 'We couldn\'t create a request', body: 'E-mail field is required' } });
     }
 
+    if (options.requestServerError) {
+        return nock(config.bug_report.url)
+            .persist()
+            .post('/request')
+            .query(true)
+            .reply(500, 'Some error happened.');
+    }
+
     return nock(config.bug_report.url)
         .persist()
         .post('/request', options.body)

@@ -18,7 +18,6 @@ const upload = util.promisify(multer({
 // Exported so the tests can reset it.
 exports.rateLimitStore = new MemoryStore();
 
-// The endpoint is public and every report creates a ticket, so limit it per IP.
 exports.rateLimit = rateLimit({
     windowMs: config.bug_report.rate_limit.window_ms,
     limit: config.bug_report.rate_limit.max,
@@ -33,9 +32,7 @@ exports.rateLimit = rateLimit({
 
 const isSuccessful = (response) => response.statusCode >= 200 && response.statusCode < 300;
 
-// Proxying bug reports to Atlassian's JSM widget API, so that we can log
-// what Atlassian replied and so that browser extensions blocking
-// atlassian.com cannot prevent people from reporting bugs.
+// Proxy bug reports to Atlassian's JSM widget API, so that we can log issues and limit third-party requests from frontend
 exports.reportBug = async (req, res) => {
     try {
         await upload(req, res);

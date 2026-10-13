@@ -118,6 +118,21 @@ describe('Bug report', () => {
         expect(res.body.message).toEqual('E-mail field is required');
     });
 
+    it('should return 502 with a generic reason if Atlassian fails without a reason', async () => {
+        mock.mockAll({ atlassian: { requestServerError: true } });
+
+        const res = await request({
+            path: '/bug-report',
+            method: 'POST',
+            files: {},
+            fields
+        });
+
+        expect(res.statusCode).toEqual(502);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('The issue tracker rejected the bug report.');
+    });
+
     it('should return 502 if the screenshot upload fails', async () => {
         mock.mockAll({ atlassian: { uploadError: true } });
 

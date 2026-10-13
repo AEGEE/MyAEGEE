@@ -136,7 +136,6 @@ export default {
         data.append('screenshots', file)
       }
 
-      // Sent through core, so it's logged on our side and not blocked by browser extensions.
       this.axios.post(this.services['core'] + '/bug-report', data).then(() => {
         this.isSaving = false
         this.$root.showSuccess('Your issue is reported.')
