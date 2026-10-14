@@ -8,7 +8,7 @@
         You can attach up to {{ maxFiles }} screenshots of at most {{ maxFileSize / 1024 / 1024 }} MB each.
       </div>
 
-      <div class="field is-grouped" v-for="(file, index) in files" v-bind:key="index">
+      <div class="field is-grouped" v-for="(file, index) in files" v-bind:key="`${resetCount}-${index}`">
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
@@ -101,10 +101,21 @@ export default {
       // Should be the same as the bug_report limits in core's config.
       maxFiles: 3,
       maxFileSize: 5 * 1024 * 1024,
+      // Changing it re-renders the file inputs, so the browser forgets the selected files.
+      resetCount: 0,
       isSaving: false
     }
   },
   methods: {
+    resetForm () {
+      this.bug = {
+        summary: '',
+        description: '',
+        email: this.loginUser ? this.loginUser.notification_email : ''
+      }
+      this.files = [null]
+      this.resetCount++
+    },
     setFile (event, index) {
       const file = event.target.files[0]
       if (file && file.size > this.maxFileSize) {
@@ -138,6 +149,7 @@ export default {
 
       this.axios.post(this.services['core'] + '/bug-report', data).then(() => {
         this.isSaving = false
+        this.resetForm()
         this.$root.showSuccess('Your issue is reported.')
       }).catch((err) => {
         this.isSaving = false
@@ -150,9 +162,7 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
-    if (this.loginUser) {
-      this.bug.email = this.loginUser.notification_email
-    }
+    this.resetForm()
   }
 }
 </script>
