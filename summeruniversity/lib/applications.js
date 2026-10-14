@@ -404,7 +404,20 @@ exports.exportAll = async (req, res) => {
     return res.send(resultBuffer);
 };
 
-exports.getStats = async (req, res) => {
+function canSeeStats(permissions) {
+    return permissions.manage_summeruniversity.regular;
+}
+
+function parseSeason(season) {
+    if (season === undefined || season === null || season === '') {
+        return null;
+    }
+
+    const parsed = Number(season);
+    return Number.isInteger(parsed) ? parsed : NaN;
+}
+
+async function calculateStats(season) {
     const statsObject = {
         by_event: [],
         by_body: [],
@@ -415,9 +428,9 @@ exports.getStats = async (req, res) => {
     let applicationQuery = { attributes: ['user_id', 'event_id', 'body_name', 'nationality', 'confirmed'] };
     let eventQuery = { attributes: ['id', 'name'] };
 
-    if (req.query.season) {
-        applicationQuery = { ...applicationQuery, ...{ include: [{ model: Event, where: { season: Number(req.query.season) } }] } };
-        eventQuery = { ...eventQuery, ...{ where: { season: Number(req.query.season) } } };
+    if (season !== null) {
+        applicationQuery = { ...applicationQuery, ...{ include: [{ model: Event, where: { season } }] } };
+        eventQuery = { ...eventQuery, ...{ where: { season } } };
     }
 
     const applications = await Application.findAll(applicationQuery);
@@ -440,8 +453,64 @@ exports.getStats = async (req, res) => {
         { type: 'confirmed', value: applications.filter((app) => app.confirmed === true).length }
     ];
 
+    return statsObject;
+}
+
+exports.getStats = async (req, res) => {
+    if (!canSeeStats(req.permissions)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see Summer University statistics.');
+    }
+
+    const season = parseSeason(req.query.season);
+    if (Number.isNaN(season)) {
+        return errors.makeBadRequestError(res, 'Season should be a year.');
+    }
+
+    const [statsObject, seasons] = await Promise.all([
+        calculateStats(season),
+        Event.findAll({
+            attributes: ['season'],
+            where: { season: { [Sequelize.Op.ne]: null } },
+            group: ['season'],
+            raw: true
+        })
+    ]);
+
     return res.json({
         success: true,
-        data: statsObject
+        data: statsObject,
+        meta: {
+            seasons: seasons.map((event) => event.season).sort((a, b) => b - a)
+        }
     });
+};
+
+exports.exportStatsByBody = async (req, res) => {
+    if (!canSeeStats(req.permissions)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to export Summer University statistics.');
+    }
+
+    const season = parseSeason(req.query.season);
+    if (season === null || Number.isNaN(season)) {
+        return errors.makeBadRequestError(res, 'Season should be a year.');
+    }
+
+    const { by_body: byBody } = await calculateStats(season);
+
+    const resultBuffer = xlsx.build([
+        {
+            name: 'By body',
+            data: [
+                ['Body', 'Applicants'],
+                ...byBody
+                    .sort((a, b) => b.value - a.value)
+                    .map(({ type, value }) => [type === null ? 'Not set' : type, value])
+            ]
+        }
+    ]);
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=su_stats_by_body_' + season + '.xlsx');
+
+    return res.send(resultBuffer);
 };
