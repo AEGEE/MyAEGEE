@@ -61,4 +61,29 @@ describe('Events future applications', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
     });
+
+    it('should only list applications for event types the user manages', async () => {
+        mock.mockAll({ mainPermissions: { combined: ['global:manage_event:nwm'] }, approvePermissions: { noPermissions: true } });
+
+        for (const type of ['nwm', 'training']) {
+            const event = await generator.createEvent({
+                type,
+                application_starts: moment().subtract(1, 'week').toDate(),
+                application_ends: moment().add(1, 'week').toDate(),
+                starts: moment().add(1, 'month').toDate(),
+                ends: moment().add(1, 'month').add(1, 'day').toDate(),
+                status: 'published',
+                deleted: false
+            });
+            await generator.createApplication(event, { user_id: user.id, status: 'pending' });
+        }
+
+        const res = await request({
+            path: '/applications/future/' + user.id,
+            headers: { 'X-Auth-Token': 'foobar' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((application) => application.event_type)).toEqual(['nwm']);
+    });
 });

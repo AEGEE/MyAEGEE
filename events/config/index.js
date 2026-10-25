@@ -25,6 +25,10 @@ const config = {
         new_event_notifications: [
             'events-approval@aegee.eu'
         ],
+        // Extra recipients of the "new event submitted" mail, per event type.
+        new_event_notifications_per_type: {
+            nwm: ['netcom@aegee.eu']
+        },
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'
