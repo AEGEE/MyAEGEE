@@ -44,7 +44,9 @@ const fetchUser = async (user, token) => {
         first_name: userRequest.data.first_name,
         last_name: userRequest.data.last_name,
         notification_email: userRequest.data.notification_email,
-        role: user.role
+        role: user.role,
+        // Only used to check organizers are members of the organizing bodies.
+        body_ids: (userRequest.data.bodies || []).map((body) => body.id)
     };
 };
 
