@@ -67,7 +67,7 @@ const fetchUser = async (user, adminToken) => {
         last_name: userRequest.data.last_name,
         email: userRequest.data.email,
         notification_email: userRequest.data.notification_email,
-        body_ids: (userRequest.data.bodies || []).map((body) => body.id)
+        body_ids: userRequest.data.bodies.map((body) => body.id)
     };
 };
 

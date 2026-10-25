@@ -1243,4 +1243,56 @@ describe('Events creation', () => {
         expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id]);
         expect(res.body.data.organizers[0]).not.toHaveProperty('body_ids');
     });
+
+    it('should fail if the core service login returns garbage', async () => {
+        mock.mockAll({ login: { badResponse: true } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Login test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the core service login is unsuccessful', async () => {
+        mock.mockAll({ login: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Login test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
 });
