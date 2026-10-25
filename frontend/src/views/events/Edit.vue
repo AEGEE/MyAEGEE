@@ -716,15 +716,15 @@ export default {
     fetchMembers (query) {
       if (!query) return
 
+      if (this.token) this.token.cancel()
+      this.autoComplete.members.values = []
+
       const bodyIds = this.event.organizing_bodies.map(body => body.body_id)
       if (bodyIds.length === 0) {
         return this.$root.showWarning('Please add an organising body first.')
       }
 
-      this.autoComplete.members.values = []
       this.autoComplete.members.loading = true
-
-      if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
       // Organisers have to be members of one of the organising bodies, so only those are searched.
