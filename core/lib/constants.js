@@ -81,6 +81,8 @@ module.exports = {
         // Without global:view:member, shorter queries return nothing and pages are capped.
         MIN_QUERY_LENGTH: 2,
         MAX_LIMIT: 50,
+        // Without global:search:member, at most this many bodies can be searched at once.
+        MAX_BODIES: 10,
     },
     TOKEN_LENGTH: {
         MAIL_CONFIRMATION: 128,

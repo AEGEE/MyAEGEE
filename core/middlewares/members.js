@@ -44,23 +44,66 @@ exports.listAllUsers = async (req, res) => {
     });
 };
 
-// Searches members by name, email or GSuite ID. Two ways to use it:
+// Parses `body_id` (comma-separated) into unique, positive integer IDs, ignoring invalid values.
+// Returns null if the parameter is not a string (e.g. repeated in the query string).
+function parseBodyIds(bodyIdParam) {
+    if (typeof bodyIdParam === 'undefined') {
+        return [];
+    }
+
+    if (typeof bodyIdParam !== 'string') {
+        return null;
+    }
+
+    const ids = bodyIdParam.split(',')
+        .map((id) => id.trim())
+        .filter((id) => /^[0-9]+$/.test(id))
+        .map(Number)
+        .filter((id) => Number.isSafeInteger(id) && id > 0);
+
+    return [...new Set(ids)];
+}
+
+// Search for callers without global:view:member: names only (no wildcards), or an exact email.
+function limitedSearchFilter(query) {
+    const escaped = query.replace(/[\\%_]/g, (char) => '\\' + char);
+
+    return {
+        [Sequelize.Op.or]: [
+            Sequelize.where(
+                Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
+                { [Sequelize.Op.iLike]: '%' + escaped + '%' }
+            ),
+            Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), query.toLowerCase())
+        ]
+    };
+}
+
+// Searches members. Two ways to use it:
 // - with global:search:member: across all members, optionally filtered by `body_id`;
-// - without it: `body_id` (comma-separated) is required and the caller has to be a member
-//   of at least one of those bodies. Results are limited to members of those bodies.
-// Callers without global:view:member only get names and ids, need a query of at least
-// MEMBERS_SEARCH.MIN_QUERY_LENGTH characters and get at most MEMBERS_SEARCH.MAX_LIMIT results.
+// - without it: `body_id` (comma-separated, at most MEMBERS_SEARCH.MAX_BODIES) is required and
+//   the caller has to be a member of at least one of those bodies. Results are limited to
+//   members of those bodies.
+// Holders of global:view:member search names, emails and GSuite IDs and get contact fields.
+// Everyone else searches by name (or an exact email), needs a query of at least
+// MEMBERS_SEARCH.MIN_QUERY_LENGTH characters, gets at most MEMBERS_SEARCH.MAX_LIMIT results
+// with only ids and names, and no total count.
 exports.searchAllUsers = async (req, res) => {
     const canSearchAll = req.permissions.hasPermission('global:search:member');
     const canViewMembers = req.permissions.hasPermission('global:view:member');
 
-    const bodyIds = typeof req.query.body_id === 'string'
-        ? req.query.body_id.split(',').map((id) => parseInt(id, 10)).filter((id) => !Number.isNaN(id))
-        : [];
+    const bodyIds = parseBodyIds(req.query.body_id);
+    if (bodyIds === null) {
+        return errors.makeBadRequestError(res, 'body_id should be a comma-separated list of body IDs.');
+    }
 
     if (!canSearchAll) {
         if (bodyIds.length === 0) {
             return errors.makeForbiddenError(res, 'Permission global:search:member is required to search without body_id.');
+        }
+
+        if (bodyIds.length > constants.MEMBERS_SEARCH.MAX_BODIES) {
+            return errors.makeBadRequestError(res, `You can search at most ${constants.MEMBERS_SEARCH.MAX_BODIES} bodies at once.`);
         }
 
         const userBodyIds = req.user.bodies.map((body) => body.id);
@@ -74,7 +117,7 @@ exports.searchAllUsers = async (req, res) => {
         return res.json({
             success: true,
             data: [],
-            meta: { count: 0 }
+            meta: {}
         });
     }
 
@@ -83,9 +126,10 @@ exports.searchAllUsers = async (req, res) => {
         pagination.limit = Math.min(pagination.limit || constants.MEMBERS_SEARCH.MAX_LIMIT, constants.MEMBERS_SEARCH.MAX_LIMIT);
     }
 
-    // Sorting by a field the caller can't see would leak its order.
+    // Only sort by returned fields: sorting by anything else (like email) would leak its order.
+    const fields = canViewMembers ? constants.MEMBERS_SEARCH.FIELDS_WITH_VIEW_MEMBER : constants.MEMBERS_SEARCH.FIELDS;
     const order = helpers.getSorting(req.query);
-    if (!canViewMembers && !constants.MEMBERS_SEARCH.FIELDS.includes(order[0][0])) {
+    if (!fields.includes(order[0][0])) {
         order[0][0] = 'id';
     }
 
@@ -101,9 +145,9 @@ exports.searchAllUsers = async (req, res) => {
     }
 
     const result = await User.findAndCountAll({
-        where: helpers.filterBy(query, constants.FIELDS_TO_QUERY.MEMBER),
+        where: canViewMembers ? helpers.filterBy(query, constants.FIELDS_TO_QUERY.MEMBER) : limitedSearchFilter(query),
         ...pagination,
-        attributes: canViewMembers ? constants.MEMBERS_SEARCH.FIELDS_WITH_VIEW_MEMBER : constants.MEMBERS_SEARCH.FIELDS,
+        attributes: fields,
         include,
         order,
         ...(include.length > 0 && { distinct: true })
@@ -112,7 +156,8 @@ exports.searchAllUsers = async (req, res) => {
     return res.json({
         success: true,
         data: result.rows,
-        meta: { count: result.count }
+        // The total count would reveal how many members match (or how big a body is).
+        meta: canViewMembers ? { count: result.count } : {}
     });
 };
 
