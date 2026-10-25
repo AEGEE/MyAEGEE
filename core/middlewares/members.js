@@ -44,34 +44,68 @@ exports.listAllUsers = async (req, res) => {
     });
 };
 
+// Searches members by name, email or GSuite ID. Two ways to use it:
+// - with global:search:member: across all members, optionally filtered by `body_id`;
+// - without it: `body_id` (comma-separated) is required and the caller has to be a member
+//   of at least one of those bodies. Results are limited to members of those bodies.
+// Callers without global:view:member only get names and ids, need a query of at least
+// MEMBERS_SEARCH.MIN_QUERY_LENGTH characters and get at most MEMBERS_SEARCH.MAX_LIMIT results.
 exports.searchAllUsers = async (req, res) => {
-    if (!req.permissions.hasPermission('global:search:member')) {
-        return errors.makeForbiddenError(res, 'Permission global:search:member is required, but not present.');
-    }
+    const canSearchAll = req.permissions.hasPermission('global:search:member');
+    const canViewMembers = req.permissions.hasPermission('global:view:member');
 
-    const where = helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER);
+    const bodyIds = typeof req.query.body_id === 'string'
+        ? req.query.body_id.split(',').map((id) => parseInt(id, 10)).filter((id) => !Number.isNaN(id))
+        : [];
 
-    // Optional body_id filter: comma-separated list of body IDs.
-    // When provided, only returns users who are members of at least one of the specified bodies.
-    const include = [];
-    if (req.query.body_id) {
-        const bodyIds = req.query.body_id.split(',').map((id) => parseInt(id, 10)).filter((id) => !Number.isNaN(id));
-        if (bodyIds.length > 0) {
-            include.push({
-                model: BodyMembership,
-                where: { body_id: { [Sequelize.Op.in]: bodyIds } },
-                attributes: [],
-                required: true
-            });
+    if (!canSearchAll) {
+        if (bodyIds.length === 0) {
+            return errors.makeForbiddenError(res, 'Permission global:search:member is required to search without body_id.');
+        }
+
+        const userBodyIds = req.user.bodies.map((body) => body.id);
+        if (!bodyIds.some((id) => userBodyIds.includes(id))) {
+            return errors.makeForbiddenError(res, 'You can only search members of bodies you are a member of.');
         }
     }
 
+    const query = typeof req.query.query === 'string' ? req.query.query.trim() : '';
+    if (!canViewMembers && query.length < constants.MEMBERS_SEARCH.MIN_QUERY_LENGTH) {
+        return res.json({
+            success: true,
+            data: [],
+            meta: { count: 0 }
+        });
+    }
+
+    const pagination = helpers.getPagination(req.query);
+    if (!canViewMembers) {
+        pagination.limit = Math.min(pagination.limit || constants.MEMBERS_SEARCH.MAX_LIMIT, constants.MEMBERS_SEARCH.MAX_LIMIT);
+    }
+
+    // Sorting by a field the caller can't see would leak its order.
+    const order = helpers.getSorting(req.query);
+    if (!canViewMembers && !constants.MEMBERS_SEARCH.FIELDS.includes(order[0][0])) {
+        order[0][0] = 'id';
+    }
+
+    // When filtering by body, only return users who are members of at least one of the bodies.
+    const include = [];
+    if (bodyIds.length > 0) {
+        include.push({
+            model: BodyMembership,
+            where: { body_id: { [Sequelize.Op.in]: bodyIds } },
+            attributes: [],
+            required: true
+        });
+    }
+
     const result = await User.findAndCountAll({
-        where,
-        ...helpers.getPagination(req.query),
-        attributes: ['id', 'first_name', 'last_name', 'username', 'email', 'gsuite_id'],
+        where: helpers.filterBy(query, constants.FIELDS_TO_QUERY.MEMBER),
+        ...pagination,
+        attributes: canViewMembers ? constants.MEMBERS_SEARCH.FIELDS_WITH_VIEW_MEMBER : constants.MEMBERS_SEARCH.FIELDS,
         include,
-        order: helpers.getSorting(req.query),
+        order,
         ...(include.length > 0 && { distinct: true })
     });
 

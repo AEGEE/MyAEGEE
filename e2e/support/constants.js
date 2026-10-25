@@ -27,8 +27,10 @@ const SECOND_ANTENNA = {
     code: 'EES'
 };
 
-// Circle permissions as configured on production (2026-10-25). The fixtures
-// replace the seeded permissions of these circles with exactly these lists.
+// Circle permissions as configured on production (2026-10-25), including the
+// planned change from the scoped member search: global:search:member moves from
+// the general members circle to NetCom (boards keep it through their board circles).
+// The fixtures replace the seeded permissions of these circles with exactly these lists.
 const PROD_CIRCLE_PERMISSIONS = {
     'Network Commission': [
         'global:view_members:circle',
@@ -46,7 +48,8 @@ const PROD_CIRCLE_PERMISSIONS = {
         'global:see_memberslists_without_fee:agora',
         'global:manage_network:antenna_criteria',
         'global:manage_network:communication',
-        'global:manage_network:netcom_assignment'
+        'global:manage_network:netcom_assignment',
+        'global:search:member'
     ],
     'General members circle': [
         'local:view_members:circle',
@@ -54,7 +57,6 @@ const PROD_CIRCLE_PERMISSIONS = {
         'local:view_members:body',
         'local:view:member',
         'global:create:event',
-        'global:search:member',
         'global:apply:summeruniversity'
     ]
 };
