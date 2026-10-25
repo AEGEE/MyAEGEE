@@ -20,6 +20,7 @@ module.exports = {
         'summeruniversity',
         'mailer',
         'dispatcher',
+        'e2e',
         
         // Infrastructure scopes (trigger all modules)
         'ci',
