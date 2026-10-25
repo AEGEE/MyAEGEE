@@ -436,7 +436,7 @@ describe('Users list', () => {
         });
 
         test('should not match on parts of the email', async () => {
-            const { token } = await createSearcher({ first_name: 'Searcher' });
+            const { token } = await createSearcher({ first_name: 'Searcher', last_name: 'Smith' });
             await generator.createUser({ first_name: 'Target', last_name: 'Person', email: 'secret.address@test.io' });
 
             // Neither an email substring nor "last name + start of the email" should match.
@@ -559,7 +559,8 @@ describe('Users list', () => {
         test('should only return names when searching a body', async () => {
             const body = await generator.createBody();
             const user = await generator.createUser();
-            const colleague = await generator.createUser({ first_name: 'Colleague', email: 'colleague@test.io' });
+            // Fixed last name: "Colleague c" must only be able to match through the email.
+            const colleague = await generator.createUser({ first_name: 'Colleague', last_name: 'Smith', email: 'colleague@test.io' });
             await generator.createBodyMembership(body, user);
             await generator.createBodyMembership(body, colleague);
             const token = await generator.createAccessToken(user);
