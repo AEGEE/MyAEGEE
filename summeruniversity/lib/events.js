@@ -156,6 +156,39 @@ exports.listApprovableEvents = async (req, res) => {
     });
 };
 
+// Organizers have to be members of one of the organizing or cooperation bodies.
+// Only organizers that aren't in `existingOrganizers` are checked, so events created
+// before this rule can still be edited. People who can manage this event type may add anyone.
+// Returns an error message for the user, or null if the organizers are fine.
+async function checkOrganizers({ organizers, bodies, existingOrganizers = [], canManage }) {
+    if (canManage) {
+        return null;
+    }
+
+    const existingIds = existingOrganizers.map((organizer) => organizer.user_id);
+    const newOrganizers = organizers.filter((organizer) => !existingIds.includes(organizer.user_id));
+    if (newOrganizers.length === 0) {
+        return null;
+    }
+
+    const bodyIds = bodies.filter(Boolean).map((body) => body.body_id);
+    const adminToken = await core.getAdminToken();
+    const fetched = await Promise.all(newOrganizers.map((organizer) => core.fetchUser(organizer, adminToken)));
+    const outside = fetched.filter((organizer) => !organizer.body_ids.some((id) => bodyIds.includes(id)));
+
+    if (outside.length === 0) {
+        return null;
+    }
+
+    const names = outside.map((organizer) => `${organizer.first_name} ${organizer.last_name}`).join(', ');
+    return `Organizers should be members of one of the organizing or cooperation bodies: ${names}.`;
+}
+
+const makeOrganizersError = (res, message) => res.status(422).json({
+    success: false,
+    errors: { organizers: [message] }
+});
+
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_summeruniversity) {
         return errors.makeForbiddenError(res, 'You are not allowed to create summer university events.');
@@ -191,6 +224,17 @@ exports.addEvent = async (req, res) => {
     if (Array.isArray(event.cooperation)) {
         event.cooperation = await Promise.all(event.cooperation.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(event.organizers)) {
+        const organizersError = await checkOrganizers({
+            organizers: event.organizers,
+            bodies: [...(event.organizing_bodies || []), ...(event.cooperation || [])],
+            canManage: req.permissions.manage_summeruniversity[event.type]
+        });
+        if (organizersError) {
+            return makeOrganizersError(res, organizersError);
+        }
     }
 
     await sequelize.transaction(async (t) => {
@@ -285,6 +329,20 @@ exports.editEvent = async (req, res) => {
     if (Array.isArray(data.cooperation)) {
         data.cooperation = await Promise.all(data.cooperation.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(data.organizers)) {
+        const organizingBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : event.organizing_bodies;
+        const cooperation = Array.isArray(data.cooperation) ? data.cooperation : event.cooperation;
+        const organizersError = await checkOrganizers({
+            organizers: data.organizers,
+            bodies: [...(organizingBodies || []), ...(cooperation || [])],
+            existingOrganizers: event.organizers,
+            canManage: req.permissions.manage_summeruniversity[data.type || event.type]
+        });
+        if (organizersError) {
+            return makeOrganizersError(res, organizersError);
+        }
     }
 
     if (oldStatus === 'first draft') {
