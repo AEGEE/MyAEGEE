@@ -314,10 +314,10 @@
           <div class="content">
             <p>The user creating the event automatically becomes the organiser.</p>
             <p>People who are not listed as organisers won't be able to see and manage event manage applications, even if they are the board members.</p>
-            <p v-if="!can.searchAllMembers">
-              <strong>You can only add people from your bodies.</strong>
-              If a person from another body needs to be added as an organiser, you can temporarily join this body to get the permissions
-              to see members of this body, add required people, then leave it.
+            <p>
+              <strong>Organisers have to be members of one of the organising bodies.</strong>
+              You can search the members of all organising bodies, as long as you are a member of one of them.
+              Add the organising bodies first, then the organisers.
             </p>
             <p>Organisers list cannot be edited once the event is published, if you need to update it, please contact EQAC or CD.</p>
           </div>
@@ -349,6 +349,7 @@
               <empty-table-stub />
             </template>
           </b-table>
+          <p class="help is-danger" v-if="errors.organizers">{{ errors.organizers.join(', ') }}</p>
 
           <div class="field">
             <label class="label">Add organiser</label>
@@ -704,8 +705,7 @@ export default {
         time_24hr: true
       },
       can: {
-        edit_application_status: false,
-        searchAllMembers: false
+        edit_application_status: false
       },
       errors: {},
       isLoading: false,
@@ -716,35 +716,23 @@ export default {
     fetchMembers (query) {
       if (!query) return
 
-      this.autoComplete.members.values = []
-      this.autoComplete.members.loading = true
-
       if (this.token) this.token.cancel()
+      this.autoComplete.members.values = []
+
+      const bodyIds = this.event.organizing_bodies.map(body => body.body_id)
+      if (bodyIds.length === 0) {
+        return this.$root.showWarning('Please add an organising body first.')
+      }
+
+      this.autoComplete.members.loading = true
       this.token = this.axios.CancelToken.source()
 
-      // If user has global permission, searching the global members list.
-      // Otherwise, fetch all of the members of the bodies this user is a member of.
-      const endpoints = this.can.searchAllMembers
-        ? [this.services['core'] + '/members_search']
-        : this.loginUser.bodies.map(body => this.services['core'] + '/bodies/' + body.id + '/members')
-
-      // Ignoring the requests that failed (because of 403 most likely)
-      // since the user does not always has the permissions to see
-      // the members of the body.
-      const fetchEndpoint = (endpoint) => this.axios.get(endpoint, {
+      // Organisers have to be members of one of the organising bodies, so only those are searched.
+      this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,
-        params: { query }
-      }).then(res => res.data.data).catch(() => [])
-
-      // Merging all of the responses into one array.
-      // Then filtering out duplicate users.
-      // .map is there because the /bodies/:id/members returns users, not members.
-      Promise.all(endpoints.map(fetchEndpoint)).then((responses) => {
-        this.autoComplete.members.values = responses
-          .reduce((acc, val) => acc.concat(val), [])
-          .map(value => (this.can.searchAllMembers ? value : value.user))
-          .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
-
+        params: { query, body_id: bodyIds.join(',') }
+      }).then((res) => {
+        this.autoComplete.members.values = res.data.data
         this.autoComplete.members.loading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -959,10 +947,6 @@ export default {
     this.axios.get(this.services['core'] + '/bodies/').then((response) => {
       this.bodies = response.data.data
 
-      return this.axios.get(this.services['core'] + '/my_permissions/')
-    }).then((response) => {
-      this.can.searchAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:search:member'))
-
       if (!this.$route.params.id) {
         this.isLoading = false
         this.event.organizers.push({
@@ -978,7 +962,6 @@ export default {
       return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
-        this.can.searchAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:search:member')) // override it
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.starts = new Date(this.event.ends)

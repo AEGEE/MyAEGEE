@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid.json').data;
+const coOrganizingBody = require('../assets/oms-core-body.json').data;
 
 describe('Events editing', () => {
     let event;
@@ -209,5 +210,116 @@ describe('Events editing', () => {
         expect(response.statusCode).toEqual(200);
         expect(response.body).toHaveProperty('data');
         expect(response.body.data.is_european_event).toEqual(true);
+    });
+
+    describe('organizers outside the organizing bodies', () => {
+        let cultural;
+
+        beforeEach(async () => {
+            cultural = await generator.createEvent({
+                type: 'cultural',
+                organizing_bodies: [{ body_id: 555, body_name: 'Organizing body' }],
+                organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }]
+            });
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: 999, name: 'Other body' }] }
+            });
+        });
+
+        it('should keep existing organizers even if they are not in an organizing body', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id]);
+        });
+
+        it('should reject new organizers who are not in an organizing body', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+        });
+
+        it('should not let managers of another type bypass the rule by changing the type', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event', 'global:manage_event:nwm'] },
+                member: { bodies: [{ id: 999, name: 'Other body' }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { type: 'nwm', organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+        });
+
+        it('should let managers of both types add anyone when changing the type', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event', 'global:manage_event:nwm', 'global:manage_event:cultural'] },
+                member: { bodies: [{ id: 999, name: 'Other body' }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { type: 'nwm', organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        it('should accept organizers from an organizing body added in the same request', async () => {
+            // The mocked core body is always the same body.
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: coOrganizingBody.id, name: coOrganizingBody.name }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: {
+                    organizing_bodies: [{ body_id: coOrganizingBody.id }],
+                    organizers: [{ user_id: user.id }, { user_id: 4242 }]
+                }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id, 4242]);
+        });
+
+        it('should accept new organizers who are in an organizing body', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: 555, name: 'Organizing body' }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id, 4242]);
+        });
     });
 });

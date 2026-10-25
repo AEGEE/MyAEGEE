@@ -207,7 +207,7 @@
           <div class="content">
             <p>The user creating the event automatically becomes an organiser.</p>
             <p>People who are not listed as organisers won't be able to see and manage event applications, even if they are the board members.</p>
-            <p><strong>You can only add people from the organising bodies.</strong></p>
+            <p><strong>You can only add people from the organising and cooperation bodies.</strong></p>
             <p>Please add at least:<br />
               - 1 main coordinator per organising body<br />
               - 1 content manager<br />
@@ -244,6 +244,7 @@
               <empty-table-stub />
             </template>
           </b-table>
+          <p class="help is-danger" v-if="errors.organizers">{{ errors.organizers.join(', ') }}</p>
 
           <div class="field">
             <label class="label">Add organiser</label>
@@ -556,8 +557,12 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      // Search members using the lightweight endpoint, scoped to the organising bodies.
-      const bodyIds = this.event.organizing_bodies.map(body => body.body_id).join(',')
+      // Organisers have to be members of an organising or cooperation body, so only those are searched.
+      const bodyIds = [...this.event.organizing_bodies, ...(this.event.cooperation || [])].map(body => body.body_id).join(',')
+      if (!bodyIds) {
+        this.autoComplete.members.loading = false
+        return this.$root.showWarning('Please add an organising body first.')
+      }
 
       this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,

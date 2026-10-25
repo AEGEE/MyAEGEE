@@ -21,32 +21,8 @@ const makeRequest = (options) => {
     return request(requestOptions);
 };
 
-const fetchUser = async (user, token) => {
-    const userRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/members/' + user.user_id + '/lookup',
-        token
-    });
-
-    if (typeof userRequest !== 'object') {
-        throw new Error('Malformed response when fetching user: ' + userRequest);
-    }
-
-    if (!userRequest.success) {
-        throw new Error('Error fetching user: ' + JSON.stringify(userRequest));
-    }
-
-    return {
-        user_id: userRequest.data.id,
-        comment: user.comment,
-        first_name: userRequest.data.first_name,
-        last_name: userRequest.data.last_name,
-        email: userRequest.data.email,
-        notification_email: userRequest.data.notification_email
-    };
-};
-
-const fetchApplicationUser = async (user) => {
-    // Getting access and refresh token.
+const getAdminToken = async () => {
+    // Getting access and refresh token using the service account credentials.
     const authRequest = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/login',
         method: 'POST',
@@ -64,10 +40,44 @@ const fetchApplicationUser = async (user) => {
         throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
     }
 
+    return authRequest.access_token;
+};
+
+// Fetches an organizer with the service account token (from getAdminToken), so it works
+// regardless of whether the person editing the event may see this user in core.
+// `body_ids` is only used for validation and should not be stored.
+const fetchUser = async (user, adminToken) => {
+    const userRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members/' + user.user_id,
+        token: adminToken
+    });
+
+    if (typeof userRequest !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + userRequest);
+    }
+
+    if (!userRequest.success) {
+        throw new Error('Error fetching user: ' + JSON.stringify(userRequest));
+    }
+
+    return {
+        user_id: userRequest.data.id,
+        comment: user.comment,
+        first_name: userRequest.data.first_name,
+        last_name: userRequest.data.last_name,
+        email: userRequest.data.email,
+        notification_email: userRequest.data.notification_email,
+        body_ids: userRequest.data.bodies.map((body) => body.id)
+    };
+};
+
+const fetchApplicationUser = async (user) => {
+    const adminToken = await getAdminToken();
+
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: authRequest.access_token,
+        token: adminToken,
     });
 
     if (typeof userResponse !== 'object') {
@@ -107,6 +117,7 @@ const fetchBody = async (body, token) => {
 };
 
 module.exports = {
+    getAdminToken,
     fetchUser,
     fetchApplicationUser,
     fetchBody

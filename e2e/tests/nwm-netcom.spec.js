@@ -1,7 +1,7 @@
 // What Network Commission members can do with NWMs, using the production
 // NetCom permissions. NetCom (seed user `netcom`) is a member of the seeded
 // antenna and the Network Commission body; `organizer-b` is only in the second antenna.
-const { test, expect, expectStatus, knownBug, recipients } = require('../support/api');
+const { test, expect, expectStatus, loginInBrowser, recipients } = require('../support/api');
 
 const SUBMITTED_SUBJECT = 'A new event was submitted.';
 
@@ -15,8 +15,6 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('NetCom can publish an NWM organized by a body they are not a member of', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
-
         const event = await api.createEvent('organizer-b');
         expectStatus(await api.setStatus('organizer-b', event.id, 'submitted'), 200);
 
@@ -35,8 +33,6 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('NetCom can edit an NWM organized by a body they are not a member of', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
-
         const event = await api.createEvent('organizer-b');
 
         // The frontend always sends the organizers along when saving.
@@ -48,8 +44,6 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('an organizer can add a co-organizer from another organizing body', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
-
         const member = await api.me('member');
         const organizerB = await api.me('organizer-b');
         const secondAntenna = await api.secondAntenna();
@@ -62,9 +56,50 @@ test.describe('NetCom and NWMs', () => {
         expectStatus(res, 200);
     });
 
-    test('submitting an NWM notifies both events approval and NetCom', async ({ api }) => {
-        knownBug('Not implemented yet: NWM submissions should also go to netcom@aegee.eu', /netcom@aegee\.eu/);
+    test('an organizer cannot add someone outside the organizing bodies', async ({ api }) => {
+        const member = await api.me('member');
+        const organizerB = await api.me('organizer-b');
 
+        const event = await api.createEvent('member');
+        const res = await api.call('member', 'PUT', `/api/events/single/${event.id}`, {
+            organizers: [{ user_id: member.id }, { user_id: organizerB.id }]
+        });
+        expectStatus(res, 422);
+        expect(res.body.errors.organizers[0]).toContain(`user ID ${organizerB.id}`);
+    });
+
+    test('events do not expose the contact details of organizers', async ({ api }) => {
+        const member = await api.me('member');
+        const board = await api.me('board');
+
+        const event = await api.createEvent('member', { organizers: [{ user_id: member.id }, { user_id: board.id }] });
+        const details = await api.call('member', 'GET', `/api/events/single/${event.id}`);
+
+        for (const organizers of [event.organizers, details.body.data.organizers]) {
+            for (const organizer of organizers) {
+                expect(Object.keys(organizer).sort()).toEqual(['first_name', 'last_name', 'user_id']);
+            }
+        }
+    });
+
+    test('an organizer can find members of a co-organizing body in the editor', async ({ api, page }) => {
+        const member = await api.me('member');
+        const secondAntenna = await api.secondAntenna();
+        const event = await api.createEvent('member', {
+            organizingBody: member.bodies[0]
+        });
+        expectStatus(await api.call('member', 'PUT', `/api/events/single/${event.id}`, {
+            organizing_bodies: [{ body_id: member.bodies[0].id }, { body_id: secondAntenna.id }]
+        }), 200);
+
+        await loginInBrowser(page, api, 'member');
+        await page.goto(`/events/${event.url}/edit`);
+        await page.locator('.field', { hasText: 'Add organiser' }).locator('input').fill('Bravo');
+
+        await expect(page.locator('.dropdown-item', { hasText: 'Bravo' })).toBeVisible();
+    });
+
+    test('submitting an NWM notifies both events approval and NetCom', async ({ api }) => {
         const event = await api.createEvent('member');
         await api.clearMails();
         expectStatus(await api.setStatus('member', event.id, 'submitted'), 200);

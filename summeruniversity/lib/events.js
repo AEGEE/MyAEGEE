@@ -156,6 +156,65 @@ exports.listApprovableEvents = async (req, res) => {
     });
 };
 
+const MAX_ORGANIZERS = 50;
+
+// Whether the user may manage Summer Universities of all the given types (e.g. the old and the new type).
+const canManageTypes = (permissions, types) => types
+    .filter(Boolean)
+    .every((type) => permissions.manage_summeruniversity[type] === true);
+
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
+// Organizers have to be members of one of the organizing or cooperation bodies.
+// Only organizers that aren't in `existingOrganizers` are checked, so events created
+// before this rule can still be edited. People who can manage this event type may add anyone.
+// Returns an error message for the user, or null if the organizers are fine.
+async function checkOrganizers({ organizers, bodies, existingOrganizers = [], canManage }) {
+    const isValidOrganizer = (organizer) => typeof organizer === 'object'
+        && organizer !== null
+        && Number.isSafeInteger(organizer.user_id)
+        && organizer.user_id > 0;
+    if (!organizers.every(isValidOrganizer)) {
+        return 'Every organizer should have a valid user_id.';
+    }
+
+    const userIds = organizers.map((organizer) => organizer.user_id);
+    if (new Set(userIds).size !== userIds.length) {
+        return 'Organizers should not be listed twice.';
+    }
+
+    if (organizers.length > MAX_ORGANIZERS) {
+        return `A Summer University can have at most ${MAX_ORGANIZERS} organizers.`;
+    }
+
+    if (canManage) {
+        return null;
+    }
+
+    const existingIds = existingOrganizers.map((organizer) => organizer.user_id);
+    const newOrganizers = organizers.filter((organizer) => !existingIds.includes(organizer.user_id));
+    if (newOrganizers.length === 0) {
+        return null;
+    }
+
+    const bodyIds = bodies.filter(Boolean).map((body) => body.body_id);
+    const adminToken = await core.getAdminToken();
+    const fetched = await Promise.all(newOrganizers.map((organizer) => core.fetchUser(organizer, adminToken)));
+    const outside = fetched.filter((organizer) => !organizer.body_ids.some((id) => bodyIds.includes(id)));
+
+    if (outside.length === 0) {
+        return null;
+    }
+
+    const ids = outside.map((organizer) => organizer.user_id).join(', ');
+    return `Organizers should be members of one of the organizing or cooperation bodies (user ID ${ids}).`;
+}
+
+const makeOrganizersError = (res, message) => res.status(422).json({
+    success: false,
+    errors: { organizers: [message] }
+});
+
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_summeruniversity) {
         return errors.makeForbiddenError(res, 'You are not allowed to create summer university events.');
@@ -191,6 +250,17 @@ exports.addEvent = async (req, res) => {
     if (Array.isArray(event.cooperation)) {
         event.cooperation = await Promise.all(event.cooperation.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(event.organizers)) {
+        const organizersError = await checkOrganizers({
+            organizers: event.organizers,
+            bodies: [...asArray(event.organizing_bodies), ...asArray(event.cooperation)],
+            canManage: canManageTypes(req.permissions, [event.type])
+        });
+        if (organizersError) {
+            return makeOrganizersError(res, organizersError);
+        }
     }
 
     await sequelize.transaction(async (t) => {
@@ -285,6 +355,21 @@ exports.editEvent = async (req, res) => {
     if (Array.isArray(data.cooperation)) {
         data.cooperation = await Promise.all(data.cooperation.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(data.organizers)) {
+        const organizingBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : event.organizing_bodies;
+        const cooperation = Array.isArray(data.cooperation) ? data.cooperation : event.cooperation;
+        const organizersError = await checkOrganizers({
+            organizers: data.organizers,
+            bodies: [...asArray(organizingBodies), ...asArray(cooperation)],
+            existingOrganizers: event.organizers,
+            // When the type changes, the override needs both the old and the new type.
+            canManage: canManageTypes(req.permissions, [event.type, data.type])
+        });
+        if (organizersError) {
+            return makeOrganizersError(res, organizersError);
+        }
     }
 
     if (oldStatus === 'first draft') {
