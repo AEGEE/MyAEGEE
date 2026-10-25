@@ -57,8 +57,9 @@ test.describe('Summer University organizers', () => {
             organizers: await organizers(api, 'organizer-b')
         });
 
+        const organizerB = await api.me('organizer-b');
         const res = await api.call('member', 'POST', '/api/summeruniversity/', payload);
         expectStatus(res, 422);
-        expect(res.body.errors.organizers[0]).toContain('Organizer Bravo');
+        expect(res.body.errors.organizers[0]).toContain(`user ID ${organizerB.id}`);
     });
 });

@@ -65,7 +65,21 @@ test.describe('NetCom and NWMs', () => {
             organizers: [{ user_id: member.id }, { user_id: organizerB.id }]
         });
         expectStatus(res, 422);
-        expect(res.body.errors.organizers[0]).toContain('Organizer Bravo');
+        expect(res.body.errors.organizers[0]).toContain(`user ID ${organizerB.id}`);
+    });
+
+    test('events do not expose the contact details of organizers', async ({ api }) => {
+        const member = await api.me('member');
+        const board = await api.me('board');
+
+        const event = await api.createEvent('member', { organizers: [{ user_id: member.id }, { user_id: board.id }] });
+        const details = await api.call('member', 'GET', `/api/events/single/${event.id}`);
+
+        for (const organizers of [event.organizers, details.body.data.organizers]) {
+            for (const organizer of organizers) {
+                expect(Object.keys(organizer).sort()).toEqual(['first_name', 'last_name', 'user_id']);
+            }
+        }
     });
 
     test('an organizer can find members of a co-organizing body in the editor', async ({ api, page }) => {
