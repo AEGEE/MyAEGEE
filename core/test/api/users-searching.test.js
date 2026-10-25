@@ -413,7 +413,6 @@ describe('Users list', () => {
 
                 expect(res.statusCode).toEqual(200);
                 expect(res.body.data).toEqual([]);
-                expect(res.body.meta.count).toEqual(0);
             }
         });
 
@@ -432,7 +431,54 @@ describe('Users list', () => {
 
                 expect(res.statusCode).toEqual(200);
                 expect(res.body.data.length).toEqual(constants.MEMBERS_SEARCH.MAX_LIMIT);
-                expect(res.body.meta.count).toEqual(constants.MEMBERS_SEARCH.MAX_LIMIT + 2);
+                expect(res.body.meta).not.toHaveProperty('count');
+            }
+        });
+
+        test('should not match on parts of the email', async () => {
+            const { token } = await createSearcher({ first_name: 'Searcher' });
+            await generator.createUser({ first_name: 'Target', last_name: 'Person', email: 'secret.address@test.io' });
+
+            // Neither an email substring nor "last name + start of the email" should match.
+            for (const query of ['secret', 'test.io', 'Person s', 'Person secret']) {
+                const res = await request({
+                    path: '/members_search?query=' + encodeURIComponent(query),
+                    method: 'GET',
+                    headers: { 'X-Auth-Token': token.value }
+                });
+
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.data).toEqual([]);
+            }
+        });
+
+        test('should find a member by their exact email', async () => {
+            const { token } = await createSearcher({ first_name: 'Searcher' });
+            const target = await generator.createUser({ email: 'exact.address@test.io' });
+
+            const res = await request({
+                path: '/members_search?query=Exact.Address@test.io',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([{ id: target.id, first_name: target.first_name, last_name: target.last_name }]);
+        });
+
+        test('should treat LIKE wildcards literally', async () => {
+            const { token } = await createSearcher({ first_name: 'Searcher' });
+            await generator.createUser({ first_name: 'Someone' });
+
+            for (const query of ['%%', '__', '%_', '\\%']) {
+                const res = await request({
+                    path: '/members_search?query=' + encodeURIComponent(query),
+                    method: 'GET',
+                    headers: { 'X-Auth-Token': token.value }
+                });
+
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.data).toEqual([]);
             }
         });
 
@@ -508,6 +554,64 @@ describe('Users list', () => {
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
+        });
+
+        test('should only return names when searching a body', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const colleague = await generator.createUser({ first_name: 'Colleague', email: 'colleague@test.io' });
+            await generator.createBodyMembership(body, user);
+            await generator.createBodyMembership(body, colleague);
+            const token = await generator.createAccessToken(user);
+
+            for (const query of ['colleague@test.io', 'Colleague c', 'test.io']) {
+                const res = await request({
+                    path: '/members_search?query=' + encodeURIComponent(query) + '&body_id=' + body.id,
+                    method: 'GET',
+                    headers: { 'X-Auth-Token': token.value }
+                });
+
+                expect(res.statusCode).toEqual(200);
+                const expected = query === 'colleague@test.io'
+                    ? [{ id: colleague.id, first_name: colleague.first_name, last_name: colleague.last_name }]
+                    : [];
+                expect(res.body.data).toEqual(expected);
+                expect(res.body.meta).not.toHaveProperty('count');
+            }
+        });
+
+        test('should fail when searching too many bodies at once', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            await generator.createBodyMembership(body, user);
+            const token = await generator.createAccessToken(user);
+
+            const otherIds = Array.from({ length: constants.MEMBERS_SEARCH.MAX_BODIES }, (value, index) => body.id + index + 1);
+
+            const res = await request({
+                path: '/members_search?query=anything&body_id=' + [body.id, ...otherIds].join(','),
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+        });
+
+        test('should fail if body_id is repeated', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            await generator.createBodyMembership(body, user);
+            const token = await generator.createAccessToken(user);
+
+            const res = await request({
+                path: '/members_search?query=anything&body_id=' + body.id + '&body_id=' + body.id,
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
         });
 
         test('should fail if all body_id values are invalid', async () => {

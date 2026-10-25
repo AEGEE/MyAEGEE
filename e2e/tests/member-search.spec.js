@@ -23,7 +23,8 @@ test.describe('member search', () => {
 
         const res = await search(api, 'member', { query: 'Bravo', body_id: `${member.bodies[0].id},${secondAntenna.id}` });
         expectStatus(res, 200);
-        expect(res.body.data.map((user) => user.id)).toContain(organizerB.id);
+        expect(res.body.data).toEqual([{ id: organizerB.id, first_name: organizerB.first_name, last_name: organizerB.last_name }]);
+        expect(res.body.meta).not.toHaveProperty('count');
     });
 
     test('a member cannot search a body they are not a member of', async ({ api }) => {
@@ -44,9 +45,23 @@ test.describe('member search', () => {
         expect(res.body.data).toContainEqual({ id: organizerB.id, first_name: organizerB.first_name, last_name: organizerB.last_name });
     });
 
-    test('short queries return nothing', async ({ api }) => {
-        const res = await search(api, 'netcom', { query: 'B' });
+    test('short queries and wildcards return nothing', async ({ api }) => {
+        const member = await api.me('member');
+
+        for (const [username, params] of [['netcom', { query: 'B' }], ['member', { query: 'B', body_id: member.bodies[0].id }], ['member', { query: '%%', body_id: member.bodies[0].id }]]) {
+            const res = await search(api, username, params);
+            expectStatus(res, 200);
+            expect(res.body.data).toEqual([]);
+        }
+    });
+
+    test('a member cannot find someone by part of their email', async ({ api }) => {
+        const member = await api.me('member');
+        const board = await api.me('board');
+
+        // Last name followed by the start of the email used to match the whole concatenation.
+        const res = await search(api, 'member', { query: `${board.last_name} ${board.email.slice(0, 3)}`, body_id: member.bodies[0].id });
         expectStatus(res, 200);
-        expect(res.body.data).toEqual([]);
+        expect(res.body.data.map((user) => user.id)).not.toContain(board.id);
     });
 });
