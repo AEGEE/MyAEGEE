@@ -73,6 +73,17 @@ module.exports = {
             'autojoin_body',
         ],
     },
+    MEMBERS_SEARCH: {
+        // Fields returned to everyone who can search.
+        FIELDS: ['id', 'first_name', 'last_name'],
+        // Extra fields only returned to holders of global:view:member.
+        FIELDS_WITH_VIEW_MEMBER: ['id', 'first_name', 'last_name', 'username', 'email', 'gsuite_id'],
+        // Without global:view:member, shorter queries return nothing and pages are capped.
+        MIN_QUERY_LENGTH: 2,
+        MAX_LIMIT: 50,
+        // Without global:search:member, at most this many bodies can be searched at once.
+        MAX_BODIES: 10,
+    },
     TOKEN_LENGTH: {
         MAIL_CONFIRMATION: 128,
         ACCESS_TOKEN: 32,
