@@ -2,7 +2,7 @@ const { test, expect, expectStatus, knownBug, loginInBrowser } = require('../sup
 
 test.describe('events permissions', () => {
     test('creating an event requires create:event', async ({ api }) => {
-        knownBug('Known bug: addEvent does not check create:event');
+        knownBug('Known bug: addEvent does not check create:event', /Received: 201/);
 
         // not-member is in no body and so has no create:event.
         const payload = await api.eventPayload('not-member', { type: 'training' });
@@ -11,7 +11,7 @@ test.describe('events permissions', () => {
     });
 
     test('manage_event for one type only shows future applications for that type', async ({ api }) => {
-        knownBug('Known bug: any manage_event permission lists future applications for all event types');
+        knownBug('Known bug: any manage_event permission lists future applications for all event types', /Received: "training"/);
 
         const member = await api.me('member');
         for (const type of ['training', 'nwm']) {
@@ -29,7 +29,7 @@ test.describe('events permissions', () => {
     });
 
     test('editing someone else\'s application keeps the applicant', async ({ api }) => {
-        knownBug('Known bug: updateApplication overwrites user_id and name with the editor\'s');
+        knownBug('Known bug: updateApplication overwrites user_id and name with the editor\'s', /applicant user_id/);
 
         const member = await api.me('member');
         const event = await api.createEvent('admin');
@@ -42,7 +42,7 @@ test.describe('events permissions', () => {
         expectStatus(edit, 200);
 
         const res = await api.call('admin', 'GET', `/api/events/single/${event.id}/applications/${application.id}`);
-        expect(res.body.data.user_id).toBe(member.id);
+        expect(res.body.data.user_id, 'applicant user_id').toBe(member.id);
         expect(res.body.data.first_name).toBe(member.first_name);
     });
 
@@ -57,7 +57,7 @@ test.describe('events permissions', () => {
     });
 
     test('the event status is hidden from people who cannot approve the event', async ({ api, page }) => {
-        knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy');
+        knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy', /toHaveCount/);
 
         const event = await api.createEvent('admin', { type: 'training' });
         await api.publishAsAdmin(event.id);

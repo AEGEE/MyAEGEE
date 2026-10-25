@@ -37,4 +37,4 @@ http.createServer((req, res) => {
 
         return send(res, 404, { success: false, message: 'Not found' });
     });
-}).listen(PORTS.mailer);
+}).listen(PORTS.mailer, '127.0.0.1');

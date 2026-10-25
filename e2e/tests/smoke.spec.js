@@ -1,4 +1,5 @@
 const { test, expect, loginInBrowser } = require('../support/api');
+const { PROD_CIRCLE_PERMISSIONS } = require('../support/constants');
 
 test.describe('e2e stack', () => {
     for (const service of ['core', 'events', 'summeruniversity']) {
@@ -13,6 +14,9 @@ test.describe('e2e stack', () => {
         const { body } = await api.call('netcom', 'GET', '/api/core/my_permissions');
         const combined = body.data.map((permission) => permission.combined);
 
+        // NetCom members get their circle's permissions plus the global ones of the members circle, nothing else.
+        const allowed = [...PROD_CIRCLE_PERMISSIONS['Network Commission'], ...PROD_CIRCLE_PERMISSIONS['General members circle']];
+        expect(combined.filter((permission) => !allowed.includes(permission))).toEqual([]);
         expect(combined).toEqual(expect.arrayContaining([
             'global:approve_event:nwm',
             'global:manage_event:nwm',
