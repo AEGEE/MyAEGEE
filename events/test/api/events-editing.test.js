@@ -210,4 +210,61 @@ describe('Events editing', () => {
         expect(response.body).toHaveProperty('data');
         expect(response.body.data.is_european_event).toEqual(true);
     });
+
+    describe('organizers outside the organizing bodies', () => {
+        let cultural;
+
+        beforeEach(async () => {
+            cultural = await generator.createEvent({
+                type: 'cultural',
+                organizing_bodies: [{ body_id: 555, body_name: 'Organizing body' }],
+                organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }]
+            });
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: 999, name: 'Other body' }] }
+            });
+        });
+
+        it('should keep existing organizers even if they are not in an organizing body', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id]);
+        });
+
+        it('should reject new organizers who are not in an organizing body', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+        });
+
+        it('should accept new organizers who are in an organizing body', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: 555, name: 'Organizing body' }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizers: [{ user_id: user.id }, { user_id: 4242 }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id, 4242]);
+        });
+    });
 });
