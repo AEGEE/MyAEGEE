@@ -236,6 +236,37 @@ describe('Events application editing', () => {
 
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.user_id).toEqual(1337);
+        expect(applicationFromDb.first_name).toEqual('Member1337');
         expect(applicationFromDb.body_id).toEqual(user.bodies[1].id);
+    });
+
+    it('should not allow changing the application to a body the applicant is not a member of', async () => {
+        mock.mockAll({ member: { bodies: [user.bodies[0]] } });
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            organizers: [{ user_id: 1234, first_name: 'test', last_name: 'test' }],
+            questions: []
+        });
+
+        const application = await generator.createApplication(event, {
+            user_id: 1337,
+            body_id: user.bodies[0].id,
+            answers: []
+        });
+
+        // The editor is a member of this body, the applicant isn't.
+        const res = await request({
+            path: '/single/' + event.id + '/applications/' + application.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { body_id: user.bodies[1].id, answers: [] }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
     });
 });
