@@ -28,11 +28,14 @@ No Docker images or traefik are involved:
 
 `npm run setup` recreates the databases, runs the core seed and then `scripts/core-fixtures.js`, which:
 
+- gives all seeded users privacy consent;
 - sets the permissions of the `Network Commission` and `General members circle` circles to
-  exactly what production has (`PROD_CIRCLE_PERMISSIONS` in `support/constants.js`);
+  exactly what production has (`PROD_CIRCLE_PERMISSIONS` in `support/constants.js`), detaching
+  them from the parent circles the seed puts them in;
 - adds a second antenna with a member `organizer-b` who shares no body with NetCom.
 
-All seeded users use the password `5ecr3t5ecr3t`.
+All seeded users use the password `5ecr3t5ecr3t`. The fixtures only run with `NODE_ENV=e2e` and expect a
+freshly seeded database, so always run them through `npm run setup`.
 
 ## Running locally
 
@@ -59,10 +62,11 @@ Tests create their own events with unique names, so you can rerun them without r
 
 ## Known bugs
 
-Tests that document a bug that isn't fixed yet call `knownBug('...')`, which marks them as
-expected to fail. When the fix lands, Playwright reports the test as unexpectedly passing:
-remove the `knownBug` line in the same PR. Run `E2E_SHOW_KNOWN_BUGS=1 npm test` to run them
-as normal tests and see how they fail.
+Tests that document a bug that isn't fixed yet call `knownBug('reason', /expected error/)`, which marks
+them as expected to fail. The regex has to match the failure: if the test fails for another reason
+(for example because its setup broke), it is reported as a real failure. When the fix lands, Playwright
+reports the test as unexpectedly passing: remove the `knownBug` line in the same PR. Run
+`E2E_SHOW_KNOWN_BUGS=1 npm test` to run them as normal tests and see how they fail.
 
 ## CI
 
