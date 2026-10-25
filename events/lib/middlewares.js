@@ -127,6 +127,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
     application.dataValues.notification_email = user.notification_email;
 
     req.application = application;
+    req.applicant = user;
     req.permissions = helpers.getApplicationPermissions({
         permissions: req.permissions,
         application: req.application,

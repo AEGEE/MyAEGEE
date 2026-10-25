@@ -149,7 +149,41 @@ exports.listApprovableEvents = async (req, res) => {
     });
 };
 
+// Fetches the organizers' details from core and checks that they are members of
+// one of the organizing bodies. Only organizers that aren't in `existingOrganizers`
+// are checked, so events created before this rule can still be edited.
+// People who can manage this event type may add anyone.
+// Returns { organizers } on success or { error } with a message for the user.
+async function resolveOrganizers({ organizers, organizingBodies, existingOrganizers = [], canManage }) {
+    const adminToken = await core.getAdminToken();
+    const fetched = await Promise.all(organizers.map((organizer) => core.fetchUser(organizer, adminToken)));
+
+    if (!canManage) {
+        const bodyIds = (Array.isArray(organizingBodies) ? organizingBodies : []).map((body) => body.body_id);
+        const existingIds = existingOrganizers.map((organizer) => organizer.user_id);
+        const outside = fetched.filter((organizer) => !existingIds.includes(organizer.user_id)
+            && !organizer.body_ids.some((id) => bodyIds.includes(id)));
+
+        if (outside.length > 0) {
+            const names = outside.map((organizer) => `${organizer.first_name} ${organizer.last_name}`).join(', ');
+            return { error: `Organizers should be members of one of the organizing bodies: ${names}.` };
+        }
+    }
+
+    // eslint-disable-next-line camelcase, no-unused-vars
+    return { organizers: fetched.map(({ body_ids, ...organizer }) => organizer) };
+}
+
+const makeOrganizersError = (res, message) => res.status(422).json({
+    success: false,
+    errors: { organizers: [message] }
+});
+
 exports.addEvent = async (req, res) => {
+    if (!req.permissions.create_event) {
+        return errors.makeForbiddenError(res, 'You are not allowed to create events.');
+    }
+
     // Make sure the user doesn't insert malicious stuff
     const data = req.body;
     delete data.id;
@@ -161,18 +195,26 @@ exports.addEvent = async (req, res) => {
     const event = new Event(data);
 
     // we'll catch these on validation inside the Event model.
+    if (Array.isArray(event.organizing_bodies)) {
+        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
+            core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
     if (Array.isArray(event.organizers)) {
         if (!event.organizers.some((org) => org.user_id === req.user.id)) {
             return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
         }
 
-        event.organizers = await Promise.all(event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
-    }
+        const result = await resolveOrganizers({
+            organizers: event.organizers,
+            organizingBodies: event.organizing_bodies,
+            canManage: req.permissions.manage_event[event.type]
+        });
+        if (result.error) {
+            return makeOrganizersError(res, result.error);
+        }
 
-    if (Array.isArray(event.organizing_bodies)) {
-        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+        event.organizers = result.organizers;
     }
 
     await sequelize.transaction(async (t) => {
@@ -249,13 +291,23 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    if (Array.isArray(data.organizers)) {
-        data.organizers = await Promise.all(data.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
-    }
-
     if (Array.isArray(data.organizing_bodies)) {
         data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(data.organizers)) {
+        const result = await resolveOrganizers({
+            organizers: data.organizers,
+            organizingBodies: Array.isArray(data.organizing_bodies) ? data.organizing_bodies : event.organizing_bodies,
+            existingOrganizers: event.organizers,
+            canManage: req.permissions.manage_event[data.type || event.type]
+        });
+        if (result.error) {
+            return makeOrganizersError(res, result.error);
+        }
+
+        data.organizers = result.organizers;
     }
 
     await sequelize.transaction(async (t) => {
@@ -303,12 +355,13 @@ exports.setApprovalStatus = async (req, res) => {
     await sequelize.transaction(async (t) => {
         await req.event.update({ status: req.body.status }, { transaction: t });
 
-        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+        const adminToken = await core.getAdminToken();
+        const organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, adminToken)));
 
         // Send email to all organizers.
         await mailer.sendMail({
-            to: req.event.organizers.map((organizer) => organizer.notification_email),
+            to: organizers.map((organizer) => organizer.notification_email),
             subject: 'Your event\'s status was changed',
             template: 'events_status_changed.html',
             parameters: {
@@ -328,7 +381,10 @@ exports.setApprovalStatus = async (req, res) => {
         }
 
         await mailer.sendMail({
-            to: config.new_event_notifications,
+            to: [
+                ...config.new_event_notifications,
+                ...(config.new_event_notifications_per_type[req.event.type] || [])
+            ],
             subject: 'A new event was submitted.',
             template: 'events_submitted.html',
             parameters: {
@@ -355,12 +411,13 @@ exports.setEuropeanEventStatus = async (req, res) => {
             return;
         }
 
-        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+        const adminToken = await core.getAdminToken();
+        const organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, adminToken)));
 
         // Send email to all organizers.
         await mailer.sendMail({
-            to: req.event.organizers.map((organizer) => organizer.notification_email),
+            to: organizers.map((organizer) => organizer.notification_email),
             subject: 'Your event\'s status was changed',
             template: 'events_european_status_changed.html',
             parameters: {
