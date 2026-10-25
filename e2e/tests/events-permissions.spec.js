@@ -1,9 +1,7 @@
-const { test, expect, expectStatus, knownBug, loginInBrowser } = require('../support/api');
+const { test, expect, expectStatus, loginInBrowser } = require('../support/api');
 
 test.describe('events permissions', () => {
     test('creating an event requires create:event', async ({ api }) => {
-        knownBug('Known bug: addEvent does not check create:event', /Received: 201/);
-
         // not-member is in no body and so has no create:event.
         const payload = await api.eventPayload('not-member', { type: 'training' });
         const res = await api.call('not-member', 'POST', '/api/events/', payload);
@@ -11,8 +9,6 @@ test.describe('events permissions', () => {
     });
 
     test('manage_event for one type only shows future applications for that type', async ({ api }) => {
-        knownBug('Known bug: any manage_event permission lists future applications for all event types', /Received: "training"/);
-
         const member = await api.me('member');
         for (const type of ['training', 'nwm']) {
             const event = await api.createEvent('admin', { type });
@@ -29,8 +25,6 @@ test.describe('events permissions', () => {
     });
 
     test('editing someone else\'s application keeps the applicant', async ({ api }) => {
-        knownBug('Known bug: updateApplication overwrites user_id and name with the editor\'s', /applicant user_id/);
-
         const member = await api.me('member');
         const event = await api.createEvent('admin');
         await api.publishAsAdmin(event.id);
@@ -57,15 +51,14 @@ test.describe('events permissions', () => {
     });
 
     test('the event status is hidden from people who cannot approve the event', async ({ api, page }) => {
-        knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy', /toHaveCount/);
-
         const event = await api.createEvent('admin', { type: 'training' });
         await api.publishAsAdmin(event.id);
 
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}`);
 
-        await expect(page.getByText(event.name).first()).toBeVisible();
+        // The details table is rendered, but without the status row.
+        await expect(page.getByRole('rowheader', { name: 'Event name', exact: true })).toBeVisible();
         await expect(page.getByRole('rowheader', { name: 'Status', exact: true })).toHaveCount(0);
     });
 });

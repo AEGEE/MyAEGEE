@@ -61,6 +61,14 @@ const PROD_CIRCLE_PERMISSIONS = {
     ]
 };
 
+// Not part of the production config: lets regular members create a Summer University,
+// so tests can check the organizer rules without manage_summeruniversity.
+const SU_CREATORS_CIRCLE = {
+    name: 'E2E Summer University creators',
+    permissions: ['global:create:summeruniversity'],
+    members: [USERS.member]
+};
+
 const url = (service) => `http://127.0.0.1:${PORTS[service]}`;
 
 module.exports = {
@@ -69,5 +77,6 @@ module.exports = {
     USERS,
     SECOND_ANTENNA,
     PROD_CIRCLE_PERMISSIONS,
+    SU_CREATORS_CIRCLE,
     url
 };

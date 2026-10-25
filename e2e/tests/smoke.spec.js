@@ -32,6 +32,7 @@ test.describe('e2e stack', () => {
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}`);
 
+        await expect(page.getByRole('rowheader', { name: 'Event name', exact: true })).toBeVisible();
         await expect(page.getByText(event.name).first()).toBeVisible();
     });
 });

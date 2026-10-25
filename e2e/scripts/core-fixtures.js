@@ -13,10 +13,11 @@ const {
     Circle,
     Permission,
     CirclePermission,
-    BodyMembership
+    BodyMembership,
+    CircleMembership
 } = require('../../core/models');
 const { authenticate, close } = require('../../core/lib/sequelize');
-const { PASSWORD, USERS, SECOND_ANTENNA, PROD_CIRCLE_PERMISSIONS } = require('../support/constants');
+const { PASSWORD, USERS, SECOND_ANTENNA, PROD_CIRCLE_PERMISSIONS, SU_CREATORS_CIRCLE } = require('../support/constants');
 
 async function findOrCreatePermission(combined) {
     const [scope, action, object] = combined.split(':');
@@ -82,11 +83,25 @@ async function createSecondAntenna() {
     await BodyMembership.create({ body_id: body.id, user_id: organizer.id });
 }
 
+async function createSummerUniversityCreators() {
+    const circle = await Circle.create({ name: SU_CREATORS_CIRCLE.name, description: 'e2e fixture' });
+    for (const combined of SU_CREATORS_CIRCLE.permissions) {
+        const permission = await findOrCreatePermission(combined);
+        await CirclePermission.create({ circle_id: circle.id, permission_id: permission.id });
+    }
+
+    for (const username of SU_CREATORS_CIRCLE.members) {
+        const user = await User.findOne({ where: { username } });
+        await CircleMembership.create({ circle_id: circle.id, user_id: user.id });
+    }
+}
+
 authenticate().then(async () => {
     // Real users have agreed to the privacy policy; without it the frontend only shows the consent form.
     await User.update({ privacy_consent: new Date() }, { where: {} });
     await applyProdCirclePermissions();
     await createSecondAntenna();
+    await createSummerUniversityCreators();
     await close();
 }).catch((err) => {
     // eslint-disable-next-line no-console
