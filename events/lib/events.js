@@ -159,7 +159,7 @@ async function resolveOrganizers({ organizers, organizingBodies, existingOrganiz
     const fetched = await Promise.all(organizers.map((organizer) => core.fetchUser(organizer, adminToken)));
 
     if (!canManage) {
-        const bodyIds = (Array.isArray(organizingBodies) ? organizingBodies : []).map((body) => body.body_id);
+        const bodyIds = organizingBodies.map((body) => body.body_id);
         const existingIds = existingOrganizers.map((organizer) => organizer.user_id);
         const outside = fetched.filter((organizer) => !existingIds.includes(organizer.user_id)
             && !organizer.body_ids.some((id) => bodyIds.includes(id)));
@@ -205,16 +205,19 @@ exports.addEvent = async (req, res) => {
             return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
         }
 
-        const result = await resolveOrganizers({
-            organizers: event.organizers,
-            organizingBodies: event.organizing_bodies,
-            canManage: req.permissions.manage_event[event.type]
-        });
-        if (result.error) {
-            return makeOrganizersError(res, result.error);
-        }
+        // Without a valid list of organizing bodies, the Event model validation reports the problem.
+        if (Array.isArray(event.organizing_bodies)) {
+            const result = await resolveOrganizers({
+                organizers: event.organizers,
+                organizingBodies: event.organizing_bodies,
+                canManage: req.permissions.manage_event[event.type]
+            });
+            if (result.error) {
+                return makeOrganizersError(res, result.error);
+            }
 
-        event.organizers = result.organizers;
+            event.organizers = result.organizers;
+        }
     }
 
     await sequelize.transaction(async (t) => {
@@ -301,7 +304,8 @@ exports.editEvent = async (req, res) => {
             organizers: data.organizers,
             organizingBodies: Array.isArray(data.organizing_bodies) ? data.organizing_bodies : event.organizing_bodies,
             existingOrganizers: event.organizers,
-            canManage: req.permissions.manage_event[data.type || event.type]
+            // When the type changes, the override needs both the old and the new type.
+            canManage: [event.type, data.type].filter(Boolean).every((type) => req.permissions.manage_event[type])
         });
         if (result.error) {
             return makeOrganizersError(res, result.error);

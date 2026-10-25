@@ -146,7 +146,7 @@ exports.updateApplication = async (req, res) => {
     // applicant's details come from the applicant, not from whoever is editing.
     const applicant = req.applicant;
     const applicantBody = typeof req.body.body_id !== 'undefined'
-        ? (applicant.bodies || []).find((body) => body.id === req.body.body_id)
+        ? applicant.bodies.find((body) => body.id === req.body.body_id)
         : null;
 
     if (typeof req.body.body_id !== 'undefined' && !applicantBody) {
