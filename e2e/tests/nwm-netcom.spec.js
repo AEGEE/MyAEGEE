@@ -15,7 +15,7 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('NetCom can publish an NWM organized by a body they are not a member of', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member');
+        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
 
         const event = await api.createEvent('organizer-b');
         expectStatus(await api.setStatus('organizer-b', event.id, 'submitted'), 200);
@@ -35,7 +35,7 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('NetCom can edit an NWM organized by a body they are not a member of', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member');
+        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
 
         const event = await api.createEvent('organizer-b');
 
@@ -48,7 +48,7 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('an organizer can add a co-organizer from another organizing body', async ({ api }) => {
-        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member');
+        knownBug('Known bug: events looks up organizers with the caller\'s token, which needs lookup:member', /lookup:member/);
 
         const member = await api.me('member');
         const organizerB = await api.me('organizer-b');
@@ -63,7 +63,7 @@ test.describe('NetCom and NWMs', () => {
     });
 
     test('submitting an NWM notifies both events approval and NetCom', async ({ api }) => {
-        knownBug('Not implemented yet: NWM submissions should also go to netcom@aegee.eu');
+        knownBug('Not implemented yet: NWM submissions should also go to netcom@aegee.eu', /netcom@aegee\.eu/);
 
         const event = await api.createEvent('member');
         await api.clearMails();

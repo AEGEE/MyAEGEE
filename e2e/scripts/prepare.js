@@ -34,5 +34,7 @@ run('node --experimental-repl-await scripts/seed.js', path.join(root, 'core'));
 run('node scripts/core-fixtures.js', path.join(root, 'e2e'));
 
 if (!process.argv.includes('--skip-frontend')) {
+    // vue-cli keeps an existing NODE_ENV, so set it explicitly to get the production build.
+    env.NODE_ENV = 'production';
     run(`npx vue-cli-service build --dest ${path.join(root, 'e2e/.frontend-dist')}`, path.join(root, 'frontend'));
 }

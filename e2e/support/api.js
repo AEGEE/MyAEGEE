@@ -147,17 +147,42 @@ async function loginInBrowser(page, api, username) {
     }, [access, refresh]);
 }
 
+// eslint-disable-next-line no-control-regex
+const stripAnsi = (text) => text.replace(/\u001b\[[0-9;]*m/g, '');
+
 const test = base.extend({
     api: async ({ request }, use) => {
         await use(new Api(request));
-    }
+    },
+    // Fails known-bug tests that fail with a different error than the documented one.
+    // eslint-disable-next-line no-empty-pattern
+    knownBugGuard: [async ({}, use, testInfo) => {
+        await use();
+
+        const annotation = testInfo.annotations.find((a) => a.type === 'known-bug-error');
+        const message = stripAnsi((testInfo.error && testInfo.error.message) || '');
+        if (annotation && testInfo.status === 'failed' && !new RegExp(annotation.description).test(message)) {
+            testInfo.expectedStatus = 'passed';
+        }
+    }, { auto: true }]
 });
 
 const recipients = (mail) => [].concat(mail.to || [], mail.cc || []);
 
-// Marks a test as documenting a known bug: it is expected to fail until the bug is
-// fixed. Set E2E_SHOW_KNOWN_BUGS=1 to run these as normal tests and see how they fail.
-const knownBug = (reason) => test.fail(!process.env.E2E_SHOW_KNOWN_BUGS, reason);
+const showKnownBugs = ['1', 'true'].includes(process.env.E2E_SHOW_KNOWN_BUGS);
+
+// Marks a test as documenting a known bug: it is expected to fail until the bug is fixed.
+// `expectedError` is a regex the failure has to match; if the test fails for another reason
+// (e.g. its setup broke), it is reported as a real failure.
+// Set E2E_SHOW_KNOWN_BUGS=1 to run these as normal tests and see how they fail.
+const knownBug = (reason, expectedError) => {
+    if (showKnownBugs) {
+        return;
+    }
+
+    test.fail(true, reason);
+    test.info().annotations.push({ type: 'known-bug-error', description: expectedError.source });
+};
 
 // Asserts the HTTP status and shows the response body when it doesn't match.
 const expectStatus = (res, status) => expect(res.status, JSON.stringify(res.body)).toBe(status);

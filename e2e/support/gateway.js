@@ -37,24 +37,39 @@ const proxy = (req, res, service, upstreamPath) => {
     });
 
     upstream.on('error', () => {
+        if (res.headersSent) {
+            return res.destroy();
+        }
+
         res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, message: `${service} is not reachable` }));
+        return res.end(JSON.stringify({ success: false, message: `${service} is not reachable` }));
     });
 
     req.pipe(upstream);
 };
 
 const serveStatic = (req, res) => {
-    const { pathname } = new URL(req.url, 'http://localhost');
-    let file = path.join(distDir, path.normalize(decodeURIComponent(pathname)));
+    let pathname;
+    try {
+        pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    } catch (err) {
+        res.writeHead(400);
+        return res.end('Bad request');
+    }
 
+    let file = path.join(distDir, path.normalize(pathname));
     if (!file.startsWith(distDir) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
         // Single page app: unknown paths are handled by the frontend router.
         file = path.join(distDir, 'index.html');
     }
 
+    if (!fs.existsSync(file)) {
+        res.writeHead(503);
+        return res.end('The frontend is not built, run `npm run setup` in e2e/.');
+    }
+
     res.writeHead(200, { 'Content-Type': MIME_TYPES[path.extname(file)] || 'application/octet-stream' });
-    fs.createReadStream(file).pipe(res);
+    return fs.createReadStream(file).pipe(res);
 };
 
 http.createServer((req, res) => {
@@ -70,4 +85,4 @@ http.createServer((req, res) => {
     }
 
     return proxy(req, res, service, rest || '/');
-}).listen(PORTS.gateway);
+}).listen(PORTS.gateway, '127.0.0.1');

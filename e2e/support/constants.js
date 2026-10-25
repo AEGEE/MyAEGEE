@@ -59,7 +59,7 @@ const PROD_CIRCLE_PERMISSIONS = {
     ]
 };
 
-const url = (service) => `http://localhost:${PORTS[service]}`;
+const url = (service) => `http://127.0.0.1:${PORTS[service]}`;
 
 module.exports = {
     PORTS,
