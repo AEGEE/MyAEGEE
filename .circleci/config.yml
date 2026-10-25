@@ -2091,6 +2091,53 @@ jobs:
                 }
               ]
             }
+  e2e-test:
+    # Runs core, events and summeruniversity as plain Node processes against one
+    # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
+    docker:
+      - image: cimg/node:22.22.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: 5ecr3t
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - run:
+          name: Lint e2e tests
+          working_directory: ~/project/e2e
+          command: npm run lint
+      - run:
+          name: Install Playwright browser
+          working_directory: ~/project/e2e
+          command: npx playwright install --with-deps chromium
+      - run:
+          name: Wait for Postgres
+          command: |
+            for i in $(seq 1 30); do
+              (echo > /dev/tcp/localhost/5432) 2>/dev/null && exit 0
+              sleep 1
+            done
+            echo "Postgres did not start" && exit 1
+      - run:
+          name: Prepare databases, fixtures and frontend
+          working_directory: ~/project/e2e
+          command: npm run setup
+      - run:
+          name: Run e2e tests
+          working_directory: ~/project/e2e
+          command: npx playwright test
+      - store_test_results:
+          path: ~/project/e2e/test-results
+      - store_artifacts:
+          path: ~/project/e2e/playwright-report
+          destination: playwright-report
+      - store_artifacts:
+          path: ~/project/e2e/test-results
+          destination: test-results
 workflows:
   lint-yaml:
     jobs:
@@ -2342,3 +2389,6 @@ workflows:
           filters:
             branches:
               only: stable
+  e2e-test:
+    jobs:
+      - e2e-test
