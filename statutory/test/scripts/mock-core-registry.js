@@ -4,12 +4,8 @@ const nock = require('nock');
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const constants = require('../../lib/constants');
-const core = require('../../lib/core');
 
-exports.cleanAll = () => {
-    nock.cleanAll();
-    core.clearProfileCache();
-};
+exports.cleanAll = () => nock.cleanAll();
 
 exports.mockCore = (options) => {
     if (options.netError) {

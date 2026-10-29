@@ -321,14 +321,57 @@ describe('Votings opening and closing', () => {
             expect(res.statusCode).toEqual(403);
         });
 
-        test.each(['progress', 'result'])('should not show the %s without the permission', async (route) => {
+        test('should not show the progress without the permission', async () => {
             const { event, voting } = await openVotingWithDelegates('simple');
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const res = await call('GET', '/events/' + event.id + '/votings/' + voting.id + '/progress');
+
+            expect(res.statusCode).toEqual(403);
+        });
+
+        test('should show the count without the permission once the voting is closed', async () => {
+            const { event, voting, delegates } = await openVotingWithDelegates('simple');
+            await castVotes(voting.id, delegates[0], { in_favour: 2, against: 1 });
+            await castVotes(voting.id, delegates[1], { abstention: 2 });
             await call('PUT', '/events/' + event.id + '/votings/' + voting.id + '/close');
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const res = await call('GET', '/events/' + event.id + '/votings/' + voting.id + '/result');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({
+                majority: 'simple',
+                result: 'accepted',
+                in_favour: 2,
+                against: 1,
+                abstention: 2,
+                votes_cast: 5,
+                votes_total: 6,
+                bodies_available: 2,
+                bodies_present: 1
+            });
+        });
+
+        test('should not show the result without the permission while the voting is open', async () => {
+            const { event, voting, delegates } = await openVotingWithDelegates('simple');
+            await castVotes(voting.id, delegates[0], { in_favour: 2 });
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const res = await call('GET', '/events/' + event.id + '/votings/' + voting.id + '/result');
+
+            expect(res.statusCode).toEqual(409);
+            expect(res.body).not.toHaveProperty('data');
+        });
+
+        test.each(['progress', 'result'])('should hide the %s of a draft voting without the permission', async (route) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const voting = await generator.createVoting({}, event);
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const res = await call('GET', '/events/' + event.id + '/votings/' + voting.id + '/' + route);
 
-            expect(res.statusCode).toEqual(403);
+            expect(res.statusCode).toEqual(404);
         });
 
         test.each(['progress', 'result'])('should not show the %s of a draft voting', async (route) => {

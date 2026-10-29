@@ -50,10 +50,10 @@ exports.authenticateUser = async (req, res, next) => {
 };
 
 // A lighter variant of authenticateUser for routes that only need to know who the user is,
-// like the vote route: one (cached) call to core instead of two, and no permissions.
+// like the vote route: one call to core instead of two, and no permissions.
 exports.authenticateMember = async (req, res, next) => {
     try {
-        const userRequest = await core.getMyProfileCached(req);
+        const userRequest = await core.getMyProfile(req);
 
         if (typeof userRequest.body !== 'object' || userRequest.body === null) {
             throw new Error(`Malformed response when fetching user: ${userRequest.body}`);

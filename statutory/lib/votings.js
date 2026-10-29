@@ -316,12 +316,8 @@ exports.getProgress = async (req, res) => {
     });
 };
 
-// The count with the majority, only once the voting is closed.
+// The count with the majority, only once the voting is closed. Everyone can see it then.
 exports.getResult = async (req, res) => {
-    if (!req.permissions.manage_votings) {
-        return errors.makeForbiddenError(res, 'You cannot see the result of this voting.');
-    }
-
     if (req.voting.status !== 'closed') {
         return errors.makeConflictError(res, 'The result is only known once the voting is closed.');
     }

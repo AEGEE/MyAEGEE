@@ -1,7 +1,4 @@
-const crypto = require('crypto');
-
 const { request } = require('./http');
-const createTtlCache = require('./ttl_cache');
 
 const config = require('../config');
 
@@ -117,29 +114,6 @@ const getMyProfile = async (req) => {
     return myProfileBody;
 };
 
-// The vote route only needs to know who the user is. A delegate usually loads the voting
-// and then submits a vote within seconds, so the profile is kept for a short time per token.
-// Only successful answers are kept, so a failed or unauthorized login is asked again every time.
-// A token that core revokes stays usable for the vote route for at most these 30 seconds.
-const profileCache = createTtlCache({ ttlMs: 30 * 1000, maxSize: 10000 });
-
-const getMyProfileCached = async (req) => {
-    const key = crypto.createHash('sha256').update(String(req.headers['x-auth-token'])).digest('hex');
-    const cached = profileCache.get(key);
-    if (cached) {
-        return cached;
-    }
-
-    const response = await getMyProfile(req);
-    if (response.statusCode === 200 && response.body && response.body.success) {
-        profileCache.set(key, response);
-    }
-
-    return response;
-};
-
-const clearProfileCache = () => profileCache.clear();
-
 const getMyPermissions = async (req) => {
     const permissionsBody = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/my_permissions',
@@ -235,8 +209,6 @@ module.exports = {
     getMemberslistPermissions,
     getBodies,
     getMyProfile,
-    getMyProfileCached,
-    clearProfileCache,
     getMyPermissions,
     getBodyUsersForPermission
 };

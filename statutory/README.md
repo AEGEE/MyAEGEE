@@ -15,9 +15,10 @@ The JC (permission `global:manage_juridical:agora`) creates a voting as a draft,
 - Opening takes a snapshot: one row per body in `voting_body_allotments` with the votes of the body (copied from `votes_per_antenna`), and one row per present delegate (confirmed, registered, not departed, not cancelled) in `voting_delegate_votes`.
 An open voting keeps its snapshot; changes to members lists or delegates count from the next voting.
 - A delegate votes once with `PUT /events/:event_id/votings/:voting_id/my-vote` and the amounts `in_favour`, `against` and `abstention`.
-This route asks core only for `GET /members/me` and keeps the answer for 30 seconds per token.
+This route asks core only for `GET /members/me`, once per request.
 - Closing counts the votes and stores the result with the majority of the voting (`simple`, `absolute` or `two_thirds`).
-While a voting is open, `GET .../progress` shows only who voted per body and delegate; `GET .../result` shows the count in favour, against and abstention only after closing.
+While a voting is open, only the JC sees `GET .../progress`, which shows only who voted per body and delegate.
+After closing, every logged-in user sees `GET .../result` with the count in favour, against and abstention, the majority and the result.
 - A delegate can use from 1 vote up to the maximum of the delegate; using all votes is not required.
 
 The database enforces the division rule, not only the application.

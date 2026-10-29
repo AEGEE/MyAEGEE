@@ -1,5 +1,3 @@
-const tk = require('timekeeper');
-
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -31,7 +29,6 @@ describe('Votings: my vote', () => {
     });
 
     afterEach(async () => {
-        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -283,23 +280,7 @@ describe('Votings: my vote', () => {
             expect(permissionCalls.map((counter) => counter.count)).toEqual([0, 0, 0]);
         });
 
-        test('should keep the user for 30 seconds per token', async () => {
-            const voting = await openVoting();
-            const profileCalls = countRequests(stubs.coreStub);
-
-            await myVote('GET', voting, 10);
-            await myVote('PUT', voting, 10, { in_favour: 1 });
-            expect(profileCalls.count).toEqual(1);
-
-            await myVote('GET', voting, 11);
-            expect(profileCalls.count).toEqual(2); // another token
-
-            tk.travel(Date.now() + 31 * 1000);
-            await myVote('GET', voting, 10);
-            expect(profileCalls.count).toEqual(3);
-        });
-
-        test('should not keep a failed login', async () => {
+        test('should ask core again after a failed login', async () => {
             const voting = await openVoting();
             stubs = mock.mockAll({ core: { unauthorized: true } });
             const profileCalls = countRequests(stubs.coreStub);
