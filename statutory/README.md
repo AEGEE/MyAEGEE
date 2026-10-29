@@ -7,6 +7,32 @@
 
 The statutory module of MyAEGEE is responsible for managing statutory events, their applications, votings, proposals and motions.
 
+## Votings
+
+A voting is one question that the Agora votes on: a proposal or a rollcall.
+The JC (permission `global:manage_juridical:agora`) creates a voting as a draft, opens it and closes it.
+
+- Opening takes a snapshot: one row per body in `voting_body_allotments` with the votes of the body (copied from `votes_per_antenna`), and one row per present delegate (confirmed, registered, not departed, not cancelled) in `voting_delegate_votes`.
+An open voting keeps its snapshot; changes to members lists or delegates count from the next voting.
+- A delegate votes once with `PUT /events/:event_id/votings/:voting_id/my-vote` and the amounts `in_favour`, `against` and `abstention`.
+This route asks core only for `GET /members/me`, once per request.
+- Closing counts the votes and stores the result with the majority of the voting (`simple`, `absolute` or `two_thirds`).
+While a voting is open, only the JC sees `GET .../progress`, which shows who voted per body and delegate, and the total votes, the votes cast and their percentage, but not in favour, against or abstention.
+After closing, every logged-in user sees `GET .../result` with the count in favour, against and abstention, the majority and the result.
+- A delegate can use from 1 vote up to the maximum of the delegate; using all votes is not required.
+
+The database enforces the division rule, not only the application.
+The votes of a body are divided as equally as possible over its delegates: every delegate has the minimum (votes divided by delegates, rounded down), and the extra votes that are left go to the first delegates who use them, one each.
+The trigger `count_delegate_votes` keeps the counters of the body up to date under a lock per body, and three CHECK constraints refuse every vote that breaks the rule:
+
+- `body_vote_limit`: all delegates of a body together never cast more votes than the body has.
+- `delegate_vote_limit`: no delegate casts more than the minimum plus one.
+- `extra_vote_limit`: no more delegates go above the minimum than there are extra votes.
+
+The trigger also refuses a second vote (`already_voted`), a vote on a voting that is not open (`voting_not_open`) and a vote of a delegate who departed or was cancelled after the voting opened (`delegate_not_present`).
+A second trigger, `guard_body_vote_counters`, refuses every other write to the counters of the body (`counters_are_derived`), so a direct UPDATE cannot reset them to make room for more votes.
+`test/api/votings-concurrency.test.js` sends the votes of one body at the same moment and checks that the rule always holds.
+
 ## Contributing
 
 The main developer of this module is Sergey Peshkov (AEGEE-Voronezh, github.com/serge1peshcoff). If you want to contribute, keep in mind these points:
