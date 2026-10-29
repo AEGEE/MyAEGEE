@@ -74,14 +74,41 @@ describe('Votings database rules', () => {
 
     test('refuses more votes than the body has (rule 1)', async () => {
         await VotingBodyAllotment.update({ votes_total: 3 }, { where: { voting_id: voting.id, body_id: 1 } });
-        await castVotes(delegates[0], { in_favour: 1 });
+        await castVotes(delegates[0], { in_favour: 2 });
         await castVotes(delegates[1], { in_favour: 1 });
-        await castVotes(delegates[2], { in_favour: 1 });
 
-        const body = await bodyRow();
-        expect(body.votes_cast).toEqual(3);
-        await expect(VotingBodyAllotment.update({ votes_cast: 4 }, { where: { voting_id: voting.id, body_id: 1 } }))
-            .rejects.toHaveProperty('parent.constraint', 'body_vote_limit');
+        expect(await refusalOf(castVotes(delegates[2], { in_favour: 1 }))).toEqual('body_vote_limit');
+        expect((await bodyRow()).votes_cast).toEqual(3);
+    });
+
+    test('refuses a direct change of votes_cast, so the body limit still holds', async () => {
+        await castVotes(delegates[0], { in_favour: 2 });
+        await castVotes(delegates[1], { in_favour: 1 });
+
+        const resetCounter = VotingBodyAllotment.update({ votes_cast: 0 }, { where: { voting_id: voting.id, body_id: 1 } });
+        expect(await refusalOf(resetCounter)).toEqual('counters_are_derived');
+
+        expect(await refusalOf(castVotes(delegates[2], { in_favour: 2 }))).toEqual('body_vote_limit');
+        expect((await bodyRow()).votes_cast).toEqual(3);
+    });
+
+    test('refuses a direct change of delegates_above_min, so the extra vote limit still holds', async () => {
+        await castVotes(delegates[0], { in_favour: 2 });
+
+        const resetCounter = VotingBodyAllotment.update({ delegates_above_min: 0 }, { where: { voting_id: voting.id, body_id: 1 } });
+        expect(await refusalOf(resetCounter)).toEqual('counters_are_derived');
+
+        expect(await refusalOf(castVotes(delegates[1], { in_favour: 2 }))).toEqual('extra_vote_limit');
+        expect((await bodyRow()).delegates_above_min).toEqual(1);
+    });
+
+    test('refuses a body row that is created with counters above zero', async () => {
+        expect(await refusalOf(VotingBodyAllotment.create({
+            voting_id: voting.id, body_id: 2, votes_total: 4, min_votes: 1, extra_votes: 1, votes_cast: 1
+        }))).toEqual('counters_are_derived');
+        expect(await refusalOf(VotingBodyAllotment.create({
+            voting_id: voting.id, body_id: 2, votes_total: 4, min_votes: 1, extra_votes: 1, delegates_above_min: 1
+        }))).toEqual('counters_are_derived');
     });
 
     test('refuses a second vote of the same delegate', async () => {

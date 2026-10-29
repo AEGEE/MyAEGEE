@@ -30,6 +30,7 @@ The trigger `count_delegate_votes` keeps the counters of the body up to date und
 - `extra_vote_limit`: no more delegates go above the minimum than there are extra votes.
 
 The trigger also refuses a second vote (`already_voted`), a vote on a voting that is not open (`voting_not_open`) and a vote of a delegate who departed or was cancelled after the voting opened (`delegate_not_present`).
+A second trigger, `guard_body_vote_counters`, refuses every other write to the counters of the body (`counters_are_derived`), so a direct UPDATE cannot reset them to make room for more votes.
 `test/api/votings-concurrency.test.js` sends the votes of one body at the same moment and checks that the rule always holds.
 
 ## Contributing

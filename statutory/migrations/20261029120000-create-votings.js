@@ -117,6 +117,32 @@ module.exports = {
             -- EXECUTE PROCEDURE instead of EXECUTE FUNCTION, so this also works on Postgres 10.
             CREATE TRIGGER count_delegate_votes BEFORE INSERT OR UPDATE ON voting_delegate_votes
                 FOR EACH ROW EXECUTE PROCEDURE count_delegate_votes();
+
+            -- The CHECK constraints on the body row are only as good as its counters. So only the
+            -- trigger count_delegate_votes may change them: a body row starts with counters at 0, and a
+            -- direct UPDATE cannot reset them to make room for more votes than the body has.
+            -- pg_trigger_depth() > 1 means this UPDATE comes from a trigger on voting_delegate_votes.
+            CREATE FUNCTION guard_body_vote_counters() RETURNS trigger AS $$
+            BEGIN
+                IF TG_OP = 'INSERT' THEN
+                    IF NEW.votes_cast <> 0 OR NEW.delegates_above_min <> 0 THEN
+                        RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'counters_are_derived',
+                            MESSAGE = 'A body row must be created with its vote counters at 0.';
+                    END IF;
+                    RETURN NEW;
+                END IF;
+
+                IF (NEW.votes_cast <> OLD.votes_cast OR NEW.delegates_above_min <> OLD.delegates_above_min)
+                    AND pg_trigger_depth() <= 1 THEN
+                    RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'counters_are_derived',
+                        MESSAGE = 'The vote counters of a body change only through the votes of its delegates.';
+                END IF;
+                RETURN NEW;
+            END
+            $$ LANGUAGE plpgsql;
+
+            CREATE TRIGGER guard_body_vote_counters BEFORE INSERT OR UPDATE ON voting_body_allotments
+                FOR EACH ROW EXECUTE PROCEDURE guard_body_vote_counters();
         `, { transaction });
     }),
     down: (queryInterface) => queryInterface.sequelize.transaction(async (transaction) => {
@@ -124,6 +150,7 @@ module.exports = {
             DROP TABLE voting_delegate_votes;
             DROP FUNCTION count_delegate_votes();
             DROP TABLE voting_body_allotments;
+            DROP FUNCTION guard_body_vote_counters();
             DROP TABLE votings;
         `, { transaction });
     })
