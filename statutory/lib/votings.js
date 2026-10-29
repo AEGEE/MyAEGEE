@@ -255,6 +255,7 @@ const countVotes = async (voting, transaction) => {
         bodies_available: bodies.length,
         bodies_present: bodies.filter((body) => body.votes_cast > 0).length
     };
+    progress.votes_cast_percentage = rules.percentage(progress.votes_cast, progress.votes_total);
 
     return { tally, progress, bodies };
 };

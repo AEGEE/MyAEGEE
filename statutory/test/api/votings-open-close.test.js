@@ -111,6 +111,9 @@ describe('Votings opening and closing', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(await VotingBodyAllotment.count({ where: { voting_id: voting.id } })).toEqual(0);
+
+            const progress = await call('GET', '/events/' + event.id + '/votings/' + voting.id + '/progress');
+            expect(progress.body.data).toMatchObject({ votes_total: 0, votes_cast: 0, votes_cast_percentage: 0 });
         });
 
         test('should not open a voting twice', async () => {
@@ -203,6 +206,7 @@ describe('Votings opening and closing', () => {
             expect(res.body.data).toMatchObject({
                 votes_total: 6,
                 votes_cast: 3,
+                votes_cast_percentage: 50,
                 bodies_available: 2,
                 bodies_present: 1,
                 bodies: [

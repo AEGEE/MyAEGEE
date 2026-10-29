@@ -46,6 +46,19 @@ describe('Voting rules', () => {
         });
     });
 
+    describe('percentage', () => {
+        test('gives the share in percent, rounded to 2 decimals', () => {
+            expect(rules.percentage(3, 6)).toEqual(50);
+            expect(rules.percentage(1, 3)).toEqual(33.33);
+            expect(rules.percentage(2, 3)).toEqual(66.67);
+            expect(rules.percentage(6, 6)).toEqual(100);
+        });
+
+        test('is 0 when the total is 0', () => {
+            expect(rules.percentage(0, 0)).toEqual(0);
+        });
+    });
+
     describe('isAccepted', () => {
         test('simple majority: more in favour than against', () => {
             expect(rules.isAccepted('simple', { in_favour: 3, against: 2, abstention: 10 })).toEqual(true);

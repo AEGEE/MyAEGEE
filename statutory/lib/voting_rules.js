@@ -30,6 +30,16 @@ exports.votesAvailable = (bodyAllotment, delegateVote) => {
     return Math.max(0, Math.min(delegateLimit, bodyLimit));
 };
 
+// The share of part in total, in percent and rounded to 2 decimals; 0 when total is 0.
+// Used for the share of the votes cast in all votes of a voting, as OMS showed it to the JC.
+exports.percentage = (part, total) => {
+    if (total === 0) {
+        return 0;
+    }
+
+    return Math.round((part / total) * 10000) / 100;
+};
+
 // The majorities that a voting can require, as the old OMS JC module counted them:
 // - simple: more votes in favour than against;
 // - absolute: more votes in favour than against and abstentions together;
