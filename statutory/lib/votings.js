@@ -4,28 +4,37 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const middlewares = require('./middlewares');
 const rules = require('./voting_rules');
+const lifecycle = require('./voting_lifecycle');
 const { sequelize } = require('./sequelize');
 const {
     Event,
-    Application,
-    VotesPerAntenna,
     Voting,
     VotingBodyAllotment,
     VotingDelegateVote
 } = require('../models');
 
-// The fields of a voting that the JC can set. Status, result and the open/close fields
-// change only through the open and close routes.
-const EDITABLE_FIELDS = ['kind', 'title', 'description', 'majority'];
+// The fields of a voting that the JC can set. Status, result and the open, close and publish
+// fields change only through the voting lifecycle and the publish route.
+const EDITABLE_FIELDS = ['kind', 'title', 'description', 'majority', 'opens_at', 'closes_at'];
 
-// A delegate can vote in a voting if, when the voting opens, the delegate is confirmed,
-// registered on the event, not departed and not cancelled (the "on-event" delegates).
-const PRESENT_DELEGATE_FILTER = {
-    participant_type: 'delegate',
-    confirmed: true,
-    registered: true,
-    departed: false,
-    cancelled: false
+// Until the JC publishes the result, only the JC sees whether a voting was accepted.
+const formatVoting = (voting, canManage) => {
+    const json = voting.toJSON();
+    if (!canManage && !voting.published) {
+        json.result = null;
+    }
+    return json;
+};
+
+// The JC can only change a voting that did not open yet. Locking the voting waits for an opening
+// that runs right now (lib/voting_lifecycle.js locks it too), so an edit never reaches an open voting.
+// Returns the locked voting, or null if it opened or is due to open.
+const lockScheduledVoting = async (votingId, transaction) => {
+    const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!voting || voting.status !== 'scheduled' || new Date(voting.opens_at).getTime() <= Date.now()) {
+        return null;
+    }
+    return voting;
 };
 
 exports.checkIfAgora = async (req, res, next) => {
@@ -41,11 +50,14 @@ exports.findVoting = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The voting ID is invalid.');
     }
 
-    const voting = await Voting.findOne({
+    let voting = await Voting.findOne({
         where: { id: Number(req.params.voting_id), event_id: req.event.id }
     });
+    if (voting) {
+        voting = await lifecycle.syncVoting(voting);
+    }
 
-    if (!voting || (voting.status === 'draft' && !req.permissions.manage_votings)) {
+    if (!voting || (voting.status === 'scheduled' && !req.permissions.manage_votings)) {
         return errors.makeNotFoundError(res, 'Voting is not found.');
     }
 
@@ -54,26 +66,28 @@ exports.findVoting = async (req, res, next) => {
 };
 
 exports.listVotings = async (req, res) => {
-    const where = { event_id: req.event.id };
-    if (!req.permissions.manage_votings) {
-        where.status = ['open', 'closed'];
-    }
-
-    const votings = await Voting.findAll({
-        where,
-        order: [['created_at', 'ASC'], ['id', 'ASC']]
+    const found = await Voting.findAll({
+        where: { event_id: req.event.id },
+        order: [['opens_at', 'ASC'], ['id', 'ASC']]
     });
+
+    const votings = [];
+    for (const voting of found) {
+        votings.push(await lifecycle.syncVoting(voting));
+    }
 
     return res.json({
         success: true,
         data: votings
+            .filter((voting) => req.permissions.manage_votings || voting.status !== 'scheduled')
+            .map((voting) => formatVoting(voting, req.permissions.manage_votings))
     });
 };
 
 exports.getVoting = async (req, res) => {
     return res.json({
         success: true,
-        data: req.voting
+        data: formatVoting(req.voting, req.permissions.manage_votings)
     });
 };
 
@@ -89,7 +103,7 @@ exports.createVoting = async (req, res) => {
 
     return res.json({
         success: true,
-        data: voting
+        data: await lifecycle.syncVoting(voting)
     });
 };
 
@@ -98,15 +112,21 @@ exports.editVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    if (req.voting.status !== 'draft') {
-        return errors.makeConflictError(res, 'Only a draft voting can be edited.');
-    }
+    const voting = await sequelize.transaction(async (transaction) => {
+        const locked = await lockScheduledVoting(req.voting.id, transaction);
+        if (locked) {
+            await locked.update(lodash.pick(req.body, EDITABLE_FIELDS), { fields: EDITABLE_FIELDS, transaction });
+        }
+        return locked;
+    });
 
-    await req.voting.update(lodash.pick(req.body, EDITABLE_FIELDS));
+    if (!voting) {
+        return errors.makeConflictError(res, 'Only a voting that did not open yet can be edited.');
+    }
 
     return res.json({
         success: true,
-        data: req.voting
+        data: await lifecycle.syncVoting(voting)
     });
 };
 
@@ -115,11 +135,17 @@ exports.deleteVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    if (req.voting.status !== 'draft') {
-        return errors.makeConflictError(res, 'Only a draft voting can be deleted.');
-    }
+    const deleted = await sequelize.transaction(async (transaction) => {
+        const locked = await lockScheduledVoting(req.voting.id, transaction);
+        if (locked) {
+            await locked.destroy({ transaction });
+        }
+        return locked !== null;
+    });
 
-    await req.voting.destroy();
+    if (!deleted) {
+        return errors.makeConflictError(res, 'Only a voting that did not open yet can be deleted.');
+    }
 
     return res.json({
         success: true,
@@ -127,212 +153,81 @@ exports.deleteVoting = async (req, res) => {
     });
 };
 
-// Opening a voting takes a snapshot, in one transaction, of who can vote and how much:
-// one row per body with the votes of the body (copied from votes_per_antenna) and
-// one row per present delegate with the most votes this delegate can cast.
-// The open voting keeps this copy; later changes to members lists or delegates
-// only count for votings that open later.
-exports.openVoting = async (req, res) => {
+// After the voting closed, the JC publishes the result. From then on every logged-in user
+// sees the result, as in the old OMS JC module.
+exports.publishVoting = async (req, res) => {
     if (!req.permissions.manage_votings) {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    const voting = await sequelize.transaction(async (transaction) => {
-        // Locking the voting, so two JC members who open it at the same time cannot both take a snapshot.
-        const lockedVoting = await Voting.findByPk(req.voting.id, { transaction, lock: transaction.LOCK.UPDATE });
-        if (lockedVoting.status !== 'draft') {
-            return null;
-        }
+    if (req.voting.status !== 'closed') {
+        return errors.makeConflictError(res, 'Only a closed voting can be published.');
+    }
 
-        const delegates = await Application.findAll({
-            where: { event_id: req.event.id, ...PRESENT_DELEGATE_FILTER },
-            order: [['body_id', 'ASC'], ['participant_order', 'ASC'], ['id', 'ASC']],
-            transaction
-        });
-
-        const votesPerBody = await VotesPerAntenna.findAll({
-            where: { event_id: req.event.id },
-            transaction
-        });
-
-        const delegatesPerBody = new Map();
-        for (const delegate of delegates) {
-            if (!delegatesPerBody.has(delegate.body_id)) delegatesPerBody.set(delegate.body_id, []);
-            delegatesPerBody.get(delegate.body_id).push(delegate);
-        }
-
-        const bodyAllotments = [];
-        const delegateVotes = [];
-        for (const [bodyId, bodyDelegates] of delegatesPerBody) {
-            const bodyVotes = votesPerBody.find((votes) => votes.body_id === bodyId);
-            const votesTotal = bodyVotes ? bodyVotes.votes : 0;
-            const split = rules.splitVotes(votesTotal, bodyDelegates.length);
-
-            bodyAllotments.push({
-                voting_id: lockedVoting.id,
-                body_id: bodyId,
-                votes_total: votesTotal,
-                min_votes: split.min_votes,
-                extra_votes: split.extra_votes
-            });
-
-            for (const delegate of bodyDelegates) {
-                delegateVotes.push({
-                    voting_id: lockedVoting.id,
-                    application_id: delegate.id,
-                    user_id: delegate.user_id,
-                    body_id: bodyId,
-                    max_votes: split.max_votes
-                });
-            }
-        }
-
-        await VotingBodyAllotment.bulkCreate(bodyAllotments, { transaction });
-        await VotingDelegateVote.bulkCreate(delegateVotes, { transaction });
-
-        await lockedVoting.update({
-            status: 'open',
-            opened_at: new Date(),
-            opened_by: req.user.id
-        }, { transaction });
-
-        return lockedVoting;
-    });
-
-    if (!voting) {
-        return errors.makeConflictError(res, 'Only a draft voting can be opened.');
+    if (!req.voting.published) {
+        await req.voting.update({ published: true, published_at: new Date(), published_by: req.user.id });
     }
 
     return res.json({
         success: true,
-        data: voting
+        data: formatVoting(req.voting, true)
     });
 };
 
-// Counts the votes of a voting: the tally in total, and per body who voted and how many votes.
-// The tally (in favour, against, abstention) is only shown once the voting is closed;
-// while it is open, only the progress per body and delegate is shown.
-const countVotes = async (voting, transaction) => {
-    const bodyAllotments = await VotingBodyAllotment.findAll({
-        where: { voting_id: voting.id },
-        order: [['body_id', 'ASC']],
-        transaction
-    });
-
-    const delegateVotes = await VotingDelegateVote.findAll({
-        where: { voting_id: voting.id },
-        order: [['body_id', 'ASC'], ['application_id', 'ASC']],
-        transaction
-    });
-
-    const bodies = bodyAllotments.map((bodyAllotment) => {
-        const bodyDelegateVotes = delegateVotes.filter((delegateVote) => delegateVote.body_id === bodyAllotment.body_id);
-
-        return {
-            body_id: bodyAllotment.body_id,
-            votes_total: bodyAllotment.votes_total,
-            votes_cast: bodyAllotment.votes_cast,
-            delegates_count: bodyDelegateVotes.length,
-            delegates_voted: bodyDelegateVotes.filter((delegateVote) => delegateVote.submitted_at).length,
-            delegates: bodyDelegateVotes.map((delegateVote) => ({
-                application_id: delegateVote.application_id,
-                user_id: delegateVote.user_id,
-                voted: delegateVote.submitted_at !== null
-            }))
-        };
-    });
-
-    const sum = (field) => delegateVotes.reduce((acc, delegateVote) => acc + delegateVote[field], 0);
-    const tally = {
-        in_favour: sum('in_favour'),
-        against: sum('against'),
-        abstention: sum('abstention')
-    };
-
-    const progress = {
-        votes_total: bodies.reduce((acc, body) => acc + body.votes_total, 0),
-        votes_cast: bodies.reduce((acc, body) => acc + body.votes_cast, 0),
-        bodies_available: bodies.length,
-        bodies_present: bodies.filter((body) => body.votes_cast > 0).length
-    };
-    progress.votes_cast_percentage = rules.percentage(progress.votes_cast, progress.votes_total);
-
-    return { tally, progress, bodies };
-};
-
-exports.closeVoting = async (req, res) => {
-    if (!req.permissions.manage_votings) {
-        return errors.makeForbiddenError(res, 'You cannot manage votings.');
-    }
-
-    const voting = await sequelize.transaction(async (transaction) => {
-        // Locking the voting waits for votes that are being stored right now
-        // (each vote holds a share lock on the voting) and blocks new ones, so the count is final.
-        const lockedVoting = await Voting.findByPk(req.voting.id, { transaction, lock: transaction.LOCK.UPDATE });
-        if (lockedVoting.status !== 'open') {
-            return null;
-        }
-
-        const { tally } = await countVotes(lockedVoting, transaction);
-
-        await lockedVoting.update({
-            status: 'closed',
-            result: rules.isAccepted(lockedVoting.majority, tally) ? 'accepted' : 'rejected',
-            closed_at: new Date(),
-            closed_by: req.user.id
-        }, { transaction });
-
-        return lockedVoting;
-    });
-
-    if (!voting) {
-        return errors.makeConflictError(res, 'Only an open voting can be closed.');
-    }
-
-    return res.json({
-        success: true,
-        data: voting
-    });
-};
-
-// Who voted so far, per body and delegate, without what they voted.
+// Who voted so far, per body and delegate, and how many votes are cast,
+// but not what they voted.
 exports.getProgress = async (req, res) => {
     if (!req.permissions.manage_votings) {
         return errors.makeForbiddenError(res, 'You cannot see the progress of this voting.');
     }
 
-    if (req.voting.status === 'draft') {
+    if (req.voting.status === 'scheduled') {
         return errors.makeConflictError(res, 'This voting is not open yet.');
     }
 
-    const { progress, bodies } = await countVotes(req.voting);
+    const { progress, bodies } = await lifecycle.countVotes(req.voting);
 
     return res.json({
         success: true,
         data: {
-            voting: req.voting,
+            voting: formatVoting(req.voting, true),
             ...progress,
-            bodies
+            bodies: bodies.map((body) => lodash.omit(body, ['in_favour', 'against', 'abstention']))
         }
     });
 };
 
-// The count with the majority, only once the voting is closed. Everyone can see it then.
+// The result, as the old OMS JC module showed it: the totals with percentages and a table
+// with the votes of each body that voted. The JC sees it once the voting is closed;
+// every other logged-in user once the JC published it.
 exports.getResult = async (req, res) => {
     if (req.voting.status !== 'closed') {
         return errors.makeConflictError(res, 'The result is only known once the voting is closed.');
     }
 
-    const { tally, progress } = await countVotes(req.voting);
+    if (!req.voting.published && !req.permissions.manage_votings) {
+        return errors.makeConflictError(res, 'The result of this voting is not published yet.');
+    }
+
+    const { tally, progress, bodies } = await lifecycle.countVotes(req.voting);
+    const votesCast = tally.in_favour + tally.against + tally.abstention;
 
     return res.json({
         success: true,
         data: {
-            voting: req.voting,
+            voting: formatVoting(req.voting, true),
             majority: req.voting.majority,
             result: req.voting.result,
+            published: req.voting.published,
             ...tally,
-            ...progress
+            in_favour_percentage: rules.percentage(tally.in_favour, votesCast),
+            against_percentage: rules.percentage(tally.against, votesCast),
+            abstention_percentage: rules.percentage(tally.abstention, votesCast),
+            ...progress,
+            bodies_present_percentage: rules.percentage(progress.bodies_present, progress.bodies_available),
+            bodies: bodies
+                .filter((body) => body.votes_cast > 0)
+                .map((body) => lodash.pick(body, ['body_id', 'votes_total', 'votes_cast', 'in_favour', 'against', 'abstention']))
         }
     });
 };
@@ -353,10 +248,13 @@ exports.findVotingForMember = async (req, res, next) => {
         eventId = event.id;
     }
 
-    const voting = await Voting.findOne({
+    let voting = await Voting.findOne({
         where: { id: Number(req.params.voting_id), event_id: eventId }
     });
-    if (!voting || voting.status === 'draft') {
+    if (voting) {
+        voting = await lifecycle.syncVoting(voting);
+    }
+    if (!voting || voting.status === 'scheduled') {
         return errors.makeNotFoundError(res, 'Voting is not found.');
     }
 
@@ -372,27 +270,40 @@ exports.findVotingForMember = async (req, res, next) => {
     return next();
 };
 
-const formatMyVote = (voting, delegateVote, bodyAllotment) => ({
-    voting: helpers.whitelistObject(voting.toJSON(), ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'status']),
-    body_id: delegateVote.body_id,
-    max_votes: delegateVote.max_votes,
-    votes_available: voting.status === 'open' ? rules.votesAvailable(bodyAllotment, delegateVote) : 0,
-    in_favour: delegateVote.in_favour,
-    against: delegateVote.against,
-    abstention: delegateVote.abstention,
-    submitted_at: delegateVote.submitted_at
-});
-
 const findBodyAllotment = (delegateVote) => VotingBodyAllotment.findOne({
     where: { voting_id: delegateVote.voting_id, body_id: delegateVote.body_id }
 });
 
-exports.getMyVote = async (req, res) => {
-    const bodyAllotment = await findBodyAllotment(req.delegateVote);
+// What a delegate sees, as in the old OMS JC module: the own vote, and for the own body
+// how many votes and delegates it has and how many votes it cast (not what the others voted).
+const formatMyVote = async (voting, delegateVote) => {
+    const bodyAllotment = await findBodyAllotment(delegateVote);
+    const delegatesCount = await VotingDelegateVote.count({
+        where: { voting_id: delegateVote.voting_id, body_id: delegateVote.body_id }
+    });
 
+    return {
+        voting: helpers.whitelistObject(voting.toJSON(), ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'opens_at', 'closes_at', 'status']),
+        body: {
+            body_id: bodyAllotment.body_id,
+            votes_total: bodyAllotment.votes_total,
+            delegates_count: delegatesCount,
+            votes_cast: bodyAllotment.votes_cast
+        },
+        body_id: delegateVote.body_id,
+        max_votes: delegateVote.max_votes,
+        votes_available: voting.status === 'open' ? rules.votesAvailable(bodyAllotment, delegateVote) : 0,
+        in_favour: delegateVote.in_favour,
+        against: delegateVote.against,
+        abstention: delegateVote.abstention,
+        submitted_at: delegateVote.submitted_at
+    };
+};
+
+exports.getMyVote = async (req, res) => {
     return res.json({
         success: true,
-        data: formatMyVote(req.voting, req.delegateVote, bodyAllotment)
+        data: await formatMyVote(req.voting, req.delegateVote)
     });
 };
 
@@ -401,7 +312,7 @@ const VOTE_FIELDS = ['in_favour', 'against', 'abstention'];
 // How each refusal of the database (named after its constraint) is told to the delegate.
 const VOTE_REFUSALS = {
     already_voted: (res) => errors.makeConflictError(res, 'You have already voted in this voting.'),
-    voting_not_open: (res) => errors.makeConflictError(res, 'This voting is not open.'),
+    voting_not_open: (res) => errors.makeConflictError(res, 'This voting is closed.'),
     delegate_not_present: (res) => errors.makeForbiddenError(res, 'You cannot vote: you are not a present delegate any more (departed or cancelled).'),
     body_vote_limit: (res, body) => errors.makeConflictError(
         res,
@@ -451,9 +362,8 @@ exports.submitMyVote = async (req, res) => {
         return refusal(res, bodyAllotment, req.delegateVote);
     }
 
-    const bodyAllotment = await findBodyAllotment(req.delegateVote);
     return res.json({
         success: true,
-        data: formatMyVote(req.voting, updatedRows[0], bodyAllotment)
+        data: await formatMyVote(req.voting, updatedRows[0])
     });
 };

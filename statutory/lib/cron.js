@@ -2,6 +2,7 @@ const scheduler = require('node-schedule');
 const moment = require('moment');
 
 const logger = require('./logger');
+const votingLifecycle = require('./voting_lifecycle');
 const { Position, Candidate, Plenary } = require('../models');
 
 const JobCallbacks = {
@@ -48,7 +49,9 @@ const JobCallbacks = {
 
         await position.update({ status: 'closed' }, { hooks: false });
         logger.info({ position }, 'Closing applications for position: Successfully closed deadline for position');
-    }
+    },
+    OPEN_VOTING: ({ id }) => votingLifecycle.runScheduledSync(id),
+    CLOSE_VOTING: ({ id }) => votingLifecycle.runScheduledSync(id)
 };
 
 class JobManager {
@@ -71,6 +74,16 @@ class JobManager {
                 key: 'CLOSE_POSITION_APPLICATIONS',
                 description: 'Close position application deadline',
                 callback: JobCallbacks.CLOSE_POSITION_APPLICATIONS
+            },
+            OPEN_VOTING: {
+                key: 'OPEN_VOTING',
+                description: 'Open voting',
+                callback: JobCallbacks.OPEN_VOTING
+            },
+            CLOSE_VOTING: {
+                key: 'CLOSE_VOTING',
+                description: 'Close voting',
+                callback: JobCallbacks.CLOSE_VOTING
             }
         };
     }
@@ -158,6 +171,8 @@ class JobManager {
                 await plenary.save();
             }
         }
+
+        await votingLifecycle.registerAllVotings();
     }
 
     clearJobs(key, params) {

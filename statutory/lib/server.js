@@ -192,8 +192,7 @@ VotingsRouter.post('/', votings.createVoting);
 VotingsRouter.get('/:voting_id', votings.findVoting, votings.getVoting);
 VotingsRouter.put('/:voting_id', votings.findVoting, votings.editVoting);
 VotingsRouter.delete('/:voting_id', votings.findVoting, votings.deleteVoting);
-VotingsRouter.put('/:voting_id/open', votings.findVoting, votings.openVoting);
-VotingsRouter.put('/:voting_id/close', votings.findVoting, votings.closeVoting);
+VotingsRouter.put('/:voting_id/publish', votings.findVoting, votings.publishVoting);
 VotingsRouter.get('/:voting_id/progress', votings.findVoting, votings.getProgress);
 VotingsRouter.get('/:voting_id/result', votings.findVoting, votings.getResult);
 
