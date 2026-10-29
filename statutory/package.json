@@ -53,7 +53,7 @@
     "moment-range": "^4.0.2",
     "moment-timezone": "^0.6.2",
     "morgan": "^1.10.1",
-    "multer": "^2.1.1",
+    "multer": "^2.2.0",
     "node-schedule": "^2.1.1",
     "node-xlsx": "^0.24.0",
     "on-finished": "^2.4.1",
