@@ -5,6 +5,7 @@ const helpers = require('./helpers');
 const middlewares = require('./middlewares');
 const rules = require('./voting_rules');
 const lifecycle = require('./voting_lifecycle');
+const { sequelize } = require('./sequelize');
 const {
     Event,
     Voting,
@@ -23,6 +24,17 @@ const formatVoting = (voting, canManage) => {
         json.result = null;
     }
     return json;
+};
+
+// The JC can only change a voting that did not open yet. Locking the voting waits for an opening
+// that runs right now (lib/voting_lifecycle.js locks it too), so an edit never reaches an open voting.
+// Returns the locked voting, or null if it opened or is due to open.
+const lockScheduledVoting = async (votingId, transaction) => {
+    const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!voting || voting.status !== 'scheduled' || new Date(voting.opens_at).getTime() <= Date.now()) {
+        return null;
+    }
+    return voting;
 };
 
 exports.checkIfAgora = async (req, res, next) => {
@@ -100,15 +112,21 @@ exports.editVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    if (req.voting.status !== 'scheduled') {
+    const voting = await sequelize.transaction(async (transaction) => {
+        const locked = await lockScheduledVoting(req.voting.id, transaction);
+        if (locked) {
+            await locked.update(lodash.pick(req.body, EDITABLE_FIELDS), { fields: EDITABLE_FIELDS, transaction });
+        }
+        return locked;
+    });
+
+    if (!voting) {
         return errors.makeConflictError(res, 'Only a voting that did not open yet can be edited.');
     }
 
-    await req.voting.update(lodash.pick(req.body, EDITABLE_FIELDS));
-
     return res.json({
         success: true,
-        data: await lifecycle.syncVoting(req.voting)
+        data: await lifecycle.syncVoting(voting)
     });
 };
 
@@ -117,11 +135,17 @@ exports.deleteVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    if (req.voting.status !== 'scheduled') {
+    const deleted = await sequelize.transaction(async (transaction) => {
+        const locked = await lockScheduledVoting(req.voting.id, transaction);
+        if (locked) {
+            await locked.destroy({ transaction });
+        }
+        return locked !== null;
+    });
+
+    if (!deleted) {
         return errors.makeConflictError(res, 'Only a voting that did not open yet can be deleted.');
     }
-
-    await req.voting.destroy();
 
     return res.json({
         success: true,

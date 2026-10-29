@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const cron = require('../../lib/cron');
+const lifecycle = require('../../lib/voting_lifecycle');
 const { Voting } = require('../../models');
 
 describe('Votings management', () => {
@@ -306,6 +307,53 @@ describe('Votings management', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('closes_at');
+        });
+
+        test('should refuse an edit that moves only the opening after the closing', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const voting = await generator.createVoting({}, event);
+            const opensAt = voting.opens_at.toISOString();
+
+            const res = await call('PUT', '/events/' + event.id + '/votings/' + voting.id, {
+                opens_at: moment(voting.closes_at).add(1, 'minute').toISOString()
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('closes_at');
+            await voting.reload();
+            expect(voting.opens_at.toISOString()).toEqual(opensAt);
+        });
+
+        test('should not edit a voting that opened after it was read', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const voting = await generator.createOpenVoting({ title: 'Old title' }, event);
+            const readBeforeOpening = jest.spyOn(lifecycle, 'syncVoting').mockImplementationOnce(async (found) => {
+                found.status = 'scheduled';
+                return found;
+            });
+
+            const res = await call('PUT', '/events/' + event.id + '/votings/' + voting.id, { title: 'New title' });
+            readBeforeOpening.mockRestore();
+
+            expect(res.statusCode).toEqual(409);
+            await voting.reload();
+            expect(voting.title).toEqual('Old title');
+            expect(voting.status).toEqual('open');
+        });
+
+        test('should not delete a voting that opened after it was read', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const voting = await generator.createOpenVoting({}, event);
+            const readBeforeOpening = jest.spyOn(lifecycle, 'syncVoting').mockImplementationOnce(async (found) => {
+                found.status = 'scheduled';
+                return found;
+            });
+
+            const res = await call('DELETE', '/events/' + event.id + '/votings/' + voting.id);
+            readBeforeOpening.mockRestore();
+
+            expect(res.statusCode).toEqual(409);
+            expect(await Voting.findByPk(voting.id)).not.toEqual(null);
         });
 
         test('should not edit a voting that is open', async () => {
