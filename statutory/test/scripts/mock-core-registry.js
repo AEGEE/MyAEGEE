@@ -4,8 +4,12 @@ const nock = require('nock');
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const constants = require('../../lib/constants');
+const core = require('../../lib/core');
 
-exports.cleanAll = () => nock.cleanAll();
+exports.cleanAll = () => {
+    nock.cleanAll();
+    core.clearProfileCache();
+};
 
 exports.mockCore = (options) => {
     if (options.netError) {
@@ -48,6 +52,19 @@ exports.mockCore = (options) => {
                         ban_until: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)
                     }
                 }
+            });
+    }
+
+    // A token like 'user-42' authenticates as user 42, every other token as the regular user.
+    // Used to simulate several users (e.g. delegates of one body) sending requests at the same time.
+    if (options.userFromToken) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members/me')
+            .reply(function replyWithUserFromToken() {
+                const match = /^user-(\d+)$/.exec(this.req.headers['x-auth-token']);
+                const id = match ? Number(match[1]) : regularUser.id;
+                return [200, { success: true, data: { ...regularUser, id } }];
             });
     }
 
@@ -530,7 +547,7 @@ exports.mockCoreMails = (options) => {
 };
 
 exports.mockAll = (options = {}) => {
-    nock.cleanAll();
+    exports.cleanAll();
     const coreStub = exports.mockCore(options.core || {});
     const mainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const approvePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
