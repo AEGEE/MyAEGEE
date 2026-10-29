@@ -689,6 +689,22 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.vote',
+    path: '/statutory/:id/vote',
+    component: 'statutory/Vote',
+    meta: {
+      label: 'Vote in the statutory event'
+    }
+  },
+  {
+    name: 'oms.statutory.votings',
+    path: '/statutory/:id/votings',
+    component: 'statutory/Votings',
+    meta: {
+      label: 'Manage votings for the statutory event'
+    }
+  },
+  {
     name: 'oms.statutory.network',
     path: '/statutory/:id/network',
     component: 'statutory/NetworkListing',
