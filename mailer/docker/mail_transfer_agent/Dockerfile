@@ -1,5 +1,5 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM alpine:3.8
+FROM --platform=$BUILDPLATFORM alpine:3.24
 #MAINTAINER Uri Savelchev <alterrebe@gmail.com>
 
 # Packages: update
