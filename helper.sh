@@ -92,7 +92,15 @@ compose_wrapper ()
     service_string=$(printenv ENABLED_SERVICES)
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
-    command=( docker-compose -f "${DIR}/base-docker-compose.yml" )
+    if command -v docker-compose >/dev/null 2>&1; then
+        compose_command=( docker-compose )
+    elif docker compose version >/dev/null 2>&1; then
+        compose_command=( docker compose )
+    else
+        echo "[MyAEGEE] ERROR: neither 'docker-compose' nor 'docker compose' is available"
+        return 127
+    fi
+    command=( "${compose_command[@]}" -f "${DIR}/base-docker-compose.yml" )
     for s in "${services[@]}"; do
         if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
             if [[ "${MYAEGEE_ENV}" == "production" ]]; then
@@ -157,10 +165,13 @@ function retry {
 
 WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
 HOST=$(hostname -f)
-# TODO: ignore this when using --no-vagrant in start.sh
 if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
-  echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
-  exit 1
+  if [[ "${NO_VAGRANT}" == "true" ]]; then
+    echo "You're on ${HOST}, (the HOST) but expected '${WANTEDNAME}' (the GUEST). Continuing because NO_VAGRANT=true."
+  else
+    echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
+    exit 1
+  fi
 fi
 
 # HUMAN INTERVENTION NEEDED: register in .env your services

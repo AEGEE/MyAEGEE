@@ -42,10 +42,12 @@ export $(grep -v '^#' ${DIR}/.env | xargs -d '\n')
 
 #run accordingly
 if ( $novagrant ); then
+  export NO_VAGRANT=true
   check_etc_hosts "127.0.0.1" "localhost"
   sed -i 's/appserver/localhost/' .env
   make bootstrap
 else
+  export NO_VAGRANT=false
   check_etc_hosts "192.168.168.168" "${BASE_URL}"
   if ( $fast ); then
     sed -i 's/development/production/' .env
@@ -56,4 +58,3 @@ else
   export ANSIBLE_NOCOWS=false
   vagrant up
 fi
-
