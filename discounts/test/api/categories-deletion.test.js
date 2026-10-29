@@ -61,4 +61,17 @@ describe('Categories deletion', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should return 400 if category ID is NaN', async () => {
+        const res = await request({
+            uri: '/categories/false',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });
