@@ -51,6 +51,16 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.manage_votings && event.type === 'agora'">
+            <router-link
+              :to="{ name: 'oms.statutory.votings', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
+              <span>Manage votings</span>
+              <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.see_applications_network">
             <router-link
               :to="{ name: 'oms.statutory.network', params: { id: event.url || event.id } }"
@@ -200,6 +210,17 @@
               class="button is-fullwidth"
             >
               <span>View candidates</span>
+              <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="event.type === 'agora'">
+            <router-link
+              :to="{ name: 'oms.statutory.vote', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+              :class="{ 'is-primary': openVotingsCount > 0 }"
+            >
+              <span>{{ openVotingsCount > 0 ? `Vote (${openVotingsCount} open)` : 'Vote' }}</span>
               <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
             </router-link>
           </div>
@@ -441,7 +462,7 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading" />
+    <b-loading :is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 
@@ -484,6 +505,7 @@ export default {
         zoom: 3
       },
       isLoading: false,
+      votings: [],
       can: {
         edit_event: false,
         change_event_status: false,
@@ -496,7 +518,8 @@ export default {
         see_memberslist_without_fee: {},
         export: false,
         see_questions: false,
-        manage_question_lines: false
+        manage_question_lines: false,
+        manage_votings: false
       }
     }
   },
@@ -535,6 +558,19 @@ export default {
           this.event.status = newStatus
         })
         .catch((err) => this.$root.showError('Could not update status', err))
+    },
+    loadVotings () {
+      if (this.event.type !== 'agora') {
+        return
+      }
+
+      // Only to show on the "Vote" button whether a voting is open; the button works without it.
+      this.axios
+        .get(this.services['statutory'] + '/events/' + this.event.id + '/votings')
+        .then((response) => {
+          this.votings = response.data.data
+        })
+        .catch(() => {})
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -579,6 +615,7 @@ export default {
       .then((response) => {
         this.event = response.data.data
         this.can = response.data.data.permissions
+        this.loadVotings()
 
         return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
       })
@@ -617,6 +654,9 @@ export default {
         Object.keys(this.can.see_memberslist).filter((key) => this.can.see_memberslist[key])
           .length > 0
       )
+    },
+    openVotingsCount () {
+      return this.votings.filter((voting) => voting.status === 'open').length
     },
     duringAgora () {
       return (
