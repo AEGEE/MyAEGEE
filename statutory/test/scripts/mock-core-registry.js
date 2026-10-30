@@ -326,6 +326,14 @@ exports.mockCoreBodies = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
+    // A network with exactly the given bodies.
+    if (typeof options.list !== 'undefined') {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies')
+            .reply(200, { success: true, data: options.list });
+    }
+
     // A network with the given number of Antennae, plus a contact antenna and a committee
     // that do not count for the quorum. Only answers to the token of the service login (see mockCoreLogin).
     if (typeof options.antennae !== 'undefined') {

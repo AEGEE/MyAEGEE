@@ -8,6 +8,7 @@ const core = require('./core');
 const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
+const { calculateLocalAttendance } = require('./local_attendance');
 const { Plenary, Attendance, Application } = require('../models');
 
 exports.findPlenary = async (req, res, next) => {
@@ -101,13 +102,10 @@ exports.findPlenaryWithAttendances = async (req, res) => {
     });
 };
 
-exports.listPlenariesStats = async (req, res) => {
-    if (!req.permissions.see_plenaries) {
-        return errors.makeForbiddenError(res, 'You cannot see stats.');
-    }
-
+// The plenaries of the event with their attendances, and the delegates and envoys who can have attended them.
+const loadPlenariesWithAttendees = async (event) => {
     const plenaries = await Plenary.findAll({
-        where: { event_id: req.event.id },
+        where: { event_id: event.id },
         order: [
             ['starts', 'ASC'],
             [Attendance, 'starts', 'ASC']
@@ -117,13 +115,36 @@ exports.listPlenariesStats = async (req, res) => {
 
     const applications = await Application.findAll({
         where: {
-            event_id: req.event.id,
-            participant_type: 'delegate'
+            event_id: event.id,
+            participant_type: ['delegate', 'envoy']
         },
         order: [['id', 'ASC']],
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
 
+    return { plenaries, applications };
+};
+
+exports.listLocalAttendance = async (req, res) => {
+    if (!req.permissions.see_plenaries) {
+        return errors.makeForbiddenError(res, 'You cannot see stats.');
+    }
+
+    const { plenaries, applications } = await loadPlenariesWithAttendees(req.event);
+    const bodies = await core.getBodies(req);
+
+    return res.json({
+        success: true,
+        data: calculateLocalAttendance({ plenaries, applications, bodies, now: new Date() })
+    });
+};
+
+exports.listPlenariesStats = async (req, res) => {
+    if (!req.permissions.see_plenaries) {
+        return errors.makeForbiddenError(res, 'You cannot see stats.');
+    }
+
+    const { plenaries, applications } = await loadPlenariesWithAttendees(req.event);
     const bodies = await core.getBodies(req);
 
     // First sheet with general status with all the info.
@@ -178,7 +199,9 @@ exports.listPlenariesStats = async (req, res) => {
         ]
     };
 
-    // Second sheet with all the locals and their stats
+    // Second sheet with the Antennae and their stats. A Local is represented in a moment
+    // when at least one of its delegates is in the hall (General Rules, art. 6(1)(d)).
+    const localAttendance = calculateLocalAttendance({ plenaries, applications, bodies, now: new Date() });
     const bodiesSheet = {
         name: 'Stats (bodies)',
         data: [
@@ -188,50 +211,25 @@ exports.listPlenariesStats = async (req, res) => {
                 'Body code',
                 'Body name',
                 'Body type',
-                'Amount of delegates/envoys',
+                'Amount of delegates',
                 'Average attendance %',
-                'Delegate/envoy 1 %',
-                'Delegate/envoy 2 %',
-                'Delegate/envoy 3 %',
+                `Below ${localAttendance.threshold}%`,
+                ...plenaries.map((plenary) => `${plenary.name} (%)`)
             ],
             // the actual data
-            ...bodies
-                .filter((body) => ['antenna', 'contact antenna'].includes(body.type))
-                .map((body) => {
-                    // Getting applications for body.
-                    // TODO: refactor (at some point, this is super ugly).
-                    const applicationsForBody = applications.filter((a) => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
-
-                    // Calculating avg% of visiting for each local.
-                    const applicationsAttendances = applicationsForBody
-                        .map((application) => {
-                            // Calculate avg% per each plenary per each delegate/envoy,
-                            // then calculating avg% for all of them to display the avg% per local.
-                            return plenaries.map((plenary) => {
-                                const plenaryAttendancesForBody = plenary.attendances.filter((a) => a.application_id === application.id);
-
-                                // Return array of avg% per each plenary.
-                                return (plenaryAttendancesForBody
-                                    .map((attendance) => helpers.calculateTimeForPlenary(plenary, attendance))
-                                    .reduce((acc, val) => acc + val, 0) * 100) / plenary.duration;
-                            }).reduce((acc, val) => acc + val, 0) / plenaries.length;
-                        });
-
-                    // Calculating avg% of the whole body.
-                    // Math.max() is for the cases when there are 0 delegates/envoys
-                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0)
-                        / Math.max(applicationsAttendances.length, 1);
-
-                    return [
-                        body.id,
-                        body.code,
-                        body.name,
-                        body.type,
-                        applicationsForBody.length,
-                        totalAverageAttendance.toFixed(2) + '%',
-                        ...applicationsAttendances.map((attendance) => attendance.toFixed(2) + '%')
-                    ];
+            ...localAttendance.locals.map((local) => [
+                local.body_id,
+                local.code,
+                local.name,
+                'antenna',
+                local.delegates,
+                local.average_percent.toFixed(2) + '%',
+                local.below_threshold ? 'Yes' : 'No',
+                ...plenaries.map((plenary) => {
+                    const entry = local.plenaries.find((e) => e.plenary_id === plenary.id);
+                    return entry ? entry.percent.toFixed(2) + '%' : '';
                 })
+            ])
         ]
     };
 
@@ -254,12 +252,16 @@ exports.listPlenariesStats = async (req, res) => {
                     'Time in seconds',
                     'Time in percent'
                 ],
-                // attendances data
-                ...plenary.attendances.map((attendance) => {
-                    const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
+                // attendances data, without the attendances of an applicant who is no delegate or envoy anymore
+                ...plenary.attendances.flatMap((attendance) => {
                     const application = applications.find((a) => a.id === attendance.application_id);
+                    if (!application) {
+                        return [];
+                    }
 
-                    return [
+                    const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
+
+                    return [[
                         application.id,
                         application.first_name + ' ' + application.last_name,
                         application.body_name,
@@ -267,7 +269,7 @@ exports.listPlenariesStats = async (req, res) => {
                         helpers.beautify(attendance.ends),
                         attendanceDuration.toFixed(2),
                         ((attendanceDuration / plenary.duration) * 100).toFixed(2) + '%'
-                    ];
+                    ]];
                 })
             ]
         };

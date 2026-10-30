@@ -175,6 +175,7 @@ PlenariesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, 
 PlenariesRouter.get('/', plenaries.listAllPlenaries);
 PlenariesRouter.post('/', plenaries.createPlenary);
 PlenariesRouter.get('/stats', plenaries.listPlenariesStats);
+PlenariesRouter.get('/local-attendance', plenaries.listLocalAttendance);
 PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary);
 PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
 PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);

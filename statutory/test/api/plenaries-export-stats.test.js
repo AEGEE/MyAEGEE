@@ -392,20 +392,20 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const firstPlenary = await generator.createPlenary({
             name: 'First',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
 
         const secondPlenary = await generator.createPlenary({
             name: 'Second',
-            starts: moment().add(2, 'week').toDate(),
-            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().subtract(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
 
         const thirdPlenary = await generator.createPlenary({
             name: 'Third',
-            starts: moment().add(2, 'week').toDate(),
-            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().subtract(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
 
         // 3 applications from body, one attended everything, 2nd and 3rd - nothing
@@ -464,20 +464,172 @@ describe('Plenaries exports', () => {
         const bodiesSheets = data[1];
         const bodiesSheetsData = bodiesSheets.data;
 
+        expect(bodiesSheetsData[0]).toEqual([
+            'Body ID',
+            'Body code',
+            'Body name',
+            'Body type',
+            'Amount of delegates',
+            'Average attendance %',
+            'Below 80%',
+            'First (%)',
+            'Second (%)',
+            'Third (%)'
+        ]);
+
         // finding the row with the body
         const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[0].name);
         expect(row).toBeTruthy();
-        expect(row.length).toEqual(9); // body ID, code, name, type, delegates count, avg%, 3 delegates %
+        expect(row.length).toEqual(10); // body ID, code, name, type, delegates count, avg%, below 80%, 3 plenaries %
 
         expect(row[0]).toEqual(regularUser.bodies[0].id);
         expect(row[1]).toEqual(regularUser.bodies[0].code);
         expect(row[2]).toEqual(regularUser.bodies[0].name);
         expect(row[3]).toEqual(regularUser.bodies[0].type);
         expect(row[4]).toEqual(3); // 3 delegates
-        expect(row[5]).toEqual(33.33.toFixed(2) + '%'); // avg% for all
-        expect(row[6]).toEqual(100.0.toFixed(2) + '%'); // avg% for 1st delegate (100%)
-        expect(row[7]).toEqual(0.0.toFixed(2) + '%'); // avg% for 2st delegate (0%)
-        expect(row[8]).toEqual(0.0.toFixed(2) + '%'); // avg% for 3st delegate (0%)
+        // The Local was represented by its first delegate the whole time, the other two delegates do not lower it.
+        expect(row[5]).toEqual(100.0.toFixed(2) + '%');
+        expect(row[6]).toEqual('No');
+        expect(row[7]).toEqual(100.0.toFixed(2) + '%');
+        expect(row[8]).toEqual(100.0.toFixed(2) + '%');
+        expect(row[9]).toEqual(100.0.toFixed(2) + '%');
+    });
+
+    test('should count a moment for a Local once when several delegates are there', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            name: 'Test plenary',
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+        }, event);
+
+        const first = await generator.createApplication({
+            participant_type: 'delegate', participant_order: 1, user_id: regularUser.id, body_id: regularUser.bodies[0].id
+        }, event);
+        const second = await generator.createApplication({
+            participant_type: 'delegate', participant_order: 2, user_id: 1337, body_id: regularUser.bodies[0].id
+        }, event);
+
+        // The first delegate is there for the first 30 minutes, the second one from minute 20 to minute 40.
+        await generator.createAttendance({
+            application_id: first.id,
+            starts: plenary.starts,
+            ends: moment(plenary.starts).add(30, 'minute').toDate(),
+        }, plenary);
+        await generator.createAttendance({
+            application_id: second.id,
+            starts: moment(plenary.starts).add(20, 'minute').toDate(),
+            ends: moment(plenary.starts).add(40, 'minute').toDate(),
+        }, plenary);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const row = xlsx.parse(res.body)[1].data.find((r) => r[2] === regularUser.bodies[0].name);
+        expect(row[5]).toEqual(((40 / 60) * 100).toFixed(2) + '%'); // minutes 0-40 of 60
+        expect(row[6]).toEqual('Yes'); // below 80%
+        expect(row[7]).toEqual(((40 / 60) * 100).toFixed(2) + '%');
+    });
+
+    test('should show the attendance of a Local for a part of a plenary', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            name: 'Test plenary',
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+        }, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate', participant_order: 1, user_id: regularUser.id, body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(plenary.starts).subtract(5, 'minute').toDate(),
+            ends: moment(plenary.starts).add(30, 'minute').toDate(), // 30 minutes inside the plenary
+        }, plenary);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        const row = xlsx.parse(res.body)[1].data.find((r) => r[2] === regularUser.bodies[0].name);
+        expect(row[5]).toEqual('50.00%');
+        expect(row[7]).toEqual('50.00%');
+    });
+
+    test('should show only Antennae on bodies stats, with no row for a Contact Antenna', async () => {
+        mock.cleanAll();
+        mock.mockAll({
+            bodies: {
+                list: [
+                    { id: 34, code: 'ALC', name: 'AEGEE-Alicante', type: 'antenna' },
+                    { id: 35, code: 'BCN', name: 'AEGEE-Barcelona', type: 'contact antenna' }
+                ]
+            }
+        });
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        await generator.createApplication({
+            participant_type: 'envoy', participant_order: 1, user_id: 1337, body_id: 35
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const rows = xlsx.parse(res.body)[1].data;
+        expect(rows.length).toEqual(2); // headers + the Antenna
+        expect(rows[1][2]).toEqual('AEGEE-Alicante');
+    });
+
+    test('should export the attendance of an envoy on the plenary sheet', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            name: 'Test plenary',
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(),
+        }, event);
+        const envoy = await generator.createApplication({
+            participant_type: 'envoy', participant_order: 1, user_id: regularUser.id, body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createAttendance({
+            application_id: envoy.id,
+            starts: plenary.starts,
+            ends: plenary.ends,
+        }, plenary);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        const attendanceRow = data[2].data.find((r) => r[0] === envoy.id);
+        expect(attendanceRow).toBeTruthy();
+        expect(attendanceRow[6]).toEqual('100.00%');
+
+        // An envoy is not a delegate, so the Local is not represented by the envoy.
+        const bodyRow = data[1].data.find((r) => r[2] === regularUser.bodies[0].name);
+        expect(bodyRow[4]).toEqual(0);
+        expect(bodyRow[5]).toEqual('0.00%');
     });
 
     test('should not display non A/CAs on bodies stats', async () => {
@@ -525,7 +677,7 @@ describe('Plenaries exports', () => {
         const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[0].name);
         expect(row).toBeTruthy();
 
-        expect(row.length).toEqual(6); // body ID, code, name, type, delegates count, avg%, 0 delegates %
+        expect(row.length).toEqual(7); // body ID, code, name, type, delegates count, avg%, below 80%, no plenaries
 
         expect(row[0]).toEqual(regularUser.bodies[0].id);
         expect(row[1]).toEqual(regularUser.bodies[0].code);
@@ -533,5 +685,6 @@ describe('Plenaries exports', () => {
         expect(row[3]).toEqual(regularUser.bodies[0].type);
         expect(row[4]).toEqual(0); // 3 delegates
         expect(row[5]).toEqual(0.0.toFixed(2) + '%'); // avg% for all
+        expect(row[6]).toEqual('No'); // no plenary, so nothing to judge
     });
 });
