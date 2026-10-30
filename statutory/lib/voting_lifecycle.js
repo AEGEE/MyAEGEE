@@ -1,3 +1,4 @@
+const core = require('./core');
 const logger = require('./logger');
 const rules = require('./voting_rules');
 const { sequelize } = require('./sequelize');
@@ -16,14 +17,26 @@ const {
 // a job per voting in lib/cron.js, and syncVoting() on every request that reads a voting.
 // The database itself refuses votes after closes_at (trigger count_delegate_votes).
 
-// A delegate can vote in a voting if, when the voting opens, the delegate is confirmed,
-// registered on the event, not departed and not cancelled (the "on-event" delegates).
-const PRESENT_DELEGATE_FILTER = {
-    participant_type: 'delegate',
-    confirmed: true,
-    registered: true,
-    departed: false,
-    cancelled: false
+// Who can vote is fixed when the voting opens, and depends on its phase:
+// - agora: the delegates who are confirmed, registered on the event (checked in by the JC),
+//   not departed and not cancelled (the "on-event" delegates of VotesPerAntenna);
+// - pre_agora: the delegates of the coming Agora, accepted, confirmed and not cancelled
+//   (the "off-event" delegates). Nobody is checked in before the Agora, so check-in and
+//   departure do not count. The trigger count_delegate_votes checks the same on every vote.
+const ELECTORATE = {
+    agora: {
+        participant_type: 'delegate',
+        confirmed: true,
+        registered: true,
+        departed: false,
+        cancelled: false
+    },
+    pre_agora: {
+        participant_type: 'delegate',
+        status: 'accepted',
+        confirmed: true,
+        cancelled: false
+    }
 };
 
 const isDue = (time) => new Date(time).getTime() <= Date.now();
@@ -34,7 +47,7 @@ const isDue = (time) => new Date(time).getTime() <= Date.now();
 // only count for votings that open later.
 const takeSnapshot = async (voting, transaction) => {
     const delegates = await Application.findAll({
-        where: { event_id: voting.event_id, ...PRESENT_DELEGATE_FILTER },
+        where: { event_id: voting.event_id, ...ELECTORATE[voting.phase] },
         order: [['body_id', 'ASC'], ['participant_order', 'ASC'], ['id', 'ASC']],
         transaction
     });
@@ -135,16 +148,51 @@ exports.countVotes = async (voting, transaction) => {
 
 // Opens the voting if it is scheduled and opens_at has come. Locking the voting makes sure
 // that only one snapshot is taken, also when a job and requests come at the same moment.
-const openIfDue = async (votingId) => sequelize.transaction(async (transaction) => {
+// A Pre-Agora voting also stores the base of its quorum: antennaeTotal, counted in core
+// before this transaction, so that no lock waits for core.
+const openIfDue = async (votingId, antennaeTotal) => sequelize.transaction(async (transaction) => {
     const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
     if (!voting || voting.status !== 'scheduled' || !isDue(voting.opens_at)) {
         return;
     }
 
+    const quorum = {};
+    if (voting.phase === 'pre_agora') {
+        // The phase changed after the Antennae were counted: the next sync tries again.
+        if (antennaeTotal === null) {
+            logger.warn({ voting: voting.id }, 'Opening voting: the Antennae are not counted, not opening yet.');
+            return;
+        }
+        quorum.antennae_total = antennaeTotal;
+        quorum.quorum_required = rules.quorumRequired(antennaeTotal);
+    }
+
     await takeSnapshot(voting, transaction);
-    await voting.update({ status: 'open', opened_at: new Date() }, { transaction });
+    await voting.update({ status: 'open', opened_at: new Date(), ...quorum }, { transaction });
     logger.info({ voting: voting.id }, 'Opened voting');
 });
+
+// What closing adds to a Pre-Agora voting: the quorum (the Antennae that cast at least one vote;
+// only Antennae have votes), the outcome for the Agora, and the publication of the result,
+// because the result is "published immediately upon the end of the voting period" (Art. 20(4)).
+const closePreAgora = (voting, result, progress, closedAt) => {
+    const antennaeVoted = progress.bodies_present;
+    const quorumReached = antennaeVoted >= voting.quorum_required;
+
+    return {
+        antennae_voted: antennaeVoted,
+        quorum_reached: quorumReached,
+        ...rules.preAgoraOutcome({
+            result,
+            quorum_reached: quorumReached,
+            concerns_statutes: voting.concerns_statutes,
+            amendment_submitted: voting.amendment_submitted
+        }),
+        published: true,
+        published_at: closedAt,
+        published_by: null
+    };
+};
 
 // Closes the voting if it is open and closes_at has come. Locking the voting waits for votes
 // that are being stored right now (each vote holds a share lock on the voting), so the count is final.
@@ -154,11 +202,14 @@ const closeIfDue = async (votingId) => sequelize.transaction(async (transaction)
         return;
     }
 
-    const { tally } = await exports.countVotes(voting, transaction);
+    const { tally, progress } = await exports.countVotes(voting, transaction);
+    const result = rules.isAccepted(voting.majority, tally) ? 'accepted' : 'rejected';
+    const closedAt = new Date();
     await voting.update({
         status: 'closed',
-        result: rules.isAccepted(voting.majority, tally) ? 'accepted' : 'rejected',
-        closed_at: new Date()
+        result,
+        closed_at: closedAt,
+        ...(voting.phase === 'pre_agora' ? closePreAgora(voting, result, progress, closedAt) : {})
     }, { transaction });
     logger.info({ voting: voting.id }, 'Closed voting');
 });
@@ -173,7 +224,11 @@ exports.syncVoting = async (voting) => {
         return voting;
     }
 
-    await openIfDue(voting.id);
+    // Only a Pre-Agora voting that opens now asks core, so a voting on the Agora never waits for core.
+    // If core cannot be reached, this throws and the voting stays scheduled until the next sync.
+    const antennaeTotal = opening && voting.phase === 'pre_agora' ? await core.countAntennae() : null;
+
+    await openIfDue(voting.id, antennaeTotal);
     await closeIfDue(voting.id);
     return voting.reload();
 };
@@ -211,7 +266,15 @@ exports.registerAllVotings = async () => {
     const votings = await Voting.findAll({ where: { status: ['scheduled', 'open'] } });
     logger.info({ count: votings.length }, 'Registering deadlines for votings...');
     for (const voting of votings) {
-        const synced = await exports.syncVoting(voting);
+        // A voting that cannot move on now (a Pre-Agora voting while core is down) does not stop
+        // the server from starting: it keeps its jobs, and the next request moves it on.
+        let synced = voting;
+        try {
+            synced = await exports.syncVoting(voting);
+        } catch (err) {
+            logger.error({ err, voting: voting.id }, 'Registering deadlines for votings: could not move on the voting.');
+        }
+
         if (synced.status !== 'closed') {
             // Triggering model update to run hooks to set deadlines.
             synced.changed('id', true);

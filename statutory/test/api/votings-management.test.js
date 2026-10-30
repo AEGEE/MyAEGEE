@@ -86,12 +86,15 @@ describe('Votings management', () => {
             expect(res.body.data.opened_at).not.toEqual(null);
         });
 
+        // One moment for all cases: two calls of moment() can be 1 ms apart, which would make
+        // "closes at the same time as it opens" a valid window.
+        const inAnHour = moment().add(1, 'hour').toDate();
         test.each([
-            [{ opens_at: null, closes_at: moment().add(1, 'hour').toDate() }, 'opens_at'],
+            [{ opens_at: null, closes_at: inAnHour }, 'opens_at'],
             [{ closes_at: null }, 'closes_at'],
-            [{ opens_at: 'not a date', closes_at: moment().add(1, 'hour').toDate() }, 'opens_at'],
-            [{ opens_at: moment().add(2, 'hours').toDate(), closes_at: moment().add(1, 'hour').toDate() }, 'closes_at'],
-            [{ opens_at: moment().add(1, 'hour').toDate(), closes_at: moment().add(1, 'hour').toDate() }, 'closes_at']
+            [{ opens_at: 'not a date', closes_at: inAnHour }, 'opens_at'],
+            [{ opens_at: moment(inAnHour).add(1, 'hour').toDate(), closes_at: inAnHour }, 'closes_at'],
+            [{ opens_at: inAnHour, closes_at: inAnHour }, 'closes_at']
         ])('should refuse the time window %j', async (window, field) => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
 

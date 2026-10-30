@@ -192,6 +192,7 @@ VotingsRouter.get('/:voting_id', votings.findVoting, votings.getVoting);
 VotingsRouter.put('/:voting_id', votings.findVoting, votings.editVoting);
 VotingsRouter.delete('/:voting_id', votings.findVoting, votings.deleteVoting);
 VotingsRouter.put('/:voting_id/publish', votings.findVoting, votings.publishVoting);
+VotingsRouter.put('/:voting_id/amendment', votings.findVoting, votings.markAmendment);
 VotingsRouter.get('/:voting_id/progress', votings.findVoting, votings.getProgress);
 VotingsRouter.get('/:voting_id/result', votings.findVoting, votings.getResult);
 

@@ -56,3 +56,47 @@ exports.isAccepted = (majority, { in_favour: inFavour, against, abstention }) =>
         throw new Error('Unknown majority: ' + majority);
     }
 };
+
+// The quorum of a Pre-Agora voting (Working Format of the Agora, Art. 20(3)): 50% of the Antennae,
+// rounded up. The database checks the same number (constraint quorum_is_half).
+exports.quorumRequired = (antennaeTotal) => Math.ceil(antennaeTotal / 2);
+
+// Pre-Agora Voting happens "between the days 14 and 9 before the Agora" (Art. 20(3)),
+// counted from the moment the Agora starts.
+exports.PRE_AGORA_OPENS_DAYS_BEFORE = 14;
+exports.PRE_AGORA_CLOSES_DAYS_BEFORE = 9;
+
+exports.preAgoraWindow = (agoraStarts) => {
+    const starts = new Date(agoraStarts).getTime();
+    const day = 24 * 60 * 60 * 1000;
+
+    return {
+        earliest_opening: new Date(starts - exports.PRE_AGORA_OPENS_DAYS_BEFORE * day),
+        latest_closing: new Date(starts - exports.PRE_AGORA_CLOSES_DAYS_BEFORE * day)
+    };
+};
+
+// What a closed Pre-Agora voting means for the Agora (Art. 20(3) to 20(5)):
+// - decided: accepted with quorum; the result is binding and the Agora does not vote again;
+// - to_agora: the Agora votes again, for the first reason that applies, in this order:
+//   no_quorum, rejected, statutes (a change of the Statutes or the Convention d'Adhesion),
+//   amendment (submitted at least five days before the Agora).
+exports.preAgoraOutcome = ({
+    result,
+    quorum_reached: quorumReached,
+    concerns_statutes: concernsStatutes,
+    amendment_submitted: amendmentSubmitted
+}) => {
+    let reason = null;
+    if (!quorumReached) {
+        reason = 'no_quorum';
+    } else if (result !== 'accepted') {
+        reason = 'rejected';
+    } else if (concernsStatutes) {
+        reason = 'statutes';
+    } else if (amendmentSubmitted) {
+        reason = 'amendment';
+    }
+
+    return reason ? { outcome: 'to_agora', outcome_reason: reason } : { outcome: 'decided', outcome_reason: null };
+};

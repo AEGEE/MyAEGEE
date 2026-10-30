@@ -2,6 +2,7 @@ const lodash = require('lodash');
 
 const errors = require('./errors');
 const helpers = require('./helpers');
+const logger = require('./logger');
 const middlewares = require('./middlewares');
 const rules = require('./voting_rules');
 const lifecycle = require('./voting_lifecycle');
@@ -14,16 +15,44 @@ const {
 } = require('../models');
 
 // The fields of a voting that the JC can set. Status, result and the open, close and publish
-// fields change only through the voting lifecycle and the publish route.
-const EDITABLE_FIELDS = ['kind', 'title', 'description', 'majority', 'opens_at', 'closes_at'];
+// fields change only through the voting lifecycle and the publish route; the quorum and the
+// outcome of a Pre-Agora voting only through the lifecycle and the amendment route.
+const EDITABLE_FIELDS = [
+    'kind',
+    'title',
+    'description',
+    'majority',
+    'opens_at',
+    'closes_at',
+    'phase',
+    'concerns_statutes',
+    'follows_voting_id'
+];
 
-// Until the JC publishes the result, only the JC sees whether a voting was accepted.
+const PHASES = ['agora', 'pre_agora'];
+
+// The fields that tell how a voting went. Until the result is published, only the JC sees them.
+// A Pre-Agora voting is published at closing, so for it they are public as soon as they are known.
+const RESULT_FIELDS = ['result', 'antennae_voted', 'quorum_reached', 'outcome', 'outcome_reason'];
+
 const formatVoting = (voting, canManage) => {
     const json = voting.toJSON();
     if (!canManage && !voting.published) {
-        json.result = null;
+        for (const field of RESULT_FIELDS) {
+            json[field] = null;
+        }
     }
     return json;
+};
+
+// A Pre-Agora voting always has a two-thirds majority (Art. 20(3)), so the JC does not have to give it.
+// currentPhase is the phase of the voting before this change.
+const withPreAgoraMajority = (fields, currentPhase) => {
+    const phase = helpers.isDefined(fields.phase) ? fields.phase : currentPhase;
+    if (phase === 'pre_agora' && !helpers.isDefined(fields.majority)) {
+        return { ...fields, majority: 'two_thirds' };
+    }
+    return fields;
 };
 
 // The JC can only change a voting that did not open yet. Locking the voting waits for an opening
@@ -65,15 +94,32 @@ exports.findVoting = async (req, res, next) => {
     return next();
 };
 
+// With ?phase=pre_agora this is the overview of the Pre-Agora round: per item the result,
+// the quorum (antennae_voted of quorum_required) and the outcome with its reason.
 exports.listVotings = async (req, res) => {
+    const where = { event_id: req.event.id };
+    if (helpers.isDefined(req.query.phase)) {
+        if (!PHASES.includes(req.query.phase)) {
+            return errors.makeBadRequestError(res, 'The phase should be one of these: "agora", "pre_agora".');
+        }
+        where.phase = req.query.phase;
+    }
+
     const found = await Voting.findAll({
-        where: { event_id: req.event.id },
+        where,
         order: [['opens_at', 'ASC'], ['id', 'ASC']]
     });
 
     const votings = [];
     for (const voting of found) {
-        votings.push(await lifecycle.syncVoting(voting));
+        // A voting that cannot move on now (a Pre-Agora voting while core is down) is listed
+        // in its stored status, so it does not break the list of the other votings.
+        try {
+            votings.push(await lifecycle.syncVoting(voting));
+        } catch (err) {
+            logger.error({ err, voting: voting.id }, 'Listing votings: could not move on the voting.');
+            votings.push(voting);
+        }
     }
 
     return res.json({
@@ -97,7 +143,7 @@ exports.createVoting = async (req, res) => {
     }
 
     const voting = await Voting.create({
-        ...lodash.pick(req.body, EDITABLE_FIELDS),
+        ...withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), 'agora'),
         event_id: req.event.id
     });
 
@@ -115,7 +161,8 @@ exports.editVoting = async (req, res) => {
     const voting = await sequelize.transaction(async (transaction) => {
         const locked = await lockScheduledVoting(req.voting.id, transaction);
         if (locked) {
-            await locked.update(lodash.pick(req.body, EDITABLE_FIELDS), { fields: EDITABLE_FIELDS, transaction });
+            const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase);
+            await locked.update(fields, { fields: EDITABLE_FIELDS, transaction });
         }
         return locked;
     });
@@ -174,6 +221,53 @@ exports.publishVoting = async (req, res) => {
     });
 };
 
+// The JC marks that an amendment to the item came in at least five days before the Agora,
+// so the Agora votes on the item again (Art. 20(5)). This can happen before or after the
+// Pre-Agora voting closed; after closing, the outcome changes with it. Unmarking it is refused
+// when a voting on the Agora already follows the item, because then the item would be both
+// decided and voted on again.
+exports.markAmendment = async (req, res) => {
+    if (!req.permissions.manage_votings) {
+        return errors.makeForbiddenError(res, 'You cannot manage votings.');
+    }
+
+    const amendmentSubmitted = req.body.amendment_submitted;
+    if (typeof amendmentSubmitted !== 'boolean') {
+        return errors.makeValidationError(res, 'The field "amendment_submitted" should be true or false.');
+    }
+
+    if (req.voting.phase !== 'pre_agora') {
+        return errors.makeConflictError(res, 'Only a Pre-Agora voting can be sent to the Agora by an amendment.');
+    }
+
+    // Locking the voting waits for a closing that runs right now, so the outcome uses the final result.
+    const voting = await sequelize.transaction(async (transaction) => {
+        const locked = await Voting.findByPk(req.voting.id, { transaction, lock: transaction.LOCK.UPDATE });
+        const changes = { amendment_submitted: amendmentSubmitted };
+        if (locked.status === 'closed') {
+            Object.assign(changes, rules.preAgoraOutcome({ ...locked.toJSON(), amendment_submitted: amendmentSubmitted }));
+        }
+
+        if (changes.outcome === 'decided') {
+            const following = await Voting.count({ where: { follows_voting_id: locked.id }, transaction });
+            if (following > 0) {
+                return null;
+            }
+        }
+
+        return locked.update(changes, { transaction });
+    });
+
+    if (!voting) {
+        return errors.makeConflictError(res, 'A voting on the Agora already follows this item, so it cannot be decided before the Agora.');
+    }
+
+    return res.json({
+        success: true,
+        data: formatVoting(voting, true)
+    });
+};
+
 // Who voted so far, per body and delegate, and how many votes are cast,
 // but not what they voted.
 exports.getProgress = async (req, res) => {
@@ -211,14 +305,22 @@ exports.getResult = async (req, res) => {
 
     const { tally, progress, bodies } = await lifecycle.countVotes(req.voting);
     const votesCast = tally.in_favour + tally.against + tally.abstention;
+    const voting = req.voting.toJSON();
 
     return res.json({
         success: true,
         data: {
             voting: formatVoting(req.voting, true),
-            majority: req.voting.majority,
-            result: req.voting.result,
-            published: req.voting.published,
+            phase: voting.phase,
+            majority: voting.majority,
+            result: voting.result,
+            published: voting.published,
+            // For a Pre-Agora voting: whether the item is decided or goes to the Agora, and why.
+            outcome: voting.outcome,
+            outcome_reason: voting.outcome_reason,
+            quorum: voting.phase === 'pre_agora'
+                ? lodash.pick(voting, ['antennae_total', 'quorum_required', 'antennae_voted', 'quorum_reached'])
+                : null,
             ...tally,
             in_favour_percentage: rules.percentage(tally.in_favour, votesCast),
             against_percentage: rules.percentage(tally.against, votesCast),
@@ -262,7 +364,8 @@ exports.findVotingForMember = async (req, res, next) => {
         where: { voting_id: voting.id, user_id: req.user.id }
     });
     if (!delegateVote) {
-        return errors.makeForbiddenError(res, 'You have no votes in this voting: you were not a present delegate when it opened.');
+        const electorate = voting.phase === 'pre_agora' ? 'a delegate of this Agora' : 'a present delegate';
+        return errors.makeForbiddenError(res, `You have no votes in this voting: you were not ${electorate} when it opened.`);
     }
 
     req.voting = voting;
@@ -283,7 +386,7 @@ const formatMyVote = async (voting, delegateVote) => {
     });
 
     return {
-        voting: helpers.whitelistObject(voting.toJSON(), ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'opens_at', 'closes_at', 'status']),
+        voting: helpers.whitelistObject(voting.toJSON(), ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'phase', 'opens_at', 'closes_at', 'status']),
         body: {
             body_id: bodyAllotment.body_id,
             votes_total: bodyAllotment.votes_total,
@@ -314,6 +417,7 @@ const VOTE_REFUSALS = {
     already_voted: (res) => errors.makeConflictError(res, 'You have already voted in this voting.'),
     voting_not_open: (res) => errors.makeConflictError(res, 'This voting is closed.'),
     delegate_not_present: (res) => errors.makeForbiddenError(res, 'You cannot vote: you are not a present delegate any more (departed or cancelled).'),
+    delegate_withdrawn: (res) => errors.makeForbiddenError(res, 'You cannot vote: you are not a delegate of this Agora any more (cancelled or not accepted).'),
     body_vote_limit: (res, body) => errors.makeConflictError(
         res,
         `Your body has only ${body.votes_total - body.votes_cast} of its ${body.votes_total} votes left.`

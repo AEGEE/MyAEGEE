@@ -9,20 +9,27 @@ const { VotesPerAntenna, VotingBodyAllotment, VotingDelegateVote } = require('..
 // were left and then inserted the vote without a lock, so delegates of one body who voted
 // at the same time could cast more votes than the body has.
 // Here every round opens a fresh voting and sends all votes of one body at the same time.
+// The same rounds run for a voting on the Agora (checked-in delegates) and for a Pre-Agora voting
+// (delegates of the coming Agora who are not checked in yet), because both use the same rule in the database.
 const ROUNDS = 20;
 const BODY_ID = 34;
 const ACCEPTED_STATUSES = [200, 409, 422];
 
-describe('Votings concurrency', () => {
+// One server for both phases: stopping and starting it again between them can make the next
+// request reuse a connection of the stopped server.
+beforeAll(async () => {
+    await startServer();
+});
+
+afterAll(async () => {
+    await stopServer();
+});
+
+describe.each([
+    ['agora', () => generator.createEvent({ type: 'agora', applications: [] }), generator.createPresentDelegate],
+    ['pre_agora', () => generator.createAgoraStartingIn(10), generator.createUpcomingDelegate]
+])('Votings concurrency, phase %s', (phase, createAgora, createDelegate) => {
     let event;
-
-    beforeAll(async () => {
-        await startServer();
-    });
-
-    afterAll(async () => {
-        await stopServer();
-    });
 
     beforeEach(async () => {
         mock.mockAll({ core: { userFromToken: true } });
@@ -35,13 +42,13 @@ describe('Votings concurrency', () => {
     });
 
     const setUpBody = async ({ votes, delegates }) => {
-        event = await generator.createEvent({ type: 'agora', applications: [] });
+        event = await createAgora();
         await VotesPerAntenna.create({ event_id: event.id, body_id: BODY_ID, votes });
 
         const userIds = [];
         for (let index = 0; index < delegates; index++) {
             const userId = 1000 + index;
-            await generator.createPresentDelegate({ user_id: userId, body_id: BODY_ID, participant_order: index + 1 }, event);
+            await createDelegate({ user_id: userId, body_id: BODY_ID, participant_order: index + 1 }, event);
             userIds.push(userId);
         }
 
@@ -51,6 +58,7 @@ describe('Votings concurrency', () => {
     const openVoting = async () => {
         // Opens a second ago: the first request that reads the voting opens it.
         const voting = await generator.createVoting({
+            phase,
             opens_at: new Date(Date.now() - 1000),
             closes_at: new Date(Date.now() + 3600 * 1000),
         }, event);

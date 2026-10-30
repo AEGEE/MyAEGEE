@@ -25,6 +25,29 @@ const makeRequest = (options) => {
     return request(requestOptions);
 };
 
+// Logs in to core as the statutory service (config.core.user), for calls that have no user token,
+// like the jobs that open votings. Returns the access token.
+const loginAsService = async () => {
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    return authRequest.access_token;
+};
+
 const getMember = async (req, id) => {
     const user = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + id,
@@ -126,28 +149,12 @@ const getMyPermissions = async (req) => {
 };
 
 const getBodyUsersForPermission = async (permission, bodyId) => {
-    // Getting access and refresh token.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
+    const accessToken = await loginAsService();
 
     // Fetching members.
     const membersResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
-        token: authRequest.access_token,
+        token: accessToken,
         qs: {
             holds_permission: { action: permission.action, object: permission.object }
         }
@@ -165,28 +172,12 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
 };
 
 const fetchApplicationUser = async (user) => {
-    // Getting access and refresh token.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
+    const accessToken = await loginAsService();
 
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: authRequest.access_token,
+        token: accessToken,
     });
 
     if (typeof userResponse !== 'object') {
@@ -200,7 +191,28 @@ const fetchApplicationUser = async (user) => {
     return userResponse.data;
 };
 
+// The number of active Antennae in the network, the base of the quorum of a Pre-Agora voting.
+// Contact antennae and other bodies do not count, as in the quorum page of the frontend (Stats.vue).
+const countAntennae = async () => {
+    const accessToken = await loginAsService();
+    const bodiesResponse = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies',
+        token: accessToken
+    });
+
+    if (typeof bodiesResponse !== 'object') {
+        throw new Error('Malformed response when fetching bodies: ' + bodiesResponse);
+    }
+
+    if (!bodiesResponse.success) {
+        throw new Error('Error fetching bodies: ' + JSON.stringify(bodiesResponse));
+    }
+
+    return bodiesResponse.data.filter((body) => body.type === 'antenna').length;
+};
+
 module.exports = {
+    countAntennae,
     fetchApplicationUser,
     getMember,
     getMails,

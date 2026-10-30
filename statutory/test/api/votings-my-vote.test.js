@@ -74,6 +74,7 @@ describe('Votings: my vote', () => {
                     title: 'Activity Plan',
                     description: voting.description,
                     majority: 'absolute',
+                    phase: 'agora',
                     opens_at: new Date(voting.opens_at).toISOString(),
                     closes_at: new Date(voting.closes_at).toISOString(),
                     status: 'open'

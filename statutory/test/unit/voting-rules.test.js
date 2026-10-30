@@ -83,4 +83,48 @@ describe('Voting rules', () => {
             expect(() => rules.isAccepted('unknown', { in_favour: 1, against: 0, abstention: 0 })).toThrow('Unknown majority');
         });
     });
+
+    describe('quorumRequired', () => {
+        test('is half of the Antennae, rounded up', () => {
+            expect(rules.quorumRequired(4)).toEqual(2);
+            expect(rules.quorumRequired(5)).toEqual(3);
+            expect(rules.quorumRequired(1)).toEqual(1);
+            expect(rules.quorumRequired(0)).toEqual(0);
+        });
+    });
+
+    describe('preAgoraWindow', () => {
+        test('opens at the earliest 14 days and closes at the latest 9 days before the Agora starts', () => {
+            const window = rules.preAgoraWindow(new Date('2026-11-20T10:00:00.000Z'));
+
+            expect(window.earliest_opening.toISOString()).toEqual('2026-11-06T10:00:00.000Z');
+            expect(window.latest_closing.toISOString()).toEqual('2026-11-11T10:00:00.000Z');
+        });
+    });
+
+    describe('preAgoraOutcome', () => {
+        const voting = (fields) => ({ result: 'accepted', quorum_reached: true, concerns_statutes: false, amendment_submitted: false, ...fields });
+
+        test('is decided when the item is accepted with quorum: binding, no new voting on the Agora', () => {
+            expect(rules.preAgoraOutcome(voting())).toEqual({ outcome: 'decided', outcome_reason: null });
+        });
+
+        test.each([
+            [{ quorum_reached: false }, 'no_quorum'],
+            [{ result: 'rejected' }, 'rejected'],
+            [{ concerns_statutes: true }, 'statutes'],
+            [{ amendment_submitted: true }, 'amendment']
+        ])('goes to the Agora when %j, with the reason %s', (fields, reason) => {
+            expect(rules.preAgoraOutcome(voting(fields))).toEqual({ outcome: 'to_agora', outcome_reason: reason });
+        });
+
+        // When more reasons apply, the first one in this order counts:
+        // no quorum, rejected, change of the Statutes, amendment.
+        test('gives the first reason that applies', () => {
+            const all = { quorum_reached: false, result: 'rejected', concerns_statutes: true, amendment_submitted: true };
+            expect(rules.preAgoraOutcome(voting(all)).outcome_reason).toEqual('no_quorum');
+            expect(rules.preAgoraOutcome(voting({ ...all, quorum_reached: true })).outcome_reason).toEqual('rejected');
+            expect(rules.preAgoraOutcome(voting({ ...all, quorum_reached: true, result: 'accepted' })).outcome_reason).toEqual('statutes');
+        });
+    });
 });

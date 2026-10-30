@@ -1,11 +1,32 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const rules = require('../lib/voting_rules');
 
 // A voting is one question that the Agora votes on: a proposal or a rollcall.
 // The JC creates it with a fixed time window. It opens by itself at opens_at (which takes
 // a snapshot of who can vote and how much) and closes by itself at closes_at (which stores
 // the result), see lib/voting_lifecycle.js. The JC then publishes the result.
+//
+// The phase says when the voting happens:
+// - agora: on the Agora itself, by the delegates who are checked in;
+// - pre_agora: online before the Agora (Working Format of the Agora, Art. 20), by the delegates
+//   of the coming Agora, between days 14 and 9 before it, always with a two-thirds majority
+//   and a quorum of half of the Antennae. Its result is published at closing, and its outcome
+//   says whether it is binding or whether the Agora votes again.
+
+// A Pre-Agora voting must fit in days 14 to 9 before the Agora starts.
+// Returns the window, or null when the voting is not a Pre-Agora voting.
+async function preAgoraWindowOf(voting) {
+    if (voting.phase !== 'pre_agora') {
+        return null;
+    }
+
+    const event = await sequelize.models.event.findByPk(voting.event_id, { attributes: ['starts'] });
+    return event ? rules.preAgoraWindow(event.starts) : null;
+}
+
+const WINDOW_MESSAGE = 'A Pre-Agora voting should happen in days 14 to 9 before the Agora';
 const Voting = sequelize.define('voting', {
     event_id: {
         allowNull: false,
@@ -47,6 +68,28 @@ const Voting = sequelize.define('voting', {
             isIn: {
                 args: [['simple', 'absolute', 'two_thirds']],
                 msg: 'Voting majority should be one of these: "simple", "absolute", "two_thirds".'
+            },
+            // Art. 20(3): "All decisions are to be taken by a qualified majority."
+            twoThirdsBeforeTheAgora(val) {
+                if (this.phase === 'pre_agora' && val !== 'two_thirds') {
+                    throw new Error('A Pre-Agora voting needs a two-thirds majority.');
+                }
+            }
+        }
+    },
+    phase: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: 'agora',
+        validate: {
+            isIn: {
+                args: [['agora', 'pre_agora']],
+                msg: 'Voting phase should be one of these: "agora", "pre_agora".'
+            },
+            keepsAmendmentMark(val) {
+                if (val !== 'pre_agora' && this.amendment_submitted) {
+                    throw new Error('A voting with an amendment mark stays a Pre-Agora voting; unmark the amendment first.');
+                }
             }
         }
     },
@@ -56,7 +99,13 @@ const Voting = sequelize.define('voting', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'The time when the voting opens should be set.' },
-            isDate: { msg: 'The time when the voting opens should be valid.' }
+            isDate: { msg: 'The time when the voting opens should be valid.' },
+            async notBeforeDay14(val) {
+                const window = await preAgoraWindowOf(this);
+                if (window && val && moment(val).isBefore(window.earliest_opening)) {
+                    throw new Error(`${WINDOW_MESSAGE}: it should open at ${window.earliest_opening.toISOString()} or later.`);
+                }
+            }
         }
     },
     closes_at: {
@@ -69,6 +118,12 @@ const Voting = sequelize.define('voting', {
             laterThanOpening(val) {
                 if (moment(val).isSameOrBefore(this.opens_at)) {
                     throw new Error('A voting should close after it opens.');
+                }
+            },
+            async notAfterDay9(val) {
+                const window = await preAgoraWindowOf(this);
+                if (window && val && moment(val).isAfter(window.latest_closing)) {
+                    throw new Error(`${WINDOW_MESSAGE}: it should close at ${window.latest_closing.toISOString()} or earlier.`);
                 }
             }
         }
@@ -114,6 +169,73 @@ const Voting = sequelize.define('voting', {
     published_by: {
         allowNull: true,
         type: Sequelize.INTEGER
+    },
+    concerns_statutes: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+        validate: {
+            onlyBeforeTheAgora(val) {
+                if (val && this.phase !== 'pre_agora') {
+                    throw new Error('Only a Pre-Agora voting can be marked as a change of the Statutes.');
+                }
+            }
+        }
+    },
+    amendment_submitted: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    antennae_total: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+    },
+    quorum_required: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+    },
+    antennae_voted: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+    },
+    quorum_reached: {
+        allowNull: true,
+        type: Sequelize.BOOLEAN
+    },
+    outcome: {
+        allowNull: true,
+        type: Sequelize.STRING
+    },
+    outcome_reason: {
+        allowNull: true,
+        type: Sequelize.STRING
+    },
+    // The new voting on the Agora of an item that Pre-Agora Voting sent to the Agora.
+    follows_voting_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        validate: {
+            async isItemSentToTheAgora(val) {
+                // Sequelize also runs custom validators when there is no value.
+                if (val === null || typeof val === 'undefined') {
+                    return;
+                }
+
+                if (this.phase !== 'agora') {
+                    throw new Error('Only a voting on the Agora can follow a Pre-Agora voting.');
+                }
+
+                const followed = Number.isInteger(val) ? await Voting.findByPk(val) : null;
+                if (!followed || followed.event_id !== this.event_id || followed.phase !== 'pre_agora') {
+                    throw new Error('A voting can only follow a Pre-Agora voting of the same Agora.');
+                }
+
+                if (followed.status !== 'closed' || followed.outcome !== 'to_agora') {
+                    throw new Error('A voting can only follow a Pre-Agora voting that closed and sent the item to the Agora.');
+                }
+            }
+        }
     }
 }, {
     underscored: true,

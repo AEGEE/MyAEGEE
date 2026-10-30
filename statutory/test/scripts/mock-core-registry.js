@@ -5,6 +5,9 @@ const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const constants = require('../../lib/constants');
 
+// The access token that the service login of statutory gets from core.
+const SERVICE_TOKEN = '1';
+
 exports.cleanAll = () => nock.cleanAll();
 
 exports.mockCore = (options) => {
@@ -323,6 +326,19 @@ exports.mockCoreBodies = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
+    // A network with the given number of Antennae, plus a contact antenna and a committee
+    // that do not count for the quorum. Only answers to the token of the service login (see mockCoreLogin).
+    if (typeof options.antennae !== 'undefined') {
+        const otherBodies = [{ id: 900, type: 'contact antenna' }, { id: 901, type: 'committee' }];
+        const antennae = Array.from({ length: options.antennae }, (value, index) => ({ id: 1000 + index, type: 'antenna' }));
+
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies')
+            .matchHeader('X-Auth-Token', SERVICE_TOKEN)
+            .reply(200, { success: true, data: [...antennae, ...otherBodies] });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/bodies')
@@ -469,7 +485,7 @@ exports.mockCoreLogin = (options) => {
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .post('/login')
-        .reply(200, { success: true, access_token: '1', refresh_token: '1' });
+        .reply(200, { success: true, access_token: SERVICE_TOKEN, refresh_token: '1' });
 };
 
 exports.mockCoreBodyMembers = (options) => {

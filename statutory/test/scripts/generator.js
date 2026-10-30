@@ -265,7 +265,12 @@ exports.generateVoting = (options = {}, event = null) => {
     if (notSet(options.kind)) options.kind = faker.helpers.arrayElement(['proposal', 'rollcall']);
     if (notSet(options.title)) options.title = faker.lorem.sentence();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    if (notSet(options.majority)) options.majority = faker.helpers.arrayElement(['simple', 'absolute', 'two_thirds']);
+    // A Pre-Agora voting always needs a two-thirds majority.
+    if (notSet(options.majority)) {
+        options.majority = options.phase === 'pre_agora'
+            ? 'two_thirds'
+            : faker.helpers.arrayElement(['simple', 'absolute', 'two_thirds']);
+    }
     if (notSet(options.opens_at)) options.opens_at = moment().add(1, 'day').toDate();
     if (notSet(options.closes_at)) options.closes_at = moment(options.opens_at).add(1, 'hour').toDate();
 
@@ -330,6 +335,29 @@ exports.createPresentDelegate = (options = {}, event = null) => {
         cancelled: false,
         ...options
     }, event);
+};
+
+// A delegate of the coming Agora, before the Agora: accepted and confirmed, but not checked in yet.
+// This delegate can vote in a Pre-Agora voting, not in a voting on the Agora.
+exports.createUpcomingDelegate = (options = {}, event = null) => {
+    return exports.createPresentDelegate({ registered: false, ...options }, event);
+};
+
+// An Agora that starts in the given number of days, so that the Pre-Agora window
+// (days 14 to 9 before the Agora) is around now. The dates are set directly,
+// because the deadlines of the event would otherwise all have to fit before the start.
+exports.createAgoraStartingIn = async (days, options = {}) => {
+    const event = await exports.createEvent({ type: 'agora', applications: [], ...options });
+    await Event.sequelize.query(`
+        UPDATE events SET starts = :starts, ends = :ends WHERE id = :id
+    `, {
+        replacements: {
+            id: event.id,
+            starts: moment().add(days, 'days').toDate(),
+            ends: moment().add(days + 4, 'days').toDate()
+        }
+    });
+    return event.reload();
 };
 
 exports.createVoting = (options = {}, event = null) => {
