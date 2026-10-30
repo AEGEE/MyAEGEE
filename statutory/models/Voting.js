@@ -3,7 +3,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const rules = require('../lib/voting_rules');
 
-// A voting is one question that the Agora votes on: a proposal or a rollcall.
+// A voting is one question that the Agora votes on: a proposal, a rollcall or an election.
 // The JC creates it with a fixed time window. It opens by itself at opens_at (which takes
 // a snapshot of who can vote and how much) and closes by itself at closes_at (which stores
 // the result), see lib/voting_lifecycle.js. The JC then publishes the result.
@@ -14,11 +14,18 @@ const rules = require('../lib/voting_rules');
 //   of the coming Agora, between days 14 and 9 before it, always with a two-thirds majority
 //   and a quorum of half of the Antennae. Its result is published at closing, and its outcome
 //   says whether it is binding or whether the Agora votes again.
+//
+// An election is a voting for a position (position_id): it elects up to seats candidates from the
+// ballot (voting_options), with secret ballots and the threshold of its election_rule instead of
+// a majority. An election is always on the Agora (Art. 20(6)); see lib/elections.js.
+
+const isSet = (val) => val !== null && typeof val !== 'undefined';
 
 // A Pre-Agora voting must fit in days 14 to 9 before the Agora starts.
-// Returns the window, or null when the voting is not a Pre-Agora voting.
+// Returns the window, or null when the voting is not a Pre-Agora voting. An election never is one
+// (validator electionsOnTheAgora), so it gets no window either.
 async function preAgoraWindowOf(voting) {
-    if (voting.phase !== 'pre_agora') {
+    if (voting.phase !== 'pre_agora' || voting.kind === 'election') {
         return null;
     }
 
@@ -43,8 +50,8 @@ const Voting = sequelize.define('voting', {
         defaultValue: '',
         validate: {
             isIn: {
-                args: [['proposal', 'rollcall']],
-                msg: 'Voting kind should be one of these: "proposal", "rollcall".'
+                args: [['proposal', 'rollcall', 'election']],
+                msg: 'Voting kind should be one of these: "proposal", "rollcall", "election".'
             }
         }
     },
@@ -60,18 +67,27 @@ const Voting = sequelize.define('voting', {
         allowNull: true,
         type: Sequelize.TEXT
     },
+    // An election has no majority: it elects candidates by its election_rule.
     majority: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
-        defaultValue: '',
         validate: {
             isIn: {
                 args: [['simple', 'absolute', 'two_thirds']],
                 msg: 'Voting majority should be one of these: "simple", "absolute", "two_thirds".'
             },
+            // Sequelize also runs custom validators when there is no value.
+            matchesKind(val) {
+                if (this.kind === 'election' && isSet(val)) {
+                    throw new Error('An election has no majority: its election rule decides who is elected.');
+                }
+                if (this.kind !== 'election' && !isSet(val)) {
+                    throw new Error('Voting majority should be one of these: "simple", "absolute", "two_thirds".');
+                }
+            },
             // Art. 20(3): "All decisions are to be taken by a qualified majority."
             twoThirdsBeforeTheAgora(val) {
-                if (this.phase === 'pre_agora' && val !== 'two_thirds') {
+                if (this.phase === 'pre_agora' && this.kind !== 'election' && val !== 'two_thirds') {
                     throw new Error('A Pre-Agora voting needs a two-thirds majority.');
                 }
             }
@@ -89,6 +105,12 @@ const Voting = sequelize.define('voting', {
             keepsAmendmentMark(val) {
                 if (val !== 'pre_agora' && this.amendment_submitted) {
                     throw new Error('A voting with an amendment mark stays a Pre-Agora voting; unmark the amendment first.');
+                }
+            },
+            // "Secret ballots and elections are excluded from pre-Agora voting" (Art. 20(6)).
+            electionsOnTheAgora(val) {
+                if (this.kind === 'election' && val !== 'agora') {
+                    throw new Error('An election is always on the Agora: elections are excluded from Pre-Agora Voting.');
                 }
             }
         }
@@ -170,6 +192,55 @@ const Voting = sequelize.define('voting', {
         allowNull: true,
         type: Sequelize.INTEGER
     },
+    // The position that an election is for. Only an election has one.
+    position_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        validate: {
+            matchesKind(val) {
+                if (this.kind === 'election' && !Number.isInteger(val)) {
+                    throw new Error('An election should have a position.');
+                }
+                if (this.kind !== 'election' && isSet(val)) {
+                    throw new Error('Only an election has a position.');
+                }
+            }
+        }
+    },
+    // The people that an election elects, and so the most candidates marked on one ballot (Art. 13).
+    seats: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        validate: {
+            matchesKind(val) {
+                if (this.kind === 'election' && !(Number.isInteger(val) && val >= 1)) {
+                    throw new Error('An election should have 1 seat or more.');
+                }
+                if (this.kind !== 'election' && isSet(val)) {
+                    throw new Error('Only an election has seats.');
+                }
+            }
+        }
+    },
+    // The threshold of an election, see rules.reachesThreshold in lib/voting_rules.js.
+    election_rule: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        validate: {
+            isIn: {
+                args: [rules.ELECTION_RULES],
+                msg: 'Election rule should be one of these: "absolute_majority", "half_of_votes_cast", "commission".'
+            },
+            matchesKind(val) {
+                if (this.kind === 'election' && !isSet(val)) {
+                    throw new Error('Election rule should be one of these: "absolute_majority", "half_of_votes_cast", "commission".');
+                }
+                if (this.kind !== 'election' && isSet(val)) {
+                    throw new Error('Only an election has an election rule.');
+                }
+            }
+        }
+    },
     concerns_statutes: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
@@ -224,6 +295,10 @@ const Voting = sequelize.define('voting', {
 
                 if (this.phase !== 'agora') {
                     throw new Error('Only a voting on the Agora can follow a Pre-Agora voting.');
+                }
+
+                if (this.kind === 'election') {
+                    throw new Error('An election cannot follow a Pre-Agora voting.');
                 }
 
                 const followed = Number.isInteger(val) ? await Voting.findByPk(val) : null;

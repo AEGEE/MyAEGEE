@@ -1,3 +1,5 @@
+const lodash = require('lodash');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -173,5 +175,146 @@ describe.each([
         expect(failures).toEqual([]);
         expect(Object.keys(statuses).map(Number).every((code) => ACCEPTED_STATUSES.includes(code))).toEqual(true);
         expect(statuses[200]).toEqual(2 * ROUNDS);
+    }, 60000);
+});
+
+// The same race for an election: each vote is a set of ballots, stored in the ballot box in the same
+// transaction as the counter on the row of the delegate. On top of the division rule, the ballot box
+// must always hold exactly as many ballots as the delegates counted (constraint ballots_match_votes).
+describe('Votings concurrency, elections', () => {
+    let event;
+
+    beforeEach(async () => {
+        mock.mockAll({ core: { userFromToken: true } });
+        event = await generator.createEvent({ type: 'agora', applications: [] });
+    });
+
+    afterEach(async () => {
+        mock.cleanAll();
+        cron.clearAll();
+        await generator.clearAll();
+    });
+
+    // Bodies 1, 2, ... with the given votes, each with the given number of delegates.
+    const setUpBodies = async (bodies) => {
+        const delegates = [];
+        let userId = 1000;
+        for (const [index, { votes, delegates: count }] of bodies.entries()) {
+            await VotesPerAntenna.create({ event_id: event.id, body_id: index + 1, votes });
+            for (let order = 1; order <= count; order++) {
+                await generator.createPresentDelegate({ user_id: userId, body_id: index + 1, participant_order: order }, event);
+                delegates.push({ userId, bodyId: index + 1 });
+                userId++;
+            }
+        }
+        return delegates;
+    };
+
+    const openElection = async () => {
+        const election = await generator.createElection({
+            opens_at: new Date(Date.now() - 1000),
+            closes_at: new Date(Date.now() + 3600 * 1000)
+        }, event, { candidatesCount: 4 });
+        const res = await request({
+            path: '/events/' + event.id + '/votings/' + election.voting.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+        expect(res.body.data.status).toEqual('open');
+        return election;
+    };
+
+    // A ballot with 0, 1 or 2 of the candidates marked (2 seats).
+    const randomBallot = (election) => lodash.shuffle(election.ballot.map((option) => option.id)).slice(0, lodash.random(0, 2));
+
+    const castBallots = (election, userId, count) => request({
+        path: '/events/' + event.id + '/votings/' + election.voting.id + '/my-vote',
+        method: 'PUT',
+        headers: { 'X-Auth-Token': 'user-' + userId },
+        body: { ballots: Array.from({ length: count }, () => randomBallot(election)) }
+    });
+
+    const checkElection = async (election) => {
+        const [[box]] = await VotingDelegateVote.sequelize.query(`
+            SELECT (SELECT count(*) FROM voting_ballots WHERE voting_id = :id) AS ballots,
+                   (SELECT COALESCE(sum(ballots_cast), 0) FROM voting_delegate_votes WHERE voting_id = :id) AS counted
+        `, { replacements: { id: election.voting.id } });
+        const bodyRows = await VotingBodyAllotment.findAll({ where: { voting_id: election.voting.id } });
+        const delegateRows = await VotingDelegateVote.findAll({ where: { voting_id: election.voting.id } });
+
+        const broken = bodyRows.filter((bodyRow) => {
+            const totals = delegateRows.filter((row) => row.body_id === bodyRow.body_id).map((row) => row.ballots_cast);
+            const sum = totals.reduce((acc, val) => acc + val, 0);
+            return sum > bodyRow.votes_total
+                || totals.some((total) => total > bodyRow.min_votes + 1)
+                || totals.filter((total) => total > bodyRow.min_votes).length > bodyRow.extra_votes
+                || bodyRow.votes_cast !== sum;
+        });
+
+        return { box, brokenBodies: broken.map((bodyRow) => bodyRow.body_id) };
+    };
+
+    const runRounds = async (bodies, makeRequests) => {
+        const delegates = await setUpBodies(bodies);
+        const failures = [];
+        const statuses = {};
+
+        for (let round = 0; round < ROUNDS; round++) {
+            const election = await openElection();
+            const responses = await Promise.all(makeRequests(election, delegates));
+            for (const res of responses) {
+                statuses[res.statusCode] = (statuses[res.statusCode] || 0) + 1;
+            }
+
+            const state = await checkElection(election);
+            if (state.box.ballots !== state.box.counted || state.brokenBodies.length > 0) {
+                failures.push(state);
+            }
+        }
+
+        return { failures, statuses };
+    };
+
+    test('5 votes, 3 delegates, all cast 2 ballots at once: never more than 5 ballots', async () => {
+        const { failures, statuses } = await runRounds([{ votes: 5, delegates: 3 }], (election, delegates) => delegates.map(
+            ({ userId }) => castBallots(election, userId, 2)
+        ));
+
+        expect(failures).toEqual([]);
+        expect(statuses[200]).toEqual(2 * ROUNDS);
+        expect(statuses[409]).toEqual(ROUNDS);
+    }, 60000);
+
+    test('4 votes, 3 delegates, two cast 2 ballots at once: only one gets the extra vote', async () => {
+        const { failures, statuses } = await runRounds([{ votes: 4, delegates: 3 }], (election, delegates) => delegates.slice(0, 2).map(
+            ({ userId }) => castBallots(election, userId, 2)
+        ));
+
+        expect(failures).toEqual([]);
+        expect(statuses[200]).toEqual(ROUNDS);
+        expect(statuses[409]).toEqual(ROUNDS);
+    }, 60000);
+
+    test('one delegate casts 2 ballots from 4 tabs at once: only one set of ballots counts', async () => {
+        const { failures, statuses } = await runRounds([{ votes: 5, delegates: 3 }], (election, delegates) => Array.from(
+            { length: 4 },
+            () => castBallots(election, delegates[0].userId, 2)
+        ));
+
+        expect(failures).toEqual([]);
+        expect(statuses[200]).toEqual(ROUNDS);
+        expect(statuses[409]).toEqual(3 * ROUNDS);
+    }, 60000);
+
+    test('4 bodies of 3 delegates, everybody at once with the most ballots: the ballot box always matches', async () => {
+        const bodies = [{ votes: 3, delegates: 3 }, { votes: 4, delegates: 3 }, { votes: 5, delegates: 3 }, { votes: 7, delegates: 3 }];
+        const { failures, statuses } = await runRounds(bodies, (election, delegates) => delegates.map(
+            ({ userId, bodyId }) => castBallots(election, userId, Math.ceil(bodies[bodyId - 1].votes / 3))
+        ));
+
+        expect(failures).toEqual([]);
+        expect(Object.keys(statuses).map(Number).every((code) => ACCEPTED_STATUSES.includes(code))).toEqual(true);
+        // Per round: body 1 (max 1) all 3; body 2 (max 2, 1 extra) 1; body 3 (max 2, 2 extra) 2; body 4 (max 3, 1 extra) 1.
+        expect(statuses[200]).toEqual(7 * ROUNDS);
     }, 60000);
 });

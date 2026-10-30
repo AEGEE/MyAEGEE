@@ -127,4 +127,83 @@ describe('Voting rules', () => {
             expect(rules.preAgoraOutcome(voting({ ...all, quorum_reached: true, result: 'accepted' })).outcome_reason).toEqual('statutes');
         });
     });
+
+    // The thresholds of an election, in whole numbers. ballots: all ballots cast, blank ones included;
+    // possible: the votes of all bodies in the snapshot; candidates: the candidates on the ballot.
+    describe('reachesThreshold', () => {
+        const numbers = (fields) => ({ ballots: 150, possible: 200, seats: 2, candidates: 3, ...fields });
+
+        // Statutes art. 17(2): more than half of the votes cast.
+        test('absolute_majority needs more than half of the votes cast', () => {
+            expect(rules.reachesThreshold('absolute_majority', 76, numbers())).toEqual(true);
+            expect(rules.reachesThreshold('absolute_majority', 75, numbers())).toEqual(false);
+        });
+
+        // WF Agora art. 12(1): at least half of the votes cast.
+        test('half_of_votes_cast needs at least half of the votes cast', () => {
+            expect(rules.reachesThreshold('half_of_votes_cast', 75, numbers())).toEqual(true);
+            expect(rules.reachesThreshold('half_of_votes_cast', 74, numbers())).toEqual(false);
+        });
+
+        // WF Agora art. 14(1), the three cases by the number of candidates.
+        test('commission with no more candidates than seats needs at least half of the votes cast', () => {
+            expect(rules.reachesThreshold('commission', 75, numbers({ seats: 3, candidates: 3 }))).toEqual(true);
+            expect(rules.reachesThreshold('commission', 74, numbers({ seats: 3, candidates: 3 }))).toEqual(false);
+        });
+
+        test('commission with at least twice as many candidates as seats needs 25% of the possible votes', () => {
+            expect(rules.reachesThreshold('commission', 50, numbers({ seats: 2, candidates: 4 }))).toEqual(true);
+            expect(rules.reachesThreshold('commission', 49, numbers({ seats: 2, candidates: 4 }))).toEqual(false);
+        });
+
+        test('commission in between needs (seats / 2) / candidates of the possible votes', () => {
+            // 3 seats, 4 candidates: 3/8 of 200 possible votes is 75.
+            expect(rules.reachesThreshold('commission', 75, numbers({ seats: 3, candidates: 4 }))).toEqual(true);
+            expect(rules.reachesThreshold('commission', 74, numbers({ seats: 3, candidates: 4 }))).toEqual(false);
+        });
+
+        test('nobody reaches a threshold without votes, also when nobody voted', () => {
+            for (const rule of ['absolute_majority', 'half_of_votes_cast', 'commission']) {
+                expect(rules.reachesThreshold(rule, 0, numbers({ ballots: 0, possible: 0 }))).toEqual(false);
+            }
+        });
+
+        test('throws on an unknown rule', () => {
+            expect(() => rules.reachesThreshold('most_votes', 1, numbers())).toThrow('Unknown election rule');
+        });
+    });
+
+    // Who is elected: the most votes among the candidates who reach the threshold, until the seats
+    // are full. A tie for the last seat is not decided by the system: the JC decides (for example a new round).
+    describe('electionOutcomes', () => {
+        test('elects the candidates above the threshold (commission, 3 seats, 4 candidates)', () => {
+            expect(rules.electionOutcomes('commission', { 1: 120, 2: 90, 3: 70, 4: 40 }, { ballots: 150, possible: 200, seats: 3 }))
+                .toEqual({ 1: 'elected', 2: 'elected', 3: 'not_elected', 4: 'not_elected' });
+        });
+
+        test('marks a tie for the last seat (commission, 2 seats, 5 candidates)', () => {
+            expect(rules.electionOutcomes('commission', { 1: 90, 2: 60, 3: 60, 4: 30, 5: 10 }, { ballots: 150, possible: 200, seats: 2 }))
+                .toEqual({ 1: 'elected', 2: 'tie', 3: 'tie', 4: 'not_elected', 5: 'not_elected' });
+        });
+
+        test('elects both when two candidates tie for two seats left', () => {
+            expect(rules.electionOutcomes('half_of_votes_cast', { 1: 100, 2: 100, 3: 20 }, { ballots: 150, possible: 200, seats: 2 }))
+                .toEqual({ 1: 'elected', 2: 'elected', 3: 'not_elected' });
+        });
+
+        test('leaves seats empty when too few candidates reach the threshold (CD, absolute majority)', () => {
+            expect(rules.electionOutcomes('absolute_majority', { 1: 120, 2: 76, 3: 75, 4: 40 }, { ballots: 150, possible: 200, seats: 5 }))
+                .toEqual({ 1: 'elected', 2: 'elected', 3: 'not_elected', 4: 'not_elected' });
+        });
+
+        test('elects the Chair Team with at least half of the votes cast', () => {
+            expect(rules.electionOutcomes('half_of_votes_cast', { 1: 110, 2: 75, 3: 60 }, { ballots: 150, possible: 200, seats: 2 }))
+                .toEqual({ 1: 'elected', 2: 'elected', 3: 'not_elected' });
+        });
+
+        test('elects nobody when nobody voted', () => {
+            expect(rules.electionOutcomes('half_of_votes_cast', { 1: 0, 2: 0 }, { ballots: 0, possible: 10, seats: 1 }))
+                .toEqual({ 1: 'not_elected', 2: 'not_elected' });
+        });
+    });
 });

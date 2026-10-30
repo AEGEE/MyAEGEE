@@ -14,6 +14,7 @@ const Question = require('./Question');
 const Voting = require('./Voting');
 const VotingBodyAllotment = require('./VotingBodyAllotment');
 const VotingDelegateVote = require('./VotingDelegateVote');
+const VotingOption = require('./VotingOption');
 
 Event.hasMany(Application, { foreignKey: 'event_id' });
 Event.hasMany(MembersList, { foreignKey: 'event_id' });
@@ -64,6 +65,15 @@ VotingDelegateVote.belongsTo(Voting, { foreignKey: 'voting_id' });
 Application.hasMany(VotingDelegateVote, { foreignKey: 'application_id' });
 VotingDelegateVote.belongsTo(Application, { foreignKey: 'application_id' });
 
+Voting.belongsTo(Position, { foreignKey: 'position_id' });
+Position.hasMany(Voting, { foreignKey: 'position_id' });
+
+Voting.hasMany(VotingOption, { foreignKey: 'voting_id' });
+VotingOption.belongsTo(Voting, { foreignKey: 'voting_id' });
+
+Candidate.hasMany(VotingOption, { foreignKey: 'candidate_id' });
+VotingOption.belongsTo(Candidate, { foreignKey: 'candidate_id' });
+
 module.exports = {
     Event,
     Image,
@@ -81,4 +91,5 @@ module.exports = {
     Voting,
     VotingBodyAllotment,
     VotingDelegateVote,
+    VotingOption,
 };

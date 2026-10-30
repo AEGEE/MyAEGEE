@@ -100,3 +100,72 @@ exports.preAgoraOutcome = ({
 
     return reason ? { outcome: 'to_agora', outcome_reason: reason } : { outcome: 'decided', outcome_reason: null };
 };
+
+// The thresholds of an election. ballots: all ballots cast, blank ones included; possible: the votes
+// of all bodies in the snapshot; candidates: the candidates on the ballot. Whole numbers only, so there
+// is no rounding question at the boundary. A candidate without votes never reaches a threshold,
+// also when nobody voted.
+// - absolute_majority: more than half of the votes cast (Statutes, Art. 17(2), for the Comite Directeur);
+// - half_of_votes_cast: at least half of the votes cast (Working Format of the Agora, Art. 12(1), Chair Team);
+// - commission (Art. 14(1)): with no more candidates than seats, at least half of the votes cast;
+//   with at least twice as many candidates as seats, at least 25% of the possible votes;
+//   in between, at least (seats / 2) / candidates of the possible votes.
+exports.ELECTION_RULES = ['absolute_majority', 'half_of_votes_cast', 'commission'];
+
+exports.reachesThreshold = (rule, votes, {
+    ballots,
+    possible,
+    seats,
+    candidates
+}) => {
+    if (!exports.ELECTION_RULES.includes(rule)) {
+        throw new Error('Unknown election rule: ' + rule);
+    }
+    if (votes <= 0) {
+        return false;
+    }
+
+    switch (rule) {
+    case 'absolute_majority':
+        return 2 * votes > ballots;
+    case 'half_of_votes_cast':
+        return 2 * votes >= ballots;
+    default:
+        if (candidates <= seats) {
+            return 2 * votes >= ballots;
+        }
+        if (candidates >= 2 * seats) {
+            return 4 * votes >= possible;
+        }
+        return 2 * candidates * votes >= seats * possible;
+    }
+};
+
+// Who is elected, per option on the ballot: among the candidates who reach the threshold, the most
+// votes win until the seats are full. Candidates who tie for the last seat get 'tie': the system does
+// not decide it, the JC does (for example with a new round). votesPerOption maps option ID to votes.
+exports.electionOutcomes = (rule, votesPerOption, { ballots, possible, seats }) => {
+    const numbers = {
+        ballots,
+        possible,
+        seats,
+        candidates: Object.keys(votesPerOption).length
+    };
+    const passing = Object.entries(votesPerOption)
+        .filter(([, votes]) => exports.reachesThreshold(rule, votes, numbers))
+        .sort((a, b) => b[1] - a[1]);
+
+    const outcomes = Object.fromEntries(Object.keys(votesPerOption).map((option) => [option, 'not_elected']));
+    if (passing.length <= seats) {
+        for (const [option] of passing) outcomes[option] = 'elected';
+        return outcomes;
+    }
+
+    const lastSeatVotes = passing[seats - 1][1];
+    const above = passing.filter(([, votes]) => votes > lastSeatVotes);
+    const atLastSeat = passing.filter(([, votes]) => votes === lastSeatVotes);
+    const seatsLeft = seats - above.length;
+    for (const [option] of above) outcomes[option] = 'elected';
+    for (const [option] of atLastSeat) outcomes[option] = atLastSeat.length > seatsLeft ? 'tie' : 'elected';
+    return outcomes;
+};

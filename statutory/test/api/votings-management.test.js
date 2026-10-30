@@ -116,7 +116,7 @@ describe('Votings management', () => {
         test('should fail on an unknown kind', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
 
-            const res = await call('POST', '/events/' + event.id + '/votings', generator.generateVoting({ kind: 'election' }));
+            const res = await call('POST', '/events/' + event.id + '/votings', generator.generateVoting({ kind: 'poll' }));
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('kind');

@@ -16,7 +16,8 @@ const {
     Question,
     Voting,
     VotingBodyAllotment,
-    VotingDelegateVote
+    VotingDelegateVote,
+    VotingOption
 } = require('../../models');
 const votingLifecycle = require('../../lib/voting_lifecycle');
 
@@ -281,6 +282,15 @@ exports.generateVoting = (options = {}, event = null) => {
     return options;
 };
 
+// An election: a voting of kind 'election' for a position, by default for 2 seats with the
+// threshold of a commission. There is no majority: the result is per candidate.
+exports.generateElection = (options = {}, event = null) => {
+    if (notSet(options.seats)) options.seats = 2;
+    if (notSet(options.election_rule)) options.election_rule = 'commission';
+
+    return exports.generateVoting({ kind: 'election', majority: null, ...options }, event);
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -362,6 +372,33 @@ exports.createAgoraStartingIn = async (days, options = {}) => {
 
 exports.createVoting = (options = {}, event = null) => {
     return Voting.create(exports.generateVoting(options, event));
+};
+
+// An election for a new position of the event, with approved candidates on the ballot in this order:
+// "Candidate A", "Candidate B", and so on. By default it opens in a day, as createVoting does.
+exports.createElection = async (options = {}, event = null, { candidatesCount = 3 } = {}) => {
+    const position = await exports.createPosition({ places: options.seats || 2 }, event);
+    const candidates = [];
+    for (let index = 0; index < candidatesCount; index++) {
+        candidates.push(await exports.createCandidate({
+            status: 'approved',
+            first_name: 'Candidate',
+            last_name: String.fromCharCode(65 + index)
+        }, position));
+    }
+
+    const voting = await Voting.create(exports.generateElection({ position_id: position.id, ...options }, event));
+    const ballot = [];
+    for (const [index, candidate] of candidates.entries()) {
+        ballot.push(await VotingOption.create({
+            voting_id: voting.id,
+            candidate_id: candidate.id,
+            label: candidate.first_name + ' ' + candidate.last_name,
+            ballot_order: index + 1
+        }));
+    }
+
+    return { voting, position, candidates, ballot };
 };
 
 // A voting that opened a second ago and closes in an hour, with its snapshot taken.

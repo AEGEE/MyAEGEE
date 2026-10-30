@@ -1,5 +1,7 @@
 const lodash = require('lodash');
 
+const ballotBox = require('./ballot_box');
+const elections = require('./elections');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
@@ -17,6 +19,7 @@ const {
 // The fields of a voting that the JC can set. Status, result and the open, close and publish
 // fields change only through the voting lifecycle and the publish route; the quorum and the
 // outcome of a Pre-Agora voting only through the lifecycle and the amendment route.
+// The candidates on the ballot of an election come in the separate field "candidates".
 const EDITABLE_FIELDS = [
     'kind',
     'title',
@@ -26,7 +29,10 @@ const EDITABLE_FIELDS = [
     'closes_at',
     'phase',
     'concerns_statutes',
-    'follows_voting_id'
+    'follows_voting_id',
+    'position_id',
+    'seats',
+    'election_rule'
 ];
 
 const PHASES = ['agora', 'pre_agora'];
@@ -45,11 +51,29 @@ const formatVoting = (voting, canManage) => {
     return json;
 };
 
+// One voting as the API shows it; an election also with the candidates on its ballot.
+const presentVoting = async (voting, canManage) => {
+    const json = formatVoting(voting, canManage);
+    if (voting.kind !== 'election') {
+        return json;
+    }
+
+    return { ...json, ...(await elections.formatBallot(voting, canManage)) };
+};
+
+const KIND_CHANGE_MESSAGE = 'An election cannot become another kind of voting, or the other way round: delete it and create a new one.';
+const POSITION_MESSAGE = 'The position should be a position of this Agora.';
+const LATE_ELECTION_MESSAGE = 'This election did not open on time: set a new opens_at and closes_at in the future.';
+
+const isInFuture = (time) => new Date(time).getTime() > Date.now();
+
 // A Pre-Agora voting always has a two-thirds majority (Art. 20(3)), so the JC does not have to give it.
-// currentPhase is the phase of the voting before this change.
-const withPreAgoraMajority = (fields, currentPhase) => {
+// An election has no majority and cannot be in Pre-Agora Voting, so it gets none.
+// currentPhase and currentKind are the phase and the kind of the voting before this change.
+const withPreAgoraMajority = (fields, currentPhase, currentKind) => {
     const phase = helpers.isDefined(fields.phase) ? fields.phase : currentPhase;
-    if (phase === 'pre_agora' && !helpers.isDefined(fields.majority)) {
+    const kind = helpers.isDefined(fields.kind) ? fields.kind : currentKind;
+    if (phase === 'pre_agora' && kind !== 'election' && !helpers.isDefined(fields.majority)) {
         return { ...fields, majority: 'two_thirds' };
     }
     return fields;
@@ -58,9 +82,14 @@ const withPreAgoraMajority = (fields, currentPhase) => {
 // The JC can only change a voting that did not open yet. Locking the voting waits for an opening
 // that runs right now (lib/voting_lifecycle.js locks it too), so an edit never reaches an open voting.
 // Returns the locked voting, or null if it opened or is due to open.
+// An election that is due and still scheduled could not open because of its ballot (ballot_problem,
+// see lib/elections.js): the JC can still fix the ballot or delete the election.
 const lockScheduledVoting = async (votingId, transaction) => {
     const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
-    if (!voting || voting.status !== 'scheduled' || new Date(voting.opens_at).getTime() <= Date.now()) {
+    if (!voting || voting.status !== 'scheduled') {
+        return null;
+    }
+    if (new Date(voting.opens_at).getTime() <= Date.now() && voting.kind !== 'election') {
         return null;
     }
     return voting;
@@ -133,8 +162,29 @@ exports.listVotings = async (req, res) => {
 exports.getVoting = async (req, res) => {
     return res.json({
         success: true,
-        data: formatVoting(req.voting, req.permissions.manage_votings)
+        data: await presentVoting(req.voting, req.permissions.manage_votings)
     });
+};
+
+// The ballot of a new election: the position must be a position of this Agora, the seats are by
+// default the places of the position, and the candidates are the approved candidatures of the
+// position or the ones the JC chose. Without a position, the validation of the voting tells the JC.
+const prepareElection = async (eventId, fields, candidateIds, transaction) => {
+    if (!helpers.isDefined(fields.position_id)) {
+        return { fields, candidates: [] };
+    }
+
+    const position = await elections.findPosition(fields.position_id, eventId, transaction);
+    if (!position) {
+        return { error: POSITION_MESSAGE };
+    }
+
+    const chosen = await elections.chooseCandidates(position, candidateIds, transaction);
+    if (chosen.error) {
+        return chosen;
+    }
+
+    return { fields: { seats: position.places, ...fields }, candidates: chosen.candidates };
 };
 
 exports.createVoting = async (req, res) => {
@@ -142,15 +192,67 @@ exports.createVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    const voting = await Voting.create({
-        ...withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), 'agora'),
-        event_id: req.event.id
+    let fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), 'agora', null);
+    let candidates = [];
+    if (fields.kind === 'election') {
+        const prepared = await prepareElection(req.event.id, fields, req.body.candidates);
+        if (prepared.error) {
+            return errors.makeValidationError(res, prepared.error);
+        }
+        ({ fields, candidates } = prepared);
+    }
+
+    const voting = await sequelize.transaction(async (transaction) => {
+        const created = await Voting.create({ ...fields, event_id: req.event.id }, { transaction });
+        if (created.kind === 'election') {
+            await elections.fillBallot(created, candidates, transaction);
+        }
+        return created;
     });
 
     return res.json({
         success: true,
-        data: await lifecycle.syncVoting(voting)
+        data: await presentVoting(await lifecycle.syncVoting(voting), true)
     });
+};
+
+// Edits a scheduled election. A new position gets the approved candidatures of that position on the
+// ballot, and its places as seats, unless the JC gives them; new candidates replace the ballot.
+// The old ballot goes before the position changes, and the new one comes after it, because the
+// database only accepts candidates of the position of the election (candidate_of_position).
+// An election that did not open on time needs a new time window in the future, so that it does not
+// open and close at once, without ballots.
+const editElection = async (election, fields, candidateIds, eventId, transaction) => {
+    if (!isInFuture(election.opens_at)) {
+        const opensAt = helpers.isDefined(fields.opens_at) ? fields.opens_at : election.opens_at;
+        const closesAt = helpers.isDefined(fields.closes_at) ? fields.closes_at : election.closes_at;
+        if (!isInFuture(opensAt) || !isInFuture(closesAt)) {
+            return LATE_ELECTION_MESSAGE;
+        }
+    }
+
+    const positionId = helpers.isDefined(fields.position_id) ? fields.position_id : election.position_id;
+    const newPosition = positionId !== election.position_id;
+    if (!newPosition && typeof candidateIds === 'undefined') {
+        await election.update(fields, { fields: EDITABLE_FIELDS, transaction });
+        return null;
+    }
+
+    const position = await elections.findPosition(positionId, eventId, transaction);
+    if (!position) {
+        return POSITION_MESSAGE;
+    }
+
+    const chosen = await elections.chooseCandidates(position, candidateIds, transaction);
+    if (chosen.error) {
+        return chosen.error;
+    }
+
+    const seats = newPosition && !helpers.isDefined(fields.seats) ? { seats: position.places } : {};
+    await elections.clearBallot(election, transaction);
+    await election.update({ ...fields, ...seats }, { fields: EDITABLE_FIELDS, transaction });
+    await elections.fillBallot(election, chosen.candidates, transaction);
+    return null;
 };
 
 exports.editVoting = async (req, res) => {
@@ -158,22 +260,37 @@ exports.editVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    const voting = await sequelize.transaction(async (transaction) => {
+    const edit = await sequelize.transaction(async (transaction) => {
         const locked = await lockScheduledVoting(req.voting.id, transaction);
-        if (locked) {
-            const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase);
-            await locked.update(fields, { fields: EDITABLE_FIELDS, transaction });
+        if (!locked) {
+            return { conflict: 'Only a voting that did not open yet can be edited.' };
         }
-        return locked;
+
+        const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase, locked.kind);
+        const kind = helpers.isDefined(fields.kind) ? fields.kind : locked.kind;
+        if ((kind === 'election') !== (locked.kind === 'election')) {
+            return { error: KIND_CHANGE_MESSAGE };
+        }
+
+        if (locked.kind === 'election') {
+            const error = await editElection(locked, fields, req.body.candidates, req.event.id, transaction);
+            return error ? { error } : { voting: locked };
+        }
+
+        await locked.update(fields, { fields: EDITABLE_FIELDS, transaction });
+        return { voting: locked };
     });
 
-    if (!voting) {
-        return errors.makeConflictError(res, 'Only a voting that did not open yet can be edited.');
+    if (edit.conflict) {
+        return errors.makeConflictError(res, edit.conflict);
+    }
+    if (edit.error) {
+        return errors.makeValidationError(res, edit.error);
     }
 
     return res.json({
         success: true,
-        data: await lifecycle.syncVoting(voting)
+        data: await presentVoting(await lifecycle.syncVoting(edit.voting), true)
     });
 };
 
@@ -217,7 +334,7 @@ exports.publishVoting = async (req, res) => {
 
     return res.json({
         success: true,
-        data: formatVoting(req.voting, true)
+        data: await presentVoting(req.voting, true)
     });
 };
 
@@ -291,6 +408,29 @@ exports.getProgress = async (req, res) => {
     });
 };
 
+// The result of an election: per candidate the votes, the share of the ballots cast, whether the
+// threshold is reached and the outcome; the ballots cast (blank ones included) and the possible
+// votes (votes_total, all votes in the snapshot). No table per body: a body with one delegate would
+// show the choice of that delegate.
+const getElectionResult = async (req, res) => {
+    const { progress } = await lifecycle.countVotes(req.voting);
+    const voting = req.voting.toJSON();
+
+    return res.json({
+        success: true,
+        data: {
+            voting: await presentVoting(req.voting, true),
+            phase: voting.phase,
+            election_rule: voting.election_rule,
+            seats: voting.seats,
+            published: voting.published,
+            ...(await elections.result(req.voting)),
+            ...progress,
+            bodies_present_percentage: rules.percentage(progress.bodies_present, progress.bodies_available)
+        }
+    });
+};
+
 // The result, as the old OMS JC module showed it: the totals with percentages and a table
 // with the votes of each body that voted. The JC sees it once the voting is closed;
 // every other logged-in user once the JC published it.
@@ -301,6 +441,10 @@ exports.getResult = async (req, res) => {
 
     if (!req.voting.published && !req.permissions.manage_votings) {
         return errors.makeConflictError(res, 'The result of this voting is not published yet.');
+    }
+
+    if (req.voting.kind === 'election') {
+        return getElectionResult(req, res);
     }
 
     const { tally, progress, bodies } = await lifecycle.countVotes(req.voting);
@@ -379,14 +523,19 @@ const findBodyAllotment = (delegateVote) => VotingBodyAllotment.findOne({
 
 // What a delegate sees, as in the old OMS JC module: the own vote, and for the own body
 // how many votes and delegates it has and how many votes it cast (not what the others voted).
+// In an election: the ballot to fill in, and how many ballots the delegate cast, never what is on them.
+const MY_VOTE_VOTING_FIELDS = ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'phase', 'opens_at', 'closes_at', 'status'];
+const MY_VOTE_ELECTION_FIELDS = ['position_id', 'seats', 'election_rule'];
+
 const formatMyVote = async (voting, delegateVote) => {
     const bodyAllotment = await findBodyAllotment(delegateVote);
     const delegatesCount = await VotingDelegateVote.count({
         where: { voting_id: delegateVote.voting_id, body_id: delegateVote.body_id }
     });
+    const isElection = voting.kind === 'election';
 
-    return {
-        voting: helpers.whitelistObject(voting.toJSON(), ['id', 'event_id', 'kind', 'title', 'description', 'majority', 'phase', 'opens_at', 'closes_at', 'status']),
+    const myVote = {
+        voting: helpers.whitelistObject(voting.toJSON(), isElection ? [...MY_VOTE_VOTING_FIELDS, ...MY_VOTE_ELECTION_FIELDS] : MY_VOTE_VOTING_FIELDS),
         body: {
             body_id: bodyAllotment.body_id,
             votes_total: bodyAllotment.votes_total,
@@ -395,7 +544,20 @@ const formatMyVote = async (voting, delegateVote) => {
         },
         body_id: delegateVote.body_id,
         max_votes: delegateVote.max_votes,
-        votes_available: voting.status === 'open' ? rules.votesAvailable(bodyAllotment, delegateVote) : 0,
+        votes_available: voting.status === 'open' ? rules.votesAvailable(bodyAllotment, delegateVote) : 0
+    };
+
+    if (isElection) {
+        return {
+            ...myVote,
+            options: await elections.formatBallotForDelegate(voting),
+            ballots_cast: delegateVote.ballots_cast,
+            submitted_at: delegateVote.submitted_at
+        };
+    }
+
+    return {
+        ...myVote,
         in_favour: delegateVote.in_favour,
         against: delegateVote.against,
         abstention: delegateVote.abstention,
@@ -428,7 +590,48 @@ const VOTE_REFUSALS = {
     )
 };
 
+// The vote of a delegate in an election: one ballot per vote, each with the candidates marked,
+// at most as many as there are seats; a blank ballot marks nobody. The ballot box stores them in
+// one transaction with the counter of the delegate, under the same division rule as other votings.
+const submitBallots = async (req, res) => {
+    if (VOTE_FIELDS.some((field) => helpers.isDefined(req.body[field]))) {
+        return errors.makeValidationError(res, 'An election is voted with ballots, not with in favour, against or abstention.');
+    }
+
+    const ballot = await elections.formatBallotForDelegate(req.voting);
+    const refusal = elections.checkBallots(req.body.ballots, {
+        seats: req.voting.seats,
+        optionIds: ballot.map((option) => option.id),
+        maxVotes: req.delegateVote.max_votes
+    });
+    if (refusal) {
+        return errors.makeValidationError(res, refusal);
+    }
+
+    let updatedRow;
+    try {
+        updatedRow = await ballotBox.castBallots(req.delegateVote, req.body.ballots);
+    } catch (err) {
+        const tellDelegate = err instanceof ballotBox.BallotBoxError && VOTE_REFUSALS[err.constraint];
+        if (!tellDelegate) {
+            throw err;
+        }
+
+        const bodyAllotment = await findBodyAllotment(req.delegateVote);
+        return tellDelegate(res, bodyAllotment, req.delegateVote);
+    }
+
+    return res.json({
+        success: true,
+        data: await formatMyVote(req.voting, updatedRow)
+    });
+};
+
 exports.submitMyVote = async (req, res) => {
+    if (req.voting.kind === 'election') {
+        return submitBallots(req, res);
+    }
+
     const counts = {};
     for (const field of VOTE_FIELDS) {
         const value = helpers.isDefined(req.body[field]) ? req.body[field] : 0;

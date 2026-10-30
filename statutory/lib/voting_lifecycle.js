@@ -1,4 +1,5 @@
 const core = require('./core');
+const elections = require('./elections');
 const logger = require('./logger');
 const rules = require('./voting_rules');
 const { sequelize } = require('./sequelize');
@@ -16,6 +17,7 @@ const {
 // Two things move a voting on, so that a missed job breaks nothing:
 // a job per voting in lib/cron.js, and syncVoting() on every request that reads a voting.
 // The database itself refuses votes after closes_at (trigger count_delegate_votes).
+// An election opens and closes the same way; lib/elections.js gives what it adds.
 
 // Who can vote is fixed when the voting opens, and depends on its phase:
 // - agora: the delegates who are confirmed, registered on the event (checked in by the JC),
@@ -167,6 +169,17 @@ const openIfDue = async (votingId, antennaeTotal) => sequelize.transaction(async
         quorum.quorum_required = rules.quorumRequired(antennaeTotal);
     }
 
+    // An election opens only with a valid ballot and while its time window is still running. If not,
+    // the election stays scheduled, the JC sees why (ballot_problem) and can fix it; the next sync tries again.
+    if (voting.kind === 'election') {
+        const problem = await elections.ballotProblem(voting, transaction);
+        if (problem) {
+            logger.warn({ voting: voting.id, problem }, 'Opening election: the ballot is not valid, not opening yet.');
+            return;
+        }
+        await elections.copyNamesToBallot(voting, transaction);
+    }
+
     await takeSnapshot(voting, transaction);
     await voting.update({ status: 'open', opened_at: new Date(), ...quorum }, { transaction });
     logger.info({ voting: voting.id }, 'Opened voting');
@@ -194,11 +207,24 @@ const closePreAgora = (voting, result, progress, closedAt) => {
     };
 };
 
+// An election has no accepted or rejected result: setting the status shuffles the ballot box
+// (trigger shuffle_ballot_box), and then each candidate gets an outcome.
+const closeElection = async (voting, transaction) => {
+    await voting.update({ status: 'closed', closed_at: new Date() }, { transaction });
+    await elections.storeOutcomes(voting, transaction);
+};
+
 // Closes the voting if it is open and closes_at has come. Locking the voting waits for votes
 // that are being stored right now (each vote holds a share lock on the voting), so the count is final.
 const closeIfDue = async (votingId) => sequelize.transaction(async (transaction) => {
     const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
     if (!voting || voting.status !== 'open' || !isDue(voting.closes_at)) {
+        return;
+    }
+
+    if (voting.kind === 'election') {
+        await closeElection(voting, transaction);
+        logger.info({ voting: voting.id }, 'Closed voting');
         return;
     }
 
@@ -216,8 +242,15 @@ const closeIfDue = async (votingId) => sequelize.transaction(async (transaction)
 
 // Moves the voting on to the status that its time window asks for, and returns it fresh.
 // Does nothing (and no query) when the voting is already in the right status.
-// A voting whose whole window passed while nothing ran is opened and closed at once.
+// A voting whose whole window passed while nothing ran is opened and closed at once;
+// an election then stays scheduled (see openIfDue).
 exports.syncVoting = async (voting) => {
+    // An election that did not open in its time window stays scheduled until the JC sets a new window
+    // (see openIfDue), so reading it does not try to open it again.
+    if (voting.kind === 'election' && voting.status === 'scheduled' && isDue(voting.closes_at)) {
+        return voting;
+    }
+
     const opening = voting.status === 'scheduled' && isDue(voting.opens_at);
     const closing = voting.status !== 'closed' && isDue(voting.closes_at);
     if (!opening && !closing) {
