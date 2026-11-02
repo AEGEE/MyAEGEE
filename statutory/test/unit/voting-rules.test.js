@@ -128,6 +128,34 @@ describe('Voting rules', () => {
         });
     });
 
+    // The part of the CIA that a proposal changes decides how a voting on it counts:
+    // the Statutes and the Convention d'Adhesion 2/3 (Statutes Art. 36), other proposals a simple majority
+    // (WF Agora Art. 17(1)), and before the Agora always 2/3 (Art. 20(3)).
+    describe('proposalMajority', () => {
+        test.each([
+            ['statutes', 'agora', 'two_thirds'],
+            ['working_format', 'agora', 'simple'],
+            ['other', 'agora', 'simple'],
+            ['statutes', 'pre_agora', 'two_thirds'],
+            ['working_format', 'pre_agora', 'two_thirds'],
+            ['other', 'pre_agora', 'two_thirds']
+        ])('a proposal on %s in phase %s needs %s', (ciaPart, phase, majority) => {
+            expect(rules.proposalMajority(ciaPart, phase)).toEqual(majority);
+        });
+    });
+
+    // A Pre-Agora voting on a change of the Statutes always goes to the Agora (Art. 20(5)).
+    describe('proposalConcernsStatutes', () => {
+        test.each([
+            ['statutes', 'pre_agora', true],
+            ['working_format', 'pre_agora', false],
+            ['other', 'pre_agora', false],
+            ['statutes', 'agora', false]
+        ])('a voting on a proposal on %s in phase %s concerns the Statutes: %s', (ciaPart, phase, concerns) => {
+            expect(rules.proposalConcernsStatutes(ciaPart, phase)).toEqual(concerns);
+        });
+    });
+
     // The thresholds of an election, in whole numbers. ballots: all ballots cast, blank ones included;
     // possible: the votes of all bodies in the snapshot; candidates: the candidates on the ballot.
     describe('reachesThreshold', () => {

@@ -267,7 +267,7 @@ describe('Votings database rules: elections', () => {
             ))).toEqual('options_only_for_elections');
         });
 
-        test('refuses an election without its fields, or with a majority, and a proposal with them (election_fields)', async () => {
+        test('refuses an election without its fields, or with a majority, and a rollcall with them (election_fields)', async () => {
             const insert = (fields) => query(`
                 INSERT INTO votings (event_id, kind, title, majority, position_id, seats, election_rule, opens_at, closes_at, created_at, updated_at)
                 VALUES ($1, $2, 'x', $3, $4, $5, $6, now() + interval '1 hour', now() + interval '2 hours', now(), now())
@@ -278,8 +278,8 @@ describe('Votings database rules: elections', () => {
             expect(await refusalOf(insert({ ...valid, position_id: null }))).toEqual('election_fields');
             expect(await refusalOf(insert({ ...valid, seats: null }))).toEqual('election_fields');
             expect(await refusalOf(insert({ ...valid, election_rule: null }))).toEqual('election_fields');
-            expect(await refusalOf(insert({ ...valid, kind: 'proposal', majority: 'simple' }))).toEqual('election_fields');
-            expect(await refusalOf(insert({ ...valid, kind: 'proposal', majority: null, position_id: null, seats: null, election_rule: null })))
+            expect(await refusalOf(insert({ ...valid, kind: 'rollcall', majority: 'simple' }))).toEqual('election_fields');
+            expect(await refusalOf(insert({ ...valid, kind: 'rollcall', majority: null, position_id: null, seats: null, election_rule: null })))
                 .toEqual('election_fields');
             await insert(valid);
         });

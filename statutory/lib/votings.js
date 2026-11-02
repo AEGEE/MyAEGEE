@@ -6,11 +6,13 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const middlewares = require('./middlewares');
+const proposals = require('./proposals');
 const rules = require('./voting_rules');
 const lifecycle = require('./voting_lifecycle');
 const { sequelize } = require('./sequelize');
 const {
     Event,
+    Proposal,
     Voting,
     VotingBodyAllotment,
     VotingDelegateVote
@@ -20,6 +22,7 @@ const {
 // fields change only through the voting lifecycle and the publish route; the quorum and the
 // outcome of a Pre-Agora voting only through the lifecycle and the amendment route.
 // The candidates on the ballot of an election come in the separate field "candidates".
+// A voting of kind 'proposal' points to its proposal with proposal_id.
 const EDITABLE_FIELDS = [
     'kind',
     'title',
@@ -32,7 +35,8 @@ const EDITABLE_FIELDS = [
     'follows_voting_id',
     'position_id',
     'seats',
-    'election_rule'
+    'election_rule',
+    'proposal_id'
 ];
 
 const PHASES = ['agora', 'pre_agora'];
@@ -51,9 +55,13 @@ const formatVoting = (voting, canManage) => {
     return json;
 };
 
-// One voting as the API shows it; an election also with the candidates on its ballot.
+// One voting as the API shows it; an election also with the candidates on its ballot. For the JC,
+// a voting on a proposal also says why it cannot open (proposal_problem), or null.
 const presentVoting = async (voting, canManage) => {
     const json = formatVoting(voting, canManage);
+    if (voting.kind === 'proposal' && voting.proposal_id !== null && canManage) {
+        return { ...json, proposal_problem: voting.status === 'scheduled' ? await proposals.proposalProblem(voting) : null };
+    }
     if (voting.kind !== 'election') {
         return json;
     }
@@ -63,6 +71,7 @@ const presentVoting = async (voting, canManage) => {
 
 const KIND_CHANGE_MESSAGE = 'An election cannot become another kind of voting, or the other way round: delete it and create a new one.';
 const POSITION_MESSAGE = 'The position should be a position of this Agora.';
+const PROPOSAL_MESSAGE = 'The proposal should be a proposal of this Agora.';
 const LATE_ELECTION_MESSAGE = 'This election did not open on time: set a new opens_at and closes_at in the future.';
 
 const isInFuture = (time) => new Date(time).getTime() > Date.now();
@@ -79,17 +88,68 @@ const withPreAgoraMajority = (fields, currentPhase, currentKind) => {
     return fields;
 };
 
+// A voting on a proposal takes from the proposal what the JC does not give: the title (of a new voting),
+// the majority and the Statutes flag, from its part of the CIA (rules.proposalMajority and
+// rules.proposalConcernsStatutes). The database refuses other values, so filling them in is always safe.
+// current is the voting before this change, or null for a new one. Returns { fields } or { error }.
+// A voting from before proposals (kind 'proposal', no proposal) gets nothing, as before.
+const withProposalFields = async (fields, current, eventId, transaction) => {
+    const valueOf = (field, fallback) => {
+        if (helpers.isDefined(fields[field])) return fields[field];
+        return current ? current[field] : fallback;
+    };
+    const proposalId = valueOf('proposal_id', null);
+    if (valueOf('kind', null) !== 'proposal' || proposalId === null) {
+        return { fields };
+    }
+
+    const proposal = Number.isInteger(proposalId)
+        ? await Proposal.findOne({ where: { id: proposalId, event_id: eventId }, transaction })
+        : null;
+    if (!proposal) {
+        return { error: PROPOSAL_MESSAGE };
+    }
+
+    const phase = valueOf('phase', 'agora');
+    const filled = { ...fields };
+    if (!current && !helpers.isDefined(fields.title)) {
+        filled.title = proposal.title;
+    }
+    if (!helpers.isDefined(fields.majority)) {
+        filled.majority = rules.proposalMajority(proposal.cia_part, phase);
+    }
+    if (!helpers.isDefined(fields.concerns_statutes)) {
+        filled.concerns_statutes = rules.proposalConcernsStatutes(proposal.cia_part, phase);
+    }
+    return { fields: filled };
+};
+
+// How each refusal of the database about the proposal of a voting is told to the JC
+// (trigger guard_proposal_voting and the constraints of migrations/20261102120000-add-proposals.js).
+const PROPOSAL_REFUSALS = {
+    proposal_voting_has_proposal: (res, message) => errors.makeValidationError(res, message),
+    voting_of_proposal_of_same_agora: (res) => errors.makeValidationError(res, PROPOSAL_MESSAGE),
+    proposal_only_for_proposals: (res) => errors.makeValidationError(res, 'Only a voting of kind "proposal" points to a proposal.'),
+    majority_matches_proposal: (res, message) => errors.makeValidationError(res, message),
+    statutes_flag_matches_proposal: (res, message) => errors.makeValidationError(res, message),
+    proposal_not_on_agenda: (res, message) => errors.makeConflictError(res, message),
+    proposal_already_decided: (res, message) => errors.makeConflictError(res, message),
+    decision_when_on_agenda: (res) => errors.makeConflictError(res, 'The proposal of this voting was withdrawn, so this voting cannot decide it.')
+};
+
 // The JC can only change a voting that did not open yet. Locking the voting waits for an opening
 // that runs right now (lib/voting_lifecycle.js locks it too), so an edit never reaches an open voting.
 // Returns the locked voting, or null if it opened or is due to open.
 // An election that is due and still scheduled could not open because of its ballot (ballot_problem,
-// see lib/elections.js): the JC can still fix the ballot or delete the election.
+// see lib/elections.js): the JC can still fix the ballot or delete the election. The same for a voting
+// on a proposal that could not open because of its proposal (proposal_problem, see lib/proposals.js).
 const lockScheduledVoting = async (votingId, transaction) => {
     const voting = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
     if (!voting || voting.status !== 'scheduled') {
         return null;
     }
-    if (new Date(voting.opens_at).getTime() <= Date.now() && voting.kind !== 'election') {
+    if (new Date(voting.opens_at).getTime() <= Date.now() && voting.kind !== 'election'
+        && !(await proposals.proposalProblem(voting, transaction))) {
         return null;
     }
     return voting;
@@ -192,7 +252,12 @@ exports.createVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    let fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), 'agora', null);
+    const withProposal = await withProposalFields(lodash.pick(req.body, EDITABLE_FIELDS), null, req.event.id);
+    if (withProposal.error) {
+        return errors.makeValidationError(res, withProposal.error);
+    }
+
+    let fields = withPreAgoraMajority(withProposal.fields, 'agora', null);
     let candidates = [];
     if (fields.kind === 'election') {
         const prepared = await prepareElection(req.event.id, fields, req.body.candidates);
@@ -202,13 +267,19 @@ exports.createVoting = async (req, res) => {
         ({ fields, candidates } = prepared);
     }
 
-    const voting = await sequelize.transaction(async (transaction) => {
-        const created = await Voting.create({ ...fields, event_id: req.event.id }, { transaction });
-        if (created.kind === 'election') {
-            await elections.fillBallot(created, candidates, transaction);
-        }
-        return created;
+    let voting;
+    const refused = await proposals.withRefusals(res, PROPOSAL_REFUSALS, async () => {
+        voting = await sequelize.transaction(async (transaction) => {
+            const created = await Voting.create({ ...fields, event_id: req.event.id }, { transaction });
+            if (created.kind === 'election') {
+                await elections.fillBallot(created, candidates, transaction);
+            }
+            return created;
+        });
     });
+    if (refused) {
+        return refused;
+    }
 
     return res.json({
         success: true,
@@ -255,31 +326,45 @@ const editElection = async (election, fields, candidateIds, eventId, transaction
     return null;
 };
 
+// Edits the voting of the request if it did not open yet. Returns { voting }, { conflict } or { error }.
+const editScheduledVoting = async (req, transaction) => {
+    const locked = await lockScheduledVoting(req.voting.id, transaction);
+    if (!locked) {
+        return { conflict: 'Only a voting that did not open yet can be edited.' };
+    }
+
+    const withProposal = await withProposalFields(lodash.pick(req.body, EDITABLE_FIELDS), locked, req.event.id, transaction);
+    if (withProposal.error) {
+        return { error: withProposal.error };
+    }
+
+    const fields = withPreAgoraMajority(withProposal.fields, locked.phase, locked.kind);
+    const kind = helpers.isDefined(fields.kind) ? fields.kind : locked.kind;
+    if ((kind === 'election') !== (locked.kind === 'election')) {
+        return { error: KIND_CHANGE_MESSAGE };
+    }
+
+    if (locked.kind === 'election') {
+        const error = await editElection(locked, fields, req.body.candidates, req.event.id, transaction);
+        return error ? { error } : { voting: locked };
+    }
+
+    await locked.update(fields, { fields: EDITABLE_FIELDS, transaction });
+    return { voting: locked };
+};
+
 exports.editVoting = async (req, res) => {
     if (!req.permissions.manage_votings) {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    const edit = await sequelize.transaction(async (transaction) => {
-        const locked = await lockScheduledVoting(req.voting.id, transaction);
-        if (!locked) {
-            return { conflict: 'Only a voting that did not open yet can be edited.' };
-        }
-
-        const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase, locked.kind);
-        const kind = helpers.isDefined(fields.kind) ? fields.kind : locked.kind;
-        if ((kind === 'election') !== (locked.kind === 'election')) {
-            return { error: KIND_CHANGE_MESSAGE };
-        }
-
-        if (locked.kind === 'election') {
-            const error = await editElection(locked, fields, req.body.candidates, req.event.id, transaction);
-            return error ? { error } : { voting: locked };
-        }
-
-        await locked.update(fields, { fields: EDITABLE_FIELDS, transaction });
-        return { voting: locked };
+    let edit;
+    const refused = await proposals.withRefusals(res, PROPOSAL_REFUSALS, async () => {
+        edit = await sequelize.transaction((transaction) => editScheduledVoting(req, transaction));
     });
+    if (refused) {
+        return refused;
+    }
 
     if (edit.conflict) {
         return errors.makeConflictError(res, edit.conflict);
@@ -318,7 +403,8 @@ exports.deleteVoting = async (req, res) => {
 };
 
 // After the voting closed, the JC publishes the result. From then on every logged-in user
-// sees the result, as in the old OMS JC module.
+// sees the result, as in the old OMS JC module. Publishing a voting on a proposal stores the
+// decision of the Agora on the proposal, in the same transaction.
 exports.publishVoting = async (req, res) => {
     if (!req.permissions.manage_votings) {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
@@ -328,21 +414,53 @@ exports.publishVoting = async (req, res) => {
         return errors.makeConflictError(res, 'Only a closed voting can be published.');
     }
 
-    if (!req.voting.published) {
-        await req.voting.update({ published: true, published_at: new Date(), published_by: req.user.id });
-    }
+    // Locking the voting makes a second publish at the same moment wait, and then do nothing.
+    const voting = await sequelize.transaction(async (transaction) => {
+        const locked = await Voting.findByPk(req.voting.id, { transaction, lock: transaction.LOCK.UPDATE });
+        if (!locked.published) {
+            await locked.update({ published: true, published_at: new Date(), published_by: req.user.id }, { transaction });
+            await proposals.copyDecision(locked, transaction);
+        }
+        return locked;
+    });
 
     return res.json({
         success: true,
-        data: await presentVoting(req.voting, true)
+        data: await presentVoting(voting, true)
     });
 };
+
+// Marks or unmarks the amendment on a Pre-Agora voting in one transaction, with the decision on its
+// proposal. Locking the voting waits for a closing that runs right now, so the outcome uses the final
+// result. Returns the voting, or null when a voting on the Agora already follows the item.
+const markAmendmentOnVoting = (votingId, amendmentSubmitted) => sequelize.transaction(async (transaction) => {
+    const locked = await Voting.findByPk(votingId, { transaction, lock: transaction.LOCK.UPDATE });
+    const changes = { amendment_submitted: amendmentSubmitted };
+    if (locked.status === 'closed') {
+        Object.assign(changes, rules.preAgoraOutcome({ ...locked.toJSON(), amendment_submitted: amendmentSubmitted }));
+    }
+
+    if (changes.outcome === 'decided') {
+        const following = await Voting.count({ where: { follows_voting_id: locked.id }, transaction });
+        if (following > 0) {
+            return null;
+        }
+    }
+
+    await locked.update(changes, { transaction });
+    if (locked.status === 'closed') {
+        await proposals.copyDecision(locked, transaction);
+    }
+    return locked;
+});
 
 // The JC marks that an amendment to the item came in at least five days before the Agora,
 // so the Agora votes on the item again (Art. 20(5)). This can happen before or after the
 // Pre-Agora voting closed; after closing, the outcome changes with it. Unmarking it is refused
 // when a voting on the Agora already follows the item, because then the item would be both
-// decided and voted on again.
+// decided and voted on again. For a voting on a proposal, the decision on the proposal follows the
+// outcome in the same transaction: it goes away when the item goes to the Agora, and comes back
+// when the JC unmarks the amendment (refused when the proposer withdrew the proposal meanwhile).
 exports.markAmendment = async (req, res) => {
     if (!req.permissions.manage_votings) {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
@@ -357,23 +475,13 @@ exports.markAmendment = async (req, res) => {
         return errors.makeConflictError(res, 'Only a Pre-Agora voting can be sent to the Agora by an amendment.');
     }
 
-    // Locking the voting waits for a closing that runs right now, so the outcome uses the final result.
-    const voting = await sequelize.transaction(async (transaction) => {
-        const locked = await Voting.findByPk(req.voting.id, { transaction, lock: transaction.LOCK.UPDATE });
-        const changes = { amendment_submitted: amendmentSubmitted };
-        if (locked.status === 'closed') {
-            Object.assign(changes, rules.preAgoraOutcome({ ...locked.toJSON(), amendment_submitted: amendmentSubmitted }));
-        }
-
-        if (changes.outcome === 'decided') {
-            const following = await Voting.count({ where: { follows_voting_id: locked.id }, transaction });
-            if (following > 0) {
-                return null;
-            }
-        }
-
-        return locked.update(changes, { transaction });
+    let voting;
+    const refused = await proposals.withRefusals(res, PROPOSAL_REFUSALS, async () => {
+        voting = await markAmendmentOnVoting(req.voting.id, amendmentSubmitted);
     });
+    if (refused) {
+        return refused;
+    }
 
     if (!voting) {
         return errors.makeConflictError(res, 'A voting on the Agora already follows this item, so it cannot be decided before the Agora.');

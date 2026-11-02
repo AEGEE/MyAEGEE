@@ -36,6 +36,10 @@ exports.makeError = (res, statusCode, err) => {
     });
 };
 
+// The name of the rule with which the database refused a write (a CHECK constraint, a foreign key, or a
+// trigger that raises with CONSTRAINT), or null for any other error.
+exports.refusedRule = (err) => (err && err.parent && err.parent.constraint) || null;
+
 exports.makeUnauthorizedError = (res, err) => exports.makeError(res, 401, err);
 exports.makeValidationError = (res, err) => exports.makeError(res, 422, err);
 exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);

@@ -17,7 +17,8 @@ const {
     Voting,
     VotingBodyAllotment,
     VotingDelegateVote,
-    VotingOption
+    VotingOption,
+    Proposal
 } = require('../../models');
 const votingLifecycle = require('../../lib/voting_lifecycle');
 
@@ -262,15 +263,16 @@ exports.generateAttendance = (options = {}, plenary = null) => {
 };
 
 // By default a voting opens in a day and is open for an hour, so it stays scheduled during a test.
+// A new proposal voting needs a proposal on the agenda (proposal_id); createVoting makes one when it is not given.
 exports.generateVoting = (options = {}, event = null) => {
-    if (notSet(options.kind)) options.kind = faker.helpers.arrayElement(['proposal', 'rollcall']);
+    if (notSet(options.kind)) options.kind = 'rollcall';
     if (notSet(options.title)) options.title = faker.lorem.sentence();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    // A Pre-Agora voting always needs a two-thirds majority.
+    // A Pre-Agora voting always needs a two-thirds majority; a proposal is never voted on with an absolute one.
     if (notSet(options.majority)) {
         options.majority = options.phase === 'pre_agora'
             ? 'two_thirds'
-            : faker.helpers.arrayElement(['simple', 'absolute', 'two_thirds']);
+            : faker.helpers.arrayElement(options.kind === 'proposal' ? ['simple', 'two_thirds'] : ['simple', 'absolute', 'two_thirds']);
     }
     if (notSet(options.opens_at)) options.opens_at = moment().add(1, 'day').toDate();
     if (notSet(options.closes_at)) options.closes_at = moment(options.opens_at).add(1, 'hour').toDate();
@@ -284,6 +286,22 @@ exports.generateVoting = (options = {}, event = null) => {
 
 // An election: a voting of kind 'election' for a position, by default for 2 seats with the
 // threshold of a commission. There is no majority: the result is per candidate.
+// A proposal as its proposer submits it: a title, the names of the proposers, the part of the CIA it
+// changes and a link to its text. By default a part other than the Statutes or a working format.
+exports.generateProposal = (options = {}, event = null) => {
+    if (notSet(options.title)) options.title = faker.lorem.sentence();
+    if (notSet(options.proposers)) options.proposers = faker.person.fullName() + ' on behalf of AEGEE-' + faker.location.city();
+    if (notSet(options.cia_part)) options.cia_part = 'other';
+    if (notSet(options.text_url)) options.text_url = faker.internet.url();
+    if (notSet(options.created_by)) options.created_by = faker.number.int({ min: 100, max: 999 });
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
 exports.generateElection = (options = {}, event = null) => {
     if (notSet(options.seats)) options.seats = 2;
     if (notSet(options.election_rule)) options.election_rule = 'commission';
@@ -370,8 +388,26 @@ exports.createAgoraStartingIn = async (days, options = {}) => {
     return event.reload();
 };
 
-exports.createVoting = (options = {}, event = null) => {
-    return Voting.create(exports.generateVoting(options, event));
+// A proposal starts as submitted; with status 'on_agenda' or 'not_admitted' (and jc_reason), the JC then decides on it.
+exports.createProposal = async (options = {}, event = null) => {
+    const { status, jc_reason: jcReason, ...fields } = options;
+    const proposal = await Proposal.create(exports.generateProposal(fields, event));
+    if (status && status !== 'submitted') {
+        await proposal.update({ status, jc_reason: jcReason });
+    }
+    return proposal;
+};
+
+// By default a proposal or a rollcall. A proposal voting without a proposal_id gets a new proposal on the
+// agenda whose part of the CIA fits the majority and the phase of the voting.
+exports.createVoting = async (options = {}, event = null) => {
+    const fields = exports.generateVoting({ kind: faker.helpers.arrayElement(['proposal', 'rollcall']), ...options }, event);
+    if (fields.kind === 'proposal' && notSet(fields.proposal_id)) {
+        const statutes = fields.phase === 'pre_agora' ? fields.concerns_statutes === true : fields.majority === 'two_thirds';
+        const proposal = await exports.createProposal({ status: 'on_agenda', cia_part: statutes ? 'statutes' : 'other' }, { id: fields.event_id });
+        fields.proposal_id = proposal.id;
+    }
+    return Voting.create(fields);
 };
 
 // An election for a new position of the event, with approved candidates on the ballot in this order:
@@ -429,6 +465,9 @@ exports.closeVoting = async (voting) => {
 };
 
 exports.clearAll = async () => {
+    // Proposals and votings point to each other (votings.proposal_id, proposals.decided_by_voting_id),
+    // so they go together, in one TRUNCATE that also takes everything that points to a voting.
+    await Proposal.destroy({ truncate: true, cascade: true });
     await VotingDelegateVote.destroy({ where: {}, truncate: { cascade: true } });
     await VotingBodyAllotment.destroy({ where: {}, truncate: { cascade: true } });
     await Voting.destroy({ where: {}, truncate: { cascade: true } });

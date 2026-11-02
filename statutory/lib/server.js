@@ -21,6 +21,7 @@ const questions = require('./questions');
 const candidates = require('./candidates');
 const plenaries = require('./plenaries');
 const votings = require('./votings');
+const proposals = require('./proposals');
 const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
@@ -42,6 +43,7 @@ const QuestionLinesRouter = express.Router({ mergeParams: true });
 const QuestionsRouter = express.Router({ mergeParams: true });
 const VotingsRouter = express.Router({ mergeParams: true });
 const MyVoteRouter = express.Router({ mergeParams: true });
+const ProposalsRouter = express.Router({ mergeParams: true });
 
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
@@ -197,6 +199,13 @@ VotingsRouter.put('/:voting_id/amendment', votings.findVoting, votings.markAmend
 VotingsRouter.get('/:voting_id/progress', votings.findVoting, votings.getProgress);
 VotingsRouter.get('/:voting_id/result', votings.findVoting, votings.getResult);
 
+ProposalsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, proposals.checkIfAgora);
+ProposalsRouter.get('/', proposals.listProposals);
+ProposalsRouter.post('/', proposals.submitProposal);
+ProposalsRouter.get('/:proposal_id', proposals.findProposal, proposals.getProposal);
+ProposalsRouter.put('/:proposal_id', proposals.findProposal, proposals.editProposal);
+ProposalsRouter.put('/:proposal_id/status', proposals.findProposal, proposals.setProposalStatus);
+
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
@@ -207,6 +216,7 @@ server.use('/events/:event_id/applications/:application_id', SingleApplicationRo
 // Mounted before EventsRouter: its middlewares run for every path under /events/:event_id.
 server.use('/events/:event_id/votings/:voting_id/my-vote', MyVoteRouter);
 server.use('/events/:event_id/votings', VotingsRouter);
+server.use('/events/:event_id/proposals', ProposalsRouter);
 server.use('/events/:event_id', EventsRouter);
 server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
 server.use('/events/:event_id/plenaries', PlenariesRouter);

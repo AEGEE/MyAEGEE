@@ -37,11 +37,13 @@ describe('Votings management', () => {
     describe('creating', () => {
         test('should create a voting that opens and closes at the given times', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const proposal = await generator.createProposal({ status: 'on_agenda', cia_part: 'statutes' }, event);
             const opensAt = moment().add(1, 'day').startOf('minute');
             const closesAt = moment(opensAt).add(10, 'minutes');
 
             const res = await call('POST', '/events/' + event.id + '/votings', {
                 kind: 'proposal',
+                proposal_id: proposal.id,
                 title: 'Change of the Statutes',
                 description: 'Proposal to change article 1.',
                 majority: 'two_thirds',
@@ -56,6 +58,7 @@ describe('Votings management', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body.data.event_id).toEqual(event.id);
             expect(res.body.data.kind).toEqual('proposal');
+            expect(res.body.data.proposal_id).toEqual(proposal.id);
             expect(res.body.data.title).toEqual('Change of the Statutes');
             expect(res.body.data.majority).toEqual('two_thirds');
             expect(res.body.data.opens_at).toEqual(opensAt.toISOString());

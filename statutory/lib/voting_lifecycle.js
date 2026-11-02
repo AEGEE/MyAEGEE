@@ -1,6 +1,7 @@
 const core = require('./core');
 const elections = require('./elections');
 const logger = require('./logger');
+const proposals = require('./proposals');
 const rules = require('./voting_rules');
 const { sequelize } = require('./sequelize');
 const {
@@ -180,6 +181,15 @@ const openIfDue = async (votingId, antennaeTotal) => sequelize.transaction(async
         await elections.copyNamesToBallot(voting, transaction);
     }
 
+    // A voting on a proposal opens only while its proposal is on the agenda and not decided. If not (the
+    // proposer withdrew it), it stays scheduled and the JC sees why (proposal_problem). The check holds a
+    // share lock on the proposal until the opening is stored, so a withdrawal cannot come in between.
+    const proposalProblem = await proposals.proposalProblem(voting, transaction);
+    if (proposalProblem) {
+        logger.warn({ voting: voting.id, problem: proposalProblem }, 'Opening voting: the proposal cannot be voted on, not opening yet.');
+        return;
+    }
+
     await takeSnapshot(voting, transaction);
     await voting.update({ status: 'open', opened_at: new Date(), ...quorum }, { transaction });
     logger.info({ voting: voting.id }, 'Opened voting');
@@ -237,6 +247,10 @@ const closeIfDue = async (votingId) => sequelize.transaction(async (transaction)
         closed_at: closedAt,
         ...(voting.phase === 'pre_agora' ? closePreAgora(voting, result, progress, closedAt) : {})
     }, { transaction });
+    // A Pre-Agora voting is published at closing, so a decided item is decided now (Art. 20(4)).
+    if (voting.phase === 'pre_agora') {
+        await proposals.copyDecision(voting, transaction);
+    }
     logger.info({ voting: voting.id }, 'Closed voting');
 });
 

@@ -14,6 +14,7 @@ The JC (permission `global:manage_juridical:agora`) creates a voting with a fixe
 There is no manual opening or closing: the voting is `scheduled` until `opens_at`, `open` until `closes_at`, and then `closed`.
 A job per voting (`lib/cron.js`) moves it on time, and every request that reads a voting moves it too, so a missed job or a restart breaks nothing (`lib/voting_lifecycle.js`).
 This section describes a voting on the Agora; [Pre-Agora Voting](#pre-agora-voting) gives what is different for a voting before the Agora, and [Elections](#elections) what is different for an election.
+A voting of kind `proposal` points to a proposal on the agenda; [Proposals](#proposals) describes them.
 
 - At `opens_at` the voting takes a snapshot: one row per body in `voting_body_allotments` with the votes of the body (copied from `votes_per_antenna`), and one row per present delegate (confirmed, registered, not departed, not cancelled) in `voting_delegate_votes`.
 An open voting keeps its snapshot; changes to members lists or delegates count from the next voting.
@@ -105,6 +106,49 @@ The database enforces the ballot box, not only the application:
 - `ballot_is_fixed`, `candidate_of_position`, `options_only_for_elections`, `election_fields`, `election_has_no_result`: the ballot is fixed once the election opened, holds candidates of the position of the election only, and only an election has a position, seats and an election rule.
 
 `test/api/votings-elections-database-rules.test.js` writes to these tables directly and expects each refusal, and checks the shuffle; `test/api/votings-concurrency.test.js` also sends the ballots of one body at the same moment.
+
+## Proposals
+
+A proposal is an item on the agenda of an Agora: "The members and organs of AEGEE-Europe have the right to present proposals to the Agora" (Statutes, Art. 14(13)).
+MyAEGEE keeps the proposal as an agenda item, not its text: the text and the motivation stay in a document of the proposer, later the booklet, and the proposal has a link to it (`text_url`).
+
+- **Submitting**: every logged-in user can submit a proposal with `POST /events/:event_id/proposals` and the fields `title`, `proposers` (the names as they appear on the proposal, free text), `cia_part` and `text_url` (a web address).
+The user becomes its proposer (`created_by`), and the proposal starts as `submitted`.
+`cia_part` is the part of the CIA that the proposal changes, the strictest one if several: `statutes` (the Statutes or the Convention d'Adhesion), `working_format` or `other`.
+MyAEGEE checks no deadline: the JC decides on a proposal that came in late (Working Format of the Agora, Art. 21(3)).
+- **Changing**: while the proposal is `submitted`, the proposer and the JC can change these fields with `PUT .../proposals/:proposal_id`.
+- **On the agenda**: the JC (permission `global:manage_juridical:agora`) decides on the admissibility (Working Format of the Agora, Art. 8(2)) with `PUT .../proposals/:proposal_id/status`: `on_agenda`, or `not_admitted` with a reason in `jc_reason`.
+From then on the title, the proposers, the part of the CIA and the link are fixed.
+- **Withdrawing**: the proposer or the JC sets the status `withdrawn`, from `submitted` or `on_agenda`, but not while a voting on it is open and not after the Agora voted on it.
+- **Reading**: every logged-in user sees the proposals of the Agora with `GET .../proposals` and `GET .../proposals/:proposal_id`.
+
+A voting of kind `proposal` points to a proposal on the agenda of the same Agora (`proposal_id`).
+The part of the CIA gives its majority: `two_thirds` for `statutes` (Statutes, Art. 36), `simple` for the others (Working Format of the Agora, Art. 17(1)), and `two_thirds` before the Agora (Art. 20(3)).
+A Pre-Agora voting on a proposal on the Statutes has `concerns_statutes`, so it always goes to the Agora again (Art. 20(5)).
+When the JC creates or edits a voting on a proposal, the API fills in the majority, `concerns_statutes` and the title (of a new voting) from the proposal where the JC gives none.
+A voting from before proposals came to MyAEGEE (kind `proposal`, no `proposal_id`) works as before; a new voting of kind `proposal` needs a proposal.
+
+A voting on a proposal opens only while its proposal is on the agenda and not decided.
+If the proposer withdrew it, the voting stays scheduled, `GET .../votings/:voting_id` shows the JC why (`proposal_problem`), and the JC can delete it, also after `opens_at`.
+
+The decision of the Agora is stored on the proposal (`decision`, `decided_by_voting_id`, `decided_at`), as a checked copy of the voting that decided it:
+
+- when the JC publishes a voting on the Agora: its result, `accepted` or `rejected`;
+- when a Pre-Agora voting closes with outcome `decided`: `accepted`, because its result is binding (Art. 20(4)).
+If the JC then marks an amendment (`PUT .../votings/:voting_id/amendment`), the item goes to the Agora (Art. 20(5)) and the decision goes away; unmarking the amendment gives it back.
+
+The database enforces these rules, not only the application (`migrations/20261102120000-add-proposals.js`):
+
+- `proposal_starts_submitted`, `proposal_status_flow`: a proposal starts as `submitted`, and only goes from `submitted` to `on_agenda`, `not_admitted` or `withdrawn`, and from `on_agenda` to `withdrawn`; `not_admitted_needs_reason`: not admitted only with a reason.
+- `proposal_text_is_fixed`, `proposal_identity_is_fixed`, `text_url_is_link`: the fields of the proposer change only while it is submitted, its Agora and proposer account never, and the link is a web address.
+- `proposal_in_voting`: no withdrawal while a voting on it is open, or after the Agora voted on it.
+- `proposal_voting_has_proposal`, `voting_of_proposal_of_same_agora`, `proposal_only_for_proposals`, `voting_subject_is_fixed`: a new voting of kind `proposal` points to a proposal of the same Agora, only that kind does, and its proposal is fixed once it opened.
+- `proposal_not_on_agenda`, `proposal_already_decided`: a voting on a proposal is created and opens only while the proposal is on the agenda and not decided.
+The opening takes a share lock on the proposal, so a withdrawal at the same moment waits for it, or the other way round.
+- `majority_matches_proposal`, `statutes_flag_matches_proposal`: the majority and the Statutes flag follow from the part of the CIA.
+- `decision_has_voting`, `decided_by_voting_of_proposal`, `decision_matches_voting`, `decision_is_final`, `decision_when_on_agenda`: the decision comes with the voting of this proposal that decided it, equals what that voting decided (also checked at commit when the voting changes), never changes, goes away only when an amendment sends a Pre-Agora decision to the Agora, and exists only for a proposal on the agenda.
+
+`test/api/proposals-database-rules.test.js` writes to these tables directly and expects each refusal, and has the proposer withdraw while the voting opens, in 20 rounds.
 
 ## Contributing
 
