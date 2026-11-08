@@ -339,6 +339,7 @@ exports.getEventPermissions = (data) => {
     permissions.manage_juridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
     permissions.see_applications = permissions.manage_applications;
     permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
+    permissions.manage_votings = permissions.manage_juridical;
     permissions.see_applications_incoming = permissions.manage_applications || permissions.manage_incoming;
     permissions.see_applications_network = permissions.manage_applications || hasPermission(corePermissions, 'global:update_memberslist_status:' + event.type);
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;

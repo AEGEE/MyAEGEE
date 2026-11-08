@@ -13,10 +13,18 @@ const {
     Plenary,
     Attendance,
     QuestionLine,
-    Question
+    Question,
+    Voting,
+    VotingBodyAllotment,
+    VotingDelegateVote
 } = require('../../models');
+const votingLifecycle = require('../../lib/voting_lifecycle');
 
 const notSet = (field) => typeof field === 'undefined';
+
+// Candidates of one position need different user IDs (unique constraint on position_id and user_id),
+// so the default user ID comes from a counter instead of a random number that can collide.
+let lastCandidateUserId = 1000;
 
 const visaFields = [
     'visa_place_of_birth',
@@ -165,7 +173,7 @@ exports.generatePosition = (options = {}, event = null) => {
 
 // eslint-disable-next-line default-param-last
 exports.generateCandidate = (options = {}, position) => {
-    if (notSet(options.user_id)) options.user_id = faker.number.int({ min: 1, max: 100 });
+    if (notSet(options.user_id)) options.user_id = ++lastCandidateUserId;
     if (notSet(options.body_id)) options.body_id = faker.number.int({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
@@ -241,6 +249,22 @@ exports.generateAttendance = (options = {}, plenary = null) => {
     return options;
 };
 
+// By default a voting opens in a day and is open for an hour, so it stays scheduled during a test.
+exports.generateVoting = (options = {}, event = null) => {
+    if (notSet(options.kind)) options.kind = faker.helpers.arrayElement(['proposal', 'rollcall']);
+    if (notSet(options.title)) options.title = faker.lorem.sentence();
+    if (notSet(options.description)) options.description = faker.lorem.paragraph();
+    if (notSet(options.majority)) options.majority = faker.helpers.arrayElement(['simple', 'absolute', 'two_thirds']);
+    if (notSet(options.opens_at)) options.opens_at = moment().add(1, 'day').toDate();
+    if (notSet(options.closes_at)) options.closes_at = moment(options.opens_at).add(1, 'hour').toDate();
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -281,7 +305,57 @@ exports.createQuestion = (options = {}, questionLine = null) => {
     return Question.create(exports.generateQuestion(options, questionLine));
 };
 
+// A delegate who is present on the event, so who can vote in a voting that opens now.
+// The participant order is unique per body, so by default it is the user ID (also unique per event)
+// instead of a random number that can collide.
+exports.createPresentDelegate = (options = {}, event = null) => {
+    return exports.createApplication({
+        participant_type: 'delegate',
+        participant_order: options.user_id,
+        status: 'accepted',
+        confirmed: true,
+        registered: true,
+        departed: false,
+        cancelled: false,
+        ...options
+    }, event);
+};
+
+exports.createVoting = (options = {}, event = null) => {
+    return Voting.create(exports.generateVoting(options, event));
+};
+
+// A voting that opened a second ago and closes in an hour, with its snapshot taken.
+exports.createOpenVoting = async (options = {}, event = null) => {
+    const voting = await exports.createVoting({
+        opens_at: moment().subtract(1, 'second').toDate(),
+        closes_at: moment().add(1, 'hour').toDate(),
+        ...options
+    }, event);
+    return votingLifecycle.syncVoting(voting);
+};
+
+// Moves the time window of a voting into the past, as if closes_at has come.
+// The voting closes on the next request that reads it (or the next job).
+exports.endVotingTime = async (voting) => {
+    await Voting.sequelize.query(`
+        UPDATE votings
+        SET opens_at = LEAST(opens_at, now() - interval '2 seconds'), closes_at = now() - interval '1 second'
+        WHERE id = :id
+    `, { replacements: { id: voting.id } });
+    return voting.reload();
+};
+
+// Ends the time window of an open voting and closes it, so it has its result.
+exports.closeVoting = async (voting) => {
+    await exports.endVotingTime(voting);
+    return votingLifecycle.syncVoting(voting);
+};
+
 exports.clearAll = async () => {
+    await VotingDelegateVote.destroy({ where: {}, truncate: { cascade: true } });
+    await VotingBodyAllotment.destroy({ where: {}, truncate: { cascade: true } });
+    await Voting.destroy({ where: {}, truncate: { cascade: true } });
     await Question.destroy({ where: {}, truncate: { cascade: true } });
     await QuestionLine.destroy({ where: {}, truncate: { cascade: true } });
     await Attendance.destroy({ where: {}, truncate: { cascade: true } });

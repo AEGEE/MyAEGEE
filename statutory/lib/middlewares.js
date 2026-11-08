@@ -49,6 +49,31 @@ exports.authenticateUser = async (req, res, next) => {
     }
 };
 
+// A lighter variant of authenticateUser for routes that only need to know who the user is,
+// like the vote route: one call to core instead of two, and no permissions.
+exports.authenticateMember = async (req, res, next) => {
+    try {
+        const userRequest = await core.getMyProfile(req);
+
+        if (typeof userRequest.body !== 'object' || userRequest.body === null) {
+            throw new Error(`Malformed response when fetching user: ${userRequest.body}`);
+        }
+
+        if (userRequest.statusCode === 401) {
+            return errors.makeUnauthorizedError(res, 'Error fetching data: user is not authenticated.');
+        }
+
+        if (!userRequest.body.success) {
+            throw new Error(`Error fetching user: ${JSON.stringify(userRequest.body)}`);
+        }
+
+        req.user = userRequest.body.data;
+        return next();
+    } catch (err) {
+        return errors.makeInternalError(res, err);
+    }
+};
+
 exports.ensureAuthorized = async (req, res, next) => {
     // If any of the services returned HTTP 401, then we are not authorized.
     if (
@@ -63,17 +88,18 @@ exports.ensureAuthorized = async (req, res, next) => {
     return next();
 };
 
-exports.fetchEvent = async (req, res, next) => {
+// Builds the query to find an event by its ID, its URL, or one of the 'latest' aliases.
+exports.getEventQuery = (eventId) => {
     let query = {
         where: {
-            url: { [Sequelize.Op.iLike]: req.params.event_id },
+            url: { [Sequelize.Op.iLike]: eventId },
         }
     };
 
     // If event_id is not an integer, assuming it's the event URL.
     // If it's latest, fetch latest published.
     // If it's latest-agora, latest-epm or latest-spm, fetch latest Agora or EPM or SPM published.
-    if (req.params.event_id === 'latest-agora') {
+    if (eventId === 'latest-agora') {
         query = {
             where: {
                 type: 'agora',
@@ -81,7 +107,7 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (req.params.event_id === 'latest-epm') {
+    } else if (eventId === 'latest-epm') {
         query = {
             where: {
                 type: 'epm',
@@ -89,7 +115,7 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (req.params.event_id === 'latest-spm') {
+    } else if (eventId === 'latest-spm') {
         query = {
             where: {
                 type: 'spm',
@@ -97,19 +123,24 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (req.params.event_id === 'latest') {
+    } else if (eventId === 'latest') {
         query = {
             where: {
                 status: 'published'
             },
             order: [['starts', 'DESC']]
         };
-    } else if (!Number.isNaN(Number(req.params.event_id))) {
+    } else if (!Number.isNaN(Number(eventId))) {
         query = {
-            where: { id: Number(req.params.event_id) }
+            where: { id: Number(eventId) }
         };
     }
 
+    return query;
+};
+
+exports.fetchEvent = async (req, res, next) => {
+    const query = exports.getEventQuery(req.params.event_id);
     query.include = [Image];
     const event = await Event.findOne(query);
 
