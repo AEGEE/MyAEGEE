@@ -31,6 +31,8 @@ The core seed already models the production circles and their permissions (`core
 so the fixtures only add what the e2e tests need on top:
 
 - a second antenna with a member `organizer-b` who shares no body with NetCom.
+- a circle `E2E Summer University creators` that lets `member` create Summer Universities, so the
+  organizer rules can be tested without `manage_summeruniversity`. Production has no such circle.
 
 All seeded users use the password `5ecr3t5ecr3t`. The fixtures only run with `NODE_ENV=e2e` and expect a
 freshly seeded database, so always run them through `npm run setup`.
