@@ -4,6 +4,7 @@ const moment = require('moment');
 
 const { authenticate, close } = require('../lib/sequelize');
 const logger = require('../lib/logger');
+const { PERMISSIONS, CIRCLE_PERMISSIONS } = require('./seed-permissions');
 const {
     User,
     Body,
@@ -21,10 +22,6 @@ const seedStatePath = path.resolve(__dirname, '../state/.seed-executed-' + (proc
 
 const data = {};
 
-function uniquePermissions(permissionList) {
-    return [...new Map(permissionList.map((permission) => [permission.id, permission])).values()];
-}
-
 async function createAdmin() {
     return User.create({
         first_name: 'Admin',
@@ -37,7 +34,8 @@ async function createAdmin() {
         gender: 'machine',
         address: 'Somewhere in the cloud',
         superadmin: true,
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 }
 
@@ -102,7 +100,6 @@ async function createBodies() {
 
 async function createCircles() {
     const circles = {
-        board: [],
         members: [],
     };
 
@@ -134,14 +131,12 @@ async function createCircles() {
 
     circles.networkDirectorCircle = await Circle.create({
         name: 'Network Director',
-        description: 'Network Director circle',
-        parent_circle_id: circles.comiteDirecteurCircle.id
+        description: 'Network Director circle'
     });
 
     circles.financialDirectorCircle = await Circle.create({
         name: 'Financial Director',
-        description: 'Financial Director circle',
-        parent_circle_id: circles.comiteDirecteurCircle.id
+        description: 'Financial Director circle'
     });
 
     circles.suctCircle = await Circle.create({
@@ -153,13 +148,19 @@ async function createCircles() {
     circles.eqacCircle = await Circle.create({
         name: 'Events Quality Assurance Committee',
         description: 'Events Quality Assurance Committee circle',
+        parent_circle_id: circles.membersCircle.id
+    });
+
+    circles.chairsCircle = await Circle.create({
+        name: 'Chairs',
+        description: 'The Chair and Vice-Chair are elected by the Agora',
         parent_circle_id: circles.otherBoardCircle.id
     });
 
-    circles.chairCircle = await Circle.create({
-        name: 'Chair Team',
-        description: 'Chair Team circle',
-        parent_circle_id: circles.otherBoardCircle.id
+    circles.chairTeamMembersCircle = await Circle.create({
+        name: 'Chair Team members',
+        description: 'Chair Team members (including Job Shadowers and Assistants)',
+        parent_circle_id: circles.membersCircle.id
     });
 
     circles.jcCircle = await Circle.create({
@@ -175,34 +176,21 @@ async function createCircles() {
     });
 
     for (const body of data.bodies) {
-        if (['antenna', 'contact antenna', 'contact'].includes(body.type)) {
-            const boardCircle = await Circle.create({
+        // Only the antenna gets a board circle.
+        if (body.type === 'antenna') {
+            circles.antennaBoardCircle = await Circle.create({
                 name: `Board ${body.name}`,
                 description: `Board ${body.name}`,
                 parent_circle_id: circles.boardCircle.id,
                 body_id: body.id
             });
-
-            circles.board.push(boardCircle);
-
-            if (body.type === 'antenna') {
-                circles.antennaBoardCircle = boardCircle;
-            }
-        } else {
-            const otherBoardCircle = await Circle.create({
-                name: `Board ${body.name}`,
-                description: `Board ${body.name}`,
-                parent_circle_id: circles.boardCircle.id,
-                body_id: body.id
-            });
-
-            circles.board.push(otherBoardCircle);
         }
 
+        // Only members of antennas, contact antennas and contacts get the general members permissions.
         const membersCircle = await Circle.create({
             name: `Members ${body.name}`,
             description: `Members ${body.name}`,
-            parent_circle_id: circles.membersCircle.id,
+            parent_circle_id: ['antenna', 'contact antenna', 'contact'].includes(body.type) ? circles.membersCircle.id : null,
             body_id: body.id
         });
 
@@ -215,1139 +203,23 @@ async function createCircles() {
 }
 
 async function createPermissions() {
-    const permissions = {};
+    const permissions = await Permission.bulkCreate(PERMISSIONS, { individualHooks: true, validate: true });
+    const permissionsByKey = new Map(permissions.map(
+        (permission) => [`${permission.scope}:${permission.action}:${permission.object}`, permission]
+    ));
 
-    permissions.seeMemberslistsAgora = await Permission.create({
-        action: 'see_memberslists',
-        object: 'agora',
-        scope: 'global',
-        description: 'See all memberslists for Agora'
-    });
-    permissions.setMemberslistsFeePaidAgora = await Permission.create({
-        action: 'set_memberslists_fee_paid',
-        object: 'agora',
-        scope: 'global',
-        description: 'This permission is to allow setting paid membership fee before the Agora'
-    });
-    permissions.viewMembersCircle = await Permission.create({
-        action: 'view_members',
-        object: 'circle',
-        scope: 'global',
-        description: 'View members of any circle, even those you are not member of. Should only be given to very trusted people as this way big portions of the members database can be accessed directly'
-    });
-    permissions.approveEventNwm = await Permission.create({
-        action: 'approve_event',
-        object: 'nwm',
-        scope: 'global',
-        description: 'Approve and publish NWMs'
-    });
-    permissions.viewMember = await Permission.create({
-        action: 'view',
-        object: 'member',
-        scope: 'global',
-        description: 'View all members in the system. Assign this role to trusted persons only to avoid disclosure. For local scope, use view_members:body'
-    });
-    permissions.lookupMember = await Permission.create({
-        action: 'lookup',
-        object: 'member',
-        scope: 'global',
-        description: 'Lookup limited member identity and contact routing data, including notification email.'
-    });
-    permissions.addMemberCircle = await Permission.create({
-        action: 'add_member',
-        object: 'circle',
-        scope: 'global',
-        description: 'Add anyone to any circle in the system, no matter if the circle is joinable or not but still respecting that bound circles can only hold members of the same body. This also allows to add yourself to any circle and thus can be used for a privilege escalation'
-    });
-    permissions.manageAntennaCriteria = await Permission.create({
-        action: 'manage_network',
-        object: 'antenna_criteria',
-        scope: 'global',
-        description: 'Manage the Antenna Criteria fulfilment of Locals'
-    });
-    permissions.manageMemberslistAgora = await Permission.create({
-        action: 'manage_memberslist',
-        object: 'agora',
-        scope: 'global',
-        description: 'Upload, edit and view memberslists for Agora for all bodies.'
-    });
-    permissions.manageApplicationsAgora = await Permission.create({
-        action: 'manage_applications',
-        object: 'agora',
-        scope: 'global',
-        description: 'Manage Agora applications.'
-    });
+    for (const [circleKey, keys] of Object.entries(CIRCLE_PERMISSIONS)) {
+        for (const key of keys) {
+            const permission = permissionsByKey.get(key);
+            if (!permission) {
+                throw new Error(`Permission ${key} of ${circleKey} is not seeded`);
+            }
 
-    permissions.members = await Permission.bulkCreate([{
-        scope: 'global',
-        object: 'circle',
-        description: 'Allows to join circles which are joinable. Non-joinable circles can never be joined',
-        action: 'join'
-    }, {
-        scope: 'local',
-        object: 'body',
-        description: 'View the members in the body that you got that permission from',
-        action: 'view_members',
-    }, {
-        scope: 'local',
-        object: 'circle',
-        description: 'View members of any circle in the body that you got this permission from',
-        action: 'view_members'
-    }, {
-        scope: 'local',
-        object: 'member',
-        description: 'View information about all members in the body. This does not allow you to perform a members listing, you might however hold the list:body_memberships permission to perform a members listing of the members in the body',
-        action: 'view'
-    }, {
-        scope: 'global',
-        object: 'event',
-        description: 'Display links to \'Create event\' everywhere, so people who are not members of any body cannot see it.',
-        action: 'create'
-    }], { individualHooks: true, validate: true });
-
-    const otherBoardPermissions = await Permission.bulkCreate([
-        {
-            scope: 'local',
-            object: 'body',
-            action: 'delete_member',
-            description: 'Delete membership status from members in the body that you got this permission from.'
-        },
-        {
-            scope: 'local',
-            object: 'body',
-            action: 'update',
-            description: 'Update details of the body that you got the permission from. Might be good for boards, as long as name and legacy key are filtered.',
-            filters: [
-                'description',
-                'phone',
-                'address',
-                'email',
-                'task_description',
-                'postal_address',
-                'website'
-            ],
-        },
-        {
-            scope: 'local',
-            object: 'body',
-            action: 'update_member',
-            description: 'Change the data attached to a body membership in the body you got this permission from'
-        },
-        {
-            scope: 'local',
-            object: 'bound_circle',
-            action: 'create',
-            description: 'Creating bound circles to the body the permission was granted in'
-        },
-        {
-            scope: 'local',
-            object: 'circle',
-            action: 'add_member',
-            description: 'Add any member of the body you got this permission from to any bound circle in that body, no matter if the circle is joinable or not or if the member wants that or not. This also allows to add yourself to any circle so only give it to people who anyways have many rights in the body'
-        },
-        {
-            scope: 'local',
-            object: 'join_request',
-            action: 'process',
-            description: 'Process join requests in the body that you got the permission from'
-        },
-        {
-            scope: 'local',
-            object: 'join_request',
-            action: 'view',
-            description: 'View join request to the body you got this permission from'
-        },
-        {
-            scope: 'local',
-            object: 'circle',
-            action: 'delete_members',
-            description: 'Delete any member from any circle in the body that you got this permission from, even those that you are not in a circle_admin position in or even have member status. Should never be assigned as circle_admins automatically get this permission'
-        },
-        {
-            scope: 'local',
-            object: 'circle',
-            action: 'update_members',
-            description: 'Update membership details of members of any circle in the body that you got this permission from, even those that you are not in a circle_admin position in or even have member status. Should never be assigned as circle_admins automatically get this permission'
-        },
-        {
-            scope: 'local',
-            object: 'epm',
-            action: 'approve_members',
-            description: 'Set pax type/order and board comment for EPM applications.'
-        },
-        {
-            scope: 'local',
-            object: 'events',
-            action: 'approve_members',
-            description: 'Put board comments for member for general events (non-statutory and SUs). For board members.'
-        },
-        {
-            scope: 'local',
-            object: 'agora',
-            action: 'approve_members',
-            description: 'Set pax type/order and board comment for Agora applications.'
-        },
-        {
-            scope: 'local',
-            object: 'agora',
-            action: 'manage_memberslist',
-            description: 'Upload, edit and view memberslists for Agora for your local.'
-        },
-        {
-            scope: 'local',
-            object: 'epm',
-            action: 'manage_memberslist',
-            description: 'Upload, edit and view memberslists for EPM for your local.'
-        },
-        {
-            scope: 'join_request',
-            object: 'member',
-            action: 'view',
-            description: 'Allows you to see the member profile of people who are applying to the body you got this permission from.'
-        },
-        {
-            scope: 'local',
-            object: 'spm',
-            action: 'approve_members',
-            description: 'Set pax type/order and board comment for SPM applications.'
-        },
-        {
-            scope: 'local',
-            object: 'spm',
-            action: 'manage_memberslist',
-            description: 'Upload, edit and view memberslists for SPM for your local.'
-        },
-        {
-            action: 'search',
-            object: 'member',
-            scope: 'global',
-            description: 'Searching members to add them to a body'
-        },
-        {
-            action: 'add_member',
-            object: 'body',
-            scope: 'local',
-            description: 'For board members to add existing MyAEGEE users to their body'
-        },
-        {
-            action: 'create',
-            object: 'circle',
-            scope: 'local',
-            description: 'Creating circles to the body the permission was granted in. Instead of creating a bound_circle, this permission is used in the new core'
+            await CirclePermission.create({ circle_id: data.circles[circleKey].id, permission_id: permission.id });
         }
-    ], { individualHooks: true, validate: true });
-
-    const boardPermissions = await Permission.bulkCreate([
-        {
-            scope: 'local',
-            object: 'member',
-            action: 'create',
-            description: 'Creates a member to the local that this permission was granted in'
-        },
-        {
-            scope: 'local',
-            object: 'campaign',
-            action: 'view',
-            description: 'View recruitment campaigns attached to a body'
-        },
-        {
-            scope: 'local',
-            object: 'campaign',
-            action: 'create',
-            description: 'Create a bound campaign. You must hold this permission in the local that you want to bind this campaign to.'
-        },
-        {
-            scope: 'local',
-            object: 'campaign',
-            action: 'update',
-            description: 'Update a campaign in the body which you got this permission from.'
-        },
-        {
-            scope: 'local',
-            object: 'campaign',
-            action: 'delete',
-            description: 'Delete a recruitment campaign which is bound to the body that you got this permission from'
-        },
-        {
-            scope: 'local',
-            object: 'payment',
-            action: 'view',
-            description: 'View payments for the body you\'ve got this permission from.'
-        },
-        {
-            scope: 'local',
-            object: 'payment',
-            action: 'create',
-            description: 'Create payments in the body you\'ve got this permission from.'
-        },
-        {
-            scope: 'local',
-            object: 'su_module',
-            action: 'level2_access',
-            description: 'Gives you access to all board functions in the SU module'
-        },
-        {
-            action: 'update',
-            object: 'member',
-            scope: 'local',
-            description: 'Update any member in the body you got this permission from. Notice that member information is global and several bodies might have the permission to access the same member. Also don\'t assign it when not necessary, the member can update his own profile anyways.'
-        },
-        {
-            action: 'create_member',
-            object: 'body',
-            scope: 'local',
-            description: 'Creates a member to the local that this permission was granted in'
-        },
-        {
-            action: 'approve_members',
-            object: 'summeruniversity',
-            scope: 'local',
-            description: '-'
-        },
-        {
-            action: 'manage_network',
-            object: 'boards',
-            scope: 'local',
-            description: 'Manage boards of a local'
-        }
-    ], { individualHooks: true, validate: true });
-
-    permissions.board = [...otherBoardPermissions, ...boardPermissions];
-
-    const comiteDirecteurPermissions = await Permission.bulkCreate([
-        {
-            action: 'manage',
-            object: 'discounts',
-            scope: 'global',
-            description: 'Manage discounts integrations in the system'
-        },
-        {
-            action: 'approve_members',
-            object: 'epm',
-            scope: 'global',
-            description: 'Set pax type/order and board comment for EPM applications for all bodies.'
-        },
-        {
-            action: 'manage_memberslist',
-            object: 'epm',
-            scope: 'global',
-            description: 'Upload, edit and view memberslists for EPM for all bodies.'
-        },
-        {
-            action: 'manage_applications',
-            object: 'epm',
-            scope: 'global',
-            description: 'Manage applications for EPM. Should be useful for CD.'
-        },
-        {
-            action: 'manage_event',
-            object: 'epm',
-            scope: 'global',
-            description: 'Creating, updating and deleting EPMs. Should be assigned to CD and to Superadmins.'
-        },
-        {
-            action: 'manage_question_lines',
-            object: 'epm',
-            scope: 'global',
-            description: 'Manage question lines for EPM.'
-        },
-        {
-            action: 'see_applications',
-            object: 'epm',
-            scope: 'global',
-            description: 'See all applications for EPM'
-        },
-        {
-            action: 'see_memberslists',
-            object: 'epm',
-            scope: 'global',
-            description: 'See all memberslists for EPM>'
-        },
-        {
-            action: 'update_application_ban',
-            object: 'member',
-            scope: 'global',
-            description: 'Set or lift temporary bans from applying to events.'
-        },
-        {
-            action: 'use_massmailer',
-            object: 'epm',
-            scope: 'global',
-            description: 'Use massmailer for EPM'
-        },
-    ], { individualHooks: true, validate: true });
-
-    permissions.comiteDirecteur = [...comiteDirecteurPermissions, permissions.viewMembersCircle, permissions.approveEventNwm];
-
-    const netComPermissions = await Permission.bulkCreate([{
-        action: 'manage_event',
-        object: 'nwm',
-        scope: 'global',
-        description: 'Manage and delete NWMs'
-    },
-    {
-        action: 'process',
-        object: 'join_request',
-        scope: 'global',
-        description: 'Process join requests in any body of the system, even those that you are not affiliated with.'
-    },
-    {
-        action: 'view',
-        object: 'join_request',
-        scope: 'global',
-        description: 'View join requests to any body in the system. This could disclose a bigger portion of the members database and thus should be assigned carefully'
-    },
-    {
-        action: 'manage_network',
-        object: 'boards',
-        scope: 'global',
-        description: 'Manage boards of all locals'
-    },
-    {
-        action: 'manage_network',
-        object: 'communication',
-        scope: 'global',
-        description: 'Set the fulfilment of the `communication` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'netcom_assignment',
-        scope: 'global',
-        description: 'Set the assignment of NetCom to body'
-    },
-    {
-        action: 'manage_network',
-        object: 'fulfilment_email',
-        scope: 'global',
-        description: 'Send Antenna Criteria fulfilment email to Locals'
-    },
-    {
-        action: 'view',
-        object: 'board',
-        scope: 'global',
-        description: 'View boards of a body'
-    }
-    ], { individualHooks: true, validate: true });
-
-    permissions.netCom = [
-        ...netComPermissions,
-        permissions.viewMembersCircle,
-        permissions.addMemberCircle,
-        permissions.seeMemberslistsAgora,
-        permissions.manageAntennaCriteria
-    ];
-
-    const networkDirectorPermissions = await Permission.bulkCreate([{
-        action: 'view_deleted',
-        object: 'body',
-        scope: 'global',
-        description: 'View deleted bodies listing and their page.'
-    },
-    {
-        action: 'update_memberslist_status',
-        object: 'agora',
-        scope: 'global',
-        description: 'Update the is_on_memberslist status for applications for Agora. Should be assigned to Network Director.'
-    },
-    {
-        action: 'edit_memberslist_between_deadlines',
-        object: 'agora',
-        scope: 'global',
-        description: 'Edit memberslists between submission and edit deadlines for Agora.'
-    },
-    {
-        action: 'manage_network',
-        object: 'communication_exception',
-        scope: 'global',
-        description: 'Give exceptions to the `communication` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'board_election',
-        scope: 'global',
-        description: 'Set the fulfilment of the `board election` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'members_list',
-        scope: 'global',
-        description: 'Set the fulfilment of the `members list` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'events',
-        scope: 'global',
-        description: 'Set the fulfilment of the `events` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'agora_attendance',
-        scope: 'global',
-        description: 'Set the fulfilment of the `agora attendance` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'development_plan',
-        scope: 'global',
-        description: 'Set the fulfilment of the `development plan` Antenna Criterion'
-    },
-    {
-        action: 'manage_network',
-        object: 'fulfilment_report',
-        scope: 'global',
-        description: 'Set the fulfilment of the `fulfilment report` Antenna Criterion'
-    }], { individualHooks: true, validate: true });
-
-    permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.setMemberslistsFeePaidAgora, permissions.manageMemberslistAgora];
-
-    const financialDirectorPermissions = await Permission.bulkCreate([{
-        action: 'manage_network',
-        object: 'membership_fee',
-        scope: 'global',
-        description: 'Set the fulfilment of the `membership fee` Antenna Criterion'
-    }], { individualHooks: true, validate: true });
-
-    permissions.financialDirector = [...financialDirectorPermissions, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora, permissions.manageAntennaCriteria];
-
-    const suctPermissions = await Permission.bulkCreate([{
-        action: 'edit',
-        object: 'su_fee',
-        scope: 'global',
-        description: 'Allows SUCT to edit fees of a SU after the first submission'
-    },
-    {
-        action: 'edit',
-        object: 'su_type',
-        scope: 'global',
-        description: 'Allows SUCT to change SUs into a pilot SU'
-    },
-    {
-        action: 'manage_summeruniversity',
-        object: 'pilot',
-        scope: 'global',
-        description: 'Permission to manage pilot SUs by SUCT'
-    },
-    {
-        action: 'manage_summeruniversity',
-        object: 'regular',
-        scope: 'global',
-        description: 'Permission to manage regular SUs by SUCT'
-    },
-    {
-        action: 'approve_summeruniversity',
-        object: 'pilot',
-        scope: 'global',
-        description: 'Permission for approving pilot SUs by SUCT'
-    },
-    {
-        action: 'approve_summeruniversity',
-        object: 'regular',
-        scope: 'global',
-        description: 'Permission for approving regular SUs by SUCT'
-    },
-    {
-        action: 'create',
-        object: 'summeruniversity',
-        scope: 'global',
-        description: 'Allows members to create a Summer University event'
-    }], { individualHooks: true, validate: true });
-
-    permissions.suct = [...suctPermissions];
-
-    const eqacPermissions = await Permission.bulkCreate([{
-        action: 'approve_event',
-        object: 'conference',
-        scope: 'global',
-        description: 'Approve/publish conference events.'
-    },
-    {
-        action: 'manage_event',
-        object: 'conference',
-        scope: 'global',
-        description: 'Edit conference events.'
-    },
-    {
-        action: 'approve_event',
-        object: 'cultural',
-        scope: 'global',
-        description: 'Approve cultural events.'
-    },
-    {
-        action: 'manage_event',
-        object: 'cultural',
-        scope: 'global',
-        description: 'Edit cultural events.'
-    },
-    {
-        action: 'approve_event',
-        object: 'thematic',
-        scope: 'global',
-        description: 'Approve thematic events.'
-    },
-    {
-        action: 'manage_event',
-        object: 'thematic',
-        scope: 'global',
-        description: 'Edit thematic events.'
-    },
-    {
-        action: 'approve_event',
-        object: 'training',
-        scope: 'global',
-        description: 'Approve/publish training events.'
-    },
-    {
-        action: 'manage_event',
-        object: 'training',
-        scope: 'global',
-        description: 'Manage training events.'
-    },
-    {
-        action: 'manage_event',
-        object: 'ltc',
-        scope: 'global',
-        description: ' Manage and delete LTCs. '
-    }], { individualHooks: true, validate: true });
-
-    permissions.eqac = [...eqacPermissions, permissions.lookupMember, permissions.approveEventNwm];
-
-    const chairPermissions = await Permission.bulkCreate([{
-        action: 'mail',
-        object: 'member',
-        scope: 'global',
-        description: 'Access notification emails of all members'
-    },
-    {
-        action: 'delete_members',
-        object: 'circle',
-        scope: 'global',
-        description: 'Delete any member from any free circle, even those that you are not in a circle_admin position in or even have member status. Should never be assigned as circle_admins automatically get this permission'
-    },
-    {
-        action: 'use_massmailer',
-        object: 'agora',
-        scope: 'global',
-        description: 'Use massmailer for Agora.'
-    },
-    {
-        action: 'view',
-        object: 'circle',
-        scope: 'global',
-        description: 'List and view the details of any circle, excluding members data'
-    },
-    {
-        action: 'approve_members',
-        object: 'agora',
-        scope: 'global',
-        description: 'Set pax type/order and board comment for Agora applications for all bodies.'
-    }], { individualHooks: true, validate: true });
-
-    permissions.chair = [...chairPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.viewMember, permissions.manageMemberslistAgora, permissions.manageApplicationsAgora];
-
-    const jcPermissions = await Permission.bulkCreate([{
-        action: 'manage_juridical',
-        object: 'agora',
-        scope: 'global',
-        description: 'See JC list and change \'registered\' and \'departed\' attributes only.'
-    },
-    {
-        action: 'manage_candidates',
-        object: 'agora',
-        scope: 'global',
-        description: 'Manage positions and candidatures for Agora'
-    },
-    {
-        action: 'see_background_tasks',
-        object: 'statutory',
-        scope: 'global',
-        description: 'See background tasks for debugging/maintenance for statutory module.'
-    }], { individualHooks: true, validate: true });
-
-    permissions.jc = [...jcPermissions, permissions.seeMemberslistsAgora];
-
-    const adminPermissions = await Permission.bulkCreate([
-        {
-            action: 'access',
-            object: 'admin',
-            scope: 'global',
-            description: 'Seeing things regular users should not be able to see, for admins only.'
-        },
-        {
-            action: 'apply',
-            object: 'agora',
-            scope: 'global',
-            description: 'Apply to Agora/edit your application regardless if the deadline was passed or not.'
-        },
-        {
-            action: 'manage_event',
-            object: 'agora',
-            scope: 'global',
-            description: 'Creating, updating and deleting Agorae. Should be assigned to Chair and to Superadmins. '
-        },
-        {
-            action: 'manage_incoming',
-            object: 'agora',
-            scope: 'global',
-            description: 'Manage incoming info for Agora applications'
-        },
-        {
-            action: 'manage_plenaries',
-            object: 'agora',
-            scope: 'global',
-            description: 'Create, edit and see plenaries for Agora'
-        },
-        {
-            action: 'manage_question_lines',
-            object: 'agora',
-            scope: 'global',
-            description: 'Manage question lines and edit/delete questions for Agora'
-        },
-        {
-            action: 'administer',
-            object: 'alastair',
-            scope: 'global',
-            description: 'Have full access to all alastair functions, including editing ingredients, other peoples recipes, etc'
-        },
-        {
-            action: 'use',
-            object: 'alastair',
-            scope: 'global',
-            description: 'Being able to use alastair to do menu planning'
-        },
-        {
-            action: 'create',
-            object: 'body',
-            scope: 'global',
-            description: 'Create new bodies.'
-        },
-        {
-            action: 'delete',
-            object: 'body',
-            scope: 'global',
-            description: 'Delete a body.'
-        },
-        {
-            action: 'delete_member',
-            object: 'body',
-            scope: 'global',
-            description: 'Delete the membership status of any member in any body. Use the local permission for this if possible'
-        },
-        {
-            action: 'update',
-            object: 'body',
-            scope: 'global',
-            description: 'Update any body, even those that you are not member of. Try to use the local permission instead'
-        },
-        {
-            action: 'update_member',
-            object: 'body',
-            scope: 'global',
-            description: 'Change the data attached to a body membership in any body in the system'
-        },
-        {
-            action: 'add_member',
-            object: 'body',
-            scope: 'global',
-            description: 'Add member to any body'
-        },
-        {
-            action: 'view',
-            object: 'body',
-            scope: 'global',
-            description: 'View body details, excluding the members list'
-        },
-        {
-            action: 'view_members',
-            object: 'body',
-            scope: 'global',
-            description: 'View the members of any body in the system. Be careful with assigning this permission as it means basically disclosing the complete members list to persons holding it'
-        },
-        {
-            action: 'create',
-            object: 'bound_circle',
-            scope: 'global',
-            description: 'Creating bound circles in any body of the system, even those you are not member in'
-        },
-        {
-            action: 'put_parent',
-            object: 'bound_circle',
-            scope: 'local',
-            description: 'Assign a parent to a bound circle. This only allows to assign parents that are in the same body as the circle to migitate permission escalations where someone with this permission could assign his own circle to one with a lot of permissions'
-        },
-        {
-            action: 'create',
-            object: 'campaign',
-            scope: 'global',
-            description: 'Create recruitment campaigns through which users can sign into the system.'
-        },
-        {
-            action: 'delete',
-            object: 'campaign',
-            scope: 'global',
-            description: 'Delete a recruitment campaign'
-        },
-        {
-            action: 'update',
-            object: 'campaign',
-            scope: 'global',
-            description: 'Edit recruitment campaigns'
-        },
-        {
-            action: 'view',
-            object: 'campaign',
-            scope: 'global',
-            description: 'View all campaigns in the system, no matter if active or not.'
-        },
-        {
-            action: 'delete',
-            object: 'circle',
-            scope: 'global',
-            description: 'Delete any circle, even those that you are not in a circle_admin position in. Should only be assigned in case of an abandoned toplevel circle as circle_admins automatically get this permission'
-        },
-        {
-            action: 'join',
-            object: 'circle',
-            scope: 'local',
-            description: 'Allows you to join joinable circles in the body where you got the permission from'
-        },
-        {
-            action: 'put_child',
-            object: 'circle',
-            scope: 'global',
-            description: 'Add any orphan circle in the system as a child to any circle you are circle admin in.'
-        },
-        {
-            action: 'put_parent',
-            object: 'circle',
-            scope: 'global',
-            description: 'Assign a parent to any circle. This permission should be granted only to trustworthy persons as it is possible to assign an own circle as child to a parent circle with a lot of permissions'
-        },
-        {
-            action: 'put_permissions',
-            object: 'circle',
-            scope: 'global',
-            description: 'Assign permission to any circle. This is effectively superadmin permission, as a user holding this can assign all permissions in the system to a circle where he is member in'
-        },
-        {
-            action: 'update',
-            object: 'circle',
-            scope: 'global',
-            description: 'Update any circle, even those that you are not in a circle_admin position in. Should only be assigned in case of an abandoned toplevel circle as circle_admins automatically get this permission'
-        },
-        {
-            action: 'update_members',
-            object: 'circle',
-            scope: 'global',
-            description: 'Update membership details of members of any circle, even those that you are not in a circle_admin position in or even have member status. Should never be assigned as circle_admins automatically get this permission'
-        },
-        {
-            action: 'apply',
-            object: 'epm',
-            scope: 'global',
-            description: 'Apply to EPM regardless of the deadline.'
-        },
-        {
-            action: 'manage_incoming',
-            object: 'epm',
-            scope: 'global',
-            description: 'Manage attendance and paid fee statuses for EPM'
-        },
-        {
-            action: 'create',
-            object: 'free_circle',
-            scope: 'global',
-            description: 'Create free circles'
-        },
-        {
-            action: 'create',
-            object: 'join_request',
-            scope: 'global',
-            description: 'Allows users to request joining a body. Without these permissions the joining body process would be disabled'
-        },
-        {
-            action: 'create',
-            object: 'member',
-            scope: 'global',
-            description: 'Create members to any body of the system, even those you are not member or board in'
-        },
-        {
-            action: 'update',
-            object: 'member',
-            scope: 'global',
-            description: 'Update any member in the system. Don\'t assign this as any member can update his own profile anyways.'
-        },
-        {
-            action: 'view',
-            object: 'payment',
-            scope: 'global',
-            description: 'View payments for bodies globally.'
-        },
-        {
-            action: 'create',
-            object: 'permission',
-            scope: 'global',
-            description: 'Create new permission objects which haven\'t been in the system yet, usually only good for microservices'
-        },
-        {
-            action: 'delete',
-            object: 'permission',
-            scope: 'global',
-            description: 'Delete a permission, should generally happen very rarely as it could break the system'
-        },
-        {
-            action: 'update',
-            object: 'permission',
-            scope: 'global',
-            description: 'Change permissions, should generally happen very rarely as it could break the system'
-        },
-        {
-            action: 'view',
-            object: 'permission',
-            scope: 'global',
-            description: 'View permissions available in the system'
-        },
-        {
-            action: 'apply',
-            object: 'spm',
-            scope: 'global',
-            description: 'For those who missed the SPM deadline but still need to apply'
-        },
-        {
-            action: 'approve_members',
-            object: 'spm',
-            scope: 'global',
-            description: 'Set pax type/order and board comment for SPM applications for all bodies.'
-        },
-        {
-            action: 'manage_memberslist',
-            object: 'spm',
-            scope: 'global',
-            description: 'Upload, edit and view memberslists for SPM for all bodies.'
-        },
-        {
-            action: 'manage_applications',
-            object: 'spm',
-            scope: 'global',
-            description: 'See, accept/reject and modify in any way SPM applications.'
-        },
-        {
-            action: 'manage_event',
-            object: 'spm',
-            scope: 'global',
-            description: 'Create, edit and publish Statutory Planning Meeting events.'
-        },
-        {
-            action: 'use_massmailer',
-            object: 'spm',
-            scope: 'global',
-            description: 'Use massmailer for SPM events'
-        },
-        {
-            action: 'level2_access',
-            object: 'su_module',
-            scope: 'global',
-            description: 'Gives you board functions in the SU module for any body'
-        },
-        {
-            action: 'level3_access',
-            object: 'su_module',
-            scope: 'global',
-            description: 'Gives you admin access in the SU module'
-        },
-        {
-            action: 'delete',
-            object: 'user',
-            scope: 'global',
-            description: 'Remove an account from the system. Don\'t assign this as any member can delete his own account anyways.'
-        },
-        {
-            action: 'delete',
-            object: 'user',
-            scope: 'local',
-            description: 'Delete any member in your body from the system. This allows to also delete members that are in other bodies and have a quarrel in that one body with the board admin, so be careful in granting this permission. The member can delete his own profile anyways'
-        },
-        {
-            action: 'update_active',
-            object: 'member',
-            scope: 'global',
-            description: 'Allows to suspend or activate any user in the system'
-        },
-        {
-            action: 'update_active',
-            object: 'member',
-            scope: 'local',
-            description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
-        },
-        {
-            action: 'list_unconfirmed',
-            object: 'member',
-            scope: 'global',
-            description: 'Allows to list unconfirmed users'
-        },
-        {
-            action: 'confirm',
-            object: 'member',
-            scope: 'global',
-            description: 'Allows to confirm unconfirmed users manually'
-        },
-        {
-            action: 'update_superadmin',
-            object: 'member',
-            scope: 'global',
-            description: 'Allows to add or remove superadmin powers to any user in the system'
-        },
-        {
-            action: 'apply',
-            object: 'summeruniversity',
-            scope: 'global',
-            description: 'This permissions allows members to apply for Summer Universities within the application period'
-        },
-        {
-            action: 'approve_event',
-            object: 'summeruniversity',
-            scope: 'global',
-            description: 'Approve/publish Summer Universities.'
-        },
-        {
-            action: 'approve_members',
-            object: 'summeruniversity',
-            scope: 'global',
-            description: 'Approve members for a local/manage memberslists for SUs'
-        },
-        {
-            action: 'create_member',
-            object: 'body',
-            scope: 'global',
-            description: 'Creates a member to a body that this permission was granted in'
-        },
-        {
-            action: 'create',
-            object: 'circle',
-            scope: 'global',
-            description: 'Creating new free circles'
-        },
-        {
-            action: 'create',
-            object: 'payment',
-            scope: 'global',
-            description: 'Create payments globally'
-        },
-        {
-            action: 'delete',
-            object: 'member',
-            scope: 'global',
-            description: 'Remove an account from the system. Don\'t assign this as any member can delete his own account anyways.'
-        },
-        {
-            action: 'delete',
-            object: 'payment',
-            scope: 'global',
-            description: 'Adds ability to delete payments'
-        },
-        {
-            action: 'manage_incoming',
-            object: 'spm',
-            scope: 'global',
-            description: 'for managing incoming on SPM'
-        },
-        {
-            action: 'see_question_lines',
-            object: 'agora',
-            scope: 'global',
-            description: 'This permission allows people to see the question lines of Agorae.'
-        },
-        {
-            action: 'update_active',
-            object: 'user',
-            scope: 'global',
-            description: 'Allows to suspend or activate any user in the system'
-        },
-        {
-            action: 'update',
-            object: 'payment',
-            scope: 'global',
-            description: 'Allows updating of payments'
-        },
-        {
-            action: 'view_unconfirmed',
-            object: 'member',
-            scope: 'global',
-            description: 'View unconfirmed members'
-        },
-        {
-            action: 'approve_event',
-            object: 'summeruniversity',
-            scope: 'local',
-            description: '-'
-        },
-        {
-            action: 'update_active',
-            object: 'user',
-            scope: 'local',
-            description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
-        }], { individualHooks: true, validate: true });
-
-    permissions.admin = uniquePermissions([
-        ...permissions.board,
-        ...adminPermissions,
-        ...permissions.comiteDirecteur,
-        ...permissions.networkDirector,
-        ...permissions.financialDirector,
-        ...permissions.suct,
-        ...permissions.eqac,
-        ...permissions.chair,
-        ...permissions.jc
-    ]);
-
-    for (const permission of permissions.members) {
-        await CirclePermission.create({ circle_id: data.circles.membersCircle.id, permission_id: permission.id });
     }
 
-    for (const permission of otherBoardPermissions) {
-        await CirclePermission.create({ circle_id: data.circles.otherBoardCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.board) {
-        await CirclePermission.create({ circle_id: data.circles.boardCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.admin) {
-        await CirclePermission.create({ circle_id: data.circles.adminCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.comiteDirecteur) {
-        await CirclePermission.create({ circle_id: data.circles.comiteDirecteurCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.netCom) {
-        await CirclePermission.create({ circle_id: data.circles.netcomCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.networkDirector) {
-        await CirclePermission.create({ circle_id: data.circles.networkDirectorCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.financialDirector) {
-        await CirclePermission.create({ circle_id: data.circles.financialDirectorCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.suct) {
-        await CirclePermission.create({ circle_id: data.circles.suctCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.eqac) {
-        await CirclePermission.create({ circle_id: data.circles.eqacCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.chair) {
-        await CirclePermission.create({ circle_id: data.circles.chairCircle.id, permission_id: permission.id });
-    }
-
-    for (const permission of permissions.jc) {
-        await CirclePermission.create({ circle_id: data.circles.jcCircle.id, permission_id: permission.id });
-    }
-
-    return permissions;
+    return permissionsByKey;
 }
 
 async function createMembers() {
@@ -1364,7 +236,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'neutral',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     await BodyMembership.create({
@@ -1382,7 +255,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'helicopter',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     await BodyMembership.create({
@@ -1405,7 +279,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'apache',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     const notConfirmedMember = await User.create({
@@ -1418,7 +293,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'techno',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: null
+        mail_confirmed_at: null,
+        privacy_consent: new Date()
     });
 
     await MailConfirmation.create({
@@ -1437,7 +313,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'earth',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     await PasswordReset.create({
@@ -1457,6 +334,7 @@ async function createMembers() {
         gender: 'earth',
         address: 'Somewhere in Europe',
         mail_confirmed_at: new Date(),
+        privacy_consent: new Date(),
         active: false
     });
 
@@ -1470,7 +348,8 @@ async function createMembers() {
         date_of_birth: '1970-01-01',
         gender: 'neutral',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     await BodyMembership.create({
@@ -1492,13 +371,14 @@ async function createMembers() {
         first_name: 'Network',
         last_name: 'Director',
         username: 'nd',
-        email: 'nd@example.com',
+        email: 'network@example.com',
         password: '5ecr3t5ecr3t',
         about_me: 'The ND of CD',
         date_of_birth: '1970-01-01',
         gender: 'neutral',
         address: 'Somewhere in Europe',
-        mail_confirmed_at: new Date()
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
     });
 
     await BodyMembership.create({
@@ -1511,6 +391,179 @@ async function createMembers() {
         user_id: ndMember.id
     });
 
+    await CircleMembership.create({
+        circle_id: data.circles.comiteDirecteurCircle.id,
+        user_id: ndMember.id
+    });
+
+    const fdMember = await User.create({
+        first_name: 'Financial',
+        last_name: 'Director',
+        username: 'fd',
+        email: 'treasurer@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'The FD of CD',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: fdMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.financialDirectorCircle.id,
+        user_id: fdMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.comiteDirecteurCircle.id,
+        user_id: fdMember.id
+    });
+
+    const suctMember = await User.create({
+        first_name: 'SUCT',
+        last_name: 'Member',
+        username: 'suct',
+        email: 'suct@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'Coordinating Summer Universities',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: suctMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.suctCircle.id,
+        user_id: suctMember.id
+    });
+
+    const eqacMember = await User.create({
+        first_name: 'EQAC',
+        last_name: 'Member',
+        username: 'eqac',
+        email: 'eqac@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'Assuring the quality of events',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: eqacMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.eqacCircle.id,
+        user_id: eqacMember.id
+    });
+
+    const chairMember = await User.create({
+        first_name: 'Chair',
+        last_name: 'Member',
+        username: 'chair',
+        email: 'chair@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'Chairing the Agora',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: chairMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.chairsCircle.id,
+        user_id: chairMember.id
+    });
+
+    const chairJobShadowerMember = await User.create({
+        first_name: 'Chair Job Shadower',
+        last_name: 'Member',
+        username: 'chair-jobshadower',
+        email: 'chair-jobshadower@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'Job shadowing the Chair Team',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: chairJobShadowerMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.chairTeamMembersCircle.id,
+        user_id: chairJobShadowerMember.id
+    });
+
+    const juridicalMember = await User.create({
+        first_name: 'Juridical',
+        last_name: 'Member',
+        username: 'juridical',
+        email: 'juridical@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'Member of the Juridical Commission',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        privacy_consent: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: juridicalMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.jcCircle.id,
+        user_id: juridicalMember.id
+    });
+
+    // The only seeded user without privacy consent, to test the consent form.
+    const noConsentMember = await User.create({
+        first_name: 'No Consent',
+        last_name: 'Member',
+        username: 'no-consent',
+        email: 'no-consent@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'I have not agreed to the privacy policy yet',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: noConsentMember.id
+    });
+
     return {
         member,
         boardMember,
@@ -1519,7 +572,14 @@ async function createMembers() {
         passwordResetMember,
         suspendedMember,
         netcomMember,
-        ndMember
+        ndMember,
+        fdMember,
+        suctMember,
+        eqacMember,
+        chairMember,
+        chairJobShadowerMember,
+        juridicalMember,
+        noConsentMember
     };
 }
 

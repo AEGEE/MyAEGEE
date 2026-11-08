@@ -51,6 +51,15 @@ All users have `5ecr3t5ecr3t` as password.
 - `not-confirmed@example.com` - member who is not confirmed
 - `password-reset@example.com` - member who requested a password reset
 - `suspended@example.com` - a suspended member
+- `netcom@example.com` - member of antenna and the Network Commission body, and of the Network Commission circle
+- `network@example.com` - member of antenna and of the Network Director and Comite Directeur circles
+- `treasurer@example.com` - member of antenna and of the Financial Director and Comite Directeur circles
+- `suct@example.com` - member of antenna and of the Summer University Coordination Team circle
+- `eqac@example.com` - member of antenna and of the Events Quality Assurance Committee circle
+- `chair@example.com` - member of antenna and of the Chairs circle
+- `chair-jobshadower@example.com` - member of antenna and of the Chair Team members circle
+- `juridical@example.com` - member of antenna and of the Juridical Commission circle
+- `no-consent@example.com` - member of antenna who hasn't agreed to the privacy policy (all other users have)
 
 You can use `5ecr3t` for a password reset token (for a member with email `password-reset@example.com`) and `5ecr3t` for a mail confirmation (for a member with email `not-confirmed@example.com`).
 
