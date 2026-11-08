@@ -2107,7 +2107,7 @@ jobs:
           app-dir: ~/project
           override-ci-command: npm ci --legacy-peer-deps
       - run:
-          name: Lint e2e tests
+          name: Lint and type-check e2e tests
           working_directory: ~/project/e2e
           command: npm run lint
       - run:

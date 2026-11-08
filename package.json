@@ -41,7 +41,7 @@
   },
   "scripts": {
     "prepare": "husky || true",
-    "postinstall": "echo '\u2713 Workspace setup complete - all 10 modules ready'",
+    "postinstall": "echo '✓ Workspace setup complete - all 10 modules ready'",
     "test": "echo 'Run tests in individual modules'",
     "lint": "echo 'Run linters in individual modules'"
   }

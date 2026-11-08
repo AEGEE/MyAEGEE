@@ -1,26 +1,27 @@
-const path = require('path');
-const { defineConfig, devices } = require('@playwright/test');
+import path from 'node:path';
 
-const { url } = require('./support/constants');
+import { defineConfig, devices } from '@playwright/test';
 
-const root = path.resolve(__dirname, '..');
+import { url, type Service } from './support/constants.ts';
+
+const root = path.resolve(import.meta.dirname, '..');
 const serviceEnv = {
     NODE_ENV: 'e2e',
     LOGLEVEL: process.env.LOGLEVEL || 'warn'
 };
 
-const service = (name) => ({
+const service = (name: Service) => ({
     command: 'node lib/run.js',
     cwd: path.join(root, name),
     env: serviceEnv,
     url: `${url(name)}/healthcheck`,
     reuseExistingServer: !process.env.CI,
-    stdout: 'pipe',
-    stderr: 'pipe',
+    stdout: 'pipe' as const,
+    stderr: 'pipe' as const,
     timeout: 60 * 1000
 });
 
-module.exports = defineConfig({
+export default defineConfig({
     testDir: './tests',
     // Tests share one database, so run them one at a time.
     workers: 1,
@@ -41,7 +42,7 @@ module.exports = defineConfig({
     ],
     webServer: [
         {
-            command: 'node support/fake-mailer.js',
+            command: 'node support/fake-mailer.ts',
             url: `${url('mailer')}/healthcheck`,
             reuseExistingServer: !process.env.CI
         },
@@ -49,7 +50,7 @@ module.exports = defineConfig({
         service('events'),
         service('summeruniversity'),
         {
-            command: 'node support/gateway.js',
+            command: 'node support/gateway.ts',
             url: url('gateway'),
             reuseExistingServer: !process.env.CI
         }

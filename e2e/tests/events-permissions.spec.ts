@@ -1,4 +1,4 @@
-const { test, expect, expectStatus, knownBug, loginInBrowser } = require('../support/api');
+import { test, expect, expectStatus, knownBug, loginInBrowser, type Application, type Envelope } from '../support/api.ts';
 
 test.describe('events permissions', () => {
     test('creating an event requires create:event', async ({ api }) => {
@@ -20,7 +20,7 @@ test.describe('events permissions', () => {
             await api.apply('member', event.id);
         }
 
-        const res = await api.call('netcom', 'GET', `/api/events/applications/future/${member.id}`);
+        const res = await api.call<Envelope<Application[]>>('netcom', 'GET', `/api/events/applications/future/${member.id}`);
         expect(res.status).toBe(200);
         expect(res.body.data.length).toBeGreaterThan(0);
         for (const application of res.body.data) {
@@ -41,7 +41,7 @@ test.describe('events permissions', () => {
         });
         expectStatus(edit, 200);
 
-        const res = await api.call('admin', 'GET', `/api/events/single/${event.id}/applications/${application.id}`);
+        const res = await api.call<Envelope<Application>>('admin', 'GET', `/api/events/single/${event.id}/applications/${application.id}`);
         expect(res.body.data.user_id, 'applicant user_id').toBe(member.id);
         expect(res.body.data.first_name).toBe(member.first_name);
     });
@@ -57,7 +57,7 @@ test.describe('events permissions', () => {
     });
 
     test('the event status is hidden from people who cannot approve the event', async ({ api, page }) => {
-        knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy', /toHaveCount/);
+        knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy', /toHaveCount[\s\S]*Expected: 0[\s\S]*Received: 1/);
 
         const event = await api.createEvent('admin', { type: 'training' });
         await api.publishAsAdmin(event.id);

@@ -1,19 +1,18 @@
 // Prepares the e2e environment: recreates the databases, seeds core, applies
 // the e2e fixtures and builds the frontend into e2e/.frontend-dist.
-// Usage: node scripts/prepare.js [--skip-frontend]
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+// Usage: node scripts/prepare.ts [--skip-frontend]
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const root = path.resolve(__dirname, '../..');
-const env = {
+const root = path.resolve(import.meta.dirname, '../..');
+const env: NodeJS.ProcessEnv = {
     ...process.env,
     NODE_ENV: 'e2e',
     LOGLEVEL: process.env.LOGLEVEL || 'warn'
 };
 
-const run = (command, cwd, { ignoreErrors = false } = {}) => {
-    // eslint-disable-next-line no-console
+const run = (command: string, cwd: string, { ignoreErrors = false } = {}): void => {
     console.log(`[e2e prepare] ${path.relative(root, cwd) || '.'}$ ${command}`);
     try {
         execSync(command, { cwd, env, stdio: 'inherit' });
@@ -31,7 +30,7 @@ for (const service of ['core', 'events', 'summeruniversity']) {
 
 fs.rmSync(path.join(root, 'core/state/.seed-executed-e2e'), { force: true });
 run('node --experimental-repl-await scripts/seed.js', path.join(root, 'core'));
-run('node scripts/core-fixtures.js', path.join(root, 'e2e'));
+run('node scripts/core-fixtures.ts', path.join(root, 'e2e'));
 
 if (!process.argv.includes('--skip-frontend')) {
     // vue-cli keeps an existing NODE_ENV, so set it explicitly to get the production build.
