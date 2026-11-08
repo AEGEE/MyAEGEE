@@ -1,7 +1,7 @@
 // What Network Commission members can do with NWMs, using the production
 // NetCom permissions. NetCom (seed user `netcom`) is a member of the seeded
 // antenna and the Network Commission body; `organizer-b` is only in the second antenna.
-const { test, expect, expectStatus, knownBug, recipients } = require('../support/api');
+import { test, expect, expectStatus, knownBug, recipients } from '../support/api.ts';
 
 const SUBMITTED_SUBJECT = 'A new event was submitted.';
 
@@ -71,7 +71,7 @@ test.describe('NetCom and NWMs', () => {
 
         const mail = (await api.mails()).find((m) => m.subject === SUBMITTED_SUBJECT);
         expect(mail).toBeTruthy();
-        expect(recipients(mail)).toEqual(expect.arrayContaining(['events-approval@aegee.eu', 'netcom@aegee.eu']));
+        expect(recipients(mail!)).toEqual(expect.arrayContaining(['events-approval@aegee.eu', 'netcom@aegee.eu']));
     });
 
     test('submitting another event type only notifies events approval', async ({ api }) => {
@@ -81,6 +81,6 @@ test.describe('NetCom and NWMs', () => {
 
         const mail = (await api.mails()).find((m) => m.subject === SUBMITTED_SUBJECT);
         expect(mail).toBeTruthy();
-        expect(recipients(mail)).toEqual(['events-approval@aegee.eu']);
+        expect(recipients(mail!)).toEqual(['events-approval@aegee.eu']);
     });
 });

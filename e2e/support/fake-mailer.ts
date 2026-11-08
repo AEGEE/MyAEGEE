@@ -2,13 +2,13 @@
 // send, stores it in memory and exposes it to tests:
 //   GET    /__mails  -> list of received mails
 //   DELETE /__mails  -> clear the list
-const http = require('http');
+import http from 'node:http';
 
-const { PORTS } = require('./constants');
+import { PORTS } from './constants.ts';
 
-let mails = [];
+let mails: Record<string, unknown>[] = [];
 
-const send = (res, status, body) => {
+const send = (res: http.ServerResponse, status: number, body: unknown): void => {
     res.writeHead(status, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(body));
 };

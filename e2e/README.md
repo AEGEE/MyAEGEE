@@ -12,9 +12,9 @@ No Docker images or traefik are involved:
 - One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`).
 - `core`, `events` and `summeruniversity` run as plain Node processes with `NODE_ENV=e2e`
   (see the `e2e` block in each service's `config/index.js`).
-- `support/fake-mailer.js` replaces the mailer and records every mail, so tests can check recipients.
-- `support/gateway.js` serves the frontend build and proxies `/api/<service>/` to the services.
-- Playwright starts all of these itself (`webServer` in `playwright.config.js`).
+- `support/fake-mailer.ts` replaces the mailer and records every mail, so tests can check recipients.
+- `support/gateway.ts` serves the frontend build and proxies `/api/<service>/` to the services.
+- Playwright starts all of these itself (`webServer` in `playwright.config.ts`).
 
 | Process | Port |
 |---|---|
@@ -26,20 +26,18 @@ No Docker images or traefik are involved:
 
 ## Data
 
-`npm run setup` recreates the databases, runs the core seed and then `scripts/core-fixtures.js`, which:
+`npm run setup` recreates the databases, runs the core seed and then `scripts/core-fixtures.ts`.
+The core seed already models the production circles and their permissions (`core/scripts/seed-permissions.js`),
+so the fixtures only add what the e2e tests need on top:
 
-- gives all seeded users privacy consent;
-- sets the permissions of the `Network Commission` and `General members circle` circles to
-  exactly what production has (`PROD_CIRCLE_PERMISSIONS` in `support/constants.js`), detaching
-  them from the parent circles the seed puts them in;
-- adds a second antenna with a member `organizer-b` who shares no body with NetCom.
+- a second antenna with a member `organizer-b` who shares no body with NetCom.
 
 All seeded users use the password `5ecr3t5ecr3t`. The fixtures only run with `NODE_ENV=e2e` and expect a
 freshly seeded database, so always run them through `npm run setup`.
 
 ## Running locally
 
-You need Node 22 and a Postgres the services can reach (user `postgres`, password `5ecr3t`).
+You need Node 22.18 or newer (it runs the TypeScript scripts directly) and a Postgres the services can reach (user `postgres`, password `5ecr3t`).
 For example, a throwaway container:
 
 ```sh
@@ -60,13 +58,23 @@ DB_PORT=55432 npm test             # or: npm run test:ui
 Run `npm run setup:no-frontend` to skip the frontend build when only the backend changed.
 Tests create their own events with unique names, so you can rerun them without running setup again.
 
+## TypeScript
+
+The workspace is written in TypeScript and isn't compiled: Playwright runs the tests and the config,
+and Node runs the scripts and support servers with its built-in type stripping. That's why the code
+only uses syntax that can be erased (no enums, namespaces or parameter properties) and imports
+local files with their `.ts` extension. `npm run lint` runs eslint and `tsc --noEmit` for type checking.
+
+Core's models and seed data are CommonJS without types; `support/core.ts` loads them.
+
 ## Known bugs
 
 Tests that document a bug that isn't fixed yet call `knownBug('reason', /expected error/)`, which marks
-them as expected to fail. The regex has to match the failure: if the test fails for another reason
-(for example because its setup broke), it is reported as a real failure. When the fix lands, Playwright
-reports the test as unexpectedly passing: remove the `knownBug` line in the same PR. Run
-`E2E_SHOW_KNOWN_BUGS=1 npm test` to run them as normal tests and see how they fail.
+them as expected to fail. Every error of the test has to match the regex: if the test fails for another
+reason (for example because its setup broke), it is reported as a real failure, with a `known-bug-mismatch`
+annotation in the HTML report. When the fix lands, Playwright reports the test as unexpectedly passing:
+remove the `knownBug` line in the same PR. Run `E2E_SHOW_KNOWN_BUGS=1 npm test` to run them as normal
+tests and see how they fail.
 
 ## CI
 
