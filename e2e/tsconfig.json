@@ -1,0 +1,21 @@
+{
+  // Type checking only: Playwright and Node (type stripping) run the .ts files directly,
+  // so only syntax that can be erased is allowed (no enums, namespaces, parameter properties).
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023", "dom"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", ".frontend-dist", "playwright-report", "test-results"]
+}
