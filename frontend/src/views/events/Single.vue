@@ -221,7 +221,7 @@
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
                 </tr>
-                <tr v-if="can.approve_event">
+                <tr v-if="can.approve_event[event.type]">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
                 </tr>
@@ -384,7 +384,7 @@ export default {
       isLoading: false,
       can: {
         edit_event: false,
-        approve_event: true,
+        approve_event: {},
         view_applications: false,
         apply: false,
         change_status: {

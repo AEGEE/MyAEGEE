@@ -31,4 +31,12 @@ export const SECOND_ANTENNA = {
     code: 'EES'
 } as const;
 
+// Not part of the production config: lets regular members create a Summer University,
+// so tests can check the organizer rules without manage_summeruniversity.
+export const SU_CREATORS_CIRCLE = {
+    name: 'E2E Summer University creators',
+    permissions: ['global:create:summeruniversity'],
+    members: [USERS.member]
+} as const;
+
 export const url = (service: Service): string => `http://127.0.0.1:${PORTS[service]}`;

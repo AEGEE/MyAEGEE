@@ -100,6 +100,17 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
+    // A custom list of permissions, e.g. { combined: ['global:create:event'] }
+    if (Array.isArray(options.combined)) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .reply(200, {
+                success: true,
+                data: options.combined.map((combined) => ({ combined }))
+            });
+    }
+
     if (options.applicationBanPermission) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
@@ -178,6 +189,22 @@ exports.mockCoreMember = (options) => {
             .persist()
             .get(/\/members\/[0-9].*/)
             .reply(500, { success: false, message: 'Some error' });
+    }
+
+    // Members with the requested id and their own name, who are only members of `options.bodies`.
+    // Only answers requests made with the service account token from mockCoreLogin.
+    if (Array.isArray(options.bodies)) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .matchHeader('x-auth-token', '1')
+            .get(/\/members\/[0-9].*/)
+            .reply((uri) => {
+                const id = Number(uri.split('/')[2]);
+                return [200, {
+                    success: true,
+                    data: { ...regularUser, id, first_name: 'Member' + id, last_name: 'Mocked', bodies: options.bodies }
+                }];
+            });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)

@@ -1156,4 +1156,228 @@ describe('Events creation', () => {
             expect(1).toEqual(1);
         }
     });
+
+    it('should return 403 if the user does not have create:event', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 422 if an organizer is not a member of an organizing body', async () => {
+        mock.mockAll({
+            mainPermissions: { combined: ['global:create:event'] },
+            member: { bodies: [{ id: 999, name: 'Other body' }] }
+        });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('organizers');
+    });
+
+    it('should allow event managers to add organizers from other bodies', async () => {
+        mock.mockAll({
+            mainPermissions: { combined: ['global:create:event', 'global:manage_event:cultural'] },
+            member: { bodies: [{ id: 999, name: 'Other body' }] }
+        });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id]);
+        expect(res.body.data.organizers[0]).not.toHaveProperty('body_ids');
+    });
+
+    it('should fail if the core service login returns garbage', async () => {
+        mock.mockAll({ login: { badResponse: true } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Login test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the core service login is unsuccessful', async () => {
+        mock.mockAll({ login: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Login test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should only store ids, names and comments of organizers', async () => {
+        mock.mockAll({ member: { bodies: user.bodies } });
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers storage test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id, comment: 'Creator' }, { user_id: 4242 }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.organizers).toEqual([
+            { user_id: user.id, first_name: 'Member' + user.id, last_name: 'Mocked', comment: 'Creator' },
+            { user_id: 4242, first_name: 'Member4242', last_name: 'Mocked' }
+        ]);
+    });
+
+    it('should return 422 for organizers without a valid user_id', async () => {
+        const invalidOrganizerLists = [
+            [{ user_id: user.id }, { user_id: 'admin' }],
+            [{ user_id: user.id }, { user_id: -1 }],
+            [{ user_id: user.id }, null]
+        ];
+
+        for (const organizers of invalidOrganizerLists) {
+            const res = await request({
+                path: '/',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'POST',
+                body: {
+                    name: 'Invalid organizers test',
+                    description: 'Test',
+                    application_starts: '2017-12-03 15:00',
+                    application_ends: '2017-12-05 15:00',
+                    starts: '2017-12-11 15:00',
+                    ends: '2017-12-14 12:00',
+                    type: 'cultural',
+                    organizing_bodies: [{ body_id: user.bodies[0].id }],
+                    organizers,
+                    meals_per_day: 2,
+                    accommodation_type: 'ritz hotel',
+                }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+        }
+    });
+
+    it('should return 422 for duplicated organizers', async () => {
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers storage test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }, { user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('organizers');
+    });
 });

@@ -1,14 +1,15 @@
 // Adds e2e fixtures on top of the core seed (which already models the production circles):
-// - a second antenna with its own member, who shares no body with NetCom.
+// - a second antenna with its own member, who shares no body with NetCom;
+// - a circle that lets regular members create Summer Universities (not in production).
 // Run with NODE_ENV=e2e after core/scripts/seed.js (scripts/prepare.ts does both).
-import { PASSWORD, USERS, SECOND_ANTENNA } from '../support/constants.ts';
+import { PASSWORD, USERS, SECOND_ANTENNA, SU_CREATORS_CIRCLE } from '../support/constants.ts';
 import { loadCoreModels, loadCoreSequelize } from '../support/core.ts';
 
 if (process.env.NODE_ENV !== 'e2e') {
     throw new Error('The e2e fixtures change the core database and only run with NODE_ENV=e2e.');
 }
 
-const { User, Body, Circle, BodyMembership } = loadCoreModels();
+const { User, Body, Circle, Permission, CirclePermission, BodyMembership, CircleMembership } = loadCoreModels();
 const { authenticate, close } = loadCoreSequelize();
 
 async function createSecondAntenna(): Promise<void> {
@@ -53,9 +54,27 @@ async function createSecondAntenna(): Promise<void> {
     await BodyMembership.create({ body_id: body.id, user_id: organizer.id });
 }
 
+async function createSummerUniversityCreators(): Promise<void> {
+    const circle = await Circle.create({ name: SU_CREATORS_CIRCLE.name, description: 'e2e fixture' });
+    for (const combined of SU_CREATORS_CIRCLE.permissions) {
+        const [scope, action, object] = combined.split(':');
+        const permission = await Permission.findOne({ where: { scope, action, object } });
+        if (!permission) {
+            throw new Error(`Permission ${combined} not found, did the core seed run?`);
+        }
+        await CirclePermission.create({ circle_id: circle.id, permission_id: permission.id });
+    }
+
+    for (const username of SU_CREATORS_CIRCLE.members) {
+        const user = await User.findOne({ where: { username } });
+        await CircleMembership.create({ circle_id: circle.id, user_id: user.id });
+    }
+}
+
 try {
     await authenticate();
     await createSecondAntenna();
+    await createSummerUniversityCreators();
     await close();
 } catch (err) {
     console.error('[e2e fixtures] failed:', err);

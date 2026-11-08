@@ -378,5 +378,14 @@
         "combined": "global:change_european_event_status:thematic",
         "circles": null,
         "action": "change_european_event_status"
+      }, {
+        "scope": "global",
+        "object": "event",
+        "id": 1000,
+        "filters": [],
+        "description": "Display links to 'Create event' everywhere.",
+        "combined": "global:create:event",
+        "circles": null,
+        "action": "create"
       }]
 }
