@@ -181,13 +181,14 @@ const PERMISSIONS = [
 
 // Keyed by the circle's property in `data.circles` (see createCircles in seed.js).
 const CIRCLE_PERMISSIONS = {
-    // General members circle: matches production.
+    // General members circle: matches production, after the planned removal of
+    // global:search:member (members search their organizing bodies with the scoped
+    // /members_search instead; boards and NetCom keep it through their circles).
     membersCircle: [
         'local:view_members:body',
         'global:join:circle',
         'local:view_members:circle',
         'global:create:event',
-        'global:search:member',
         'local:view:member',
         'global:apply:summeruniversity'
     ],
