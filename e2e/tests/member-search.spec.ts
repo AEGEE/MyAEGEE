@@ -1,8 +1,18 @@
-// /members_search after the scoped search change. In these fixtures regular members
+// /members_search after the scoped search change. In the seed, regular members
 // no longer have global:search:member; NetCom and boards still do.
-const { test, expect, expectStatus } = require('../support/api');
+import { test, expect, expectStatus, type Api, type ApiResult, type Envelope } from '../support/api.ts';
+import type { Username } from '../support/constants.ts';
 
-const search = (api, username, params) => api.call(username, 'GET', `/api/core/members_search?${new URLSearchParams(params)}`);
+interface SearchResult {
+    id: number;
+    first_name: string;
+    last_name: string;
+}
+
+const search = (api: Api, username: Username, params: Record<string, string | number>): Promise<ApiResult<Envelope<SearchResult[]>>> => {
+    const query = new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)]));
+    return api.call<Envelope<SearchResult[]>>(username, 'GET', `/api/core/members_search?${query}`);
+};
 
 test.describe('member search', () => {
     test('a member can search their own body and only gets names', async ({ api }) => {
@@ -48,7 +58,12 @@ test.describe('member search', () => {
     test('short queries and wildcards return nothing', async ({ api }) => {
         const member = await api.me('member');
 
-        for (const [username, params] of [['netcom', { query: 'B' }], ['member', { query: 'B', body_id: member.bodies[0].id }], ['member', { query: '%%', body_id: member.bodies[0].id }]]) {
+        const cases: [Username, Record<string, string | number>][] = [
+            ['netcom', { query: 'B' }],
+            ['member', { query: 'B', body_id: member.bodies[0].id }],
+            ['member', { query: '%%', body_id: member.bodies[0].id }]
+        ];
+        for (const [username, params] of cases) {
             const res = await search(api, username, params);
             expectStatus(res, 200);
             expect(res.body.data).toEqual([]);
