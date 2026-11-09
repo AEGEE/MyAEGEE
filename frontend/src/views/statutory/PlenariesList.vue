@@ -26,7 +26,7 @@
             {{ props.row.ends | datetimeseconds }}
           </b-table-column>
 
-          <b-table-column label="Edit" centered v-if="can.manage_plenaries" v-slot="props">
+          <b-table-column label="Edit" centered :visible="!!can.manage_plenaries" v-slot="props">
             <button class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
           </b-table-column>
 
