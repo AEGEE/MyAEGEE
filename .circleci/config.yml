@@ -1187,25 +1187,18 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Elixir and Erlang for mailer
+          # Run in the same Elixir/OTP image the mailer is deployed with.
+          name: Run mailer tests in elixir:1.20-alpine
           working_directory: ~/project/mailer
           command: |
-            sudo apt-get update
-            sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y elixir erlang
-      - run:
-          name: Setup mailer hex and rebar
-          working_directory: ~/project/mailer
-          command: |
-            mix local.hex --force
-            mix local.rebar --force
-      - run:
-          name: Get mailer dependencies
-          working_directory: ~/project/mailer
-          command: mix deps.get
-      - run:
-          name: Run mailer tests
-          working_directory: ~/project/mailer
-          command: SMTP_USER=mailer@aegee.eu mix coveralls
+            docker run --rm -v "$PWD":/app -w /app \
+              -e MIX_ENV -e SMTP_USER -e SMTP_NAME -e SMTP_PASSWORD -e SMTP_HOST \
+              elixir:1.20-alpine sh -c '
+                apk add --no-cache git make gcc g++ &&
+                mix local.hex --force &&
+                mix local.rebar --force &&
+                mix deps.get --locked &&
+                mix coveralls'
   mailer-build:
     docker:
       - image: cimg/base:2026.11

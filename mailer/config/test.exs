@@ -7,7 +7,7 @@ config :omsmailer, OmsmailerWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 # Use bamboo test adapter for testing
 config :omsmailer, Omsmailer.Mailer,

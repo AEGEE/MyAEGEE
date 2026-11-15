@@ -40,8 +40,10 @@ defmodule Omsmailer.Mixfile do
       {:phoenix_html, "~> 2.14"},
       {:phoenix_view, "~> 2.0"},
       {:gettext, "~> 0.11"},
-      {:bamboo, "~> 1.1"},
-      {:bamboo_smtp, "~> 1.6.0"},
+      {:bamboo, "~> 2.2"},
+      {:bamboo_smtp, "~> 4.2"},
+      # bamboo_smtp 4.2 pins gen_smtp ~> 1.2.0, which does not compile on OTP 29.
+      {:gen_smtp, "~> 1.3", override: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.2"},
       {:cowboy, "~> 2.7"},
