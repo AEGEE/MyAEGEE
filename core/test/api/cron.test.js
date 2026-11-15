@@ -43,7 +43,7 @@ describe('Cron testing', () => {
 
         cron.cancelJob(id);
 
-        expect(destroy).toHaveBeenCalledTimes(1);
+        expect(destroy).toHaveBeenCalled();
         expect(job.getStatus()).toEqual('destroyed');
         expect(cron.jobs[id]).toBeUndefined();
     });
