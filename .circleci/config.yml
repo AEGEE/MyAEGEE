@@ -1899,6 +1899,32 @@ jobs:
                 }
               ]
             }
+  summeruniversity-test:
+    docker:
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/summeruniversity
+          override-ci-command: npm ci --legacy-peer-deps
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run summeruniversity tests
+          working_directory: ~/project/summeruniversity
+          command: |
+            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
   summeruniversity-db-recreate:
     docker:
       - image: cimg/node:26.13.1
@@ -2196,6 +2222,9 @@ workflows:
   events-test:
     jobs:
       - events-test
+  summeruniversity-test:
+    jobs:
+      - summeruniversity-test
   events-docker-build-and-push:
     jobs:
       - events-docker-build-and-push:
