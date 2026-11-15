@@ -7,3 +7,5 @@ frontend/
 .nyc_output/
 test/oms-testing
 */.DS_Store
+junit.xml
+tmp_upload/
