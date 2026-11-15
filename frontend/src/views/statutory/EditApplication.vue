@@ -373,6 +373,7 @@
 import { mapGetters } from 'vuex'
 import nationalities from '../../nationalities'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
+import sortBodies from '../../methods/sort-bodies'
 
 export default {
   name: 'EditApplication',
@@ -568,15 +569,14 @@ export default {
       // If this is a new application, then allowing selecting bodies which the current user is a member of
       // and not fetching application.
       if (this.isNew) {
-        this.bodies = this.loginUser.bodies.filter(body => this.can.apply_from_body[body.id])
+        this.bodies = sortBodies(
+          this.loginUser.bodies.filter(body => this.can.apply_from_body[body.id]),
+          this.loginUser.primary_body_id
+        )
 
-        // Setting primary body as default application body, if possible, otherwise pick the first body in the list
+        // The primary body is listed first if it's eligible, so this defaults to it when possible
         if (this.bodies.length > 0) {
-          if (this.bodies.some(b => b.id === this.loginUser.primary_body_id)) {
-            this.application.body_id = this.loginUser.primary_body_id
-          } else {
-            this.application.body_id = this.bodies[0].id
-          }
+          this.application.body_id = this.bodies[0].id
         }
 
         this.isLoading = false
@@ -587,7 +587,11 @@ export default {
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.can = application.data.data.permissions
-        this.bodies = this.application.editable_bodies || []
+        // We only know the primary body of the applicant if it's the current user
+        this.bodies = sortBodies(
+          this.application.editable_bodies,
+          this.application.user_id === this.loginUser.id ? this.loginUser.primary_body_id : null
+        )
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false

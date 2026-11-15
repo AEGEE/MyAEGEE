@@ -259,6 +259,7 @@ import moment from 'moment'
 
 import nationalities from '../../nationalities'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
+import sortBodies from '../../methods/sort-bodies'
 
 export default {
   components: {
@@ -355,8 +356,10 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
-    this.bodies = this.loginUser.bodies
-      .filter(body => ['contact', 'contact antenna', 'antenna'].includes(body.type))
+    this.bodies = sortBodies(
+      this.loginUser.bodies.filter(body => ['contact', 'contact antenna', 'antenna'].includes(body.type)),
+      this.loginUser.primary_body_id
+    )
 
     if (!this.$route.params.candidate_id) {
       // Prefilling values
