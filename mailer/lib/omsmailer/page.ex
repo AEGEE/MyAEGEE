@@ -31,15 +31,36 @@ defmodule Omsmailer.Page do
     end
   end
 
-  # Delivers either a list of mails or a single mail
-  def deliver_all_mails([cur_mail | mails]) do
-    deliver_all_mails(cur_mail)
-    deliver_all_mails(mails)
+  # Delivers a list of mails (or a single mail). Bamboo 2 returns errors instead of
+  # raising them, so every mail is checked first: if any has an empty sender or
+  # recipient, nothing is sent and the request fails with 422.
+  def deliver_all_mails(mails) do
+    mails = List.wrap(mails)
+
+    if Enum.any?(mails, &missing_address?/1) do
+      {:error, :unprocessable_entity, "Sender and recipient addresses must not be empty"}
+    else
+      deliver_each(mails)
+    end
   end
-  def deliver_all_mails([]), do: []
-  def deliver_all_mails(mail) do
-    Omsmailer.Mailer.deliver_later(mail)
+
+  defp missing_address?(mail), do: blank_address?(mail.from) or blank_address?(mail.to)
+
+  defp blank_address?(nil), do: true
+  defp blank_address?(""), do: true
+  defp blank_address?({_name, address}), do: blank_address?(address)
+  defp blank_address?(_address), do: false
+
+  defp deliver_each([]), do: :ok
+  defp deliver_each([mail | mails]) do
+    case Omsmailer.Mailer.deliver_later(mail) do
+      {:ok, _email} -> deliver_each(mails)
+      {:error, error} -> {:error, :unprocessable_entity, delivery_error_message(error)}
+    end
   end
+
+  defp delivery_error_message(%{__exception__: true} = error), do: Exception.message(error)
+  defp delivery_error_message(error), do: inspect(error)
 
   # Creates mails and sets recipient and subjectheaders
   # First define a cathing function to catch nil address and to
