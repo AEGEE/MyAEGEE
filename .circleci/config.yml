@@ -1,20 +1,20 @@
 orbs:
-  codecov: codecov/codecov@6.0.0
+  codecov: codecov/codecov@6.1.0
   node: circleci/node@7.2.1
-  shellcheck: circleci/shellcheck@3.4.0
-  slack: circleci/slack@6.1.2
+  shellcheck: circleci/shellcheck@3.5.1
+  slack: circleci/slack@6.1.3
 version: 2.1
 jobs:
   yamllint:
     docker:
-      - image: cimg/python:3.13.11
+      - image: cimg/python:3.15.2
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   pylint:
     docker:
-      - image: cimg/python:3.13.11
+      - image: cimg/python:3.15.2
     steps:
       - checkout
       - run: pip install pylint
@@ -22,7 +22,7 @@ jobs:
       - run: pylint scripts-server --disable C0114,C0116,W0511,E0401
   dispatcher-ruff:
     docker:
-      - image: cimg/python:3.13.11
+      - image: cimg/python:3.15.2
     steps:
       - checkout
       - run:
@@ -33,7 +33,7 @@ jobs:
             ruff check .
   dispatcher-test:
     docker:
-      - image: cimg/python:3.13.11
+      - image: cimg/python:3.15.2
     steps:
       - checkout
       - run:
@@ -53,7 +53,7 @@ jobs:
           command: hadolint $(find . -name '*Dockerfile*' -not -path './mailer/*')
   shellcheck:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     steps:
       - checkout
       - shellcheck/install
@@ -63,8 +63,8 @@ jobs:
             shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
   core-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -89,8 +89,8 @@ jobs:
           path: ~/reports
   core-db-recreate:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     resource_class: large
@@ -106,7 +106,7 @@ jobs:
           command: NODE_ENV=test npm run db:recreate
   core-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -115,7 +115,7 @@ jobs:
       - run: docker-compose -f core/docker/docker-compose.yml -f core/docker/docker-compose.dev.yml build --no-cache core
   core-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -134,7 +134,7 @@ jobs:
           path: ~/reports
   core-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -184,7 +184,7 @@ jobs:
             }
   core-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -299,8 +299,8 @@ jobs:
             }
   discounts-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -325,7 +325,7 @@ jobs:
           path: ~/reports
   discounts-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -334,7 +334,7 @@ jobs:
       - run: docker-compose -f discounts/docker/docker-compose.yml -f discounts/docker/docker-compose.dev.yml build --no-cache discounts
   discounts-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -353,7 +353,7 @@ jobs:
           path: ~/reports
   discounts-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -403,7 +403,7 @@ jobs:
             }
   discounts-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -518,8 +518,8 @@ jobs:
             }
   events-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -544,8 +544,8 @@ jobs:
           path: ~/reports
   events-db-recreate:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     resource_class: large
@@ -561,7 +561,7 @@ jobs:
           command: NODE_ENV=test npm run db:recreate
   events-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -570,7 +570,7 @@ jobs:
       - run: docker-compose -f events/docker/docker-compose.yml -f events/docker/docker-compose.dev.yml build --no-cache events
   events-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -589,7 +589,7 @@ jobs:
           path: ~/reports
   events-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -639,7 +639,7 @@ jobs:
             }
   events-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -754,7 +754,7 @@ jobs:
             }
   frontend-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -763,7 +763,7 @@ jobs:
       - run: docker-compose -f frontend/docker/docker-compose.yml -f frontend/docker/docker-compose.dev.yml build --no-cache frontend
   frontend-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -782,7 +782,7 @@ jobs:
           path: ~/reports
   frontend-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -832,7 +832,7 @@ jobs:
             }
   frontend-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -947,8 +947,8 @@ jobs:
             }
   knowledge-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -973,7 +973,7 @@ jobs:
           path: ~/reports
   knowledge-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -982,7 +982,7 @@ jobs:
       - run: docker-compose -f knowledge/docker/docker-compose.yml -f knowledge/docker/docker-compose.dev.yml build --no-cache knowledge
   knowledge-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1001,7 +1001,7 @@ jobs:
           path: ~/reports
   knowledge-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1051,7 +1051,7 @@ jobs:
             }
   knowledge-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1166,7 +1166,7 @@ jobs:
             }
   mailer-test:
     machine:
-      image: ubuntu-2204:2025.09.1
+      image: ubuntu-2404:2026.10.1
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
@@ -1198,7 +1198,7 @@ jobs:
           command: SMTP_USER=mailer@aegee.eu mix coveralls
   mailer-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
@@ -1213,7 +1213,7 @@ jobs:
       - run: docker-compose -f mailer/docker/docker-compose.yml -f mailer/docker/docker-compose.dev.yml build --no-cache mailer
   mailer-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
@@ -1340,7 +1340,7 @@ jobs:
             }
   nginx-static-docker-build-and-push:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -1445,8 +1445,8 @@ jobs:
             }
   network-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:16.10
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -1471,7 +1471,7 @@ jobs:
           path: ~/reports
   network-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -1480,7 +1480,7 @@ jobs:
       - run: docker-compose -f network/docker/docker-compose.yml -f network/docker/docker-compose.dev.yml build --no-cache network
   network-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1499,7 +1499,7 @@ jobs:
           path: ~/reports
   network-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1549,7 +1549,7 @@ jobs:
             }
   network-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1664,8 +1664,8 @@ jobs:
             }
   statutory-test:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -1690,7 +1690,7 @@ jobs:
           path: ~/reports
   statutory-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -1699,7 +1699,7 @@ jobs:
       - run: docker-compose -f statutory/docker/docker-compose.yml -f statutory/docker/docker-compose.dev.yml build --no-cache statutory
   statutory-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1718,7 +1718,7 @@ jobs:
           path: ~/reports
   statutory-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1768,7 +1768,7 @@ jobs:
             }
   statutory-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1883,8 +1883,8 @@ jobs:
             }
   summeruniversity-db-recreate:
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     resource_class: large
@@ -1900,7 +1900,7 @@ jobs:
           command: NODE_ENV=test npm run db:setup
   summeruniversity-build:
     docker:
-      - image: cimg/base:2025.12
+      - image: cimg/base:2026.11
     resource_class: large
     steps:
       - checkout
@@ -1909,7 +1909,7 @@ jobs:
       - run: docker-compose -f summeruniversity/docker/docker-compose.yml -f summeruniversity/docker/docker-compose.dev.yml build --no-cache summeruniversity
   summeruniversity-eslint:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1928,7 +1928,7 @@ jobs:
           path: ~/reports
   summeruniversity-audit:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout
@@ -1978,7 +1978,7 @@ jobs:
             }
   summeruniversity-docker-build-and-push:
     docker:
-      - image: cimg/node:22.22.0
+      - image: cimg/node:26.13.1
     resource_class: large
     steps:
       - checkout

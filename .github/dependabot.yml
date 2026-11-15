@@ -44,6 +44,36 @@ updates:
       - "/summeruniversity/docker/summeruniversity"
       - "/gateways/docker/portal"
       - "/monitor/docker/logstash"
+      - "/dispatcher/docker"
+      - "/docker/nginx-static"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+
+  # Images referenced from docker-compose files (databases, monitoring, third-party services).
+  # Postgres major bumps need a dump/restore of the data volume; don't merge them as-is.
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "/core/docker"
+      - "/dev-tools/docker"
+      - "/discounts/docker"
+      - "/dispatcher/docker"
+      - "/events/docker"
+      - "/frontend/docker"
+      - "/gateways/docker"
+      - "/knowledge/docker"
+      - "/mailer/docker"
+      - "/monitor-agents/docker"
+      - "/monitor/docker"
+      - "/network/docker"
+      - "/pass-manager/docker"
+      - "/statutory/docker"
+      - "/summeruniversity/docker"
+      - "/survey/docker"
+      - "/url-shortener/docker"
     schedule:
       interval: "weekly"
       day: "friday"
