@@ -54,8 +54,14 @@ updates:
       - "WikiRik"
 
   # Images referenced from docker-compose files (databases, monitoring, third-party services).
-  # Postgres major bumps need a dump/restore of the data volume; don't merge them as-is.
   - package-ecosystem: "docker-compose"
+    # A database major bump can't start on the existing data volume (it needs a
+    # dump/restore), so only patch/minor updates are proposed for databases.
+    ignore:
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mariadb"
+        update-types: ["version-update:semver-major"]
     directories:
       - "/core/docker"
       - "/dev-tools/docker"
