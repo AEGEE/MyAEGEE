@@ -106,7 +106,7 @@ describe('Events listing', () => {
             expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
         });
 
-        // express-query-boolean turns 'true'/'false' query values into booleans before the
+        // lib/query-boolean.js turns 'true'/'false' query values into booleans before the
         // handlers run. No summeruniversity handler branches on a genuinely boolean query
         // parameter, so these tests pin the parser's observable effect on `search`.
         test('should treat ?search=false as boolean false (no search filter applied)', async () => {
@@ -135,6 +135,27 @@ describe('Events listing', () => {
 
             const res = await request({ path: '/', method: 'GET', query: { type: 'pilot' }, headers: { 'X-Auth-Token': 'foobar' } });
 
+            expect(res.body.data.map((e) => e.id)).toEqual([pilot.id]);
+        });
+
+        test('should parse bracketed array parameters as sent by the frontend', async () => {
+            const pilot = await generator.createEvent({ type: 'pilot' });
+            await generator.createEvent({ type: 'regular' });
+
+            const res = await request({ path: '/?type[]=pilot', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((e) => e.id)).toEqual([pilot.id]);
+        });
+
+        test('should keep bracketed parameters with more than 20 items as an array', async () => {
+            const pilot = await generator.createEvent({ type: 'pilot' });
+            await generator.createEvent({ type: 'regular' });
+
+            const query = Array.from({ length: 25 }, () => 'type[]=pilot').join('&');
+            const res = await request({ path: '/?' + query, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
             expect(res.body.data.map((e) => e.id)).toEqual([pilot.id]);
         });
 

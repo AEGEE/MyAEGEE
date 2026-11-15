@@ -1,5 +1,5 @@
 const express = require('express');
-const router = require('express-promise-router');
+const qs = require('qs');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
@@ -32,22 +32,23 @@ const endpointsMetrics = require('../middlewares/endpoint-metrics');
 const metrics = require('../middlewares/metrics');
 const bugReport = require('../middlewares/bug-report');
 
-const GeneralRouter = router({ mergeParams: true });
-const MemberRouter = router({ mergeParams: true });
-const BodiesRouter = router({ mergeParams: true });
-const BodyMembershipsRouter = router({ mergeParams: true });
-const JoinRequestsRouter = router({ mergeParams: true });
-const CirclesRouter = router({ mergeParams: true });
-const PermissionsRouter = router({ mergeParams: true });
-const CampaignsRouter = router({ mergeParams: true });
-const BodyCampaignsRouter = router({ mergeParams: true });
-const PaymentsRouter = router({ mergeParams: true });
-const CircleMembershipsRouter = router({ mergeParams: true });
+const GeneralRouter = express.Router({ mergeParams: true });
+const MemberRouter = express.Router({ mergeParams: true });
+const BodiesRouter = express.Router({ mergeParams: true });
+const BodyMembershipsRouter = express.Router({ mergeParams: true });
+const JoinRequestsRouter = express.Router({ mergeParams: true });
+const CirclesRouter = express.Router({ mergeParams: true });
+const PermissionsRouter = express.Router({ mergeParams: true });
+const CampaignsRouter = express.Router({ mergeParams: true });
+const BodyCampaignsRouter = express.Router({ mergeParams: true });
+const PaymentsRouter = express.Router({ mergeParams: true });
+const CircleMembershipsRouter = express.Router({ mergeParams: true });
 
 const server = express();
-// Express 5 defaults to the 'simple' query parser; keep parsing nested and
-// bracketed parameters (filter[status]=..., type[]=...) with qs as before.
-server.set('query parser', 'extended');
+// Express 5 defaults to the 'simple' query parser, and its 'extended' parser
+// lowers qs's array limit to 20. Keep Express 4's behaviour: nested and bracketed
+// parameters (filter[status]=..., type[]=...) with up to 1000 array items.
+server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, arrayLimit: 1000 }));
 // Requests come through Traefik, which appends the client IP to X-Forwarded-For.
 server.set('trust proxy', 1);
 server.use(bodyParser.json());
@@ -216,7 +217,9 @@ let app;
 async function startServer() {
     return new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
-        const localApp = server.listen(config.port, async () => {
+        const localApp = server.listen(config.port, async (err) => {
+            // Express 5 also calls this on startup errors (EADDRINUSE etc.).
+            if (err) return rej(err);
             app = localApp;
             log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();

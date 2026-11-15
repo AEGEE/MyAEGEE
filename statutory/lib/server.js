@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const qs = require('qs');
 
@@ -27,19 +26,19 @@ const imageserv = require('./imageserv');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 
-const GeneralRouter = router({ mergeParams: true });
-const PaxLimitsRouter = router({ mergeParams: true });
-const EventsRouter = router({ mergeParams: true });
-const ApplicationsRouter = router({ mergeParams: true });
-const SingleApplicationRouter = router({ mergeParams: true });
-const MembersListsRouter = router({ mergeParams: true });
-const MassMailerRouter = router({ mergeParams: true });
-const VotesAmountRouter = router({ mergeParams: true });
-const PositionsRouter = router({ mergeParams: true });
-const CandidatesRouter = router({ mergeParams: true });
-const PlenariesRouter = router({ mergeParams: true });
-const QuestionLinesRouter = router({ mergeParams: true });
-const QuestionsRouter = router({ mergeParams: true });
+const GeneralRouter = express.Router({ mergeParams: true });
+const PaxLimitsRouter = express.Router({ mergeParams: true });
+const EventsRouter = express.Router({ mergeParams: true });
+const ApplicationsRouter = express.Router({ mergeParams: true });
+const SingleApplicationRouter = express.Router({ mergeParams: true });
+const MembersListsRouter = express.Router({ mergeParams: true });
+const MassMailerRouter = express.Router({ mergeParams: true });
+const VotesAmountRouter = express.Router({ mergeParams: true });
+const PositionsRouter = express.Router({ mergeParams: true });
+const CandidatesRouter = express.Router({ mergeParams: true });
+const PlenariesRouter = express.Router({ mergeParams: true });
+const QuestionLinesRouter = express.Router({ mergeParams: true });
+const QuestionsRouter = express.Router({ mergeParams: true });
 
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
@@ -199,7 +198,9 @@ let app;
 async function startServer() {
     return new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
-        const localApp = server.listen(config.port, async () => {
+        const localApp = server.listen(config.port, async (err) => {
+            // Express 5 also calls this on startup errors (EADDRINUSE etc.).
+            if (err) return rej(err);
             app = localApp;
             log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
