@@ -43,6 +43,15 @@ const nextUserId = () => {
     return lastUserId;
 };
 
+// Applications are unique per (event_id, body_id, participant_type, participant_order).
+// Tests often create several applications for one body, so a random order collided
+// now and then; hand out unique orders, clear of the small ones tests set explicitly.
+let lastParticipantOrder = 1000;
+const nextParticipantOrder = () => {
+    lastParticipantOrder += 1;
+    return lastParticipantOrder;
+};
+
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
     if (notSet(options.url)) options.url = options.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, '');
@@ -89,7 +98,7 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.body_id)) options.body_id = faker.number.int(100);
     if (notSet(options.board_comment)) options.board_comment = faker.lorem.paragraph();
     if (notSet(options.participant_type)) options.participant_type = faker.helpers.arrayElement(['delegate', 'visitor', 'observer', 'envoy']);
-    if (notSet(options.participant_order)) options.participant_order = faker.number.int({ min: 1, max: 100 });
+    if (notSet(options.participant_order)) options.participant_order = nextParticipantOrder();
 
     // fields taken from application
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
