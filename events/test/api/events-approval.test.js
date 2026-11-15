@@ -118,6 +118,42 @@ describe('Events status change', () => {
             expect(eventFromDb.status).not.toEqual('submitted');
         });
 
+        it('should notify events approval and NetCom when an NWM is submitted', async () => {
+            const { omsMailerStub } = mock.mockAll();
+            const mails = mock.captureMails(omsMailerStub);
+            const event = await generator.createEvent({ status: 'draft', type: 'nwm' });
+
+            const res = await request({
+                path: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            const submitted = mails.filter((mail) => mail.subject === 'A new event was submitted.');
+            expect(submitted.length).toEqual(1);
+            expect(submitted[0].to).toEqual(['events-approval@aegee.eu', 'netcom@aegee.eu']);
+        });
+
+        it('should only notify events approval when another event type is submitted', async () => {
+            const { omsMailerStub } = mock.mockAll();
+            const mails = mock.captureMails(omsMailerStub);
+            const event = await generator.createEvent({ status: 'draft', type: 'training' });
+
+            const res = await request({
+                path: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            const submitted = mails.filter((mail) => mail.subject === 'A new event was submitted.');
+            expect(submitted.length).toEqual(1);
+            expect(submitted[0].to).toEqual(['events-approval@aegee.eu']);
+        });
+
         it('should not set the publication date', async () => {
             const event = await generator.createEvent({
                 status: 'draft',

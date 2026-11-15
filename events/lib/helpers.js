@@ -183,6 +183,8 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
         permissions.change_european_event_status[type] = hasPermission(corePermissions, 'change_european_event_status:' + type);
     }
 
+    permissions.create_event = hasPermission(corePermissions, 'create:event');
+
     permissions.set_board_comment = {};
     permissions.see_boardview = {};
 
