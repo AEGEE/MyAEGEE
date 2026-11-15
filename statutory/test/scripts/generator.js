@@ -33,6 +33,16 @@ const visaFields = [
     'visa_country'
 ];
 
+// Applications and candidates must have a unique user_id per event/position.
+// Random IDs collided now and then (two applications for the same event, or two
+// candidates for the same position, got the same ID), so hand out unique IDs that
+// also stay clear of the users in the core fixtures.
+let lastUserId = 1000;
+const nextUserId = () => {
+    lastUserId += 1;
+    return lastUserId;
+};
+
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
     if (notSet(options.url)) options.url = options.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, '');
@@ -75,7 +85,7 @@ exports.generateQuestionForEvent = (options = {}) => {
 };
 
 exports.generateApplication = (options = {}, event = null) => {
-    if (notSet(options.user_id)) options.user_id = faker.number.int(100);
+    if (notSet(options.user_id)) options.user_id = nextUserId();
     if (notSet(options.body_id)) options.body_id = faker.number.int(100);
     if (notSet(options.board_comment)) options.board_comment = faker.lorem.paragraph();
     if (notSet(options.participant_type)) options.participant_type = faker.helpers.arrayElement(['delegate', 'visitor', 'observer', 'envoy']);
@@ -165,7 +175,7 @@ exports.generatePosition = (options = {}, event = null) => {
 
 // eslint-disable-next-line default-param-last
 exports.generateCandidate = (options = {}, position) => {
-    if (notSet(options.user_id)) options.user_id = faker.number.int({ min: 1, max: 100 });
+    if (notSet(options.user_id)) options.user_id = nextUserId();
     if (notSet(options.body_id)) options.body_id = faker.number.int({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
