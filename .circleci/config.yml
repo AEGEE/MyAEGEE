@@ -204,7 +204,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for core
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'core@*' --sort=-v:refname | head -1 | sed 's/core@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh core)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
@@ -423,7 +425,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for discounts
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'discounts@*' --sort=-v:refname | head -1 | sed 's/discounts@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh discounts)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
@@ -659,7 +663,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for events
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'events@*' --sort=-v:refname | head -1 | sed 's/events@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh events)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
@@ -852,7 +858,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for frontend
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'frontend@*' --sort=-v:refname | head -1 | sed 's/frontend@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh frontend)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
@@ -1071,7 +1079,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for knowledge
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'knowledge@*' --sort=-v:refname | head -1 | sed 's/knowledge@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh knowledge)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
@@ -1239,7 +1249,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for mailer
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'mailer@*' --sort=-v:refname | head -1 | sed 's/mailer@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh mailer)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
@@ -1569,7 +1581,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for network
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'network@*' --sort=-v:refname | head -1 | sed 's/network@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh network)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
@@ -1788,7 +1802,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for statutory
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'statutory@*' --sort=-v:refname | head -1 | sed 's/statutory@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh statutory)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
@@ -1998,7 +2014,9 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for summeruniversity
-          command: echo "export PACKAGE_VERSION=$(git tag --list 'summeruniversity@*' --sort=-v:refname | head -1 | sed 's/summeruniversity@//')" >> "$BASH_ENV"
+          command: |
+            PACKAGE_VERSION="$(.circleci/package-version.sh summeruniversity)"
+            echo "export PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$BASH_ENV"
       - run:
           name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
