@@ -262,8 +262,6 @@ export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugG
     }, { auto: true }]
 });
 
-export const recipients = (mail: Mail): string[] => ([] as string[]).concat(mail.to || [], mail.cc || []);
-
 const showKnownBugs = ['1', 'true'].includes(process.env.E2E_SHOW_KNOWN_BUGS ?? '');
 
 // Marks a test as documenting a known bug: it is expected to fail until the bug is fixed.
