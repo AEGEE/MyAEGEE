@@ -87,7 +87,8 @@ const config = {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
         },
         media_dir: './tmp_upload',
-        salt_rounds: 4
+        salt_rounds: 4,
+        bugsnag_key: 'CHANGEME'
     }
 };
 
