@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import DOMPurify from 'dompurify'
+
 export default {
   name: 'ConfluencePage',
   data () {
@@ -40,7 +42,7 @@ export default {
       .then(data => data.json())
       .then(data => {
         this.title = data.title
-        this.text = data.body.export_view.value
+        this.text = DOMPurify.sanitize(data.body.export_view.value)
       }).catch(err => {
         console.log(err)
         this.error = true
