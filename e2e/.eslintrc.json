@@ -1,0 +1,61 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "es2023": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2023,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "airbnb-base",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-underscore-dangle": "off",
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ],
+    "no-restricted-syntax": "off",
+    "no-plusplus": "off",
+    "comma-dangle": "off",
+    "max-len": "off",
+    "prefer-template": "off",
+    "guard-for-in": "off",
+    "indent": [
+      "error",
+      4
+    ],
+    "prefer-destructuring": "off",
+    "arrow-body-style": "off",
+    "object-curly-newline": "off",
+    "no-await-in-loop": "off",
+    "no-continue": "off",
+    "consistent-return": "off",
+    "implicit-arrow-linebreak": "off",
+    "no-console": "off",
+    "lines-between-class-members": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true
+      }
+    ],
+    // tsc checks imports and requires explicit .ts extensions, which these rules don't understand.
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "import/prefer-default-export": "off",
+    // Replaced by their TypeScript-aware versions.
+    "no-unused-vars": "off",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "error",
+    "no-use-before-define": "off",
+    "no-empty-function": "off"
+  }
+}
