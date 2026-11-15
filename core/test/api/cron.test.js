@@ -36,6 +36,21 @@ describe('Cron testing', () => {
         await cron.executeJob(jobKey);
     });
 
+    test('should stop the scheduled task when cancelling a job', async () => {
+        const id = cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
+        const { job } = cron.jobs[id];
+        const stop = jest.spyOn(job, 'stop');
+
+        cron.cancelJob(id);
+
+        expect(stop).toHaveBeenCalledTimes(1);
+        expect(cron.jobs[id]).toBeUndefined();
+    });
+
+    test('should not fail when cancelling a job that is not found', async () => {
+        expect(() => cron.cancelJob(1337)).not.toThrow();
+    });
+
     test('should not execute a job if it\'s not found', async () => {
         expect(Object.keys(cron.jobs).length).toEqual(0);
         await cron.executeJob(1337);

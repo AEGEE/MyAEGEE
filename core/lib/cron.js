@@ -97,8 +97,6 @@ class JobManager {
         this.addJob(this.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
     }
 
-    // for tests only
-    /* istanbul ignore next */
     cancelJob(id) {
         const job = this.jobs[id];
         if (!job) {
@@ -107,6 +105,7 @@ class JobManager {
         }
 
         logger.info({ job: _.pick(job, ['id', 'description', 'rule']) }, 'Cancelling job');
+        job.job.stop();
         delete this.jobs[id];
     }
 
