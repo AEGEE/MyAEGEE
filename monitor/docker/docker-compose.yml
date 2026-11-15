@@ -3,7 +3,7 @@ services:
 
   grafana:
     restart: on-failure
-    image: grafana/grafana:6.7.1
+    image: grafana/grafana:13.3.1
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./${PATH_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
