@@ -97,14 +97,39 @@ exports.mockCoreMainPermissions = (options) => {
 exports.mockCoreApprovePermissions = (options) => intercept(coreUrl, 'post', '/my_permissions', options, (i) => i.replyWithFile(200, asset('oms-core-approve-permissions-full.json')));
 
 // GET /members/:id
-exports.mockCoreMember = (options) => intercept(coreUrl, 'get', /^\/members\/[0-9]+/, options, (i) => i.reply(200, { success: true, data: regularUser }));
+// Pass `bodiesById: { [userId]: [bodyId, ...] }` to reply with the requested user and these
+// bodies (users that aren't listed keep the bodies of the default user).
+exports.mockCoreMember = (options) => {
+    if (options.bodiesById) {
+        return nock(coreUrl).persist().get(/^\/members\/[0-9]+/).query(true)
+            .reply((uri) => {
+                const id = Number(uri.match(/^\/members\/([0-9]+)/)[1]);
+                const bodyIds = options.bodiesById[id];
+                const bodies = bodyIds ? bodyIds.map((bodyId) => ({ ...body, id: bodyId })) : regularUser.bodies;
+                return [200, { success: true, data: { ...regularUser, id, bodies } }];
+            });
+    }
+
+    return intercept(coreUrl, 'get', /^\/members\/[0-9]+/, options, (i) => i.reply(200, { success: true, data: regularUser }));
+};
 
 // GET /bodies/:id/members - board members to notify about applications.
 // Registered before the generic /bodies/:id mock so that nock matches it first.
 exports.mockCoreBodyMembers = (options) => intercept(coreUrl, 'get', /^\/bodies\/[0-9]+\/members/, options, (i) => i.replyWithFile(200, asset('oms-core-body-members.json')));
 
 // GET /bodies/:id
-exports.mockCoreBody = (options) => intercept(coreUrl, 'get', /^\/bodies\/[0-9]+$/, options, (i) => i.reply(200, { success: true, data: body }));
+// Pass `echoId: true` to reply with the requested body id instead of the default body's.
+exports.mockCoreBody = (options) => {
+    if (options.echoId) {
+        return nock(coreUrl).persist().get(/^\/bodies\/[0-9]+$/).query(true)
+            .reply((uri) => {
+                const id = Number(uri.match(/^\/bodies\/([0-9]+)/)[1]);
+                return [200, { success: true, data: { ...body, id } }];
+            });
+    }
+
+    return intercept(coreUrl, 'get', /^\/bodies\/[0-9]+$/, options, (i) => i.reply(200, { success: true, data: body }));
+};
 
 // POST /login - used to get the admin token.
 exports.mockCoreLogin = (options) => intercept(coreUrl, 'post', '/login', options, (i) => i.reply(200, { success: true, access_token: '1', refresh_token: '1' }));
