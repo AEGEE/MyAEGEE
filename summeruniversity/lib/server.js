@@ -54,6 +54,7 @@ GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.li
 
 GeneralRouter.get('/applications/future/:user_id', middlewares.ensureAuthorized, applications.listFutureApplicationsForUser);
 GeneralRouter.get('/applications', middlewares.ensureAuthorized, applications.getStats);
+GeneralRouter.get('/applications/export', middlewares.ensureAuthorized, applications.exportStatsByBody);
 
 GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
 
