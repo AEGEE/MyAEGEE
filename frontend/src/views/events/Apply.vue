@@ -175,6 +175,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
+import sortBodies from '../../methods/sort-bodies'
 
 export default {
   name: 'ApplyToEvent',
@@ -283,9 +284,9 @@ export default {
         }
       })
 
-      this.bodies = this.loginUser.bodies
+      this.bodies = sortBodies(this.loginUser.bodies, this.loginUser.primary_body_id)
 
-      // Setting 1st body as an application body if possible
+      // Setting the primary body (listed first) as the application body if possible
       if (this.bodies.length > 0) {
         this.application.body_id = this.bodies[0].id
       }

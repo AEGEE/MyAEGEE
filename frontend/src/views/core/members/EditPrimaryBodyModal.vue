@@ -11,7 +11,7 @@
           <div class="select">
             <select v-model="primaryBodyId" class="select">
               <option :value="null">Not set</option>
-              <option v-for="body in member.bodies" :value="body.id" v-bind:key="body.id">{{ body.name }}</option>
+              <option v-for="body in sortedBodies" :value="body.id" v-bind:key="body.id">{{ body.name }}</option>
             </select>
           </div>
         </div>
@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import sortBodies from '../../../methods/sort-bodies'
+
 export default {
   name: 'EditPrimaryBodyModal',
   props: ['member', 'services', 'showSuccess', 'showError'],
@@ -34,6 +36,11 @@ export default {
     return {
       userErrors: {},
       primaryBodyId: null
+    }
+  },
+  computed: {
+    sortedBodies () {
+      return sortBodies(this.member.bodies)
     }
   },
   methods: {
