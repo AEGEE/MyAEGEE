@@ -30,6 +30,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import DOMPurify from 'dompurify'
 import ical from 'ical/ical'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -84,7 +85,7 @@ export default {
           title: info.event.title,
           message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
             + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
-            + '<hr>' + info.event.extendedProps.description,
+            + '<hr>' + DOMPurify.sanitize(info.event.extendedProps.description || ''),
           canCancel: '[escape, outside]',
           confirmText: 'Cancel',
           type: 'is-light'
