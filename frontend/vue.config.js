@@ -4,6 +4,18 @@ const webpack = require('webpack');
 module.exports = {
   lintOnSave: true,
   transpileDependencies: ['axios'],
+  css: {
+    loaderOptions: {
+      sass: {
+        sassOptions: {
+          // quietDeps hides deprecation warnings from Bulma/Buefy's own Sass;
+          // silenceDeprecations hides those for our @import of Bulma until it's upgraded.
+          quietDeps: true,
+          silenceDeprecations: ['import'],
+        },
+      },
+    },
+  },
   configureWebpack: {
     resolve: {
       alias: {
