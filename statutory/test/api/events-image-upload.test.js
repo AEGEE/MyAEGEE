@@ -127,6 +127,60 @@ describe('Events image upload', () => {
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
 
+    it('should upload a JPEG file with a .jpg extension', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {
+                image: {
+                    path: './test/assets/valid_image.jpg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data).toHaveProperty('image');
+        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+
+        const imgPath = path.join(
+            __dirname,
+            '..',
+            '..',
+            res.body.data.image.file_path_absolute
+        );
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
+    it('should upload a JPEG file with a .jpeg extension', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {
+                image: {
+                    path: './test/assets/valid_image.jpeg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data).toHaveProperty('image');
+        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+
+        const imgPath = path.join(
+            __dirname,
+            '..',
+            '..',
+            res.body.data.image.file_path_absolute
+        );
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
     it('should remove the old file', async () => {
         // Uploading
         const firstRequest = await request({
