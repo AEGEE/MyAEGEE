@@ -13,7 +13,9 @@ set -euo pipefail
 
 service="${1:?Usage: package-version.sh <service>}"
 
-tags="$(git tag --list "${service}@*" --sort=-v:refname)"
+# Only tags HEAD descends from, so rebuilding an older commit (e.g. rerunning a
+# release pipeline after a newer release) still finds its own release.
+tags="$(git tag --merged HEAD --list "${service}@*" --sort=-v:refname)"
 latest_tag="${tags%%$'\n'*}"
 
 if [[ -z "${latest_tag}" ]]; then
