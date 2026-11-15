@@ -37,10 +37,12 @@ export TLS_VERIFY=${TLS_VERIFY:-"may"}
 echo "$RELAY_HOST_NAME" > /etc/mailname
 
 # Templates
-j2 /root/conf/postfix-main.cf > /etc/postfix/main.cf
-j2 /root/conf/sasl_passwd > /etc/postfix/sasl_passwd
-postmap /etc/postfix/sasl_passwd
+render-template.py /root/conf/postfix-main.cf > /etc/postfix/main.cf
+(umask 077 && render-template.py /root/conf/sasl_passwd > /etc/postfix/sasl_passwd)
+postmap lmdb:/etc/postfix/sasl_passwd
+chmod 600 /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.lmdb
+newaliases
 
-# Launch
+# Launch: postfix runs as PID 1, so `docker stop` (SIGTERM) shuts it down cleanly.
 rm -f /var/spool/postfix/pid/*.pid
-exec /usr/bin/supervisord -n -c /etc/supervisord.conf
+exec /usr/sbin/postfix start-fg

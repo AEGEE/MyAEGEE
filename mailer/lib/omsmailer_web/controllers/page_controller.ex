@@ -32,9 +32,8 @@ defmodule OmsmailerWeb.PageController do
     with {:ok, content} <- Page.render_template(template, parameters),
          {:ok, mails} <- Page.create_mails(from, to, subject),
          {:ok, mails} <- Page.set_additional_headers(mails, body_params),
-         {:ok, mails} <- Page.set_body(mails, content) do
-
-      Page.deliver_all_mails(mails)
+         {:ok, mails} <- Page.set_body(mails, content),
+         :ok <- Page.deliver_all_mails(mails) do
       render conn, "success.json"
     end
   end
