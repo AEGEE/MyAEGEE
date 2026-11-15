@@ -1,9 +1,9 @@
 const express = require('express');
+const qs = require('qs');
 const cors = require('cors');
-const router = require('express-promise-router');
 const bodyParser = require('body-parser');
-const boolParser = require('express-query-boolean');
 
+const queryBoolean = require('./query-boolean');
 const morgan = require('./morgan');
 const db = require('./sequelize');
 const applications = require('./applications'); // API middlewares for applications management
@@ -16,13 +16,17 @@ const endpointsMetrics = require('./endpoints_metrics');
 const config = require('../config');
 const Bugsnag = require('./bugsnag');
 
-const EventsRouter = router({ mergeParams: true });
-const GeneralRouter = router({ mergeParams: true });
+const EventsRouter = express.Router({ mergeParams: true });
+const GeneralRouter = express.Router({ mergeParams: true });
 
 const server = express();
+// Express 5 defaults to the 'simple' query parser, and its 'extended' parser
+// lowers qs's array limit to 20. Keep Express 4's behaviour: nested and bracketed
+// parameters (filter[status]=..., type[]=...) with up to 1000 array items.
+server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, arrayLimit: 1000 }));
 server.use(bodyParser.json());
 server.use(morgan);
-server.use(boolParser());
+server.use(queryBoolean());
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
@@ -95,7 +99,9 @@ let app;
 async function startServer() {
     return new Promise((res, rej) => {
         log.info({ config }, 'Starting server with the following config');
-        const localApp = server.listen(config.port, async () => {
+        const localApp = server.listen(config.port, async (err) => {
+            // Express 5 also calls this on startup errors (EADDRINUSE etc.).
+            if (err) return rej(err);
             app = localApp;
             log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();

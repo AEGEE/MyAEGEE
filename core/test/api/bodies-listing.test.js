@@ -253,6 +253,20 @@ describe('Bodies list', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should treat /bodies?all=false like no all parameter', async () => {
+        await generator.createBody({ status: 'deleted' });
+        const activeBody = await generator.createBody();
+
+        const res = await request({
+            path: '/bodies?all=false',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.map((body) => body.id)).toEqual([activeBody.id]);
+    });
+
     test('should not filter deleted bodies on /bodies?all=true', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);

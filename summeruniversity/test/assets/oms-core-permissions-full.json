@@ -1,0 +1,67 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "global",
+        "object": "summeruniversity",
+        "id": 101,
+        "filters": [],
+        "description": "Create a Summer University.",
+        "combined": "global:create:summeruniversity",
+        "circles": null,
+        "action": "create"
+    }, {
+        "scope": "global",
+        "object": "summeruniversity",
+        "id": 102,
+        "filters": [],
+        "description": "Apply to Summer Universities.",
+        "combined": "global:apply:summeruniversity",
+        "circles": null,
+        "action": "apply"
+    }, {
+        "scope": "global",
+        "object": "regular",
+        "id": 103,
+        "filters": [],
+        "description": "Approve regular Summer Universities.",
+        "combined": "global:approve_summeruniversity:regular",
+        "circles": null,
+        "action": "approve_summeruniversity"
+    }, {
+        "scope": "global",
+        "object": "pilot",
+        "id": 104,
+        "filters": [],
+        "description": "Approve pilot Summer Universities.",
+        "combined": "global:approve_summeruniversity:pilot",
+        "circles": null,
+        "action": "approve_summeruniversity"
+    }, {
+        "scope": "global",
+        "object": "regular",
+        "id": 105,
+        "filters": [],
+        "description": "Manage regular Summer Universities.",
+        "combined": "global:manage_summeruniversity:regular",
+        "circles": null,
+        "action": "manage_summeruniversity"
+    }, {
+        "scope": "global",
+        "object": "pilot",
+        "id": 106,
+        "filters": [],
+        "description": "Manage pilot Summer Universities.",
+        "combined": "global:manage_summeruniversity:pilot",
+        "circles": null,
+        "action": "manage_summeruniversity"
+    }, {
+        "scope": "global",
+        "object": "summeruniversity",
+        "id": 107,
+        "filters": [],
+        "description": "See applications of all bodies (boardview).",
+        "combined": "global:approve_members:summeruniversity",
+        "circles": null,
+        "action": "approve_members"
+    }]
+}
