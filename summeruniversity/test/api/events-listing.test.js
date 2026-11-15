@@ -11,6 +11,9 @@ const unauthorizedMocks = {
     approvePermissions: { unauthorized: true }
 };
 
+
+// Query parameters take dates as YYYY-MM-DD.
+const dateOnly = (date) => date.toISOString().slice(0, 10);
 describe('Events listing', () => {
     beforeAll(async () => {
         await startServer();
@@ -155,14 +158,14 @@ describe('Events listing', () => {
         });
 
         test('should filter by start and end dates', async () => {
-            const inside = await generator.createEvent({ starts: new Date('2027-07-05'), ends: new Date('2027-07-15') });
-            await generator.createEvent({ starts: new Date('2027-06-01'), ends: new Date('2027-06-10') }); // starts before
-            await generator.createEvent({ starts: new Date('2027-07-25'), ends: new Date('2027-08-10') }); // ends after
+            const inside = await generator.createEvent({ starts: generator.daysFromNow(104), ends: generator.daysFromNow(114) });
+            await generator.createEvent({ starts: generator.daysFromNow(70), ends: generator.daysFromNow(79) }); // starts before
+            await generator.createEvent({ starts: generator.daysFromNow(124), ends: generator.daysFromNow(140) }); // ends after
 
             const res = await request({
                 path: '/',
                 method: 'GET',
-                query: { starts: '2027-07-01', ends: '2027-07-31' },
+                query: { starts: dateOnly(generator.daysFromNow(100)), ends: dateOnly(generator.daysFromNow(130)) },
                 headers: { 'X-Auth-Token': 'foobar' }
             });
 
@@ -230,10 +233,10 @@ describe('Events listing', () => {
 
         test('should return the latest end date per organizing bodies combination', async () => {
             const bodies = [{ body_id: 1, body_name: 'AEGEE-Dresden' }];
-            await generator.createEvent({ organizing_bodies: bodies, starts: new Date('2027-07-01'), ends: new Date('2027-07-10') });
-            await generator.createEvent({ organizing_bodies: bodies, starts: new Date('2027-08-01'), ends: new Date('2027-08-10') });
-            await generator.createEvent({ starts: new Date('2027-06-01'), ends: new Date('2027-06-10') });
-            await generator.createEvent({ organizing_bodies: bodies, published: 'minimal', status: 'first approval', starts: new Date('2027-09-01'), ends: new Date('2027-09-10') });
+            await generator.createEvent({ organizing_bodies: bodies, starts: generator.daysFromNow(100), ends: generator.daysFromNow(110) });
+            const latest = await generator.createEvent({ organizing_bodies: bodies, starts: generator.daysFromNow(130), ends: generator.daysFromNow(140) });
+            await generator.createEvent({ starts: generator.daysFromNow(70), ends: generator.daysFromNow(80) });
+            await generator.createEvent({ organizing_bodies: bodies, published: 'minimal', status: 'first approval', starts: generator.daysFromNow(160), ends: generator.daysFromNow(170) });
 
             const res = await request({ path: '/recents', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
 
@@ -242,19 +245,19 @@ describe('Events listing', () => {
             expect(res.body.data.length).toEqual(2);
 
             const dresden = res.body.data.find((e) => e.organizing_bodies[0].body_id === 1);
-            expect(new Date(dresden.latest_event).toISOString()).toEqual(new Date('2027-08-10').toISOString());
+            expect(new Date(dresden.latest_event).toISOString()).toEqual(new Date(latest.ends).toISOString());
         });
 
         test('should filter by end date', async () => {
             const bodies = [{ body_id: 1, body_name: 'AEGEE-Dresden' }];
-            await generator.createEvent({ organizing_bodies: bodies, starts: new Date('2027-07-01'), ends: new Date('2027-07-10') });
-            await generator.createEvent({ organizing_bodies: bodies, starts: new Date('2027-08-01'), ends: new Date('2027-08-10') });
+            const earlier = await generator.createEvent({ organizing_bodies: bodies, starts: generator.daysFromNow(100), ends: generator.daysFromNow(110) });
+            await generator.createEvent({ organizing_bodies: bodies, starts: generator.daysFromNow(130), ends: generator.daysFromNow(140) });
 
-            const res = await request({ path: '/recents', method: 'GET', query: { ends: '2027-07-20' }, headers: { 'X-Auth-Token': 'foobar' } });
+            const res = await request({ path: '/recents', method: 'GET', query: { ends: dateOnly(generator.daysFromNow(125)) }, headers: { 'X-Auth-Token': 'foobar' } });
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.length).toEqual(1);
-            expect(new Date(res.body.data[0].latest_event).toISOString()).toEqual(new Date('2027-07-10').toISOString());
+            expect(new Date(res.body.data[0].latest_event).toISOString()).toEqual(new Date(earlier.ends).toISOString());
         });
     });
 

@@ -159,7 +159,7 @@ describe('Events creation', () => {
         ['email', { email: 'not-an-email' }, 'Given email is not valid.'],
         ['url', { url: 'not a valid url!' }, 'Event URL should only contain numbers, letters and dashes.'],
         ['url', { url: '1234' }, 'Event URL should have at least 1 letter.'],
-        ['ends', { starts: '2027-07-10', ends: '2027-07-01' }, 'Event cannot start after or at the same time it ends.'],
+        ['ends', { starts: generator.daysFromNow(70), ends: generator.daysFromNow(60) }, 'Event cannot start after or at the same time it ends.'],
         ['fee', { fee: -1 }, 'Event fee cannot be negative'],
         ['optional_fee', { optional_fee: 51 }, 'Optional fee cannot be more than 50 euros.'],
         ['type', { type: 'nwm' }, 'SU type should be one of these: normal, pilot.'],
@@ -173,7 +173,7 @@ describe('Events creation', () => {
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
         ['questions', { questions: 'not an array' }, 'Event questions should be an array of strings.'],
         ['course_level', { course_level: 'expert' }, 'SU course level should be one of these: beginner, intermediate, advanced.'],
-        ['application_ends', { application_starts: '2027-01-10', application_ends: '2027-01-01' }, 'Application period cannot end before or at the same time it starts.'],
+        ['application_ends', { application_starts: generator.daysFromNow(10), application_ends: generator.daysFromNow(5) }, 'Application period cannot end before or at the same time it starts.'],
         ['locations', { locations: [] }, null],
         ['organizers', { organizers: [{ user_id: user.id, role: 'main_coordinator' }] }, null],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {
