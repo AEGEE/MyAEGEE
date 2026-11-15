@@ -231,13 +231,16 @@
                   <th>Name</th>
                   <th>Description</th>
                 </tr>
-                <tr v-for="body in user.bodies" v-bind:key="body.id">
+                <tr v-for="body in sortedBodies" v-bind:key="body.id">
                   <td>
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{
                       body.code
                     }}</router-link>
                   </td>
-                  <td>{{ body.name }}</td>
+                  <td>
+                    {{ body.name }}
+                    <span v-if="body.id === user.primary_body_id" class="tag is-info is-light">Primary</span>
+                  </td>
                   <td>{{ body.description }}</td>
                 </tr>
               </tbody>
@@ -281,6 +284,7 @@ import moment from 'moment'
 import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
 import EditPrimaryEmailModal from './EditPrimaryEmailModal.vue'
 import PictureModal from './PictureModal.vue'
+import sortBodies from '../../../methods/sort-bodies'
 
 export default {
   name: 'SingleUser',
@@ -620,6 +624,9 @@ export default {
     }),
     activeEventApplicationBan () {
       return this.user.event_application_ban && new Date(this.user.event_application_ban.ban_until) > new Date()
+    },
+    sortedBodies () {
+      return sortBodies(this.user.bodies, this.user.primary_body_id)
     }
   }
 }

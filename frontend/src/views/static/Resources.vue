@@ -70,9 +70,9 @@ export default {
             color: 'blue'
           },
           {
-            url: 'https://aegee.us7.list-manage.com/subscribe?u=7a170c64e0d3990f3f6629d21&id=fc8908d780',
-            title: 'External Newsletter',
-            description: 'Bi-monthly newsletter for Partners & Supporters',
+            url: 'https://b1905f52.sibforms.com/serve/MUIFABZ7dW0Hjpw5BjnfaUUf6FWO5WAeoUit48zO0eIA0YAnT6pErXmLyKqTMrfjXDeTMd62E75ggVEsalSQtxGIpUjI2sO3gdjeO8pn-LRorgvcwJIyJNPYLq0HyxqRmpu3UtQaySzFxxaDXtr2cNwJiiXW-jafJVI90kqeUa0vh4t2n-SJTKx8BSoKqcNVLE_UOIO7ch1PAfVhXA==',
+            title: 'Internal Newsletter',
+            description: 'Monthly internal newsletter, for all our members.',
             color: 'blue'
           },
           {
