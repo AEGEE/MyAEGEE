@@ -1,9 +1,7 @@
 # Multi-platform support (linux/amd64, linux/arm64)
 FROM --platform=$BUILDPLATFORM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
 
-# hadolint ignore=DL3018
-RUN apk add --no-cache curl \
- && mkdir -p /usr/app/src /usr/app/media /usr/app/scripts \
+RUN mkdir -p /usr/app/src /usr/app/media /usr/app/scripts \
  && chown -R node:node /usr/app
 
 WORKDIR /usr/app/src

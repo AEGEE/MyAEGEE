@@ -32,7 +32,7 @@ services:
             LISTSERV_ENDPOINT: "${LISTSERV_ENDPOINT}"
             LISTSERV_TOKEN: "${LISTSERV_TOKEN}"
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8084/healthcheck"]
             interval: 30s
             timeout: 10s
             retries: 3
@@ -61,7 +61,7 @@ services:
         expose:
             - "80"
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:80/healthcheck"]
+            test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/healthcheck"]
             interval: 30s
             timeout: 10s
             retries: 3
