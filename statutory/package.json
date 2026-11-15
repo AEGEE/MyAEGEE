@@ -26,6 +26,10 @@
     "reporters": [
       "default",
       "jest-junit"
+    ],
+    "globalSetup": "<rootDir>/test/scripts/faker-global-setup.js",
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/scripts/faker-seed.js"
     ]
   },
   "lint-staged": {

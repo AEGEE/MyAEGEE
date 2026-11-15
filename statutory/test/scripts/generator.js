@@ -33,15 +33,22 @@ const visaFields = [
     'visa_country'
 ];
 
-// Applications and candidates must have a unique user_id per event/position.
-// Random IDs collided now and then (two applications for the same event, or two
-// candidates for the same position, got the same ID), so hand out unique IDs that
-// also stay clear of the users in the core fixtures.
-let lastUserId = 1000;
-const nextUserId = () => {
-    lastUserId += 1;
-    return lastUserId;
+// IDs and orders are never random. A random value can collide with another generated
+// row on a unique constraint (applications per event/user and per body/type/order,
+// candidates per position/user, memberslists per event/body, pax limits per
+// body/event type), or match an ID that a test or a core mock uses on purpose
+// (e.g. the user's board body), which makes tests flaky. Counters start far above
+// any ID used in the tests or the mocks, so generated values never meet them.
+const makeCounter = (start) => {
+    let last = start;
+    return () => {
+        last += 1;
+        return last;
+    };
 };
+const nextUserId = makeCounter(100000);
+const nextBodyId = makeCounter(200000);
+const nextParticipantOrder = makeCounter(1000);
 
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
@@ -60,11 +67,11 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.starts)) options.starts = faker.date.future({ refDate: options.memberslist_submission_deadline });
     if (notSet(options.ends)) options.ends = faker.date.future({ refDate: options.starts });
     if (notSet(options.fee)) options.fee = faker.number.int({ min: 0, max: 100 });
-    if (notSet(options.body_id)) options.body_id = faker.number.int(100);
+    if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.type)) options.type = faker.helpers.arrayElement(['agora', 'epm']);
 
     if (notSet(options.questions)) {
-        const questionsCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
+        const questionsCount = faker.number.int({ min: 1, max: 6 });
         options.questions = Array.from({ length: questionsCount }, () => exports.generateQuestionForEvent());
     }
 
@@ -86,10 +93,10 @@ exports.generateQuestionForEvent = (options = {}) => {
 
 exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.user_id)) options.user_id = nextUserId();
-    if (notSet(options.body_id)) options.body_id = faker.number.int(100);
+    if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.board_comment)) options.board_comment = faker.lorem.paragraph();
     if (notSet(options.participant_type)) options.participant_type = faker.helpers.arrayElement(['delegate', 'visitor', 'observer', 'envoy']);
-    if (notSet(options.participant_order)) options.participant_order = faker.number.int({ min: 1, max: 100 });
+    if (notSet(options.participant_order)) options.participant_order = nextParticipantOrder();
 
     // fields taken from application
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
@@ -108,7 +115,7 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.number_of_events_visited)) options.number_of_events_visited = faker.number.int({ min: 0, max: 100 });
 
     if (notSet(options.answers)) {
-        const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
+        const answersCount = event ? event.questions.length : faker.number.int({ min: 1, max: 6 });
         options.answers = Array.from({ length: answersCount }, () => faker.lorem.sentence());
     }
 
@@ -121,13 +128,11 @@ exports.generateApplication = (options = {}, event = null) => {
 
 exports.generateMembersList = (options = {}, event = null) => {
     if (notSet(options.currency)) options.currency = 'EU';
-    if (notSet(options.user_id)) options.user_id = faker.number.int(100);
-    if (notSet(options.body_id)) options.body_id = faker.number.int(100);
+    if (notSet(options.user_id)) options.user_id = nextUserId();
+    if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.members)) {
-        const membersCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
-        options.members = Array.from({ length: membersCount }, (value, index) => exports.generateMembersListMember({
-            user_id: index + 1
-        }));
+        const membersCount = faker.number.int({ min: 1, max: 6 });
+        options.members = Array.from({ length: membersCount }, () => exports.generateMembersListMember());
     }
 
     if (event && event.id) {
@@ -138,7 +143,7 @@ exports.generateMembersList = (options = {}, event = null) => {
 };
 
 exports.generateMembersListMember = (options = {}) => {
-    if (notSet(options.user_id)) options.user_id = faker.number.int(100);
+    if (notSet(options.user_id)) options.user_id = nextUserId();
     if (notSet(options.first_name)) options.first_name = faker.person.firstName();
     if (notSet(options.last_name)) options.last_name = faker.person.lastName();
     if (notSet(options.fee)) options.fee = faker.number.int({ min: 1, max: 1000 });
@@ -147,7 +152,7 @@ exports.generateMembersListMember = (options = {}) => {
 };
 
 exports.generatePaxLimit = (options = {}) => {
-    if (notSet(options.body_id)) options.body_id = faker.number.int(100);
+    if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.delegate)) options.delegate = faker.number.int(100);
     if (notSet(options.visitor)) options.visitor = faker.number.int(100);
     if (notSet(options.observer)) options.observer = faker.number.int(100);
@@ -176,7 +181,7 @@ exports.generatePosition = (options = {}, event = null) => {
 // eslint-disable-next-line default-param-last
 exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.user_id)) options.user_id = nextUserId();
-    if (notSet(options.body_id)) options.body_id = faker.number.int({ min: 1, max: 100 });
+    if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.date_of_birth)) options.date_of_birth = moment(faker.date.past()).format('YYYY-MM-DD');
