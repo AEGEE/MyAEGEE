@@ -11,7 +11,6 @@ const unauthorizedMocks = {
     approvePermissions: { unauthorized: true }
 };
 
-
 // Query parameters take dates as YYYY-MM-DD.
 const dateOnly = (date) => date.toISOString().slice(0, 10);
 describe('Events listing', () => {
