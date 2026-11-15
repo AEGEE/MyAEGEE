@@ -13,7 +13,9 @@ export default {
     return moment(value).format('YYYY-MM-DD HH:mm:ss')
   },
   markdown (value) {
-    return `<div class="markdown">${marked(DOMPurify.sanitize(value))}</div>`
+    // Sanitize the rendered HTML, not the markdown source: marked turns
+    // `[x](javascript:...)` into a live link that DOMPurify never sees otherwise.
+    return `<div class="markdown">${DOMPurify.sanitize(marked(value == null ? '' : String(value)))}</div>`
   },
   capitalize (value) {
     if (typeof value !== 'string') return ''
