@@ -1,7 +1,8 @@
 // Helpers for talking to the e2e stack through the gateway, the same way the frontend does.
 import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 
-import { PASSWORD, SECOND_ANTENNA, url, type Username } from './constants.ts';
+import { createAntenna, type TestAntenna } from './core-data.ts';
+import { PASSWORD, url, type Username } from './constants.ts';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -130,17 +131,6 @@ export class Api {
         return body.data;
     }
 
-    async bodyByName(name: string): Promise<Body> {
-        const { body } = await this.call<Envelope<Body[]>>(null, 'GET', `/api/core/bodies?query=${encodeURIComponent(name)}`);
-        const found = body.data.find((b) => b.name === name);
-        expect(found, `body ${name}`).toBeTruthy();
-        return found as Body;
-    }
-
-    secondAntenna(): Promise<Body> {
-        return this.bodyByName(SECOND_ANTENNA.name);
-    }
-
     // Valid event creation payload with `username` as the only organizer unless
     // `organizers` is given. Applications are open from yesterday until in 10 days.
     // Users without bodies (like admin and not-member) organize on behalf of
@@ -232,7 +222,7 @@ const knownBugErrors = new Map<string, RegExp>();
 
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
-export const test = base.extend<{ api: Api; knownBugGuard: void }>({
+export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void }>({
     // The frontend loads fonts and map tiles from the internet. The tests don't need them,
     // and a slow or failing external request would delay the page's load event, so block them.
     context: async ({ context }, use) => {
@@ -241,6 +231,13 @@ export const test = base.extend<{ api: Api; knownBugGuard: void }>({
     },
     api: async ({ request }, use) => {
         await use(new Api(request));
+    },
+    // A new antenna with one member, who shares no body with the seeded users.
+    // Created through the core API for the tests that ask for it, deleted afterwards.
+    otherAntenna: async ({ api }, use) => {
+        const [antenna, cleanup] = await createAntenna(api);
+        await use(antenna);
+        await cleanup();
     },
     // Reports a known-bug test as a real failure when it fails with a different error
     // than the documented one. Every error of the test has to match, so a soft
@@ -284,6 +281,13 @@ export const knownBug = (reason: string, expectedError: RegExp): void => {
     test.info().annotations.push({ type: 'known-bug-error', description: String(pattern) });
     knownBugErrors.set(test.info().testId, pattern);
 };
+
+// Details for a test that only checks behaviour of one module and belongs in that module's tests
+// (see "Scope" in the README). `npx playwright test --list --grep @move-to-module` lists them.
+export const moveToModule = (module: string, note: string) => ({
+    tag: '@move-to-module',
+    annotation: { type: 'move-to-module', description: `${module}: ${note}` }
+});
 
 // Asserts the HTTP status and shows the response body when it doesn't match.
 export const expectStatus = (res: ApiResult, status: number): void => expect(res.status, JSON.stringify(res.body)).toBe(status);

@@ -12,23 +12,20 @@ export type Service = keyof typeof PORTS;
 
 export const PASSWORD = '5ecr3t5ecr3t';
 
-// Usernames from core/scripts/seed.js, plus the ones added by scripts/core-fixtures.ts.
+// Usernames from core/scripts/seed.js that the tests use.
 export const USERS = {
     admin: 'admin',
     member: 'member',
     board: 'board',
     netcom: 'netcom',
-    notMember: 'not-member',
-    organizerB: 'organizer-b'
+    notMember: 'not-member'
 } as const;
 
-export type Username = typeof USERS[keyof typeof USERS];
+export type SeedUsername = typeof USERS[keyof typeof USERS];
 
-// Second antenna created by the fixtures, so tests can use an organizer
-// who shares no body with the NetCom member.
-export const SECOND_ANTENNA = {
-    name: 'AEGEE-E2E-Second',
-    code: 'EES'
-} as const;
+// Users that tests create themselves (see support/core-data.ts) are prefixed with `e2e-`.
+export type TestUsername = `e2e-${string}`;
+
+export type Username = SeedUsername | TestUsername;
 
 export const url = (service: Service): string => `http://127.0.0.1:${PORTS[service]}`;

@@ -1,7 +1,7 @@
-import { test, expect, expectStatus, knownBug, loginInBrowser, type Application, type Envelope } from '../support/api.ts';
+import { test, expect, expectStatus, knownBug, loginInBrowser, moveToModule, type Application, type Envelope } from '../support/api.ts';
 
 test.describe('events permissions', () => {
-    test('creating an event requires create:event', async ({ api }) => {
+    test('creating an event requires create:event', moveToModule('events', 'mock core\'s permissions'), async ({ api }) => {
         knownBug('Known bug: addEvent does not check create:event', /Received: 201/);
 
         // not-member is in no body and so has no create:event.
@@ -10,7 +10,7 @@ test.describe('events permissions', () => {
         expectStatus(res, 403);
     });
 
-    test('manage_event for one type only shows future applications for that type', async ({ api }) => {
+    test('manage_event for one type only shows future applications for that type', moveToModule('events', 'mock core\'s permissions'), async ({ api }) => {
         knownBug('Known bug: any manage_event permission lists future applications for all event types', /Received: "training"/);
 
         const member = await api.me('member');
@@ -28,7 +28,7 @@ test.describe('events permissions', () => {
         }
     });
 
-    test('editing someone else\'s application keeps the applicant', async ({ api }) => {
+    test('editing someone else\'s application keeps the applicant', moveToModule('events', 'mock core\'s user lookups'), async ({ api }) => {
         knownBug('Known bug: updateApplication overwrites user_id and name with the editor\'s', /applicant user_id/);
 
         const member = await api.me('member');
@@ -46,7 +46,7 @@ test.describe('events permissions', () => {
         expect(res.body.data.first_name).toBe(member.first_name);
     });
 
-    test('the event status is shown to people who can approve the event', async ({ api, page }) => {
+    test('the event status is shown to people who can approve the event', moveToModule('frontend', 'once the frontend has component tests'), async ({ api, page }) => {
         const event = await api.createEvent('admin', { type: 'training' });
         await api.publishAsAdmin(event.id);
 
@@ -56,7 +56,7 @@ test.describe('events permissions', () => {
         await expect(page.getByRole('rowheader', { name: 'Status', exact: true })).toBeVisible();
     });
 
-    test('the event status is hidden from people who cannot approve the event', async ({ api, page }) => {
+    test('the event status is hidden from people who cannot approve the event', moveToModule('frontend', 'once the frontend has component tests'), async ({ api, page }) => {
         knownBug('Known bug: Single.vue checks can.approve_event, which is an object and always truthy', /toHaveCount[\s\S]*Expected: 0[\s\S]*Received: 1/);
 
         const event = await api.createEvent('admin', { type: 'training' });

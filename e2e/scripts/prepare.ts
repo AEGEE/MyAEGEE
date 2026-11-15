@@ -1,5 +1,5 @@
-// Prepares the e2e environment: recreates the databases, seeds core, applies
-// the e2e fixtures and builds the frontend into e2e/.frontend-dist.
+// Prepares the e2e environment: recreates the databases, seeds core and builds
+// the frontend into e2e/.frontend-dist. Tests create any other data they need themselves.
 // Usage: node scripts/prepare.ts [--skip-frontend]
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -30,7 +30,6 @@ for (const service of ['core', 'events', 'summeruniversity']) {
 
 fs.rmSync(path.join(root, 'core/state/.seed-executed-e2e'), { force: true });
 run('node --experimental-repl-await scripts/seed.js', path.join(root, 'core'));
-run('node scripts/core-fixtures.ts', path.join(root, 'e2e'));
 
 if (!process.argv.includes('--skip-frontend')) {
     // vue-cli keeps an existing NODE_ENV, so set it explicitly to get the production build.

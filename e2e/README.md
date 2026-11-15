@@ -1,9 +1,30 @@
 # MyAEGEE end-to-end tests
 
 Playwright tests that run against real `core`, `events` and `summeruniversity`
-services and the built frontend. Use them to check behaviour that crosses
-services, such as permissions that depend on core, which the per-service jest
-tests mock away.
+services and the built frontend.
+
+## Scope
+
+e2e tests are slow and need the whole stack, so keep them for what the module tests can't cover:
+
+- behaviour that crosses services, such as what core grants and what events or
+  summeruniversity then allow (the per-service jest tests mock core away);
+- the frontend working against the real APIs;
+- a few smoke tests of the stack itself.
+
+Anything a single service decides on its own (its permission checks, validation, the mails it
+sends) belongs in that service's tests, with the other services mocked.
+
+Some tests here still check only one module, because that module has no tests for it yet. They
+are tagged `@move-to-module`, with a `move-to-module` annotation naming the module and what the
+module test needs (`moveToModule()` in `support/api.ts`). List them with:
+
+```sh
+npx playwright test --list --grep @move-to-module
+```
+
+When a module gets the test, delete the e2e one. Don't add new tests with this tag unless the module
+can't be tested yet.
 
 ## How the stack runs
 
@@ -26,14 +47,19 @@ No Docker images or traefik are involved:
 
 ## Data
 
-`npm run setup` recreates the databases, runs the core seed and then `scripts/core-fixtures.ts`.
-The core seed already models the production circles and their permissions (`core/scripts/seed-permissions.js`),
-so the fixtures only add what the e2e tests need on top:
+`npm run setup` recreates the databases, runs the core seed and builds the frontend. The core seed
+models the production circles and their permissions (`core/scripts/seed-permissions.js`), and its users
+all use the password `5ecr3t5ecr3t`.
 
-- a second antenna with a member `organizer-b` who shares no body with NetCom.
+Everything else a test needs, it creates itself:
 
-All seeded users use the password `5ecr3t5ecr3t`. The fixtures only run with `NODE_ENV=e2e` and expect a
-freshly seeded database, so always run them through `npm run setup`.
+- Events, applications and so on through the APIs, with unique names, so tests don't depend on each other.
+- Core data through fixtures in `support/api.ts`, which call the core API as admin (`support/core-data.ts`)
+  and delete what they created after the test, also when it failed. For example, a test that asks for
+  `otherAntenna` gets a new antenna with one member who shares no body with the seeded users.
+
+Tests never write to the databases directly: going through the APIs keeps the data consistent with the
+services' validation and hooks.
 
 ## Running locally
 
