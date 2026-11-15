@@ -8,8 +8,8 @@ module.exports = {
     loaderOptions: {
       sass: {
         sassOptions: {
-          // Bulma 0.9 relies on Sass features that Dart Sass deprecates (@import,
-          // global built-ins, slash division); hide those until Bulma is upgraded.
+          // quietDeps hides deprecation warnings from Bulma/Buefy's own Sass;
+          // silenceDeprecations hides those for our @import of Bulma until it's upgraded.
           quietDeps: true,
           silenceDeprecations: ['import'],
         },
