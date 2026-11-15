@@ -53,7 +53,7 @@ const config = {
             'bugsnag_key',
             'cookie'
         ],
-        bugsnag_key: process.env.BUGSNAG_KEY_CORE || 'CHANGEME'
+        bugsnag_key: process.env.BUGSNAG_KEY || ''
     },
     development: {
 
