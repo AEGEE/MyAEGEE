@@ -4,6 +4,18 @@ const webpack = require('webpack');
 module.exports = {
   lintOnSave: true,
   transpileDependencies: ['axios'],
+  css: {
+    loaderOptions: {
+      sass: {
+        sassOptions: {
+          // Bulma 0.9 relies on Sass features that Dart Sass deprecates (@import,
+          // global built-ins, slash division); hide those until Bulma is upgraded.
+          quietDeps: true,
+          silenceDeprecations: ['import'],
+        },
+      },
+    },
+  },
   configureWebpack: {
     resolve: {
       alias: {

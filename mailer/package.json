@@ -5,9 +5,6 @@
   "keywords": [],
   "author": "Nico Westerbeck",
   "license": "ISC",
-  "devDependencies": {
-    "conventional-changelog": "^5.1.0"
-  },
   "scripts": {
     "semantic-release": "semantic-release"
   }
