@@ -1199,6 +1199,15 @@ jobs:
                 mix local.rebar --force &&
                 mix deps.get --locked &&
                 mix coveralls'
+  mailer-smoke-test:
+    machine:
+      image: ubuntu-2404:2026.10.1
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Send a mail through mailer and mail-transfer-agent to a relay
+          command: sh mailer/docker/smoke-test.sh
   mailer-build:
     docker:
       - image: cimg/base:2026.11
@@ -2316,6 +2325,9 @@ workflows:
   mailer-test:
     jobs:
       - mailer-test
+  mailer-smoke-test:
+    jobs:
+      - mailer-smoke-test
   mailer-docker-build-and-push:
     jobs:
       - mailer-docker-build-and-push:
