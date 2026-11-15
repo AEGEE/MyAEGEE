@@ -17,6 +17,9 @@ const db = require('./sequelize');
 const { job } = require('./cron');
 
 const server = express();
+// Express 5 defaults to the 'simple' query parser; keep parsing nested and
+// bracketed parameters (filter[status]=..., type[]=...) with qs as before.
+server.set('query parser', 'extended');
 server.use(bodyParser.json());
 server.use(morgan);
 

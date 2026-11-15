@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
-const boolParser = require('express-query-boolean');
 
+const queryBoolean = require('./query-boolean');
 const morgan = require('./morgan');
 const db = require('./sequelize');
 const applications = require('./applications'); // API middlewares for applications management
@@ -20,9 +20,12 @@ const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
 
 const server = express();
+// Express 5 defaults to the 'simple' query parser; keep parsing nested and
+// bracketed parameters (filter[status]=..., type[]=...) with qs as before.
+server.set('query parser', 'extended');
 server.use(bodyParser.json());
 server.use(morgan);
-server.use(boolParser());
+server.use(queryBoolean());
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
