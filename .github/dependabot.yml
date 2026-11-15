@@ -22,6 +22,19 @@ updates:
       - "/statutory"
       - "/summeruniversity"
       - "/mailer"
+    # Every PR runs the full CI, so keep the number of PRs down:
+    # - minor and patch updates: one PR per workspace
+    # - major updates: one PR per package across all workspaces (e.g. express 4 -> 5)
+    # Security updates are not grouped (groups only apply to version updates).
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+      majors:
+        group-by: dependency-name
+        update-types:
+          - "major"
     schedule:
       interval: "weekly"
       day: "friday"
@@ -46,6 +59,13 @@ updates:
       - "/monitor/docker/logstash"
       - "/dispatcher/docker"
       - "/docker/nginx-static"
+    # Base images are pinned by digest. Bump each image in all Dockerfiles in one
+    # PR (node:26-alpine alone is used by eight of them) instead of one per directory.
+    groups:
+      base-images:
+        group-by: dependency-name
+        patterns:
+          - "*"
     schedule:
       interval: "weekly"
       day: "friday"
