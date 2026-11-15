@@ -103,6 +103,19 @@ describe('Events organizers', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors.organizers[0]).toEqual('Organizers should not be listed twice.');
         });
+
+        test('should return 422 for more than 50 organizers', async () => {
+            mock.mockAll(creatorMocks());
+            const organizers = generator.generateOrganizers();
+            for (let id = 2000; organizers.length < 51; id++) {
+                organizers.push({ user_id: id, role: 'general_organizer' });
+            }
+
+            const res = await createEvent(generator.generateEventBody({ organizers }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.organizers[0]).toEqual('A Summer University can have at most 50 organizers.');
+        });
     });
 
     describe('editing', () => {

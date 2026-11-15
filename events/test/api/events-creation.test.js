@@ -1357,6 +1357,35 @@ describe('Events creation', () => {
         }
     });
 
+    it('should return 422 for more than 50 organizers', async () => {
+        const organizers = [{ user_id: user.id }];
+        for (let id = 1000; organizers.length < 51; id++) {
+            organizers.push({ user_id: id });
+        }
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Organizers limit test',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers,
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.organizers[0]).toEqual('An event can have at most 50 organizers.');
+    });
+
     it('should return 422 for duplicated organizers', async () => {
         const res = await request({
             path: '/',
