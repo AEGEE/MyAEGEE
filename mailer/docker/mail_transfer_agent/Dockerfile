@@ -3,16 +3,14 @@ FROM --platform=$BUILDPLATFORM alpine:3.24@sha256:f59abe656b692d901e184be3445e08
 #MAINTAINER Uri Savelchev <alterrebe@gmail.com>
 
 # Packages: update
-RUN apk --no-cache add postfix ca-certificates libsasl py3-jinja2 supervisor rsyslog
+RUN apk --no-cache add postfix ca-certificates libsasl py3-jinja2
 
 # Add files
 COPY docker/mail_transfer_agent/conf /root/conf
 RUN mkfifo /var/spool/postfix/public/pickup \
     && ln -s /etc/postfix/aliases /etc/aliases
 
-# Configure: supervisor
 COPY docker/mail_transfer_agent/bin/render-template.py /usr/local/bin/
-COPY docker/mail_transfer_agent/conf/supervisor-all.ini /etc/supervisor.d/
 
 # Runner
 COPY docker/mail_transfer_agent/run.sh /root/run.sh

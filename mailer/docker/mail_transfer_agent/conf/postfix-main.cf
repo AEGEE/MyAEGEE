@@ -13,12 +13,17 @@ readme_directory = no
 smtp_sasl_auth_enable = yes
 smtp_sasl_security_options = noanonymous
 smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd
-{% if USE_TLS == "no" %}
+{% if EXT_RELAY_PORT == "465" %}
+# Wrapper mode (implicit TLS) only works with a mandatory TLS level.
+smtp_tls_security_level = encrypt
+{% elif USE_TLS == "no" %}
 smtp_tls_security_level = none
 {% else %}
 smtp_tls_security_level = {{ TLS_VERIFY }}
 {% endif %}
 smtp_tls_note_starttls_offer = yes
+# Log the TLS handshake with the relay (protocol, cipher).
+smtp_tls_loglevel = 1
 smtp_tls_session_cache_database = lmdb:${data_directory}/smtp_scache
 {% if EXT_RELAY_PORT == "465" %}
 smtp_tls_wrappermode = yes
@@ -45,3 +50,5 @@ inet_interfaces = all
 inet_protocols = all
 #smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 
+# Log to the container's stdout (postfix runs in the foreground as PID 1).
+maillog_file = /dev/stdout
