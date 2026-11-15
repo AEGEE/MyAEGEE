@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   maria-bitwarden:
-    image: mariadb:10.4
+    image: mariadb:10.11
     restart: on-failure
     environment:
       MYSQL_DATABASE: "bitwarden"
