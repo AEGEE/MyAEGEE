@@ -44,6 +44,42 @@ updates:
       - "/summeruniversity/docker/summeruniversity"
       - "/gateways/docker/portal"
       - "/monitor/docker/logstash"
+      - "/dispatcher/docker"
+      - "/docker/nginx-static"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+
+  # Images referenced from docker-compose files (databases, monitoring, third-party services).
+  - package-ecosystem: "docker-compose"
+    # A database major bump can't start on the existing data volume (it needs a
+    # dump/restore), so only patch/minor updates are proposed for databases.
+    ignore:
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mariadb"
+        update-types: ["version-update:semver-major"]
+    directories:
+      - "/core/docker"
+      - "/dev-tools/docker"
+      - "/discounts/docker"
+      - "/dispatcher/docker"
+      - "/events/docker"
+      - "/frontend/docker"
+      - "/gateways/docker"
+      - "/knowledge/docker"
+      - "/mailer/docker"
+      - "/monitor-agents/docker"
+      - "/monitor/docker"
+      - "/network/docker"
+      - "/pass-manager/docker"
+      - "/statutory/docker"
+      - "/summeruniversity/docker"
+      - "/survey/docker"
+      - "/url-shortener/docker"
     schedule:
       interval: "weekly"
       day: "friday"

@@ -46,7 +46,7 @@ defmodule Omsmailer.Mixfile do
       {:plug_cowboy, "~> 2.2"},
       {:cowboy, "~> 2.7"},
       {:poison, "~> 5.0"},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.18", only: :test}
     ]
   end
 
