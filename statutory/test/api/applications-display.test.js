@@ -136,7 +136,9 @@ describe('Applications displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
-        const application = await generator.createApplication({ user_id: 1337 }, event);
+        // A body the user is not a board member of. The approve permissions mock
+        // still grants board rights for one body, which a random body_id can hit.
+        const application = await generator.createApplication({ user_id: 1337, body_id: 1337 }, event);
 
         const res = await request({
             path: '/events/' + event.id + '/applications/' + application.id,
