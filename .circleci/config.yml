@@ -2141,8 +2141,8 @@ jobs:
     # Runs core, events and summeruniversity as plain Node processes against one
     # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
     docker:
-      - image: cimg/node:22.22.0
-      - image: cimg/postgres:17.6
+      - image: cimg/node:26.13.1
+      - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: 5ecr3t
     resource_class: large

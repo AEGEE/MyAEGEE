@@ -63,11 +63,11 @@ services' validation and hooks.
 
 ## Running locally
 
-You need Node 22.18 or newer (it runs the TypeScript scripts directly) and a Postgres the services can reach (user `postgres`, password `5ecr3t`).
+You need Node 26 or newer (the version CI uses; it runs the TypeScript scripts directly) and a Postgres the services can reach (user `postgres`, password `5ecr3t`).
 For example, a throwaway container:
 
 ```sh
-docker run -d --rm --name myaegee-e2e-pg -e POSTGRES_PASSWORD=5ecr3t -p 127.0.0.1:55432:5432 postgres:17
+docker run -d --rm --name myaegee-e2e-pg -e POSTGRES_PASSWORD=5ecr3t -p 127.0.0.1:55432:5432 postgres:18
 ```
 
 Then, from the repository root:
@@ -91,7 +91,7 @@ and Node runs the scripts and support servers with its built-in type stripping. 
 only uses syntax that can be erased (no enums, namespaces or parameter properties) and imports
 local files with their `.ts` extension. `npm run lint` runs eslint and `tsc --noEmit` for type checking.
 
-Core's models and seed data are CommonJS without types; `support/core.ts` loads them.
+Core's seed permissions are CommonJS without types; `support/core.ts` loads them.
 
 ## Known bugs
 
