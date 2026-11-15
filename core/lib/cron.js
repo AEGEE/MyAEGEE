@@ -105,7 +105,7 @@ class JobManager {
         }
 
         logger.info({ job: _.pick(job, ['id', 'description', 'rule']) }, 'Cancelling job');
-        job.job.stop();
+        job.job.destroy();
         delete this.jobs[id];
     }
 

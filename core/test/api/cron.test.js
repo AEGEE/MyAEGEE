@@ -39,11 +39,12 @@ describe('Cron testing', () => {
     test('should stop the scheduled task when cancelling a job', async () => {
         const id = cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
         const { job } = cron.jobs[id];
-        const stop = jest.spyOn(job, 'stop');
+        const destroy = jest.spyOn(job, 'destroy');
 
         cron.cancelJob(id);
 
-        expect(stop).toHaveBeenCalledTimes(1);
+        expect(destroy).toHaveBeenCalledTimes(1);
+        expect(job.getStatus()).toEqual('destroyed');
         expect(cron.jobs[id]).toBeUndefined();
     });
 
