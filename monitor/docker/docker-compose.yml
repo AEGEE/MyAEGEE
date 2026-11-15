@@ -45,7 +45,7 @@ services:
 
   # alternative to ciao, but more similar to cachet
   statping:
-    image: hunterlong/statping:v0.80.65
+    image: hunterlong/statping:v0.90.45
     environment:
       DB_CONN: sqlite
       NAME: "MyAEGEE Statping"
