@@ -66,6 +66,14 @@ docker run -d --name "$MAILER" --network "$NETWORK" \
     -e MIX_ENV=production -e SMTP_USER="$SMTP_USER" -e PORT=4000 \
     "$MAILER_IMAGE" >/dev/null
 
+echo "Waiting for mail-transfer-agent to accept SMTP connections..."
+i=0
+until docker exec "$MTA" sh -c '(sleep 1; echo QUIT) | nc -w 3 127.0.0.1 25 | grep -q "^220"' 2>/dev/null; do
+    i=$((i + 1))
+    if [ "$i" -ge 60 ]; then echo "mail-transfer-agent did not start"; exit 1; fi
+    sleep 1
+done
+
 echo "Waiting for the mailer to become healthy..."
 i=0
 until curl_in_network -f "http://$MAILER:4000/healthcheck" >/dev/null; do
