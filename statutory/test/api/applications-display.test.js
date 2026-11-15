@@ -97,7 +97,7 @@ describe('Applications displaying', () => {
     });
 
     test('should succeed for those who has permissions to see applications', async () => {
-        const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
+        const userId = 1337;
         const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ user_id: userId }, event);
 
@@ -115,7 +115,7 @@ describe('Applications displaying', () => {
     });
 
     test('should find application by statutory_id', async () => {
-        const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
+        const userId = 1337;
         const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ user_id: userId }, event);
 
