@@ -53,7 +53,7 @@ const config = {
             'bugsnag_key',
             'cookie'
         ],
-        bugsnag_key: process.env.BUGSNAG_KEY_CORE || 'CHANGEME'
+        bugsnag_key: process.env.BUGSNAG_KEY || ''
     },
     development: {
 
@@ -87,7 +87,8 @@ const config = {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
         },
         media_dir: './tmp_upload',
-        salt_rounds: 4
+        salt_rounds: 4,
+        bugsnag_key: 'CHANGEME'
     }
 };
 
