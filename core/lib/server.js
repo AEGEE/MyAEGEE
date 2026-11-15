@@ -1,9 +1,9 @@
 const express = require('express');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
-const boolParser = require('express-query-boolean');
 const cors = require('cors');
 
+const queryBoolean = require('./query-boolean');
 const morgan = require('./morgan');
 const db = require('./sequelize');
 const log = require('./logger');
@@ -45,11 +45,14 @@ const PaymentsRouter = router({ mergeParams: true });
 const CircleMembershipsRouter = router({ mergeParams: true });
 
 const server = express();
+// Express 5 defaults to the 'simple' query parser; keep parsing nested and
+// bracketed parameters (filter[status]=..., type[]=...) with qs as before.
+server.set('query parser', 'extended');
 // Requests come through Traefik, which appends the client IP to X-Forwarded-For.
 server.set('trust proxy', 1);
 server.use(bodyParser.json());
 server.use(morgan);
-server.use(boolParser());
+server.use(queryBoolean());
 server.use(cors());
 
 /* istanbul ignore next */

@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
-const boolParser = require('express-query-boolean');
 const qs = require('qs');
 
 const config = require('../config');
+const queryBoolean = require('./query-boolean');
 const log = require('./logger');
 const morgan = require('./morgan');
 const middlewares = require('./middlewares');
@@ -44,7 +44,7 @@ const QuestionsRouter = router({ mergeParams: true });
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
 server.use(bodyParser.json());
-server.use(boolParser());
+server.use(queryBoolean());
 server.use(morgan);
 
 /* istanbul ignore next */
