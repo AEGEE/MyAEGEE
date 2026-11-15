@@ -1187,25 +1187,27 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Elixir and Erlang for mailer
+          # Run in the same Elixir/OTP image the mailer is deployed with.
+          name: Run mailer tests in elixir:1.20-alpine
           working_directory: ~/project/mailer
           command: |
-            sudo apt-get update
-            sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y elixir erlang
+            docker run --rm -v "$PWD":/app -w /app \
+              -e MIX_ENV -e SMTP_USER -e SMTP_NAME -e SMTP_PASSWORD -e SMTP_HOST \
+              elixir:1.20-alpine sh -c '
+                apk add --no-cache git make gcc g++ &&
+                mix local.hex --force &&
+                mix local.rebar --force &&
+                mix deps.get --locked &&
+                mix coveralls'
+  mailer-smoke-test:
+    machine:
+      image: ubuntu-2404:2026.10.1
+    resource_class: large
+    steps:
+      - checkout
       - run:
-          name: Setup mailer hex and rebar
-          working_directory: ~/project/mailer
-          command: |
-            mix local.hex --force
-            mix local.rebar --force
-      - run:
-          name: Get mailer dependencies
-          working_directory: ~/project/mailer
-          command: mix deps.get
-      - run:
-          name: Run mailer tests
-          working_directory: ~/project/mailer
-          command: SMTP_USER=mailer@aegee.eu mix coveralls
+          name: Send a mail through mailer and mail-transfer-agent to a relay
+          command: sh mailer/docker/smoke-test.sh
   mailer-build:
     docker:
       - image: cimg/base:2026.11
@@ -2323,6 +2325,9 @@ workflows:
   mailer-test:
     jobs:
       - mailer-test
+  mailer-smoke-test:
+    jobs:
+      - mailer-smoke-test
   mailer-docker-build-and-push:
     jobs:
       - mailer-docker-build-and-push:

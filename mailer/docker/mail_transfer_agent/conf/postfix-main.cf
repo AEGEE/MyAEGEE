@@ -12,27 +12,34 @@ readme_directory = no
 # TLS parameters
 smtp_sasl_auth_enable = yes
 smtp_sasl_security_options = noanonymous
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
-smtp_use_tls = {{ USE_TLS }}
+smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd
+{% if EXT_RELAY_PORT == "465" %}
+# Wrapper mode (implicit TLS) only works with a mandatory TLS level.
+smtp_tls_security_level = encrypt
+{% elif USE_TLS == "no" %}
+smtp_tls_security_level = none
+{% else %}
 smtp_tls_security_level = {{ TLS_VERIFY }}
+{% endif %}
 smtp_tls_note_starttls_offer = yes
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+# Log the TLS handshake with the relay (protocol, cipher).
+smtp_tls_loglevel = 1
+smtp_tls_session_cache_database = lmdb:${data_directory}/smtp_scache
 {% if EXT_RELAY_PORT == "465" %}
 smtp_tls_wrappermode = yes
 {% endif %}
 
-smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
-smtpd_use_tls=yes
-smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+# Incoming mail only comes from the other containers; there is no server
+# certificate in the image, so don't offer STARTTLS.
+smtpd_tls_security_level = none
 
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
 
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 myhostname = {{ RELAY_HOST_NAME }}
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+alias_maps = lmdb:/etc/aliases
+alias_database = lmdb:/etc/aliases
 myorigin = /etc/mailname
 mydestination = {{ RELAY_HOST_NAME }}, localhost
 relayhost = {{ EXT_RELAY_HOST }}:{{ EXT_RELAY_PORT }}
@@ -43,3 +50,5 @@ inet_interfaces = all
 inet_protocols = all
 #smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 
+# Log to the container's stdout (postfix runs in the foreground as PID 1).
+maillog_file = /dev/stdout

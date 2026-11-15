@@ -47,6 +47,17 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_no_emails_delivered()
   end
 
+  test "POST / rejects a list with an empty recipient and sends nothing", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, from: "mailer@aegee.org", to: ["test@aegee.org", nil], subject: "pirates"}
+    assert json_response(conn, 422)
+    assert_no_emails_delivered()
+  end
+  test "POST / rejects an empty from address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, from: "", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 422)
+    assert_no_emails_delivered()
+  end
+
   test "POST / with invalid template renders 404", %{conn: conn} do
     conn = post conn, "/", %{template: "really_long_nonexistent_template.html", parameters: %{}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 404)
