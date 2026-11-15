@@ -6,6 +6,7 @@
   },
   "extends": "airbnb-base",
   "rules": {
+      "import/no-unresolved": ["error", { "ignore": ["^file-type$"] }],
       "no-underscore-dangle": "off",
       "no-param-reassign": ["error", { "props": false }],
       "no-restricted-syntax": "off",

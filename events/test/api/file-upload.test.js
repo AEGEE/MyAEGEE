@@ -117,6 +117,50 @@ describe('File upload', () => {
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
 
+    it('should upload a JPEG file with a .jpg extension', async () => {
+        const res = await request({
+            path: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.jpg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const eventFromDb = await Event.findByPk(event.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
+    it('should upload a JPEG file with a .jpeg extension', async () => {
+        const res = await request({
+            path: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.jpeg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const eventFromDb = await Event.findByPk(event.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
     it('should upload a file if it\'s valid, but has extension in capital letters', async () => {
         const res = await request({
             path: '/single/' + event.id + '/upload',

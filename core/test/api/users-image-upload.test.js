@@ -125,6 +125,56 @@ describe('Users image upload', () => {
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
 
+    it('should upload a JPEG file with a .jpg extension', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.jpg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const userFromDb = await User.findByPk(user.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
+    it('should upload a JPEG file with a .jpeg extension', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.jpeg'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const userFromDb = await User.findByPk(user.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
     it('should upload a file if it\'s valid, but has extension in capital letters', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
