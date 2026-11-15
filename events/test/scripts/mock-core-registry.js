@@ -391,3 +391,10 @@ exports.mockAll = (options = {}) => {
         omsMailerStub
     };
 };
+
+// Collects the body of every request to the mailer stub returned by mockMailer() or mockAll().
+exports.captureMails = (mailerStub) => {
+    const mails = [];
+    mailerStub.on('request', (req, interceptor, requestBody) => mails.push(JSON.parse(requestBody)));
+    return mails;
+};
