@@ -37,9 +37,10 @@ export TLS_VERIFY=${TLS_VERIFY:-"may"}
 echo "$RELAY_HOST_NAME" > /etc/mailname
 
 # Templates
-j2 /root/conf/postfix-main.cf > /etc/postfix/main.cf
-j2 /root/conf/sasl_passwd > /etc/postfix/sasl_passwd
-postmap /etc/postfix/sasl_passwd
+render-template.py /root/conf/postfix-main.cf > /etc/postfix/main.cf
+render-template.py /root/conf/sasl_passwd > /etc/postfix/sasl_passwd
+postmap lmdb:/etc/postfix/sasl_passwd
+newaliases
 
 # Launch
 rm -f /var/spool/postfix/pid/*.pid
