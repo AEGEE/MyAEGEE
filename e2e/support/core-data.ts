@@ -44,59 +44,76 @@ async function findGlobalCircle(api: Api, name: string): Promise<Circle> {
     return circle as Circle;
 }
 
+// Runs the undo steps of a helper in reverse order. Helpers add a step right after creating
+// something, so a helper that fails halfway still removes what it created before rethrowing.
+function undoStack(): { add: (step: Cleanup) => void; run: Cleanup } {
+    const steps: Cleanup[] = [];
+    return {
+        add: (step) => { steps.push(step); },
+        run: async () => {
+            while (steps.length > 0) {
+                await steps.pop()!();
+            }
+        }
+    };
+}
+
 // Creates an antenna like the seeded ones (its members get the general members circle's
 // permissions) with one member who signed up through a campaign and is in no other body.
 export async function createAntenna(api: Api): Promise<[TestAntenna, Cleanup]> {
     const suffix = randomLetters(8);
     const username: TestUsername = `e2e-${suffix}`;
+    const undo = undoStack();
 
-    const body = await asAdmin<Body>(api, 'POST', '/bodies', {
-        name: `AEGEE-E2E-${suffix}`,
-        code: randomLetters(3),
-        description: 'Antenna created by an e2e test',
-        type: 'antenna',
-        phone: '1-800-111-11-11',
-        address: 'Somewhere in Europe',
-        founded_at: '1970-01-01',
-        email: `${username}-body@example.com`
-    });
+    try {
+        const body = await asAdmin<Body>(api, 'POST', '/bodies', {
+            name: `AEGEE-E2E-${suffix}`,
+            code: randomLetters(3),
+            description: 'Antenna created by an e2e test',
+            type: 'antenna',
+            phone: '1-800-111-11-11',
+            address: 'Somewhere in Europe',
+            founded_at: '1970-01-01',
+            email: `${username}-body@example.com`
+        });
+        // Deleting a body also removes its circles and memberships.
+        undo.add(async () => { await asAdmin(api, 'PUT', `/bodies/${body.id}/status`, { status: 'deleted' }); });
 
-    // New members join the body's shadow circle, which inherits the general members circle.
-    const membersCircle = await asAdmin<Circle>(api, 'POST', `/bodies/${body.id}/circles`, {
-        name: `Members ${body.name}`,
-        description: `Members ${body.name}`
-    });
-    const generalMembersCircle = await findGlobalCircle(api, 'General members circle');
-    await asAdmin(api, 'PUT', `/circles/${membersCircle.id}/parent`, { parent_circle_id: generalMembersCircle.id });
-    await asAdmin(api, 'PUT', `/bodies/${body.id}`, { shadow_circle_id: membersCircle.id });
+        // New members join the body's shadow circle, which inherits the general members circle.
+        const membersCircle = await asAdmin<Circle>(api, 'POST', `/bodies/${body.id}/circles`, {
+            name: `Members ${body.name}`,
+            description: `Members ${body.name}`
+        });
+        const generalMembersCircle = await findGlobalCircle(api, 'General members circle');
+        await asAdmin(api, 'PUT', `/circles/${membersCircle.id}/parent`, { parent_circle_id: generalMembersCircle.id });
+        await asAdmin(api, 'PUT', `/bodies/${body.id}`, { shadow_circle_id: membersCircle.id });
 
-    const campaign = await asAdmin<{ id: number; url: string }>(api, 'POST', '/campaigns', {
-        name: `E2E ${suffix}`,
-        url: username,
-        active: true,
-        description_short: 'Campaign created by an e2e test',
-        description_long: 'Campaign created by an e2e test',
-        autojoin_body_id: body.id
-    });
+        const campaign = await asAdmin<{ id: number; url: string }>(api, 'POST', '/campaigns', {
+            name: `E2E ${suffix}`,
+            url: username,
+            active: true,
+            description_short: 'Campaign created by an e2e test',
+            description_long: 'Campaign created by an e2e test',
+            autojoin_body_id: body.id
+        });
+        undo.add(async () => { await asAdmin(api, 'DELETE', `/campaigns/${campaign.id}`); });
 
-    const signup = await api.call<Envelope<{ id: number }>>(null, 'POST', `/api/core/signup/${campaign.url}`, {
-        username,
-        email: `${username}@example.com`,
-        password: PASSWORD,
-        first_name: 'Organizer',
-        last_name: `E2e ${suffix}`,
-        privacy_consent: new Date()
-    });
-    expect(signup.status, `signup ${username}: ${JSON.stringify(signup.body)}`).toBe(200);
-    await asAdmin(api, 'POST', `/members/${signup.body.data.id}/confirm`);
+        const signup = await api.call<Envelope<{ id: number }>>(null, 'POST', `/api/core/signup/${campaign.url}`, {
+            username,
+            email: `${username}@example.com`,
+            password: PASSWORD,
+            first_name: 'Organizer',
+            last_name: `Antenna ${suffix}`,
+            privacy_consent: new Date()
+        });
+        expect(signup.status, `signup ${username}: ${JSON.stringify(signup.body)}`).toBe(200);
+        undo.add(async () => { await asAdmin(api, 'DELETE', `/members/${signup.body.data.id}`); });
+        await asAdmin(api, 'POST', `/members/${signup.body.data.id}/confirm`);
 
-    const member = await api.me(username) as TestMember;
-
-    const cleanup = async () => {
-        await asAdmin(api, 'DELETE', `/members/${member.id}`);
-        await asAdmin(api, 'DELETE', `/campaigns/${campaign.id}`);
-        await asAdmin(api, 'PUT', `/bodies/${body.id}/status`, { status: 'deleted' });
-    };
-
-    return [{ body, member }, cleanup];
+        const member = await api.me(username) as TestMember;
+        return [{ body, member }, undo.run];
+    } catch (err) {
+        await undo.run();
+        throw err;
+    }
 }
