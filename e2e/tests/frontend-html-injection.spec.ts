@@ -17,6 +17,8 @@ test.describe('HTML injection in the frontend', () => {
             '',
             '<p style="position: fixed; inset: 0; background: white;">Covering the page</p>',
             '',
+            '<div class="modal is-active"><div class="modal-background"></div><div class="modal-content box">Session expired</div></div>',
+            '',
             '[click me](javascript:window.__injected=\'link\')'
         ].join('\n');
 
@@ -39,6 +41,10 @@ test.describe('HTML injection in the frontend', () => {
         await expect(rendered.locator('style')).toHaveCount(0);
         await expect(rendered.locator('form, input, button')).toHaveCount(0);
         await expect(rendered.locator('[style]')).toHaveCount(0);
+        // Classes are dropped too: with Bulma's modal classes this would cover the whole page.
+        await expect(rendered.locator('[class]')).toHaveCount(0);
+        await expect(page.locator('.modal.is-active')).toHaveCount(0);
+        await expect(rendered.getByText('Session expired')).toBeVisible();
         await expect(rendered.locator('a[href^="javascript:"]')).toHaveCount(0);
         await rendered.getByText('click me').click();
         expect(await injected(page)).toBeUndefined();
@@ -60,10 +66,9 @@ test.describe('HTML injection in the frontend', () => {
         await callRootHelper('showSuccess', [`Event "${payload}" is successfully added.`]);
         await expect(page.getByText(`Event "${payload}" is successfully added.`)).toBeVisible();
 
-        // An error toast with the message from the API response. Buefy queues toasts, so it
-        // can take up to the 3 seconds of the previous one to show up.
+        // An error toast with the message from the API response.
         await callRootHelper('showError', ['Could not save event', { response: { data: { message: payload } } }]);
-        await expect(page.getByText(`Could not save event: ${payload}`)).toBeVisible({ timeout: 10 * 1000 });
+        await expect(page.getByText(`Could not save event: ${payload}`)).toBeVisible();
 
         await expect(page.locator('.notices img')).toHaveCount(0);
         expect(await injected(page)).toBeUndefined();
