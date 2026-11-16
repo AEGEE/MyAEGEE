@@ -409,6 +409,13 @@ exports.exportAll = async (req, res) => {
 };
 
 exports.getStats = async (req, res) => {
+    // The statistics cover every Summer University, so only SU managers and approvers can see them.
+    const canSeeStats = Object.values(req.permissions.manage_summeruniversity).some(Boolean)
+        || Object.values(req.permissions.approve_summeruniversity).some(Boolean);
+    if (!canSeeStats) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see the application statistics.');
+    }
+
     const statsObject = {
         by_event: [],
         by_body: [],
