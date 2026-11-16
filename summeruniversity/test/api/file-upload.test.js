@@ -98,16 +98,15 @@ describe('File upload', () => {
         expect(event.image).toEqual(second.body.data);
     });
 
-    // BUG: if the old image file is missing on disk, fs.unlink throws after the event was
-    // already updated, so the request fails with a 500 even though the new image is saved.
-    test('should currently return 500 if the old image file is missing, but still save the new image', async () => {
+    test('should save the new image even if the old image file is missing', async () => {
         await event.update({ image: 'missing-file.png' });
 
         const res = await upload({ head_image: { path: asset('valid_image.png') } });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(200);
         await event.reload();
-        expect(event.image).not.toEqual('missing-file.png');
+        expect(event.image).toEqual(res.body.data);
+        expect(fs.existsSync(path.join(uploadFolder, res.body.data))).toEqual(true);
     });
 
     test('should return 422 on an invalid extension', async () => {
@@ -127,6 +126,8 @@ describe('File upload', () => {
         expect(res.body.message).toEqual('Malformed file content.');
         await event.reload();
         expect(event.image).toEqual(null);
+        // The rejected file isn't left behind on disk.
+        expect(fs.readdirSync(uploadFolder)).toEqual([]);
     });
 
     test('should return 422 if the content does not match the extension', async () => {
@@ -134,6 +135,7 @@ describe('File upload', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.message).toEqual('Malformed file content.');
+        expect(fs.readdirSync(uploadFolder)).toEqual([]);
     });
 
     test('should return 422 if a JPEG is uploaded with a .png extension', async () => {
@@ -157,11 +159,44 @@ describe('File upload', () => {
         expect(res.body.message).toEqual('No head_image is specified.');
     });
 
-    // Note: there is no permission check, any authenticated user can replace the image.
-    test('should currently allow any authenticated user to upload an image', async () => {
+    test('should return 403 for a user who is neither an organizer nor a manager', async () => {
         mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
 
         const res = await upload({ head_image: { path: asset('valid_image.png') } });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('You cannot edit this event');
+        await event.reload();
+        expect(event.image).toEqual(null);
+        // The file is refused before anything is stored.
+        expect(fs.existsSync(uploadFolder)).toEqual(false);
+    });
+
+    test('should return 403 for an organizer if the event is in second approval', async () => {
+        // User #1 is the event's main organizer, but has no global permissions.
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await upload({ head_image: { path: asset('valid_image.png') } });
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    test('should allow an organizer to upload an image', async () => {
+        // Generated events are in second approval by default, when organizers can't edit them anymore.
+        await event.update({ status: 'first draft' });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await upload({ head_image: { path: asset('valid_image.png') } });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.image).toEqual(res.body.data);
+    });
+
+    test('should allow a manager who is not an organizer to upload an image', async () => {
+        const managedEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+
+        const res = await upload({ head_image: { path: asset('valid_image.png') } }, managedEvent.id);
 
         expect(res.statusCode).toEqual(200);
     });

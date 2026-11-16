@@ -218,4 +218,93 @@ describe('File upload', () => {
         const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
         expect(fs.existsSync(oldImgPath)).toEqual(false);
     });
+
+    const upload = (eventId, file = './test/assets/valid_image.png', filename = undefined) => request({
+        path: '/single/' + eventId + '/upload',
+        method: 'POST',
+        headers: { 'X-Auth-Token': 'blablabla' },
+        files: { head_image: { path: file, filename } }
+    });
+    const uploadFolder = path.join(config.media_dir, 'headimages');
+
+    it('should save the new image even if the old image file is missing', async () => {
+        await event.update({ image: 'missing-file.png' });
+
+        const res = await upload(event.id);
+
+        expect(res.statusCode).toEqual(200);
+        const eventFromDb = await Event.findByPk(event.id);
+        expect(eventFromDb.image).toEqual(res.body.data);
+        expect(fs.existsSync(path.join(uploadFolder, res.body.data))).toEqual(true);
+    });
+
+    it('should not leave a file with malformed content on disk', async () => {
+        const res = await upload(event.id, './test/assets/invalid_image.txt', 'image.jpg');
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('Malformed file content.');
+        expect(fs.readdirSync(uploadFolder)).toEqual([]);
+    });
+
+    it('should not leave a file whose content does not match the extension on disk', async () => {
+        const res = await upload(event.id, './test/assets/valid_image.png', 'image.jpg');
+
+        expect(res.statusCode).toEqual(422);
+        expect(fs.readdirSync(uploadFolder)).toEqual([]);
+    });
+
+    it('should return 422 if the file is sent in another field than head_image', async () => {
+        const res = await request({
+            path: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { wrong_field: { path: './test/assets/valid_image.png' } }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should return 403 for a user who is neither an organizer nor a manager', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const notMineEvent = await generator.createEvent({ organizers: [{ first_name: 'test', last_name: 'test', user_id: 333 }] });
+
+        const res = await upload(notMineEvent.id);
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('You cannot edit this event');
+
+        const eventFromDb = await Event.findByPk(notMineEvent.id);
+        expect(eventFromDb.image).toEqual(null);
+        // The file is refused before anything is stored.
+        expect(fs.existsSync(uploadFolder)).toEqual(false);
+    });
+
+    it('should return 403 for an organizer once the event is no longer a draft', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        await event.update({ status: 'published' });
+
+        const res = await upload(event.id);
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    it('should allow an organizer to upload an image to a draft event', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await upload(event.id);
+
+        expect(res.statusCode).toEqual(200);
+        const eventFromDb = await Event.findByPk(event.id);
+        expect(eventFromDb.image).toEqual(res.body.data);
+    });
+
+    it('should allow a manager who is not an organizer to upload an image to a published event', async () => {
+        const notMineEvent = await generator.createEvent({ status: 'published', organizers: [{ first_name: 'test', last_name: 'test', user_id: 333 }] });
+
+        const res = await upload(notMineEvent.id);
+
+        expect(res.statusCode).toEqual(200);
+    });
 });

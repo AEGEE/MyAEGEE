@@ -106,11 +106,7 @@ exports.editCandidature = async (req, res) => {
 };
 
 exports.updateCandidateImage = async (req, res) => {
-    if (!req.permissions.edit_candidature) {
-        await req.image.destroy();
-        return errors.makeForbiddenError(res, 'You cannot edit this candidature.');
-    }
-
+    // The permission is checked in imageserv.requirePermission before the upload.
     // removing old image
     if (req.candidate.image_id) {
         // first updating the candidate's image to the new one, and then deleting the old one

@@ -40,7 +40,24 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+// Removes a file from disk. A file that's already gone (or can't be removed) is
+// only logged: by then the user points to the new image, so the request succeeded.
+const removeFile = async (filePath) => {
+    try {
+        await fs.promises.unlink(filePath);
+    } catch (err) {
+        log.warn({ err, filePath }, 'Could not remove image file');
+    }
+};
+
+// Same rule as for editing the profile: yourself, or with the update:member permission.
+const canChangeImage = (req) => req.user.id === req.currentUser.id || req.permissions.hasPermission('update:member');
+
 exports.uploadImage = async (req, res) => {
+    if (!canChangeImage(req)) {
+        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
     const oldimg = req.currentUser.image;
 
     // If upload folder doesn't exists, create it.
@@ -60,6 +77,11 @@ exports.uploadImage = async (req, res) => {
         return errors.makeValidationError(res, err);
     }
 
+    // If the head_image field is missing, do nothing.
+    if (!req.file) {
+        return errors.makeValidationError(res, 'No head_image is specified.');
+    }
+
     // If the file's content is malformed, don't save it.
     const type = await fileTypeFromFile(req.file.path);
 
@@ -68,6 +90,7 @@ exports.uploadImage = async (req, res) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await removeFile(req.file.path);
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
@@ -77,7 +100,7 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await fs.promises.unlink(path.join(uploadFolderName, oldimg));
+        await removeFile(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({
@@ -88,15 +111,20 @@ exports.uploadImage = async (req, res) => {
 };
 
 exports.removeImage = async (req, res) => {
+    if (!canChangeImage(req)) {
+        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
     if (!req.currentUser.image) {
         return errors.makeValidationError(res, 'No image is specified for the user.');
     }
 
-    await fs.promises.unlink(path.join(uploadFolderName, req.currentUser.image));
-
+    const oldimg = req.currentUser.image;
     await req.currentUser.update({
         image: null
     });
+
+    await removeFile(path.join(uploadFolderName, oldimg));
 
     return res.json({
         success: true,

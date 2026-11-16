@@ -142,11 +142,7 @@ exports.editEvent = async (req, res) => {
 };
 
 exports.updateEventImage = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        await req.image.destroy();
-        return errors.makeForbiddenError(res, 'You are not allowed to update events of this type.');
-    }
-
+    // The permission is checked in imageserv.requirePermission before the upload.
     // removing old image
     if (req.event.image_id) {
         // first updating the event's image to the new one, and then deleting the old one
