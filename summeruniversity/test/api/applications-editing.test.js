@@ -6,12 +6,17 @@ const { Application } = require('../../models');
 const coreUser = require('../assets/oms-core-valid.json').data;
 const applicant = require('../assets/oms-core-valid-not-superadmin.json').data;
 
-// User #5 (member of bodies 9, 173 and 1) who can apply to SUs.
+// User #5 (member of bodies 9, 173 and 1) who can apply to SUs. The applicant's details
+// are fetched from core's /members/:id, so that returns user #5 as well.
 const applicantMocks = {
     core: { notSuperadmin: true },
     mainPermissions: { permissions: ['global:apply:summeruniversity'] },
-    approvePermissions: { noPermissions: true }
+    approvePermissions: { noPermissions: true },
+    member: { data: applicant }
 };
+
+// User #1 (superadmin, member of bodies 34 and 9) editing user #5's application.
+const managerMocks = { member: { data: applicant } };
 
 describe('Applications editing', () => {
     let event;
@@ -84,8 +89,7 @@ describe('Applications editing', () => {
             'summeruniversity_organizer_edited.html',
             'summeruniversity_board_edited.html'
         ]);
-        // The applicant is fetched from core's /members/:id, which is mocked to always return user #1.
-        expect(mails[0].to).toEqual(coreUser.notification_email);
+        expect(mails[0].to).toEqual(applicant.notification_email);
     });
 
     test('should allow the user to edit their own application with /me', async () => {
@@ -109,7 +113,7 @@ describe('Applications editing', () => {
         const res = await edit({ body_id: 34 });
 
         expect(res.statusCode).toEqual(403);
-        expect(res.body.message).toEqual('You are not a member of this body.');
+        expect(res.body.message).toEqual('The applicant is not a member of this body.');
     });
 
     test('should ignore the status and board comment from the body', async () => {
@@ -158,18 +162,45 @@ describe('Applications editing', () => {
         expect(application.motivation).not.toEqual('Changed');
     });
 
-    // BUG: updateApplication always overwrites user_id, first_name and last_name with the
-    // editing user's data (see the TODO in the code), so a manager editing somebody
-    // else's application takes it over.
-    test('should currently reassign the application to a manager who edits it', async () => {
-        mockAndCapture({});
+    test('should keep the applicant\'s details when a manager edits the application', async () => {
+        mockAndCapture(managerMocks);
 
-        const res = await edit({ motivation: 'Changed by manager' });
+        const res = await edit({ motivation: 'Changed by manager', user_id: coreUser.id, first_name: 'Hacker' });
 
         expect(res.statusCode).toEqual(200);
         const dbApplication = await Application.findByPk(application.id);
         expect(dbApplication.motivation).toEqual('Changed by manager');
-        expect(dbApplication.user_id).toEqual(coreUser.id);
-        expect(dbApplication.first_name).toEqual(coreUser.first_name);
+        expect(dbApplication.user_id).toEqual(applicant.id);
+        expect(dbApplication.first_name).toEqual(applicant.first_name);
+        expect(dbApplication.last_name).toEqual(applicant.last_name);
+        expect(dbApplication.body_name).toEqual('AEGEE-Dresden');
+
+        // The applicant is notified, not the manager.
+        expect(mails[0].template).toEqual('summeruniversity_application_edited.html');
+        expect(mails[0].to).toEqual(applicant.notification_email);
+    });
+
+    test('should let a manager move the application to another body of the applicant', async () => {
+        mockAndCapture(managerMocks);
+
+        const res = await edit({ body_id: 173 });
+
+        expect(res.statusCode).toEqual(200);
+        await application.reload();
+        expect(application.body_id).toEqual(173);
+        expect(application.body_name).toEqual('AEGEE-Voronezh');
+        expect(application.user_id).toEqual(applicant.id);
+    });
+
+    test('should not let a manager move the application to a body of their own', async () => {
+        mockAndCapture(managerMocks);
+
+        // Body 34 is one of the manager's bodies, but not one of the applicant's.
+        const res = await edit({ body_id: 34 });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('The applicant is not a member of this body.');
+        await application.reload();
+        expect(application.body_id).toEqual(1);
     });
 });

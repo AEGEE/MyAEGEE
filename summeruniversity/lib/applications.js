@@ -171,31 +171,35 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
-    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
-        return errors.makeForbiddenError(res, 'You are not a member of this body.');
+    // The application can also be edited by organizers and SU managers, so the
+    // applicant's details come from the applicant, not from whoever is editing.
+    const applicant = req.applicant;
+    const applicantBody = typeof req.body.body_id !== 'undefined'
+        ? applicant.bodies.find((body) => body.id === req.body.body_id)
+        : null;
+
+    if (typeof req.body.body_id !== 'undefined' && !applicantBody) {
+        return errors.makeForbiddenError(res, 'The applicant is not a member of this body.');
     }
 
     delete req.body.board_comment;
     delete req.body.status;
 
-    // TODO fix this so applications can be updated by SUCT/admins
-    req.body.first_name = req.user.first_name;
-    req.body.last_name = req.user.last_name;
-    if (typeof req.body.body_id !== 'undefined') {
-        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    req.body.first_name = applicant.first_name;
+    req.body.last_name = applicant.last_name;
+    if (applicantBody) {
+        req.body.body_name = applicantBody.name;
     }
-    req.body.user_id = req.user.id;
+    req.body.user_id = applicant.id;
     req.body.event_id = req.event.id;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
-        const notificationEmail = (await core.fetchUser(req.body, req.headers['x-auth-token'])).notification_email;
-
-        // Sending the mail to a user.
+        // Sending the mail to the applicant.
         await mailer.sendMail({
-            to: notificationEmail,
+            to: applicant.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'summeruniversity_application_edited.html',
             parameters: {
