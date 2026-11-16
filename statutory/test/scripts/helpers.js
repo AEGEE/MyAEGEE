@@ -80,3 +80,12 @@ const request = async (options) => {
 };
 
 exports.request = request;
+
+// A time window of exactly one hour from one moment.
+// Two calls of moment() can be 1 ms apart, which would make the window 3600.001 seconds.
+const oneHourFrom = (start) => ({
+    starts: start.toDate(),
+    ends: start.clone().add(1, 'hour').toDate()
+});
+
+exports.oneHourFrom = oneHourFrom;

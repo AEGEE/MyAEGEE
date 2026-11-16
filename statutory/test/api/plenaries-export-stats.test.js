@@ -2,7 +2,7 @@ const xlsx = require('node-xlsx');
 const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server');
-const { request } = require('../scripts/helpers');
+const { request, oneHourFrom } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
@@ -82,8 +82,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
 
         const res = await request({
@@ -112,8 +111,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
         const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
@@ -174,8 +172,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
         const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
@@ -212,8 +209,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
         const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
@@ -250,8 +246,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
         const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
@@ -323,20 +318,17 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const firstPlenary = await generator.createPlenary({
             name: 'First',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(1, 'week')),
         }, event);
 
         const secondPlenary = await generator.createPlenary({
             name: 'Second',
-            starts: moment().add(2, 'week').toDate(),
-            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(2, 'week')),
         }, event);
 
         await generator.createPlenary({
             name: 'Third',
-            starts: moment().add(2, 'week').toDate(),
-            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().add(2, 'week')),
         }, event);
         const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
@@ -392,20 +384,17 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const firstPlenary = await generator.createPlenary({
             name: 'First',
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().subtract(2, 'week')),
         }, event);
 
         const secondPlenary = await generator.createPlenary({
             name: 'Second',
-            starts: moment().subtract(1, 'week').toDate(),
-            ends: moment().subtract(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().subtract(1, 'week')),
         }, event);
 
         const thirdPlenary = await generator.createPlenary({
             name: 'Third',
-            starts: moment().subtract(1, 'week').toDate(),
-            ends: moment().subtract(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().subtract(1, 'week')),
         }, event);
 
         // 3 applications from body, one attended everything, 2nd and 3rd - nothing
@@ -499,8 +488,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().subtract(2, 'week')),
         }, event);
 
         const first = await generator.createApplication({
@@ -541,8 +529,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+            ...oneHourFrom(moment().subtract(2, 'week')),
         }, event);
         const application = await generator.createApplication({
             participant_type: 'delegate', participant_order: 1, user_id: regularUser.id, body_id: regularUser.bodies[0].id
@@ -599,8 +586,7 @@ describe('Plenaries exports', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({
             name: 'Test plenary',
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(2, 'week').add(1, 'hour').toDate(),
+            ...oneHourFrom(moment().subtract(2, 'week')),
         }, event);
         const envoy = await generator.createApplication({
             participant_type: 'envoy', participant_order: 1, user_id: regularUser.id, body_id: regularUser.bodies[0].id

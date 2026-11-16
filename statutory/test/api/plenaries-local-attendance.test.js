@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server');
-const { request } = require('../scripts/helpers');
+const { request, oneHourFrom } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
@@ -35,8 +35,7 @@ describe('Plenaries attendance per Local', () => {
     // A plenary of one hour that is over: week 1 is 9 weeks ago, week 2 is 8 weeks ago, and so on.
     const createHourPlenary = (event, name, week) => generator.createPlenary({
         name,
-        starts: moment().subtract(10 - week, 'week').toDate(),
-        ends: moment().subtract(10 - week, 'week').add(1, 'hour').toDate()
+        ...oneHourFrom(moment().subtract(10 - week, 'week'))
     }, event);
 
     test('should return 403 if no permissions', async () => {
@@ -139,8 +138,7 @@ describe('Plenaries attendance per Local', () => {
         const past = await createHourPlenary(event, 'Past', 1);
         await generator.createPlenary({
             name: 'Future',
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(1, 'week').add(1, 'hour').toDate()
+            ...oneHourFrom(moment().add(1, 'week'))
         }, event);
 
         const delegate = await generator.createApplication({
