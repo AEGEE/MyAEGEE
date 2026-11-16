@@ -4,7 +4,8 @@
 
 export const KIND_NAMES = {
   proposal: 'Proposal',
-  rollcall: 'Roll call'
+  rollcall: 'Roll call',
+  election: 'Election'
 }
 
 export const MAJORITY_NAMES = {
@@ -18,6 +19,10 @@ export const CHOICES = [
   { field: 'against', label: 'Against' },
   { field: 'abstention', label: 'Abstention' }
 ]
+
+// Whether the delegate votes in this voting on the Vote page. An election is voted with ballots,
+// and the Vote page has no ballot yet, so it only shows a notice for an election.
+export const votesOnVotePage = (voting) => voting.kind !== 'election'
 
 export const plural = (amount, word) => `${amount} ${word}${amount === 1 ? '' : 's'}`
 
@@ -234,7 +239,7 @@ export const delegateVotings = (votings) => votings.filter((voting) => voting.st
 
 // The first open voting in which the delegate did not vote yet, or null.
 export function openVotingWithoutVote (votings, votedIds) {
-  return votings.find((voting) => voting.status === 'open' && !votedIds.includes(voting.id)) || null
+  return votings.find((voting) => voting.status === 'open' && votesOnVotePage(voting) && !votedIds.includes(voting.id)) || null
 }
 
 // What one answer of GET my-vote says about a voting for the delegate: 'done' when the delegate
@@ -264,7 +269,7 @@ export function autoSwitchTarget (votings, votedIds, current, holding) {
 
   const pick = pickVoting(votings, votedIds)
   if (pick === null || (current && pick === current.id)) return null
-  if (current && current.status === 'open' && !votedIds.includes(current.id)) return null
+  if (current && current.status === 'open' && votesOnVotePage(current) && !votedIds.includes(current.id)) return null
   return pick
 }
 

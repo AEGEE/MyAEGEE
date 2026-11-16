@@ -16,7 +16,7 @@
         <span class="tag" :class="status.type">{{ status.label }}</span>
         <span class="tag" :class="result.type" v-if="result">{{ result.label }}</span>
         <span class="tag">{{ kindNames[voting.kind] }}</span>
-        <span class="tag">{{ majorityNames[voting.majority] }}</span>
+        <span class="tag" v-if="voting.majority">{{ majorityNames[voting.majority] }}</span>
         <span class="voting-live" v-if="voting.status === 'open'">Live</span>
       </div>
       <p class="has-text-grey is-size-7 mb-4" v-if="voting.status === 'open'">
@@ -26,8 +26,13 @@
 
       <div class="voting-columns">
         <div>
+          <div class="notification is-info is-light" v-if="!votesOnVotePage(voting)">
+            <div class="voting-notification-head"><font-awesome-icon icon="info-circle" /><span>Not possible on this page yet</span></div>
+            <p>You can not vote in an election on this page yet.</p>
+          </div>
+
           <!-- Open voting -->
-          <template v-if="voting.status === 'open'">
+          <template v-else-if="voting.status === 'open'">
             <div class="notification is-info is-light" v-if="noVotes">
               <div class="voting-notification-head"><font-awesome-icon icon="info-circle" /><span>You have no votes in this voting</span></div>
               <p>Only delegates who were registered and present when the voting opened can vote.</p>
@@ -194,7 +199,8 @@ import {
   resultTag,
   statusTag,
   totalVotes,
-  unusedVotesNote
+  unusedVotesNote,
+  votesOnVotePage
 } from '../../votings'
 
 // How often the page asks for the votings and the own votes, so that a voting that opens
@@ -300,6 +306,7 @@ export default {
     bodyNameOf (bodyId) {
       return this.bodies[bodyId] ? this.bodies[bodyId].name : 'Body ' + bodyId
     },
+    votesOnVotePage,
     agendaTag (voting) {
       return resultTag(voting) || statusTag(voting)
     },
@@ -375,7 +382,7 @@ export default {
       await this.loadResult()
     },
     async loadMyVote () {
-      if (!this.voting) return
+      if (!this.voting || !votesOnVotePage(this.voting)) return
 
       const ticket = this.startMyVoteRequest()
       try {
@@ -393,7 +400,7 @@ export default {
       }
     },
     async loadResult () {
-      if (!this.voting || this.voting.status !== 'closed' || !this.voting.published) return
+      if (!this.voting || !votesOnVotePage(this.voting) || this.voting.status !== 'closed' || !this.voting.published) return
 
       try {
         const response = await this.axios.get(this.votingsUrl + '/' + this.voting.id + '/result')

@@ -47,7 +47,7 @@
               <span class="tag" :class="status.type">{{ status.label }}</span>
               <span class="tag" :class="result.type" v-if="result">{{ result.label }}</span>
               <span class="tag">{{ kindNames[voting.kind] }}</span>
-              <span class="tag">{{ majorityNames[voting.majority] }}</span>
+              <span class="tag" v-if="voting.majority">{{ majorityNames[voting.majority] }}</span>
               <span class="voting-live" v-if="voting.status === 'open'">Live</span>
             </div>
             <h1 class="title is-4 mb-1">{{ voting.title }}</h1>

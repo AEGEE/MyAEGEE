@@ -2,6 +2,7 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 
 import {
+  KIND_NAMES,
   autoSwitchTarget,
   closedWithUnsentVote,
   bodyProgressStatus,
@@ -15,7 +16,8 @@ import {
   pickVoting,
   resultTag,
   statusTag,
-  unusedVotesNote
+  unusedVotesNote,
+  votesOnVotePage
 } from '../src/votings.js'
 
 // The answer of GET /events/:id/votings/:voting_id/my-vote, for a body with 4 votes and 3 delegates.
@@ -261,5 +263,30 @@ describe('closedWithUnsentVote', () => {
   it('says nothing when the delegate voted before the voting closed', () => {
     const voted = myVote({ own: { in_favour: 2, submitted_at: '2026-10-29T13:59:00Z' } })
     assert.equal(closedWithUnsentVote(voted, 'form', 2), false)
+  })
+})
+
+describe('an election on the Vote page', () => {
+  const election = { id: 3, kind: 'election', title: 'Election of the Comité Directeur', majority: null, status: 'open' }
+  const proposal = { id: 4, kind: 'proposal', title: 'Proposal on the budget', majority: 'simple', status: 'open' }
+
+  it('has a kind name, so the page can name it', () => {
+    assert.equal(KIND_NAMES[election.kind].toLowerCase(), 'election')
+  })
+
+  it('does not get the in favour, against and abstention form', () => {
+    assert.equal(votesOnVotePage(election), false)
+    assert.equal(votesOnVotePage(proposal), true)
+  })
+
+  it('does not hold the delegate, who can not vote in it here', () => {
+    assert.equal(openVotingWithoutVote([election, proposal], []), proposal)
+    assert.equal(pickVoting([election, proposal], []), proposal.id)
+    assert.equal(autoSwitchTarget([election, proposal], [], election, false), proposal.id)
+  })
+
+  it('is still shown when it is the only open voting', () => {
+    assert.equal(pickVoting([election], []), election.id)
+    assert.equal(autoSwitchTarget([election], [], election, false), null)
   })
 })
