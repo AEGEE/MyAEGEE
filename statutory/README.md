@@ -132,6 +132,7 @@ The JC gives the majority and `concerns_statutes`; the database refuses values t
 
 A voting on a proposal opens only while its proposal is on the agenda and not decided.
 If the proposer withdrew it, the voting stays scheduled, `GET .../votings/:voting_id` shows the JC why (`proposal_problem`), and the JC can delete it, also after `opens_at`.
+To edit such a voting after `opens_at`, the JC must give a new time window, as for an election that did not open on time: after the edit, `opens_at` and `closes_at` must both be in the future, or the edit is refused (422) and nothing changes.
 Reading such a voting does not try to open it again, so it does not ask core.
 
 The decision of the Agora is stored on the proposal (`decision`, `decided_by_voting_id`, `decided_at`), as a checked copy of the voting that decided it:

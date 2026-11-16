@@ -71,7 +71,7 @@ const presentVoting = async (voting, canManage) => {
 const KIND_CHANGE_MESSAGE = 'An election cannot become another kind of voting, or the other way round: delete it and create a new one.';
 const POSITION_MESSAGE = 'The position should be a position of this Agora.';
 const PROPOSAL_MESSAGE = 'The proposal should be a proposal of this Agora.';
-const LATE_ELECTION_MESSAGE = 'This election did not open on time: set a new opens_at and closes_at in the future.';
+const LATE_VOTING_MESSAGE = 'This voting did not open on time: set a new opens_at and closes_at in the future.';
 
 const isInFuture = (time) => new Date(time).getTime() > Date.now();
 
@@ -248,17 +248,7 @@ exports.createVoting = async (req, res) => {
 // ballot, and its places as seats, unless the JC gives them; new candidates replace the ballot.
 // The old ballot goes before the position changes, and the new one comes after it, because the
 // database only accepts candidates of the position of the election (candidate_of_position).
-// An election that did not open on time needs a new time window in the future, so that it does not
-// open and close at once, without ballots.
 const editElection = async (election, fields, candidateIds, eventId, transaction) => {
-    if (!isInFuture(election.opens_at)) {
-        const opensAt = helpers.isDefined(fields.opens_at) ? fields.opens_at : election.opens_at;
-        const closesAt = helpers.isDefined(fields.closes_at) ? fields.closes_at : election.closes_at;
-        if (!isInFuture(opensAt) || !isInFuture(closesAt)) {
-            return LATE_ELECTION_MESSAGE;
-        }
-    }
-
     const positionId = helpers.isDefined(fields.position_id) ? fields.position_id : election.position_id;
     const newPosition = positionId !== election.position_id;
     if (!newPosition && typeof candidateIds === 'undefined') {
@@ -284,6 +274,8 @@ const editElection = async (election, fields, candidateIds, eventId, transaction
 };
 
 // Edits the voting of the request if it did not open yet. Returns { voting }, { conflict } or { error }.
+// A voting that did not open on time (see lockScheduledVoting) needs a new time window in the future,
+// so that it does not open and close at once, without ballots or votes.
 const editScheduledVoting = async (req, transaction) => {
     const locked = await lockScheduledVoting(req.voting.id, transaction);
     if (!locked) {
@@ -291,6 +283,14 @@ const editScheduledVoting = async (req, transaction) => {
     }
 
     const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase, locked.kind);
+    if (!isInFuture(locked.opens_at)) {
+        const opensAt = helpers.isDefined(fields.opens_at) ? fields.opens_at : locked.opens_at;
+        const closesAt = helpers.isDefined(fields.closes_at) ? fields.closes_at : locked.closes_at;
+        if (!isInFuture(opensAt) || !isInFuture(closesAt)) {
+            return { error: LATE_VOTING_MESSAGE };
+        }
+    }
+
     const kind = helpers.isDefined(fields.kind) ? fields.kind : locked.kind;
     if ((kind === 'election') !== (locked.kind === 'election')) {
         return { error: KIND_CHANGE_MESSAGE };

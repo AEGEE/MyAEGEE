@@ -267,6 +267,42 @@ describe('Votings on proposals', () => {
             expect((await call('DELETE', '/votings/' + votingId)).statusCode).toEqual(200);
         });
 
+        test('should refuse an edit after opens_at without a new time window, so the voting does not open and close at once', async () => {
+            const proposal = await onAgenda();
+            const other = await onAgenda({ title: 'Shorter draft period' });
+            const created = await createVoting({ proposal_id: proposal.id });
+            const votingId = created.body.data.id;
+
+            expect((await call('PUT', '/proposals/' + proposal.id + '/status', { status: 'withdrawn' })).statusCode).toEqual(200);
+            await Voting.update({
+                opens_at: new Date(Date.now() - 2000),
+                closes_at: new Date(Date.now() - 1000)
+            }, { where: { id: votingId } });
+
+            for (const body of [{ proposal_id: other.id }, { proposal_id: null }, { proposal_id: other.id, opens_at: moment().add(1, 'hour').toDate() }]) {
+                const res = await call('PUT', '/votings/' + votingId, body);
+                expect(res.statusCode).toEqual(422);
+                expect(res.body.message).toEqual('This voting did not open on time: set a new opens_at and closes_at in the future.');
+            }
+
+            const stored = await Voting.findByPk(votingId);
+            expect(stored).toMatchObject({ status: 'scheduled', proposal_id: proposal.id });
+        });
+
+        test('should let the JC move a voting that did not open on time to another proposal with a new time window', async () => {
+            const proposal = await onAgenda();
+            const other = await onAgenda({ title: 'Shorter draft period' });
+            const created = await createVoting({ proposal_id: proposal.id });
+            const votingId = created.body.data.id;
+
+            expect((await call('PUT', '/proposals/' + proposal.id + '/status', { status: 'withdrawn' })).statusCode).toEqual(200);
+            await Voting.update({ opens_at: new Date(Date.now() - 1000) }, { where: { id: votingId } });
+
+            const res = await call('PUT', '/votings/' + votingId, { proposal_id: other.id, ...window() });
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ status: 'scheduled', proposal_id: other.id, proposal_problem: null });
+        });
+
         test('should not show the problem to a user who is not in the JC', async () => {
             const proposal = await onAgenda();
             const voting = await generator.createOpenVoting({ kind: 'proposal', majority: 'simple', proposal_id: proposal.id }, event);

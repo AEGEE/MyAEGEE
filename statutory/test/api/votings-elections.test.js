@@ -278,7 +278,7 @@ describe('Votings: elections', () => {
                 candidates: [election.candidates[0].id, election.candidates[2].id]
             });
             expect(withoutTimes.statusCode).toEqual(422);
-            expect(withoutTimes.body.message).toEqual('This election did not open on time: set a new opens_at and closes_at in the future.');
+            expect(withoutTimes.body.message).toEqual('This voting did not open on time: set a new opens_at and closes_at in the future.');
 
             const unchanged = await call('GET', '/' + election.voting.id);
             expect(unchanged.body.data.status).toEqual('scheduled');
