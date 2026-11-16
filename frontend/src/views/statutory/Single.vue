@@ -56,7 +56,7 @@
         </article>
       </div>
     </div>
-    <div class="tile is-vertical is-parent">
+    <div class="tile is-vertical is-parent statutory-event-main">
       <article class="tile is-child">
         <div class="content">
           <p class="title is-hidden-mobile">{{ event.name }}</p>
@@ -451,6 +451,12 @@ export default {
 
 <style lang="scss">
 .statutory-event-logo {
+  flex: none;
+}
+
+// Keep the blocks of the main column at their content height, so that a tall
+// action column does not open a blank area between them.
+.statutory-event-main > .tile.is-child {
   flex: none;
 }
 
