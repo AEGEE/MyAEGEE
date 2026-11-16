@@ -7,8 +7,9 @@ const cron = require('../../lib/cron');
 // A proposal is an item on the agenda of an Agora. Its proposer submits it in MyAEGEE: a title, the
 // names of the proposers, the part of the CIA it changes and a link to its text and motivation; the
 // text itself stays outside MyAEGEE. The JC puts it on the agenda, or does not admit it with a reason
-// (WF Agora Art. 8(2)). The proposer can withdraw it. Every logged-in user sees a proposal on the agenda;
-// a submitted, not admitted or withdrawn one only its proposer and the JC see.
+// (WF Agora Art. 8(2)). The proposer can withdraw it. Every logged-in user sees a proposal that was on
+// the agenda, also once withdrawn; a submitted, not admitted or never admitted withdrawn one only its
+// proposer and the JC see.
 // All people, bodies and texts are made up.
 describe('Proposals', () => {
     // A token 'user-<id>' is that user; asJC() gives every user the rights of the JC, asMember() none.
@@ -232,6 +233,36 @@ describe('Proposals', () => {
 
             asJC();
             expect((await setStatus(proposal, { status: 'withdrawn' }, BEN)).statusCode).toEqual(200);
+        });
+
+        test('should keep a withdrawn proposal that was on the agenda visible to every logged-in user, without the reason of the JC', async () => {
+            const proposal = await submit();
+            asJC();
+            expect((await setStatus(proposal, { status: 'on_agenda', jc_reason: 'Admitted after a late check.' }, BEN)).statusCode).toEqual(200);
+            asMember();
+            expect((await setStatus(proposal, { status: 'withdrawn' })).statusCode).toEqual(200);
+
+            const res = await call('GET', '/' + proposal.id, undefined, BEN);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ status: 'withdrawn', jc_reason: null });
+            expect(res.body.data.on_agenda_at).not.toEqual(null);
+
+            const list = await call('GET', '', undefined, BEN);
+            expect(list.statusCode).toEqual(200);
+            expect(list.body.data.map((shown) => [shown.id, shown.status])).toEqual([[proposal.id, 'withdrawn']]);
+        });
+
+        test('should show a proposal withdrawn before it was on the agenda only to its proposer and the JC', async () => {
+            const proposal = await submit();
+            expect((await setStatus(proposal, { status: 'withdrawn' })).statusCode).toEqual(200);
+
+            expect((await call('GET', '/' + proposal.id, undefined, BEN)).statusCode).toEqual(404);
+            expect((await call('GET', '', undefined, BEN)).body.data).toEqual([]);
+
+            expect((await call('GET', '/' + proposal.id)).body.data.status).toEqual('withdrawn');
+            asJC();
+            const forJC = await call('GET', '', undefined, BEN);
+            expect(forJC.body.data.map((shown) => [shown.id, shown.status])).toEqual([[proposal.id, 'withdrawn']]);
         });
 
         test('should refuse to withdraw while the Agora votes on it', async () => {

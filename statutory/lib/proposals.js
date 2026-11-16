@@ -11,8 +11,9 @@ const { Proposal } = require('../models');
 // - The JC puts it on the agenda (on_agenda) or does not admit it, with a reason (not_admitted).
 //   Its text never changes (proposal_text_is_fixed holds once it is not submitted any more).
 // - The proposer or the JC can withdraw it, but not once the Agora votes on it.
-// - Every logged-in user sees a proposal on the agenda. A proposal that is submitted, not admitted or
-//   withdrawn, with the reason of the JC, only its proposer and the JC see.
+// - Every logged-in user sees a proposal that was on the agenda (on_agenda_at), also once it is withdrawn.
+//   A proposal that is submitted, not admitted or withdrawn before it was on the agenda only its proposer
+//   and the JC see. The reason of the JC only its proposer and the JC see.
 // - A voting of kind 'proposal' points to a proposal on the agenda; the decision of the Agora is copied
 //   to the proposal when the voting that decides it is published (copyDecision).
 // The database keeps the steps (trigger proposal_guard); this module checks who may take them.
@@ -53,7 +54,7 @@ exports.checkIfAgora = async (req, res, next) => {
 };
 
 // Whether the user of the request sees this proposal, and so also the reason of the JC on it.
-const canSee = (req, proposal) => proposal.status === 'on_agenda'
+const canSee = (req, proposal) => proposal.on_agenda_at !== null
     || proposal.created_by === req.user.id
     || req.permissions.manage_proposals;
 

@@ -70,6 +70,11 @@ const Proposal = sequelize.define('proposal', {
         allowNull: true,
         type: Sequelize.TEXT
     },
+    // When the JC put it on the agenda, set by the database. A withdrawn proposal with it stays visible to everyone.
+    on_agenda_at: {
+        allowNull: true,
+        type: Sequelize.DATE
+    },
     decision: {
         allowNull: true,
         type: Sequelize.STRING

@@ -266,6 +266,11 @@ exports.syncVoting = async (voting) => {
     }
 
     const opening = voting.status === 'scheduled' && isDue(voting.opens_at);
+    // A voting whose proposal cannot be voted on (withdrawn or decided) stays scheduled until the JC deletes
+    // it, so reading it does not try to open it again, and does not ask core.
+    if (opening && await proposals.proposalProblem(voting)) {
+        return voting;
+    }
     const closing = voting.status !== 'closed' && isDue(voting.closes_at);
     if (!opening && !closing) {
         return voting;

@@ -37,6 +37,9 @@ module.exports = {
                 status               text NOT NULL DEFAULT 'submitted'
                                      CHECK (status IN ('submitted', 'on_agenda', 'not_admitted', 'withdrawn')),
                 jc_reason            text,
+                -- When the JC put it on the agenda, set by the database and fixed. A withdrawn proposal that was on
+                -- the agenda stays visible to every logged-in user.
+                on_agenda_at         timestamptz,
                 -- What the Agora decided, copied from the voting that decided it, and checked against it.
                 decision             text CHECK (decision IN ('accepted', 'rejected')),
                 decided_by_voting_id integer,
@@ -83,9 +86,10 @@ module.exports = {
                 step text;
             BEGIN
                 IF TG_OP = 'INSERT' THEN
-                    IF NEW.status <> 'submitted' OR NEW.decision IS NOT NULL OR NEW.decided_by_voting_id IS NOT NULL THEN
+                    IF NEW.status <> 'submitted' OR NEW.on_agenda_at IS NOT NULL
+                        OR NEW.decision IS NOT NULL OR NEW.decided_by_voting_id IS NOT NULL THEN
                         RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'proposal_starts_submitted',
-                            MESSAGE = 'A proposal starts as submitted, without a decision.';
+                            MESSAGE = 'A proposal starts as submitted, not on the agenda and without a decision.';
                     END IF;
                     RETURN NEW;
                 END IF;
@@ -103,11 +107,19 @@ module.exports = {
                         MESSAGE = 'A proposal changes only while it is submitted.';
                 END IF;
 
+                IF NEW.on_agenda_at IS DISTINCT FROM OLD.on_agenda_at THEN
+                    RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'on_agenda_at_is_fixed',
+                        MESSAGE = 'When a proposal was put on the agenda, only the database records.';
+                END IF;
+
                 IF NEW.status <> OLD.status THEN
                     step := OLD.status || '>' || NEW.status;
                     IF step NOT IN ('submitted>on_agenda', 'submitted>not_admitted', 'submitted>withdrawn', 'on_agenda>withdrawn') THEN
                         RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'proposal_status_flow',
                             MESSAGE = format('A proposal cannot go from %s to %s.', OLD.status, NEW.status);
+                    END IF;
+                    IF NEW.status = 'on_agenda' THEN
+                        NEW.on_agenda_at := now();
                     END IF;
                     -- Not while a voting on it is open, and not after the Agora voted on it.
                     IF NEW.status = 'withdrawn' THEN

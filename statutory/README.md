@@ -119,8 +119,10 @@ MyAEGEE checks no deadline: the JC decides on a proposal that came in late (Work
 - **On the agenda**: the JC (permission `global:manage_juridical:agora`) decides on the admissibility (Working Format of the Agora, Art. 8(2)) with `PUT .../proposals/:proposal_id/status`: `on_agenda`, or `not_admitted` with a reason in `jc_reason`.
 The title, the proposers, the part of the CIA and the link never change through the API; the database keeps them fixed once the proposal is not submitted any more.
 - **Withdrawing**: the proposer or the JC sets the status `withdrawn`, from `submitted` or `on_agenda`, but not while a voting on it is open and not after the Agora voted on it.
-- **Reading**: `GET .../proposals` and `GET .../proposals/:proposal_id` show every logged-in user the proposals on the agenda.
-A proposal that is submitted, not admitted or withdrawn, with the reason of the JC, only its proposer and the JC see.
+- **Reading**: `GET .../proposals` and `GET .../proposals/:proposal_id` show every logged-in user the proposals that were on the agenda.
+A proposal that was on the agenda and is withdrawn stays visible to everyone, with the status `withdrawn`; the database records when the JC put it on the agenda (`on_agenda_at`).
+A proposal that is submitted, not admitted or withdrawn before it was on the agenda, only its proposer and the JC see.
+The reason of the JC (`jc_reason`) only the proposer and the JC see.
 
 A voting of kind `proposal` can point to a proposal on the agenda of the same Agora (`proposal_id`).
 The part of the CIA then decides its majority: `two_thirds` for `statutes` (Statutes, Art. 36), `simple` for the others (Working Format of the Agora, Art. 17(1)), and `two_thirds` before the Agora (Art. 20(3)).
@@ -130,6 +132,7 @@ The JC gives the majority and `concerns_statutes`; the database refuses values t
 
 A voting on a proposal opens only while its proposal is on the agenda and not decided.
 If the proposer withdrew it, the voting stays scheduled, `GET .../votings/:voting_id` shows the JC why (`proposal_problem`), and the JC can delete it, also after `opens_at`.
+Reading such a voting does not try to open it again, so it does not ask core.
 
 The decision of the Agora is stored on the proposal (`decision`, `decided_by_voting_id`, `decided_at`), as a checked copy of the voting that decided it:
 
@@ -141,6 +144,7 @@ The database enforces these rules, not only the application (`migrations/2026110
 
 - `proposal_starts_submitted`, `proposal_status_flow`: a proposal starts as `submitted`, and only goes from `submitted` to `on_agenda`, `not_admitted` or `withdrawn`, and from `on_agenda` to `withdrawn`; `not_admitted_needs_reason`: not admitted only with a reason.
 - `proposal_text_is_fixed`, `proposal_identity_is_fixed`, `text_url_is_link`: the fields of the proposer are fixed once it is not submitted any more, its Agora and proposer account always, and the link is a web address.
+- `on_agenda_at_is_fixed`: only the database sets `on_agenda_at`, when the proposal goes on the agenda, and it never changes.
 - `proposal_in_voting`: no withdrawal while a voting on it is open, or after the Agora voted on it.
 - `voting_of_proposal_of_same_agora`, `proposal_only_for_proposals`, `voting_subject_is_fixed`: a voting points to a proposal of the same Agora, only a voting of kind `proposal` does, and its proposal is fixed once it opened.
 - `proposal_not_on_agenda`, `proposal_already_decided`: a voting on a proposal is created and opens only while the proposal is on the agenda and not decided.

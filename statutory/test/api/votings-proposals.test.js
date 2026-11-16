@@ -303,6 +303,28 @@ describe('Votings on proposals', () => {
             return { voting, closed: await closeAndRead(voting) };
         };
 
+        test('should not open again or ask core for a planned voting whose proposal was withdrawn, and let the JC delete it', async () => {
+            const proposal = await onAgenda();
+            const voting = await generator.createVoting({
+                kind: 'proposal',
+                phase: 'pre_agora',
+                proposal_id: proposal.id,
+                opens_at: moment().add(1, 'hour').toDate(),
+                closes_at: moment().add(2, 'hours').toDate()
+            }, event);
+            expect((await call('PUT', '/proposals/' + proposal.id + '/status', { status: 'withdrawn' })).statusCode).toEqual(200);
+            await Voting.update({ opens_at: new Date(Date.now() - 1000) }, { where: { id: voting.id } });
+
+            mock.mockAll({ core: { userFromToken: true }, bodies: { netError: true } });
+            const res = await call('GET', '/votings/' + voting.id);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('scheduled');
+            expect(res.body.data.proposal_problem).toEqual('The proposal of this voting is not on the agenda (withdrawn).');
+
+            expect((await call('GET', '/votings')).statusCode).toEqual(200);
+            expect((await call('DELETE', '/votings/' + voting.id)).statusCode).toEqual(200);
+        });
+
         const markAmendment = (voting, value) => call('PUT', '/votings/' + voting.id + '/amendment', { amendment_submitted: value });
 
         test('should store the decision at closing when the item is decided before the Agora', async () => {

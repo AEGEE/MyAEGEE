@@ -108,6 +108,25 @@ describe('Proposals database rules', () => {
             expect(await proposalRow(id)).toMatchObject({ status: 'submitted', decision: null, created_by: PROPOSER });
         });
 
+        test('records when it went on the agenda, set by the database and fixed (on_agenda_at_is_fixed)', async () => {
+            const insert = query(`INSERT INTO proposals (event_id, title, proposers, cia_part, text_url, created_by, on_agenda_at)
+                VALUES ($1, 'A title', 'A. Example', 'other', 'https://example.org/x', $2, now())`, [agora.id, PROPOSER]);
+            expect(await refusalOf(insert)).toEqual('proposal_starts_submitted');
+
+            const submitted = await submit();
+            expect(await refusalOf(query('UPDATE proposals SET on_agenda_at = now() WHERE id = $1', [submitted]))).toEqual('on_agenda_at_is_fixed');
+            const neverOnAgenda = await submit();
+            await withdraw(neverOnAgenda);
+            expect((await proposalRow(neverOnAgenda)).on_agenda_at).toEqual(null);
+
+            const id = await onAgenda();
+            const { on_agenda_at: onAgendaAt } = await proposalRow(id);
+            expect(onAgendaAt).not.toEqual(null);
+            expect(await refusalOf(query('UPDATE proposals SET on_agenda_at = NULL WHERE id = $1', [id]))).toEqual('on_agenda_at_is_fixed');
+            await withdraw(id);
+            expect(await proposalRow(id)).toMatchObject({ status: 'withdrawn', on_agenda_at: onAgendaAt });
+        });
+
         test('changes while it is submitted', async () => {
             const id = await submit();
             await query(`UPDATE proposals SET title = 'Longer period for drafts', proposers = 'A. Example and B. Example',
