@@ -19,8 +19,8 @@ const rules = require('../lib/voting_rules');
 // ballot (voting_options), with secret ballots and the threshold of its election_rule instead of
 // a majority. An election is always on the Agora (Art. 20(6)); see lib/elections.js.
 //
-// A voting of kind 'proposal' points to its proposal on the agenda (proposal_id). The part of the CIA
-// of the proposal gives the majority and the Statutes flag; see lib/proposals.js.
+// A voting of kind 'proposal' can point to its proposal on the agenda (proposal_id). The part of the CIA
+// of the proposal then decides the majority and the Statutes flag; see lib/proposals.js.
 
 const isSet = (val) => val !== null && typeof val !== 'undefined';
 
@@ -285,8 +285,8 @@ const Voting = sequelize.define('voting', {
         allowNull: true,
         type: Sequelize.STRING
     },
-    // The proposal on the agenda that a voting of kind 'proposal' is about. A new proposal voting needs one;
-    // one from before proposals came to MyAEGEE has none. The database checks it (trigger guard_proposal_voting).
+    // The proposal on the agenda that a voting of kind 'proposal' is about. Optional for now: without it, the
+    // voting works as before. With it, the database checks the rules of a proposal (trigger guard_proposal_voting).
     proposal_id: {
         allowNull: true,
         type: Sequelize.INTEGER

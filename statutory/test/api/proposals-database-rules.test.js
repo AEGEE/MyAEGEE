@@ -187,29 +187,19 @@ describe('Proposals database rules', () => {
     });
 
     describe('a voting on a proposal', () => {
-        test('points to the proposal when it is new (proposal_voting_has_proposal)', async () => {
-            expect(await refusalOf(newVoting(agora.id))).toEqual('proposal_voting_has_proposal');
-
-            const rollcall = await newVoting(agora.id, { kind: 'rollcall' });
-            expect(await refusalOf(query("UPDATE votings SET kind = 'proposal' WHERE id = $1", [rollcall]))).toEqual('proposal_voting_has_proposal');
-        });
-
-        // A proposal voting from before proposals came to MyAEGEE has a title and no proposal; it works as before.
-        test('from before proposals (no proposal) still opens, closes and is published', async () => {
-            const legacy = await sequelize.transaction(async (transaction) => {
-                await query('SET LOCAL session_replication_role = replica', [], { transaction });
-                const [row] = await query(`INSERT INTO votings (event_id, kind, title, majority, opens_at, closes_at, created_at, updated_at)
-                    VALUES ($1, 'proposal', 'Proposal from before', 'absolute', now() + interval '1 hour', now() + interval '2 hours', now(), now())
-                    RETURNING id`, [agora.id], { transaction });
-                return row.id;
-            });
-
-            await query("UPDATE votings SET title = 'Proposal from before, edited' WHERE id = $1", [legacy]);
-            await openVoting(legacy);
-            await closeVoting(legacy, 'accepted');
-            await publishVoting(legacy);
-            expect((await query('SELECT status, published, proposal_id FROM votings WHERE id = $1', [legacy]))[0])
+        // proposal_id is optional for now: a proposal voting with a title only, with any majority, works as
+        // before, and the rules of a proposal apply only to a voting that points to one.
+        test('without a proposal still works as before: with any majority it opens, closes and is published', async () => {
+            const votingId = await newVoting(agora.id, { majority: 'absolute' });
+            await query("UPDATE votings SET title = 'Proposal with a title only, edited' WHERE id = $1", [votingId]);
+            await openVoting(votingId);
+            await closeVoting(votingId, 'accepted');
+            await publishVoting(votingId);
+            expect((await query('SELECT status, published, proposal_id FROM votings WHERE id = $1', [votingId]))[0])
                 .toEqual({ status: 'closed', published: true, proposal_id: null });
+
+            const rollcall = await newVoting(agora.id, { kind: 'rollcall', majority: 'absolute' });
+            await query("UPDATE votings SET kind = 'proposal' WHERE id = $1", [rollcall]);
         });
 
         test('is about a proposal of the same Agora (voting_of_proposal_of_same_agora)', async () => {

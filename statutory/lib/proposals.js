@@ -8,10 +8,11 @@ const { Proposal } = require('../models');
 // - Any logged-in user submits a proposal and is its proposer (created_by): a title, the names of the
 //   proposers, the part of the CIA it changes and a link to its text and motivation. The text stays
 //   outside MyAEGEE.
-// - While it is submitted, the proposer and the JC can change it.
 // - The JC puts it on the agenda (on_agenda) or does not admit it, with a reason (not_admitted).
-//   From then on its text is fixed.
+//   Its text never changes (proposal_text_is_fixed holds once it is not submitted any more).
 // - The proposer or the JC can withdraw it, but not once the Agora votes on it.
+// - Every logged-in user sees a proposal on the agenda. A proposal that is submitted, not admitted or
+//   withdrawn, with the reason of the JC, only its proposer and the JC see.
 // - A voting of kind 'proposal' points to a proposal on the agenda; the decision of the Agora is copied
 //   to the proposal when the voting that decides it is published (copyDecision).
 // The database keeps the steps (trigger proposal_guard); this module checks who may take them.
@@ -22,7 +23,6 @@ const SUBMITTED_FIELDS = ['title', 'proposers', 'cia_part', 'text_url'];
 // How each refusal of the database (named after its rule) is told to the user. A trigger gives a
 // message that is written for people; a CHECK constraint gets one here.
 const REFUSALS = {
-    proposal_text_is_fixed: (res, message) => errors.makeConflictError(res, message),
     proposal_status_flow: (res, message) => errors.makeConflictError(res, message),
     proposal_in_voting: (res, message) => errors.makeConflictError(res, message),
     decision_when_on_agenda: (res) => errors.makeConflictError(res, 'The Agora already decided on this proposal, so it cannot be withdrawn.'),
@@ -52,6 +52,20 @@ exports.checkIfAgora = async (req, res, next) => {
     return next();
 };
 
+// Whether the user of the request sees this proposal, and so also the reason of the JC on it.
+const canSee = (req, proposal) => proposal.status === 'on_agenda'
+    || proposal.created_by === req.user.id
+    || req.permissions.manage_proposals;
+
+// A proposal as this user sees it: on the agenda without the reason of the JC, unless the user is its proposer or the JC.
+const formatProposal = (req, proposal) => {
+    const json = proposal.toJSON();
+    if (proposal.created_by !== req.user.id && !req.permissions.manage_proposals) {
+        json.jc_reason = null;
+    }
+    return json;
+};
+
 exports.findProposal = async (req, res, next) => {
     if (!helpers.isNumber(req.params.proposal_id)) {
         return errors.makeBadRequestError(res, 'The proposal ID is invalid.');
@@ -60,7 +74,7 @@ exports.findProposal = async (req, res, next) => {
     const proposal = await Proposal.findOne({
         where: { id: Number(req.params.proposal_id), event_id: req.event.id }
     });
-    if (!proposal) {
+    if (!proposal || !canSee(req, proposal)) {
         return errors.makeNotFoundError(res, 'Proposal is not found.');
     }
 
@@ -68,7 +82,7 @@ exports.findProposal = async (req, res, next) => {
     return next();
 };
 
-// Every logged-in user sees the proposals of the Agora, also the submitted ones, in the order they came in.
+// The proposals of the Agora that this user sees, in the order they came in.
 exports.listProposals = async (req, res) => {
     const proposals = await Proposal.findAll({
         where: { event_id: req.event.id },
@@ -77,14 +91,14 @@ exports.listProposals = async (req, res) => {
 
     return res.json({
         success: true,
-        data: proposals
+        data: proposals.filter((proposal) => canSee(req, proposal)).map((proposal) => formatProposal(req, proposal))
     });
 };
 
 exports.getProposal = async (req, res) => {
     return res.json({
         success: true,
-        data: req.proposal
+        data: formatProposal(req, req.proposal)
     });
 };
 
@@ -103,25 +117,6 @@ exports.submitProposal = async (req, res) => {
 };
 
 const isProposer = (req) => req.proposal.created_by === req.user.id;
-
-exports.editProposal = async (req, res) => {
-    if (!isProposer(req) && !req.permissions.manage_proposals) {
-        return errors.makeForbiddenError(res, 'Only the proposer or the JC can change this proposal.');
-    }
-
-    const refused = await exports.withRefusals(res, REFUSALS, () => req.proposal.update(
-        lodash.pick(req.body, SUBMITTED_FIELDS),
-        { fields: SUBMITTED_FIELDS }
-    ));
-    if (refused) {
-        return refused;
-    }
-
-    return res.json({
-        success: true,
-        data: await req.proposal.reload()
-    });
-};
 
 // The JC puts a proposal on the agenda or does not admit it (with jc_reason); the proposer or the JC
 // withdraws it. Which steps exist, the database decides (proposal_status_flow).

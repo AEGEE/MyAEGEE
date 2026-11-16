@@ -203,7 +203,6 @@ ProposalsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, 
 ProposalsRouter.get('/', proposals.listProposals);
 ProposalsRouter.post('/', proposals.submitProposal);
 ProposalsRouter.get('/:proposal_id', proposals.findProposal, proposals.getProposal);
-ProposalsRouter.put('/:proposal_id', proposals.findProposal, proposals.editProposal);
 ProposalsRouter.put('/:proposal_id/status', proposals.findProposal, proposals.setProposalStatus);
 
 server.use(endpointsMetrics.addEndpointMetrics);

@@ -237,8 +237,7 @@ describe('Votings lifecycle', () => {
             ['absolute', 'rejected'],
             ['two_thirds', 'rejected']
         ])('should count the votes with a %s majority and store the result', async (majority, expected) => {
-            // A rollcall: a proposal is never voted on with an absolute majority.
-            const { event, voting, delegates } = await openVotingWithDelegates({ kind: 'rollcall', majority });
+            const { event, voting, delegates } = await openVotingWithDelegates({ majority });
             await castVotes(voting.id, delegates[0], { in_favour: 2, against: 1 });
             await castVotes(voting.id, delegates[1], { abstention: 2 });
             // in favour 2, against 1, abstention 2; the delegate of body 9 does not vote.

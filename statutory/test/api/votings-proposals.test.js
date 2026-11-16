@@ -7,9 +7,9 @@ const generator = require('../scripts/generator');
 const cron = require('../../lib/cron');
 const { Proposal, VotesPerAntenna, Voting } = require('../../models');
 
-// A voting of kind 'proposal' points to a proposal on the agenda of the same Agora (proposal_id).
-// The part of the CIA of the proposal gives the majority and, before the Agora, the Statutes flag;
-// the API fills them in when the JC gives none, and the database refuses others.
+// A voting of kind 'proposal' can point to a proposal on the agenda of the same Agora (proposal_id).
+// The part of the CIA of that proposal decides the majority and, before the Agora, the Statutes flag;
+// the database refuses others. A voting without a proposal works as before.
 // The decision of the Agora is stored on the proposal, as a checked copy of the voting that decided it:
 // when the JC publishes a voting on the Agora, or when a Pre-Agora voting closes as decided.
 // All people, bodies and texts are made up.
@@ -47,7 +47,13 @@ describe('Votings on proposals', () => {
         closes_at: moment().add(1, 'day').add(1, 'hour').toDate()
     });
 
-    const createVoting = (fields) => call('POST', '/votings', { kind: 'proposal', ...window(), ...fields });
+    const createVoting = (fields) => call('POST', '/votings', {
+        kind: 'proposal',
+        title: 'Proposal: longer draft period',
+        majority: 'simple',
+        ...window(),
+        ...fields
+    });
 
     const onAgenda = (fields = {}) => generator.createProposal({ status: 'on_agenda', title: 'Longer draft period', ...fields }, event);
 
@@ -76,25 +82,27 @@ describe('Votings on proposals', () => {
     };
 
     describe('creating', () => {
-        test('should take the title and the majority from the proposal when the JC gives none', async () => {
+        test('should create a voting on a proposal of a working format with a simple majority', async () => {
             const proposal = await onAgenda({ cia_part: 'working_format' });
             const res = await createVoting({ proposal_id: proposal.id });
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data).toMatchObject({ proposal_id: proposal.id, title: 'Longer draft period', majority: 'simple', phase: 'agora' });
+            expect(res.body.data).toMatchObject({ proposal_id: proposal.id, majority: 'simple', phase: 'agora' });
         });
 
-        test('should vote on a change of the Statutes with 2/3, and mark a Pre-Agora voting on it as a change of the Statutes', async () => {
+        test('should vote on a change of the Statutes with 2/3, and before the Agora marked as a change of the Statutes', async () => {
             event = await generator.createAgoraStartingIn(10);
             const proposal = await onAgenda({ cia_part: 'statutes' });
 
-            const agora = await createVoting({ proposal_id: proposal.id, title: 'Statutes: the Agora' });
+            const agora = await createVoting({ proposal_id: proposal.id, majority: 'two_thirds' });
             expect(agora.statusCode).toEqual(200);
-            expect(agora.body.data).toMatchObject({ title: 'Statutes: the Agora', majority: 'two_thirds', concerns_statutes: false });
+            expect(agora.body.data).toMatchObject({ majority: 'two_thirds', concerns_statutes: false });
 
             const preAgora = await createVoting({
                 proposal_id: proposal.id,
                 phase: 'pre_agora',
+                majority: 'two_thirds',
+                concerns_statutes: true,
                 opens_at: moment().add(1, 'hour').toDate(),
                 closes_at: moment().add(2, 'hours').toDate()
             });
@@ -102,11 +110,13 @@ describe('Votings on proposals', () => {
             expect(preAgora.body.data).toMatchObject({ majority: 'two_thirds', concerns_statutes: true });
         });
 
-        test('should refuse a new proposal voting without a proposal', async () => {
-            const res = await createVoting({ title: 'Only a title', majority: 'simple' });
+        // The JC screen creates proposal votings with a title only; that keeps working until the frontend
+        // asks for the proposal. Without a proposal, none of the rules of a proposal apply.
+        test('should still create a proposal voting without a proposal, with any majority', async () => {
+            const res = await createVoting({ title: 'Only a title', majority: 'absolute' });
 
-            expect(res.statusCode).toEqual(422);
-            expect(res.body.message).toEqual('A voting on a proposal points to the proposal.');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ kind: 'proposal', proposal_id: null, majority: 'absolute' });
         });
 
         test('should refuse a proposal of another Agora, or one that does not exist', async () => {
@@ -145,6 +155,7 @@ describe('Votings on proposals', () => {
             const res = await createVoting({
                 proposal_id: proposal.id,
                 phase: 'pre_agora',
+                majority: 'two_thirds',
                 concerns_statutes: false,
                 opens_at: moment().add(1, 'hour').toDate(),
                 closes_at: moment().add(2, 'hours').toDate()
@@ -173,11 +184,15 @@ describe('Votings on proposals', () => {
         test('should move a scheduled voting to another proposal, with the majority of that proposal', async () => {
             const first = await onAgenda({ cia_part: 'other' });
             const second = await onAgenda({ cia_part: 'statutes', title: 'Change of the Statutes' });
-            const created = await createVoting({ proposal_id: first.id, title: 'The voting' });
+            const created = await createVoting({ proposal_id: first.id });
 
-            const res = await call('PUT', '/votings/' + created.body.data.id, { proposal_id: second.id });
+            const withoutMajority = await call('PUT', '/votings/' + created.body.data.id, { proposal_id: second.id });
+            expect(withoutMajority.statusCode).toEqual(422);
+            expect(withoutMajority.body.message).toEqual('This voting needs the majority two_thirds.');
+
+            const res = await call('PUT', '/votings/' + created.body.data.id, { proposal_id: second.id, majority: 'two_thirds' });
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data).toMatchObject({ proposal_id: second.id, majority: 'two_thirds', title: 'The voting' });
+            expect(res.body.data).toMatchObject({ proposal_id: second.id, majority: 'two_thirds' });
         });
 
         test('should refuse to move it to a proposal that is not on the agenda', async () => {
@@ -221,20 +236,12 @@ describe('Votings on proposals', () => {
             expect(again.body.message).toEqual('The Agora already decided on this proposal.');
         });
 
-        test('should keep a voting from before proposals working: it publishes without a decision', async () => {
-            const legacy = await Voting.sequelize.transaction(async (transaction) => {
-                await Voting.sequelize.query('SET LOCAL session_replication_role = replica', { transaction });
-                return Voting.create(generator.generateVoting({
-                    kind: 'proposal',
-                    majority: 'absolute',
-                    opens_at: new Date(Date.now() - 1000),
-                    closes_at: new Date(Date.now() + 3600 * 1000)
-                }, event), { transaction });
-            });
+        test('should publish a proposal voting without a proposal as before, without a decision', async () => {
+            const voting = await generator.createOpenVoting({ kind: 'proposal', majority: 'absolute' }, event);
 
-            const closed = await closeAndRead(legacy);
+            const closed = await closeAndRead(voting);
             expect(closed.proposal_id).toEqual(null);
-            expect((await call('PUT', '/votings/' + legacy.id + '/publish')).statusCode).toEqual(200);
+            expect((await call('PUT', '/votings/' + voting.id + '/publish')).statusCode).toEqual(200);
         });
     });
 
@@ -314,7 +321,7 @@ describe('Votings on proposals', () => {
             expect(closed).toMatchObject({ outcome: 'to_agora', outcome_reason: 'statutes' });
             expect((await readProposal(proposal)).decision).toEqual(null);
 
-            const following = await createVoting({ proposal_id: proposal.id, follows_voting_id: voting.id });
+            const following = await createVoting({ proposal_id: proposal.id, majority: 'two_thirds', follows_voting_id: voting.id });
             expect(following.statusCode).toEqual(200);
             expect(following.body.data).toMatchObject({ majority: 'two_thirds', follows_voting_id: voting.id });
         });

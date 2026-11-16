@@ -101,17 +101,6 @@ exports.preAgoraOutcome = ({
     return reason ? { outcome: 'to_agora', outcome_reason: reason } : { outcome: 'decided', outcome_reason: null };
 };
 
-// The majority of a voting on a proposal, from the part of the CIA that the proposal changes:
-// the Statutes or the Convention d'Adhesion 2/3 (Statutes Art. 36), other proposals a simple majority
-// (Working Format of the Agora, Art. 17(1)), and before the Agora always 2/3 (Art. 20(3)).
-// The database checks the same (trigger guard_proposal_voting, majority_matches_proposal).
-exports.proposalMajority = (ciaPart, phase) => (phase === 'pre_agora' || ciaPart === 'statutes' ? 'two_thirds' : 'simple');
-
-// Whether a voting on a proposal concerns the Statutes: a Pre-Agora voting on a change of the Statutes
-// or the Convention d'Adhesion, which always goes to the Agora again (Art. 20(5)).
-// The database checks the same (statutes_flag_matches_proposal).
-exports.proposalConcernsStatutes = (ciaPart, phase) => phase === 'pre_agora' && ciaPart === 'statutes';
-
 // The thresholds of an election. ballots: all ballots cast, blank ones included; possible: the votes
 // of all bodies in the snapshot; candidates: the candidates on the ballot. Whole numbers only, so there
 // is no rounding question at the boundary. A candidate without votes never reaches a threshold,

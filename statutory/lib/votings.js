@@ -12,7 +12,6 @@ const lifecycle = require('./voting_lifecycle');
 const { sequelize } = require('./sequelize');
 const {
     Event,
-    Proposal,
     Voting,
     VotingBodyAllotment,
     VotingDelegateVote
@@ -88,46 +87,9 @@ const withPreAgoraMajority = (fields, currentPhase, currentKind) => {
     return fields;
 };
 
-// A voting on a proposal takes from the proposal what the JC does not give: the title (of a new voting),
-// the majority and the Statutes flag, from its part of the CIA (rules.proposalMajority and
-// rules.proposalConcernsStatutes). The database refuses other values, so filling them in is always safe.
-// current is the voting before this change, or null for a new one. Returns { fields } or { error }.
-// A voting from before proposals (kind 'proposal', no proposal) gets nothing, as before.
-const withProposalFields = async (fields, current, eventId, transaction) => {
-    const valueOf = (field, fallback) => {
-        if (helpers.isDefined(fields[field])) return fields[field];
-        return current ? current[field] : fallback;
-    };
-    const proposalId = valueOf('proposal_id', null);
-    if (valueOf('kind', null) !== 'proposal' || proposalId === null) {
-        return { fields };
-    }
-
-    const proposal = Number.isInteger(proposalId)
-        ? await Proposal.findOne({ where: { id: proposalId, event_id: eventId }, transaction })
-        : null;
-    if (!proposal) {
-        return { error: PROPOSAL_MESSAGE };
-    }
-
-    const phase = valueOf('phase', 'agora');
-    const filled = { ...fields };
-    if (!current && !helpers.isDefined(fields.title)) {
-        filled.title = proposal.title;
-    }
-    if (!helpers.isDefined(fields.majority)) {
-        filled.majority = rules.proposalMajority(proposal.cia_part, phase);
-    }
-    if (!helpers.isDefined(fields.concerns_statutes)) {
-        filled.concerns_statutes = rules.proposalConcernsStatutes(proposal.cia_part, phase);
-    }
-    return { fields: filled };
-};
-
 // How each refusal of the database about the proposal of a voting is told to the JC
 // (trigger guard_proposal_voting and the constraints of migrations/20261102120000-add-proposals.js).
 const PROPOSAL_REFUSALS = {
-    proposal_voting_has_proposal: (res, message) => errors.makeValidationError(res, message),
     voting_of_proposal_of_same_agora: (res) => errors.makeValidationError(res, PROPOSAL_MESSAGE),
     proposal_only_for_proposals: (res) => errors.makeValidationError(res, 'Only a voting of kind "proposal" points to a proposal.'),
     majority_matches_proposal: (res, message) => errors.makeValidationError(res, message),
@@ -252,12 +214,7 @@ exports.createVoting = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage votings.');
     }
 
-    const withProposal = await withProposalFields(lodash.pick(req.body, EDITABLE_FIELDS), null, req.event.id);
-    if (withProposal.error) {
-        return errors.makeValidationError(res, withProposal.error);
-    }
-
-    let fields = withPreAgoraMajority(withProposal.fields, 'agora', null);
+    let fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), 'agora', null);
     let candidates = [];
     if (fields.kind === 'election') {
         const prepared = await prepareElection(req.event.id, fields, req.body.candidates);
@@ -333,12 +290,7 @@ const editScheduledVoting = async (req, transaction) => {
         return { conflict: 'Only a voting that did not open yet can be edited.' };
     }
 
-    const withProposal = await withProposalFields(lodash.pick(req.body, EDITABLE_FIELDS), locked, req.event.id, transaction);
-    if (withProposal.error) {
-        return { error: withProposal.error };
-    }
-
-    const fields = withPreAgoraMajority(withProposal.fields, locked.phase, locked.kind);
+    const fields = withPreAgoraMajority(lodash.pick(req.body, EDITABLE_FIELDS), locked.phase, locked.kind);
     const kind = helpers.isDefined(fields.kind) ? fields.kind : locked.kind;
     if ((kind === 'election') !== (locked.kind === 'election')) {
         return { error: KIND_CHANGE_MESSAGE };

@@ -9,7 +9,8 @@
 // - votings.proposal_id: the proposal of a voting, of the same Agora. Its part of the CIA gives the
 //   majority, and before the Agora the Statutes flag.
 //
-// A proposal voting from before this migration (a title, no proposal) keeps working as before.
+// proposal_id is optional for now: a voting of kind 'proposal' without it (a title only) works as before,
+// and the rules below apply only to a voting that points to a proposal.
 // Locks: opening a voting takes a share lock on its proposal, and a withdrawal updates the proposal,
 // so one waits for the other and never both go through.
 
@@ -152,34 +153,22 @@ module.exports = {
             CREATE TRIGGER proposal_guard BEFORE INSERT OR UPDATE ON proposals
                 FOR EACH ROW EXECUTE PROCEDURE proposal_guard();
 
-            -- A voting on a proposal: a new one points to its proposal; the proposal is on the agenda and not
-            -- decided when the voting opens; the majority and the Statutes flag follow from its part of the CIA.
+            -- A voting that points to a proposal: the proposal is on the agenda and not decided when the voting
+            -- opens; the majority and the Statutes flag follow from its part of the CIA.
             -- The share lock on the proposal makes a withdrawal wait for the opening, or the other way round.
             CREATE FUNCTION guard_proposal_voting() RETURNS trigger AS $$
             DECLARE
                 p        record;
                 expected text;
                 opening  boolean;
-                legacy   boolean;
             BEGIN
-                -- A voting from before proposals (kind 'proposal', no proposal) stays as it is; no new one comes.
-                IF NEW.kind = 'proposal' AND NEW.proposal_id IS NULL THEN
-                    -- Postgres 10 does not know OLD in an INSERT trigger, so each use of OLD sits behind TG_OP.
-                    IF TG_OP = 'INSERT' THEN
-                        legacy := false;
-                    ELSE
-                        legacy := OLD.kind = 'proposal' AND OLD.proposal_id IS NULL;
-                    END IF;
-                    IF NOT legacy THEN
-                        RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'proposal_voting_has_proposal',
-                            MESSAGE = 'A voting on a proposal points to the proposal.';
-                    END IF;
-                END IF;
+                -- A voting without a proposal works as before.
                 -- Other kinds with a proposal are refused by the constraint proposal_only_for_proposals.
                 IF NEW.proposal_id IS NULL OR NEW.kind <> 'proposal' THEN
                     RETURN NEW;
                 END IF;
 
+                -- Postgres 10 does not know OLD in an INSERT trigger, so each use of OLD sits behind TG_OP.
                 IF TG_OP = 'INSERT' THEN
                     opening := true;
                 ELSE
@@ -203,7 +192,6 @@ module.exports = {
                     END IF;
                 END IF;
 
-                -- The same rules as rules.proposalMajority and rules.proposalConcernsStatutes in lib/voting_rules.js.
                 IF NEW.phase = 'pre_agora' AND NEW.concerns_statutes <> (p.cia_part = 'statutes') THEN
                     RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'statutes_flag_matches_proposal',
                         MESSAGE = 'A Pre-Agora voting concerns the Statutes exactly when its proposal does.';

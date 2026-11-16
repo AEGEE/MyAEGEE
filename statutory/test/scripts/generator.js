@@ -263,16 +263,15 @@ exports.generateAttendance = (options = {}, plenary = null) => {
 };
 
 // By default a voting opens in a day and is open for an hour, so it stays scheduled during a test.
-// A new proposal voting needs a proposal on the agenda (proposal_id); createVoting makes one when it is not given.
 exports.generateVoting = (options = {}, event = null) => {
-    if (notSet(options.kind)) options.kind = 'rollcall';
+    if (notSet(options.kind)) options.kind = faker.helpers.arrayElement(['proposal', 'rollcall']);
     if (notSet(options.title)) options.title = faker.lorem.sentence();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    // A Pre-Agora voting always needs a two-thirds majority; a proposal is never voted on with an absolute one.
+    // A Pre-Agora voting always needs a two-thirds majority.
     if (notSet(options.majority)) {
         options.majority = options.phase === 'pre_agora'
             ? 'two_thirds'
-            : faker.helpers.arrayElement(options.kind === 'proposal' ? ['simple', 'two_thirds'] : ['simple', 'absolute', 'two_thirds']);
+            : faker.helpers.arrayElement(['simple', 'absolute', 'two_thirds']);
     }
     if (notSet(options.opens_at)) options.opens_at = moment().add(1, 'day').toDate();
     if (notSet(options.closes_at)) options.closes_at = moment(options.opens_at).add(1, 'hour').toDate();
@@ -284,8 +283,6 @@ exports.generateVoting = (options = {}, event = null) => {
     return options;
 };
 
-// An election: a voting of kind 'election' for a position, by default for 2 seats with the
-// threshold of a commission. There is no majority: the result is per candidate.
 // A proposal as its proposer submits it: a title, the names of the proposers, the part of the CIA it
 // changes and a link to its text. By default a part other than the Statutes or a working format.
 exports.generateProposal = (options = {}, event = null) => {
@@ -302,6 +299,8 @@ exports.generateProposal = (options = {}, event = null) => {
     return options;
 };
 
+// An election: a voting of kind 'election' for a position, by default for 2 seats with the
+// threshold of a commission. There is no majority: the result is per candidate.
 exports.generateElection = (options = {}, event = null) => {
     if (notSet(options.seats)) options.seats = 2;
     if (notSet(options.election_rule)) options.election_rule = 'commission';
@@ -398,16 +397,8 @@ exports.createProposal = async (options = {}, event = null) => {
     return proposal;
 };
 
-// By default a proposal or a rollcall. A proposal voting without a proposal_id gets a new proposal on the
-// agenda whose part of the CIA fits the majority and the phase of the voting.
-exports.createVoting = async (options = {}, event = null) => {
-    const fields = exports.generateVoting({ kind: faker.helpers.arrayElement(['proposal', 'rollcall']), ...options }, event);
-    if (fields.kind === 'proposal' && notSet(fields.proposal_id)) {
-        const statutes = fields.phase === 'pre_agora' ? fields.concerns_statutes === true : fields.majority === 'two_thirds';
-        const proposal = await exports.createProposal({ status: 'on_agenda', cia_part: statutes ? 'statutes' : 'other' }, { id: fields.event_id });
-        fields.proposal_id = proposal.id;
-    }
-    return Voting.create(fields);
+exports.createVoting = (options = {}, event = null) => {
+    return Voting.create(exports.generateVoting(options, event));
 };
 
 // An election for a new position of the event, with approved candidates on the ballot in this order:

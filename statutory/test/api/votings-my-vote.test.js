@@ -61,7 +61,7 @@ describe('Votings: my vote', () => {
 
     describe('reading', () => {
         test('should show how many votes the delegate can cast', async () => {
-            const voting = await openVoting({ title: 'Activity Plan', kind: 'proposal', majority: 'simple' });
+            const voting = await openVoting({ title: 'Activity Plan', kind: 'proposal', majority: 'absolute' });
 
             const res = await myVote('GET', voting, 10);
 
@@ -73,7 +73,7 @@ describe('Votings: my vote', () => {
                     kind: 'proposal',
                     title: 'Activity Plan',
                     description: voting.description,
-                    majority: 'simple',
+                    majority: 'absolute',
                     phase: 'agora',
                     opens_at: new Date(voting.opens_at).toISOString(),
                     closes_at: new Date(voting.closes_at).toISOString(),

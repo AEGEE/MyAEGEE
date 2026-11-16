@@ -186,7 +186,7 @@ describe('Votings database rules: Pre-Agora Voting', () => {
         const [[row]] = await VotingDelegateVote.sequelize.query(`
             INSERT INTO votings (event_id, kind, title, majority, phase, opens_at, closes_at, status, opened_at,
                 antennae_total, quorum_required, created_at, updated_at)
-            VALUES (:eventId, 'rollcall', 'Activity Plan', 'two_thirds', 'pre_agora', now() - interval '1 second',
+            VALUES (:eventId, 'proposal', 'Activity Plan', 'two_thirds', 'pre_agora', now() - interval '1 second',
                 now() + interval '1 hour', 'open', now(), 4, 2, now(), now())
             RETURNING id
         `, { replacements: { eventId: event.id } });

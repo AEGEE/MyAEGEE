@@ -7,7 +7,8 @@ const cron = require('../../lib/cron');
 // A proposal is an item on the agenda of an Agora. Its proposer submits it in MyAEGEE: a title, the
 // names of the proposers, the part of the CIA it changes and a link to its text and motivation; the
 // text itself stays outside MyAEGEE. The JC puts it on the agenda, or does not admit it with a reason
-// (WF Agora Art. 8(2)). The proposer can change it while it is submitted, and withdraw it.
+// (WF Agora Art. 8(2)). The proposer can withdraw it. Every logged-in user sees a proposal on the agenda;
+// a submitted, not admitted or withdrawn one only its proposer and the JC see.
 // All people, bodies and texts are made up.
 describe('Proposals', () => {
     // A token 'user-<id>' is that user; asJC() gives every user the rights of the JC, asMember() none.
@@ -100,68 +101,66 @@ describe('Proposals', () => {
     });
 
     describe('reading', () => {
-        test('should list the proposals of the Agora for every logged-in user, in the order they came in', async () => {
-            const first = await submit({ title: 'First' });
-            const second = await submit({ title: 'Second' }, BEN);
-            await generator.createProposal({ title: 'Of another Agora' }, await generator.createEvent({ type: 'agora', applications: [] }));
+        // Anna submitted one proposal, Ben one that the JC put on the agenda and one that it did not admit.
+        const setUpProposals = async () => {
+            const annas = await submit({ title: 'Submitted by Anna' });
+            const onAgenda = await generator.createProposal({ title: 'On the agenda', created_by: 102, status: 'on_agenda' }, event);
+            const notAdmitted = await generator.createProposal({
+                title: 'Not admitted',
+                created_by: 102,
+                status: 'not_admitted',
+                jc_reason: 'This does not change the CIA.'
+            }, event);
+            await generator.createProposal({ title: 'Of another Agora', status: 'on_agenda' }, await generator.createEvent({ type: 'agora', applications: [] }));
+            return { annas, onAgenda, notAdmitted };
+        };
 
-            const res = await call('GET', '', undefined, 'user-103');
-
+        const titlesFor = async (token) => {
+            const res = await call('GET', '', undefined, token);
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.map((proposal) => proposal.id)).toEqual([first.id, second.id]);
+            return res.body.data.map((proposal) => proposal.title);
+        };
+
+        test('should show every logged-in user the proposals on the agenda, and only the proposer and the JC the others', async () => {
+            await setUpProposals();
+
+            expect(await titlesFor('user-103')).toEqual(['On the agenda']);
+            expect(await titlesFor(ANNA)).toEqual(['Submitted by Anna', 'On the agenda']);
+            expect(await titlesFor(BEN)).toEqual(['On the agenda', 'Not admitted']);
+
+            asJC();
+            expect(await titlesFor('user-103')).toEqual(['Submitted by Anna', 'On the agenda', 'Not admitted']);
         });
 
-        test('should show one proposal', async () => {
-            const proposal = await submit();
-            const res = await call('GET', '/' + proposal.id, undefined, BEN);
+        test('should show the reason of the JC only to the proposer and the JC', async () => {
+            const { notAdmitted } = await setUpProposals();
 
+            const own = await call('GET', '/' + notAdmitted.id, undefined, BEN);
+            expect(own.statusCode).toEqual(200);
+            expect(own.body.data.jc_reason).toEqual('This does not change the CIA.');
+
+            expect((await call('GET', '/' + notAdmitted.id, undefined, 'user-103')).statusCode).toEqual(404);
+
+            asJC();
+            expect((await call('GET', '/' + notAdmitted.id, undefined, 'user-103')).body.data.jc_reason).toEqual('This does not change the CIA.');
+        });
+
+        test('should show one proposal on the agenda to every logged-in user, but not a submitted one', async () => {
+            const { annas, onAgenda } = await setUpProposals();
+
+            const res = await call('GET', '/' + onAgenda.id, undefined, 'user-103');
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.title).toEqual('Longer draft period');
+            expect(res.body.data.title).toEqual('On the agenda');
+
+            expect((await call('GET', '/' + annas.id, undefined, 'user-103')).statusCode).toEqual(404);
+            expect((await call('GET', '/' + annas.id)).statusCode).toEqual(200);
         });
 
         test('should not find a proposal of another Agora, or an invalid ID', async () => {
-            const other = await generator.createProposal({}, await generator.createEvent({ type: 'agora', applications: [] }));
+            const other = await generator.createProposal({ status: 'on_agenda' }, await generator.createEvent({ type: 'agora', applications: [] }));
 
             expect((await call('GET', '/' + other.id)).statusCode).toEqual(404);
             expect((await call('GET', '/abc')).statusCode).toEqual(400);
-        });
-    });
-
-    describe('changing', () => {
-        test('should let the proposer change the proposal while it is submitted', async () => {
-            const proposal = await submit();
-            const res = await call('PUT', '/' + proposal.id, { title: 'Longer period for drafts', cia_part: 'statutes', created_by: 7, status: 'on_agenda' });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data).toMatchObject({ title: 'Longer period for drafts', cia_part: 'statutes', created_by: 101, status: 'submitted' });
-        });
-
-        test('should let the JC change it, but not another user', async () => {
-            const proposal = await submit();
-            expect((await call('PUT', '/' + proposal.id, { title: 'By Ben' }, BEN)).statusCode).toEqual(403);
-
-            asJC();
-            const res = await call('PUT', '/' + proposal.id, { title: 'Spelling fixed by the JC' }, BEN);
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.title).toEqual('Spelling fixed by the JC');
-        });
-
-        test('should refuse an invalid change', async () => {
-            const proposal = await submit();
-            const res = await call('PUT', '/' + proposal.id, { text_url: 'not a link' });
-
-            expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('text_url');
-        });
-
-        test('should keep the text fixed once the JC put it on the agenda, also for the JC', async () => {
-            const proposal = await submit();
-            asJC();
-            expect((await setStatus(proposal, { status: 'on_agenda' }, BEN)).statusCode).toEqual(200);
-
-            const res = await call('PUT', '/' + proposal.id, { title: 'Other title' });
-            expect(res.statusCode).toEqual(409);
-            expect(res.body.message).toEqual('A proposal changes only while it is submitted.');
         });
     });
 
@@ -225,8 +224,11 @@ describe('Proposals', () => {
         });
 
         test('should let the JC withdraw it, but not another user', async () => {
+            // Another user does not even see a submitted proposal, and may not withdraw one on the agenda.
             const proposal = await submit();
-            expect((await setStatus(proposal, { status: 'withdrawn' }, BEN)).statusCode).toEqual(403);
+            expect((await setStatus(proposal, { status: 'withdrawn' }, BEN)).statusCode).toEqual(404);
+            const onAgenda = await generator.createProposal({ created_by: 101, status: 'on_agenda' }, event);
+            expect((await setStatus(onAgenda, { status: 'withdrawn' }, BEN)).statusCode).toEqual(403);
 
             asJC();
             expect((await setStatus(proposal, { status: 'withdrawn' }, BEN)).statusCode).toEqual(200);
