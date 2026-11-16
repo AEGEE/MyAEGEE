@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const cron = require('../../lib/cron');
 const { VotesPerAntenna, VotingBodyAllotment, VotingDelegateVote } = require('../../models');
 
 // Load test: 400 delegates (80 bodies with 3 delegates, 80 bodies with 2) all submit their vote
@@ -10,7 +11,7 @@ const { VotesPerAntenna, VotingBodyAllotment, VotingDelegateVote } = require('..
 // extra votes also see refusals.
 //
 // Measured on a laptop (Apple M-series, Postgres in Docker, default Sequelize pool of 5 connections),
-// 3 runs each: all 400 votes done in 0.66-0.74 s, p95 latency of one vote 0.62-0.71 s,
+// 3 runs each: all 400 votes done in 0.64-0.76 s, p95 latency of one vote 0.62-0.74 s,
 // on both Postgres 17.6 and 10.18. Core is mocked here, so the time core needs to answer
 // GET /members/me comes on top of this in production.
 // Set VOTINGS_LOAD_REPORT to print the numbers of a run.
@@ -34,6 +35,7 @@ describe('Votings load', () => {
 
     afterEach(async () => {
         mock.cleanAll();
+        cron.clearAll();
         await generator.clearAll();
     });
 
@@ -55,13 +57,18 @@ describe('Votings load', () => {
         }
         expect(delegates.length).toEqual(400);
 
-        const voting = await generator.createVoting({}, event);
+        // Opens a second ago: the first request that reads the voting opens it.
+        const voting = await generator.createVoting({
+            opens_at: new Date(Date.now() - 1000),
+            closes_at: new Date(Date.now() + 3600 * 1000),
+        }, event);
         const openRes = await request({
-            path: '/events/' + event.id + '/votings/' + voting.id + '/open',
-            method: 'PUT',
+            path: '/events/' + event.id + '/votings/' + voting.id,
+            method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
         expect(openRes.statusCode).toEqual(200);
+        expect(openRes.body.data.status).toEqual('open');
 
         const bodies = await VotingBodyAllotment.findAll({ where: { voting_id: voting.id } });
         const maxVotesPerBody = new Map(bodies.map((body) => [body.body_id, body.min_votes + (body.extra_votes > 0 ? 1 : 0)]));

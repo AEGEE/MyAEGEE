@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const cron = require('../../lib/cron');
 const { VotesPerAntenna, VotingBodyAllotment, VotingDelegateVote } = require('../../models');
 
 describe('Votings: my vote', () => {
@@ -30,17 +31,24 @@ describe('Votings: my vote', () => {
 
     afterEach(async () => {
         mock.cleanAll();
+        cron.clearAll();
         await generator.clearAll();
     });
 
     const openVoting = async (options = {}) => {
-        const voting = await generator.createVoting(options, event);
+        // Opens a second ago: the first request that reads the voting opens it.
+        const voting = await generator.createVoting({
+            opens_at: new Date(Date.now() - 1000),
+            closes_at: new Date(Date.now() + 3600 * 1000),
+            ...options
+        }, event);
         const res = await request({
-            path: '/events/' + event.id + '/votings/' + voting.id + '/open',
-            method: 'PUT',
+            path: '/events/' + event.id + '/votings/' + voting.id,
+            method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
         expect(res.statusCode).toEqual(200);
+        expect(res.body.data.status).toEqual('open');
         return voting;
     };
 
@@ -66,8 +74,11 @@ describe('Votings: my vote', () => {
                     title: 'Activity Plan',
                     description: voting.description,
                     majority: 'absolute',
+                    opens_at: new Date(voting.opens_at).toISOString(),
+                    closes_at: new Date(voting.closes_at).toISOString(),
                     status: 'open'
                 },
+                body: { body_id: 34, votes_total: 5, delegates_count: 3, votes_cast: 0 },
                 body_id: 34,
                 max_votes: 2,
                 votes_available: 2,
@@ -88,11 +99,14 @@ describe('Votings: my vote', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.max_votes).toEqual(2);
             expect(res.body.data.votes_available).toEqual(1);
+            // The delegate sees how many votes the own body cast, not what the others voted.
+            expect(res.body.data.body).toEqual({ body_id: 34, votes_total: 5, delegates_count: 3, votes_cast: 4 });
+            expect(res.body.data.in_favour).toEqual(0);
         });
 
         test('should show no votes available on a closed voting', async () => {
             const voting = await openVoting();
-            await voting.update({ status: 'closed', result: 'rejected' });
+            await generator.closeVoting(voting);
 
             const res = await myVote('GET', voting, 10);
 
@@ -181,18 +195,26 @@ describe('Votings: my vote', () => {
             expect(row.submitted_at).toEqual(null);
         });
 
-        test('should not accept a vote on a closed voting', async () => {
+        test('should not accept a vote after the voting closed', async () => {
             const voting = await openVoting();
-            await request({
-                path: '/events/' + event.id + '/votings/' + voting.id + '/close',
-                method: 'PUT',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
+            await generator.closeVoting(voting);
 
             const res = await myVote('PUT', voting, 10, { in_favour: 1 });
 
             expect(res.statusCode).toEqual(409);
-            expect(res.body.message).toEqual('This voting is not open.');
+            expect(res.body.message).toEqual('This voting is closed.');
+        });
+
+        test('should not accept a vote after closes_at, also before the voting is marked closed', async () => {
+            const voting = await openVoting();
+            await generator.endVotingTime(voting); // closes_at passed, no job or request closed it yet
+
+            const res = await myVote('PUT', voting, 10, { in_favour: 1 });
+
+            expect(res.statusCode).toEqual(409);
+            expect(res.body.message).toEqual('This voting is closed.');
+            const row = await VotingDelegateVote.findOne({ where: { voting_id: voting.id, user_id: 10 } });
+            expect(row.submitted_at).toEqual(null);
         });
 
         test('should refuse a delegate who departed, without giving the votes to others', async () => {
@@ -246,7 +268,7 @@ describe('Votings: my vote', () => {
             expect(res.statusCode).toEqual(404);
         });
 
-        test('should return 404 for a draft voting', async () => {
+        test('should return 404 for a voting that did not open yet', async () => {
             const voting = await generator.createVoting({}, event);
 
             const res = await myVote('PUT', voting, 10, { in_favour: 1 });

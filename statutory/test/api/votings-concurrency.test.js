@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const cron = require('../../lib/cron');
 const { VotesPerAntenna, VotingBodyAllotment, VotingDelegateVote } = require('../../models');
 
 // Acceptance test for the race that the old OMS JC module had: it first checked how many votes
@@ -29,6 +30,7 @@ describe('Votings concurrency', () => {
 
     afterEach(async () => {
         mock.cleanAll();
+        cron.clearAll();
         await generator.clearAll();
     });
 
@@ -47,13 +49,18 @@ describe('Votings concurrency', () => {
     };
 
     const openVoting = async () => {
-        const voting = await generator.createVoting({}, event);
+        // Opens a second ago: the first request that reads the voting opens it.
+        const voting = await generator.createVoting({
+            opens_at: new Date(Date.now() - 1000),
+            closes_at: new Date(Date.now() + 3600 * 1000),
+        }, event);
         const res = await request({
-            path: '/events/' + event.id + '/votings/' + voting.id + '/open',
-            method: 'PUT',
+            path: '/events/' + event.id + '/votings/' + voting.id,
+            method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
         expect(res.statusCode).toEqual(200);
+        expect(res.body.data.status).toEqual('open');
         return voting;
     };
 

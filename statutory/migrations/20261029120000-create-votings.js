@@ -1,21 +1,28 @@
 module.exports = {
     up: (queryInterface) => queryInterface.sequelize.transaction(async (transaction) => {
         await queryInterface.sequelize.query(`
+            -- A voting opens and closes by itself at opens_at and closes_at (see lib/voting_lifecycle.js):
+            -- scheduled until opens_at, open until closes_at, then closed. The JC publishes the result.
             CREATE TABLE votings (
-                id          serial PRIMARY KEY,
-                event_id    integer NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-                kind        text NOT NULL CHECK (kind IN ('proposal', 'rollcall')),
-                title       text NOT NULL,
-                description text,
-                majority    text NOT NULL CHECK (majority IN ('simple', 'absolute', 'two_thirds')),
-                status      text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'open', 'closed')),
-                result      text CHECK (result IN ('accepted', 'rejected')),
-                opened_at   timestamptz,
-                opened_by   integer,
-                closed_at   timestamptz,
-                closed_by   integer,
-                created_at  timestamptz NOT NULL,
-                updated_at  timestamptz NOT NULL
+                id           serial PRIMARY KEY,
+                event_id     integer NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+                kind         text NOT NULL CHECK (kind IN ('proposal', 'rollcall')),
+                title        text NOT NULL,
+                description  text,
+                majority     text NOT NULL CHECK (majority IN ('simple', 'absolute', 'two_thirds')),
+                opens_at     timestamptz NOT NULL,
+                closes_at    timestamptz NOT NULL,
+                status       text NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'open', 'closed')),
+                result       text CHECK (result IN ('accepted', 'rejected')),
+                opened_at    timestamptz,
+                closed_at    timestamptz,
+                published    boolean NOT NULL DEFAULT false,
+                published_at timestamptz,
+                published_by integer,
+                created_at   timestamptz NOT NULL,
+                updated_at   timestamptz NOT NULL,
+                CONSTRAINT voting_window CHECK (closes_at > opens_at),
+                CONSTRAINT published_when_closed CHECK (NOT published OR status = 'closed')
             );
 
             CREATE INDEX votings_event_id ON votings (event_id);
@@ -60,7 +67,8 @@ module.exports = {
             DECLARE
                 old_total     integer;
                 new_total     integer;
-                voting_status text;
+                voting_status    text;
+                voting_closes_at timestamptz;
             BEGIN
                 -- Rows are created empty when the voting opens; votes only come in through an UPDATE.
                 IF TG_OP = 'INSERT' THEN
@@ -84,8 +92,9 @@ module.exports = {
                 END IF;
 
                 -- The share lock makes closing the voting wait until this vote is stored.
-                SELECT status INTO voting_status FROM votings WHERE id = NEW.voting_id FOR SHARE;
-                IF voting_status IS DISTINCT FROM 'open' THEN
+                -- A vote after closes_at is refused even when the voting is not marked closed yet.
+                SELECT status, closes_at INTO voting_status, voting_closes_at FROM votings WHERE id = NEW.voting_id FOR SHARE;
+                IF voting_status IS DISTINCT FROM 'open' OR now() >= voting_closes_at THEN
                     RAISE EXCEPTION USING ERRCODE = 'check_violation', CONSTRAINT = 'voting_not_open',
                         MESSAGE = 'This voting is not open.';
                 END IF;

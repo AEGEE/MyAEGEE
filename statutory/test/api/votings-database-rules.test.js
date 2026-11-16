@@ -1,4 +1,5 @@
 const generator = require('../scripts/generator');
+const cron = require('../../lib/cron');
 const { VotingBodyAllotment, VotingDelegateVote } = require('../../models');
 
 // The division rule lives in the database itself (trigger count_delegate_votes and CHECK
@@ -12,7 +13,7 @@ describe('Votings database rules', () => {
     // A body with 4 votes and 3 delegates: minimum 1, 1 extra vote, so each delegate at most 2.
     beforeEach(async () => {
         event = await generator.createEvent({ type: 'agora', applications: [] });
-        voting = await generator.createVoting({ status: 'open' }, event);
+        voting = await generator.createVoting({ status: 'open', opens_at: new Date(Date.now() - 1000), closes_at: new Date(Date.now() + 3600 * 1000) }, event);
         delegates = [];
         for (let index = 0; index < 3; index++) {
             delegates.push(await generator.createPresentDelegate({ user_id: 100 + index, body_id: 1 }, event));
@@ -31,6 +32,7 @@ describe('Votings database rules', () => {
     });
 
     afterEach(async () => {
+        cron.clearAll();
         await generator.clearAll();
     });
 
@@ -119,6 +121,13 @@ describe('Votings database rules', () => {
 
     test('refuses a vote when the voting is not open', async () => {
         await voting.update({ status: 'closed' });
+        expect(await refusalOf(castVotes(delegates[0], { in_favour: 1 }))).toEqual('voting_not_open');
+    });
+
+    test('refuses a vote after closes_at, also while the voting is still marked open', async () => {
+        await generator.endVotingTime(voting);
+        expect((await voting.reload()).status).toEqual('open');
+
         expect(await refusalOf(castVotes(delegates[0], { in_favour: 1 }))).toEqual('voting_not_open');
     });
 
