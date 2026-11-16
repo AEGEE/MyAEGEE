@@ -42,6 +42,36 @@
             <empty-table-stub />
           </template>
         </b-table>
+
+        <div class="title is-4 attendance-title">Attendance per Local</div>
+        <p class="content">{{ explanation }}</p>
+
+        <b-table :data="locals" :loading="isLoadingAttendance">
+          <b-table-column field="name" label="Local" v-slot="props">
+            {{ props.row.name }}
+          </b-table-column>
+
+          <b-table-column field="delegates" label="Delegates" numeric v-slot="props">
+            {{ props.row.delegates }}
+          </b-table-column>
+
+          <b-table-column field="average_percent" label="Attendance" numeric v-slot="props">
+            {{ formatPercent(props.row.average_percent) }}
+          </b-table-column>
+
+          <b-table-column label="Status" centered v-slot="props">
+            <span
+              v-if="tag(props.row)"
+              class="tag"
+              :class="tag(props.row).type">
+              {{ tag(props.row).label }}
+            </span>
+          </b-table-column>
+
+          <template slot="empty">
+            <empty-table-stub />
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -50,28 +80,41 @@
 <script>
 import { mapGetters } from 'vuex'
 import EditPlenaryModal from './EditPlenaryModal'
+import { attendanceTag, explainAttendance, formatPercent, lowestFirst } from '../../plenaryAttendance'
 
 export default {
   name: 'StatutoryPlenariesList',
   data () {
     return {
       plenaries: [],
+      localAttendance: { threshold: 80, locals: [] },
       event: {},
       can: {
         manage_plenaries: false,
         see_plenaries: false,
         mark_attendance: false
       },
-      isLoading: false
+      isLoading: false,
+      isLoadingAttendance: false
     }
   },
   computed: {
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
-    })
+    }),
+    locals () {
+      return lowestFirst(this.localAttendance.locals)
+    },
+    explanation () {
+      return explainAttendance(this.localAttendance.threshold)
+    }
   },
   methods: {
+    formatPercent,
+    tag (local) {
+      return attendanceTag(local, this.localAttendance.threshold)
+    },
     openEditPlenaryModal (plenary) {
       if (!plenary) {
         plenary = {
@@ -132,11 +175,23 @@ export default {
 
       this.$router.push({ name: 'oms.statutory.list.all' })
     })
+
+    this.isLoadingAttendance = true
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/local-attendance').then((attendance) => {
+      this.localAttendance = attendance.data.data
+      this.isLoadingAttendance = false
+    }).catch((err) => {
+      this.isLoadingAttendance = false
+      this.$root.showError('Could not load the attendance per Local', err)
+    })
   }
 }
 </script>
 
 <style>
+.attendance-title {
+  margin-top: 2rem;
+}
 .table-wrapper .table .button:not(.is-primary) {
   color: #000;
 }

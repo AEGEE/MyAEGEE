@@ -5,6 +5,9 @@ const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const constants = require('../../lib/constants');
 
+// The access token that the service login of statutory gets from core.
+const SERVICE_TOKEN = '1';
+
 exports.cleanAll = () => nock.cleanAll();
 
 exports.mockCore = (options) => {
@@ -48,6 +51,19 @@ exports.mockCore = (options) => {
                         ban_until: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)
                     }
                 }
+            });
+    }
+
+    // A token like 'user-42' authenticates as user 42, every other token as the regular user.
+    // Used to simulate several users (e.g. delegates of one body) sending requests at the same time.
+    if (options.userFromToken) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members/me')
+            .reply(function replyWithUserFromToken() {
+                const match = /^user-(\d+)$/.exec(this.req.headers['x-auth-token']);
+                const id = match ? Number(match[1]) : regularUser.id;
+                return [200, { success: true, data: { ...regularUser, id } }];
             });
     }
 
@@ -310,6 +326,27 @@ exports.mockCoreBodies = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
+    // A network with exactly the given bodies.
+    if (typeof options.list !== 'undefined') {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies')
+            .reply(200, { success: true, data: options.list });
+    }
+
+    // A network with the given number of Antennae, plus a contact antenna and a committee
+    // that do not count for the quorum. Only answers to the token of the service login (see mockCoreLogin).
+    if (typeof options.antennae !== 'undefined') {
+        const otherBodies = [{ id: 900, type: 'contact antenna' }, { id: 901, type: 'committee' }];
+        const antennae = Array.from({ length: options.antennae }, (value, index) => ({ id: 1000 + index, type: 'antenna' }));
+
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies')
+            .matchHeader('X-Auth-Token', SERVICE_TOKEN)
+            .reply(200, { success: true, data: [...antennae, ...otherBodies] });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/bodies')
@@ -456,7 +493,7 @@ exports.mockCoreLogin = (options) => {
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .post('/login')
-        .reply(200, { success: true, access_token: '1', refresh_token: '1' });
+        .reply(200, { success: true, access_token: SERVICE_TOKEN, refresh_token: '1' });
 };
 
 exports.mockCoreBodyMembers = (options) => {
@@ -530,7 +567,7 @@ exports.mockCoreMails = (options) => {
 };
 
 exports.mockAll = (options = {}) => {
-    nock.cleanAll();
+    exports.cleanAll();
     const coreStub = exports.mockCore(options.core || {});
     const mainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const approvePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});

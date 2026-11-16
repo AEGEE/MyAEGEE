@@ -20,6 +20,8 @@ const questionLines = require('./question_lines');
 const questions = require('./questions');
 const candidates = require('./candidates');
 const plenaries = require('./plenaries');
+const votings = require('./votings');
+const proposals = require('./proposals');
 const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
@@ -39,6 +41,9 @@ const CandidatesRouter = express.Router({ mergeParams: true });
 const PlenariesRouter = express.Router({ mergeParams: true });
 const QuestionLinesRouter = express.Router({ mergeParams: true });
 const QuestionsRouter = express.Router({ mergeParams: true });
+const VotingsRouter = express.Router({ mergeParams: true });
+const MyVoteRouter = express.Router({ mergeParams: true });
+const ProposalsRouter = express.Router({ mergeParams: true });
 
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
@@ -172,9 +177,33 @@ PlenariesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, 
 PlenariesRouter.get('/', plenaries.listAllPlenaries);
 PlenariesRouter.post('/', plenaries.createPlenary);
 PlenariesRouter.get('/stats', plenaries.listPlenariesStats);
+PlenariesRouter.get('/local-attendance', plenaries.listLocalAttendance);
 PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary);
 PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
 PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);
+
+// The vote route of a delegate only asks core who the user is (no permissions, no fetchEvent),
+// because all delegates of the Agora use it at the same moment.
+MyVoteRouter.use(middlewares.authenticateMember, votings.findVotingForMember);
+MyVoteRouter.get('/', votings.getMyVote);
+MyVoteRouter.put('/', votings.submitMyVote);
+
+VotingsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, votings.checkIfAgora);
+VotingsRouter.get('/', votings.listVotings);
+VotingsRouter.post('/', votings.createVoting);
+VotingsRouter.get('/:voting_id', votings.findVoting, votings.getVoting);
+VotingsRouter.put('/:voting_id', votings.findVoting, votings.editVoting);
+VotingsRouter.delete('/:voting_id', votings.findVoting, votings.deleteVoting);
+VotingsRouter.put('/:voting_id/publish', votings.findVoting, votings.publishVoting);
+VotingsRouter.put('/:voting_id/amendment', votings.findVoting, votings.markAmendment);
+VotingsRouter.get('/:voting_id/progress', votings.findVoting, votings.getProgress);
+VotingsRouter.get('/:voting_id/result', votings.findVoting, votings.getResult);
+
+ProposalsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, proposals.checkIfAgora);
+ProposalsRouter.get('/', proposals.listProposals);
+ProposalsRouter.post('/', proposals.submitProposal);
+ProposalsRouter.get('/:proposal_id', proposals.findProposal, proposals.getProposal);
+ProposalsRouter.put('/:proposal_id/status', proposals.findProposal, proposals.setProposalStatus);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/events/:event_id/massmailer', MassMailerRouter);
@@ -183,6 +212,10 @@ server.use('/events/:event_id/question-lines', QuestionLinesRouter);
 server.use('/events/:event_id/question-lines/:question_line_id/questions', QuestionsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
+// Mounted before EventsRouter: its middlewares run for every path under /events/:event_id.
+server.use('/events/:event_id/votings/:voting_id/my-vote', MyVoteRouter);
+server.use('/events/:event_id/votings', VotingsRouter);
+server.use('/events/:event_id/proposals', ProposalsRouter);
 server.use('/events/:event_id', EventsRouter);
 server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
 server.use('/events/:event_id/plenaries', PlenariesRouter);
