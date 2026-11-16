@@ -1,7 +1,11 @@
 import sluggify from './sluggify'
+import escapeHtml from './escape-html'
 
 export default {
   showNotification (options) {
+    // Buefy renders toast messages as HTML. None of ours need markup, and they often
+    // contain names or server messages, so they're always shown as plain text.
+    options.message = escapeHtml(options.message)
     options.duration = options.duration || 3000
     options.type = options.type || 'is-success'
 
@@ -49,5 +53,6 @@ export default {
     // Otherwise, return error message.
     return this.showDanger(`${message}: ${error.message}`)
   },
-  sluggify
+  sluggify,
+  escapeHtml
 }

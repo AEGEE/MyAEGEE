@@ -172,6 +172,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 import EditPositionModal from './EditPositionModal'
@@ -305,7 +306,7 @@ export default {
     askDeletePosition (position) {
       this.$buefy.dialog.confirm({
         title: 'Removing position',
-        message: 'Are you sure you want to remove the position for <b>' + position.name + '</b>? This action cannot be undone.',
+        message: 'Are you sure you want to remove the position for <b>' + escapeHtml(position.name) + '</b>? This action cannot be undone.',
         confirmText: 'Remove position',
         type: 'is-danger',
         hasIcon: false,

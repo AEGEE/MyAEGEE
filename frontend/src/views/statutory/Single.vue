@@ -446,6 +446,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
@@ -518,7 +519,7 @@ export default {
     askSwitchStatus (newStatus) {
       this.$buefy.dialog.confirm({
         title: 'Switching status',
-        message: `Are you sure you want to <b>switch this event's status to "${newStatus}"</b>?`,
+        message: `Are you sure you want to <b>switch this event's status to "${escapeHtml(newStatus)}"</b>?`,
         confirmText: 'Switch status',
         type: 'is-info',
         hasIcon: true,
