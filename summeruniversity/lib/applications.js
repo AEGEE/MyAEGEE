@@ -7,6 +7,17 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
 
+// Fields applicants can't set when applying or editing their application: these change
+// through their own endpoints, with their own permission checks (status, board comment,
+// confirmed, attended, cancelled), or come from the applicant's body.
+const PROTECTED_APPLICATION_FIELDS = ['status', 'board_comment', 'confirmed', 'attended', 'cancelled', 'body_name'];
+
+function removeProtectedFields(body) {
+    for (const field of PROTECTED_APPLICATION_FIELDS) {
+        delete body[field];
+    }
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -98,8 +109,7 @@ exports.createApplication = async (req, res) => {
         return errors.makeBadRequestError(res, 'You are not a member of this body.');
     }
 
-    delete req.body.board_comment;
-    delete req.body.status;
+    removeProtectedFields(req.body);
 
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
@@ -182,8 +192,7 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'The applicant is not a member of this body.');
     }
 
-    delete req.body.board_comment;
-    delete req.body.status;
+    removeProtectedFields(req.body);
 
     req.body.first_name = applicant.first_name;
     req.body.last_name = applicant.last_name;

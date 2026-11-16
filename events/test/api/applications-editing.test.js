@@ -269,4 +269,44 @@ describe('Events application editing', () => {
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
     });
+
+    it('should ignore the fields the applicant cannot set when editing their application', async () => {
+        mock.mockAll(({ mainPermissions: { noPermissions: true } }));
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            organizers: [{ user_id: 1234, first_name: 'test', last_name: 'test' }],
+            questions: []
+        });
+        const application = await generator.createApplication(event, {
+            user_id: user.id,
+            body_id: user.bodies[0].id,
+            body_name: user.bodies[0].name,
+            answers: []
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/me',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                status: 'accepted',
+                board_comment: 'Great!',
+                confirmed: true,
+                attended: true,
+                body_name: 'Fake body'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.status).toEqual('pending');
+        expect(applicationFromDb.board_comment).toEqual(null);
+        expect(applicationFromDb.confirmed).toEqual(false);
+        expect(applicationFromDb.attended).toEqual(false);
+        expect(applicationFromDb.body_name).toEqual(user.bodies[0].name);
+    });
 });

@@ -97,8 +97,16 @@ describe('Applications creation', () => {
         ]);
     });
 
-    test('should ignore the status and board comment from the body', async () => {
-        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, status: 'accepted', board_comment: 'Great!' }));
+    test('should ignore the fields the applicant cannot set', async () => {
+        const res = await apply(generator.generateApplicationBody(event, {
+            body_id: 1,
+            status: 'accepted',
+            board_comment: 'Great!',
+            confirmed: true,
+            attended: true,
+            cancelled: true,
+            body_name: 'Fake body'
+        }));
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.status).toEqual('pending');
@@ -106,6 +114,10 @@ describe('Applications creation', () => {
         const application = await Application.findByPk(res.body.data.id);
         expect(application.status).toEqual('pending');
         expect(application.board_comment).toEqual(null);
+        expect(application.confirmed).toEqual(false);
+        expect(application.attended).toEqual(false);
+        expect(application.cancelled).toEqual(false);
+        expect(application.body_name).toEqual('AEGEE-Dresden');
     });
 
     test('should override the user and event fields from the body', async () => {

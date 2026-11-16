@@ -51,6 +51,9 @@ exports.submitYourCandidature = async (req, res) => {
     }
 
     delete req.body.status;
+    // The image is set through the image upload, which checks the permission and
+    // removes the previous image.
+    delete req.body.image_id;
 
     req.body.body_name = req.user.bodies.find((body) => body.id === req.body.body_id).name;
     req.body.user_id = req.user.id;

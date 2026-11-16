@@ -22,6 +22,7 @@ exports.addEvent = async (req, res) => {
 
     delete req.body.status;
     delete req.body.id;
+    delete req.body.image_id;
 
     if (req.body.type === 'agora') {
         const previousAgora = await Event.findOne({
