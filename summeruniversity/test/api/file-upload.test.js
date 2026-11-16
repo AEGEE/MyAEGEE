@@ -152,6 +152,19 @@ describe('File upload', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test('should return 422 if the form has fields but no file', async () => {
+        const res = await request({
+            path: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'foobar' },
+            files: {},
+            fields: { some_field: 'value' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('No head_image is specified.');
+    });
+
     test('should return 422 if no file is sent', async () => {
         const res = await upload({});
 

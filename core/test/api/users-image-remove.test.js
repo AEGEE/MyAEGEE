@@ -19,7 +19,7 @@ describe('Users image remove', () => {
 
     afterEach(async () => {
         await generator.clearAll();
-        rimraf(config.media_dir);
+        await rimraf(config.media_dir);
     });
 
     it('should fail if the user has no image', async () => {

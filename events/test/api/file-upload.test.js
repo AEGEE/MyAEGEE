@@ -24,11 +24,11 @@ describe('File upload', () => {
         mock.cleanAll();
 
         await generator.clearAll();
-        rimraf(config.media_dir);
+        await rimraf(config.media_dir);
     });
 
     it('should create an upload folder if it doesn\'t exist', async () => {
-        rimraf(config.media_dir);
+        await rimraf(config.media_dir);
 
         await request({
             path: '/single/' + event.id + '/upload',
@@ -263,6 +263,19 @@ describe('File upload', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
+    });
+
+    it('should return 422 if the form has fields but no file', async () => {
+        const res = await request({
+            path: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {},
+            fields: { some_field: 'value' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('No head_image is specified.');
     });
 
     it('should return 403 for a user who is neither an organizer nor a manager', async () => {

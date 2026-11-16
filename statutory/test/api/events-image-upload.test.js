@@ -97,7 +97,7 @@ describe('Events image upload', () => {
         expect(res.statusCode).toEqual(422);
 
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('No head_image is specified.');
+        expect(res.body.message).toEqual('No image is specified.');
     });
 
     it('should upload a file if it\'s valid', async () => {
@@ -329,6 +329,6 @@ describe('Events image upload', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('No head_image is specified.');
+        expect(res.body.message).toEqual('No image is specified.');
     });
 });

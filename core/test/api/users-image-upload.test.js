@@ -19,7 +19,7 @@ describe('Users image upload', () => {
 
     afterEach(async () => {
         await generator.clearAll();
-        rimraf(config.media_dir);
+        await rimraf(config.media_dir);
     });
 
     it('should create an upload folder if it doesn\'t exist', async () => {
