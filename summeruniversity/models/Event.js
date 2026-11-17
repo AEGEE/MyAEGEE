@@ -94,7 +94,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
-                isUrl: { msg: 'The provided link is not a valid URL.' }
+                isWebLink
             }
         },
         social_media: {
@@ -453,7 +453,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
-                isUrl: { msg: 'The provided link is not a valid URL.' }
+                isWebLink
             }
         },
         programme_suct: {
@@ -461,7 +461,7 @@ const Event = sequelize.define(
             allowNull: false,
             validate: {
                 notEmpty: { msg: 'The programme for SUCT should be set.' },
-                isUrl: { msg: 'The provided link is not a valid URL.' }
+                isWebLink
             }
         },
         programme: {
