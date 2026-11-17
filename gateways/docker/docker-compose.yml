@@ -25,6 +25,8 @@ services:
       - ./${PATH_GATEWAYS}/traefik/traefik.toml:/etc/traefik/traefik.toml
       - ./${PATH_GATEWAYS}/traefik/logs:/var/log/traefik/
       # - shared_logs:/var/log/traefik/
+      - ./secrets/_wildcard.${BASE_URL}-key.pem:/etc/ssl/mkcert/key.pem #if they don't exist it's ok
+      - ./secrets/_wildcard.${BASE_URL}.pem:/etc/ssl/mkcert/cert.pem
 #        networks:
 #          - management
     labels:

@@ -58,10 +58,15 @@ init_boot ()
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
     touch "${DIR}"/gateways/docker/traefik/traefik.toml # to avoid making it think it's a folder
+
     if [[ "${MYAEGEE_ENV}" != "development" ]]; then
       envsubst < "${DIR}"/gateways/docker/traefik/traefik.toml.template > "${DIR}"/gateways/docker/traefik/traefik.toml
     else
-      cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev > "${DIR}"/gateways/docker/traefik/traefik.toml
+      if [[ ! -f "${DIR}/secrets/_wildcard.${BASE_URL}.pem" ]]; then
+        cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev > "${DIR}"/gateways/docker/traefik/traefik.toml
+      else
+        cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev-ssl > "${DIR}"/gateways/docker/traefik/traefik.toml
+      fi
     fi
 
     echo -e "\n[Deployment] Setting secrets\n"
