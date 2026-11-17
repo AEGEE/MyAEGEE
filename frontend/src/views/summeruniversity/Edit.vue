@@ -226,7 +226,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.learning_objectives">{{ errors.learning_objectives.message }}</p>
+        <p class="help is-danger" v-if="errors.learning_objectives">{{ errors.learning_objectives.join(', ') }}</p>
 
         <div class="field">
           <label class="label">List of activities <span class="has-text-danger">*</span></label>
@@ -380,7 +380,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.photos">{{ errors.photos.message }}</p>
+        <p class="help is-danger" v-if="errors.photos">{{ errors.photos.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Video <URLTooltip /></label>
@@ -674,7 +674,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
+        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Regulations</div>
         <hr />

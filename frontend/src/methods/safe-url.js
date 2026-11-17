@@ -1,7 +1,7 @@
 // Links typed in by users are only rendered as links when they're http(s) links,
 // so a stored javascript: or data: link can't run anything when clicked.
-// A link without a scheme (like www.example.org) is opened as https;
-// the backend validates links with the same rule.
+// The backend only accepts new links starting with http:// or https://; older
+// links without a scheme (like www.example.org) are opened as https.
 export default function safeUrl (value) {
   if (typeof value !== 'string') return null
 

@@ -85,7 +85,7 @@
             <span v-html="$options.filters.markdown(body.task_description)" />
           </div>
           <p class="help is-danger" v-if="errors.task_description">
-            {{ errors.task_description.message }}
+            {{ errors.task_description.join(', ') }}
           </p>
         </div>
 
@@ -217,7 +217,7 @@
           <label class="label">Website</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="globe" /></span>
-            <input class="input" type="text" v-model="body.website" />
+            <input class="input" type="url" placeholder="https://" v-model="body.website" />
           </div>
           <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ') }}</p>
         </div>

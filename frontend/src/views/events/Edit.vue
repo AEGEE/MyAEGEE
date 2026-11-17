@@ -461,7 +461,7 @@
             </div>
           </div>
 
-          <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
+          <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
         </template>
 
         <template v-if="!isOnlineEvent">
