@@ -19,7 +19,9 @@ test.describe('HTML injection in the frontend', () => {
             '',
             '<div class="modal is-active"><div class="modal-background"></div><div class="modal-content box">Session expired</div></div>',
             '',
-            '[click me](javascript:window.__injected=\'link\')'
+            '[click me](javascript:window.__injected=\'link\')',
+            '',
+            '[mail the board](mailto:board@example.org) or [download it](ftp://example.org/file)'
         ].join('\n');
 
         const event = await api.createEvent('admin', { type: 'training', description });
@@ -46,6 +48,10 @@ test.describe('HTML injection in the frontend', () => {
         await expect(page.locator('.modal.is-active')).toHaveCount(0);
         await expect(rendered.getByText('Session expired')).toBeVisible();
         await expect(rendered.locator('a[href^="javascript:"]')).toHaveCount(0);
+        // Only http(s), mailto: and tel: links stay links.
+        await expect(rendered.getByText('mail the board')).toHaveAttribute('href', 'mailto:board@example.org');
+        await expect(rendered.getByText('download it')).toBeVisible();
+        await expect(rendered.getByText('download it')).not.toHaveAttribute('href');
         await rendered.getByText('click me').click();
         expect(await injected(page)).toBeUndefined();
     });
