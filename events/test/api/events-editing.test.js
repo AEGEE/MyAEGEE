@@ -333,7 +333,11 @@ describe('Events editing', () => {
             [field, ' JavaScript:alert(1)'],
             [field, 'data:text/html,<script>alert(1)</script>'],
             [field, 'vbscript:msgbox(1)'],
-            [field, 'https://exa mple.org']
+            [field, 'https://exa mple.org'],
+            // Browsers drop tabs and newlines, so these would open as javascript: links.
+            [field, 'java\tscript://%0aalert(1)'],
+            [field, 'java\nscript://%0aalert(1)'],
+            [field, 'data\t://text/html,x']
         ]))('should reject %s %j', async (field, link) => {
             const res = await request({
                 path: '/single/' + event.id,

@@ -15,6 +15,13 @@ function isWebLink(value) {
         return;
     }
 
+    // URL parsers (and browsers) drop tabs and newlines, so "java\tscript:" would
+    // otherwise pass as a link without a scheme and be opened as "javascript:".
+    // eslint-disable-next-line no-control-regex
+    if (/[\u0000-\u001F\u007F]/.test(link)) {
+        throw new Error('The provided link is not a valid URL.');
+    }
+
     let url;
     try {
         url = new URL(/^[a-z][a-z\d+.-]*:/i.test(link) ? link : `https://${link}`);

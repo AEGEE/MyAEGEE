@@ -99,13 +99,17 @@ exports.editCandidature = async (req, res) => {
     delete req.body.user_id;
     delete req.body.image_id;
     delete req.body.body_name;
+    delete req.body.position_id;
 
     // The body is the candidate's, also when someone else (like the JC) edits the candidature.
+    if (req.body.body_id !== undefined) {
+        req.body.body_id = Number(req.body.body_id);
+    }
     if (req.body.body_id !== undefined && req.body.body_id !== req.candidate.body_id) {
         const candidateUser = req.candidate.user_id === req.user.id
             ? req.user
             : await core.fetchApplicationUser(req.candidate.user_id);
-        const body = candidateUser.bodies.find((candidateBody) => candidateBody.id === req.body.body_id);
+        const body = (candidateUser.bodies || []).find((candidateBody) => candidateBody.id === req.body.body_id);
         if (!body) {
             return errors.makeForbiddenError(res, 'The candidate is not a member of this body.');
         }

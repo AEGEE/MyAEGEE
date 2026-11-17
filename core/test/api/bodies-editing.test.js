@@ -230,7 +230,8 @@ describe('Bodies editing', () => {
             // eslint-disable-next-line no-script-url
             'javascript:alert(1)',
             'data:text/html,<script>alert(1)</script>',
-            'https://exa mple.org'
+            'https://exa mple.org',
+            'java\tscript://%0aalert(1)'
         ])('should reject %j', async (website) => {
             const { res, bodyFromDb } = await updateWebsite(website);
 

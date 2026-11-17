@@ -176,6 +176,7 @@ describe('Events creation', () => {
         // eslint-disable-next-line no-script-url
         ['social_media', { social_media: [{ name: '', description: 'javascript:alert(1)' }] }, 'The link should start with http:// or https://.'],
         ['social_media', { social_media: [{ name: '', description: 'https://exa mple.org' }] }, 'The provided link is not a valid URL.'],
+        ['social_media', { social_media: [{ name: '', description: 'java\nscript://%0aalert(1)' }] }, 'The provided link is not a valid URL.'],
         ['accommodation_type', { accommodation_type: '' }, 'The type of accommodation should be set.'],
         ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
