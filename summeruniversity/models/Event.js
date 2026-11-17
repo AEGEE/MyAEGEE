@@ -2,6 +2,7 @@ const Joi = require('joi');
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isWebLink } = require('../lib/links');
 
 // TODO: require body_id if role is main_coordinator
 // TODO: validate that role is in enum ['main_coordinator', 'content_manager', 'treasurer', 'incoming_responsible', 'general_organizer']
@@ -101,8 +102,27 @@ const Event = sequelize.define(
             type: Sequelize.JSONB,
             allowNull: true,
             validate: {
-            // TODO: validate that all provided strings are URLs
-            // TODO: max 3 URLs
+                isValid(socialMedia) {
+                    if (socialMedia === null || socialMedia === undefined) {
+                        return;
+                    }
+
+                    if (!Array.isArray(socialMedia)) {
+                        throw new Error('Social media should be a list of links.');
+                    }
+
+                    if (socialMedia.length > 3) {
+                        throw new Error('At most 3 social media links can be set.');
+                    }
+
+                    for (const medium of socialMedia) {
+                        if (!medium || typeof medium.description !== 'string' || medium.description.trim() === '') {
+                            throw new Error('Every social media entry should have a link.');
+                        }
+
+                        isWebLink(medium.description);
+                    }
+                }
             }
         },
         application_starts: {

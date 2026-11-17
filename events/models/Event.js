@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isWebLink } = require('../lib/links');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -350,19 +351,22 @@ const Event = sequelize.define(
         },
         budget: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: { isWebLink }
         },
         programme: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: { isWebLink }
         },
         optional_programme: {
             type: Sequelize.TEXT,
             allowNull: true
         },
-        link_info_travel_country: { // not validated. Will be checked client side, but validated nowhere
+        link_info_travel_country: {
             type: Sequelize.TEXT, // some links can reach 255 chars
-            allowNull: true
+            allowNull: true,
+            validate: { isWebLink }
         },
         meals_per_day: {
             type: Sequelize.INTEGER,

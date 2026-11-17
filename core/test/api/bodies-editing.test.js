@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Body } = require('../../models');
 
 describe('Bodies editing', () => {
     beforeAll(async () => {
@@ -205,4 +206,49 @@ describe('Bodies editing', () => {
             expect(res.body).toHaveProperty('data');
         });
     }
+
+    describe('website', () => {
+        const updateWebsite = async (website) => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody({ website: 'https://www.aegee.org' });
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { website }
+            });
+
+            return { res, bodyFromDb: await Body.findByPk(body.id) };
+        };
+
+        test.each([
+            // eslint-disable-next-line no-script-url
+            'javascript:alert(1)',
+            'data:text/html,<script>alert(1)</script>',
+            'https://exa mple.org'
+        ])('should reject %j', async (website) => {
+            const { res, bodyFromDb } = await updateWebsite(website);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('website');
+            expect(bodyFromDb.website).toEqual('https://www.aegee.org');
+        });
+
+        test.each([
+            'https://www.aegee-enschede.nl',
+            'www.aegee-enschede.nl',
+            '',
+            null
+        ])('should accept %j', async (website) => {
+            const { res, bodyFromDb } = await updateWebsite(website);
+
+            expect(res.statusCode).toEqual(200);
+            expect(bodyFromDb.website).toEqual(website);
+        });
+    });
 });

@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
 const coOrganizingBody = require('../assets/oms-core-body.json').data;
 
@@ -320,6 +321,64 @@ describe('Events editing', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id, 4242]);
+        });
+    });
+
+    describe('links', () => {
+        const fields = ['budget', 'programme', 'link_info_travel_country'];
+
+        test.each(fields.flatMap((field) => [
+            // eslint-disable-next-line no-script-url
+            [field, 'javascript:alert(1)'],
+            [field, ' JavaScript:alert(1)'],
+            [field, 'data:text/html,<script>alert(1)</script>'],
+            [field, 'vbscript:msgbox(1)'],
+            [field, 'https://exa mple.org']
+        ]))('should reject %s %j', async (field, link) => {
+            const res = await request({
+                path: '/single/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { [field]: link }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb[field]).toEqual(event[field]);
+        });
+
+        test.each(fields.flatMap((field) => [
+            [field, 'https://docs.google.com/spreadsheets/d/abc'],
+            [field, 'http://www.aegee.org'],
+            [field, 'www.aegee.org/travel'],
+            [field, ''],
+            [field, null]
+        ]))('should accept %s %j', async (field, link) => {
+            const res = await request({
+                path: '/single/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { [field]: link }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb[field]).toEqual(link);
+        });
+
+        it('should reject a link that is not a string', async () => {
+            const res = await request({
+                path: '/single/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { budget: ['https://www.aegee.org'] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('budget');
         });
     });
 });

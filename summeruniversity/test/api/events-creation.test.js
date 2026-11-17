@@ -168,6 +168,14 @@ describe('Events creation', () => {
         ['theme_implementation', { theme_implementation: '' }, 'Explanation of theme implementation should be set.'],
         ['programme_suct', { programme_suct: 'not a url' }, 'The provided link is not a valid URL.'],
         ['website', { website: 'not a url' }, 'The provided link is not a valid URL.'],
+        ['social_media', { social_media: 'https://www.instagram.com/aegee' }, 'Social media should be a list of links.'],
+        ['social_media', { social_media: [1, 2, 3, 4].map((index) => ({ name: '', description: `https://example.org/${index}` })) }, 'At most 3 social media links can be set.'],
+        ['social_media', { social_media: [null] }, 'Every social media entry should have a link.'],
+        ['social_media', { social_media: [{ name: 'Instagram' }] }, 'Every social media entry should have a link.'],
+        ['social_media', { social_media: [{ name: '', description: '  ' }] }, 'Every social media entry should have a link.'],
+        // eslint-disable-next-line no-script-url
+        ['social_media', { social_media: [{ name: '', description: 'javascript:alert(1)' }] }, 'The link should start with http:// or https://.'],
+        ['social_media', { social_media: [{ name: '', description: 'https://exa mple.org' }] }, 'The provided link is not a valid URL.'],
         ['accommodation_type', { accommodation_type: '' }, 'The type of accommodation should be set.'],
         ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
@@ -187,6 +195,18 @@ describe('Events creation', () => {
         }
         expect(await Event.count()).toEqual(0);
         expect(mails.length).toEqual(0);
+    });
+
+    test('should accept social media links', async () => {
+        const socialMedia = [
+            { name: '', description: 'https://www.instagram.com/aegee' },
+            { name: '', description: 'www.facebook.com/aegee' }
+        ];
+        const res = await createEvent(generator.generateEventBody({ social_media: socialMedia }));
+
+        expect(res.statusCode).toEqual(201);
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.social_media).toEqual(socialMedia);
     });
 
     test('should return 422 if the url is already taken', async () => {
