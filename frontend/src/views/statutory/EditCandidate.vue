@@ -384,6 +384,12 @@ export default {
       this.$set(this, 'candidate', response.data.data)
       this.$set(this.candidate, 'body', this.loginUser.bodies.find(body => body.id === this.candidate.body_id))
 
+      if (this.candidate.user_id !== this.loginUser.id) {
+        // Someone else's candidature (like the JC editing it): the body has to be one of the
+        // candidate's bodies, which aren't known here, so it can't be changed from this form.
+        this.bodies = [{ id: this.candidate.body_id, name: this.candidate.body_name }]
+      }
+
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false

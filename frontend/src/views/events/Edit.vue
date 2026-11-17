@@ -873,7 +873,8 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        // Validation errors per field; other 422s only have a message.
+        if (err.response.status === 422 && err.response.data.errors) {
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the event data is invalid.')
         }
