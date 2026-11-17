@@ -231,7 +231,8 @@ describe('Bodies editing', () => {
             'javascript:alert(1)',
             'data:text/html,<script>alert(1)</script>',
             'https://exa mple.org',
-            'java\tscript://%0aalert(1)'
+            'java\tscript://%0aalert(1)',
+            'www.aegee-enschede.nl'
         ])('should reject %j', async (website) => {
             const { res, bodyFromDb } = await updateWebsite(website);
 
@@ -276,7 +277,6 @@ describe('Bodies editing', () => {
 
         test.each([
             'https://www.aegee-enschede.nl',
-            'www.aegee-enschede.nl',
             '',
             null
         ])('should accept %j', async (website) => {

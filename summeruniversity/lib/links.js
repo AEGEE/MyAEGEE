@@ -1,36 +1,20 @@
-// Links that the frontend shows as clickable links may only be http(s) links,
-// so nobody can store a javascript: or data: link. A link without a scheme
-// (like www.example.org) is allowed; the frontend opens it as https.
+// Links that the frontend shows as clickable links have to be http(s) links,
+// so nobody can store a javascript: or data: link. The URL parser reads the
+// link the same way browsers do, including tabs or newlines inside the scheme.
 function isWebLink(value) {
-    if (value === null || value === undefined) {
+    if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
         return;
     }
 
-    if (typeof value !== 'string') {
-        throw new Error('The link should be a string.');
-    }
-
-    const link = value.trim();
-    if (link === '') {
-        return;
-    }
-
-    // URL parsers (and browsers) drop tabs and newlines, so "java\tscript:" would
-    // otherwise pass as a link without a scheme and be opened as "javascript:".
-    // eslint-disable-next-line no-control-regex
-    if (/[\u0000-\u001F\u007F]/.test(link)) {
-        throw new Error('The provided link is not a valid URL.');
-    }
-
-    let url;
+    let url = null;
     try {
-        url = new URL(/^[a-z][a-z\d+.-]*:/i.test(link) ? link : `https://${link}`);
+        url = typeof value === 'string' && new URL(value);
     } catch (err) {
-        throw new Error('The provided link is not a valid URL.');
+        // Not a URL, handled below.
     }
 
-    if (!['http:', 'https:'].includes(url.protocol)) {
-        throw new Error('The link should start with http:// or https://.');
+    if (!url || !['http:', 'https:'].includes(url.protocol)) {
+        throw new Error('The link should be a valid URL starting with http:// or https://.');
     }
 }
 

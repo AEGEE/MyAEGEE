@@ -337,7 +337,8 @@ describe('Events editing', () => {
             // Browsers drop tabs and newlines, so these would open as javascript: links.
             [field, 'java\tscript://%0aalert(1)'],
             [field, 'java\nscript://%0aalert(1)'],
-            [field, 'data\t://text/html,x']
+            [field, 'data\t://text/html,x'],
+            [field, 'www.aegee.org/travel']
         ]))('should reject %s %j', async (field, link) => {
             const res = await request({
                 path: '/single/' + event.id,
@@ -356,7 +357,6 @@ describe('Events editing', () => {
         test.each(fields.flatMap((field) => [
             [field, 'https://docs.google.com/spreadsheets/d/abc'],
             [field, 'http://www.aegee.org'],
-            [field, 'www.aegee.org/travel'],
             [field, ''],
             [field, null]
         ]))('should accept %s %j', async (field, link) => {

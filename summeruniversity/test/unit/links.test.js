@@ -7,25 +7,24 @@ describe('isWebLink', () => {
         '',
         '   ',
         'https://www.aegee.org',
-        'http://www.aegee.org/path?query=1',
-        'www.aegee.org',
+        'http://www.aegee.org:8080/path?query=1',
         ' HTTPS://www.aegee.org '
     ])('should accept %j', (value) => {
         expect(() => isWebLink(value)).not.toThrow();
     });
 
     test.each([
-        [123, 'The link should be a string.'],
-        [['https://www.aegee.org'], 'The link should be a string.'],
-        [{ href: 'https://www.aegee.org' }, 'The link should be a string.'],
+        123,
+        ['https://www.aegee.org'],
+        'www.aegee.org',
         // eslint-disable-next-line no-script-url
-        ['javascript:alert(1)', 'The link should start with http:// or https://.'],
-        ['data:text/html,x', 'The link should start with http:// or https://.'],
-        ['ftp://example.org', 'The link should start with http:// or https://.'],
-        ['java\tscript://%0aalert(1)', 'The provided link is not a valid URL.'],
-        ['https://www.aegee.org/\u0000', 'The provided link is not a valid URL.'],
-        ['https://exa mple.org', 'The provided link is not a valid URL.']
-    ])('should reject %j', (value, message) => {
-        expect(() => isWebLink(value)).toThrow(message);
+        'javascript:alert(1)',
+        'java\tscript:alert(1)',
+        '\u0001javascript:alert(1)',
+        'data:text/html,x',
+        'ftp://example.org',
+        'https://exa mple.org'
+    ])('should reject %j', (value) => {
+        expect(() => isWebLink(value)).toThrow('The link should be a valid URL starting with http:// or https://.');
     });
 });
