@@ -1,6 +1,7 @@
 const errors = require('./errors');
 const { Candidate, Position, Image } = require('../models');
 
+const core = require('./core');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
@@ -97,8 +98,20 @@ exports.editCandidature = async (req, res) => {
     delete req.body.status;
     delete req.body.user_id;
     delete req.body.image_id;
+    delete req.body.body_name;
 
-    req.body.body_name = req.user.bodies.find((body) => body.id === req.body.body_id).name;
+    // The body is the candidate's, also when someone else (like the JC) edits the candidature.
+    if (req.body.body_id !== undefined && req.body.body_id !== req.candidate.body_id) {
+        const candidateUser = req.candidate.user_id === req.user.id
+            ? req.user
+            : await core.fetchApplicationUser(req.candidate.user_id);
+        const body = candidateUser.bodies.find((candidateBody) => candidateBody.id === req.body.body_id);
+        if (!body) {
+            return errors.makeForbiddenError(res, 'The candidate is not a member of this body.');
+        }
+
+        req.body.body_name = body.name;
+    }
 
     await req.candidate.update(req.body);
 
