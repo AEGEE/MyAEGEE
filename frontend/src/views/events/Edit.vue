@@ -566,6 +566,7 @@
             <input class="input" type="url" v-model="event.budget" />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -574,6 +575,7 @@
             <input class="input" type="url" v-model="event.programme" />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.programme">{{ errors.programme.join(', ') }}</p>
         </div>
 
         <div class="notification is-success">

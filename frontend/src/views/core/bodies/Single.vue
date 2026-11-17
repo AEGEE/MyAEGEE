@@ -213,7 +213,7 @@
                 <tr v-if="body.website">
                   <th>Website</th>
                   <td>
-                    <a :href="body.website" target="_blank" rel="noopener noreferrer">{{
+                    <a :href="body.website | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       body.website
                     }}</a>
                   </td>

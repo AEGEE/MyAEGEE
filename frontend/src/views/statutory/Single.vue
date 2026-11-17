@@ -305,7 +305,7 @@
                 <tr v-if="event.booklet_folder">
                   <th>KMS page</th>
                   <td>
-                    <a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{
+                    <a :href="event.booklet_folder | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       event.booklet_folder
                     }}</a>
                   </td>
