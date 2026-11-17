@@ -40,7 +40,7 @@ const request = async (options) => {
         for (const [key, value] of entries) {
             for (const item of [].concat(value)) {
                 const filename = item.filename || path.basename(item.path);
-                const buffer = fs.readFileSync(item.path);
+                const buffer = item.buffer || fs.readFileSync(item.path);
                 formData.append(key, new Blob([buffer]), filename);
             }
         }

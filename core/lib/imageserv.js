@@ -25,8 +25,12 @@ const storage = multer.diskStorage({ // multers disk storage settings
         cb(null, `${prefix}-${date}${extension}`);
     },
 });
+// Profile and event pictures; a photo from a phone fits well within this.
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
 const upload = multer({
     storage,
+    limits: { fileSize: MAX_IMAGE_SIZE, files: 1, fields: 10 },
     fileFilter(req, file, cb) {
         const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
@@ -69,6 +73,10 @@ exports.uploadImage = async (req, res) => {
         await uploadAsync(req, res);
     } catch (err) {
         log.error({ err }, 'Could not store image');
+
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return errors.makeValidationError(res, 'The image should be at most 5 MB.');
+        }
 
         if (err.message === 'Unexpected end of form') {
             return errors.makeValidationError(res, 'No head_image is specified.');
