@@ -309,4 +309,38 @@ describe('Events application editing', () => {
         expect(applicationFromDb.attended).toEqual(false);
         expect(applicationFromDb.body_name).toEqual(user.bodies[0].name);
     });
+
+    it('should let someone else edit the application of an applicant who left the body they applied with', async () => {
+        // The applicant is no longer a member of the body the application is for.
+        mock.mockAll({ member: { bodies: [user.bodies[1]] } });
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            organizers: [{ user_id: 1234, first_name: 'test', last_name: 'test' }],
+            questions: [{ type: 'string', description: 'test', required: true }]
+        });
+
+        const application = await generator.createApplication(event, {
+            user_id: 1337,
+            body_id: user.bodies[0].id,
+            body_name: user.bodies[0].name,
+            answers: ['old']
+        });
+
+        // The form sends the whole application back, including the current body (as a string here).
+        const res = await request({
+            path: '/single/' + event.id + '/applications/' + application.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { body_id: String(user.bodies[0].id), answers: ['new'] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
+        expect(applicationFromDb.body_name).toEqual(user.bodies[0].name);
+        expect(applicationFromDb.answers).toEqual(['new']);
+    });
 });

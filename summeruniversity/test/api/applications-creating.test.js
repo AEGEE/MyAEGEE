@@ -193,13 +193,14 @@ describe('Applications creation', () => {
     // BUG: createApplication looks up the body name with req.user.bodies.find(...).name
     // without checking that body_id was given, so a missing body_id crashes with a 500
     // instead of returning a validation error.
-    test('should currently return 500 if the body_id is missing', async () => {
+    test('should return 400 if the body_id is missing', async () => {
         const body = generator.generateApplicationBody(event, { body_id: 1 });
         delete body.body_id;
 
         const res = await apply(body);
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('You are not a member of this body.');
         expect(await Application.count()).toEqual(0);
     });
 

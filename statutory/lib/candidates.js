@@ -6,6 +6,29 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
 
+// The fields a candidate sets. The others are set by the server (candidate, position, body name)
+// or through their own endpoints (status, image).
+const CANDIDATE_FIELDS = [
+    'body_id',
+    'first_name',
+    'last_name',
+    'date_of_birth',
+    'nationality',
+    'languages',
+    'studies',
+    'member_since',
+    'european_experience',
+    'local_experience',
+    'attended_agorae',
+    'attended_epm',
+    'attended_conferences',
+    'related_experience',
+    'external_experience',
+    'motivation',
+    'program',
+    'agreed_to_privacy_policy'
+];
+
 exports.findCandidate = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.candidate_id))) {
         return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
@@ -47,20 +70,18 @@ exports.submitYourCandidature = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot submit candidature.');
     }
 
-    if (!req.body.body_id || !helpers.isMemberOf(req.user, req.body.body_id)) {
+    const body = req.user.bodies.find((userBody) => userBody.id === Number(req.body.body_id));
+    if (!body) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
-    delete req.body.status;
-    // The image is set through the image upload, which checks the permission and
-    // removes the previous image.
-    delete req.body.image_id;
-
-    req.body.body_name = req.user.bodies.find((body) => body.id === req.body.body_id).name;
-    req.body.user_id = req.user.id;
-    req.body.position_id = req.position.id;
-
-    const newCandidate = await Candidate.create(req.body);
+    const newCandidate = await Candidate.create({
+        ...helpers.whitelistObject(req.body, CANDIDATE_FIELDS),
+        body_id: body.id,
+        body_name: body.name,
+        user_id: req.user.id,
+        position_id: req.position.id
+    });
 
     // Send email to JC when a new application is submitted
     await mailer.sendMail({
@@ -95,29 +116,24 @@ exports.editCandidature = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this candidature.');
     }
 
-    delete req.body.status;
-    delete req.body.user_id;
-    delete req.body.image_id;
-    delete req.body.body_name;
-    delete req.body.position_id;
+    const candidate = helpers.whitelistObject(req.body, CANDIDATE_FIELDS);
 
-    // The body is the candidate's, also when someone else (like the JC) edits the candidature.
-    if (req.body.body_id !== undefined) {
-        req.body.body_id = Number(req.body.body_id);
-    }
-    if (req.body.body_id !== undefined && req.body.body_id !== req.candidate.body_id) {
+    // Only a new body is checked, and it has to be one of the candidate's bodies, also when
+    // someone else (like the JC) edits the candidature.
+    if (candidate.body_id !== undefined && Number(candidate.body_id) !== req.candidate.body_id) {
         const candidateUser = req.candidate.user_id === req.user.id
             ? req.user
             : await core.fetchApplicationUser(req.candidate.user_id);
-        const body = (candidateUser.bodies || []).find((candidateBody) => candidateBody.id === req.body.body_id);
+        const body = (candidateUser.bodies || []).find((candidateBody) => candidateBody.id === Number(candidate.body_id));
         if (!body) {
             return errors.makeForbiddenError(res, 'The candidate is not a member of this body.');
         }
 
-        req.body.body_name = body.name;
+        candidate.body_id = body.id;
+        candidate.body_name = body.name;
     }
 
-    await req.candidate.update(req.body);
+    await req.candidate.update(candidate);
 
     return res.json({
         success: true,
