@@ -25,7 +25,7 @@ I propose a layout that matches how we talk about the work: products, shared cod
 ```text
 apps/     # deployable products: Node APIs, frontend, e2e, mailer, dispatcher
 libs/     # TypeScript libraries (@myaegee/*)
-  shared/       # errors, types, enums, and other cross-cutting primitives
+  shared/       # purpose folders: errors/, pagination/, http/, ...
   http-client/  # small HTTP helper
   db/           # TypeORM DataSource helpers only
   mailing/      # mailer HTTP client
@@ -34,7 +34,9 @@ libs/     # TypeScript libraries (@myaegee/*)
 infra/    # compose, gateways/traefik, monitor stacks, ops scripts, future iac/
 ```
 
-I propose we keep cross-cutting primitives in `@myaegee/shared` instead of many tiny one-export packages (for example no standalone `errors` package). Capability libraries stay separate when they have a clear boundary (HTTP, DB plumbing, mailer, core client).
+I propose `@myaegee/shared` holds cross-cutting primitives in **purpose folders**, with one concern per file and suffix naming (`*.type.ts`, `*.enum.ts`, `*.error.ts`). `index.ts` files only re-export. No standalone `errors` package. Capability libraries stay separate when they have a clear boundary (HTTP, DB plumbing, mailer, core client).
+
+Lint/format for JS/TS is **Biome** only (ADR-0007). I propose we do not keep per-app ESLint/Prettier configs.
 
 Non-Node products stay under `apps/` with custom Nx targets. Third-party image stacks and edge proxies live under `infra/`. Build output lives only under each package’s `dist/` and is gitignored.
 
