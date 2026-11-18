@@ -8,7 +8,7 @@
 
 Product services, Traefik, monitors, and ops scripts currently sit at the repo root as peers. For a volunteer opening the repo for the first time, it is unclear what is “the app I change” versus “platform plumbing I should not casually edit.”
 
-I want a layout that matches how we talk about the work: products, shared code, platform.
+I propose a layout that matches how we talk about the work: products, shared code, platform.
 
 ## Options
 

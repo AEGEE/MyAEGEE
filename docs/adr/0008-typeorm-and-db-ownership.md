@@ -40,7 +40,7 @@ Volunteers should know: **the app that owns the table owns the model.** Shared c
 
 - Migrations are rewritten per app (no blind auto-translate).
 - Pilot apps first, then roll (I suggest knowledge, then discounts).
-- We must actively reject `libs/entities` grab-bags in review.
+- Reviews should push back on `libs/entities` grab-bags.
 
 ## Related sources
 

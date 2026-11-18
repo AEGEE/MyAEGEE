@@ -8,7 +8,7 @@
 
 MyAEGEE is already an npm-workspaces monorepo for the Node packages, with other folders (dispatcher, gateways, monitor, and similar) sitting beside them. Cross-cutting changes still hurt because each service has its own scripts, CI shape, and copy-pasted helpers.
 
-We are mostly **volunteers**. If the monorepo needs five different CLIs just to lint and test, people bounce. I want one primary way to run tasks, see what a change affects, and share libraries without reinventing scripts in every app.
+We are mostly **volunteers**. If the monorepo needs five different CLIs just to lint and test, people bounce. I propose one primary way to run tasks, see what a change affects, and share libraries without reinventing scripts in every app.
 
 ## Options
 
@@ -24,7 +24,7 @@ We are mostly **volunteers**. If the monorepo needs five different CLIs just to 
 
 ## What I propose
 
-Adopt **Nx** on top of our existing **npm workspaces** lockfile for this phase. Keep npm so we do not force a package-manager migration on day one. Revisit pnpm later if install speed or dependency isolation becomes a real problem. Do **not** make Turborepo the primary task runner.
+I propose we adopt **Nx** on top of our existing **npm workspaces** lockfile for this phase. Keep npm so we do not ask everyone to change package managers on day one. Revisit pnpm later if install speed or dependency isolation becomes a real problem. For now I am not proposing Turborepo as the primary task runner.
 
 ## Benefits I see
 

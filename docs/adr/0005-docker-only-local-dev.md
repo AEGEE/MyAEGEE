@@ -8,7 +8,7 @@
 
 Local setup historically asked people for VirtualBox, Vagrant, guest hostname checks, `start.sh`, `Makefile`, and `helper.sh`. That is a lot of ceremony for a volunteer who wants to fix one bug on a Windows laptop after work.
 
-The runtime is already Docker. The VM layer mostly exists to paper over “works on my Linux guest.” I want **one supported local path**: Docker Compose on the machine you already use.
+The runtime is already Docker. The VM layer mostly exists to paper over “works on my Linux guest.” I propose **one supported local path**: Docker Compose on the machine you already use.
 
 ## Options
 
@@ -22,7 +22,7 @@ The runtime is already Docker. The VM layer mostly exists to paper over “works
 
 ## What I propose
 
-**Docker Compose is the supported local path.** Root compose entrypoint. No Vagrant/Make/helper required for day-to-day work. Retire guest-oriented glue from the default contributor story.
+I propose **Docker Compose as the supported local path.** Root compose entrypoint. No Vagrant/Make/helper required for day-to-day work. Guest-oriented glue can leave the default contributor story.
 
 ## Benefits I see
 
@@ -33,7 +33,7 @@ The runtime is already Docker. The VM layer mostly exists to paper over “works
 
 ## Consequences / tradeoffs
 
-- README must stop centering `vagrant up`.
+- README should stop centering `vagrant up`.
 - Traefik v1’s Docker provider breaks on Docker Engine 29+; we need file-based local routes or a Traefik upgrade.
 - Unsupported legacy files should not keep receiving “official” support effort.
 

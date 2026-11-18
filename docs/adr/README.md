@@ -6,7 +6,7 @@ These are **my proposals** for how we harden and evolve MyAEGEE. They are for te
 
 Almost everyone contributing to MyAEGEE is a **volunteer**. People show up with different editors, Node versions, lint setups, and habits from university or day jobs. That mismatch is normal, and it is also expensive: every extra tool in the repo is another thing someone has to install, debug, or disagree about before they can ship a small fix.
 
-I want a **small, shared toolset** so contributing stays as simple as possible: clone, install, run, change code, open a PR. These ADRs explain what I propose we standardize on, what I considered instead, and what benefits I see for volunteers.
+I propose a **small, shared toolset** so contributing stays as simple as possible: clone, install, run, change code, open a PR. These ADRs explain what I propose we standardize on, what I considered instead, and what benefits I see for volunteers.
 
 ## Status legend
 

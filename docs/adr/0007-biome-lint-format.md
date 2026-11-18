@@ -8,7 +8,7 @@
 
 Each Node service carries its own ESLint setup (and often Prettier). Configs drift. CI repeats the same job shape. Volunteers arrive with different editor defaults and argue about formatting in review instead of behavior.
 
-I want **one** lint/format tool for JS/TS in the monorepo so “make it green” is the same command everywhere.
+I propose **one** lint/format tool for JS/TS in the monorepo so “make it green” is the same command everywhere.
 
 ## Options
 
@@ -23,7 +23,7 @@ I want **one** lint/format tool for JS/TS in the monorepo so “make it green”
 
 ## What I propose
 
-Use **Biome** as the default linter and formatter for JavaScript/TypeScript. Root `biome.json` plus Nx `lint` targets. Remove per-app ESLint/Prettier as we touch apps.
+I propose **Biome** as the default linter and formatter for JavaScript/TypeScript. Root `biome.json` plus Nx `lint` targets. Drop per-app ESLint/Prettier as we touch apps.
 
 ## Benefits I see
 

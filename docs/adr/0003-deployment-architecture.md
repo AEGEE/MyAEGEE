@@ -26,9 +26,9 @@ OG production looks like Docker Compose on a Linux VM (Azure), with Traefik at t
 ## What I propose (lean, not locked)
 
 - Stay **container-native**. Local = Compose (ADR-0005). Prod orchestrator (Compose vs k8s vs managed) decided after we size reality.
-- Keep cloud **replaceable**: do not bake Azure PaaS APIs into app code.
+- Keep cloud **replaceable**: I propose we avoid baking Azure PaaS APIs into app code.
 - Put future IaC under `infra/iac` (ADR-0006).
-- Plan a Traefik v1 upgrade path separately; do not block local Docker on it forever.
+- Plan a Traefik v1 upgrade path separately so local Docker is not blocked on it forever.
 
 ## Benefits I see
 

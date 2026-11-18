@@ -8,7 +8,7 @@
 
 Most backends are untyped JavaScript Express plus Sequelize, with the same patterns copied per service. Mailer is Elixir; dispatcher is Python; frontend is Vue 2.
 
-Volunteers arrive with different language comfort levels. Untyped shared copy-paste makes that worse: a small helper change can break three services in ways CI only catches late. I want **TypeScript for shared and new code** so we can extract libraries safely, without forcing a Nest rewrite on everyone in the same breath.
+Volunteers arrive with different language comfort levels. Untyped shared copy-paste makes that worse: a small helper change can break three services in ways CI only catches late. I propose **TypeScript for shared and new code** so we can extract libraries safely, without asking everyone into a Nest rewrite in the same breath.
 
 ## Options
 
@@ -38,7 +38,7 @@ Volunteers arrive with different language comfort levels. Untyped shared copy-pa
 
 ## Consequences / tradeoffs
 
-- Tooling must support mixed JS/TS until migration finishes.
+- Tooling needs to support mixed JS/TS until migration finishes.
 - Nest, if we want it, needs its own explicit decision later.
 - Vue 2 frontend stays on its current stack for this train.
 

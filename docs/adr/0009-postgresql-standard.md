@@ -26,7 +26,7 @@ For a volunteer org, **one relational database product** (with a current major) 
 2. Bump service images from `postgres:10.x` to a **current supported major** as stacks are touched (same major across apps).
 3. Migrate **pass-manager** to Postgres (Vaultwarden supports it).
 4. **url-shortener / YOURLS**: migrate if feasible; otherwise document a temporary exception or remove it from the default stack.
-5. No new MySQL/MariaDB services under `infra/`.
+5. I propose we do not add new MySQL/MariaDB services under `infra/`.
 
 ## Benefits I see
 
