@@ -1,49 +1,48 @@
 # ADR-0004: Application topology (modules vs microservices)
 
 - Status: **Working draft**
-- Date: 2026-11-08 (carried forward)
-- Deciders: Rewrite initiative (not confirmed)
+- Date: 2026-11-18
+- Proposed by: me (for team review)
 
 ## Context
 
-The OG system is a microservice mesh of Express apps behind Traefik. MyAEGEE v2 kept microservices in concept but forced a monorepo because cross-cutting changes were too expensive.
+OG MyAEGEE is a microservice mesh behind Traefik. That helped ownership historically, but cross-cutting changes and many near-identical Express apps are hard on a **volunteer** team: many databases, images, healthchecks, and “which repo/folder do I touch?” questions.
 
-The rewrite team is mostly volunteers with mixed coding experience. Topology must stay teachable: few moving parts locally, clear places for shared code (mail, db helpers, auth), and docs that guide people step by step.
-
-The first monorepo train keeps the existing deployable services as Nx `apps`, extracts shared `libs`, and parks platform code in `infra` (ADR-0006). A later modular-monolith cut is still on the table.
+I am not asking us to collapse everything into one process on day one. I am asking that the monorepo and shared libs make the *current* mesh maintainable, while we keep a modular-monolith option open.
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| Keep many microservices | Familiar to OG contributors | Ops cost; many near-identical HTTP apps |
-| Modular monolith + shared libs | Simpler local/prod; Nest modules fit | Needs boundary discipline |
-| Micro-frontends + BFF per domain | Team autonomy | Heavy for volunteer capacity |
+| Keep many microservices forever, no shared libs | Familiar | Ops and copy-paste stay expensive |
+| **Many apps in one Nx monorepo + shared libs (near term)** | Incremental; fits volunteer time | Still multiple processes to run |
+| Modular monolith (e.g. Nest modules) soon | Simpler local/prod | Bigger conceptual jump; strangler plan needed |
+| Micro-frontends + BFF per domain | Team autonomy | Too heavy for our capacity |
+| Event-sourced distributed redesign | Strong audit story | Far beyond current needs |
 
-## Tentative lean
+## What I propose
 
-1. Near term: **many apps in one Nx monorepo** with shared libraries (this train).
-2. Medium term: evaluate **one primary NestJS API** with domain modules, extracting workers for mail/async.
-3. Split deployables only with a measured reason (isolation, scaling, failure domains).
+1. **Near term:** keep deployable services as Nx `apps`, extract shared `libs`, park platform code in `infra` (ADR-0006).
+2. **Medium term:** evaluate one primary Nest/TS API with domain modules; extract workers for mail/async.
+3. Split deployables further only with a measured reason (isolation, scaling, failure domains).
 
-## Benefits
+## Benefits I see
 
-- Near-term path does not block shipping Nx/TypeORM/Postgres improvements.
+- We can ship Nx/TypeORM/Postgres improvements without freezing feature work for a topology rewrite.
 - Shared libs stop the worst copy-paste immediately.
-- Leaves room to collapse HTTP services later without another polyrepo split.
+- Volunteers learn one repo layout instead of many special cases.
 
-## Consequences
+## Consequences / tradeoffs
 
-- Contributors still run multiple Node processes or Compose services for a while.
-- Strangler plan needed if/when modular monolith is accepted.
+- People still run multiple services for a while.
+- If we later accept a modular monolith, we need an explicit strangler sequence.
 
 ## Related sources
 
 - [MyAEGEE v2](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/2243854357/MyAEGEE+v2)
-- [Microservice overview](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/21566157/Microservice+overview)
 - ADR-0001, ADR-0002, ADR-0006
 
-## Open questions
+## Open questions for the team
 
-- Strangler sequence: which OG service moves first into a modular API?
-- Shared DB vs schema-per-module during transition
+- Which OG service would move first into a modular API, if we go that way?
+- Shared DB vs schema-per-module during any collapse?

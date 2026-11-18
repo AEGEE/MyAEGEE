@@ -2,21 +2,25 @@
 
 - Status: **Proposed**
 - Date: 2026-11-18
-- Deciders: Rewrite / platform initiative (pending team acceptance)
+- Proposed by: me (for team review)
 
 ## Context
 
-Today product services, Docker stacks, Traefik, monitors, and ops scripts sit at the repo root next to each other. That obscures what is an application versus platform plumbing, and makes Nx project boundaries harder to explain.
+Product services, Traefik, monitors, and ops scripts currently sit at the repo root as peers. For a volunteer opening the repo for the first time, it is unclear what is “the app I change” versus “platform plumbing I should not casually edit.”
+
+I want a layout that matches how we talk about the work: products, shared code, platform.
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| Keep flat root folders | No move churn | Unclear ownership; noisy PRs |
-| `packages/` only for JS | Familiar to some monorepos | Mixes apps and libs; no home for Compose/IaC |
+| Keep flat root folders | No move churn | Noisy PRs; unclear ownership |
+| `packages/` for everything JS | Familiar in some monorepos | Mixes apps and libs; no home for Compose/IaC |
+| `services/` + `packages/` only | Clearer for APIs | Still awkward for Traefik/monitor/IaC |
 | **`apps/` + `libs/` + `infra/`** | Clear product vs shared vs platform | One-time path updates in CI/Docker |
+| Separate infra git repo | Hard boundary | Worse for volunteers (two clones, two PRs) |
 
-## Decision
+## What I propose
 
 ```text
 apps/     # deployable products: Node APIs, frontend, e2e, mailer, dispatcher
@@ -24,25 +28,25 @@ libs/     # shared TypeScript libraries (@myaegee/*)
 infra/    # compose, gateways/traefik, monitor stacks, ops scripts, future iac/
 ```
 
-Non-Node products (Elixir mailer, Python dispatcher) stay under `apps/` with custom Nx targets. Third-party image stacks and edge proxies live under `infra/`.
+Non-Node products stay under `apps/` with custom Nx targets. Third-party image stacks and edge proxies live under `infra/`.
 
-## Benefits
+## Benefits I see
 
-- Reviewers know where to look.
-- Nx tags/boundaries can forbid apps importing other apps’ internals.
-- IaC and Compose have a stable home without polluting application packages.
-- Matches how most Nx monorepos scale.
+- Faster orientation for new contributors.
+- Nx tags can forbid apps importing other apps’ internals.
+- IaC and Compose have a stable home without polluting feature packages.
+- Reviews can stay focused (“this PR is libs only”).
 
-## Consequences
+## Consequences / tradeoffs
 
-- CircleCI working directories, Docker build contexts, and semantic-release paths change once.
-- Import paths and docs need a coordinated move PR.
+- CircleCI paths, Docker contexts, and release config need a coordinated update.
+- Short-term churn in import/docs paths.
 
 ## Related sources
 
-- ADR-0001 (Nx), ADR-0005 (Docker-only), ADR-0008 (db ownership in apps)
+- ADR-0001, ADR-0005, ADR-0008
 
-## Open questions
+## Open questions for the team
 
-- Exact naming for infra compose project (`infra-compose` vs `platform`)
-- Whether `e2e` stays under `apps/` or `tests/`
+- Exact Nx project name for compose (`infra-compose` vs `platform`)?
+- Should `e2e` live under `apps/` or a top-level `tests/`?

@@ -1,52 +1,55 @@
 # ADR-0002: TypeScript and backend framework
 
-- Status: **Proposed** (TypeScript); NestJS still open
+- Status: **Proposed** (TypeScript now; NestJS still open)
 - Date: 2026-11-18
-- Deciders: Rewrite / platform initiative (pending team acceptance)
+- Proposed by: me (for team review)
 
 ## Context
 
-Most backends are untyped JavaScript Express plus Sequelize, with the same patterns copied per service. Mailer is Elixir/Phoenix; dispatcher is Python. Frontend is Vue 2 (out of scope for this ADR).
+Most backends are untyped JavaScript Express plus Sequelize, with the same patterns copied per service. Mailer is Elixir; dispatcher is Python; frontend is Vue 2.
 
-We want safer shared libraries and a path to one primary backend language for new code.
+Volunteers arrive with different language comfort levels. Untyped shared copy-paste makes that worse: a small helper change can break three services in ways CI only catches late. I want **TypeScript for shared and new code** so we can extract libraries safely, without forcing a Nest rewrite on everyone in the same breath.
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| TypeScript for new/shared code; keep Express apps during transition | Incremental; fits Nx libs | Two styles coexist for a while |
-| NestJS + Fastify | Structure, DI, OpenAPI | Learning curve; larger rewrite |
-| NestJS + Express | Middleware familiarity | Heavier than plain Express |
-| Express + TypeScript only | Closest to today | Easy to reintroduce copy-paste |
-| Elixir everywhere | Strong for mailer | Contributor pool / hiring |
+| Stay JS everywhere | No migration | Keeps the copy-paste tax; weak shared libs |
+| **TypeScript for libs + new code; Express apps migrate on contact** | Incremental; fits volunteers' time | Mixed JS/TS for a while |
+| TypeScript big-bang rewrite of all APIs | Clean end state | Unrealistic for volunteer bandwidth |
+| NestJS + Fastify now | Structure, DI, OpenAPI | Steep for first contribution; large rewrite |
+| NestJS + Express adapter | More middleware familiarity | Heavier than plain Express |
+| Fastify + plugins only | Lightweight | We rebuild module/DI/OpenAPI glue ourselves |
+| Elixir (Phoenix) for all backends | Strong runtime | Smaller contributor pool for this org |
+| Go / .NET / Java | Strong platforms | Far from current skill base |
 
-## Decision
+## What I propose
 
-1. **TypeScript** is the language for **new shared libraries** and for new backend code as apps are touched.
-2. Existing Express services may stay JavaScript temporarily; migrate on contact (especially when adopting TypeORM).
-3. **NestJS** remains a candidate for a later modular API shape (see ADR-0004). It is **not** required for the first monorepo train.
-4. ORM choice is **ADR-0008** (TypeORM), not Sequelize.
+1. **TypeScript** is the language for **new shared libraries** and for backend code as we touch apps.
+2. Existing Express services may stay JavaScript temporarily; migrate on contact (especially with the ORM move).
+3. **NestJS** stays a candidate for a later modular API (see ADR-0004). I am **not** asking us to adopt Nest in the first monorepo train.
+4. ORM choice lives in **ADR-0008** (TypeORM), not Sequelize forever.
 
-## Benefits
+## Benefits I see
 
-- Typed shared clients (HTTP, mail, errors) catch integration mistakes early.
-- Contributors get one language for libs without forcing a Nest rewrite on day one.
-- Clear separation: language decision now, framework topology later.
+- Typed shared clients (HTTP, mail, errors) catch integration mistakes earlier.
+- Volunteers can contribute to one lib instead of patching six copies.
+- We separate “language for safety” from “framework for topology,” so reviews stay smaller.
 
-## Consequences
+## Consequences / tradeoffs
 
-- Build/tooling must support mixed JS/TS apps until migration finishes.
-- Nest adoption would be a follow-up ADR update or a new ADR, not sneaked into Nx scaffold PRs.
-- Vue 2 frontend stays JS/Vue CLI for the current train.
+- Tooling must support mixed JS/TS until migration finishes.
+- Nest, if we want it, needs its own explicit decision later.
+- Vue 2 frontend stays on its current stack for this train.
 
 ## Related sources
 
 - [How to start a microservice](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/637632524/How+to+start+a+microservice)
 - [Standardized API](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/21635707/Standardized+API)
-- ADR-0008 (TypeORM), ADR-0001 (Nx)
+- ADR-0008, ADR-0001
 
-## Open questions
+## Open questions for the team
 
-- Validation library (Zod vs class-validator) when Nest lands
-- Bugsnag vs OpenTelemetry-first error pipeline
-- One Nest process vs many deployables (ADR-0004)
+- Validation library when/if Nest lands (Zod vs class-validator)?
+- Bugsnag vs OpenTelemetry-first errors?
+- Comfort level with gradual TS vs waiting for a Nest-shaped rewrite?

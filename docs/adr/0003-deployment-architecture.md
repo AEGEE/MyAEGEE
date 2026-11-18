@@ -1,56 +1,53 @@
 # ADR-0003: Deployment and runtime architecture
 
 - Status: **Working draft**
-- Date: 2026-11-08 (carried forward)
-- Deciders: Rewrite initiative (not confirmed)
+- Date: 2026-11-18
+- Proposed by: me (for team review)
 
 ## Context
 
 Two topics get mixed together:
 
-1. App / runtime shape: processes, gateways, data stores, sync vs async
-2. Cloud / IaC: which cloud, how VMs or clusters are provisioned, Compose vs Kubernetes
+1. App / runtime shape: processes, gateways, data stores
+2. Cloud / IaC: where it runs and how we provision it
 
-OG production evidence points to Docker Compose on a Linux VM under Azure, Make-based backup/restore, Traefik at the edge. Older Confluence proposed Kubernetes or Swarm. Local development historically used Vagrant; that path is being replaced for contributors (see ADR-0005).
-
-App topology (modular monolith vs many services) is ADR-0004.
+OG production looks like Docker Compose on a Linux VM (Azure), with Traefik at the edge. Local setup used to push people through Vagrant. Volunteers should not need a second OS and a hypervisor just to try a CSS tweak or an API fix (see ADR-0005).
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| Stay Azure VM + Compose | Matches current ops | Scaling and HA stay manual |
-| Azure App Service / AKS first | Managed platform | Couples rewrite to Azure |
-| Container images + portable IaC | Move clouds without rewriting apps | Must pick orchestrator and IaC tool |
+| Stay Azure VM + Compose as the mental model | Matches current ops | Scaling/HA stay manual |
+| Jump to AKS / App Service first | Managed platform | Couples rewrite to Azure; steeper for volunteers |
+| **Containers + portable contracts (Compose local; prod TBD)** | Same images everywhere | Still must pick prod orchestrator |
+| Full Kubernetes from day one for local too | Prod parity | Painful laptop story for casual contributors |
 | Serverless-first | Elastic | Awkward for membership/session workloads |
 
-## Tentative lean
+## What I propose (lean, not locked)
 
-- **Container-native and cloud-agnostic**: OCI images plus declarative deploy.
-- **Compose for local/dev** (ADR-0005). Prod Compose vs Kubernetes decided after sizing.
-- Replace Traefik v1 with a maintained ingress over time.
-- Prefer fewer Postgres instances than one-per-microservice unless isolation requires otherwise (ADR-0009).
-- IaC lives under `infra/iac` when introduced (ADR-0006).
+- Stay **container-native**. Local = Compose (ADR-0005). Prod orchestrator (Compose vs k8s vs managed) decided after we size reality.
+- Keep cloud **replaceable**: do not bake Azure PaaS APIs into app code.
+- Put future IaC under `infra/iac` (ADR-0006).
+- Plan a Traefik v1 upgrade path separately; do not block local Docker on it forever.
 
-## Benefits (if adopted)
+## Benefits I see
 
-- Local and prod share container contracts.
-- Cloud moves become config/IaC work, not an app rewrite.
-- Clear home for ops scripts and future Terraform/OpenTofu.
+- Volunteers use the same container story locally that we ship as images.
+- Moving host/cloud becomes infra work, not an app rewrite.
+- Clear home for ops scripts without mixing them into feature PRs.
 
-## Consequences
+## Consequences / tradeoffs
 
-- Team still picks prod orchestrator and secrets approach.
-- Traefik upgrade is a separate migration from Docker-only local setup.
+- We still owe a clear prod choice and secrets story.
+- Traefik upgrade is its own migration.
 
 ## Related sources
 
 - [The migration checklist](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/2425258007/The+migration+checklist)
-- [Production Environment Architecture Proposal](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/195526657/Production+Environment+Architecture+Proposal)
 - ADR-0005, ADR-0006, ADR-0009
 
-## Open questions
+## Open questions for the team
 
-- Prod orchestrator: Compose vs k3s/k8s vs managed containers
-- IaC tool and secrets
-- Media: disk volumes vs object storage
+- Prod: Compose on VM vs k3s/k8s vs managed containers?
+- Secrets approach going forward?
+- Media: disk volumes vs object storage?

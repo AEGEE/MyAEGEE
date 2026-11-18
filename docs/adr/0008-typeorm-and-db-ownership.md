@@ -1,48 +1,53 @@
-# ADR-0008: TypeORM and database ownership
+# ADR-0008: ORM and database ownership
 
 - Status: **Proposed**
 - Date: 2026-11-18
-- Deciders: Rewrite / platform initiative (pending team acceptance)
+- Proposed by: me (for team review)
 
 ## Context
 
-Seven Node APIs share near-identical Sequelize bootstrap (`lib/sequelize.js`, `config/database.js`, `.sequelizerc`) and diverge on models. Sequelize majors in use are dated. Copy-pasting models into a “shared entities” package would create a fake shared domain and tight coupling.
+Seven Node APIs share near-identical Sequelize bootstrap files and diverge on models. The majors we pin are dated. If we extract a “shared entities” package, we create a fake shared domain and couple services that should talk over APIs.
+
+Volunteers should know: **the app that owns the table owns the model.** Shared code should be connection/migration plumbing, not everyone else’s schema.
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| Keep Sequelize; extract shared bootstrap | Small diff | Still on a stack we want to leave |
-| Prisma | Strong DX | Different migration model; large rewrite |
-| Drizzle | Lightweight SQL-first | Less familiar; smaller ecosystem here |
-| **TypeORM** | TS entities, active ecosystem, fits Nest later | Decorator style; migration rewrite effort |
+| Keep Sequelize; extract shared bootstrap only | Smallest diff | Stays on a stack we want to leave |
+| Sequelize upgrade in place | Less rewrite | Still Sequelize; still copy-paste models |
+| Prisma | Strong DX, migrations | Different model; large rewrite |
+| Drizzle | Lightweight SQL-first | Less familiar here |
+| Knex / raw SQL only | Full control | More boilerplate; easy inconsistency |
+| **TypeORM** | TS entities; active ecosystem; Nest-friendly later | Decorator style; migration rewrite |
+| Shared `libs/entities` for all services | Appears DRY | Ownership nightmare; tight coupling |
 
-## Decision
+## What I propose
 
 1. Replace Sequelize with **TypeORM** + `pg` for first-party Node apps.
-2. Shared library `@myaegee/db` holds **only** connection/DataSource helpers and migration CLI plumbing.
-3. **Entities, view mappings, repositories, and migrations live in the owning app.**
-4. Cross-service data access goes through **HTTP / `@myaegee/core-client`**, not by importing another app’s entities.
+2. Shared `@myaegee/db` holds **only** DataSource/connection helpers and migration CLI plumbing.
+3. **Entities, views, repositories, and migrations live in the owning app.**
+4. Cross-service data goes through **HTTP / a core client**, not by importing another app’s entities.
 
-## Benefits
+## Benefits I see
 
-- Clear ownership: the app that writes the table owns the model.
-- Shared helpers stop bootstrap drift without a junk-drawer entity package.
+- Clear ownership for volunteers (“change pages in knowledge, not in a global bag”).
+- Shared helpers stop bootstrap drift without a junk-drawer domain lib.
 - TypeScript entities improve refactor safety.
-- Leaves a clean path if Nest modules appear later (ADR-0002/0004).
+- Leaves a clean path if we later adopt Nest modules (ADR-0002/0004).
 
-## Consequences
+## Consequences / tradeoffs
 
-- Migrations are rewritten per app (no blind Sequelize→TypeORM translate).
-- Pilot apps first (e.g. knowledge, then discounts), then roll.
-- Contributors must not add `libs/entities` grab-bags.
+- Migrations are rewritten per app (no blind auto-translate).
+- Pilot apps first, then roll (I suggest knowledge, then discounts).
+- We must actively reject `libs/entities` grab-bags in review.
 
 ## Related sources
 
 - Per-service `lib/sequelize.js` and `models/`
-- ADR-0002 (TypeScript), ADR-0009 (PostgreSQL)
+- ADR-0002, ADR-0009
 
-## Open questions
+## Open questions for the team
 
-- Soft-delete / naming conventions shared via `@myaegee/db` defaults?
-- Migration generator UX under Nx
+- Which naming/soft-delete defaults belong in `@myaegee/db`?
+- Migration generator UX under Nx?

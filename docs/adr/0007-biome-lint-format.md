@@ -1,44 +1,49 @@
-# ADR-0007: Biome for lint and format
+# ADR-0007: Lint and format tool
 
 - Status: **Proposed**
 - Date: 2026-11-18
-- Deciders: Rewrite / platform initiative (pending team acceptance)
+- Proposed by: me (for team review)
 
 ## Context
 
-Each Node service carries its own ESLint (and often Prettier) setup. Configs drift, CI repeats the same job shape, and several ESLint stacks in the wild are tied to old parser/plugin majors.
+Each Node service carries its own ESLint setup (and often Prettier). Configs drift. CI repeats the same job shape. Volunteers arrive with different editor defaults and argue about formatting in review instead of behavior.
+
+I want **one** lint/format tool for JS/TS in the monorepo so “make it green” is the same command everywhere.
 
 ## Options
 
 | Option | Upside | Downside |
 | --- | --- | --- |
-| Keep per-app ESLint/Prettier | Familiar | Drift; slow; many configs |
-| Shared ESLint config package | One policy | Still ESLint+Prettier dual stack |
-| **Biome** at the monorepo root | Fast; format+lint together; one config | Ecosystem differs from ESLint rules people know |
+| Keep per-app ESLint + Prettier | Familiar | Drift; slow; many configs |
+| Shared ESLint config package + Prettier | One policy | Still two tools and plugin trees |
+| dprint + ESLint | Fast format | Still ESLint complexity |
+| **Biome** (lint + format) | Fast; one config; fewer deps | Rule set differs from classic ESLint |
+| Oxlint + separate formatter | Very fast lint | Younger ecosystem; still split format |
+| “No standard; editor whatever” | Max freedom | Inconsistent PRs; painful for reviewers |
 
-## Decision
+## What I propose
 
-Use **Biome** as the default linter and formatter for JavaScript/TypeScript in the monorepo. Root `biome.json` plus Nx `lint` targets. Remove per-app ESLint/Prettier as apps are touched.
+Use **Biome** as the default linter and formatter for JavaScript/TypeScript. Root `biome.json` plus Nx `lint` targets. Remove per-app ESLint/Prettier as we touch apps.
 
-## Benefits
+## Benefits I see
 
-- One tool and one config for format and lint.
-- Faster CI and local feedback.
-- Less dependency surface than eslint plugin trees.
-- Aligns with “current packages on contact” (ADR package currency).
+- One mental model for format and lint.
+- Faster local/CI feedback for people with limited volunteer time.
+- Less dependency surface than eslint plugin stacks that bit-rot.
+- Fewer bikeshedding comments in PR review.
 
-## Consequences
+## Consequences / tradeoffs
 
-- Some ESLint-only rules need Biome equivalents or custom CI checks.
-- Vue SFC linting may need a short dual period until Biome/Vue support is satisfactory.
-- Contributors install/run Biome via Nx, not `eslint .` per service.
+- Some ESLint-only rules need Biome equivalents or explicit exceptions.
+- Vue SFC linting may need a short dual period.
+- Contributors run Biome via Nx/root scripts, not `eslint .` per service.
 
 ## Related sources
 
 - [Biome documentation](https://biomejs.dev)
-- ADR-0001 (Nx task runner)
+- ADR-0001
 
-## Open questions
+## Open questions for the team
 
-- Strictness level on day one vs gradual rule enablement
-- Vue/frontend special-case timeline
+- How strict on day one vs enable rules gradually?
+- Frontend/Vue special-case timeline?
