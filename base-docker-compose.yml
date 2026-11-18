@@ -1,22 +1,6 @@
 version: "3.4"
 
-services:
-
-  portal:
-    build:
-      context: ./$PATH_GATEWAYS/portal/
-      dockerfile: ./Dockerfile.dev
-    image: aegee/portal:dev
-    restart: always
-    expose:
-      - 80
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=portal"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-
+services: {}
 
 secrets:
   jwt_key:

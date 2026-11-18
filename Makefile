@@ -122,7 +122,7 @@ bump:
 
 # Monitors
 install-agents:
-	docker-compose -f gateways/docker/docker-compose.yml -f monitor-agents/docker/docker-compose.yml up -d
+	docker-compose -f gateways/docker/docker-compose.yml -f monitor-agents/docker/docker-compose.yml up -d traefik cadvisor node-exporter node-exporter-tunnel logstash-tunnel logspout
 
 remove-agents:
 	docker-compose -f monitor-agents/docker/docker-compose.yml down
