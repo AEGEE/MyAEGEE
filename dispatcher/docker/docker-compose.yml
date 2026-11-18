@@ -45,5 +45,4 @@ services:
 
 networks:
   default:
-    external:
-      name: OMS
+    name: OMS

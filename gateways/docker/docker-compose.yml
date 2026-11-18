@@ -22,7 +22,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # below: we have to mount it to preserve it on the host, so no secrets
       - ./secrets/acme.json:/etc/acme.json
-      - ./${PATH_GATEWAYS}/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - ./${PATH_GATEWAYS}/traefik/${TRAEFIK_CONFIG:-traefik.toml}:/etc/traefik/traefik.toml
       - ./${PATH_GATEWAYS}/traefik/logs:/var/log/traefik/
       # - shared_logs:/var/log/traefik/
 #        networks:
@@ -41,5 +41,4 @@ services:
 
 networks:
   default:
-    external:
-      name: OMS
+    name: OMS

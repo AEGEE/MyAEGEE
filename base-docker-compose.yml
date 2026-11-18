@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
 
   portal:
@@ -17,20 +15,6 @@ services:
       - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}"
       - "traefik.frontend.priority=20"
 
-
-secrets:
-  jwt_key:
-    file: secrets/jwt_key
-  sendgrid_key:
-    file: secrets/sendgrid_key
-  mail_user:
-    file: secrets/mail_user
-  mail_password:
-    file: secrets/mail_password
-  db_password:
-    file: secrets/core-db_password
-
 networks:
   default:
-    external:
-      name: OMS
+    name: OMS

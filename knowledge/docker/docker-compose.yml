@@ -53,4 +53,3 @@ volumes:
 networks:
     default:
         name: OMS
-        external: true

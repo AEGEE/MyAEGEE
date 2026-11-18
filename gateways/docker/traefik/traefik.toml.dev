@@ -39,7 +39,7 @@ endpoint = "unix:///var/run/docker.sock"
 #
 # Required
 #
-domain = "appserver.test"
+domain = "localhost"
 
 
 # Enable watch docker changes
@@ -68,7 +68,7 @@ exposedbydefault = false
 # Optional
 # Default: false
 #
-usebindportip = true
+usebindportip = false
 # Use Swarm Mode services as data provider
 #
 # Optional
