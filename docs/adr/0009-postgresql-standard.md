@@ -23,7 +23,7 @@ For a volunteer org, **one relational database product** (with a current major) 
 ## What I propose
 
 1. **PostgreSQL is the only RDBMS** for first-party apps and for infra we actively maintain.
-2. Standardize service images on **Postgres 16** as stacks are touched (same major across apps).
+2. Standardize service images on **Postgres 18** (currently `postgres:18.7`, same as CI) as stacks are touched. The same major across apps.
 3. Migrate **pass-manager** to Postgres (Vaultwarden supports it). Done in the monorepo train.
 4. **url-shortener / YOURLS**: keep as a **temporary exception**, and keep it **out of the default Compose stack** until we replace it or find a Postgres-friendly shortener.
 5. I propose we do not add new MySQL/MariaDB services under `infra/`.
@@ -37,18 +37,18 @@ For a volunteer org, **one relational database product** (with a current major) 
 
 ## Consequences / tradeoffs
 
-- Image major bumps need smoke tests; local volumes may need recreate.
-- YOURLS remains available under `infra/url-shortener` but is not a default contributor dependency.
+- Image major bumps need smoke tests. Postgres 18 images keep data under `/var/lib/postgresql`, so compose volumes mount there. Existing local volumes from older majors must be recreated (`docker compose down -v`).
+- YOURLS remains available as `infra/compose/stacks/url-shortener.yml` but is not a default contributor dependency.
 - Short-term infra PR churn.
 
 ## Related sources
 
-- Per-service Postgres compose services (`postgres:16`)
-- `infra/pass-manager` (Postgres)
-- `infra/url-shortener/README.md` (exception)
+- Per-service Postgres compose services (`postgres:18.7`)
+- `infra/compose/stacks/pass-manager.yml` (Postgres)
+- `infra/compose/README.md` (YOURLS exception)
 - ADR-0008
 
 ## Open questions for the team
 
-- Stick with Postgres 16, or move to 17 next?
+- Pin the exact patch (`18.7`) or only the major (`18`) in compose files?
 - YOURLS: replace with what, and on what timeline?

@@ -26,15 +26,25 @@ I propose a layout that matches how we talk about the work: products, shared cod
 apps/     # deployable products: Node APIs, frontend, e2e, mailer, dispatcher
 libs/     # TypeScript libraries (@myaegee/*)
   shared/       # purpose folders: errors/, pagination/, http/, ...
-  http-client/  # small HTTP helper
+  http-client/  # HttpClient class
   db/           # TypeORM DataSource helpers only
-  mailing/      # mailer HTTP client
-  core-client/  # core API client
-  observability/
-infra/    # compose, gateways/traefik, monitor stacks, ops scripts, future iac/
+  mailing/      # MailerClient class
+  core-client/  # CoreClient class
+infra/
+  compose/      # base.yml and stacks/ (optional compose-only stacks, one file each)
+  gateways/     # Traefik config
+  monitor/      # monitoring config
+  scripts/      # ops scripts
+  iac/          # future
 ```
 
-I propose `@myaegee/shared` holds cross-cutting primitives in **purpose folders**, with one concern per file and suffix naming (`*.type.ts`, `*.enum.ts`, `*.error.ts`). `index.ts` files only re-export. No standalone `errors` package. Capability libraries stay separate when they have a clear boundary (HTTP, DB plumbing, mailer, core client).
+Nothing else sits at the repo root except config files and `docs/`. Stacks that are only a compose file (pass-manager, survey, url-shortener, monitor-agents, dev-tools) are single files under `infra/compose/stacks/`, not folders of their own.
+
+I propose `@myaegee/shared` holds cross-cutting primitives in **purpose folders**, with one concern per file and suffix naming (`*.type.ts`, `*.enum.ts`, `*.error.ts`). `index.ts` files only re-export and never contain code. No standalone `errors` package. Capability libs stay separate when they have a clear boundary (HTTP, DB plumbing, mailer, core client).
+
+Clients that hold configuration (HTTP, mailer, core) are classes, so they can grow state, hooks, and retries later without changing every call site. The Node apps use them instead of their own copies. Small stateless helpers stay as plain functions, one per file.
+
+All Node services build their image from one Dockerfile at `infra/docker/node-service/Dockerfile`, with the repo root as the build context. It builds the libs the app depends on and uses `pnpm deploy` to ship only that app and its production dependencies.
 
 Lint/format for JS/TS is **Biome** only (ADR-0007). I propose we do not keep per-app ESLint/Prettier configs.
 

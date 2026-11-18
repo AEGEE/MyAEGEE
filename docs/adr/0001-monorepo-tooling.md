@@ -41,7 +41,7 @@ I propose we adopt **Nx** with **pnpm** workspaces as the shared monorepo toolse
 - People learn `pnpm` and `nx` instead of ad-hoc per-app npm scripts.
 - Contributors enable Corepack or install pnpm once (`packageManager` in root `package.json` pins the version).
 - CircleCI should call pnpm at the repo root and Nx for affected work.
-- Per-app Docker image builds may still use a local install path until those Dockerfiles are switched over.
+- Node service images share one pnpm-based Dockerfile (`infra/docker/node-service/Dockerfile`), built from the repo root with `--build-arg APP=<name>`.
 - Elixir mailer and Python dispatcher stay in-repo as Nx projects with custom targets, not as TypeScript apps.
 - This supersedes my earlier personal lean toward Turborepo, and the interim “Nx + npm for now” idea.
 
@@ -56,4 +56,3 @@ I propose we adopt **Nx** with **pnpm** workspaces as the shared monorepo toolse
 
 - Nx Cloud remote cache now, or CircleCI cache only until we feel pain?
 - Keep semantic-release per package, or move toward one product version later?
-- How quickly do we convert service Dockerfiles from `npm ci` to pnpm?

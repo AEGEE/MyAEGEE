@@ -25,6 +25,18 @@ I propose **one** lint/format tool for JS/TS in the monorepo so “make it green
 
 I propose **Biome** as the default linter and formatter for JavaScript/TypeScript. Root `biome.json` plus Nx `lint` targets. Drop per-app ESLint/Prettier as we touch apps.
 
+## Vertical whitespace
+
+I propose a readability convention on top of Biome: put a blank line between declarations, checks (`if`, `switch`), loops, and calls that do different jobs, and before `return`. Short groups of the same kind (for example several `const` lines that belong together) can stay together.
+
+Biome does not enforce this. It keeps blank lines you write but never adds them, and the maintainers have declined an equivalent of ESLint's `padding-line-between-statements`. So today this is a review convention. Ways to enforce it later:
+
+| Option | Upside | Downside |
+| --- | --- | --- |
+| Review convention only | No extra tooling | Relies on people noticing |
+| ESLint with only `@stylistic/padding-line-between-statements` | Automatic fix | Brings ESLint back for one rule |
+| Wait for a Biome option | Stays one tool | No timeline |
+
 ## Benefits I see
 
 - One mental model for format and lint.
@@ -46,4 +58,5 @@ I propose **Biome** as the default linter and formatter for JavaScript/TypeScrip
 ## Open questions for the team
 
 - How strict on day one vs enable rules gradually?
+- Is a review convention enough for blank lines, or is the ESLint stylistic rule worth the extra tool?
 - Frontend/Vue special-case timeline?
