@@ -13,4 +13,3 @@ services:
       - ./${PATH_CORE}/../migrations/:/usr/app/src/migrations
       - ./${PATH_CORE}/../models/:/usr/app/src/models
       - ./${PATH_CORE}/../scripts/:/usr/app/src/scripts
-      - ./${PATH_CORE}/../cli.js/:/usr/app/src/cli.js
