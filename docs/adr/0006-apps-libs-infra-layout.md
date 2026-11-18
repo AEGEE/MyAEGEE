@@ -24,11 +24,19 @@ I propose a layout that matches how we talk about the work: products, shared cod
 
 ```text
 apps/     # deployable products: Node APIs, frontend, e2e, mailer, dispatcher
-libs/     # shared TypeScript libraries (@myaegee/*)
+libs/     # TypeScript libraries (@myaegee/*)
+  shared/       # errors, types, enums, and other cross-cutting primitives
+  http-client/  # small HTTP helper
+  db/           # TypeORM DataSource helpers only
+  mailing/      # mailer HTTP client
+  core-client/  # core API client
+  observability/
 infra/    # compose, gateways/traefik, monitor stacks, ops scripts, future iac/
 ```
 
-Non-Node products stay under `apps/` with custom Nx targets. Third-party image stacks and edge proxies live under `infra/`.
+I propose we keep cross-cutting primitives in `@myaegee/shared` instead of many tiny one-export packages (for example no standalone `errors` package). Capability libraries stay separate when they have a clear boundary (HTTP, DB plumbing, mailer, core client).
+
+Non-Node products stay under `apps/` with custom Nx targets. Third-party image stacks and edge proxies live under `infra/`. Build output lives only under each package’s `dist/` and is gitignored.
 
 ## Benefits I see
 
