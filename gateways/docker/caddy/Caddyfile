@@ -1,7 +1,7 @@
 {$CADDY_SITE_SCHEME}{$SUBDOMAIN_FRONTEND}{$BASE_URL} {
 	handle /api/core/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/core
 		reverse_proxy core:8084
@@ -12,7 +12,7 @@
 
 	handle /api/events/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/events
 		reverse_proxy events:8084
@@ -23,7 +23,7 @@
 
 	handle /api/statutory/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/statutory
 		reverse_proxy statutory:8084
@@ -34,7 +34,7 @@
 
 	handle /api/network/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/network
 		reverse_proxy network:8084
@@ -45,7 +45,7 @@
 
 	handle /api/summeruniversity/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/summeruniversity
 		reverse_proxy summeruniversity:8084
@@ -56,7 +56,7 @@
 
 	handle /api/discounts/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/discounts
 		reverse_proxy discounts:8084
@@ -67,7 +67,7 @@
 
 	handle /api/knowledge/metrics* {
 		basic_auth {
-			admin {$METRICS_CREDENTIALS}
+			admin {env.METRICS_CREDENTIALS}
 		}
 		uri strip_prefix /api/knowledge
 		reverse_proxy knowledge:8084
@@ -124,7 +124,7 @@
 
 {$CADDY_SITE_SCHEME}{$SUBDOMAIN_PGADMIN}{$BASE_URL} {
 	basic_auth {
-		admin {$PW_TRAEFIK}
+		admin {env.PW_TRAEFIK}
 	}
 	reverse_proxy pgadmin:5050
 }
@@ -139,7 +139,7 @@
 
 {$CADDY_SITE_SCHEME}{$SUBDOMAIN_PROMETHEUS}{$BASE_URL} {
 	basic_auth {
-		admin {$PW_TRAEFIK}
+		admin {env.PW_TRAEFIK}
 	}
 	reverse_proxy prometheus:9090
 }
@@ -167,14 +167,14 @@
 {$CADDY_SITE_SCHEME}{$SUBDOMAIN_METRICS}{$BASE_URL} {
 	handle /ext-metrics/cadvisor* {
 		basic_auth {
-			admin {$PW_TRAEFIK}
+			admin {env.PW_TRAEFIK}
 		}
 		uri strip_prefix /ext-metrics/cadvisor
 		reverse_proxy cadvisor:8080
 	}
 	handle /ext-metrics/node-exporter* {
 		basic_auth {
-			admin {$PW_TRAEFIK}
+			admin {env.PW_TRAEFIK}
 		}
 		uri strip_prefix /ext-metrics/node-exporter
 		reverse_proxy node-exporter-tunnel:5001
