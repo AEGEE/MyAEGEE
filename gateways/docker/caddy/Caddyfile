@@ -1,0 +1,182 @@
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_FRONTEND}{$BASE_URL} {
+	handle /api/core/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/core
+		reverse_proxy core:8084
+	}
+	handle_path /api/core/* {
+		reverse_proxy core:8084
+	}
+
+	handle /api/events/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/events
+		reverse_proxy events:8084
+	}
+	handle_path /api/events/* {
+		reverse_proxy events:8084
+	}
+
+	handle /api/statutory/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/statutory
+		reverse_proxy statutory:8084
+	}
+	handle_path /api/statutory/* {
+		reverse_proxy statutory:8084
+	}
+
+	handle /api/network/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/network
+		reverse_proxy network:8084
+	}
+	handle_path /api/network/* {
+		reverse_proxy network:8084
+	}
+
+	handle /api/summeruniversity/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/summeruniversity
+		reverse_proxy summeruniversity:8084
+	}
+	handle_path /api/summeruniversity/* {
+		reverse_proxy summeruniversity:8084
+	}
+
+	handle /api/discounts/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/discounts
+		reverse_proxy discounts:8084
+	}
+	handle_path /api/discounts/* {
+		reverse_proxy discounts:8084
+	}
+
+	handle /api/knowledge/metrics* {
+		basic_auth {
+			admin {env.METRICS_CREDENTIALS}
+		}
+		uri strip_prefix /api/knowledge
+		reverse_proxy knowledge:8084
+	}
+	handle_path /api/knowledge/* {
+		reverse_proxy knowledge:8084
+	}
+
+	handle_path /api/mailer/* {
+		reverse_proxy mailer:4000
+	}
+
+	handle_path /media/core/* {
+		reverse_proxy core-static:80
+	}
+	handle_path /media/events/* {
+		reverse_proxy events-static:80
+	}
+	handle_path /media/statutory/* {
+		reverse_proxy statutory-static:80
+	}
+	handle_path /media/summeruniversity/* {
+		reverse_proxy summeruniversity-static:80
+	}
+
+	handle_path /services/jira-cors/* {
+		reverse_proxy https://myaegee.atlassian.net {
+			header_up Host myaegee.atlassian.net
+		}
+	}
+	handle_path /services/calendar-cors/* {
+		reverse_proxy https://calendar.google.com {
+			header_up Host calendar.google.com
+		}
+	}
+	handle_path /services/dockerhub/* {
+		reverse_proxy https://hub.docker.com {
+			header_up Host hub.docker.com
+		}
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_PORTAL}{$BASE_URL} {
+	reverse_proxy portal:80
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_PORTAINER}{$BASE_URL} {
+	reverse_proxy portainer:9000
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_PGADMIN}{$BASE_URL} {
+	basic_auth {
+		admin {env.PW_TRAEFIK}
+	}
+	reverse_proxy pgadmin:5050
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_APIDOCS}{$BASE_URL} {
+	reverse_proxy swagger:8080
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_GRAFANA}{$BASE_URL} {
+	reverse_proxy grafana:3000
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_PROMETHEUS}{$BASE_URL} {
+	basic_auth {
+		admin {env.PW_TRAEFIK}
+	}
+	reverse_proxy prometheus:9090
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_STATPING}{$BASE_URL} {
+	reverse_proxy statping:8080
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_BITWARDEN}{$BASE_URL} {
+	reverse_proxy bitwarden:80
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_SURVEY}{$BASE_URL} {
+	reverse_proxy survey:80
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_RABBITMQ}{$BASE_URL} {
+	reverse_proxy rabbitmq:15672
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_MAILPIT}{$BASE_URL} {
+	reverse_proxy mailpit:8025
+}
+
+{$CADDY_SITE_SCHEME}{$SUBDOMAIN_METRICS}{$BASE_URL} {
+	handle /ext-metrics/cadvisor* {
+		basic_auth {
+			admin {env.PW_TRAEFIK}
+		}
+		uri strip_prefix /ext-metrics/cadvisor
+		reverse_proxy cadvisor:8080
+	}
+	handle /ext-metrics/node-exporter* {
+		basic_auth {
+			admin {env.PW_TRAEFIK}
+		}
+		uri strip_prefix /ext-metrics/node-exporter
+		reverse_proxy node-exporter-tunnel:5001
+	}
+}

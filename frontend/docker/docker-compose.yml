@@ -4,24 +4,8 @@ services:
     frontend:
         restart: always
         image: aegee/frontend:latest
-        # Healthcheck is disabled because traefik doesn't route stuff to the service
-        # unless it's healthy, causing the ~1min downtime for frontend
-        # while it waits for the container to be up.
-        # healthcheck:
-        #     test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthcheck"]
-        #     interval: 30s
-        #     timeout: 10s
-        #     retries: 3
         # cpu_count: 1
         # mem_limit: 900m
-        labels:
-            - "traefik.frontend.rule=Host:${SUBDOMAIN_FRONTEND}${BASE_URL};PathPrefix:/"
-            - "traefik.frontend.priority=11"
-            - "traefik.port=80"
-            - "traefik.backend=frontend"
-            - "traefik.enable=true"
-
 networks:
     default:
-        external:
-            name: OMS
+        name: OMS

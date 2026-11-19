@@ -1,0 +1,37 @@
+# Docker-only local stack. No Vagrant, Make, or helper.sh.
+# Caddy is the HTTP edge (replaces Traefik).
+#   cp .env.example .env
+#   docker compose up -d --build
+#
+# App:  http://my.localhost
+# Login: admin@example.com / 5ecr3t5ecr3t
+
+name: myaegee
+
+include:
+  - path: base-docker-compose.yml
+    project_directory: .
+  - path: gateways/docker/docker-compose.yml
+    project_directory: .
+  - path: frontend/docker/docker-compose.yml
+    project_directory: .
+  - path: core/docker/docker-compose.yml
+    project_directory: .
+  - path: statutory/docker/docker-compose.yml
+    project_directory: .
+  - path: events/docker/docker-compose.yml
+    project_directory: .
+  - path: network/docker/docker-compose.yml
+    project_directory: .
+  - path: summeruniversity/docker/docker-compose.yml
+    project_directory: .
+  - path: discounts/docker/docker-compose.yml
+    project_directory: .
+  - path: mailer/docker/docker-compose.yml
+    project_directory: .
+  - path: dev-tools/docker/docker-compose.yml
+    project_directory: .
+
+networks:
+  default:
+    name: OMS

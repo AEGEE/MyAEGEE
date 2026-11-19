@@ -54,16 +54,6 @@ init_boot ()
 
     docker network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker network create OMS)
 
-    touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
-    chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
-
-    touch "${DIR}"/gateways/docker/traefik/traefik.toml # to avoid making it think it's a folder
-    if [[ "${MYAEGEE_ENV}" != "development" ]]; then
-      envsubst < "${DIR}"/gateways/docker/traefik/traefik.toml.template > "${DIR}"/gateways/docker/traefik/traefik.toml
-    else
-      cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev > "${DIR}"/gateways/docker/traefik/traefik.toml
-    fi
-
     echo -e "\n[Deployment] Setting secrets\n"
     bash "${DIR}"/scripts-vagrant_provision/generate_secrets.sh
 
