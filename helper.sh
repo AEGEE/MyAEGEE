@@ -99,12 +99,28 @@ compose_binary ()
     fi
 }
 
+# version_at_least WANTED HAVE: whether the version HAVE (e.g. 2.24.4, also
+# 2.29.1-desktop.1) is WANTED or newer. Plain bash, `sort -V` isn't everywhere.
+version_at_least ()
+{
+    local -a wanted have
+    local i
+    IFS=. read -r -a wanted <<< "${1}"
+    IFS=. read -r -a have <<< "${2%%[-+]*}"
+    for i in 0 1 2; do
+        [[ "${have[i]:-0}" =~ ^[0-9]+$ ]] || return 1
+        (( 10#${have[i]:-0} > 10#${wanted[i]:-0} )) && return 0
+        (( 10#${have[i]:-0} < 10#${wanted[i]:-0} )) && return 1
+    done
+    return 0
+}
+
 check_devserver_compose ()
 {
     local version
     version=$(docker compose version --short 2>/dev/null) || version=""
     version=${version#v}
-    if [[ -z "${version}" ]] || [[ "$(printf '%s\n' 2.24.4 "${version}" | sort -V | head -n1)" != "2.24.4" ]]; then
+    if [[ -z "${version}" ]] || ! version_at_least 2.24.4 "${version}"; then
       echo "Error: MYAEGEE_GATEWAY=devserver needs the Docker Compose plugin 2.24.4 or newer (\`docker compose version\`: ${version:-not found})"
       exit 1
     fi
@@ -196,9 +212,9 @@ function retry {
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
-# shellcheck disable=SC2046
-export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+# shellcheck source=scripts-server/load-env.sh
+. "${DIR}/scripts-server/load-env.sh"
+load_env "${DIR}/.env"
 if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1
@@ -224,7 +240,8 @@ fi
 # The devserver setup runs on the host by design. Otherwise only run on the
 # Vagrant guest, unless the host-side bootstrap (start.sh --no-vagrant) opted out.
 if [[ "${MYAEGEE_GATEWAY}" != "devserver" && "${MYAEGEE_SKIP_GUEST_CHECK:-false}" != "true" ]]; then
-  WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
+  # sed, not `grep -P`, which macOS doesn't have (WANTEDNAME stayed empty, so the check always passed).
+  WANTEDNAME=$(head -n1 Vagrantfile | sed -n 's/.*machine_name = "\([^"]*\)".*/\1/p')
   HOST=$(hostname -f)
   if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
     echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
@@ -430,7 +447,8 @@ if ( $nuke ); then
   if [[ "$(hostname)" == *prod* ]]; then
     echo "DUUUDE you can't kill production" && exit 1;
   else
-      compose_wrapper down -v
+      # --remove-orphans: also the containers of the other MYAEGEE_GATEWAY mode.
+      compose_wrapper down -v --remove-orphans
       exit $?
   fi
 fi

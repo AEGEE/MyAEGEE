@@ -7,6 +7,9 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
+# docker-compose (v1) when it's installed, the Compose plugin otherwise.
+COMPOSE := $(shell command -v docker-compose >/dev/null 2>&1 && echo docker-compose || echo docker compose)
+
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
@@ -122,10 +125,10 @@ bump:
 
 # Monitors
 install-agents:
-	docker-compose -f gateways/docker/docker-compose.yml -f monitor-agents/docker/docker-compose.yml up -d traefik cadvisor node-exporter node-exporter-tunnel logstash-tunnel logspout
+	$(COMPOSE) -f gateways/docker/docker-compose.yml -f monitor-agents/docker/docker-compose.yml up -d traefik cadvisor node-exporter node-exporter-tunnel logstash-tunnel logspout
 
 remove-agents:
-	docker-compose -f monitor-agents/docker/docker-compose.yml down
+	$(COMPOSE) -f monitor-agents/docker/docker-compose.yml down
 
 # Backups
 backup:

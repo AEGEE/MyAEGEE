@@ -115,6 +115,8 @@ How it works:
 
 Run `make` targets (`make start`, `make monitor`, ...) and `./helper.sh` from the repository root on your machine, there is no _GUEST_. Services that only have a Traefik subdomain (`dev-tools`, `monitor`) aren't reachable in this mode.
 
+`./start.sh --no-traefik --reset` asks for confirmation, removes the stack's containers and volumes (databases, uploads), then bootstraps again. `secrets/` and the built images stay.
+
 To switch between modes, change `MYAEGEE_GATEWAY` in `.env` (`traefik` or `devserver`), then run `./helper.sh --docker -- up -d --remove-orphans`, so containers of the other mode (e.g. Traefik holding ports 80 and 443) are removed.
 
 
@@ -338,7 +340,7 @@ On the _HOST_, i.e. the machine that runs the virtual machine, you use `start.sh
 - Start the vm
   - Use `./start.sh` for normal development cycle: app runs in development mode
   - Use `./start.sh --fast` for sysops/integration development cycle: app runs in production mode so you can concentrate on developing integration to the app, not the app itself
-- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code.
+- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code. With `--no-vagrant` or `--no-traefik` there is no virtual machine, so `--reset` removes the Docker stack's containers and volumes (`./helper.sh --nuke`) before bootstrapping again.
 
 If you are a know-it-all who doesn't want to use Vagrant, use `./start.sh --no-vagrant` (but again, if you're in trouble you will only get superficial support from our side)
 
