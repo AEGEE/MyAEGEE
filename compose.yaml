@@ -1,4 +1,5 @@
 # Docker-only local stack. No Vagrant, Make, or helper.sh.
+# Caddy is the HTTP edge (replaces Traefik).
 #   cp .env.example .env
 #   docker compose up -d --build
 #

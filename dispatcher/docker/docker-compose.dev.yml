@@ -27,8 +27,3 @@ services:
     ports:
       - 8025:8025
       - 1025:1025
-    labels:
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILPIT}${BASE_URL};"
-      - "traefik.backend=mailpit"
-      - "traefik.port=8025"
-      - "traefik.enable=true"

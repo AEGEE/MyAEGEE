@@ -16,13 +16,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       # - portainer-data:/data
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=portainer"
-      - "traefik.port=9000"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAINER}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-
 ### DB admin (UIs) Containers #######################################
 
 ### pg Admin Container #######################################
@@ -31,13 +24,6 @@ services:
     restart: on-failure
     expose:
       - "5050"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=pgadmin"
-      - "traefik.port=5050"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
     environment:
       PGADMIN_DEFAULT_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
       PGADMIN_DEFAULT_PASSWORD: "${PW_PGADMIN}"
@@ -63,13 +49,6 @@ services:
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/knowledge/api-docs.json\", \
               name: \"knowledge\"}, \
               ]"
-    labels:
-      - traefik.enable=true
-      - traefik.backend=swagger
-      - traefik.port=8080
-      - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
-      - traefik.frontend.priority=20
-
 volumes:
   portainer-data:
     driver: local

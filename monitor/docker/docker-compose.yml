@@ -20,13 +20,6 @@ services:
       GF_SMTP_PASSWORD: "${SENDGRID_PW}"
       GF_SMTP_FROM_ADDRESS: "grafana@${BASE_URL}"
       GF_SMTP_FROM_NAME: "AEGEE Dashboards"
-    labels:
-      - "traefik.backend=grafana"
-      - "traefik.port=3000"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_GRAFANA}${BASE_URL};PathPrefix:/"
-      - "traefik.frontend.priority=110"
-      - "traefik.enable=true"
-
   prometheus:
     restart: on-failure
     image: prom/prometheus:v2.10.0
@@ -35,14 +28,6 @@ services:
     volumes:
       - prometheus-storage:/prometheus
       - ./${PATH_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    labels:
-      - "traefik.backend=prometheus"
-      - "traefik.port=9090"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PROMETHEUS}${BASE_URL};PathPrefix:/"
-      - "traefik.frontend.priority=110"
-      - "traefik.enable=true"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
-
   # alternative to ciao, but more similar to cachet
   statping:
     image: hunterlong/statping:v0.80.65
@@ -62,13 +47,6 @@ services:
       SASS: /usr/local/bin/sass
     volumes:
       - statping-storage:/app
-    labels:
-      - "traefik.backend=statping"
-      - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_STATPING}${BASE_URL};PathPrefix:/"
-      - "traefik.frontend.priority=110"
-      - "traefik.enable=true"
-
   # #alternative to worldping
   # blackbox-exporter:
   #   image: prom/blackbox-exporter:v0.16.0
@@ -76,12 +54,7 @@ services:
   #     - ./${PATH_MONITOR}/config/blackbox.yml:/config/blackbox.yml
   #   command: '--config.file=/config/blackbox.yml'
   #   labels:
-  #     - "traefik.backend=blackbox-exporter"
-  #     - "traefik.port=9115"
   # yamllint disable-line rule:line-length
-  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
-  #     - "traefik.frontend.priority=110"
-  #     - "traefik.enable=true"
 
   logstash:
     build:

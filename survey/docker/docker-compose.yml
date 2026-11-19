@@ -15,13 +15,6 @@ services:
       LIMESURVEY_ADMIN_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
     volumes:
       - upload:/app/upload
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=survey"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_SURVEY}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-
   postgres-limesurvey:
     restart: always
     image: postgres:10.6

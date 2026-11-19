@@ -8,12 +8,6 @@ services:
   #   depends_on:
   #     - yourls
   #   labels:
-  #     - "traefik.backend=nginx-yourls"
-  #     - "traefik.port=8080"
-  #     - "traefik.domain=${SHORTENER_DOMAIN}"
-  #     - "traefik.frontend.rule=Host:${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN};PathPrefix:/"
-  #     - "traefik.frontend.priority=110"
-  #     - "traefik.enable=true"
 
   yourls:
     restart: on-failure
@@ -27,14 +21,6 @@ services:
       YOURLS_USER: "admin"
       YOURLS_PASS: "${PW_YOURLS}"
       YOURLS_PRIVATE: "true"
-    labels:
-      - "traefik.backend=yourls"
-      - "traefik.port=80"
-      - "traefik.domain=${SHORTENER_DOMAIN}"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN};PathPrefix:/"
-      - "traefik.frontend.priority=110"
-      - "traefik.enable=true"
-
   maria-yourls:
     image: mariadb:10.4
     restart: always

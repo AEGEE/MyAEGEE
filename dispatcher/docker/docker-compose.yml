@@ -17,12 +17,6 @@ services:
       # In production set RABBITMQ_USER and RABBITMQ_PASS to non-default values.
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER:-guest}"
       RABBITMQ_DEFAULT_PASS: "${PW_RABBITMQ:-guest}"
-    labels:
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_RABBITMQ}${BASE_URL};PathPrefix:/"
-      - "traefik.backend=rabbit"
-      - "traefik.port=15672"
-      - "traefik.enable=true"
-
   # Not a webservice, but a worker service
   dispatcher:
     image: aegee/dispatcher
@@ -41,7 +35,6 @@ services:
       RABBITMQ_PASS: "${PW_RABBITMQ:-guest}"
     volumes:
       - ./secrets/tokens.json:/usr/app/tokens.json
-
 
 networks:
   default:

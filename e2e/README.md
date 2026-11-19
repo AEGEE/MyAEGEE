@@ -28,7 +28,7 @@ can't be tested yet.
 
 ## How the stack runs
 
-No Docker images or traefik are involved:
+No Docker images or Caddy are involved:
 
 - One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`).
 - `core`, `events` and `summeruniversity` run as plain Node processes with `NODE_ENV=e2e`
