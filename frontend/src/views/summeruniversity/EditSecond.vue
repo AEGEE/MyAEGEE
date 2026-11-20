@@ -439,6 +439,7 @@
             <input class="input" type="url" v-model="event.budget" required />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -447,6 +448,7 @@
             <input class="input" type="url" v-model="event.programme_suct" required />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.programme_suct">{{ errors.programme_suct.join(', ') }}</p>
         </div>
 
         <b-loading is-full-page="false" :active.sync="isLoading" />
@@ -663,9 +665,10 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        // Validation errors per field; other 422s only have a message.
+        if (err.response.status === 422 && err.response.data.errors) {
           this.errors = err.response.data.errors
-          return this.$root.showError(this.errors)
+          return this.$root.showError('Some of the event data is invalid.')
         }
 
         this.$root.showError('Could not save event', err)
