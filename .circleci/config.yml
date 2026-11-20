@@ -67,7 +67,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -305,7 +305,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -526,7 +526,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -959,7 +959,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -1463,7 +1463,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -1684,7 +1684,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
@@ -1905,7 +1905,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4  # counted in after_n_builds in codecov.yml
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
