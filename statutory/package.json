@@ -71,7 +71,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^30.5.2",
-    "jest-junit": "^16.0.0",
+    "jest-junit": "^17.0.0",
     "lint-staged": "^16.4.0",
     "nock": "^14.0.14",
     "rimraf": "^6.1.3",
