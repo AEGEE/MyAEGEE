@@ -79,7 +79,9 @@ export default {
   },
   computed: {
     mail () {
-      return this.body.replaceAll('<r>', '<span style="color: red">').replaceAll('</r>', '</span>')
+      // <font color> instead of a styled span: the markdown filter drops style attributes,
+      // and email clients show <font> too.
+      return this.body.replaceAll('<r>', '<font color="red">').replaceAll('</r>', '</font>')
     }
   },
   mounted () {
