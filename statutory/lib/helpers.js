@@ -133,7 +133,9 @@ exports.isNumber = (value) => {
 exports.whitelistObject = (object, allowedFields) => {
     const newObject = {};
     for (const field of allowedFields) {
-        newObject[field] = object[field];
+        if (object[field] !== undefined) {
+            newObject[field] = object[field];
+        }
     }
 
     return newObject;

@@ -39,7 +39,7 @@ const request = async (options) => {
         const formData = new FormData();
         for (const [key, item] of entries) {
             const filename = item.filename || path.basename(item.path);
-            const buffer = fs.readFileSync(item.path);
+            const buffer = item.buffer || fs.readFileSync(item.path);
             formData.append(key, new Blob([buffer]), filename);
         }
         for (const [key, value] of Object.entries(options.fields || {})) {

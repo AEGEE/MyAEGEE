@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Body } = require('../../models');
 
 describe('Bodies editing', () => {
     beforeAll(async () => {
@@ -205,4 +206,84 @@ describe('Bodies editing', () => {
             expect(res.body).toHaveProperty('data');
         });
     }
+
+    describe('website', () => {
+        const updateWebsite = async (website) => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody({ website: 'https://www.aegee.org' });
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { website }
+            });
+
+            return { res, bodyFromDb: await Body.findByPk(body.id) };
+        };
+
+        test.each([
+            // eslint-disable-next-line no-script-url
+            'javascript:alert(1)',
+            'data:text/html,<script>alert(1)</script>',
+            'https://exa mple.org',
+            'java\tscript://%0aalert(1)',
+            'www.aegee-enschede.nl'
+        ])('should reject %j', async (website) => {
+            const { res, bodyFromDb } = await updateWebsite(website);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('website');
+            expect(bodyFromDb.website).toEqual('https://www.aegee.org');
+        });
+
+        test('should not block other edits when an old website does not pass validation', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            // A board with a permission limited to some fields, which include the website.
+            const permission = await generator.createPermission({
+                scope: 'local',
+                action: 'update',
+                object: 'body',
+                filters: ['description', 'website']
+            });
+
+            const body = await generator.createBody();
+            await body.update({ website: 'javascript:alert(1)' }, { validate: false }); // eslint-disable-line no-script-url
+            const circle = await generator.createCircle({ body_id: body.id });
+            await generator.createBodyMembership(body, user);
+            await generator.createCircleMembership(circle, user);
+            await generator.createCirclePermission(circle, permission);
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                // The frontend sends the whole body, including the unchanged website.
+                body: { ...body.toJSON(), description: 'New description', name: 'Not allowed' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb.description).toEqual('New description');
+            expect(bodyFromDb.name).toEqual(body.name);
+        });
+
+        test.each([
+            'https://www.aegee-enschede.nl',
+            '',
+            null
+        ])('should accept %j', async (website) => {
+            const { res, bodyFromDb } = await updateWebsite(website);
+
+            expect(res.statusCode).toEqual(200);
+            expect(bodyFromDb.website).toEqual(website);
+        });
+    });
 });

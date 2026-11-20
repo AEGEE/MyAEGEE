@@ -77,7 +77,11 @@ exports.updateBody = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:body is required, but not present.');
     }
 
-    await req.currentBody.update(req.body, { fields: req.permissions.getPermissionFilters('update:body') });
+    // Passing the allowed fields as `fields` would make Sequelize validate all of them, also the
+    // ones that don't change, so an old value that wouldn't pass validation today (like a website
+    // from before links were validated) would block editing anything else.
+    const allowedFields = req.permissions.getPermissionFilters('update:body');
+    await req.currentBody.update(allowedFields ? helpers.whitelistObject(req.body, allowedFields) : req.body);
     return res.json({
         success: true,
         data: req.currentBody

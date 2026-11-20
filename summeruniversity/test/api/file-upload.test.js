@@ -41,6 +41,14 @@ describe('File upload', () => {
 
     const asset = (name) => path.join(__dirname, '..', 'assets', name);
 
+    test('should refuse images over 5 MB without leaving a file on disk', async () => {
+        const res = await upload({ head_image: { buffer: Buffer.alloc(5 * 1024 * 1024 + 1), filename: 'big.png' } });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('The image should be at most 5 MB.');
+        expect(fs.readdirSync(uploadFolder)).toEqual([]);
+    });
+
     test('should return 401 if the user is not authenticated', async () => {
         mock.mockAll({ core: { unauthorized: true }, mainPermissions: { unauthorized: true }, approvePermissions: { unauthorized: true } });
 

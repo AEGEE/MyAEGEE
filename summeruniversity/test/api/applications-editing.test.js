@@ -214,4 +214,18 @@ describe('Applications editing', () => {
         await application.reload();
         expect(application.body_id).toEqual(1);
     });
+
+    test('should let a manager edit the application of someone who left the body they applied with', async () => {
+        // The applicant is no longer a member of body 1, which the application is for.
+        mockAndCapture({ member: { data: { ...applicant, bodies: applicant.bodies.filter((body) => body.id !== 1) } } });
+
+        // The form sends the whole application back, including the current body (as a string here).
+        const res = await edit({ body_id: '1', motivation: 'Changed by manager' });
+
+        expect(res.statusCode).toEqual(200);
+        await application.reload();
+        expect(application.body_id).toEqual(1);
+        expect(application.body_name).toEqual('AEGEE-Dresden');
+        expect(application.motivation).toEqual('Changed by manager');
+    });
 });

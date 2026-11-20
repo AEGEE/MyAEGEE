@@ -303,6 +303,21 @@ describe('Events image upload', () => {
         expect(listUploadedFiles()).toEqual([]);
     });
 
+    it('should refuse images over 5 MB without leaving a file on disk', async () => {
+        const imagesBefore = await Image.count();
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { buffer: Buffer.alloc(5 * 1024 * 1024 + 1), filename: 'big.png' } }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('The image should be at most 5 MB.');
+        expect(await Image.count()).toEqual(imagesBefore);
+        expect(listUploadedFiles()).toEqual([]);
+    });
+
     it('should not leave a file with malformed content on disk', async () => {
         const imagesBefore = await Image.count();
         const res = await request({
