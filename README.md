@@ -87,6 +87,38 @@ vagrant up
 
 You will have to wait for up to 25 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
+### Docker only, without Vagrant and Traefik
+
+If you already have Docker, you can run everything directly on your machine, with hot reload for the frontend and the Express services. You need Docker with the Docker Compose plugin, version 2.24.4 or newer (`docker compose version`); `helper.sh` checks it.
+
+> On your machine
+```
+git clone --recursive https://github.com/AEGEE/MyAEGEE.git
+cd MyAEGEE
+./start.sh --no-traefik
+```
+
+This sets `MYAEGEE_GATEWAY=devserver` in `.env` and bootstraps the stack. No hosts file changes or `sudo` are needed. The first start takes a few minutes longer than later starts, because the frontend container installs its dependencies (follow it with `./helper.sh --monitor frontend`).
+
+| What | Where |
+|---|---|
+| MyAEGEE | http://localhost:8083 |
+| Mailpit (with `dispatcher` in `ENABLED_SERVICES`) | http://localhost:8025 |
+| RabbitMQ management (with `dispatcher` in `ENABLED_SERVICES`) | http://localhost:15672 |
+
+These ports are bound to `127.0.0.1` and can be changed in `.env` (`FRONTEND_PORT`, `MAILPIT_UI_PORT`, `MAILPIT_SMTP_PORT`, `RABBITMQ_UI_PORT`).
+
+How it works:
+- Traefik and the portal are not started. Instead, the `frontend` container runs the webpack dev server, which serves the app and proxies `/api/<service>`, `/media/<service>` and `/services/*` the way Traefik does (see `frontend/docker/devserver/proxy.js`).
+- Changes in `frontend/src` reload the page. The Express services (core, events, statutory, summeruniversity, discounts, network, knowledge) restart with `nodemon` when you change `config`, `lib`, `middlewares`, `migrations` or `models`. A change to `package.json` or `package-lock.json` needs a rebuild of that service (`make rebuild_core` etc.); the frontend reinstalls by itself on the next restart.
+- If edits don't trigger a reload (this can happen with some Docker Desktop file sharing setups), set `FRONTEND_POLLING=true` in `.env` and run `make start`.
+
+Run `make` targets (`make start`, `make monitor`, ...) and `./helper.sh` from the repository root on your machine, there is no _GUEST_. Services that only have a Traefik subdomain (`dev-tools`, `monitor`) aren't reachable in this mode.
+
+`./start.sh --no-traefik --reset` asks for confirmation, removes the stack's containers and volumes (databases, uploads), then bootstraps again. `secrets/` and the built images stay.
+
+To switch between modes, change `MYAEGEE_GATEWAY` in `.env` (`traefik` or `devserver`), then run `./helper.sh --docker -- up -d --remove-orphans`, so containers of the other mode (e.g. Traefik holding ports 80 and 443) are removed.
+
 
 ## Advanced URL mapping and troubleshoot
 **MANUAL EDIT**
@@ -308,7 +340,7 @@ On the _HOST_, i.e. the machine that runs the virtual machine, you use `start.sh
 - Start the vm
   - Use `./start.sh` for normal development cycle: app runs in development mode
   - Use `./start.sh --fast` for sysops/integration development cycle: app runs in production mode so you can concentrate on developing integration to the app, not the app itself
-- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code.
+- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode. Doing so, you will lose the users and other content you created on your local instance of MyAEGEE, but this will not remove your source code. With `--no-vagrant` or `--no-traefik` there is no virtual machine, so `--reset` removes the Docker stack's containers and volumes (`./helper.sh --nuke`) before bootstrapping again.
 
 If you are a know-it-all who doesn't want to use Vagrant, use `./start.sh --no-vagrant` (but again, if you're in trouble you will only get superficial support from our side)
 

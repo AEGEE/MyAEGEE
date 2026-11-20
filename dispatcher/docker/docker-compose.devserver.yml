@@ -1,0 +1,13 @@
+# Added on top of docker-compose.yml and docker-compose.dev.yml when the stack
+# runs without Traefik (MYAEGEE_GATEWAY=devserver, see helper.sh).
+# Traefik normally serves these UIs on their own subdomains; here they get
+# localhost ports instead.
+services:
+  rabbit:
+    ports:
+      - "127.0.0.1:${RABBITMQ_UI_PORT:-15672}:15672"
+
+  mailpit:
+    ports: !override
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"

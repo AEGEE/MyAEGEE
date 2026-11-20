@@ -18,6 +18,21 @@ ARG PACKAGE_VERSION
 RUN if [ -n "$PACKAGE_VERSION" ]; then npm pkg set version="$PACKAGE_VERSION"; fi \
  && npm run build
 
+# ------- dev server stage -------
+# Only used without Traefik (MYAEGEE_GATEWAY=devserver, see docker-compose.devserver.yml):
+# the source is bind-mounted and node_modules lives in a named volume, so this
+# stage has no build steps of its own. Not part of the default (runtime) target.
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS devserver
+
+WORKDIR /usr/app/src
+# A new named volume copies this directory's owner, so npm can install as `node`.
+RUN mkdir -p node_modules && chown -R node:node /usr/app
+# The `node` user
+USER 1000
+
+EXPOSE 8080
+CMD ["sh", "docker/devserver/start.sh"]
+
 # ------- runtime stage -------
 # Multi-platform nginx for ARM64 and AMD64
 FROM nginx:1.31.8-alpine@sha256:fed7e14be83cbd2661a75cdc5b872d936cf155d46c327084d30b8df19ae88d72

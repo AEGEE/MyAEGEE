@@ -8,6 +8,8 @@
 !package-lock.json
 !babel.config.js
 !vue.config.js
+# Loaded by vue.config.js (dev server routing)
+!docker/devserver/proxy.js
 
 # Nginx configs needed in the final stage
 !docker/frontend-nginx/

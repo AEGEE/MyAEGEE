@@ -39,8 +39,6 @@ services:
       NOTIFY_CHANNEL: "slack-tests-programmatic-stuff-other"
       RABBITMQ_USER: "${RABBITMQ_USER:-guest}"
       RABBITMQ_PASS: "${PW_RABBITMQ:-guest}"
-    volumes:
-      - ./secrets/tokens.json:/usr/app/tokens.json
 
 
 networks:

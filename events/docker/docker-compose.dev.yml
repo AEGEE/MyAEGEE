@@ -10,4 +10,4 @@ services:
             - ./${PATH_EVENTS}/../lib:/usr/app/src/lib
             - ./${PATH_EVENTS}/../migrations:/usr/app/src/migrations
             - ./${PATH_EVENTS}/../models:/usr/app/src/models
-            - ./${PATH_EVENTS}/../cli.js:/usr/app/src/cli.js
+            - ./${PATH_EVENTS}/../scripts:/usr/app/src/scripts
