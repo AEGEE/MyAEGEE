@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { Application } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
 
 describe('Events application creating', () => {
@@ -534,5 +535,42 @@ describe('Events application creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('answers');
+    });
+
+    it('should ignore the fields the applicant cannot set when applying', async () => {
+        mock.mockAll(({ mainPermissions: { noPermissions: true } }));
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            applications: [],
+            questions: []
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [],
+                agreed_to_privacy_policy: true,
+                status: 'accepted',
+                board_comment: 'Great!',
+                confirmed: true,
+                attended: true,
+                body_name: 'Fake body'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const applicationFromDb = await Application.findByPk(res.body.data.id);
+        expect(applicationFromDb.status).toEqual('pending');
+        expect(applicationFromDb.board_comment).toEqual(null);
+        expect(applicationFromDb.confirmed).toEqual(false);
+        expect(applicationFromDb.attended).toEqual(false);
+        expect(applicationFromDb.body_name).toEqual(user.bodies[0].name);
     });
 });

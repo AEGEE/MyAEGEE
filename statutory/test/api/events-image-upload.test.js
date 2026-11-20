@@ -97,7 +97,7 @@ describe('Events image upload', () => {
         expect(res.statusCode).toEqual(422);
 
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('No head_image is specified.');
+        expect(res.body.message).toEqual('No image is specified.');
     });
 
     it('should upload a file if it\'s valid', async () => {
@@ -283,5 +283,52 @@ describe('Events image upload', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
+    });
+
+    const listUploadedFiles = () => (fs.existsSync(config.images_dir) ? fs.readdirSync(config.images_dir) : []);
+
+    it('should refuse the upload before storing anything if no permissions', async () => {
+        const imagesBefore = await Image.count();
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { path: './test/assets/valid_image.png' } }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(await Image.count()).toEqual(imagesBefore);
+        expect(listUploadedFiles()).toEqual([]);
+    });
+
+    it('should not leave a file with malformed content on disk', async () => {
+        const imagesBefore = await Image.count();
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { path: './test/assets/invalid_image.txt', filename: 'image.jpg' } }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('Malformed file content.');
+        expect(await Image.count()).toEqual(imagesBefore);
+        expect(listUploadedFiles()).toEqual([]);
+    });
+
+    it('should return 422 if the form has fields but no file', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: {},
+            fields: { some_field: 'value' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('No image is specified.');
     });
 });

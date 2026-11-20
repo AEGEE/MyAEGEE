@@ -7,6 +7,17 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
 
+// Fields applicants can't set when applying or editing their application: these change
+// through their own endpoints, with their own permission checks (status, board comment,
+// confirmed, attended, cancelled), or come from the applicant's body.
+const PROTECTED_APPLICATION_FIELDS = ['status', 'board_comment', 'confirmed', 'attended', 'cancelled', 'body_name'];
+
+function removeProtectedFields(body) {
+    for (const field of PROTECTED_APPLICATION_FIELDS) {
+        delete body[field];
+    }
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -98,8 +109,7 @@ exports.createApplication = async (req, res) => {
         return errors.makeBadRequestError(res, 'You are not a member of this body.');
     }
 
-    delete req.body.board_comment;
-    delete req.body.status;
+    removeProtectedFields(req.body);
 
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
@@ -171,31 +181,34 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
-    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
-        return errors.makeForbiddenError(res, 'You are not a member of this body.');
+    // The application can also be edited by organizers and SU managers, so the
+    // applicant's details come from the applicant, not from whoever is editing.
+    const applicant = req.applicant;
+    const applicantBody = typeof req.body.body_id !== 'undefined'
+        ? applicant.bodies.find((body) => body.id === req.body.body_id)
+        : null;
+
+    if (typeof req.body.body_id !== 'undefined' && !applicantBody) {
+        return errors.makeForbiddenError(res, 'The applicant is not a member of this body.');
     }
 
-    delete req.body.board_comment;
-    delete req.body.status;
+    removeProtectedFields(req.body);
 
-    // TODO fix this so applications can be updated by SUCT/admins
-    req.body.first_name = req.user.first_name;
-    req.body.last_name = req.user.last_name;
-    if (typeof req.body.body_id !== 'undefined') {
-        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    req.body.first_name = applicant.first_name;
+    req.body.last_name = applicant.last_name;
+    if (applicantBody) {
+        req.body.body_name = applicantBody.name;
     }
-    req.body.user_id = req.user.id;
+    req.body.user_id = applicant.id;
     req.body.event_id = req.event.id;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
-        const notificationEmail = (await core.fetchUser(req.body, req.headers['x-auth-token'])).notification_email;
-
-        // Sending the mail to a user.
+        // Sending the mail to the applicant.
         await mailer.sendMail({
-            to: notificationEmail,
+            to: applicant.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'summeruniversity_application_edited.html',
             parameters: {
@@ -405,6 +418,13 @@ exports.exportAll = async (req, res) => {
 };
 
 exports.getStats = async (req, res) => {
+    // The statistics cover every Summer University, so only SU managers and approvers can see them.
+    const canSeeStats = Object.values(req.permissions.manage_summeruniversity).some(Boolean)
+        || Object.values(req.permissions.approve_summeruniversity).some(Boolean);
+    if (!canSeeStats) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see the application statistics.');
+    }
+
     const statsObject = {
         by_event: [],
         by_body: [],

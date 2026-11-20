@@ -87,7 +87,12 @@ EventsRouter.get('/fields/candidates', events.getCandidatesFields);
 EventsRouter.use(middlewares.ensureAuthorized);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
-EventsRouter.post('/image', imageserv.uploadImage, events.updateEventImage);
+EventsRouter.post(
+    '/image',
+    imageserv.requirePermission('edit_event', 'You are not allowed to update events of this type.'),
+    imageserv.uploadImage,
+    events.updateEventImage
+);
 
 ApplicationsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 ApplicationsRouter.post('/', applications.postApplication);
@@ -165,7 +170,13 @@ CandidatesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized,
 CandidatesRouter.post('/', candidates.submitYourCandidature);
 CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
-CandidatesRouter.post('/:candidate_id/:image', candidates.findCandidate, imageserv.uploadImage, candidates.updateCandidateImage);
+CandidatesRouter.post(
+    '/:candidate_id/:image',
+    candidates.findCandidate,
+    imageserv.requirePermission('edit_candidature', 'You cannot edit this candidature.'),
+    imageserv.uploadImage,
+    candidates.updateCandidateImage
+);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
 PlenariesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);

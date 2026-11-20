@@ -40,7 +40,22 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+// Removes a file from disk. A file that's already gone (or can't be removed) is
+// only logged: by then the event points to the new image, so the request succeeded.
+const removeFile = async (filePath) => {
+    try {
+        await fs.promises.unlink(filePath);
+    } catch (err) {
+        log.warn({ err, filePath }, 'Could not remove image file');
+    }
+};
+
 exports.uploadImage = async (req, res) => {
+    // Only those who can edit the event can change its image.
+    if (!req.permissions.edit_summeruniversity) {
+        return errors.makeForbiddenError(res, 'You cannot edit this event');
+    }
+
     const oldimg = req.event.image;
 
     // If upload folder doesn't exists, create it.
@@ -73,6 +88,7 @@ exports.uploadImage = async (req, res) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await removeFile(req.file.path);
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
@@ -82,7 +98,7 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await fs.promises.unlink(path.join(uploadFolderName, oldimg));
+        await removeFile(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({

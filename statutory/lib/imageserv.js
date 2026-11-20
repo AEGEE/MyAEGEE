@@ -41,6 +41,15 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+// Checks the permission before uploadImage runs, so a refused upload never stores a file.
+exports.requirePermission = (permission, message) => (req, res, next) => {
+    if (!req.permissions[permission]) {
+        return errors.makeForbiddenError(res, message);
+    }
+
+    return next();
+};
+
 exports.uploadImage = async (req, res, next) => {
     // If upload folder doesn't exists, create it.
     if (!fs.existsSync(uploadFolderName)) {
@@ -53,10 +62,15 @@ exports.uploadImage = async (req, res, next) => {
         log.error('Could not store image', err);
 
         if (err.message === 'Unexpected end of form') {
-            return errors.makeValidationError(res, 'No head_image is specified.');
+            return errors.makeValidationError(res, 'No image is specified.');
         }
 
         return errors.makeValidationError(res, err);
+    }
+
+    // If the image field is missing, do nothing.
+    if (!req.file) {
+        return errors.makeValidationError(res, 'No image is specified.');
     }
 
     // If the file's content is malformed, don't save it.
@@ -67,6 +81,7 @@ exports.uploadImage = async (req, res, next) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await fs.promises.unlink(req.file.path).catch((err) => log.warn({ err }, 'Could not remove rejected image'));
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
