@@ -36,7 +36,7 @@ services:
       - "traefik.enable=true"
 
   maria-yourls:
-    image: mariadb:10.4
+    image: mariadb:10.10
     restart: always
     environment:
       MYSQL_DATABASE: "yourls"
