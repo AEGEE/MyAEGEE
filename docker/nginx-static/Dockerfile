@@ -1,7 +1,7 @@
 # nginx-static - A minimal static file server based on nginx
 # This image is used across MyAEGEE services to serve static files and media
 
-FROM nginx:1.28.1-alpine3.23@sha256:52e3ada4d978443601f286cc2f9e7b95c82aa3ad5a78ce9c6b94ce00258e68cc
+FROM nginx:1.31.2-alpine3.23@sha256:54f2a904c251d5a34adf545a72d32515a15e08418dae0266e23be2e18c66fefa
 
 LABEL maintainer="AEGEE <info@aegee.org>"
 
