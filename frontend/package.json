@@ -32,7 +32,7 @@
     "@vue/cli-plugin-router": "^5.0.8",
     "@vue/cli-plugin-vuex": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/eslint-config-airbnb": "^7.0.0",
+    "@vue/eslint-config-airbnb": "^8.0.0",
     "animate.css": "^4.1.1",
     "axios": "^1.21.1",
     "buefy": "^0.9.29",
