@@ -1,0 +1,43 @@
+codecov:
+  branch: stable
+  require_ci_to_pass: true
+  notify:
+    after_n_builds: 28  # 7 test jobs x parallelism 4
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0%
+    patch:
+      default:
+        target: auto
+
+comment:
+  layout: "condensed_header, diff, components, condensed_files, condensed_footer"
+  after_n_builds: 28
+
+component_management:
+  individual_components:
+    - component_id: core
+      name: core
+      paths: ["core/**"]
+    - component_id: discounts
+      name: discounts
+      paths: ["discounts/**"]
+    - component_id: events
+      name: events
+      paths: ["events/**"]
+    - component_id: knowledge
+      name: knowledge
+      paths: ["knowledge/**"]
+    - component_id: network
+      name: network
+      paths: ["network/**"]
+    - component_id: statutory
+      name: statutory
+      paths: ["statutory/**"]
+    - component_id: summeruniversity
+      name: summeruniversity
+      paths: ["summeruniversity/**"]
