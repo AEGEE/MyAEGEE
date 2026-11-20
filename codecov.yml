@@ -1,0 +1,54 @@
+# Codecov settings for AEGEE/MyAEGEE. This file is the source of truth:
+# keep the repo and org YAML in the Codecov UI empty.
+# Reference: https://docs.codecov.com/docs/codecov-yaml
+
+codecov:
+  # The default branch in the Codecov UI was still set to "master".
+  branch: stable
+  require_ci_to_pass: true
+  notify:
+    # Wait for every coverage upload before posting statuses, so Codecov
+    # doesn't compare a half-uploaded commit. That is 7 test jobs
+    # (core, discounts, events, knowledge, network, statutory,
+    # summeruniversity) x parallelism 4 in .circleci/config.yml.
+    # Update this when a test job or its parallelism changes.
+    after_n_builds: 28
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0%
+    patch:
+      default:
+        target: auto
+
+comment:
+  layout: "condensed_header, diff, components, condensed_files, condensed_footer"
+  after_n_builds: 28
+
+# Coverage per service, from the file paths; no upload changes needed.
+component_management:
+  individual_components:
+    - component_id: core
+      name: core
+      paths: ["core/**"]
+    - component_id: discounts
+      name: discounts
+      paths: ["discounts/**"]
+    - component_id: events
+      name: events
+      paths: ["events/**"]
+    - component_id: knowledge
+      name: knowledge
+      paths: ["knowledge/**"]
+    - component_id: network
+      name: network
+      paths: ["network/**"]
+    - component_id: statutory
+      name: statutory
+      paths: ["statutory/**"]
+    - component_id: summeruniversity
+      name: summeruniversity
+      paths: ["summeruniversity/**"]
