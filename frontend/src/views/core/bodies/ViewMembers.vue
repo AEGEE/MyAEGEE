@@ -86,6 +86,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import ListFeePaymentsModal from './ListFeePaymentsModal'
 import AddFeePaymentModal from './AddFeePaymentModal'
@@ -174,7 +175,7 @@ export default {
     },
     askDeleteMember (member) {
       const message = 'Are you sure you want to <b>delete</b> '
-        + member.user.first_name + ' ' + member.user.last_name
+        + escapeHtml(member.user.first_name + ' ' + member.user.last_name)
         + ' from this body? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({

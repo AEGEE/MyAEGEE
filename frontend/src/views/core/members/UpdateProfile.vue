@@ -133,6 +133,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import pick from 'lodash/pick'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
@@ -260,14 +261,7 @@ export default {
 
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
-    escapeHtml (value) {
-      return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-    },
+    escapeHtml,
     changeEmail (newEmail) {
       if (RESTRICTED_EMAILS.some((domain) => newEmail.includes(domain))) {
         return this.$root.showError(

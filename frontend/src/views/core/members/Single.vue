@@ -279,6 +279,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
@@ -449,15 +450,7 @@ export default {
 
       return Promise.all(links.map(link => this.axios.get(link).then(response => response.data.data))).then((responses) => responses.reduce((acc, list) => acc.concat(list), []))
     },
-    escapeHtml (value) {
-      return String(value).replace(/[&<>'"]/g, (character) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;'
-      }[character]))
-    },
+    escapeHtml,
     setEventApplicationBan (banUntil) {
       this.axios
         .put(this.services['core'] + '/members/' + this.user.id + '/event-application-ban', {

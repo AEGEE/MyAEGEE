@@ -30,11 +30,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import DOMPurify from 'dompurify'
 import ical from 'ical/ical'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import constants from '../../constants'
+import sanitizeHtml from '../../methods/sanitize-html'
 
 export default {
   name: 'CalendarEventsView',
@@ -85,7 +85,7 @@ export default {
           title: info.event.title,
           message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
             + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
-            + '<hr>' + DOMPurify.sanitize(info.event.extendedProps.description || ''),
+            + '<hr>' + sanitizeHtml(info.event.extendedProps.description || ''),
           canCancel: '[escape, outside]',
           confirmText: 'Cancel',
           type: 'is-light'

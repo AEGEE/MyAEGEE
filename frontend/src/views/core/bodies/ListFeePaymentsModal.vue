@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
+
 export default {
   name: 'ListFeePaymentsModal',
   props: [
@@ -71,7 +73,7 @@ export default {
   },
   methods: {
     askDeleteMemberPaymentFee (fee) {
-      const message = `Are you sure you want to <b>delete</b> ${fee.id} from ${this.member.user.first_name} ${this.member.user.last_name}? This action cannot be undone.`
+      const message = `Are you sure you want to <b>delete</b> ${escapeHtml(fee.id)} from ${escapeHtml(this.member.user.first_name + ' ' + this.member.user.last_name)}? This action cannot be undone.`
 
       this.$buefy.dialog.confirm({
         title: 'Deleting a fee',
