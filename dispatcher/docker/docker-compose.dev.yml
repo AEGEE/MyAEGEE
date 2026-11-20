@@ -22,7 +22,7 @@ services:
       - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
 
   mailpit:
-    image: axllent/mailpit:v1.29
+    image: axllent/mailpit:v1.34
     restart: always
     ports:
       - 8025:8025
