@@ -286,7 +286,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
+          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
         </div>
 
         <hr />
@@ -353,7 +353,7 @@
           </div>
         </div>
 
-        <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
+        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <hr />

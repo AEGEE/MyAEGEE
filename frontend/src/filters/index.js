@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { marked } from 'marked'
 import sanitizeHtml from '../methods/sanitize-html'
+import safeUrl from '../methods/safe-url'
 
 export default {
   date (value) {
@@ -20,6 +21,10 @@ export default {
   capitalize (value) {
     if (typeof value !== 'string') return ''
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+  },
+  safeUrl (value) {
+    // For :href bindings; null leaves the href out, so unsafe links can't be clicked.
+    return safeUrl(value)
   },
   beautify (value) {
     if (typeof value === 'boolean') return value ? 'Yes' : 'No'

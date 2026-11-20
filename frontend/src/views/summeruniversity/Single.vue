@@ -384,7 +384,7 @@
                 <tr v-if="event.website">
                   <th>Website</th>
                   <td>
-                    <a :href="event.website" target="_blank" rel="noopener noreferrer">{{
+                    <a :href="event.website | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       event.website
                     }}</a>
                   </td>
@@ -395,7 +395,7 @@
                     <ul>
                       <li v-for="social_medium in event.social_media" v-bind:key="social_medium">
                         <a
-                          :href="social_medium.description"
+                          :href="social_medium.description | safeUrl"
                           target="_blank"
                           rel="noopener noreferrer"
                         >{{ social_medium.description }}</a
@@ -414,7 +414,7 @@
                   <td>
                     <a
                       v-if="event.budget"
-                      :href="event.budget"
+                      :href="event.budget | safeUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                     >{{ event.budget }}</a
@@ -426,7 +426,7 @@
                   <td>
                     <a
                       v-if="event.programme_suct"
-                      :href="event.programme_suct"
+                      :href="event.programme_suct | safeUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                     >{{ event.programme_suct }}</a

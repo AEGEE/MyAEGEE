@@ -201,7 +201,7 @@
                   <th>Useful information to travel to this country</th>
                   <td>
                     <a
-                      :href="event.link_info_travel_country"
+                      :href="event.link_info_travel_country | safeUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                     >{{ event.link_info_travel_country }}</a
@@ -250,7 +250,7 @@
                   <td>
                     <a
                       v-if="event.budget"
-                      :href="event.budget"
+                      :href="event.budget | safeUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                     >{{ event.budget }}</a
@@ -262,7 +262,7 @@
                   <td>
                     <a
                       v-if="event.programme"
-                      :href="event.programme"
+                      :href="event.programme | safeUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                     >{{ event.programme }}</a

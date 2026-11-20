@@ -19,7 +19,9 @@ test.describe('HTML injection in the frontend', () => {
             '',
             '<div class="modal is-active"><div class="modal-background"></div><div class="modal-content box">Session expired</div></div>',
             '',
-            '[click me](javascript:window.__injected=\'link\')'
+            '[click me](javascript:window.__injected=\'link\')',
+            '',
+            '[mail the board](mailto:board@example.org) or [download it](ftp://example.org/file)'
         ].join('\n');
 
         const event = await api.createEvent('admin', { type: 'training', description });
@@ -46,6 +48,10 @@ test.describe('HTML injection in the frontend', () => {
         await expect(page.locator('.modal.is-active')).toHaveCount(0);
         await expect(rendered.getByText('Session expired')).toBeVisible();
         await expect(rendered.locator('a[href^="javascript:"]')).toHaveCount(0);
+        // Only http(s), mailto: and tel: links stay links.
+        await expect(rendered.getByText('mail the board')).toHaveAttribute('href', 'mailto:board@example.org');
+        await expect(rendered.getByText('download it')).toBeVisible();
+        await expect(rendered.getByText('download it')).not.toHaveAttribute('href');
         await rendered.getByText('click me').click();
         expect(await injected(page)).toBeUndefined();
     });
@@ -72,5 +78,56 @@ test.describe('HTML injection in the frontend', () => {
 
         await expect(page.locator('.notices img')).toHaveCount(0);
         expect(await injected(page)).toBeUndefined();
+    });
+
+    test('links typed in by users only open when they are http(s) links', moveToModule('frontend', 'once the frontend has component tests for the safeUrl filter'), async ({ api, page }) => {
+        const event = await api.createEvent('admin', { type: 'training' });
+        await api.publishAsAdmin(event.id);
+        const body = (await api.me('member')).bodies[0];
+
+        // The backend rejects links like these, so they're put in the API responses
+        // to test the frontend on its own (and data stored before the validation).
+        const replaceInResponse = (url: RegExp, changes: Record<string, string>) => page.route(url, async (route) => {
+            if (route.request().method() !== 'GET') {
+                return route.fallback();
+            }
+
+            const response = await route.fetch();
+            const json = await response.json();
+            Object.assign(json.data, changes);
+            return route.fulfill({ response, json });
+        });
+
+        await replaceInResponse(/\/api\/events\/single\/[^/?]+$/, {
+            // eslint-disable-next-line no-script-url
+            budget: 'javascript:window.__injected=\'budget\'',
+            programme: 'www.aegee.org/programme',
+            link_info_travel_country: ' data:text/html,<script>window.__injected=\'travel\'</script>'
+        });
+        await replaceInResponse(new RegExp(`/api/core/bodies/${body.id}$`), {
+            // eslint-disable-next-line no-script-url
+            website: 'JaVaScRiPt:window.__injected=\'website\''
+        });
+
+        await loginInBrowser(page, api, 'member');
+        await page.goto(`/events/${event.url}`);
+
+        const budget = page.locator('a', { hasText: 'window.__injected=\'budget\'' });
+        await expect(budget).toBeVisible();
+        // These links open in a new tab, so clicking them wouldn't show anything here:
+        // without an href, there's nothing to open.
+        await expect(budget).not.toHaveAttribute('href');
+
+        const travel = page.locator('a', { hasText: 'window.__injected=\'travel\'' });
+        await expect(travel).toBeVisible();
+        await expect(travel).not.toHaveAttribute('href');
+
+        // A link without a scheme opens as https instead of as a page of MyAEGEE.
+        await expect(page.locator('a', { hasText: 'www.aegee.org/programme' })).toHaveAttribute('href', 'https://www.aegee.org/programme');
+
+        await page.goto(`/bodies/${body.id}`);
+        const website = page.locator('a', { hasText: 'window.__injected=\'website\'' });
+        await expect(website).toBeVisible();
+        await expect(website).not.toHaveAttribute('href');
     });
 });
