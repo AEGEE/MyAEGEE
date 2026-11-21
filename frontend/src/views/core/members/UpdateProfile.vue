@@ -137,7 +137,7 @@ import escapeHtml from 'src/methods/escape-html'
 import pick from 'lodash/pick'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import { RESTRICTED_EMAILS, ALLOWED_BODY_TYPES } from '../../../validate-user'
+import { RESTRICTED_EMAILS, ALLOWED_BODY_TYPES, isRestrictedEmail } from '../../../validate-user'
 
 export default {
   name: 'UpdateProfile',
@@ -263,7 +263,7 @@ export default {
     },
     escapeHtml,
     changeEmail (newEmail) {
-      if (RESTRICTED_EMAILS.some((domain) => newEmail.includes(domain))) {
+      if (isRestrictedEmail(newEmail)) {
         return this.$root.showError(
           'Your email can not be in one of the following domains: '
             + RESTRICTED_EMAILS.join(', ').trim()

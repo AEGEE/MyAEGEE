@@ -115,7 +115,7 @@
                       :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                       class="button">Go to event page</router-link>
                   </p>
-                  <p class="control" v-if="can.apply">
+                  <p class="control" v-if="can.apply && event.application_status === 'open'">
                     <router-link
                       :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                       class="button is-primary">
@@ -190,7 +190,7 @@
                           :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                           class="button">Go to event page</router-link>
                       </p>
-                      <p class="control" v-if="can.apply">
+                      <p class="control" v-if="can.apply && event.application_status === 'open'">
                         <router-link
                           :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                           class="button is-primary">
@@ -352,6 +352,7 @@ export default {
 
       this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
         this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:summeruniversity'))
+        this.can.apply = response.data.data.some(permission => permission.combined.endsWith('apply:summeruniversity'))
 
         this.isLoading.permissions = false
       }).catch((err) => {
