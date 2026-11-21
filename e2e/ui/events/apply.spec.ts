@@ -132,6 +132,31 @@ test.describe('applying to an event', { tag: '@migrated' }, () => {
         ]]);
     });
 
+    test('after saving, coming back to the form shows the saved answers', async ({ page, api }) => {
+        // Found by the real-stack test: the React app showed its cached "no application yet".
+        const data = event({ id: 5, url: 'spring', name: 'Spring Training', questions: [QUESTIONS[0]] });
+        let saved: Application | null = null;
+        api.on('GET events /single/:id', { json: ok(data, { permissions: eventPermissions() }) });
+        api.on('GET events /single/:id/applications/:application_id', () => (saved
+            ? { json: ok(saved) }
+            : { status: 404, json: notFound('Application with id me not found') }));
+        api.on('POST events /single/:id/applications', ({ body: sent }) => {
+            saved = application({ ...(sent as object), id: 77 });
+            return { json: ok(saved) };
+        });
+
+        await page.goto('/events/spring/applications/me');
+        await page.getByRole('textbox', { name: /Why do you want to join\?/ }).fill('To learn');
+        await page.getByRole('checkbox', { name: PRIVACY }).check();
+        await page.getByRole('button', { name: 'Save application!' }).click();
+        await expect(page).toHaveURL('/events/spring');
+
+        await page.getByRole('link', { name: 'Manage my application' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Edit your application on Spring Training' })).toBeVisible();
+        await expect(page.getByRole('textbox', { name: /Why do you want to join\?/ })).toHaveValue('To learn');
+    });
+
     for (const [status, message] of [
         ['pending', 'Your application is being processed, please wait for the organisers to evaluate your application. Unfortunately you can not edit it anymore.'],
         ['accepted', 'Congratulations, you have been accepted to the event!'],

@@ -51,9 +51,18 @@ export const mockEverything = (api: ApiMock): void => {
         positions: [],
         question_lines: [],
         permissions: {
-            see_boardview: {}, edit_event: true, delete_event: true, apply: true, see_applications: true,
-            approve_participants: true, manage_question_lines: true, manage_candidates: true,
-            set_memberslists_fee_paid: true, upload_memberslist: {}, see_memberslist: {}, manage_membership_fee: {}
+            see_boardview: {},
+            edit_event: true,
+            delete_event: true,
+            apply: true,
+            see_applications: true,
+            approve_participants: true,
+            manage_question_lines: true,
+            manage_candidates: true,
+            set_memberslists_fee_paid: true,
+            upload_memberslist: {},
+            see_memberslist: {},
+            manage_membership_fee: {}
         }
     }));
 };

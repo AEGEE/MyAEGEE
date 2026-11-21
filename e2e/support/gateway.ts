@@ -66,5 +66,7 @@ http.createServer((req, res) => {
         return;
     }
 
-    proxy(req, res, service, !rest ? '/' : rest.startsWith('?') ? `/${rest}` : rest);
+    let upstreamPath = rest || '/';
+    if (upstreamPath.startsWith('?')) upstreamPath = `/${upstreamPath}`;
+    proxy(req, res, service, upstreamPath);
 }).listen(PORTS.gateway, '127.0.0.1');
