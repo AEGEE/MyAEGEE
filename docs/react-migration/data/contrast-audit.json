@@ -1,0 +1,3072 @@
+{
+  "summary": {
+    "pairsChecked": 119,
+    "failingRequirement": 42,
+    "failingPairs": [
+      "link ($link) vs surrounding body text ($text), links are not underlined: 1.82:1",
+      ".has-text-grey ($grey) on white: 4.27:1",
+      ".menu-label ($text-light) on white sidebar: 4.27:1",
+      ".help.is-success ($success) on white: 2:1",
+      ".help.is-warning ($warning) on white: 1.73:1",
+      ".help.is-info ($info) on white: 2.7:1",
+      "input placeholder (rgba($text-strong, .3)) on white: 1.77:1",
+      ".is-primary.is-light (dark on light): 4.23:1",
+      ".is-link.is-light (dark on light): 4.23:1",
+      ".is-info solid (invert on $info): 2.7:1",
+      "toast .is-info (opacity .92 over page): 2.5:1",
+      ".is-success solid (invert on $success): 2:1",
+      ".is-success.is-light (dark on light): 4:1",
+      "toast .is-success (opacity .92 over page): 1.9:1",
+      ".is-warning.is-light (dark on light): 4.49:1",
+      ".is-danger.is-light (dark on light): 4.1:1",
+      "white text on event-type colour training #A0C514: 2:1",
+      "white text on event-type colour nwm #FBBA00: 1.73:1",
+      "white text on event-type colour thematic var(--purple-light) #c44bc2: 4.09:1",
+      "white text on event-type colour summer university / pilot #00BBD8: 2.31:1",
+      "white text on event-type colour online event #898989: 3.5:1",
+      "event-type colour training #A0C514 as calendar block / swatch on white: 2:1",
+      "event-type colour nwm #FBBA00 as calendar block / swatch on white: 1.73:1",
+      "event-type colour summer university / pilot #00BBD8 as calendar block / swatch on white: 2.31:1",
+      "input / select border ($border) on white: 1.38:1",
+      "Buefy switch track off ($grey-light) on white: 1.71:1",
+      "focus ring rgba($primary, .25) on white (vs unfocused white): 1.44:1"
+    ],
+    "failingStatsLegendCells": 2,
+    "failingStatsChartColours": 13,
+    "compiledCssVerified": true,
+    "compiledCssMismatches": 0
+  },
+  "method": {
+    "luminance": "WCAG 2.x relative luminance with sRGB linearisation ((c+0.055)/1.055)^2.4, threshold 0.04045",
+    "alpha": "semi-transparent colours are composited over their background (and toasts over the #fafafa page) before measuring",
+    "thresholds": {
+      "aaNormalText": 4.5,
+      "aaLargeText": 3,
+      "nonTextUi": 3
+    },
+    "suggestions": "nearest colour with the same hue and saturation (HSL lightness moved) that meets the requirement"
+  },
+  "palette": {
+    "brand": {
+      "blue-light": {
+        "variable": "$blue-light",
+        "value": "#4ca0ff",
+        "source": "frontend/src/styles/main.scss:4",
+        "wcagLuminance": 0.339,
+        "bulmaLuminance": 0.3953,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 2.7,
+        "whiteTextRatio": 2.7,
+        "blackTextRatio": 7.78,
+        "wcagBetterText": "#000000",
+        "light": "#ebf4ff",
+        "dark": "#0056b8"
+      },
+      "blue-standard": {
+        "variable": "$blue-standard",
+        "value": "#1468c5",
+        "source": "frontend/src/styles/main.scss:5",
+        "wcagLuminance": 0.1408,
+        "bulmaLuminance": 0.1855,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 5.5,
+        "whiteTextRatio": 5.5,
+        "blackTextRatio": 3.82,
+        "wcagBetterText": "#ffffff",
+        "light": "#ecf4fd",
+        "dark": "#1673da"
+      },
+      "blue-dark": {
+        "variable": "$blue-dark",
+        "value": "#163e7a",
+        "source": "frontend/src/styles/main.scss:6",
+        "wcagLuminance": 0.0502,
+        "bulmaLuminance": 0.0794,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.48,
+        "whiteTextRatio": 10.48,
+        "blackTextRatio": 2,
+        "wcagBetterText": "#ffffff",
+        "light": "#eef3fc",
+        "dark": "#3477da"
+      },
+      "red-light": {
+        "variable": "$red-light",
+        "value": "#ff5543",
+        "source": "frontend/src/styles/main.scss:7",
+        "wcagLuminance": 0.2816,
+        "bulmaLuminance": 0.3161,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 3.17,
+        "whiteTextRatio": 3.17,
+        "blackTextRatio": 6.63,
+        "wcagBetterText": "#000000",
+        "light": "#ffedeb",
+        "dark": "#cc1400"
+      },
+      "red-standard": {
+        "variable": "$red-standard",
+        "value": "#c51c13",
+        "source": "frontend/src/styles/main.scss:8",
+        "wcagLuminance": 0.1275,
+        "bulmaLuminance": 0.1494,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 5.92,
+        "whiteTextRatio": 5.92,
+        "blackTextRatio": 3.55,
+        "wcagBetterText": "#ffffff",
+        "light": "#fdedec",
+        "dark": "#e42016"
+      },
+      "red-dark": {
+        "variable": "$red-dark",
+        "value": "#7a1e16",
+        "source": "frontend/src/styles/main.scss:9",
+        "wcagLuminance": 0.0512,
+        "bulmaLuminance": 0.0748,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.37,
+        "whiteTextRatio": 10.37,
+        "blackTextRatio": 2.02,
+        "wcagBetterText": "#ffffff",
+        "light": "#fcefee",
+        "dark": "#da4134"
+      },
+      "green-light": {
+        "variable": "$green-light",
+        "value": "#c2de5d",
+        "source": "frontend/src/styles/main.scss:10",
+        "wcagLuminance": 0.645,
+        "bulmaLuminance": 0.689,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.98,
+        "whiteTextRatio": 1.51,
+        "blackTextRatio": 13.9,
+        "wcagBetterText": "#000000",
+        "light": "#f9fcee",
+        "dark": "#667b19"
+      },
+      "green-standard": {
+        "variable": "$green-standard",
+        "value": "#a0c514",
+        "source": "frontend/src/styles/main.scss:11",
+        "wcagLuminance": 0.4746,
+        "bulmaLuminance": 0.5302,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 2,
+        "whiteTextRatio": 2,
+        "blackTextRatio": 10.49,
+        "wcagBetterText": "#000000",
+        "light": "#fafdec",
+        "dark": "#6d860e"
+      },
+      "green-dark": {
+        "variable": "$green-dark",
+        "value": "#647a16",
+        "source": "frontend/src/styles/main.scss:12",
+        "wcagLuminance": 0.1669,
+        "bulmaLuminance": 0.2223,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 4.84,
+        "whiteTextRatio": 4.84,
+        "blackTextRatio": 4.34,
+        "wcagBetterText": "#ffffff",
+        "light": "#f9fcee",
+        "dark": "#9fc223"
+      },
+      "purple-light": {
+        "variable": "$purple-light",
+        "value": "#c44bc2",
+        "source": "frontend/src/styles/main.scss:13",
+        "wcagLuminance": 0.2066,
+        "bulmaLuminance": 0.2511,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 4.09,
+        "whiteTextRatio": 4.09,
+        "blackTextRatio": 5.13,
+        "wcagBetterText": "#000000",
+        "light": "#faf0fa",
+        "dark": "#a937a7"
+      },
+      "purple-standard": {
+        "variable": "$purple-standard",
+        "value": "#931991",
+        "source": "frontend/src/styles/main.scss:14",
+        "wcagLuminance": 0.0894,
+        "bulmaLuminance": 0.1164,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 7.53,
+        "whiteTextRatio": 7.53,
+        "blackTextRatio": 2.79,
+        "wcagBetterText": "#ffffff",
+        "light": "#fceefc",
+        "dark": "#db29d8"
+      },
+      "purple-dark": {
+        "variable": "$purple-dark",
+        "value": "#70086e",
+        "source": "frontend/src/styles/main.scss:15",
+        "wcagLuminance": 0.0474,
+        "bulmaLuminance": 0.0637,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.78,
+        "whiteTextRatio": 10.78,
+        "blackTextRatio": 1.95,
+        "wcagBetterText": "#ffffff",
+        "light": "#feecfd",
+        "dark": "#ef24eb"
+      },
+      "yellow-light": {
+        "variable": "$yellow-light",
+        "value": "#ffdb4c",
+        "source": "frontend/src/styles/main.scss:16",
+        "wcagLuminance": 0.7244,
+        "bulmaLuminance": 0.7573,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 7.39,
+        "whiteTextRatio": 1.36,
+        "blackTextRatio": 15.49,
+        "wcagBetterText": "#000000",
+        "light": "#fffbeb",
+        "dark": "#947600"
+      },
+      "yellow-standard": {
+        "variable": "$yellow-standard",
+        "value": "#fbba00",
+        "source": "frontend/src/styles/main.scss:17",
+        "wcagLuminance": 0.5563,
+        "bulmaLuminance": 0.6017,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.51,
+        "whiteTextRatio": 1.73,
+        "blackTextRatio": 12.13,
+        "wcagBetterText": "#000000",
+        "light": "#fffaeb",
+        "dark": "#946e00"
+      },
+      "yellow-dark": {
+        "variable": "$yellow-dark",
+        "value": "#cf9800",
+        "source": "frontend/src/styles/main.scss:18",
+        "wcagLuminance": 0.3572,
+        "bulmaLuminance": 0.4159,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 2.58,
+        "whiteTextRatio": 2.58,
+        "blackTextRatio": 8.14,
+        "wcagBetterText": "#000000",
+        "light": "#fffaeb",
+        "dark": "#b38300"
+      },
+      "grey-light": {
+        "variable": "$grey-light",
+        "value": "#c5c6c6",
+        "source": "frontend/src/styles/main.scss:19",
+        "wcagLuminance": 0.5634,
+        "bulmaLuminance": 0.6199,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.51,
+        "whiteTextRatio": 1.71,
+        "blackTextRatio": 12.27,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#494b4b"
+      },
+      "grey-standard": {
+        "variable": "$grey-standard",
+        "value": "#898989",
+        "source": "frontend/src/styles/main.scss:20",
+        "wcagLuminance": 0.2502,
+        "bulmaLuminance": 0.3151,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 3.5,
+        "whiteTextRatio": 3.5,
+        "blackTextRatio": 6,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#666666"
+      },
+      "grey-dark": {
+        "variable": "$grey-dark",
+        "value": "#434242",
+        "source": "frontend/src/styles/main.scss:21",
+        "wcagLuminance": 0.0548,
+        "bulmaLuminance": 0.089,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.02,
+        "whiteTextRatio": 10.02,
+        "blackTextRatio": 2.1,
+        "wcagBetterText": "#ffffff",
+        "light": "#f5f5f5",
+        "dark": "#868484"
+      }
+    },
+    "semantic": {
+      "primary": {
+        "variable": "$primary",
+        "value": "#1468c5",
+        "source": "frontend/src/styles/main.scss:34",
+        "wcagLuminance": 0.1408,
+        "bulmaLuminance": 0.1855,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 5.5,
+        "whiteTextRatio": 5.5,
+        "blackTextRatio": 3.82,
+        "wcagBetterText": "#ffffff",
+        "light": "#ecf4fd",
+        "dark": "#1673da"
+      },
+      "link": {
+        "variable": "$link",
+        "value": "#1468c5",
+        "source": "frontend/src/styles/main.scss:43",
+        "wcagLuminance": 0.1408,
+        "bulmaLuminance": 0.1855,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 5.5,
+        "whiteTextRatio": 5.5,
+        "blackTextRatio": 3.82,
+        "wcagBetterText": "#ffffff",
+        "light": "#ecf4fd",
+        "dark": "#1673da"
+      },
+      "info": {
+        "variable": "$info",
+        "value": "#4ca0ff",
+        "source": "frontend/src/styles/main.scss:36",
+        "wcagLuminance": 0.339,
+        "bulmaLuminance": 0.3953,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 2.7,
+        "whiteTextRatio": 2.7,
+        "blackTextRatio": 7.78,
+        "wcagBetterText": "#000000",
+        "light": "#ebf4ff",
+        "dark": "#0056b8"
+      },
+      "success": {
+        "variable": "$success",
+        "value": "#a0c514",
+        "source": "frontend/src/styles/main.scss:37",
+        "wcagLuminance": 0.4746,
+        "bulmaLuminance": 0.5302,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 2,
+        "whiteTextRatio": 2,
+        "blackTextRatio": 10.49,
+        "wcagBetterText": "#000000",
+        "light": "#fafdec",
+        "dark": "#6d860e"
+      },
+      "warning": {
+        "variable": "$warning",
+        "value": "#fbba00",
+        "source": "frontend/src/styles/main.scss:38",
+        "wcagLuminance": 0.5563,
+        "bulmaLuminance": 0.6017,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.51,
+        "whiteTextRatio": 1.73,
+        "blackTextRatio": 12.13,
+        "wcagBetterText": "#000000",
+        "light": "#fffaeb",
+        "dark": "#946e00"
+      },
+      "danger": {
+        "variable": "$danger",
+        "value": "#c51c13",
+        "source": "frontend/src/styles/main.scss:39",
+        "wcagLuminance": 0.1275,
+        "bulmaLuminance": 0.1494,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 5.92,
+        "whiteTextRatio": 5.92,
+        "blackTextRatio": 3.55,
+        "wcagBetterText": "#ffffff",
+        "light": "#fdedec",
+        "dark": "#e42016"
+      },
+      "dark": {
+        "variable": "$dark",
+        "value": "#434242",
+        "source": "frontend/src/styles/main.scss:40",
+        "wcagLuminance": 0.0548,
+        "bulmaLuminance": 0.089,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.02,
+        "whiteTextRatio": 10.02,
+        "blackTextRatio": 2.1,
+        "wcagBetterText": "#ffffff",
+        "light": "#f5f5f5",
+        "dark": "#868484"
+      },
+      "light": {
+        "variable": "$light",
+        "value": "#f5f5f5",
+        "source": "bulma derived-variables default ($light: $white-ter)",
+        "wcagLuminance": 0.9114,
+        "bulmaLuminance": 0.9256,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 8.19,
+        "whiteTextRatio": 1.09,
+        "blackTextRatio": 19.23,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#4a4a4a"
+      },
+      "text": {
+        "variable": "$text",
+        "value": "#434242",
+        "source": "frontend/src/styles/main.scss:41",
+        "wcagLuminance": 0.0548,
+        "bulmaLuminance": 0.089,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 10.02,
+        "whiteTextRatio": 10.02,
+        "blackTextRatio": 2.1,
+        "wcagBetterText": "#ffffff",
+        "light": "#f5f5f5",
+        "dark": "#868484"
+      },
+      "text-light": {
+        "variable": "$text-light",
+        "value": "#7a7a7a",
+        "source": "bulma derived-variables default ($text-light: $grey)",
+        "wcagLuminance": 0.196,
+        "bulmaLuminance": 0.2572,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 4.27,
+        "whiteTextRatio": 4.27,
+        "blackTextRatio": 4.92,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#6e6e6e"
+      },
+      "text-strong": {
+        "variable": "$text-strong",
+        "value": "#363636",
+        "source": "bulma derived-variables default ($text-strong: $grey-darker)",
+        "wcagLuminance": 0.0363,
+        "bulmaLuminance": 0.0631,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 12.17,
+        "whiteTextRatio": 12.17,
+        "blackTextRatio": 1.73,
+        "wcagBetterText": "#ffffff",
+        "light": "#f5f5f5",
+        "dark": "#8a8a8a"
+      },
+      "background": {
+        "variable": "$background",
+        "value": "#c5c6c6",
+        "source": "frontend/src/styles/main.scss:42",
+        "wcagLuminance": 0.5634,
+        "bulmaLuminance": 0.6199,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.51,
+        "whiteTextRatio": 1.71,
+        "blackTextRatio": 12.27,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#494b4b"
+      },
+      "border": {
+        "variable": "$border",
+        "value": "#dbdbdb",
+        "source": "bulma derived-variables default ($border: $grey-lighter)",
+        "wcagLuminance": 0.7106,
+        "bulmaLuminance": 0.7522,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 7.3,
+        "whiteTextRatio": 1.38,
+        "blackTextRatio": 15.21,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#4a4a4a"
+      },
+      "grey": {
+        "variable": "$grey",
+        "value": "#7a7a7a",
+        "source": "bulma initial-variables ($grey)",
+        "wcagLuminance": 0.196,
+        "bulmaLuminance": 0.2572,
+        "bulmaInvert": "#ffffff",
+        "bulmaInvertRatio": 4.27,
+        "whiteTextRatio": 4.27,
+        "blackTextRatio": 4.92,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#6e6e6e"
+      },
+      "grey-light": {
+        "variable": "$grey-light",
+        "value": "#c5c6c6",
+        "source": "frontend/src/styles/main.scss:19",
+        "wcagLuminance": 0.5634,
+        "bulmaLuminance": 0.6199,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 6.51,
+        "whiteTextRatio": 1.71,
+        "blackTextRatio": 12.27,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#494b4b"
+      },
+      "grey-lighter": {
+        "variable": "$grey-lighter",
+        "value": "#dbdbdb",
+        "source": "bulma initial-variables ($grey-lighter)",
+        "wcagLuminance": 0.7106,
+        "bulmaLuminance": 0.7522,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 7.3,
+        "whiteTextRatio": 1.38,
+        "blackTextRatio": 15.21,
+        "wcagBetterText": "#000000",
+        "light": "#f5f5f5",
+        "dark": "#4a4a4a"
+      },
+      "scheme-main": {
+        "variable": "$scheme-main",
+        "value": "#ffffff",
+        "source": "bulma derived-variables default ($scheme-main: $white)",
+        "wcagLuminance": 1,
+        "bulmaLuminance": 1,
+        "bulmaInvert": "rgba(0,0,0,0.7)",
+        "bulmaInvertRatio": 8.52,
+        "whiteTextRatio": 1,
+        "blackTextRatio": 21,
+        "wcagBetterText": "#000000",
+        "light": "#ffffff",
+        "dark": "#4a4a4a"
+      }
+    },
+    "notes": [
+      "Bulma 0.9 picks the invert with its own luminance (squares instead of ^2.4) and a 0.55 threshold. The WCAG crossover where black and white text give equal contrast is a luminance of about 0.18, so colours between roughly 0.18 and 0.55 get white text although dark text would contrast better.",
+      "$grey-light, $grey-dark, $black and $white are overridden in main.scss, which also changes Bulma values derived from them ($background = $grey-light #c5c6c6 is the default tag/notification background; $text = $grey-dark #434242).",
+      "Navbar.vue, Sidebar.vue, AppMain.vue and FooterBar.vue import Bulma utilities without main.scss, so any colour variable used in their <style> blocks would be Bulma defaults. Today they only use mixins and hard-coded values."
+    ]
+  },
+  "hardCodedColours": {
+    "#ffffff": {
+      "count": 24,
+      "where": [
+        "frontend/src/components/layout/Navbar.vue:76 (style)",
+        "frontend/src/components/layout/Sidebar.vue:213 (style)",
+        "frontend/src/views/dashboard/Calendar.vue:5 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:8 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:11 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:14 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:108 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:109 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:124 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:125 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:140 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:141 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:159 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:160 (script)",
+        "frontend/src/views/events/List.vue:122 (template)",
+        "frontend/src/views/statutory/Stats.vue:165 (script)",
+        "frontend/src/views/statutory/Stats.vue:168 (script)",
+        "frontend/src/views/statutory/Stats.vue:169 (script)",
+        "frontend/src/views/summeruniversity/List.vue:148 (template)"
+      ]
+    },
+    "#000000": {
+      "count": 21,
+      "where": [
+        "frontend/src/views/statutory/PlenariesList.vue:141 (style)",
+        "frontend/src/views/statutory/PositionsList.vue:397 (style)",
+        "frontend/src/views/statutory/QuestionLinesList.vue:343 (style)",
+        "frontend/src/views/statutory/Stats.vue:165 (script)",
+        "frontend/src/views/statutory/Stats.vue:166 (script)",
+        "frontend/src/views/statutory/Stats.vue:167 (script)",
+        "frontend/src/views/statutory/Stats.vue:168 (script)",
+        "frontend/src/views/statutory/Stats.vue:169 (script)",
+        "frontend/src/views/statutory/ViewPlenary.vue:150 (style)"
+      ]
+    },
+    "#1468c5": {
+      "count": 8,
+      "where": [
+        "frontend/src/App.vue:94 (style)",
+        "frontend/src/views/dashboard/Calendar.vue:8 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:107 (script)",
+        "frontend/src/views/dashboard/Calendar.vue:139 (script)",
+        "frontend/src/views/statutory/Stats.vue:161 (script)",
+        "frontend/src/views/statutory/Stats.vue:195 (script)",
+        "frontend/src/views/statutory/Stats.vue:207 (script)",
+        "frontend/src/views/summeruniversity/List.vue:267 (script)"
+      ]
+    },
+    "#c51c13": {
+      "count": 6,
+      "where": [
+        "frontend/src/App.vue:94 (style)",
+        "frontend/src/views/dashboard/Calendar.vue:50 (script)",
+        "frontend/src/views/events/List.vue:241 (script)",
+        "frontend/src/views/statutory/Stats.vue:161 (script)",
+        "frontend/src/views/summeruniversity/Apply.vue:345 (template)",
+        "frontend/src/views/summeruniversity/Apply.vue:351 (template)"
+      ]
+    },
+    "#a0c514": {
+      "count": 6,
+      "where": [
+        "frontend/src/App.vue:94 (style)",
+        "frontend/src/views/dashboard/Calendar.vue:47 (script)",
+        "frontend/src/views/events/List.vue:238 (script)",
+        "frontend/src/views/statutory/Stats.vue:161 (script)",
+        "frontend/src/views/statutory/Stats.vue:174 (script)"
+      ]
+    },
+    "#fbba00": {
+      "count": 5,
+      "where": [
+        "frontend/src/App.vue:94 (style)",
+        "frontend/src/views/dashboard/Calendar.vue:49 (script)",
+        "frontend/src/views/events/List.vue:240 (script)",
+        "frontend/src/views/statutory/Stats.vue:161 (script)"
+      ]
+    },
+    "#00bbd8": {
+      "count": 3,
+      "where": [
+        "frontend/src/views/dashboard/Calendar.vue:11 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:123 (script)",
+        "frontend/src/views/summeruniversity/List.vue:268 (script)"
+      ]
+    },
+    "#931991": {
+      "count": 3,
+      "where": [
+        "frontend/src/views/dashboard/Calendar.vue:48 (script)",
+        "frontend/src/views/events/List.vue:239 (script)",
+        "frontend/src/views/statutory/Stats.vue:161 (script)"
+      ]
+    },
+    "#c45850": {
+      "count": 3,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:158 (script)",
+        "frontend/src/views/statutory/Stats.vue:172 (script)",
+        "frontend/src/views/statutory/Stats.vue:335 (script)"
+      ]
+    },
+    "#b2d6ff": {
+      "count": 3,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:159 (script)",
+        "frontend/src/views/statutory/Stats.vue:196 (script)",
+        "frontend/src/views/statutory/Stats.vue:208 (script)"
+      ]
+    },
+    "#c2de5d": {
+      "count": 3,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:160 (script)",
+        "frontend/src/views/statutory/Stats.vue:173 (script)",
+        "frontend/src/views/statutory/Stats.vue:335 (script)"
+      ]
+    },
+    "#fafafa": {
+      "count": 2,
+      "where": [
+        "frontend/src/App.vue:83 (style)",
+        "frontend/src/components/layout/AppMain.vue:44 (style)"
+      ]
+    },
+    "#981991": {
+      "count": 2,
+      "where": [
+        "frontend/src/App.vue:94 (style)"
+      ]
+    },
+    "#898989": {
+      "count": 2,
+      "where": [
+        "frontend/src/views/dashboard/Calendar.vue:14 (template)",
+        "frontend/src/views/dashboard/Calendar.vue:158 (script)"
+      ]
+    },
+    "var(--purple-light)": {
+      "count": 2,
+      "where": [
+        "frontend/src/views/dashboard/Calendar.vue:51 (script)",
+        "frontend/src/views/events/List.vue:242 (script)"
+      ]
+    },
+    "#647a16": {
+      "count": 2,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:162 (script)",
+        "frontend/src/views/summeruniversity/List.vue:91 (template)"
+      ]
+    },
+    "#ff3860": {
+      "count": 1,
+      "where": [
+        "frontend/src/components/layout/FooterBar.vue:54 (style)"
+      ]
+    },
+    "#36ac70": {
+      "count": 1,
+      "where": [
+        "frontend/src/components/layout/Navbar.vue:105 (style)"
+      ]
+    },
+    "#28374b": {
+      "count": 1,
+      "where": [
+        "frontend/src/components/layout/Navbar.vue:108 (style)"
+      ]
+    },
+    "var(--white-ter)": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/static/Resources.vue:38 (style)"
+      ]
+    },
+    "#3e95cd": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:158 (script)"
+      ]
+    },
+    "#8e5ea2": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:158 (script)"
+      ]
+    },
+    "#3cba9f": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:158 (script)"
+      ]
+    },
+    "#e8c3b9": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:158 (script)"
+      ]
+    },
+    "#ffb6b2": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:159 (script)"
+      ]
+    },
+    "#e5e6bb": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:159 (script)"
+      ]
+    },
+    "#e6bde5": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:159 (script)"
+      ]
+    },
+    "#fff0b2": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:159 (script)"
+      ]
+    },
+    "#ff5543": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:160 (script)"
+      ]
+    },
+    "#c44bc2": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:160 (script)"
+      ]
+    },
+    "#ffdb4c": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:160 (script)"
+      ]
+    },
+    "#4ca0ff": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:160 (script)"
+      ]
+    },
+    "#7a1e16": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:162 (script)"
+      ]
+    },
+    "#70086e": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:162 (script)"
+      ]
+    },
+    "#cf9800": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:162 (script)"
+      ]
+    },
+    "#163e7a": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:162 (script)"
+      ]
+    },
+    "#e5e5e5": {
+      "count": 1,
+      "where": [
+        "frontend/src/views/statutory/Stats.vue:383 (script)"
+      ]
+    }
+  },
+  "usage": {
+    "buttonColourVariants": {
+      "is-primary": 145,
+      "is-danger": 63,
+      "is-warning": 40,
+      "is-info": 39,
+      "is-link": 1,
+      "is-success": 1
+    }
+  },
+  "results": [
+    {
+      "pair": "body text ($text) on page background #fafafa",
+      "kind": "text",
+      "usedIn": "all pages (App.vue sets #fafafa)",
+      "foreground": "#434242",
+      "background": "#fafafa",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#fafafa",
+      "ratio": 9.6,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "body text ($text) on white (box, card, sidebar)",
+      "kind": "text",
+      "usedIn": ".box wraps every route (AppMain.vue)",
+      "foreground": "#434242",
+      "background": "#ffffff",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#ffffff",
+      "ratio": 10.02,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "title/label ($text-strong) on white",
+      "kind": "text",
+      "usedIn": ".title, .label, table headers, input text",
+      "foreground": "#363636",
+      "background": "#ffffff",
+      "effectiveForeground": "#363636",
+      "effectiveBackground": "#ffffff",
+      "ratio": 12.17,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "link ($link) on white",
+      "kind": "text",
+      "usedIn": "all links",
+      "foreground": "#1468c5",
+      "background": "#ffffff",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "link ($link) on page background #fafafa",
+      "kind": "text",
+      "usedIn": "footer links, levelbar",
+      "foreground": "#1468c5",
+      "background": "#fafafa",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#fafafa",
+      "ratio": 5.27,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "link ($link) vs surrounding body text ($text), links are not underlined",
+      "kind": "ui",
+      "usedIn": "SC 1.4.1: colour-only link identification needs 3:1 against body text (technique G183)",
+      "foreground": "#1468c5",
+      "background": "#434242",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#434242",
+      "ratio": 1.82,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#3b8feb (3.01:1 on #434242)"
+      }
+    },
+    {
+      "pair": "link hover ($link-hover) on white",
+      "kind": "text",
+      "usedIn": "hovered links",
+      "foreground": "#363636",
+      "background": "#ffffff",
+      "effectiveForeground": "#363636",
+      "effectiveBackground": "#ffffff",
+      "ratio": 12.17,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".has-text-grey ($grey) on white",
+      "kind": "text",
+      "usedIn": "EmptyTableStub \"Nothing here.\" (48 uses)",
+      "foreground": "#7a7a7a",
+      "background": "#ffffff",
+      "effectiveForeground": "#7a7a7a",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.27,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#767676 (4.54:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": ".menu-label ($text-light) on white sidebar",
+      "kind": "text",
+      "usedIn": "Sidebar category headings",
+      "foreground": "#7a7a7a",
+      "background": "#ffffff",
+      "effectiveForeground": "#7a7a7a",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.27,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#767676 (4.54:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": ".has-text-danger / .help.is-danger ($danger) on white",
+      "kind": "text",
+      "usedIn": "required-field asterisks (133 has-text-danger), field errors",
+      "foreground": "#c51c13",
+      "background": "#ffffff",
+      "effectiveForeground": "#c51c13",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".help.is-success ($success) on white",
+      "kind": "text",
+      "usedIn": "Buefy field success messages",
+      "foreground": "#a0c514",
+      "background": "#ffffff",
+      "effectiveForeground": "#a0c514",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#677f0d (4.55:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": ".help.is-warning ($warning) on white",
+      "kind": "text",
+      "usedIn": "Buefy field warnings",
+      "foreground": "#fbba00",
+      "background": "#ffffff",
+      "effectiveForeground": "#fbba00",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.73,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#987000 (4.51:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": ".help.is-info ($info) on white",
+      "kind": "text",
+      "usedIn": "help text with is-info",
+      "foreground": "#4ca0ff",
+      "background": "#ffffff",
+      "effectiveForeground": "#4ca0ff",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2.7,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#0072f0 (4.5:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": "input placeholder (rgba($text-strong, .3)) on white",
+      "kind": "text",
+      "usedIn": "every input with a placeholder (often the only label)",
+      "foreground": "rgba(53.6, 53.6, 53.6, 0.3)",
+      "background": "#ffffff",
+      "effectiveForeground": "#c3c3c3",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.77,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#767676 (4.54:1 on #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (21:1)"
+      }
+    },
+    {
+      "pair": "disabled input text ($text-light) on $background",
+      "kind": "text",
+      "usedIn": "disabled inputs (exempt from 1.4.3, listed for information)",
+      "foreground": "#7a7a7a",
+      "background": "#c5c6c6",
+      "effectiveForeground": "#7a7a7a",
+      "effectiveBackground": "#c5c6c6",
+      "ratio": 2.49,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "note": "disabled controls are exempt from SC 1.4.3"
+    },
+    {
+      "pair": "default .tag ($text on $background)",
+      "kind": "text",
+      "usedIn": ".tag without colour modifier",
+      "foreground": "#434242",
+      "background": "#c5c6c6",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#c5c6c6",
+      "ratio": 5.85,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "default .notification ($text on $background)",
+      "kind": "text",
+      "usedIn": ".notification without colour modifier",
+      "foreground": "#434242",
+      "background": "#c5c6c6",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#c5c6c6",
+      "ratio": 5.85,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".has-background-grey-light with body text",
+      "kind": "text",
+      "usedIn": "has-background-grey-light (4 uses)",
+      "foreground": "#434242",
+      "background": "#c5c6c6",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#c5c6c6",
+      "ratio": 5.85,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "navbar item ($text) on white navbar",
+      "kind": "text",
+      "usedIn": "Navbar.vue",
+      "foreground": "#434242",
+      "background": "#ffffff",
+      "effectiveForeground": "#434242",
+      "effectiveBackground": "#ffffff",
+      "ratio": 10.02,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "tooltip text (white) on $blue-standard",
+      "kind": "text",
+      "usedIn": "v-tooltip (main.scss .tooltip-inner)",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-primary solid (invert on $primary)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-primary",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-primary.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-primary is-light, b-message body",
+      "foreground": "#1673da",
+      "background": "#ecf4fd",
+      "effectiveForeground": "#1673da",
+      "effectiveBackground": "#ecf4fd",
+      "ratio": 4.23,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#156fd0 (4.5:1 on #ecf4fd)",
+        "bestOfBlackOrWhiteText": "#000000 (18.99:1)"
+      }
+    },
+    {
+      "pair": "toast .is-primary (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-primary)",
+      "foreground": "#ffffff",
+      "background": "#2674c9",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#2674c9",
+      "ratio": 4.76,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-link solid (invert on $link)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-link",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-link.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-link is-light, b-message body",
+      "foreground": "#1673da",
+      "background": "#ecf4fd",
+      "effectiveForeground": "#1673da",
+      "effectiveBackground": "#ecf4fd",
+      "ratio": 4.23,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#156fd0 (4.5:1 on #ecf4fd)",
+        "bestOfBlackOrWhiteText": "#000000 (18.99:1)"
+      }
+    },
+    {
+      "pair": "toast .is-link (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-link)",
+      "foreground": "#ffffff",
+      "background": "#2674c9",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#2674c9",
+      "ratio": 4.76,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-info solid (invert on $info)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-info",
+      "foreground": "#ffffff",
+      "background": "#4ca0ff",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#4ca0ff",
+      "ratio": 2.7,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "darkenBackgroundTo": "#0072f0 (4.5:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (7.78:1)"
+      }
+    },
+    {
+      "pair": ".is-info.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-info is-light, b-message body",
+      "foreground": "#0056b8",
+      "background": "#ebf4ff",
+      "effectiveForeground": "#0056b8",
+      "effectiveBackground": "#ebf4ff",
+      "ratio": 6.26,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "toast .is-info (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-info)",
+      "foreground": "#ffffff",
+      "background": "#5aa7ff",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#5aa7ff",
+      "ratio": 2.5,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "darkenBackgroundTo": "#0172f0 (4.5:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (8.41:1)"
+      }
+    },
+    {
+      "pair": ".is-success solid (invert on $success)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-success",
+      "foreground": "#ffffff",
+      "background": "#a0c514",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#a0c514",
+      "ratio": 2,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "darkenBackgroundTo": "#677f0d (4.55:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (10.49:1)"
+      }
+    },
+    {
+      "pair": ".is-success.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-success is-light, b-message body",
+      "foreground": "#6d860e",
+      "background": "#fafdec",
+      "effectiveForeground": "#6d860e",
+      "effectiveBackground": "#fafdec",
+      "ratio": 4,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#667d0d (4.51:1 on #fafdec)",
+        "bestOfBlackOrWhiteText": "#000000 (20.33:1)"
+      }
+    },
+    {
+      "pair": "toast .is-success (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-success)",
+      "foreground": "#ffffff",
+      "background": "#a7c926",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#a7c926",
+      "ratio": 1.9,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "darkenBackgroundTo": "#6a7f18 (4.5:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (11.05:1)"
+      }
+    },
+    {
+      "pair": ".is-warning solid (invert on $warning)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-warning",
+      "foreground": "rgba(0, 0, 0, 0.7)",
+      "background": "#fbba00",
+      "effectiveForeground": "#4b3800",
+      "effectiveBackground": "#fbba00",
+      "ratio": 6.51,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-warning.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-warning is-light, b-message body",
+      "foreground": "#946e00",
+      "background": "#fffaeb",
+      "effectiveForeground": "#946e00",
+      "effectiveBackground": "#fffaeb",
+      "ratio": 4.49,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#946d00 (4.52:1 on #fffaeb)",
+        "bestOfBlackOrWhiteText": "#000000 (20.09:1)"
+      }
+    },
+    {
+      "pair": "toast .is-warning (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-warning)",
+      "foreground": "rgba(0, 0, 0, 0.7)",
+      "background": "#fbbf14",
+      "effectiveForeground": "#4b3906",
+      "effectiveBackground": "#fbbf14",
+      "ratio": 6.63,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-danger solid (invert on $danger)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-danger",
+      "foreground": "#ffffff",
+      "background": "#c51c13",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#c51c13",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-danger.is-light (dark on light)",
+      "kind": "text",
+      "usedIn": "tag/button/notification is-danger is-light, b-message body",
+      "foreground": "#e42016",
+      "background": "#fdedec",
+      "effectiveForeground": "#e42016",
+      "effectiveBackground": "#fdedec",
+      "ratio": 4.1,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#d71f15 (4.53:1 on #fdedec)",
+        "bestOfBlackOrWhiteText": "#000000 (18.54:1)"
+      }
+    },
+    {
+      "pair": "toast .is-danger (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-danger)",
+      "foreground": "#ffffff",
+      "background": "#c92e25",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#c92e25",
+      "ratio": 5.38,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-dark solid (invert on $dark)",
+      "kind": "text",
+      "usedIn": "buttons, tags, notifications, b-message headers, dialog buttons, toasts with is-dark",
+      "foreground": "#ffffff",
+      "background": "#434242",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#434242",
+      "ratio": 10.02,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "toast .is-dark (opacity .92 over page)",
+      "kind": "text",
+      "usedIn": "$buefy.toast via showError/showSuccess/... (type is-dark)",
+      "foreground": "#ffffff",
+      "background": "#525151",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#525151",
+      "ratio": 7.95,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".tag.is-light / .button.is-light ($light-invert on $light)",
+      "kind": "text",
+      "usedIn": "\"Applications are closed\" tags, dialog.alert type is-light",
+      "foreground": "rgba(0, 0, 0, 0.7)",
+      "background": "#f5f5f5",
+      "effectiveForeground": "#494949",
+      "effectiveBackground": "#f5f5f5",
+      "ratio": 8.19,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "table selected row ($primary-invert on $primary)",
+      "kind": "text",
+      "usedIn": "b-table :selected rows",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "menu active item ($link-invert on $link)",
+      "kind": "text",
+      "usedIn": "Sidebar active route",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "white text on event-type colour training #A0C514",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#a0c514",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#a0c514",
+      "ratio": 2,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "darkenBackgroundTo": "#677f0d (4.55:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (10.49:1)"
+      }
+    },
+    {
+      "pair": "white text on event-type colour conference #931991",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#931991",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#931991",
+      "ratio": 7.53,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "white text on event-type colour nwm #FBBA00",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#fbba00",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#fbba00",
+      "ratio": 1.73,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "darkenBackgroundTo": "#987000 (4.51:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (12.13:1)"
+      }
+    },
+    {
+      "pair": "white text on event-type colour cultural #C51C13",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#c51c13",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#c51c13",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "white text on event-type colour thematic var(--purple-light) #c44bc2",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#c44bc2",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#c44bc2",
+      "ratio": 4.09,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "darkenBackgroundTo": "#bf3fbd (4.51:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (5.13:1)"
+      }
+    },
+    {
+      "pair": "white text on event-type colour statutory #1468C5",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "white text on event-type colour summer university / pilot #00BBD8",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#00bbd8",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#00bbd8",
+      "ratio": 2.31,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "darkenBackgroundTo": "#008296 (4.53:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (9.1:1)"
+      }
+    },
+    {
+      "pair": "white text on event-type colour online event #898989",
+      "kind": "text",
+      "usedIn": "events/List.vue:122, summeruniversity/List.vue:148, dashboard/Calendar.vue tags and calendar events",
+      "foreground": "#ffffff",
+      "background": "#898989",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#898989",
+      "ratio": 3.5,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "darkenBackgroundTo": "#767676 (4.54:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (6:1)"
+      }
+    },
+    {
+      "pair": "event-type colour training #A0C514 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#a0c514",
+      "background": "#ffffff",
+      "effectiveForeground": "#a0c514",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "adjustForegroundTo": "#82a010 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "event-type colour conference #931991 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#931991",
+      "background": "#ffffff",
+      "effectiveForeground": "#931991",
+      "effectiveBackground": "#ffffff",
+      "ratio": 7.53,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "event-type colour nwm #FBBA00 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#fbba00",
+      "background": "#ffffff",
+      "effectiveForeground": "#fbba00",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.73,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "adjustForegroundTo": "#be8d00 (3:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "event-type colour cultural #C51C13 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#c51c13",
+      "background": "#ffffff",
+      "effectiveForeground": "#c51c13",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "event-type colour thematic var(--purple-light) #c44bc2 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#c44bc2",
+      "background": "#ffffff",
+      "effectiveForeground": "#c44bc2",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.09,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "event-type colour statutory #1468C5 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#1468c5",
+      "background": "#ffffff",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "event-type colour summer university / pilot #00BBD8 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#00bbd8",
+      "background": "#ffffff",
+      "effectiveForeground": "#00bbd8",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2.31,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "suggestions": {
+        "adjustForegroundTo": "#00a3bd (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "event-type colour online event #898989 as calendar block / swatch on white",
+      "kind": "ui",
+      "usedIn": "dashboard/Calendar.vue (FullCalendar events), colour legend tags",
+      "foreground": "#898989",
+      "background": "#ffffff",
+      "effectiveForeground": "#898989",
+      "effectiveBackground": "#ffffff",
+      "ratio": 3.5,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "\"Applications are open!\" #647A16 on white",
+      "kind": "text",
+      "usedIn": "summeruniversity/List.vue:91",
+      "foreground": "#647a16",
+      "background": "#ffffff",
+      "effectiveForeground": "#647a16",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.84,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "error text #C51C13 on white",
+      "kind": "text",
+      "usedIn": "summeruniversity/Apply.vue:345,351",
+      "foreground": "#c51c13",
+      "background": "#ffffff",
+      "effectiveForeground": "#c51c13",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #3E95CD",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#3e95cd",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#3e95cd",
+      "ratio": 3.29,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-legend",
+      "suggestions": {
+        "darkenBackgroundTo": "#2e7caf (4.55:1 with #ffffff)",
+        "bestOfBlackOrWhiteText": "#000000 (6.39:1)"
+      }
+    },
+    {
+      "pair": "Stats chart colour #3E95CD on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#3e95cd",
+      "background": "#ffffff",
+      "effectiveForeground": "#3e95cd",
+      "effectiveBackground": "#ffffff",
+      "ratio": 3.29,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #8E5EA2",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#8e5ea2",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#8e5ea2",
+      "ratio": 4.91,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #8E5EA2 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#8e5ea2",
+      "background": "#ffffff",
+      "effectiveForeground": "#8e5ea2",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.91,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #3CBA9F",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#3cba9f",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#3cba9f",
+      "ratio": 8.72,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #3CBA9F on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#3cba9f",
+      "background": "#ffffff",
+      "effectiveForeground": "#3cba9f",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2.41,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#36a58d (3.03:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #E8C3B9",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#e8c3b9",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#e8c3b9",
+      "ratio": 12.94,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #E8C3B9 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#e8c3b9",
+      "background": "#ffffff",
+      "effectiveForeground": "#e8c3b9",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.62,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#cf806b (3.02:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #C45850",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#c45850",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#c45850",
+      "ratio": 4.86,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #C45850 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#c45850",
+      "background": "#ffffff",
+      "effectiveForeground": "#c45850",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.32,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #FFB6B2",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#ffb6b2",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#ffb6b2",
+      "ratio": 12.59,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #FFB6B2 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#ffb6b2",
+      "background": "#ffffff",
+      "effectiveForeground": "#ffb6b2",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.67,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#ff5e56 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #E5E6BB",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#e5e6bb",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#e5e6bb",
+      "ratio": 16.37,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #E5E6BB on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#e5e6bb",
+      "background": "#ffffff",
+      "effectiveForeground": "#e5e6bb",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.28,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#979939 (3.03:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #E6BDE5",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#e6bde5",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#e6bde5",
+      "ratio": 12.78,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #E6BDE5 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#e6bde5",
+      "background": "#ffffff",
+      "effectiveForeground": "#e6bde5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.64,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#cb76c9 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #FFF0B2",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#fff0b2",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#fff0b2",
+      "ratio": 18.36,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #FFF0B2 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#fff0b2",
+      "background": "#ffffff",
+      "effectiveForeground": "#fff0b2",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.14,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#b49100 (3:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #B2D6FF",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#b2d6ff",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#b2d6ff",
+      "ratio": 13.96,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #B2D6FF on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#b2d6ff",
+      "background": "#ffffff",
+      "effectiveForeground": "#b2d6ff",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.5,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#3a96ff (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #FF5543",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#ff5543",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#ff5543",
+      "ratio": 6.63,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #FF5543 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#ff5543",
+      "background": "#ffffff",
+      "effectiveForeground": "#ff5543",
+      "effectiveBackground": "#ffffff",
+      "ratio": 3.17,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #C2DE5D",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#c2de5d",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#c2de5d",
+      "ratio": 13.9,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #C2DE5D on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#c2de5d",
+      "background": "#ffffff",
+      "effectiveForeground": "#c2de5d",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.51,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#839f21 (3.02:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #C44BC2",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#c44bc2",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#c44bc2",
+      "ratio": 5.13,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #C44BC2 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#c44bc2",
+      "background": "#ffffff",
+      "effectiveForeground": "#c44bc2",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.09,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #FFDB4C",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#ffdb4c",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#ffdb4c",
+      "ratio": 15.49,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #FFDB4C on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#ffdb4c",
+      "background": "#ffffff",
+      "effectiveForeground": "#ffdb4c",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.36,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#b49000 (3.03:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #4CA0FF",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#4ca0ff",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#4ca0ff",
+      "ratio": 7.78,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #4CA0FF on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#4ca0ff",
+      "background": "#ffffff",
+      "effectiveForeground": "#4ca0ff",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2.7,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#3a96ff (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #000000 on #C51C13",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#c51c13",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#c51c13",
+      "ratio": 3.55,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-legend",
+      "suggestions": {
+        "darkenBackgroundTo": "#e42016 (4.52:1 with #000000)",
+        "bestOfBlackOrWhiteText": "#ffffff (5.92:1)"
+      }
+    },
+    {
+      "pair": "Stats chart colour #C51C13 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#c51c13",
+      "background": "#ffffff",
+      "effectiveForeground": "#c51c13",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.92,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #A0C514",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#a0c514",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#a0c514",
+      "ratio": 10.49,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #A0C514 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#a0c514",
+      "background": "#ffffff",
+      "effectiveForeground": "#a0c514",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#82a010 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #931991",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#931991",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#931991",
+      "ratio": 7.53,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #931991 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#931991",
+      "background": "#ffffff",
+      "effectiveForeground": "#931991",
+      "effectiveBackground": "#ffffff",
+      "ratio": 7.53,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #FBBA00",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#fbba00",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#fbba00",
+      "ratio": 12.13,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #FBBA00 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#fbba00",
+      "background": "#ffffff",
+      "effectiveForeground": "#fbba00",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.73,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#be8d00 (3:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #1468C5",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#1468c5",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#1468c5",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #1468C5 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#1468c5",
+      "background": "#ffffff",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #7A1E16",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#7a1e16",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#7a1e16",
+      "ratio": 10.37,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #7A1E16 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#7a1e16",
+      "background": "#ffffff",
+      "effectiveForeground": "#7a1e16",
+      "effectiveBackground": "#ffffff",
+      "ratio": 10.37,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #647A16",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#647a16",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#647a16",
+      "ratio": 4.84,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #647A16 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#647a16",
+      "background": "#ffffff",
+      "effectiveForeground": "#647a16",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.84,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #70086E",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#70086e",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#70086e",
+      "ratio": 10.78,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #70086E on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#70086e",
+      "background": "#ffffff",
+      "effectiveForeground": "#70086e",
+      "effectiveBackground": "#ffffff",
+      "ratio": 10.78,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "Stats legend cell #000000 on #CF9800",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#000000",
+      "background": "#cf9800",
+      "effectiveForeground": "#000000",
+      "effectiveBackground": "#cf9800",
+      "ratio": 8.14,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #CF9800 on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#cf9800",
+      "background": "#ffffff",
+      "effectiveForeground": "#cf9800",
+      "effectiveBackground": "#ffffff",
+      "ratio": 2.58,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "hardCoded": true,
+      "group": "stats-chart",
+      "suggestions": {
+        "adjustForegroundTo": "#bf8c00 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Stats legend cell #FFFFFF on #163E7A",
+      "kind": "text",
+      "usedIn": "statutory/Stats.vue:69 (colors / backgroundColors arrays)",
+      "foreground": "#ffffff",
+      "background": "#163e7a",
+      "effectiveForeground": "#ffffff",
+      "effectiveBackground": "#163e7a",
+      "ratio": 10.48,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "4.5:1 (AA normal text)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-legend"
+    },
+    {
+      "pair": "Stats chart colour #163E7A on white (pie slice / line)",
+      "kind": "ui",
+      "usedIn": "statutory/Stats.vue chart datasets",
+      "foreground": "#163e7a",
+      "background": "#ffffff",
+      "effectiveForeground": "#163e7a",
+      "effectiveBackground": "#ffffff",
+      "ratio": 10.48,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true,
+      "hardCoded": true,
+      "group": "stats-chart"
+    },
+    {
+      "pair": "input / select border ($border) on white",
+      "kind": "ui",
+      "usedIn": "every .input, .select, .textarea (SC 1.4.11 control boundary)",
+      "foreground": "#dbdbdb",
+      "background": "#ffffff",
+      "effectiveForeground": "#dbdbdb",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.38,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#949494 (3.03:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "default .button border ($border) on white",
+      "kind": "ui",
+      "usedIn": ".button without colour; its dark label identifies it, so the boundary is listed for information only",
+      "foreground": "#dbdbdb",
+      "background": "#ffffff",
+      "effectiveForeground": "#dbdbdb",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.38,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "note": "informational: not required by SC 1.4.11 in this context",
+      "suggestions": {
+        "adjustForegroundTo": "#949494 (3.03:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Buefy checkbox border ($grey) on white",
+      "kind": "ui",
+      "usedIn": "b-checkbox",
+      "foreground": "#7a7a7a",
+      "background": "#ffffff",
+      "effectiveForeground": "#7a7a7a",
+      "effectiveBackground": "#ffffff",
+      "ratio": 4.27,
+      "aaNormalText": false,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "Buefy switch track off ($grey-light) on white",
+      "kind": "ui",
+      "usedIn": "b-switch (events list view toggle)",
+      "foreground": "#c5c6c6",
+      "background": "#ffffff",
+      "effectiveForeground": "#c5c6c6",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.71,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#939595 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": "Buefy switch track on ($primary) on white",
+      "kind": "ui",
+      "usedIn": "b-switch checked",
+      "foreground": "#1468c5",
+      "background": "#ffffff",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true
+    },
+    {
+      "pair": "focus ring rgba($primary, .25) on white (vs unfocused white)",
+      "kind": "ui",
+      "usedIn": "coloured .button:focus, where the faint box-shadow is the only focus indicator (SC 1.4.11 / 2.4.7). .input:focus also turns the border $link, which passes.",
+      "foreground": "#c4d9f1",
+      "background": "#ffffff",
+      "effectiveForeground": "#c4d9f1",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.44,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "suggestions": {
+        "adjustForegroundTo": "#5f98d8 (3.01:1 on #ffffff)"
+      }
+    },
+    {
+      "pair": ".input:focus border ($link) on white",
+      "kind": "ui",
+      "usedIn": ".input/.textarea/.select focus border",
+      "foreground": "#1468c5",
+      "background": "#ffffff",
+      "effectiveForeground": "#1468c5",
+      "effectiveBackground": "#ffffff",
+      "ratio": 5.5,
+      "aaNormalText": true,
+      "aaLargeText": true,
+      "nonTextUi": true,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": true
+    },
+    {
+      "pair": ".is-warning button/tag background on white page",
+      "kind": "ui",
+      "usedIn": "boundary of yellow buttons/tags; the dark label identifies them, listed for information only",
+      "foreground": "#fbba00",
+      "background": "#ffffff",
+      "effectiveForeground": "#fbba00",
+      "effectiveBackground": "#ffffff",
+      "ratio": 1.73,
+      "aaNormalText": false,
+      "aaLargeText": false,
+      "nonTextUi": false,
+      "requirement": "3:1 (non-text, SC 1.4.11)",
+      "passesRequirement": false,
+      "note": "informational: not required by SC 1.4.11 in this context",
+      "suggestions": {
+        "adjustForegroundTo": "#be8d00 (3:1 on #ffffff)"
+      }
+    }
+  ],
+  "verification": {
+    "compiled": true,
+    "checks": [
+      {
+        "selector": ".label",
+        "expectedFg": "#363636",
+        "compiledFg": "#363636"
+      },
+      {
+        "selector": "a",
+        "expectedFg": "#1468c5",
+        "compiledFg": "#1468c5"
+      },
+      {
+        "selector": ".has-text-grey",
+        "expectedFg": "#7a7a7a",
+        "compiledFg": "#7a7a7a"
+      },
+      {
+        "selector": ".menu-label",
+        "expectedFg": "#7a7a7a",
+        "compiledFg": "#7a7a7a"
+      },
+      {
+        "selector": ".has-text-danger",
+        "expectedFg": "#c51c13",
+        "compiledFg": "#c51c13"
+      },
+      {
+        "selector": ".help.is-success",
+        "expectedFg": "#a0c514",
+        "compiledFg": "#a0c514"
+      },
+      {
+        "selector": ".help.is-warning",
+        "expectedFg": "#fbba00",
+        "compiledFg": "#fbba00"
+      },
+      {
+        "selector": ".help.is-info",
+        "expectedFg": "#4ca0ff",
+        "compiledFg": "#4ca0ff"
+      },
+      {
+        "selector": ".tag:not(body)",
+        "expectedFg": "#434242",
+        "compiledFg": "#434242",
+        "expectedBg": "#c5c6c6",
+        "compiledBg": "#c5c6c6"
+      },
+      {
+        "selector": ".notification",
+        "expectedBg": "#c5c6c6",
+        "compiledBg": "#c5c6c6"
+      },
+      {
+        "selector": ".button.is-primary",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#1468c5",
+        "compiledBg": "#1468c5"
+      },
+      {
+        "selector": ".button.is-primary.is-light",
+        "expectedFg": "#1673da",
+        "compiledFg": "#1673da",
+        "expectedBg": "#ecf4fd",
+        "compiledBg": "#ecf4fd"
+      },
+      {
+        "selector": ".button.is-link",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#1468c5",
+        "compiledBg": "#1468c5"
+      },
+      {
+        "selector": ".button.is-link.is-light",
+        "expectedFg": "#1673da",
+        "compiledFg": "#1673da",
+        "expectedBg": "#ecf4fd",
+        "compiledBg": "#ecf4fd"
+      },
+      {
+        "selector": ".button.is-info",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#4ca0ff",
+        "compiledBg": "#4ca0ff"
+      },
+      {
+        "selector": ".button.is-info.is-light",
+        "expectedFg": "#0056b8",
+        "compiledFg": "#0056b8",
+        "expectedBg": "#ebf4ff",
+        "compiledBg": "#ebf4ff"
+      },
+      {
+        "selector": ".button.is-success",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#a0c514",
+        "compiledBg": "#a0c514"
+      },
+      {
+        "selector": ".button.is-success.is-light",
+        "expectedFg": "#6d860e",
+        "compiledFg": "#6d860e",
+        "expectedBg": "#fafdec",
+        "compiledBg": "#fafdec"
+      },
+      {
+        "selector": ".button.is-warning",
+        "expectedFg": "rgba(0, 0, 0, 0.7)",
+        "compiledFg": "rgba(0, 0, 0, 0.7)",
+        "expectedBg": "#fbba00",
+        "compiledBg": "#fbba00"
+      },
+      {
+        "selector": ".button.is-warning.is-light",
+        "expectedFg": "#946e00",
+        "compiledFg": "#946e00",
+        "expectedBg": "#fffaeb",
+        "compiledBg": "#fffaeb"
+      },
+      {
+        "selector": ".button.is-danger",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#c51c13",
+        "compiledBg": "#c51c13"
+      },
+      {
+        "selector": ".button.is-danger.is-light",
+        "expectedFg": "#e42016",
+        "compiledFg": "#e42016",
+        "expectedBg": "#fdedec",
+        "compiledBg": "#fdedec"
+      },
+      {
+        "selector": ".button.is-dark",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#434242",
+        "compiledBg": "#434242"
+      },
+      {
+        "selector": ".button.is-light",
+        "expectedFg": "rgba(0, 0, 0, 0.7)",
+        "compiledFg": "rgba(0, 0, 0, 0.7)",
+        "expectedBg": "#f5f5f5",
+        "compiledBg": "#f5f5f5"
+      },
+      {
+        "selector": ".menu-list a.is-active",
+        "expectedFg": "#ffffff",
+        "compiledFg": "#ffffff",
+        "expectedBg": "#1468c5",
+        "compiledBg": "#1468c5"
+      },
+      {
+        "selector": ".input",
+        "expectedFg": "#dbdbdb",
+        "compiledFg": "#dbdbdb"
+      }
+    ]
+  }
+}

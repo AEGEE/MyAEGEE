@@ -1,0 +1,888 @@
+{
+  "generatedBy": "e2e/scripts/a11y-summary.ts",
+  "rules": "axe-core, WCAG 2.2 A + AA tags",
+  "vue": {
+    "pages": 113,
+    "pagesWithViolations": 113,
+    "elements": 1689,
+    "byImpact": {
+      "serious": 1325,
+      "critical": 364
+    },
+    "rules": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
+        "tags": [
+          "wcag2aa",
+          "wcag143"
+        ],
+        "nodes": 1074,
+        "targets": [
+          "div:nth-child(1) > .menu-label",
+          "div:nth-child(2) > .menu-label",
+          "div:nth-child(3) > .menu-label",
+          "div:nth-child(4) > .menu-label",
+          "div:nth-child(5) > .menu-label"
+        ],
+        "pages": 113
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/link-name?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag244",
+          "wcag412"
+        ],
+        "nodes": 131,
+        "targets": [
+          ".logo"
+        ],
+        "pages": 113
+      },
+      {
+        "id": "image-alt",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/image-alt?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag111"
+        ],
+        "nodes": 118,
+        "targets": [
+          ".image"
+        ],
+        "pages": 113
+      },
+      {
+        "id": "html-has-lang",
+        "impact": "serious",
+        "help": "<html> element must have a lang attribute",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/html-has-lang?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag311"
+        ],
+        "nodes": 113,
+        "targets": [
+          "html"
+        ],
+        "pages": 113
+      },
+      {
+        "id": "label",
+        "impact": "critical",
+        "help": "Form elements must have labels",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag412"
+        ],
+        "nodes": 173,
+        "targets": [
+          "input"
+        ],
+        "pages": 33
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "help": "Select element must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/select-name?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag412"
+        ],
+        "nodes": 49,
+        "targets": [
+          "form > .field:nth-child(1) > .control > .select > select",
+          ".field:nth-child(7) > .control > .select > select"
+        ],
+        "pages": 27
+      },
+      {
+        "id": "aria-input-field-name",
+        "impact": "serious",
+        "help": "ARIA input fields must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-input-field-name?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag412"
+        ],
+        "nodes": 2,
+        "targets": [
+          ".multiselect"
+        ],
+        "pages": 2
+      },
+      {
+        "id": "aria-required-attr",
+        "impact": "critical",
+        "help": "Required ARIA attributes must be provided",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-required-attr?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag412"
+        ],
+        "nodes": 2,
+        "targets": [
+          ".multiselect"
+        ],
+        "pages": 2
+      },
+      {
+        "id": "aria-required-parent",
+        "impact": "critical",
+        "help": "Certain ARIA roles must be contained by particular parents",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-required-parent?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag131"
+        ],
+        "nodes": 22,
+        "targets": [
+          "a[href$=\"aegee.org\"][target=\"_blank\"][rel=\"noopener noreferrer\"] > .card > header",
+          "section:nth-child(1) > .resources-block > .resources-item:nth-child(2) > a[target=\"_blank\"][rel=\"noopener noreferrer\"] > .card > header",
+          "section:nth-child(1) > .resources-block > .resources-item:nth-child(3) > a[target=\"_blank\"][rel=\"noopener noreferrer\"] > .card > header",
+          "a[href$=\"mailing-lists\"] > .card > header",
+          "section:nth-child(2) > .resources-block > .resources-item:nth-child(2) > a[target=\"_blank\"][rel=\"noopener noreferrer\"] > .card > header"
+        ],
+        "pages": 1
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "help": "Links must be distinguishable without relying on color",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/link-in-text-block?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag141"
+        ],
+        "nodes": 2,
+        "targets": [
+          "a[href$=\"myaegee.slack.com/\"]",
+          "a[href$=\"support\"]"
+        ],
+        "pages": 1
+      },
+      {
+        "id": "role-img-alt",
+        "impact": "serious",
+        "help": "[role=\"img\"] and [role=\"image\"] elements must have alternative text",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/role-img-alt?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag111"
+        ],
+        "nodes": 2,
+        "targets": [
+          ".fc-icon-chevron-left",
+          ".fc-icon-chevron-right"
+        ],
+        "pages": 1
+      },
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "help": "Scrollable region must have keyboard access",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/scrollable-region-focusable?application=playwright",
+        "tags": [
+          "wcag2a",
+          "wcag211",
+          "wcag213"
+        ],
+        "nodes": 1,
+        "targets": [
+          ".table-wrapper"
+        ],
+        "pages": 1
+      }
+    ],
+    "perPage": [
+      {
+        "route": "oms.events.create",
+        "url": "/events/new",
+        "rules": 6,
+        "elements": 88
+      },
+      {
+        "route": "oms.events.edit",
+        "url": "/events/1/edit",
+        "rules": 6,
+        "elements": 67
+      },
+      {
+        "route": "oms.summeruniversity.create",
+        "url": "/summeruniversity/new",
+        "rules": 6,
+        "elements": 63
+      },
+      {
+        "route": "oms.summeruniversity.edit",
+        "url": "/summeruniversity/1/edit",
+        "rules": 6,
+        "elements": 49
+      },
+      {
+        "route": "oms.resources",
+        "url": "/resources",
+        "rules": 5,
+        "elements": 41
+      },
+      {
+        "route": "oms.summeruniversity.edit_second",
+        "url": "/summeruniversity/1/edit_second",
+        "rules": 6,
+        "elements": 40
+      },
+      {
+        "route": "oms.statutory.candidates.edit",
+        "url": "/statutory/1/positions/1/candidates/1/edit",
+        "rules": 6,
+        "elements": 26
+      },
+      {
+        "route": "oms.statutory.create",
+        "url": "/statutory/new",
+        "rules": 6,
+        "elements": 26
+      },
+      {
+        "route": "oms.statutory.candidates.new",
+        "url": "/statutory/1/positions/1/apply",
+        "rules": 6,
+        "elements": 24
+      },
+      {
+        "route": "oms.calendar",
+        "url": "/calendar",
+        "rules": 5,
+        "elements": 21
+      },
+      {
+        "route": "oms.bodies.create",
+        "url": "/bodies/new",
+        "rules": 6,
+        "elements": 20
+      },
+      {
+        "route": "oms.status",
+        "url": "/status",
+        "rules": 4,
+        "elements": 20
+      },
+      {
+        "route": "oms.statutory.applications.new",
+        "url": "/statutory/1/applications/new",
+        "rules": 6,
+        "elements": 20
+      },
+      {
+        "route": "oms.bodies.edit",
+        "url": "/bodies/1/edit",
+        "rules": 6,
+        "elements": 19
+      },
+      {
+        "route": "oms.statutory.edit",
+        "url": "/statutory/1/edit",
+        "rules": 5,
+        "elements": 19
+      },
+      {
+        "route": "oms.bodies.new_member",
+        "url": "/bodies/1/new_member",
+        "rules": 5,
+        "elements": 18
+      },
+      {
+        "route": "oms.summeruniversity.apply",
+        "url": "/summeruniversity/1/applications/me",
+        "rules": 6,
+        "elements": 18
+      },
+      {
+        "route": "oms.network.boards.list",
+        "url": "/network/boards",
+        "rules": 7,
+        "elements": 17
+      },
+      {
+        "route": "oms.statutory.massmailer",
+        "url": "/statutory/1/massmailer",
+        "rules": 6,
+        "elements": 17
+      },
+      {
+        "route": "oms.bodies.campaigns.new",
+        "url": "/bodies/1/campaigns/new",
+        "rules": 5,
+        "elements": 16
+      },
+      {
+        "route": "oms.campaigns.create",
+        "url": "/campaigns/new",
+        "rules": 5,
+        "elements": 16
+      },
+      {
+        "route": "oms.circles.edit",
+        "url": "/circles/1/edit",
+        "rules": 5,
+        "elements": 16
+      },
+      {
+        "route": "oms.members.edit",
+        "url": "/members/1/edit",
+        "rules": 6,
+        "elements": 16
+      },
+      {
+        "route": "oms.permissions.create",
+        "url": "/permissions/new",
+        "rules": 6,
+        "elements": 16
+      },
+      {
+        "route": "oms.permissions.edit",
+        "url": "/permissions/1/edit",
+        "rules": 6,
+        "elements": 16
+      },
+      {
+        "route": "oms.summeruniversity.list.organizing",
+        "url": "/summeruniversity/organizing",
+        "rules": 5,
+        "elements": 16
+      },
+      {
+        "route": "oms.summeruniversity.list.participating",
+        "url": "/summeruniversity/participating",
+        "rules": 5,
+        "elements": 16
+      },
+      {
+        "route": "oms.summeruniversity.participants",
+        "url": "/summeruniversity/1/participants",
+        "rules": 4,
+        "elements": 16
+      },
+      {
+        "route": "oms.bodies.campaigns.edit",
+        "url": "/bodies/1/campaigns/1/edit",
+        "rules": 5,
+        "elements": 15
+      },
+      {
+        "route": "oms.campaigns.edit",
+        "url": "/campaigns/1/edit",
+        "rules": 5,
+        "elements": 15
+      },
+      {
+        "route": "oms.statutory.applications",
+        "url": "/statutory/1/applications",
+        "rules": 6,
+        "elements": 15
+      },
+      {
+        "route": "oms.bodies.bulk_import",
+        "url": "/bodies/1/bulk_import",
+        "rules": 5,
+        "elements": 14
+      },
+      {
+        "route": "oms.register",
+        "url": "/signup/1",
+        "rules": 6,
+        "elements": 14
+      },
+      {
+        "route": "oms.statutory.applications.edit",
+        "url": "/statutory/1/applications/me/edit",
+        "rules": 6,
+        "elements": 14
+      },
+      {
+        "route": "oms.summeruniversity.list.all",
+        "url": "/summeruniversity",
+        "rules": 5,
+        "elements": 14
+      },
+      {
+        "route": "oms.bodies.campaigns.members",
+        "url": "/bodies/1/campaigns/1/members",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.bodies.members",
+        "url": "/bodies/1/members",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.campaigns.members",
+        "url": "/campaigns/1/members",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.discounts.create",
+        "url": "/discounts/integrations/new",
+        "rules": 6,
+        "elements": 13
+      },
+      {
+        "route": "oms.discounts.edit",
+        "url": "/discounts/integrations/1/edit",
+        "rules": 6,
+        "elements": 13
+      },
+      {
+        "route": "oms.members.list",
+        "url": "/members",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.members.list.unconfirmed",
+        "url": "/members/unconfirmed",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.statutory.incoming",
+        "url": "/statutory/1/incoming",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.statutory.juridical",
+        "url": "/statutory/1/juridical",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.statutory.network",
+        "url": "/statutory/1/network",
+        "rules": 4,
+        "elements": 13
+      },
+      {
+        "route": "oms.bodies.join_requests",
+        "url": "/bodies/1/join_requests",
+        "rules": 4,
+        "elements": 12
+      },
+      {
+        "route": "oms.bug_report",
+        "url": "/bug_report",
+        "rules": 5,
+        "elements": 12
+      },
+      {
+        "route": "oms.circles.create",
+        "url": "/circles/new",
+        "rules": 5,
+        "elements": 12
+      },
+      {
+        "route": "oms.circles.list",
+        "url": "/circles",
+        "rules": 4,
+        "elements": 12
+      },
+      {
+        "route": "oms.discounts.my_discounts",
+        "url": "/discounts/my",
+        "rules": 5,
+        "elements": 12
+      },
+      {
+        "route": "oms.bodies.boards",
+        "url": "/bodies/1/boards",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.bodies.campaigns",
+        "url": "/bodies/1/campaigns",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.campaigns.list",
+        "url": "/campaigns",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.circles.members",
+        "url": "/circles/1/members",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.discounts.categories.create",
+        "url": "/discounts/categories/new",
+        "rules": 5,
+        "elements": 11
+      },
+      {
+        "route": "oms.discounts.categories.edit",
+        "url": "/discounts/categories/1/edit",
+        "rules": 5,
+        "elements": 11
+      },
+      {
+        "route": "oms.discounts.categories.list",
+        "url": "/discounts/categories",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.discounts.list",
+        "url": "/discounts/integrations",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.events.change_status",
+        "url": "/events/change_status",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.events.list.organizing",
+        "url": "/events/organizing",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.events.list.participating",
+        "url": "/events/participating",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.events.participants",
+        "url": "/events/1/participants",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.members.view",
+        "url": "/members/1",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.password_confirm",
+        "url": "/password_confirm",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.permissions.list",
+        "url": "/permissions",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.permissions.members",
+        "url": "/permissions/1/members",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.accepted",
+        "url": "/statutory/1/accepted",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.candidates.export",
+        "url": "/statutory/1/positions/export",
+        "rules": 5,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.limits",
+        "url": "/statutory/limits",
+        "rules": 5,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.memberslist.list",
+        "url": "/statutory/1/memberslist/list",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.memberslist.list.missing",
+        "url": "/statutory/1/memberslist/list/missing",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.plenaries",
+        "url": "/statutory/1/plenaries",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.plenaries.view",
+        "url": "/statutory/1/plenaries/1",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.positions",
+        "url": "/statutory/1/positions/agora-spring",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.question_lines",
+        "url": "/statutory/1/question-lines",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.tasks",
+        "url": "/statutory/tasks",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.statutory.view",
+        "url": "/statutory/1",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.summeruniversity.change_status",
+        "url": "/summeruniversity/change_status",
+        "rules": 4,
+        "elements": 11
+      },
+      {
+        "route": "oms.about",
+        "url": "/about",
+        "rules": 5,
+        "elements": 10
+      },
+      {
+        "route": "oms.bodies.campaigns.view",
+        "url": "/bodies/1/campaigns/1",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.campaigns.view",
+        "url": "/campaigns/1",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.circles.view",
+        "url": "/circles/1",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.dashboard",
+        "url": "/dashboard",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.discounts.add_codes",
+        "url": "/discounts/integrations/1/add-codes",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.discounts",
+        "url": "/discounts",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.events.accepted",
+        "url": "/events/1/accepted",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.events.admin",
+        "url": "/events/serviceadmin",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.events.apply",
+        "url": "/events/1/applications/me",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.events.boardview",
+        "url": "/events/boardview",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.members.edituser",
+        "url": "/members/edituser",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.permissions.view",
+        "url": "/permissions/1",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.profile.update",
+        "url": "/profile/update",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.applications.export",
+        "url": "/statutory/1/applications/export",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.applications.stats",
+        "url": "/statutory/1/applications/stats",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.applications.view",
+        "url": "/statutory/1/applications/me",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.boardview",
+        "url": "/statutory/1/boardview",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.debug",
+        "url": "/statutory/1/debug",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.list.all",
+        "url": "/statutory",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.memberslist.list.without_fee",
+        "url": "/statutory/1/memberslist/list/without_fee",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.memberslist.upload",
+        "url": "/statutory/1/memberslist/upload",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.statutory.votes",
+        "url": "/statutory/1/votes",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.summeruniversity.boardview",
+        "url": "/summeruniversity/boardview",
+        "rules": 4,
+        "elements": 10
+      },
+      {
+        "route": "oms.bodies.list",
+        "url": "/bodies",
+        "rules": 4,
+        "elements": 9
+      },
+      {
+        "route": "oms.bodies.view",
+        "url": "/bodies/1",
+        "rules": 4,
+        "elements": 9
+      },
+      {
+        "route": "oms.events.list.all",
+        "url": "/events",
+        "rules": 4,
+        "elements": 9
+      },
+      {
+        "route": "oms.events.view",
+        "url": "/events/1",
+        "rules": 4,
+        "elements": 9
+      },
+      {
+        "route": "oms.summeruniversity.view",
+        "url": "/summeruniversity/1",
+        "rules": 4,
+        "elements": 9
+      },
+      {
+        "route": "oms.confirm_token",
+        "url": "/confirm_signup",
+        "rules": 4,
+        "elements": 8
+      },
+      {
+        "route": "oms.confluence",
+        "url": "/pages/1",
+        "rules": 4,
+        "elements": 8
+      },
+      {
+        "route": "oms.login",
+        "url": "/login",
+        "rules": 4,
+        "elements": 8
+      },
+      {
+        "route": "oms.mail_change",
+        "url": "/mail-change",
+        "rules": 4,
+        "elements": 8
+      },
+      {
+        "route": "oms.network.ac_check",
+        "url": "/network/ac_check",
+        "rules": 6,
+        "elements": 8
+      },
+      {
+        "route": "oms.password_reset",
+        "url": "/password_reset",
+        "rules": 4,
+        "elements": 8
+      }
+    ]
+  }
+}
