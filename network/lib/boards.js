@@ -48,7 +48,7 @@ exports.createBoard = async (req, res) => {
             }
         });
 
-        await this.sendNewBoardEmail(createdBoard.id, true);
+        await this.sendNewBoardEmail(createdBoard.id, { transaction: t });
     });
 
     return res.json({
@@ -217,14 +217,20 @@ exports.deleteBoard = async (req, res) => {
     });
 };
 
-exports.sendNewBoardEmail = async (id, newBoard) => {
-    const board = await Board.findByPk(id);
+// Sends the welcome mail to a board whose term has started and not ended,
+// and marks the board so the mail is not sent again.
+exports.sendNewBoardEmail = async (id, { transaction } = {}) => {
+    const board = await Board.findByPk(id, { transaction });
 
     if (!board) {
         return;
     }
 
-    if (newBoard && moment(board.end_date).isBefore(moment())) {
+    if (moment(board.start_date).isAfter(moment(), 'day')) {
+        return;
+    }
+
+    if (board.end_date && moment(board.end_date).isBefore(moment(), 'day')) {
         return;
     }
 
@@ -242,4 +248,6 @@ exports.sendNewBoardEmail = async (id, newBoard) => {
         template: 'network_board_welcome.html',
         parameters: {}
     });
+
+    await board.update({ new_board_email_sent_at: new Date() }, { transaction });
 };

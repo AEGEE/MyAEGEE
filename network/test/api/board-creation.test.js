@@ -1,10 +1,13 @@
 const { faker } = require('@faker-js/faker');
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const { Board } = require('../../models');
+const mailer = require('../../lib/mailer');
+const cron = require('../../lib/cron');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
 
@@ -14,6 +17,7 @@ describe('Board creation', () => {
     });
 
     afterAll(async () => {
+        cron.job.stop();
         await stopServer();
     });
 
@@ -317,5 +321,57 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('other_members');
         expect(res.body.data.other_members[0].function).toEqual('Test');
         expect(res.body.data.other_members[0].user_id).toEqual(user.id);
+    });
+
+    describe('welcome mail', () => {
+        const daysFromNow = (days) => moment().add(days, 'days').format('YYYY-MM-DD');
+        let sendMailSpy;
+        const welcomeMails = () => sendMailSpy.mock.calls.filter(([options]) => options.template === 'network_board_welcome.html');
+
+        beforeEach(() => {
+            sendMailSpy = jest.spyOn(mailer, 'sendMail');
+        });
+
+        afterEach(() => {
+            sendMailSpy.mockRestore();
+        });
+
+        const createBoard = (options) => request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: generator.generateBoard(options),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('should send it and mark the board if the term has started', async () => {
+            const res = await createBoard({ start_date: daysFromNow(0) });
+
+            expect(res.statusCode).toEqual(200);
+            expect(welcomeMails()).toHaveLength(1);
+            const board = await Board.findOne({ where: { body_id: body.id } });
+            expect(board.new_board_email_sent_at).not.toBeNull();
+
+            await cron.sendAllEmails();
+
+            expect(welcomeMails()).toHaveLength(1);
+        });
+
+        test('should not send it or mark the board if the term starts in the future', async () => {
+            const res = await createBoard({ start_date: daysFromNow(1) });
+
+            expect(res.statusCode).toEqual(200);
+            expect(welcomeMails()).toHaveLength(0);
+            const board = await Board.findOne({ where: { body_id: body.id } });
+            expect(board.new_board_email_sent_at).toBeNull();
+        });
+
+        test('should not send it if the term has ended', async () => {
+            const res = await createBoard({ start_date: daysFromNow(-10), end_date: daysFromNow(-1) });
+
+            expect(res.statusCode).toEqual(200);
+            expect(welcomeMails()).toHaveLength(0);
+            const board = await Board.findOne({ where: { body_id: body.id } });
+            expect(board.new_board_email_sent_at).toBeNull();
+        });
     });
 });

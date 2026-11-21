@@ -23,7 +23,6 @@ module.exports.sendAllEmails = async () => {
     for (const board of unsentBoards) {
         try {
             await boards.sendNewBoardEmail(board.id);
-            await board.update({ new_board_email_sent_at: new Date() });
         } catch (err) {
             logger.error({ err, board_id: board.id }, 'Could not send new board email');
         }

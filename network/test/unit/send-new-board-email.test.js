@@ -17,10 +17,20 @@ describe('sendNewBoardEmail', () => {
     it('should not send email if board is not found', async () => {
         Board.findByPk.mockResolvedValue(null);
 
-        await sendNewBoardEmail(1, true);
+        await sendNewBoardEmail(1);
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1);
+        expect(Board.findByPk).toHaveBeenCalledWith(1, { transaction: undefined });
         expect(mailer.sendMail).not.toHaveBeenCalled();
+    });
+
+    it('should not send email if start_date is after today', async () => {
+        const board = { start_date: moment().add(1, 'day').toDate(), update: jest.fn() };
+        Board.findByPk.mockResolvedValue(board);
+
+        await sendNewBoardEmail(1);
+
+        expect(mailer.sendMail).not.toHaveBeenCalled();
+        expect(board.update).not.toHaveBeenCalled();
     });
 
     it('should send email for a board that started before today', async () => {
@@ -28,7 +38,8 @@ describe('sendNewBoardEmail', () => {
             start_date: moment().subtract(1, 'day').toDate(),
             president: 1,
             secretary: 2,
-            treasurer: 3
+            treasurer: 3,
+            update: jest.fn()
         };
         Board.findByPk.mockResolvedValue(board);
         core.getMails.mockResolvedValue([{ notification_email: 'president@example.com' }]);
@@ -39,14 +50,18 @@ describe('sendNewBoardEmail', () => {
         expect(mailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
-    it('should not send email if newBoard and end_date is before today', async () => {
-        const board = { end_date: moment().subtract(1, 'day').toDate() };
+    it('should not send email if end_date is before today', async () => {
+        const board = {
+            start_date: moment().subtract(2, 'day').toDate(),
+            end_date: moment().subtract(1, 'day').toDate(),
+            update: jest.fn()
+        };
         Board.findByPk.mockResolvedValue(board);
 
-        await sendNewBoardEmail(1, true);
+        await sendNewBoardEmail(1);
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1);
         expect(mailer.sendMail).not.toHaveBeenCalled();
+        expect(board.update).not.toHaveBeenCalled();
     });
 
     it('should send email with correct parameters', async () => {
@@ -56,8 +71,10 @@ describe('sendNewBoardEmail', () => {
             president: 1,
             secretary: 2,
             treasurer: 3,
-            other_members: [{ user_id: 4 }, { user_id: 5 }]
+            other_members: [{ user_id: 4 }, { user_id: 5 }],
+            update: jest.fn()
         };
+        const transaction = {};
         const mails = [
             { notification_email: 'president@example.com' },
             { notification_email: 'secretary@example.com' },
@@ -68,9 +85,9 @@ describe('sendNewBoardEmail', () => {
         Board.findByPk.mockResolvedValue(board);
         core.getMails.mockResolvedValue(mails);
 
-        await sendNewBoardEmail(1, true);
+        await sendNewBoardEmail(1, { transaction });
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1);
+        expect(Board.findByPk).toHaveBeenCalledWith(1, { transaction });
         expect(core.getMails).toHaveBeenCalledWith('1,2,3,4,5');
         expect(mailer.sendMail).toHaveBeenCalledWith({
             to: mails.map((member) => member.notification_email),
@@ -78,5 +95,6 @@ describe('sendNewBoardEmail', () => {
             template: 'network_board_welcome.html',
             parameters: {}
         });
+        expect(board.update).toHaveBeenCalledWith({ new_board_email_sent_at: expect.any(Date) }, { transaction });
     });
 });
