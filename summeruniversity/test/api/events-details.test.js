@@ -249,6 +249,16 @@ describe('Event details', () => {
             expect(res.body.permissions.apply).toEqual(false);
         });
 
+        test('should allow applying to an event in another season than the user\'s active application', async () => {
+            mock.mockAll(applicantMocks);
+            const event = await generator.createEvent({ season: 2025 });
+            await generator.createApplication(await generator.createEvent({ season: 2026 }), { user_id: 5 });
+
+            const res = await request({ path: '/single/' + event.id, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.body.permissions.apply).toEqual(true);
+        });
+
         test('should allow applying if the application for another event was rejected or cancelled, or in another season', async () => {
             mock.mockAll(applicantMocks);
             const event = await generator.createEvent();

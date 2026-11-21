@@ -45,16 +45,7 @@ const Season = sequelize.define(
             type: Sequelize.DATE,
             allowNull: true,
             validate: {
-                isDate: { msg: 'Application period end should be valid.' },
-                laterThanApplicationPeriodStart(val) {
-                    if (!val || !this.application_period_starts) {
-                        return;
-                    }
-
-                    if (moment(val).isSameOrBefore(this.application_period_starts)) {
-                        throw new Error('Application period cannot end before or at the same time it starts.');
-                    }
-                }
+                isDate: { msg: 'Application period end should be valid.' }
             }
         }
     },
@@ -62,7 +53,19 @@ const Season = sequelize.define(
         underscored: true,
         tableName: 'seasons',
         createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        updatedAt: 'updated_at',
+        validate: {
+            // A model validator, so it also runs when only one of the two dates is updated.
+            applicationPeriodOrder() {
+                if (!this.application_period_starts || !this.application_period_ends) {
+                    return;
+                }
+
+                if (moment(this.application_period_ends).isSameOrBefore(this.application_period_starts)) {
+                    throw new Error('Application period cannot end before or at the same time it starts.');
+                }
+            }
+        }
     }
 );
 

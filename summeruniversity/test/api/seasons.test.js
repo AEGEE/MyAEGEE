@@ -28,13 +28,12 @@ describe('Seasons', () => {
     describe('listing', () => {
         test('should list the seasons, newest first, without logging in', async () => {
             mock.mockAll(anonymousMocks);
-            await generator.createSeason({ year: 2025 });
             await generator.createSeason({ year: 2027 });
 
             const res = await call('GET', '/seasons');
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.map((season) => season.year)).toEqual([2027, 2026, 2025]);
+            expect(res.body.data.map((season) => season.year)).toEqual([2027, 2026, 2025, 2024, 2023, 2022, 2021]);
         });
 
         test('should return the active season without logging in', async () => {
@@ -49,7 +48,7 @@ describe('Seasons', () => {
 
         test('should return 404 if no season is active', async () => {
             mock.mockAll(anonymousMocks);
-            await generator.activateSeason(null);
+            await generator.deactivateSeasons();
 
             const res = await call('GET', '/seasons/active');
 
@@ -73,7 +72,7 @@ describe('Seasons', () => {
             const res = await call('POST', '/seasons', body);
 
             expect(res.statusCode).toEqual(401);
-            expect(await Season.count()).toEqual(1);
+            expect(await Season.count()).toEqual(6);
         });
 
         test('should return 403 without the manage_seasons permission', async () => {
@@ -83,7 +82,7 @@ describe('Seasons', () => {
 
             expect(res.statusCode).toEqual(403);
             expect(res.body.message).toEqual('You are not allowed to manage seasons.');
-            expect(await Season.count()).toEqual(1);
+            expect(await Season.count()).toEqual(6);
         });
 
         test('should create an inactive season', async () => {
@@ -127,11 +126,19 @@ describe('Seasons', () => {
             const res = await call('POST', '/seasons', { ...body, application_period_ends: '2027-01-01T00:00:00.000Z' });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('application_period_ends');
+            expect(res.body.errors).toHaveProperty('applicationPeriodOrder');
         });
     });
 
     describe('updating', () => {
+        test('should return 401 if the user is not authenticated', async () => {
+            mock.mockAll(anonymousMocks);
+
+            const res = await call('PUT', '/seasons/2026', { name: 'Changed' });
+
+            expect(res.statusCode).toEqual(401);
+        });
+
         test('should return 403 without the manage_seasons permission', async () => {
             mock.mockAll(nonManagerMocks);
 
@@ -175,9 +182,32 @@ describe('Seasons', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('name');
         });
+
+        test('should return 422 if only the start is moved after the end of the application period', async () => {
+            mock.mockAll(managerMocks);
+            await generator.createSeason({
+                year: 2027,
+                application_period_starts: '2027-02-01T00:00:00.000Z',
+                application_period_ends: '2027-03-01T00:00:00.000Z'
+            });
+
+            const res = await call('PUT', '/seasons/2027', { application_period_starts: '2027-04-01T00:00:00.000Z' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('applicationPeriodOrder');
+        });
     });
 
     describe('setting the active season', () => {
+        test('should return 401 if the user is not authenticated', async () => {
+            mock.mockAll(anonymousMocks);
+
+            const res = await call('PUT', '/seasons/2025/active');
+
+            expect(res.statusCode).toEqual(401);
+            expect((await Season.findOne({ where: { active: true } })).year).toEqual(2026);
+        });
+
         test('should return 403 without the manage_seasons permission', async () => {
             mock.mockAll(nonManagerMocks);
             await generator.createSeason({ year: 2027 });

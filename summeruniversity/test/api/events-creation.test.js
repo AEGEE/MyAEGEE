@@ -111,7 +111,7 @@ describe('Events creation', () => {
     });
 
     test('should leave the season empty if no season is active', async () => {
-        await generator.activateSeason(null);
+        await generator.deactivateSeasons();
         const body = generator.generateEventBody();
         delete body.season;
 
