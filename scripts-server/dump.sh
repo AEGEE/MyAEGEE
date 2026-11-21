@@ -126,12 +126,13 @@ for host in "${postgres_hosts[@]}"; do
 
   if ! pg_run "${image}" pg_dumpall --globals-only -U postgres -h "${host}" > "${tmp_dir}/${host}/globals.sql"; then
     log ERROR "Host:${host} ; Something went wrong dumping the roles of ${host}"
+    rm -f "${tmp_dir}/${host}/globals.sql"
     error=1
     continue
   fi
 
   if ! databases=$(pg_run "${image}" psql -U postgres -h "${host}" -At \
-    -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0', 'template1', 'postgres') ORDER BY datname"); then
+    -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0', 'template1', 'postgres') AND datallowconn ORDER BY datname"); then
     log ERROR "Host:${host} ; Something went wrong listing the databases of ${host}"
     error=1
     continue
@@ -143,6 +144,8 @@ for host in "${postgres_hosts[@]}"; do
       log INFO "Host:${host} ; Database:${db} ; Done dumping ${db}"
     else
       log ERROR "Host:${host} ; Database:${db} ; Something went wrong dumping ${db}"
+      # A partial dump would still be restorable and leave empty tables behind
+      rm -f "${tmp_dir}/${host}/${db}.dump"
       error=1
     fi
   done <<< "${databases}"
@@ -162,6 +165,7 @@ for volume in "${volumes[@]}"; do
     log INFO "Volume:${volume} ; Done archiving ${volume}"
   else
     log ERROR "Volume:${volume} ; Something went wrong archiving ${volume}"
+    rm -f "${tmp_dir}/volumes/${volume}.tar"
     error=1
   fi
 done

@@ -12,6 +12,8 @@
 # Archives made before the switch to pg_dump -Fc (one pg_dumpall file per host) are not supported,
 #   restore them with the old restore.sh from git history:
 #   https://github.com/AEGEE/MyAEGEE/blob/b7a53beebc4e6ee1a9e7ed2bd6239a2cc55ec2b0/scripts-server/restore.sh
+#
+# Run it from the MyAEGEE folder (for .env) on the docker host: the backup files are mounted into the containers.
 
 ALPINE_IMAGE="alpine:3.20"
 network="${BACKUP_NETWORK:-OMS}"
@@ -22,6 +24,11 @@ if [[ ! -f $1 ]]
 then
   echo "Usage: restore.sh <backup>.tgz"
   exit 1
+fi
+
+if [[ -f .env ]]; then
+  #shellcheck disable=SC2046
+  export $(grep -v '^#' .env | xargs -d '\n')
 fi
 
 tmp_folder="$(mktemp -d /tmp/backup-XXXXXXXXXXXXX)" || exit 4
@@ -74,6 +81,7 @@ do
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
       echo "Skipping ${host}"
+      failed=1
       continue
     fi
   fi
@@ -125,7 +133,7 @@ do
   fi
 
   if ! docker run --rm -v "${vol}:/data" -v "${tarball}:/backup.tar:ro" "${ALPINE_IMAGE}" \
-    sh -c 'find /data -mindepth 1 -delete && tar -xf /backup.tar -C /data'; then
+    sh -c 'tar -xOf /backup.tar > /dev/null && find /data -mindepth 1 -delete && tar -xf /backup.tar -C /data'; then
     echo "Something went wrong restoring volume ${vol}"
     failed=1
   fi
