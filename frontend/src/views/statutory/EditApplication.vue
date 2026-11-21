@@ -585,6 +585,15 @@ export default {
 
       // Fetching application
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
+        if (!application.data.data.permissions.edit_application) {
+          this.$root.showError('You cannot edit this application.')
+          this.$router.push({
+            name: 'oms.statutory.applications.view',
+            params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
+          })
+          return
+        }
+
         this.application = application.data.data
         this.can = application.data.data.permissions
         // We only know the primary body of the applicant if it's the current user
