@@ -7,6 +7,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Position, Attendance } = require('../../models');
 const cron = require('../../lib/cron');
+const logger = require('../../lib/logger');
 
 // eslint-disable-next-line no-promise-executor-return
 const sleep = (delay) => new Promise((res) => setTimeout(res, delay));
@@ -28,6 +29,31 @@ describe('Cron testing', () => {
         mock.cleanAll();
         await generator.clearAll();
         cron.clearAll();
+        jest.restoreAllMocks();
+    });
+
+    test('should log the scheduled time with seconds when adding a job', async () => {
+        const infoSpy = jest.spyOn(logger, 'info');
+        const time = moment().add(1, 'week').seconds(56).milliseconds(789);
+
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, time.toDate(), { id: 1337 });
+
+        expect(infoSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ scheduled_on: time.format('YYYY-MM-DD HH:mm') + ':56' }),
+            'Added a job'
+        );
+    });
+
+    test('should log the scheduled time with seconds when not adding a job in the past', async () => {
+        const warnSpy = jest.spyOn(logger, 'warn');
+        const time = moment().subtract(1, 'week').seconds(56).milliseconds(789);
+
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, time.toDate(), { id: 1337 });
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ scheduled_on: time.format('YYYY-MM-DD HH:mm') + ':56' }),
+            'Job is not added: is in the past, not scheduling.'
+        );
     });
 
     test('should not clear the events that don\'t match the params', async () => {
