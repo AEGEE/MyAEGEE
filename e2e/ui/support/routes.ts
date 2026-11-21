@@ -24,6 +24,7 @@ export interface AppRoute {
 }
 
 const require = createRequire(import.meta.url);
+// eslint-disable-next-line import/no-dynamic-require -- the path is fixed, only resolved from here
 const definitions = require(path.resolve(import.meta.dirname, '../../../frontend/src/router/routes.js')) as RouteDefinition[];
 
 // Parameter values that make sense for the mocked data (support/smoke-data.ts).

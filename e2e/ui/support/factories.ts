@@ -273,14 +273,17 @@ export const event = (overrides: Partial<Event> = {}): Event => {
     };
 };
 
-// The list endpoints return the summary fields only.
+// The list endpoints return the summary fields only (EVENT_PUBLIC_FIELDS in events).
+const SUMMARY_FIELDS: (keyof EventSummary)[] = [
+    'id', 'name', 'url', 'image', 'description', 'application_starts', 'application_ends', 'starts', 'ends',
+    'fee', 'optional_fee', 'organizing_bodies', 'locations', 'type', 'max_participants', 'application_status',
+    'status', 'meals_per_day', 'accommodation_type', 'optional_programme', 'link_info_travel_country', 'method',
+    'has_applications'
+];
+
 export const eventSummary = (overrides: Partial<Event> = {}): EventSummary => {
-    const {
-        questions: _questions, publication_date: _publication, created_at: _created, updated_at: _updated,
-        budget: _budget, programme: _programme, organizers: _organizers, vegetarian: _vegetarian, is_european_event: _european,
-        ...summary
-    } = event(overrides);
-    return summary;
+    const full = event(overrides);
+    return Object.fromEntries(SUMMARY_FIELDS.map((field) => [field, full[field]])) as unknown as EventSummary;
 };
 
 const EVENT_TYPES: EventType[] = ['training', 'nwm', 'conference', 'cultural', 'thematic'];
