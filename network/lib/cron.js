@@ -13,6 +13,10 @@ module.exports.sendAllEmails = async () => {
     const unsentBoards = await Board.findAll({
         where: {
             start_date: { [Op.between]: [oldestStartDate, today] },
+            [Op.or]: [
+                { end_date: { [Op.gte]: today } },
+                { end_date: null }
+            ],
             new_board_email_sent_at: null
         }
     });

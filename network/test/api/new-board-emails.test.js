@@ -49,15 +49,17 @@ describe('New board emails', () => {
         expect(sendMailSpy).not.toHaveBeenCalled();
     });
 
-    test('should skip boards that start in the future or started too long ago', async () => {
+    test('should skip boards that start in the future, started too long ago or already ended', async () => {
         const futureBoard = await generator.createBoard({ start_date: moment().add(1, 'day').format('YYYY-MM-DD') });
         const oldBoard = await generator.createBoard({ start_date: daysAgo(constants.NEW_BOARD_EMAIL_MAX_AGE_DAYS + 1) });
+        const endedBoard = await generator.createBoard({ start_date: daysAgo(3), end_date: daysAgo(1) });
 
         await cron.sendAllEmails();
 
         expect(sendMailSpy).not.toHaveBeenCalled();
         expect((await futureBoard.reload()).new_board_email_sent_at).toBeNull();
         expect((await oldBoard.reload()).new_board_email_sent_at).toBeNull();
+        expect((await endedBoard.reload()).new_board_email_sent_at).toBeNull();
     });
 
     test('should leave a failed board unmarked and retry it on the next run', async () => {
@@ -90,9 +92,11 @@ describe('new_board_email_sent_at migration', () => {
     });
 
     test('should mark existing boards that already started as sent', async () => {
-        const pastBoard = await generator.createBoard({ start_date: daysAgo(30) });
-        const todayBoard = await generator.createBoard({ start_date: daysAgo(0) });
-        const futureBoard = await generator.createBoard({ start_date: moment().add(1, 'day').format('YYYY-MM-DD') });
+        // The backfill compares with the database date, which is in UTC.
+        const utcDay = (days) => moment.utc().add(days, 'days').format('YYYY-MM-DD');
+        const pastBoard = await generator.createBoard({ start_date: utcDay(-30) });
+        const todayBoard = await generator.createBoard({ start_date: utcDay(0) });
+        const futureBoard = await generator.createBoard({ start_date: utcDay(1) });
 
         await migration.down(queryInterface);
         await migration.up(queryInterface, sequelize.constructor);
