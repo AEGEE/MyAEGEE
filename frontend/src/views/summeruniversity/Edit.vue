@@ -1140,7 +1140,7 @@ export default {
         this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.starts = new Date(this.event.ends)
+        this.dates.ends = this.event.ends = new Date(this.event.ends)
 
         for (const body of this.event.organizing_bodies) {
           const foundBody = this.bodies.find(b => b.id === body.body_id)
@@ -1173,7 +1173,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.summeruniversity.list' })
+      this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
   }
 }

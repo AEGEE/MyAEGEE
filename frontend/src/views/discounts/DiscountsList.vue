@@ -61,7 +61,9 @@ export default {
       can: {
         create: false
       },
-      categories: []
+      categories: [],
+      isLoading: false,
+      permissions: []
     }
   },
   computed: {
