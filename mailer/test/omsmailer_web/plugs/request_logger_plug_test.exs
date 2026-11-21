@@ -41,4 +41,12 @@ defmodule OmsmailerWeb.RequestLoggerPlugTest do
     assert log =~ "pirates"
     assert log =~ "hello"
   end
+
+  test "leaves structs such as uploads untouched" do
+    upload = %Plug.Upload{filename: "token.txt", content_type: "text/plain", path: "/tmp/upload"}
+    log = log_request(%{"to" => "recipient@aegee.org", "attachment" => upload})
+
+    assert log =~ ~s("to": "[REDACTED]")
+    assert log =~ "token.txt"
+  end
 end
