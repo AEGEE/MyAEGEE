@@ -6,8 +6,8 @@
     "viewFiles": 120,
     "viewFilesNotRouted": 26,
     "sharedComponents": 15,
-    "viewLines": 27994,
-    "distinctApiCalls": 203
+    "viewLines": 28004,
+    "distinctApiCalls": 230
   },
   "areas": [
     {
@@ -85,7 +85,8 @@
         "PUT statutory /events/:id/positions/:id",
         "PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id",
         "PUT statutory /events/:id/question-lines/:id",
-        "PUT statutory /events/:id/question-lines/:id/questions/:id"
+        "PUT statutory /events/:id/question-lines/:id/questions/:id",
+        "PUT statutory /events/:id/status"
       ],
       "thirdParty": [
         "Chart.js (vue-chartjs)",
@@ -103,7 +104,7 @@
         "permissionChecks": 86,
         "routerPush": 22
       },
-      "score": 215.4,
+      "score": 215.9,
       "size": "XL"
     },
     {
@@ -112,6 +113,7 @@
       "views": 37,
       "lines": 7181,
       "apiCalls": [
+        "DELETE core /bodies/:id/members",
         "DELETE core /bodies/:id/members/:id",
         "DELETE core /bodies/:id/payments/:id",
         "DELETE core /campaigns/:id",
@@ -119,6 +121,8 @@
         "DELETE core /circles/:id/members",
         "DELETE core /circles/:id/members/:id",
         "DELETE core /circles/:id/permissions/:id",
+        "DELETE core /members/:id",
+        "DELETE core /members/:id/event-application-ban",
         "DELETE core /members/:id/image",
         "DELETE core /permissions/:id",
         "DELETE network /bodies/:id/boards/:id",
@@ -143,35 +147,49 @@
         "GET core /circles/:id/members",
         "GET core /circles/:id/my_permissions",
         "GET core /circles/:id/permissions",
+        "GET core /members",
+        "GET core /members/:id",
         "GET core /members/:id/my_permissions",
         "GET core /members/me",
+        "GET core /members/unconfirmed",
         "GET core /members_search",
         "GET core /my_permissions",
         "GET core /permissions",
         "GET core /permissions/:id",
         "GET core /permissions/:id/members",
+        "GET network /bodies/:id/boards/current",
         "GET network /bodies/:id/boards?sort=start_date&direction=desc",
         "POST core /bodies/",
+        "POST core /bodies/:bodyId/join-requests",
         "POST core /bodies/:id/circles",
         "POST core /bodies/:id/create-member",
+        "POST core /bodies/:id/join-requests",
         "POST core /bodies/:id/members",
         "POST core /bodies/:id/payments",
         "POST core /campaigns/",
         "POST core /circles/",
         "POST core /circles/:id/members",
         "POST core /circles/:id/permissions",
+        "POST core /members/:id/confirm",
         "POST core /members/:id/upload",
         "POST core /permissions/",
         "POST network /bodies/:id/boards",
         "PUT core /bodies/:id",
         "PUT core /bodies/:id/join-requests/:id/status",
         "PUT core /bodies/:id/members/:id",
+        "PUT core /bodies/:id/status",
         "PUT core /campaigns/:id",
         "PUT core /circles/:id",
         "PUT core /circles/:id/members/:id",
         "PUT core /circles/:id/parent",
         "PUT core /members/:id",
+        "PUT core /members/:id/active",
+        "PUT core /members/:id/email",
+        "PUT core /members/:id/event-application-ban",
         "PUT core /members/:id/primary-body",
+        "PUT core /members/:id/superadmin",
+        "PUT core /members/me",
+        "PUT core /members/me/email",
         "PUT core /members/me/password",
         "PUT core /permissions/:id",
         "PUT network /bodies/:id/boards/:id"
@@ -190,7 +208,7 @@
         "permissionChecks": 269,
         "routerPush": 25
       },
-      "score": 167,
+      "score": 175.5,
       "size": "XL"
     },
     {
@@ -199,6 +217,7 @@
       "views": 11,
       "lines": 4780,
       "apiCalls": [
+        "DELETE summeruniversity /single/:id",
         "GET ? :scope",
         "GET core /bodies/",
         "GET core /members/:user_id",
@@ -223,6 +242,7 @@
         "PUT summeruniversity /single/:id/applications/:application_id",
         "PUT summeruniversity /single/:id/applications/:id/cancelled",
         "PUT summeruniversity /single/:id/applications/:id/comment/",
+        "PUT summeruniversity /single/:id/open_call",
         "PUT summeruniversity /single/:id/published",
         "PUT summeruniversity /single/:id/status"
       ],
@@ -239,15 +259,16 @@
         "permissionChecks": 69,
         "routerPush": 9
       },
-      "score": 97.9,
+      "score": 98.9,
       "size": "L"
     },
     {
       "area": "events",
       "routes": 12,
       "views": 11,
-      "lines": 3171,
+      "lines": 3181,
       "apiCalls": [
+        "DELETE events /single/:id",
         "GET ? :scope",
         "GET core /bodies/",
         "GET core /members/:user_id",
@@ -271,7 +292,8 @@
         "PUT events /single/:id",
         "PUT events /single/:id/applications/:application_id",
         "PUT events /single/:id/applications/:id/comment/",
-        "PUT events /single/:id/status"
+        "PUT events /single/:id/status",
+        "PUT events /single/:id/status/european_event"
       ],
       "thirdParty": [
         "Mapbox (vue-mapbox / mapbox-gl)",
@@ -287,7 +309,7 @@
         "permissionChecks": 26,
         "routerPush": 8
       },
-      "score": 69.1,
+      "score": 70.2,
       "size": "L"
     },
     {
@@ -364,6 +386,34 @@
       "size": "M"
     },
     {
+      "area": "auth",
+      "routes": 6,
+      "views": 6,
+      "lines": 770,
+      "apiCalls": [
+        "GET core /campaigns/:id",
+        "POST core /confirm-email",
+        "POST core /confirm-email-change",
+        "POST core /password_confirm",
+        "POST core /password_reset",
+        "POST core /signup/:id"
+      ],
+      "thirdParty": [
+        "lodash",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "formFields": 17,
+        "tables": 0,
+        "permissionChecks": 0,
+        "routerPush": 8
+      },
+      "score": 15,
+      "size": "M"
+    },
+    {
       "area": "dashboard",
       "routes": 2,
       "views": 2,
@@ -392,27 +442,6 @@
         "routerPush": 0
       },
       "score": 13.9,
-      "size": "S"
-    },
-    {
-      "area": "auth",
-      "routes": 6,
-      "views": 6,
-      "lines": 770,
-      "apiCalls": [],
-      "thirdParty": [
-        "lodash",
-        "moment"
-      ],
-      "signals": {
-        "vHtml": 1,
-        "buefyProgrammatic": 0,
-        "formFields": 17,
-        "tables": 0,
-        "permissionChecks": 0,
-        "routerPush": 8
-      },
-      "score": 12,
       "size": "S"
     },
     {
@@ -478,7 +507,10 @@
       "lines": 318,
       "linesWithChildren": 318,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "GET core /campaigns/:id",
+        "POST core /signup/:id"
+      ],
       "thirdParty": [
         "lodash",
         "moment"
@@ -509,7 +541,9 @@
       "lines": 80,
       "linesWithChildren": 80,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "POST core /confirm-email"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -535,7 +569,9 @@
       "lines": 77,
       "linesWithChildren": 77,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "POST core /confirm-email-change"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -561,7 +597,9 @@
       "lines": 78,
       "linesWithChildren": 78,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "POST core /password_reset"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -587,7 +625,9 @@
       "lines": 134,
       "linesWithChildren": 134,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "POST core /password_confirm"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -750,7 +790,10 @@
       "lines": 180,
       "linesWithChildren": 180,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /members"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -779,7 +822,10 @@
       "lines": 177,
       "linesWithChildren": 177,
       "childComponents": [],
-      "apiCalls": [],
+      "apiCalls": [
+        "GET core /members/unconfirmed",
+        "POST core /members/:id/confirm"
+      ],
       "thirdParty": [],
       "signals": {
         "vHtml": 0,
@@ -840,7 +886,9 @@
       "linesWithChildren": 258,
       "childComponents": [],
       "apiCalls": [
-        "GET core /members/:id/my_permissions"
+        "GET core /members/:id",
+        "GET core /members/:id/my_permissions",
+        "PUT core /members/:id"
       ],
       "thirdParty": [
         "lodash",
@@ -878,11 +926,18 @@
         "frontend/src/views/core/members/PictureModal.vue"
       ],
       "apiCalls": [
+        "DELETE core /members/:id",
+        "DELETE core /members/:id/event-application-ban",
         "DELETE core /members/:id/image",
         "GET ? :link",
+        "GET core /members/:id",
         "POST core /members/:id/upload",
         "PUT core /members/:id",
-        "PUT core /members/:id/primary-body"
+        "PUT core /members/:id/active",
+        "PUT core /members/:id/email",
+        "PUT core /members/:id/event-application-ban",
+        "PUT core /members/:id/primary-body",
+        "PUT core /members/:id/superadmin"
       ],
       "thirdParty": [
         "moment"
@@ -917,7 +972,11 @@
       "linesWithChildren": 326,
       "childComponents": [],
       "apiCalls": [
-        "GET core /bodies"
+        "GET core /bodies",
+        "GET core /members/me",
+        "POST core /bodies/:bodyId/join-requests",
+        "PUT core /members/me",
+        "PUT core /members/me/email"
       ],
       "thirdParty": [
         "lodash",
@@ -1311,6 +1370,7 @@
         "frontend/src/components/tooltips/MarkdownTooltip.vue"
       ],
       "apiCalls": [
+        "GET core /bodies/:id",
         "GET core /bodies/:id/my_permissions",
         "POST core /bodies/",
         "PUT core /bodies/:id"
@@ -1349,6 +1409,7 @@
         "frontend/src/components/tooltips/MarkdownTooltip.vue"
       ],
       "apiCalls": [
+        "GET core /bodies/:id",
         "GET core /bodies/:id/my_permissions",
         "POST core /bodies/",
         "PUT core /bodies/:id"
@@ -1390,13 +1451,19 @@
         "frontend/src/components/tooltips/MarkdownTooltip.vue"
       ],
       "apiCalls": [
+        "DELETE core /bodies/:id/members",
         "DELETE network /bodies/:id/boards/:id",
+        "GET core /bodies/:id",
         "GET core /bodies/:id/members",
+        "GET core /bodies/:id/my_permissions",
         "GET core /members_search",
+        "GET network /bodies/:id/boards/current",
         "POST core /bodies/:id/circles",
+        "POST core /bodies/:id/join-requests",
         "POST core /bodies/:id/members",
         "POST network /bodies/:id/boards",
         "PUT core /bodies/:id",
+        "PUT core /bodies/:id/status",
         "PUT network /bodies/:id/boards/:id"
       ],
       "thirdParty": [
@@ -2208,8 +2275,8 @@
       "label": "View/edit the event application",
       "auth": true,
       "inMenu": false,
-      "lines": 318,
-      "linesWithChildren": 328,
+      "lines": 322,
+      "linesWithChildren": 332,
       "childComponents": [
         "frontend/src/components/notifications/EventNoBodyNotification.vue"
       ],
@@ -2414,15 +2481,18 @@
       "label": "Display single event",
       "auth": false,
       "inMenu": false,
-      "lines": 595,
-      "linesWithChildren": 669,
+      "lines": 601,
+      "linesWithChildren": 675,
       "childComponents": [
         "frontend/src/components/tooltips/TimezoneTooltip.vue",
         "frontend/src/views/events/PictureModal.vue"
       ],
       "apiCalls": [
+        "DELETE events /single/:id",
         "GET events /single/:id",
-        "POST events /single/:id/upload"
+        "POST events /single/:id/upload",
+        "PUT events /single/:id/status",
+        "PUT events /single/:id/status/european_event"
       ],
       "thirdParty": [
         "Mapbox (vue-mapbox / mapbox-gl)"
@@ -2866,8 +2936,12 @@
         "frontend/src/views/summeruniversity/PictureModal.vue"
       ],
       "apiCalls": [
+        "DELETE summeruniversity /single/:id",
         "GET summeruniversity /single/:id",
-        "POST summeruniversity /single/:id/upload"
+        "POST summeruniversity /single/:id/upload",
+        "PUT summeruniversity /single/:id/open_call",
+        "PUT summeruniversity /single/:id/published",
+        "PUT summeruniversity /single/:id/status"
       ],
       "thirdParty": [
         "Mapbox (vue-mapbox / mapbox-gl)"
@@ -3705,7 +3779,9 @@
       ],
       "apiCalls": [
         "GET core /bodies/:body_id",
-        "POST statutory /events/:id/image"
+        "GET statutory /events/:id",
+        "POST statutory /events/:id/image",
+        "PUT statutory /events/:id/status"
       ],
       "thirdParty": [
         "Mapbox (vue-mapbox / mapbox-gl)",
@@ -4525,6 +4601,12 @@
   ],
   "apiCalls": [
     {
+      "call": "DELETE core /bodies/:id/members",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
       "call": "DELETE core /bodies/:id/members/:id",
       "files": [
         "frontend/src/views/core/bodies/ViewMembers.vue"
@@ -4567,6 +4649,18 @@
       ]
     },
     {
+      "call": "DELETE core /members/:id",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /members/:id/event-application-ban",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
       "call": "DELETE core /members/:id/image",
       "files": [
         "frontend/src/views/core/members/PictureModal.vue"
@@ -4582,6 +4676,12 @@
       "call": "DELETE discounts /categories/:id",
       "files": [
         "frontend/src/views/discounts/CategoriesList.vue"
+      ]
+    },
+    {
+      "call": "DELETE events /single/:id",
+      "files": [
+        "frontend/src/views/events/Single.vue"
       ]
     },
     {
@@ -4618,6 +4718,12 @@
       "call": "DELETE statutory /limits/:eventType/:body_id",
       "files": [
         "frontend/src/views/statutory/PaxLimits.vue"
+      ]
+    },
+    {
+      "call": "DELETE summeruniversity /single/:id",
+      "files": [
+        "frontend/src/views/summeruniversity/Single.vue"
       ]
     },
     {
@@ -4661,6 +4767,7 @@
       "call": "GET core /bodies",
       "files": [
         "frontend/src/views/core/bodies/List.vue",
+        "frontend/src/views/core/members/List.vue",
         "frontend/src/views/core/members/UpdateProfile.vue",
         "frontend/src/views/network/AntennaCriteriaCheck.vue",
         "frontend/src/views/network/BoardListing.vue",
@@ -4712,6 +4819,8 @@
     {
       "call": "GET core /bodies/:id",
       "files": [
+        "frontend/src/views/core/bodies/Edit.vue",
+        "frontend/src/views/core/bodies/Single.vue",
         "frontend/src/views/core/bodies/ViewMembers.vue"
       ]
     },
@@ -4742,6 +4851,7 @@
       "files": [
         "frontend/src/views/core/bodies/CampaignsList.vue",
         "frontend/src/views/core/bodies/Edit.vue",
+        "frontend/src/views/core/bodies/Single.vue",
         "frontend/src/views/core/bodies/ViewBoards.vue",
         "frontend/src/views/core/bodies/ViewJoinRequests.vue",
         "frontend/src/views/core/bodies/ViewMembers.vue"
@@ -4774,6 +4884,7 @@
     {
       "call": "GET core /campaigns/:id",
       "files": [
+        "frontend/src/views/auth/Register.vue",
         "frontend/src/views/core/campaigns/Edit.vue",
         "frontend/src/views/core/campaigns/Single.vue"
       ]
@@ -4817,12 +4928,25 @@
       ]
     },
     {
+      "call": "GET core /members",
+      "files": [
+        "frontend/src/views/core/members/List.vue"
+      ]
+    },
+    {
       "call": "GET core /members_search",
       "files": [
         "frontend/src/views/core/bodies/AddMemberModal.vue",
         "frontend/src/views/events/Edit.vue",
         "frontend/src/views/summeruniversity/Edit.vue",
         "frontend/src/views/summeruniversity/EditSecond.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/:id",
+      "files": [
+        "frontend/src/views/core/members/Edit.vue",
+        "frontend/src/views/core/members/Single.vue"
       ]
     },
     {
@@ -4843,7 +4967,14 @@
       "call": "GET core /members/me",
       "files": [
         "frontend/src/views/core/members/EditUser.vue",
+        "frontend/src/views/core/members/UpdateProfile.vue",
         "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/unconfirmed",
+      "files": [
+        "frontend/src/views/core/members/ListUnconfirmed.vue"
       ]
     },
     {
@@ -5031,6 +5162,12 @@
       ]
     },
     {
+      "call": "GET network /bodies/:id/boards/current",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
       "call": "GET network /mailComponent/:id",
       "files": [
         "frontend/src/views/network/AntennaCriteriaCheck.vue"
@@ -5069,6 +5206,7 @@
         "frontend/src/views/statutory/PlenariesList.vue",
         "frontend/src/views/statutory/PositionsList.vue",
         "frontend/src/views/statutory/QuestionLinesList.vue",
+        "frontend/src/views/statutory/Single.vue",
         "frontend/src/views/statutory/Stats.vue",
         "frontend/src/views/statutory/UploadMembersList.vue",
         "frontend/src/views/statutory/ViewApplication.vue",
@@ -5364,6 +5502,12 @@
       ]
     },
     {
+      "call": "POST core /bodies/:bodyId/join-requests",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
+      ]
+    },
+    {
       "call": "POST core /bodies/:id/circles",
       "files": [
         "frontend/src/views/core/bodies/AddBoundCircleModal.vue"
@@ -5374,6 +5518,12 @@
       "files": [
         "frontend/src/views/core/bodies/BulkImport.vue",
         "frontend/src/views/core/bodies/CreateMember.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/join-requests",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
       ]
     },
     {
@@ -5420,6 +5570,24 @@
       ]
     },
     {
+      "call": "POST core /confirm-email",
+      "files": [
+        "frontend/src/views/auth/ConfirmToken.vue"
+      ]
+    },
+    {
+      "call": "POST core /confirm-email-change",
+      "files": [
+        "frontend/src/views/auth/MailChange.vue"
+      ]
+    },
+    {
+      "call": "POST core /members/:id/confirm",
+      "files": [
+        "frontend/src/views/core/members/ListUnconfirmed.vue"
+      ]
+    },
+    {
       "call": "POST core /members/:id/listserv",
       "files": [
         "frontend/src/views/statutory/EditApplication.vue"
@@ -5439,9 +5607,27 @@
       ]
     },
     {
+      "call": "POST core /password_confirm",
+      "files": [
+        "frontend/src/views/auth/PasswordConfirm.vue"
+      ]
+    },
+    {
+      "call": "POST core /password_reset",
+      "files": [
+        "frontend/src/views/auth/PasswordReset.vue"
+      ]
+    },
+    {
       "call": "POST core /permissions/",
       "files": [
         "frontend/src/views/core/permissions/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /signup/:id",
+      "files": [
+        "frontend/src/views/auth/Register.vue"
       ]
     },
     {
@@ -5629,6 +5815,12 @@
       ]
     },
     {
+      "call": "PUT core /bodies/:id/status",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
       "call": "PUT core /campaigns/:id",
       "files": [
         "frontend/src/views/core/campaigns/Edit.vue"
@@ -5655,13 +5847,50 @@
     {
       "call": "PUT core /members/:id",
       "files": [
+        "frontend/src/views/core/members/Edit.vue",
         "frontend/src/views/core/members/EditPrimaryEmailModal.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/active",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/email",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/event-application-ban",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
       ]
     },
     {
       "call": "PUT core /members/:id/primary-body",
       "files": [
         "frontend/src/views/core/members/EditPrimaryBodyModal.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/superadmin",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/me",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/me/email",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
       ]
     },
     {
@@ -5709,7 +5938,14 @@
     {
       "call": "PUT events /single/:id/status",
       "files": [
-        "frontend/src/views/events/ChangeStatus.vue"
+        "frontend/src/views/events/ChangeStatus.vue",
+        "frontend/src/views/events/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id/status/european_event",
+      "files": [
+        "frontend/src/views/events/Single.vue"
       ]
     },
     {
@@ -5798,6 +6034,12 @@
       ]
     },
     {
+      "call": "PUT statutory /events/:id/status",
+      "files": [
+        "frontend/src/views/statutory/Single.vue"
+      ]
+    },
+    {
       "call": "PUT summeruniversity /single/:id",
       "files": [
         "frontend/src/views/summeruniversity/Edit.vue",
@@ -5829,15 +6071,23 @@
       ]
     },
     {
+      "call": "PUT summeruniversity /single/:id/open_call",
+      "files": [
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    },
+    {
       "call": "PUT summeruniversity /single/:id/published",
       "files": [
-        "frontend/src/views/summeruniversity/ChangeStatus.vue"
+        "frontend/src/views/summeruniversity/ChangeStatus.vue",
+        "frontend/src/views/summeruniversity/Single.vue"
       ]
     },
     {
       "call": "PUT summeruniversity /single/:id/status",
       "files": [
-        "frontend/src/views/summeruniversity/ChangeStatus.vue"
+        "frontend/src/views/summeruniversity/ChangeStatus.vue",
+        "frontend/src/views/summeruniversity/Single.vue"
       ]
     }
   ]

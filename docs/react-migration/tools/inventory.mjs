@@ -81,7 +81,8 @@ const normaliseUrl = (expression) => {
 
 const findApiCalls = (text) => {
     const calls = [];
-    const callPattern = /\baxios\.(get|post|put|patch|delete)\(/g;
+    // Also `this.axios\n  .get(` (chained on the next line).
+    const callPattern = /\baxios\s*\.(get|post|put|patch|delete)\(/g;
     let match;
     while ((match = callPattern.exec(text))) {
         const argument = readFirstArgument(text, match.index + match[0].length);
