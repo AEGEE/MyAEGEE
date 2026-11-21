@@ -147,6 +147,7 @@ const PERMISSIONS = [
     { scope: 'global', action: 'manage_summeruniversity', object: 'pilot', description: 'Permission to manage pilot SUs by SUCT' },
     { scope: 'global', action: 'approve_summeruniversity', object: 'regular', description: 'Permission for approving regular SUs by SUCT' },
     { scope: 'global', action: 'manage_summeruniversity', object: 'regular', description: 'Permission to manage regular SUs by SUCT' },
+    { scope: 'global', action: 'manage_seasons', object: 'summeruniversity', description: 'Create and edit Summer University seasons and set the active season' },
     { scope: 'global', action: 'apply', object: 'spm', description: 'For those who missed the SPM deadline but still need to apply' },
     { scope: 'global', action: 'approve_members', object: 'spm', description: 'Set pax type/order and board comment for SPM applications for all bodies.' },
     { scope: 'local', action: 'approve_members', object: 'spm', description: 'Set pax type/order and board comment for SPM applications.' },
@@ -425,6 +426,7 @@ const CIRCLE_PERMISSIONS = {
         'global:manage_summeruniversity:pilot',
         'global:approve_summeruniversity:regular',
         'global:manage_summeruniversity:regular',
+        'global:manage_seasons:summeruniversity',
         'global:edit:su_fee',
         'global:edit:su_type',
         'global:create:summeruniversity'

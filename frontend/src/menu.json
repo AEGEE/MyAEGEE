@@ -162,6 +162,11 @@
             "name": "oms.summeruniversity.boardview",
             "label": "Board view",
             "permissions": ["global:see_boardview:summeruniversity"]
+          },
+          {
+            "name": "oms.summeruniversity.seasons",
+            "label": "Seasons",
+            "permissions": ["global:manage_seasons:summeruniversity"]
           }
         ]
       },
