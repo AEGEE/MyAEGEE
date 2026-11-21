@@ -77,4 +77,31 @@ describe('Board details', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should fail if body_id is not a number', async () => {
+        const board = await generator.createBoard();
+
+        const res = await request({
+            path: '/bodies/lalala/boards/' + board.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Body ID is invalid.');
+    });
+
+    test('should fail if the board belongs to another body', async () => {
+        const board = await generator.createBoard({ body_id: 1 });
+
+        const res = await request({
+            path: '/bodies/2/boards/' + board.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+    });
 });

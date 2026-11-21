@@ -1,10 +1,15 @@
 const { AntennaCriterion } = require('../models');
 const errors = require('./errors');
+const helpers = require('./helpers');
 const mailer = require('./mailer');
 
 exports.listCriteria = async (req, res) => {
     if (!req.permissions.manage_antenna_criteria) {
         return errors.makeForbiddenError(res, 'You are not allowed to list Antenna Criteria.');
+    }
+
+    if (!helpers.isNumber(req.params.agora_id)) {
+        return errors.makeBadRequestError(res, 'Agora ID is invalid.');
     }
 
     const criteria = await AntennaCriterion.findAll({
