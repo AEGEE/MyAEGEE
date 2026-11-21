@@ -151,7 +151,7 @@ export default {
           }
         }
       }).catch((err) => {
-        if (err.response.status === 404) {
+        if (err.response && err.response.status === 404) {
           return
         }
         this.$root.showError('Could not fetch boards', err)

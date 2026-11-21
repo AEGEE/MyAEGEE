@@ -72,7 +72,7 @@ export default {
         this.showSuccess('Member is added.')
         this.router.go(0) // Reloading the page.
       }).catch((err) => {
-        if (err.response.status === 422) {
+        if (err.response && err.response.status === 422) {
           this.showError('Could not add member: this person is already a member of this body.')
         } else {
           this.showError('Could not add member', err)
