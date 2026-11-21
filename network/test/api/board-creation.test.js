@@ -356,6 +356,21 @@ describe('Board creation', () => {
             expect(welcomeMails()).toHaveLength(1);
         });
 
+        test('should still create the board if the welcome mail fails, and leave it for the daily job', async () => {
+            sendMailSpy.mockImplementation(async (options) => {
+                if (options.template === 'network_board_welcome.html') {
+                    throw new Error('Mailer is down');
+                }
+            });
+
+            const res = await createBoard({ start_date: daysFromNow(0) });
+
+            expect(res.statusCode).toEqual(200);
+            const board = await Board.findOne({ where: { body_id: body.id } });
+            expect(board).not.toBeNull();
+            expect(board.new_board_email_sent_at).toBeNull();
+        });
+
         test('should not send it or mark the board if the term starts in the future', async () => {
             const res = await createBoard({ start_date: daysFromNow(1) });
 

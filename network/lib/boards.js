@@ -9,6 +9,7 @@ const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
 const constants = require('./constants');
+const logger = require('./logger');
 
 exports.createBoard = async (req, res) => {
     if (!helpers.isNumber(req.params.body_id)) {
@@ -34,8 +35,8 @@ exports.createBoard = async (req, res) => {
         }
     }
 
-    await sequelize.transaction(async (t) => {
-        const createdBoard = await Board.create(boardData, { transaction: t });
+    const createdBoard = await sequelize.transaction(async (t) => {
+        const board = await Board.create(boardData, { transaction: t });
 
         await mailer.sendMail({
             to: config.new_board_notifications,
@@ -48,8 +49,16 @@ exports.createBoard = async (req, res) => {
             }
         });
 
-        await this.sendNewBoardEmail(createdBoard.id, { transaction: t });
+        return board;
     });
+
+    // Best-effort: a failed welcome mail doesn't fail the creation. The board stays
+    // unmarked, so the daily job retries it.
+    try {
+        await this.sendNewBoardEmail(createdBoard.id);
+    } catch (err) {
+        logger.error({ err, board_id: createdBoard.id }, 'Could not send new board email');
+    }
 
     return res.json({
         success: true,
@@ -219,8 +228,8 @@ exports.deleteBoard = async (req, res) => {
 
 // Sends the welcome mail to a board whose term has started and not ended,
 // and marks the board so the mail is not sent again.
-exports.sendNewBoardEmail = async (id, { transaction } = {}) => {
-    const board = await Board.findByPk(id, { transaction });
+exports.sendNewBoardEmail = async (id) => {
+    const board = await Board.findByPk(id);
 
     if (!board) {
         return;
@@ -249,5 +258,5 @@ exports.sendNewBoardEmail = async (id, { transaction } = {}) => {
         parameters: {}
     });
 
-    await board.update({ new_board_email_sent_at: new Date() }, { transaction });
+    await board.update({ new_board_email_sent_at: new Date() });
 };

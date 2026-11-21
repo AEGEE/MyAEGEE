@@ -19,7 +19,7 @@ describe('sendNewBoardEmail', () => {
 
         await sendNewBoardEmail(1);
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1, { transaction: undefined });
+        expect(Board.findByPk).toHaveBeenCalledWith(1);
         expect(mailer.sendMail).not.toHaveBeenCalled();
     });
 
@@ -74,7 +74,6 @@ describe('sendNewBoardEmail', () => {
             other_members: [{ user_id: 4 }, { user_id: 5 }],
             update: jest.fn()
         };
-        const transaction = {};
         const mails = [
             { notification_email: 'president@example.com' },
             { notification_email: 'secretary@example.com' },
@@ -85,9 +84,9 @@ describe('sendNewBoardEmail', () => {
         Board.findByPk.mockResolvedValue(board);
         core.getMails.mockResolvedValue(mails);
 
-        await sendNewBoardEmail(1, { transaction });
+        await sendNewBoardEmail(1);
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1, { transaction });
+        expect(Board.findByPk).toHaveBeenCalledWith(1);
         expect(core.getMails).toHaveBeenCalledWith('1,2,3,4,5');
         expect(mailer.sendMail).toHaveBeenCalledWith({
             to: mails.map((member) => member.notification_email),
@@ -95,6 +94,6 @@ describe('sendNewBoardEmail', () => {
             template: 'network_board_welcome.html',
             parameters: {}
         });
-        expect(board.update).toHaveBeenCalledWith({ new_board_email_sent_at: expect.any(Date) }, { transaction });
+        expect(board.update).toHaveBeenCalledWith({ new_board_email_sent_at: expect.any(Date) });
     });
 });
