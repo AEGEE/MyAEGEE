@@ -7,3 +7,4 @@ playwright-report-ui/
 test-results-ui/
 a11y-results/
 .frontend-coexist-dist/
+test-results-react/

@@ -17,6 +17,11 @@ const NEEDS_DATA: Record<string, string> = {
     'oms.statutory.applications.new': 'needs a statutory event with question lines'
 };
 
+// Pages that send the viewer on: a complete profile has nothing to update (UpdateProfile.vue).
+const REDIRECTS: Record<string, { url: string; title: string }> = {
+    'oms.profile.update': { url: '/dashboard', title: 'MyAEGEE | Dashboard' }
+};
+
 // Error messages that are the expected result of having no data.
 const EXPECTED_ALERTS: Record<string, RegExp> = {
     'oms.network.ac_check': /no Agora data available/
@@ -44,7 +49,11 @@ for (const route of ROUTES) {
             await page.goto(route.url);
             // For visitors who aren't logged in, the Vue router skips setting the title of public
             // pages (app.js, the catch() of beforeEach), so they keep the default one.
-            await expect(page).toHaveTitle(route.auth ? `MyAEGEE | ${route.label}` : /^MyAEGEE \| /);
+            const redirect = REDIRECTS[route.name];
+            if (redirect) await expect(page).toHaveURL(redirect.url);
+            const title = redirect?.title ?? (route.auth ? `MyAEGEE | ${route.label}` : /^MyAEGEE \| /);
+            // Some pages load a large chunk first (editors, maps); give them time on a busy machine.
+            await expect(page).toHaveTitle(title, { timeout: 10_000 });
             await page.waitForLoadState('networkidle');
 
             const expected = EXPECTED_ALERTS[route.name];

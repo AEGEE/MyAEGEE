@@ -21,7 +21,10 @@ export const mockEverything = (api: ApiMock): void => {
         eventSummary({ id: 12, name: 'Network Meeting Utrecht', type: 'nwm', fee: 0, application_status: 'closed' }),
         eventSummary({ id: 13, name: 'Online Conference', type: 'conference', method: 'online', has_applications: false })
     ];
-    for (const list of ['/', '/mine/participating', '/mine/organizing']) api.json(`GET events ${list}`, ok(events));
+    api.json('GET events /', ok(events));
+    api.json('GET events /mine/organizing', ok(events));
+    // "Mine" also has the member's application (events/lib/events.js, listUserAppliedEvents).
+    api.json('GET events /mine/participating', ok(events.map((item) => ({ ...item, applications: [{ user_id: 1, status: 'pending' }] }))));
 
     const organizers = [{ user_id: 1, first_name: 'Ada', last_name: 'Admin', comment: '' }];
     const sampleEvent = event({
