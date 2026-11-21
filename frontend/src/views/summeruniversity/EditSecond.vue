@@ -56,7 +56,7 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
-        <div class="field" v-if="can.editSeason">
+        <div class="field" v-if="managedTypes.includes(event.type)">
           <label class="label">Season <span class="has-text-danger">*</span></label>
           <div class="select">
             <select v-model="event.season">
@@ -518,9 +518,10 @@ export default {
       courseLevels: constants.SUMMERUNIVERSITY_COURSE_LEVELS,
       file: null,
       seasons: [],
+      // The event types the user can manage. Only managers of the event's type can choose its season.
+      managedTypes: [],
       can: {
-        editEventType: false,
-        editSeason: false
+        editEventType: false
       },
       errors: {},
       isLoading: false,
@@ -717,13 +718,12 @@ export default {
 
     this.axios.get(this.services['core'] + '/my_permissions/').then((response) => {
       this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+      this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
 
       return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-        // Only managers of this event type can change the season.
-        this.can.editSeason = Boolean(this.can.manage_summeruniversity[this.event.type])
 
         for (const organizer of this.event.organizers) {
           this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {

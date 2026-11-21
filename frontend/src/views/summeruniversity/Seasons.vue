@@ -25,9 +25,10 @@
           </b-table-column>
 
           <b-table-column label="Application period" v-slot="props">
-            <span v-if="props.row.application_period_starts || props.row.application_period_ends">
-              {{ props.row.application_period_starts | datetime }} - {{ props.row.application_period_ends | datetime }}
-            </span>
+            <span v-if="props.row.application_period_starts">{{ props.row.application_period_starts | datetime }}</span>
+            <span v-else>-</span>
+            to
+            <span v-if="props.row.application_period_ends">{{ props.row.application_period_ends | datetime }}</span>
             <span v-else>-</span>
           </b-table-column>
 

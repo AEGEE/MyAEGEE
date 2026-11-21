@@ -136,6 +136,7 @@ export default {
     this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
       const season = response.data.data.find((s) => s.year === Number(this.$route.params.year))
       if (!season) {
+        this.isLoading = false
         this.$root.showError('Season is not found')
         return this.$router.push({ name: 'oms.summeruniversity.seasons' })
       }
