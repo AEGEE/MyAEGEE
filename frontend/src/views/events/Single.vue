@@ -48,10 +48,10 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
+            <button type="button" class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
@@ -69,10 +69,10 @@
             class="field is-grouped"
             v-if="can.change_status.submitted && event.status === 'draft'"
           >
-            <a class="button is-fullwidth is-warning" @click="askChangeStatus('submitted')">
+            <button type="button" class="button is-fullwidth is-warning" @click="askChangeStatus('submitted')">
               <span>Ask for approval</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For EQAC: unpublish event (published -> submitted)  -->
@@ -80,10 +80,10 @@
             class="field is-grouped"
             v-if="can.change_status.submitted && event.status === 'published'"
           >
-            <a class="button is-fullwidth is-danger" @click="askChangeStatus('submitted')">
+            <button type="button" class="button is-fullwidth is-danger" @click="askChangeStatus('submitted')">
               <span>Unpublish</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For EQAC: approve (submitted -> published) -->
@@ -91,10 +91,10 @@
             class="field is-grouped"
             v-if="can.change_status.published && event.status === 'submitted'"
           >
-            <a class="button is-fullwidth is-primary" @click="askChangeStatus('published')">
+            <button type="button" class="button is-fullwidth is-primary" @click="askChangeStatus('published')">
               <span>Approve event</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For EQAC: reject/request for changes (submitted -> draft) -->
@@ -102,25 +102,25 @@
             class="field is-grouped"
             v-if="can.change_status.draft && event.status === 'submitted'"
           >
-            <a class="button is-fullwidth is-danger" @click="askChangeStatus('draft')">
+            <button type="button" class="button is-fullwidth is-danger" @click="askChangeStatus('draft')">
               <span>Request changes</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For CD: change European Event status-->
           <div class="field is-grouped" v-if="can.change_european_event_status[event.type]">
-            <a class="button is-fullwidth is-primary" @click="askChangeEuropeanEventStatus()">
+            <button type="button" class="button is-fullwidth is-primary" @click="askChangeEuropeanEventStatus()">
               <span>Change European Event status</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.delete_event">
-            <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
+            <button type="button" class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
               <span class="icon"><font-awesome-icon icon="times" /></span>
-            </a>
+            </button>
           </div>
         </article>
       </div>
@@ -128,7 +128,7 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ event.name }}</p>
+          <p class="title" role="heading" aria-level="1">{{ event.name }}</p>
 
           <div class="notification is-info" v-if="isOnlineEvent">
             This is an online event<span v-if="!event.has_applications"
@@ -419,6 +419,8 @@ export default {
         confirmText: 'Delete event',
         type: 'is-danger',
         hasIcon: true,
+        ariaRole: 'alertdialog',
+        ariaModal: true,
         onConfirm: () => this.deleteEvent()
       })
     },
@@ -452,6 +454,8 @@ export default {
         confirmText: 'Change status',
         type: 'is-warning',
         hasIcon: true,
+        ariaRole: 'alertdialog',
+        ariaModal: true,
         onConfirm: () => this.changeStatus(newStatus)
       })
     },
@@ -488,6 +492,8 @@ export default {
         confirmText: 'Change European Event status',
         type: 'is-warning',
         hasIcon: true,
+        ariaRole: 'alertdialog',
+        ariaModal: true,
         onConfirm: () => this.changeEuropeanEventStatus()
       })
     },
