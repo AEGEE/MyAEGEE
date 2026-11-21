@@ -65,10 +65,10 @@ PagesRouter.put('/', pages.updatePage);
 PagesRouter.delete('/', pages.deletePage);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use('/courses/:course_id', CoursesRouter);
-server.use('/courses/:course_id/chapters/:chapter_id', ChaptersRouter);
-server.use('/courses/:course_id/chapters/:chapter_id/pages/:page_id', PagesRouter);
-server.use('/', GeneralRouter);
+server.use('/courses/:course_id', endpointsMetrics.recordMountPath('/courses/:course_id'), CoursesRouter);
+server.use('/courses/:course_id/chapters/:chapter_id', endpointsMetrics.recordMountPath('/courses/:course_id/chapters/:chapter_id'), ChaptersRouter);
+server.use('/courses/:course_id/chapters/:chapter_id/pages/:page_id', endpointsMetrics.recordMountPath('/courses/:course_id/chapters/:chapter_id/pages/:page_id'), PagesRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 

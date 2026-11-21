@@ -56,7 +56,7 @@ GeneralRouter.put('/categories/:category_id', categories.findCategory, categorie
 GeneralRouter.delete('/categories/:category_id', categories.findCategory, categories.deleteCategory);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use('/', GeneralRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
