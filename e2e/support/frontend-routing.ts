@@ -31,10 +31,13 @@ export const frontendFor = (pathname: string, { react }: { react: boolean }): Fr
     return pagePatterns.some((pattern) => pattern.test(pathname)) ? 'react' : 'vue';
 };
 
-// The build directory a path is served from.
-export const distFor = (pathname: string, { react }: { react: boolean }): string => {
-    if (!react) return VUE_DIST;
-    return frontendFor(pathname, { react }) === 'react' ? REACT_DIST : VUE_COEXIST_DIST;
+// Where a path is served from: the build directory and the path inside it. The React build
+// is made with base /react/ (frontend-react/vite.config.ts), so /react/assets/x.js is
+// assets/x.js in its build directory.
+export const staticFileFor = (pathname: string, { react }: { react: boolean }): { dist: string; pathname: string } => {
+    if (!react) return { dist: VUE_DIST, pathname };
+    if (frontendFor(pathname, { react }) === 'vue') return { dist: VUE_COEXIST_DIST, pathname };
+    return { dist: REACT_DIST, pathname: assetPattern.test(pathname) ? pathname.replace(/^\/react/, '') : pathname };
 };
 
 const MIME_TYPES: Record<string, string> = {
@@ -52,7 +55,7 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 // Serves a file of a single page app build; unknown paths get its index.html.
-export const serveStatic = (distDir: string, pathname: string, res: import('node:http').ServerResponse): void => {
+export const serveStatic = ({ dist: distDir, pathname }: { dist: string; pathname: string }, res: import('node:http').ServerResponse): void => {
     let file = path.join(distDir, path.normalize(pathname));
     if (!file.startsWith(distDir + path.sep) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
         // Single page app: unknown paths are handled by the frontend router.

@@ -45,7 +45,8 @@ test.describe('session', { tag: '@migrated' }, () => {
         await page.goto('/events');
 
         const navigation = page.getByRole('navigation');
-        await navigation.getByText('Alex Member').hover();
+        // A hover menu in Vue, a button in React: clicking opens both.
+        await navigation.getByText('Alex Member').click();
         await expect(navigation.getByRole('link', { name: 'See my account' })).toHaveAttribute('href', '/members/me');
         await navigation.getByText('Logout').click();
 
@@ -73,7 +74,7 @@ test.describe('session', { tag: '@migrated' }, () => {
 
             await expect(page.getByText('No events found.')).toBeVisible();
             await expect(page.getByRole('navigation').getByRole('link', { name: 'Login' })).toHaveAttribute('href', '/login');
-            await expect(page.getByRole('link', { name: 'Create event' })).toHaveCount(0);
+            await expect(page.getByRole('main').getByRole('link', { name: 'Create event' })).toHaveCount(0);
         });
     });
 });

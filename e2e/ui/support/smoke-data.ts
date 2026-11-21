@@ -2,7 +2,7 @@
 // empty and the "single item" endpoints return one plausible object. The smoke and
 // accessibility runs (smoke/, a11y/) use these; the behavioural specs mock exactly what they need.
 import type { ApiMock } from './api-mock.ts';
-import { body, event, eventPermissions, member, ok } from './factories.ts';
+import { body, event, eventPermissions, eventSummary, member, ok, question } from './factories.ts';
 
 export const mockEverything = (api: ApiMock): void => {
     // Registered first, so everything below (and anything a test adds) takes precedence.
@@ -15,8 +15,28 @@ export const mockEverything = (api: ApiMock): void => {
     // POST /my_permissions answers "where may I do X" with a list of lists of circles.
     api.json('POST core /my_permissions', ok([]));
 
+    // A few events of different kinds, so lists and cards render (and get checked by axe).
+    const events = [
+        eventSummary({ id: 11, name: 'Spring Training', type: 'training', fee: 50 }),
+        eventSummary({ id: 12, name: 'Network Meeting Utrecht', type: 'nwm', fee: 0, application_status: 'closed' }),
+        eventSummary({ id: 13, name: 'Online Conference', type: 'conference', method: 'online', has_applications: false })
+    ];
+    for (const list of ['/', '/mine/participating', '/mine/organizing']) api.json(`GET events ${list}`, ok(events));
+
     const organizers = [{ user_id: 1, first_name: 'Ada', last_name: 'Admin', comment: '' }];
-    const sampleEvent = event({ id: 1, url: '1', organizers, budget: null, programme: null, is_european_event: false });
+    const sampleEvent = event({
+        id: 1,
+        url: '1',
+        organizers,
+        budget: null,
+        programme: null,
+        is_european_event: false,
+        questions: [
+            question({ type: 'string', description: 'Why do you want to join?', required: true }),
+            question({ type: 'checkbox', description: 'I am vegetarian' }),
+            question({ type: 'select', description: 'T-shirt size', values: ['S', 'M', 'L'] })
+        ]
+    });
     api.json('GET events /single/:id', ok(sampleEvent, { permissions: eventPermissions() }));
     api.json('GET summeruniversity /single/:id', ok({ ...sampleEvent, status: 'first draft', questions: [], cooperation: [], courses: [] }, { permissions: eventPermissions() }));
     api.json('GET core /bodies/:id', ok(body({ id: 1 })));

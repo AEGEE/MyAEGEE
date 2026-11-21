@@ -67,7 +67,11 @@ export const test = base.extend<Options & Fixtures>({
 
         if (me) {
             // Logged in the way the Vue app stores it, which the React app reads as well.
+            // Only on the first page load: init scripts run on every load, and a full page load
+            // (between the apps, or after logging out) must keep what the app did to the tokens.
             await page.addInitScript(([access, refresh]) => {
+                if (window.sessionStorage.getItem('mock-session')) return;
+                window.sessionStorage.setItem('mock-session', 'set');
                 window.localStorage.setItem('access-token', access);
                 window.localStorage.setItem('refresh-token', refresh);
             }, [ACCESS_TOKEN, REFRESH_TOKEN]);
@@ -96,7 +100,8 @@ export const test = base.extend<Options & Fixtures>({
     }, { auto: true }]
 });
 
-// The toast/notification the app shows after an action. Both apps render it with role="alert".
-export const toast = (page: Page, text: string | RegExp) => page.getByRole('alert').filter({ hasText: text });
+// The toast/notification the app shows after an action. Buefy gives every toast role="alert";
+// the React app uses role="status" for the ones that needn't interrupt (success, info).
+export const toast = (page: Page, text: string | RegExp) => page.getByRole('alert').or(page.getByRole('status')).filter({ hasText: text });
 
 export { expect };
