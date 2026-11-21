@@ -50,14 +50,15 @@ module.exports = {
             where: { active: true }
         });
 
-        // The season that was hardcoded before, so the behaviour stays the same.
-        await queryInterface.bulkInsert('seasons', [{
-            year: 2026,
-            name: 'Summer University 2026',
-            active: true,
+        // The seasons that existing events use. 2026 was hardcoded before, so it stays active.
+        const seasons = [2021, 2022, 2023, 2024, 2025, 2026].map((year) => ({
+            year,
+            name: 'Summer University ' + year,
+            active: year === 2026,
             created_at: new Date(),
             updated_at: new Date()
-        }]);
+        }));
+        await queryInterface.bulkInsert('seasons', seasons);
     },
     down: async (queryInterface) => {
         await queryInterface.dropTable('seasons');

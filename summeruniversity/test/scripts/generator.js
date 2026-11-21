@@ -91,9 +91,13 @@ exports.clearAll = async () => {
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });
 
-    // Back to the 2026 season that the migration creates.
+    // Back to the seasons that the migration creates.
     await Season.destroy({ where: {}, truncate: true });
-    await Season.create({ year: 2026, name: 'Summer University 2026', active: true });
+    await Season.bulkCreate([2021, 2022, 2023, 2024, 2025, 2026].map((year) => ({
+        year,
+        name: 'Summer University ' + year,
+        active: year === 2026
+    })));
 };
 
 exports.createSeason = (options = {}) => {
@@ -103,9 +107,11 @@ exports.createSeason = (options = {}) => {
     return Season.create(options);
 };
 
+exports.deactivateSeasons = () => Season.update({ active: false }, { where: {} });
+
 // Makes the season with this year the only active one.
 exports.activateSeason = async (year) => {
-    await Season.update({ active: false }, { where: {} });
+    await exports.deactivateSeasons();
     await Season.update({ active: true }, { where: { year } });
 };
 
