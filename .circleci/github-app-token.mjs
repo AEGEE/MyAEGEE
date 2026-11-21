@@ -11,13 +11,16 @@
 //                          (base64 -w0 key.pem), since CircleCI environment
 //                          variables cannot hold multiple lines.
 //
-// The token is limited to this repository and to the permissions
-// semantic-release needs: push tags and create releases (contents), and add
-// the released-<service> labels to issues and pull requests.
+// The token is limited to this repository and to contents, which is all
+// semantic-release does here: push tags and create GitHub releases. (Our
+// .releaserc files turn off success and fail comments, and @semantic-release/github
+// only adds the released-<module> labels together with success comments.)
 
 import { createSign } from 'node:crypto';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 const API = 'https://api.github.com';
+const ATTEMPTS = 3;
 const owner = process.env.CIRCLE_PROJECT_USERNAME || 'AEGEE';
 const repo = process.env.CIRCLE_PROJECT_REPONAME || 'MyAEGEE';
 
@@ -51,23 +54,36 @@ function createJwt(appId, privateKey) {
   return `${header}.${payload}.${signature}`;
 }
 
+// Calls the GitHub API, retrying network errors and 5xx responses.
 async function github(path, jwt, init = {}) {
-  const response = await fetch(`${API}${path}`, {
-    ...init,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${jwt}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'myaegee-release-ci',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-    },
-  });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) fail(`${init.method || 'GET'} ${path} returned ${response.status}: ${body.message || 'no message'}`);
-  return body;
+  const request = `${init.method || 'GET'} ${path}`;
+  for (let attempt = 1; ; attempt++) {
+    let problem;
+    try {
+      const response = await fetch(`${API}${path}`, {
+        ...init,
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${jwt}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'myaegee-release-ci',
+          ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+        },
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.ok) return body;
+      problem = `${request} returned ${response.status}: ${body.message || 'no message'}`;
+      if (response.status < 500) fail(problem);
+    } catch (error) {
+      problem = `${request} failed: ${error.cause?.code || error.cause?.message || error.message}`;
+    }
+    if (attempt === ATTEMPTS) fail(problem);
+    console.error(`github-app-token: ${problem}; retrying`);
+    await sleep(2000 * attempt);
+  }
 }
 
-const appId = process.env.GITHUB_APP_ID;
+const appId = (process.env.GITHUB_APP_ID || '').trim();
 if (!appId) fail('GITHUB_APP_ID is not set');
 
 const jwt = createJwt(appId, readPrivateKey());
@@ -76,7 +92,7 @@ const { token } = await github(`/app/installations/${installation.id}/access_tok
   method: 'POST',
   body: JSON.stringify({
     repositories: [repo],
-    permissions: { contents: 'write', issues: 'write', pull_requests: 'write' },
+    permissions: { contents: 'write' },
   }),
 });
 

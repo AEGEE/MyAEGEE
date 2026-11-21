@@ -86,11 +86,11 @@ This monorepo uses **independent versioning** with `semantic-release-monorepo` -
 
 ### Release bot credentials
 
-semantic-release does not use a personal account. Tags, GitHub releases and `released-<module>` labels are made by the **AEGEE Release Bot** GitHub App:
+semantic-release does not use a personal account. Tags and GitHub releases are made by the **AEGEE Release Bot** GitHub App:
 
 - App settings (AEGEE organization owners only): https://github.com/organizations/AEGEE/settings/apps/aegee-release-bot
 - App ID: `5863453`
-- Installed on `AEGEE/MyAEGEE` only, with repository permissions Contents, Issues and Pull requests (read and write). It needs no webhook.
+- Installed on `AEGEE/MyAEGEE` only, with the repository permission Contents (read and write). It needs no webhook.
 
 **Where the credential is:** only in the CircleCI project environment variables (https://app.circleci.com/settings/project/github/AEGEE/MyAEGEE/environment-variables):
 
@@ -99,7 +99,7 @@ semantic-release does not use a personal account. Tags, GitHub releases and `rel
 | `GITHUB_APP_ID` | `5863453` |
 | `GITHUB_APP_PRIVATE_KEY` | The App's private key (`.pem`), base64-encoded on one line, because CircleCI variables cannot hold multiple lines |
 
-The private key is deliberately not kept anywhere else, such as a password manager. If it is lost, generate a new one. In each release job, `.circleci/github-app-token.mjs` uses the key to get an installation token that lasts one hour and only works on this repository.
+The private key is deliberately not kept anywhere else, such as a password manager. If it is lost, generate a new one. In each release job, `.circleci/github-app-token.mjs` uses the key to get an installation token that lasts one hour and only works on this repository. No other GitHub credential is needed: remove any `GH_TOKEN`, `GITHUB_TOKEN` or `GIT_CREDENTIALS` variable from the CircleCI project, and have its owner revoke the token.
 
 **Regenerate the key** (when it is lost or leaked, or when someone who had it leaves):
 
@@ -110,15 +110,18 @@ The private key is deliberately not kept anywhere else, such as a password manag
 5. Delete the downloaded `.pem` file.
 6. The next release job on `stable` shows whether it works. To check straight away, rerun the last `*-docker-build-and-push` job on `stable` in CircleCI. semantic-release creates nothing when there is nothing new to release, but the job does build and push that module's Docker image again under the same version.
 
-**Revoke access straight away** (for example after a leak): delete the key on the App settings page. Tokens made before that keep working for up to an hour. To stop those too, suspend the App's installation: AEGEE organization settings, **GitHub Apps**, **AEGEE Release Bot**, **Configure**, **Suspend**. Releases fail until the installation is unsuspended and a new key is set as described above.
+**Revoke access straight away** (for example after a leak): suspend the App's installation. In the AEGEE organization settings, go to **Third-party Access**, **GitHub Apps**, then **Configure** next to AEGEE Release Bot, and click **Suspend**. This blocks the App at once, including tokens it already made. Then regenerate the key as described above (GitHub won't delete an App's only key, so generate the new one first) and unsuspend the installation. Releases fail while the installation is suspended.
 
-**When releases fail at "Run semantic-release":** the job log shows a line starting with `github-app-token:`:
+**When releases fail at "Run semantic-release":** look for a line starting with `github-app-token:` in the job log:
 
 - `GITHUB_APP_ID is not set` or `GITHUB_APP_PRIVATE_KEY is not set`: a CircleCI variable is missing.
-- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable is not a base64-encoded `.pem` file, for example because it was pasted with line breaks.
+- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable doesn't hold a whole base64-encoded `.pem` file, for example because it was cut off when pasting.
+- `GET /repos/AEGEE/MyAEGEE/installation returned 404: Integration not found`: `GITHUB_APP_ID` is wrong.
+- `GET /repos/AEGEE/MyAEGEE/installation returned 404` with another message: the App is not installed on MyAEGEE.
 - `... returned 401`: the key is not this App's, or was deleted. Regenerate it as described above.
-- `GET /repos/AEGEE/MyAEGEE/installation returned 404`: the App is not installed on MyAEGEE, or the installation is suspended.
-- `POST /app/installations/.../access_tokens returned 422`: the App is missing one of the permissions listed above.
+- `POST /app/installations/.../access_tokens returned 403`: the installation is probably suspended.
+- `POST /app/installations/.../access_tokens returned 422`: the App is missing the Contents permission.
+- `... failed: ...`: GitHub could not be reached. The script tries three times (logging `; retrying`) before it gives up.
 
 ### Version Bumping
 

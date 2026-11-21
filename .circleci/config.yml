@@ -17,9 +17,11 @@ commands:
           name: Run semantic-release for << parameters.service >>
           working_directory: ~/project/<< parameters.service >>
           command: |
-            # Set both: semantic-release prefers GH_TOKEN over GITHUB_TOKEN.
+            # semantic-release reads GH_TOKEN before GITHUB_TOKEN for the API and
+            # GIT_CREDENTIALS first for git push. Set all three so an old project
+            # variable can't win. Git needs the x-access-token: user for an App token.
             GH_TOKEN="$(node ../.circleci/github-app-token.mjs)"
-            export GH_TOKEN GITHUB_TOKEN="${GH_TOKEN}"
+            export GH_TOKEN GITHUB_TOKEN="${GH_TOKEN}" GIT_CREDENTIALS="x-access-token:${GH_TOKEN}"
             npm run semantic-release
 jobs:
   yamllint:
