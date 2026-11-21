@@ -8,8 +8,6 @@ services:
             args:
                 MIX_ENV: development
         image: aegee/mailer:dev
-        volumes:
-            - /usr/src/myapp/deps
 
     mail-transfer-agent:
         build:
