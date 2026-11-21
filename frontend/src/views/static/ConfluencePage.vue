@@ -31,22 +31,43 @@ export default {
       }
     }
   },
-  mounted () {
-    const id = this.namesMap[this.$route.params.page_id] || this.$route.params.page_id
+  watch: {
+    // The router reuses this component when only :page_id changes (for example going from
+    // Legal info to KMS in the sidebar), so load the page on every change, not only on mount.
+    '$route.params.page_id': {
+      immediate: true,
+      handler (pageId) {
+        this.loadPage(pageId)
+      }
+    }
+  },
+  methods: {
+    loadPage (pageId) {
+      const id = this.namesMap[pageId] || pageId
+      // Ignore responses for a page the user has already navigated away from.
+      const request = Symbol(id)
+      this.currentRequest = request
 
-    const pageUrl = '/services/jira-cors/wiki/rest/api/content/'
-      + id
-      + '?expand=body.export_view.webresource.tags.all'
+      this.title = ''
+      this.text = ''
+      this.error = false
 
-    fetch(pageUrl)
-      .then(data => data.json())
-      .then(data => {
-        this.title = data.title
-        this.text = DOMPurify.sanitize(data.body.export_view.value)
-      }).catch(err => {
-        console.log(err)
-        this.error = true
-      })
+      const pageUrl = '/services/jira-cors/wiki/rest/api/content/'
+        + id
+        + '?expand=body.export_view.webresource.tags.all'
+
+      fetch(pageUrl)
+        .then(data => data.json())
+        .then(data => {
+          if (this.currentRequest !== request) return
+          this.title = data.title
+          this.text = DOMPurify.sanitize(data.body.export_view.value)
+        }).catch(err => {
+          if (this.currentRequest !== request) return
+          console.log(err)
+          this.error = true
+        })
+    }
   }
 }
 </script>
