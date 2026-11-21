@@ -17,9 +17,15 @@ describe('Metrics requests', () => {
     });
 
     test('should return data correctly on /metrics', async () => {
-        await generator.createCategory({});
+        await generator.createCategory({
+            name: 'Travel',
+            discounts: [
+                generator.generateDiscount({ name: 'Partner 1' }),
+                generator.generateDiscount({ name: 'Partner 2' })
+            ]
+        });
 
-        const integration = await generator.createIntegration({});
+        const integration = await generator.createIntegration({ name: 'Flixbus' });
         await generator.createCode({ claimed_by: null }, integration);
         await generator.createCode({ claimed_by: 1337 }, integration);
 
@@ -30,9 +36,20 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toContain('text/plain');
+        expect(res.body).toContain('discounts_categories_total 1');
+        expect(res.body).toContain('discounts_integrations_total 1');
+        expect(res.body).toContain('discounts_partners_total{category_name="Travel"} 2');
+        expect(res.body).toMatch(/discounts_codes_total\{[^\n]*claimed="false"[^\n]*integration_name="Flixbus"[^\n]*\} 1/);
+        expect(res.body).toMatch(/discounts_codes_total\{[^\n]*claimed="true"[^\n]*integration_name="Flixbus"[^\n]*\} 1/);
     });
 
     test('should return data correctly on /metrics/requests', async () => {
+        await request({
+            path: '/healthcheck',
+            method: 'GET'
+        });
+
         const res = await request({
             path: '/metrics/requests',
             method: 'GET',
@@ -40,5 +57,7 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toContain('text/plain');
+        expect(res.body).toMatch(/discounts_requests_total\{[^\n]*endpoint="\/healthcheck"[^\n]*status="200"[^\n]*\} 1/);
     });
 });

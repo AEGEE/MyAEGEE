@@ -1,3 +1,8 @@
+const nock = require('nock');
+
+const config = require('../../config');
+const validUserBody = require('../assets/oms-core-valid.json');
+const fullPermissionsBody = require('../assets/oms-core-permissions-full.json');
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
@@ -21,6 +26,47 @@ describe('API requests', () => {
 
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
+    });
+
+    test('should return healthcheck data', async () => {
+        const res = await request({
+            path: '/healthcheck',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data).toHaveProperty('name', 'discounts');
+        expect(res.body.data).toHaveProperty('description');
+        expect(res.body.data).toHaveProperty('version');
+    });
+
+    test('should send expected headers to oms-core', async () => {
+        mock.cleanAll();
+
+        const reqheaders = {
+            'x-requested-with': 'XMLHttpRequest',
+            'x-auth-token': 'typed-token',
+            'x-service': 'discounts'
+        };
+
+        const profileScope = nock(`${config.core.url}:${config.core.port}`, { reqheaders })
+            .get('/members/me')
+            .reply(200, validUserBody);
+
+        const permissionsScope = nock(`${config.core.url}:${config.core.port}`, { reqheaders })
+            .get('/my_permissions')
+            .reply(200, fullPermissionsBody);
+
+        const res = await request({
+            path: '/integrations',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'typed-token' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(profileScope.isDone()).toEqual(true);
+        expect(permissionsScope.isDone()).toEqual(true);
     });
 
     test('should fail if oms-core returns net error while fetching user', async () => {
@@ -54,6 +100,21 @@ describe('API requests', () => {
     });
 
     test('should fail if oms-core returns unsuccessful response while fetching user', async () => {
+        mock.mockAll({ core: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            path: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if oms-core returns unauthorized response while fetching user', async () => {
         mock.mockAll({ core: { unauthorized: true } });
 
         const res = await request({
@@ -99,6 +160,21 @@ describe('API requests', () => {
     });
 
     test('should fail if oms-core returns unsuccessful response while fetching permissions', async () => {
+        mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            path: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if oms-core returns unauthorized response while fetching permissions', async () => {
         mock.mockAll({ mainPermissions: { unauthorized: true } });
 
         const res = await request({
