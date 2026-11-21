@@ -27,7 +27,7 @@ services:
 
 ### pg Admin Container #######################################
   pgadmin:
-    image: dpage/pgadmin4:4.23
+    image: dpage/pgadmin4:9.19
     restart: on-failure
     expose:
       - "5050"
