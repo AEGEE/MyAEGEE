@@ -513,6 +513,7 @@ export default {
       file: null,
       errors: {},
       isLoading: false,
+      savedStarts: null,
       isSaving: false
     }
   },
@@ -751,6 +752,14 @@ export default {
     },
     'dates.starts': function (newDate) {
       this.event.starts = new Date(newDate)
+
+      // Keep the saved deadlines when an existing event is loaded (also when the
+      // date picker writes the same start date back), only suggest them for new
+      // events or when the start date is changed.
+      if (this.$route.params.id && this.savedStarts && moment(newDate).isSame(this.savedStarts, 'minute')) {
+        return
+      }
+
       this.dates.draft_proposal_deadline = moment(this.dates.starts).subtract(45, 'days').endOf('day').second(0)
         .toDate()
       this.dates.final_proposal_deadline = moment(this.dates.starts).subtract(1, 'month').endOf('day').second(0)
@@ -792,6 +801,7 @@ export default {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
+      this.savedStarts = new Date(this.event.starts)
       this.dates.starts = this.event.starts = new Date(this.event.starts)
       this.dates.ends = this.event.starts = new Date(this.event.ends)
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
