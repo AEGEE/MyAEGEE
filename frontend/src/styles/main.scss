@@ -124,6 +124,11 @@ h1, h2, h3, h4, h5, h6 {
 		padding-right: 0;
 		padding-left: 1.5rem;
 	}
+
+	// Keep centered labels centered over their column.
+	&.is-centered {
+		padding-left: 1.5rem;
+	}
 }
 
 @import '~nprogress/nprogress.css';
