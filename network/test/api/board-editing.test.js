@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
+const { Board } = require('../../models');
 
 describe('Board editing', () => {
     beforeAll(async () => {
@@ -61,5 +62,38 @@ describe('Board editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.id).toEqual(board.id);
         expect(res.body.data.message).toEqual('a new text');
+    });
+
+    test('should fail if body_id is not a number', async () => {
+        const board = await generator.createBoard();
+
+        const res = await request({
+            path: '/bodies/lalala/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Body ID is invalid.');
+    });
+
+    test('should fail if the board belongs to another body', async () => {
+        const board = await generator.createBoard({ body_id: 1, message: 'some text' });
+
+        const res = await request({
+            path: '/bodies/2/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB).not.toEqual(null);
+        expect(boardFromDB.message).toEqual('some text');
     });
 });

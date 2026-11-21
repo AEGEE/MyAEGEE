@@ -173,4 +173,28 @@ describe('Netcom', () => {
 
         expect(netcomFromDB).toEqual(null);
     });
+
+    test('should fail deleting Netcom assignment if body_id is not a number', async () => {
+        const res = await request({
+            path: '/netcom/lalala',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Body ID is invalid.');
+    });
+
+    test('should fail deleting Netcom assignment if it does not exist', async () => {
+        const res = await request({
+            path: '/netcom/1337',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('NetCom assignment is not found.');
+    });
 });

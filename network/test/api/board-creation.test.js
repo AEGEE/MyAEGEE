@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
+const { Board } = require('../../models');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
 
@@ -26,7 +27,10 @@ describe('Board creation', () => {
     });
 
     test('should fail if no permissions', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        mock.mockAll({
+            mainPermissions: { noPermissions: true },
+            managePermissions: { noPermissions: true }
+        });
 
         const board = generator.generateBoard();
 
@@ -39,6 +43,58 @@ describe('Board creation', () => {
 
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if body_id is not a number', async () => {
+        const board = generator.generateBoard();
+
+        const res = await request({
+            path: '/bodies/lalala/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: board
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Body ID is invalid.');
+    });
+
+    test('should check the permission against the body in the URL', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        // body.id is managed through the local permissions, 1337 is not
+        const board = generator.generateBoard({ body_id: body.id });
+
+        const res = await request({
+            path: '/bodies/1337/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: board
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should store the body in the URL and ignore body_id in the request body', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const board = generator.generateBoard({ body_id: 1337 });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: board
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.body_id).toEqual(body.id);
+
+        const boardFromDB = await Board.findOne({ where: { president: board.president } });
+        expect(boardFromDB.body_id).toEqual(body.id);
     });
 
     test('should fail if elected_date is not set', async () => {

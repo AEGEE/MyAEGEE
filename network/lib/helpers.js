@@ -14,10 +14,12 @@ exports.isNumber = (value) => {
     return false;
 };
 
+const SORT_FIELDS = ['id', 'body_id', 'elected_date', 'start_date', 'end_date'];
+
 exports.getSorting = (query) => {
     const result = [['id', 'ASC']];
 
-    if (typeof query.sort === 'string') {
+    if (typeof query.sort === 'string' && SORT_FIELDS.includes(query.sort)) {
         result[0][0] = query.sort;
     }
 
@@ -30,7 +32,13 @@ exports.getSorting = (query) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
+    return permissionsList.some((permission) => permission
+        && typeof permission.combined === 'string'
+        && permission.combined.endsWith(combinedPermission));
 }
 
 // A helper to get bodies list where I have some permission
