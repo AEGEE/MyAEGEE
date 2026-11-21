@@ -30,12 +30,7 @@
           <div class="control">
             <div class="select">
               <select v-model="season" @change="refetch()">
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option selected value="2026">2026</option>
+                <option v-for="item in seasons" :key="item.year" :value="item.year">{{ item.year }}</option>
               </select>
             </div>
           </div>
@@ -253,7 +248,8 @@ export default {
       eventTypes,
       eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       applicationStatuses,
-      season: 2026,
+      season: null,
+      seasons: [],
       isLoading: {
         events: false,
         permissions: false
@@ -368,7 +364,16 @@ export default {
     }
   },
   mounted () {
-    this.refetch()
+    // Showing the active season by default.
+    this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
+      this.seasons = response.data.data
+      const active = this.seasons.find((item) => item.active)
+      this.season = active ? active.year : null
+    }).catch((err) => {
+      this.$root.showError('Could not fetch seasons', err)
+    }).finally(() => {
+      this.refetch()
+    })
     this.fetchPermissions()
   }
 }

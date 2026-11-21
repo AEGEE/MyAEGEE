@@ -510,6 +510,30 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.seasons',
+    path: '/summeruniversity/seasons',
+    component: 'summeruniversity/Seasons',
+    meta: {
+      label: 'Manage SU seasons'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.seasons.create',
+    path: '/summeruniversity/seasons/new',
+    component: 'summeruniversity/SeasonEdit',
+    meta: {
+      label: 'Create SU season'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.seasons.edit',
+    path: '/summeruniversity/seasons/:year/edit',
+    component: 'summeruniversity/SeasonEdit',
+    meta: {
+      label: 'Edit SU season'
+    }
+  },
+  {
     name: 'oms.summeruniversity.list.all',
     path: '/summeruniversity',
     component: 'summeruniversity/List',
