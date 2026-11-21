@@ -113,6 +113,37 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test('should skip permissions without combined returned by oms-core', async () => {
+        mock.mockAll({ mainPermissions: { malformedEntry: true } });
+
+        const res = await request({
+            path: '/integrations',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should not grant manage_discounts for permissions without combined', async () => {
+        mock.mockAll({ mainPermissions: { malformedEntry: true } });
+
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            },
+            body: {}
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
+
     test('should fail if body is not JSON', async () => {
         const res = await request({
             path: '/integrations',

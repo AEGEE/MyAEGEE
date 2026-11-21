@@ -76,6 +76,13 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
+    if (options.malformedEntry) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-malformed-entry.json'));
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/my_permissions')
