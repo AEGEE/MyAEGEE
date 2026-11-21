@@ -36,7 +36,7 @@ git commit -m "feat(core): add OAuth2 authentication support"
 # Fixing a bug in frontend
 git commit -m "fix(frontend): resolve infinite scroll pagination"
 
-# Updating CI configuration (triggers all modules)
+# Updating CI configuration (no release)
 git commit -m "chore(ci): upgrade CircleCI Node image to 22.20"
 
 # Documentation change
@@ -68,16 +68,16 @@ git commit -m "fix(core): something"
 This monorepo uses **independent versioning** with `semantic-release-monorepo` - each module releases independently when it has changes.
 
 **How it works:**
-- The `semantic-release-monorepo` plugin filters commits to only analyze changes affecting each specific module
-- Only commits that touch a module's directory or have the module's scope trigger a release
-- This prevents unnecessary releases when unrelated modules change
+- The `semantic-release-monorepo` plugin only looks at commits that change files inside a module's folder (for example `core/`). The commit's scope doesn't matter for this: a `fix(core):` commit that only changes files in `events/` releases `events`, not `core`.
+- Of those commits, the type decides whether there is a release (see [Version Bumping](#version-bumping)).
+- Pull requests are squash-merged into one commit, titled with the PR title (or, for a PR with a single commit, that commit's title). That title's type decides the release for every module whose files the PR changes.
 
 **Workflow:**
 1. Create feature branch from `stable`
 2. Make changes with properly scoped commits
 3. Push and create Pull Request
 4. After PR approval and merge, CI automatically:
-   - Determines affected modules based on commit paths and scopes
+   - Determines affected modules based on the files each commit changes
    - Runs semantic-release for each affected module
    - Creates version tags (e.g., `core@1.40.2`)
    - Updates CHANGELOGs
@@ -86,49 +86,14 @@ This monorepo uses **independent versioning** with `semantic-release-monorepo` -
 
 ### Release bot credentials
 
-semantic-release does not use a personal account. GitHub releases are made, and tags pushed, by the **AEGEE Release Bot** GitHub App:
-
-- App settings (AEGEE organization owners only): https://github.com/organizations/AEGEE/settings/apps/aegee-release-bot
-- App ID: `5863453`
-- Installed on `AEGEE/MyAEGEE` only, with the repository permission Contents (read and write). It needs no webhook.
-
-**Where the credential is:** only in the CircleCI context `myaegee-release-bot` (AEGEE organization settings in CircleCI, **Contexts**: https://app.circleci.com/settings/organization/github/AEGEE/contexts). Only the `*-docker-build-and-push` jobs use it, and its expression restriction `pipeline.git.branch == "stable" and not job.ssh.enabled` keeps it away from jobs on other branches and from jobs rerun with SSH.
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_APP_ID` | `5863453` |
-| `GITHUB_APP_PRIVATE_KEY` | The App's private key (`.pem`), base64-encoded on one line (`base64 -w0 <file>`), because CircleCI variables cannot hold multiple lines. Pasting the `.pem` itself also works: the script puts its line breaks back |
-
-The private key is deliberately not kept anywhere else, such as a password manager. If it is lost, generate a new one. In each release job, `.circleci/github-app-token.mjs` uses the key to get an installation token that lasts one hour and only works on this repository. No other GitHub credential is needed: remove any `GH_TOKEN`, `GITHUB_TOKEN` or `GIT_CREDENTIALS` variable from the CircleCI project settings, and have its owner revoke the token. Don't put the App variables in the project settings either: every job on every branch can read those.
-
-**Regenerate the key** (when it is lost or leaked, or when someone who had it leaves):
-
-1. On the App settings page, under **Private keys**, click **Generate a private key**. The `.pem` file downloads.
-2. Encode it on one line: `base64 -w0 aegee-release-bot.*.private-key.pem` (on macOS: `base64 -i <file>`).
-3. In the `myaegee-release-bot` context in CircleCI, replace the value of `GITHUB_APP_PRIVATE_KEY` with the output.
-4. Back on the App settings page, delete the old key.
-5. Delete the downloaded `.pem` file.
-6. The next release job on `stable` shows whether it works. To check straight away, rerun the last `*-docker-build-and-push` job on `stable` in CircleCI. semantic-release creates nothing when there is nothing new to release, but the job does build and push that module's Docker image again under the same version.
-
-**Revoke access straight away** (for example after a leak): suspend the App's installation. In the AEGEE organization settings, go to **Third-party Access**, **GitHub Apps**, then **Configure** next to AEGEE Release Bot, and click **Suspend**. This blocks the App at once, including tokens it already made. Then regenerate the key as described above (GitHub won't delete an App's only key, so generate the new one first) and unsuspend the installation. Releases fail while the installation is suspended.
-
-**When releases fail at "Run semantic-release":** look for a line starting with `github-app-token:` in the job log:
-
-- `GITHUB_APP_ID is not set` or `GITHUB_APP_PRIVATE_KEY is not set`: a variable is missing from the context, or the job doesn't have `context: myaegee-release-bot` in `.circleci/config.yml`.
-- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable doesn't hold the whole key, for example because it was cut off when pasting, or it was base64-encoded twice. In CircleCI the masked value shows its last four characters: for `base64 -w0` output they are usually `LQo=`.
-- `GET /repos/AEGEE/MyAEGEE/installation returned 404: Integration not found`: `GITHUB_APP_ID` is wrong.
-- `GET /repos/AEGEE/MyAEGEE/installation returned 404` with another message: the App is not installed on MyAEGEE.
-- `... returned 401`: the key is not this App's or was deleted (regenerate it as described above), or `GITHUB_APP_ID` is wrong.
-- `POST /app/installations/.../access_tokens returned 403`: the installation is probably suspended.
-- `POST /app/installations/.../access_tokens returned 422`: the App is missing the Contents permission.
-- `... failed: ...`: GitHub could not be reached. The script tries three times (logging `; retrying`) before it gives up.
+Releases are made by the **AEGEE Release Bot** GitHub App, not a personal account. Where its key is kept (a CircleCI context), how to regenerate or revoke it, and what its error messages mean: [docs/release-bot.md](docs/release-bot.md).
 
 ### Version Bumping
 
 - `feat(module):` → Minor version bump (1.2.0 → 1.3.0)
-- `fix(module):` → Patch version bump (1.2.0 → 1.2.1)
+- `fix(module):`, `perf(module):`, `refactor(module):` and reverts → Patch version bump (1.2.0 → 1.2.1)
 - `feat(module)!:` or `BREAKING CHANGE:` → Major version bump (1.2.0 → 2.0.0)
-- `chore(ci):`, `chore(docker):`, etc. → Bumps ALL modules
+- Other types (`chore`, `ci`, `docs`, `test`, `build`, `style`) → No release, whatever the scope
 
 ### Cross-Module Changes
 
@@ -144,13 +109,9 @@ git commit -m "feat(core): add dashboard API endpoint"
 
 ### Infrastructure Changes
 
-Commits affecting infrastructure trigger releases for ALL modules:
+Changes outside the module folders (`.circleci/`, root `package.json`, `docker/`, compose files at the root) don't release any module, whatever their type or scope. The scopes `ci`, `docker`, `deps`, `deps-dev`, `monorepo` and `infra` only describe the change.
 
-- `fix(ci):` - CircleCI changes
-- `chore(docker):` - Docker compose changes
-- `chore(deps):` - Root dependency updates
-
-This ensures all modules stay synchronized with infrastructure updates.
+To ship such a change in a module's Docker image, the module needs a release: merge it together with, or followed by, a `fix`/`feat` change to that module's files.
 
 ## Development Workflow
 
