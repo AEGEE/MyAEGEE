@@ -14,6 +14,7 @@ import { Navbar, Sidebar, AppMain, FooterBar } from 'components/layout/'
 import { mapGetters, mapActions } from 'vuex'
 import NprogressContainer from './components/NProgress.vue'
 import methods from './methods'
+import { takeOver } from './methods/flash'
 
 export default {
   components: {
@@ -43,6 +44,11 @@ export default {
     document.addEventListener('visibilitychange', handler)
     window.addEventListener('DOMContentLoaded', handler)
     window.addEventListener('resize', handler)
+  },
+
+  mounted () {
+    // Toasts handed over by the page before a full page load (see methods/flash.js).
+    takeOver().forEach(notification => this.showNotification({ ...notification }))
   },
 
   computed: mapGetters({

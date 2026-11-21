@@ -13,6 +13,7 @@
     "core",
     "events",
     "frontend",
+    "frontend-react",
     "discounts",
     "knowledge",
     "network",
@@ -42,7 +43,7 @@
   },
   "scripts": {
     "prepare": "husky || true",
-    "postinstall": "echo '✓ Workspace setup complete - all 10 modules ready'",
+    "postinstall": "echo '\u2713 Workspace setup complete - all 11 modules ready'",
     "test": "echo 'Run tests in individual modules'",
     "lint": "echo 'Run linters in individual modules'"
   }

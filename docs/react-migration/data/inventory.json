@@ -1,0 +1,6094 @@
+{
+  "generatedBy": "docs/react-migration/tools/inventory.mjs",
+  "totals": {
+    "routes": 113,
+    "routesWithoutAuth": 17,
+    "viewFiles": 120,
+    "viewFilesNotRouted": 26,
+    "sharedComponents": 15,
+    "viewLines": 28004,
+    "distinctApiCalls": 230
+  },
+  "areas": [
+    {
+      "area": "statutory",
+      "routes": 31,
+      "views": 35,
+      "lines": 8535,
+      "apiCalls": [
+        "DELETE statutory /events/:id/positions/:id",
+        "DELETE statutory /events/:id/question-lines/:id",
+        "DELETE statutory /events/:id/question-lines/:id/questions/:id",
+        "DELETE statutory /limits/:eventType/:body_id",
+        "GET core /bodies",
+        "GET core /bodies/",
+        "GET core /bodies/:bodyId",
+        "GET core /bodies/:body_id",
+        "GET core /bodies/:selectedBody/members",
+        "GET core /bodies/:selectedBody/payments",
+        "GET core /my_permissions",
+        "GET statutory /",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/:application_id",
+        "GET statutory /events/:id/applications/accepted",
+        "GET statutory /events/:id/applications/all",
+        "GET statutory /events/:id/applications/boardview/:selectedBody",
+        "GET statutory /events/:id/applications/export/:prefix",
+        "GET statutory /events/:id/applications/export/delegates_jc",
+        "GET statutory /events/:id/applications/export/openslides",
+        "GET statutory /events/:id/applications/incoming",
+        "GET statutory /events/:id/applications/juridical",
+        "GET statutory /events/:id/applications/network",
+        "GET statutory /events/:id/applications/stats",
+        "GET statutory /events/:id/fields/applications/:prefix",
+        "GET statutory /events/:id/fields/candidates",
+        "GET statutory /events/:id/memberslists",
+        "GET statutory /events/:id/memberslists/:selectedBody",
+        "GET statutory /events/:id/memberslists/missing",
+        "GET statutory /events/:id/memberslists/without_fee",
+        "GET statutory /events/:id/plenaries/",
+        "GET statutory /events/:id/plenaries/:plenary_id",
+        "GET statutory /events/:id/plenaries/stats/",
+        "GET statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+        "GET statutory /events/:id/positions/:prefix",
+        "GET statutory /events/:id/positions/candidates/mine",
+        "GET statutory /events/:id/positions/export",
+        "GET statutory /events/:id/question-lines/",
+        "GET statutory /events/:id/votes-amounts/antenna",
+        "GET statutory /events/:id/votes-amounts/delegate",
+        "GET statutory /limits/:eventType",
+        "GET statutory /limits/:eventType/defaults/",
+        "GET statutory /limits/:type/:selectedBody",
+        "GET statutory /tasks/",
+        "POST ? :url",
+        "POST core /members/:id/listserv",
+        "POST statutory /",
+        "POST statutory /events/:id/applications",
+        "POST statutory /events/:id/image",
+        "POST statutory /events/:id/massmailer/",
+        "POST statutory /events/:id/memberslists/:selectedBody",
+        "POST statutory /events/:id/plenaries/",
+        "POST statutory /events/:id/plenaries/:plenary_id/attendance/mark",
+        "POST statutory /events/:id/positions/",
+        "POST statutory /events/:id/positions/:position_id/candidates/",
+        "POST statutory /events/:id/positions/:position_id/candidates/:candidate_id/image",
+        "POST statutory /events/:id/question-lines/",
+        "POST statutory /events/:id/question-lines/:id/questions/",
+        "POST statutory /limits/:eventType",
+        "PUT ? :url",
+        "PUT statutory /events/:id",
+        "PUT statutory /events/:id/applications/:application_id",
+        "PUT statutory /events/:id/applications/:application_id/board",
+        "PUT statutory /events/:id/applications/:id/cancel",
+        "PUT statutory /events/:id/memberslists/:body_id/fee_paid",
+        "PUT statutory /events/:id/plenaries/:id",
+        "PUT statutory /events/:id/positions/:id",
+        "PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+        "PUT statutory /events/:id/question-lines/:id",
+        "PUT statutory /events/:id/question-lines/:id/questions/:id",
+        "PUT statutory /events/:id/status"
+      ],
+      "thirdParty": [
+        "Chart.js (vue-chartjs)",
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag",
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 27,
+        "buefyProgrammatic": 18,
+        "formFields": 132,
+        "tables": 161,
+        "permissionChecks": 86,
+        "routerPush": 22
+      },
+      "score": 215.9,
+      "size": "XL"
+    },
+    {
+      "area": "core",
+      "routes": 35,
+      "views": 37,
+      "lines": 7181,
+      "apiCalls": [
+        "DELETE core /bodies/:id/members",
+        "DELETE core /bodies/:id/members/:id",
+        "DELETE core /bodies/:id/payments/:id",
+        "DELETE core /campaigns/:id",
+        "DELETE core /circles/:id",
+        "DELETE core /circles/:id/members",
+        "DELETE core /circles/:id/members/:id",
+        "DELETE core /circles/:id/permissions/:id",
+        "DELETE core /members/:id",
+        "DELETE core /members/:id/event-application-ban",
+        "DELETE core /members/:id/image",
+        "DELETE core /permissions/:id",
+        "DELETE network /bodies/:id/boards/:id",
+        "GET ? :campaignUrl",
+        "GET ? :link",
+        "GET ? :url",
+        "GET core /:context",
+        "GET core /bodies",
+        "GET core /bodies/",
+        "GET core /bodies/:autojoin_body_id/my_permissions",
+        "GET core /bodies/:id",
+        "GET core /bodies/:id/campaigns",
+        "GET core /bodies/:id/join-requests",
+        "GET core /bodies/:id/members",
+        "GET core /bodies/:id/my_permissions",
+        "GET core /bodies/:id/payments",
+        "GET core /campaigns",
+        "GET core /campaigns/:id",
+        "GET core /campaigns/:id/members",
+        "GET core /circles",
+        "GET core /circles/:id",
+        "GET core /circles/:id/members",
+        "GET core /circles/:id/my_permissions",
+        "GET core /circles/:id/permissions",
+        "GET core /members",
+        "GET core /members/:id",
+        "GET core /members/:id/my_permissions",
+        "GET core /members/me",
+        "GET core /members/unconfirmed",
+        "GET core /members_search",
+        "GET core /my_permissions",
+        "GET core /permissions",
+        "GET core /permissions/:id",
+        "GET core /permissions/:id/members",
+        "GET network /bodies/:id/boards/current",
+        "GET network /bodies/:id/boards?sort=start_date&direction=desc",
+        "POST core /bodies/",
+        "POST core /bodies/:bodyId/join-requests",
+        "POST core /bodies/:id/circles",
+        "POST core /bodies/:id/create-member",
+        "POST core /bodies/:id/join-requests",
+        "POST core /bodies/:id/members",
+        "POST core /bodies/:id/payments",
+        "POST core /campaigns/",
+        "POST core /circles/",
+        "POST core /circles/:id/members",
+        "POST core /circles/:id/permissions",
+        "POST core /members/:id/confirm",
+        "POST core /members/:id/upload",
+        "POST core /permissions/",
+        "POST network /bodies/:id/boards",
+        "PUT core /bodies/:id",
+        "PUT core /bodies/:id/join-requests/:id/status",
+        "PUT core /bodies/:id/members/:id",
+        "PUT core /bodies/:id/status",
+        "PUT core /campaigns/:id",
+        "PUT core /circles/:id",
+        "PUT core /circles/:id/members/:id",
+        "PUT core /circles/:id/parent",
+        "PUT core /members/:id",
+        "PUT core /members/:id/active",
+        "PUT core /members/:id/email",
+        "PUT core /members/:id/event-application-ban",
+        "PUT core /members/:id/primary-body",
+        "PUT core /members/:id/superadmin",
+        "PUT core /members/me",
+        "PUT core /members/me/email",
+        "PUT core /members/me/password",
+        "PUT core /permissions/:id",
+        "PUT network /bodies/:id/boards/:id"
+      ],
+      "thirdParty": [
+        "flatpickr",
+        "lodash",
+        "moment",
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 10,
+        "buefyProgrammatic": 34,
+        "formFields": 109,
+        "tables": 89,
+        "permissionChecks": 269,
+        "routerPush": 25
+      },
+      "score": 175.5,
+      "size": "XL"
+    },
+    {
+      "area": "summeruniversity",
+      "routes": 11,
+      "views": 11,
+      "lines": 4780,
+      "apiCalls": [
+        "DELETE summeruniversity /single/:id",
+        "GET ? :scope",
+        "GET core /bodies/",
+        "GET core /members/:user_id",
+        "GET core /members_search",
+        "GET core /my_permissions",
+        "GET core /my_permissions/",
+        "GET summeruniversity /boardview/:selectedBody",
+        "GET summeruniversity /mine/approvable",
+        "GET summeruniversity /single/:id",
+        "GET summeruniversity /single/:id/applications",
+        "GET summeruniversity /single/:id/applications/:application_id",
+        "GET summeruniversity /single/:id/applications/:id",
+        "GET summeruniversity /single/:id/applications/:participantId",
+        "GET summeruniversity /single/:id/applications/export/",
+        "POST core /my_permissions/",
+        "POST summeruniversity /",
+        "POST summeruniversity /single/:id/applications",
+        "POST summeruniversity /single/:id/upload",
+        "PUT ? :url",
+        "PUT summeruniversity /single/:id",
+        "PUT summeruniversity /single/:id/application_period",
+        "PUT summeruniversity /single/:id/applications/:application_id",
+        "PUT summeruniversity /single/:id/applications/:id/cancelled",
+        "PUT summeruniversity /single/:id/applications/:id/comment/",
+        "PUT summeruniversity /single/:id/open_call",
+        "PUT summeruniversity /single/:id/published",
+        "PUT summeruniversity /single/:id/status"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 3,
+        "buefyProgrammatic": 10,
+        "formFields": 105,
+        "tables": 49,
+        "permissionChecks": 69,
+        "routerPush": 9
+      },
+      "score": 98.9,
+      "size": "L"
+    },
+    {
+      "area": "events",
+      "routes": 12,
+      "views": 11,
+      "lines": 3181,
+      "apiCalls": [
+        "DELETE events /single/:id",
+        "GET ? :scope",
+        "GET core /bodies/",
+        "GET core /members/:user_id",
+        "GET core /members_search",
+        "GET core /my_permissions",
+        "GET events /boardview/:selectedBody",
+        "GET events /getUser",
+        "GET events /mine/approvable",
+        "GET events /single/:id",
+        "GET events /single/:id/applications",
+        "GET events /single/:id/applications/:application_id",
+        "GET events /single/:id/applications/:participantId",
+        "GET events /single/:id/applications/export/",
+        "GET events /single/:id/participants?status=accepted",
+        "GET events /status",
+        "POST core /my_permissions/",
+        "POST events /",
+        "POST events /single/:id/applications",
+        "POST events /single/:id/upload",
+        "PUT ? :url",
+        "PUT events /single/:id",
+        "PUT events /single/:id/applications/:application_id",
+        "PUT events /single/:id/applications/:id/comment/",
+        "PUT events /single/:id/status",
+        "PUT events /single/:id/status/european_event"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 4,
+        "buefyProgrammatic": 5,
+        "formFields": 45,
+        "tables": 36,
+        "permissionChecks": 26,
+        "routerPush": 8
+      },
+      "score": 70.2,
+      "size": "L"
+    },
+    {
+      "area": "network",
+      "routes": 2,
+      "views": 6,
+      "lines": 1435,
+      "apiCalls": [
+        "DELETE network /netcom/:id",
+        "GET core /bodies",
+        "GET core /bodies/:id/members",
+        "GET core /bodies?query=network%20commission",
+        "GET core /my_permissions",
+        "GET events /recents",
+        "GET network /antennaCriteria/:id",
+        "GET network /boards/recents",
+        "GET network /boards?sort=start_date&direction=desc",
+        "GET network /mailComponent/:id",
+        "GET network /netcom",
+        "GET statutory /",
+        "GET statutory /events/:id/memberslists",
+        "GET statutory /recents",
+        "GET summeruniversity /recents",
+        "POST network /antennaCriteria/sendFulfilmentMail",
+        "PUT network /antennaCriteria",
+        "PUT network /mailComponent",
+        "PUT network /netcom"
+      ],
+      "thirdParty": [
+        "moment",
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 4,
+        "formFields": 36,
+        "tables": 24,
+        "permissionChecks": 51,
+        "routerPush": 0
+      },
+      "score": 43.1,
+      "size": "M"
+    },
+    {
+      "area": "discounts",
+      "routes": 9,
+      "views": 7,
+      "lines": 794,
+      "apiCalls": [
+        "DELETE discounts /categories/:id",
+        "GET core /my_permissions",
+        "GET discounts /categories",
+        "GET discounts /categories/:id",
+        "GET discounts /codes/mine",
+        "GET discounts /integrations",
+        "GET discounts /integrations/:id",
+        "POST discounts /categories/",
+        "POST discounts /integrations/",
+        "POST discounts /integrations/:id/codes",
+        "POST discounts /integrations/:selectedIntegration/claim",
+        "PUT discounts /categories/:id",
+        "PUT discounts /integrations/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 5,
+        "buefyProgrammatic": 1,
+        "formFields": 15,
+        "tables": 17,
+        "permissionChecks": 16,
+        "routerPush": 6
+      },
+      "score": 23.3,
+      "size": "M"
+    },
+    {
+      "area": "auth",
+      "routes": 6,
+      "views": 6,
+      "lines": 770,
+      "apiCalls": [
+        "GET core /campaigns/:id",
+        "POST core /confirm-email",
+        "POST core /confirm-email-change",
+        "POST core /password_confirm",
+        "POST core /password_reset",
+        "POST core /signup/:id"
+      ],
+      "thirdParty": [
+        "lodash",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "formFields": 17,
+        "tables": 0,
+        "permissionChecks": 0,
+        "routerPush": 8
+      },
+      "score": 15,
+      "size": "M"
+    },
+    {
+      "area": "dashboard",
+      "routes": 2,
+      "views": 2,
+      "lines": 430,
+      "apiCalls": [
+        "GET core /members/me",
+        "GET events /",
+        "GET events /mine/participating",
+        "GET statutory /",
+        "GET statutory /events/latest",
+        "GET statutory /mine",
+        "GET summeruniversity /",
+        "GET summeruniversity /mine/participating"
+      ],
+      "thirdParty": [
+        "FullCalendar",
+        "ical",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 2,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 1,
+        "routerPush": 0
+      },
+      "score": 13.9,
+      "size": "S"
+    },
+    {
+      "area": "static",
+      "routes": 5,
+      "views": 5,
+      "lines": 898,
+      "apiCalls": [
+        "GET ? :healthcheckUrl",
+        "POST core /bug-report"
+      ],
+      "thirdParty": [
+        "dompurify"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 0,
+        "formFields": 5,
+        "tables": 4,
+        "permissionChecks": 0,
+        "routerPush": 0
+      },
+      "score": 11.8,
+      "size": "S"
+    }
+  ],
+  "routes": [
+    {
+      "name": "oms.login",
+      "path": "/login",
+      "component": "auth/Login",
+      "file": "frontend/src/views/auth/Login.vue",
+      "area": "auth",
+      "label": "Login",
+      "auth": false,
+      "inMenu": true,
+      "lines": 83,
+      "linesWithChildren": 83,
+      "childComponents": [],
+      "apiCalls": [],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 0,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.register",
+      "path": "/signup/:id",
+      "component": "auth/Register",
+      "file": "frontend/src/views/auth/Register.vue",
+      "area": "auth",
+      "label": "Register",
+      "auth": false,
+      "inMenu": true,
+      "lines": 318,
+      "linesWithChildren": 318,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /campaigns/:id",
+        "POST core /signup/:id"
+      ],
+      "thirdParty": [
+        "lodash",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-datepicker"
+        ],
+        "rootHelpers": 6,
+        "formFields": 12,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.confirm_token",
+      "path": "/confirm_signup/",
+      "component": "auth/ConfirmToken",
+      "file": "frontend/src/views/auth/ConfirmToken.vue",
+      "area": "auth",
+      "label": "Confirm your email",
+      "auth": false,
+      "inMenu": false,
+      "lines": 80,
+      "linesWithChildren": 80,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /confirm-email"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 3,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.mail_change",
+      "path": "/mail-change",
+      "component": "auth/MailChange",
+      "file": "frontend/src/views/auth/MailChange.vue",
+      "area": "auth",
+      "label": "Change your email",
+      "auth": false,
+      "inMenu": false,
+      "lines": 77,
+      "linesWithChildren": 77,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /confirm-email-change"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 3,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.password_reset",
+      "path": "/password_reset/",
+      "component": "auth/PasswordReset",
+      "file": "frontend/src/views/auth/PasswordReset.vue",
+      "area": "auth",
+      "label": "Reset your password",
+      "auth": false,
+      "inMenu": false,
+      "lines": 78,
+      "linesWithChildren": 78,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /password_reset"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 3,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.password_confirm",
+      "path": "/password_confirm/",
+      "component": "auth/PasswordConfirm",
+      "file": "frontend/src/views/auth/PasswordConfirm.vue",
+      "area": "auth",
+      "label": "Confirm your password",
+      "auth": false,
+      "inMenu": false,
+      "lines": 134,
+      "linesWithChildren": 134,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /password_confirm"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 4,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.bug_report",
+      "path": "/bug_report/",
+      "component": "static/BugReport",
+      "file": "frontend/src/views/static/BugReport.vue",
+      "area": "static",
+      "label": "Report a bug in MyAEGEE",
+      "auth": false,
+      "inMenu": false,
+      "lines": 169,
+      "linesWithChildren": 169,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /bug-report"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 5,
+        "formFields": 5,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.status",
+      "path": "/status/",
+      "component": "static/Status",
+      "file": "frontend/src/views/static/Status.vue",
+      "area": "static",
+      "label": "Status of MyAEGEE services",
+      "auth": false,
+      "inMenu": true,
+      "lines": 223,
+      "linesWithChildren": 223,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :healthcheckUrl"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 0,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.dashboard",
+      "path": "/dashboard",
+      "component": "dashboard/index",
+      "file": "frontend/src/views/dashboard/index.vue",
+      "area": "dashboard",
+      "label": "Dashboard",
+      "auth": true,
+      "inMenu": true,
+      "lines": 237,
+      "linesWithChildren": 237,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /members/me",
+        "GET events /mine/participating",
+        "GET statutory /events/latest",
+        "GET statutory /mine",
+        "GET summeruniversity /mine/participating"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 1,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.calendar",
+      "path": "/calendar",
+      "component": "dashboard/Calendar",
+      "file": "frontend/src/views/dashboard/Calendar.vue",
+      "area": "dashboard",
+      "label": "Events calendar",
+      "auth": false,
+      "inMenu": true,
+      "lines": 193,
+      "linesWithChildren": 193,
+      "childComponents": [],
+      "apiCalls": [
+        "GET events /",
+        "GET statutory /",
+        "GET summeruniversity /"
+      ],
+      "thirdParty": [
+        "FullCalendar",
+        "ical",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 2,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.members.list",
+      "path": "/members",
+      "component": "core/members/List",
+      "file": "frontend/src/views/core/members/List.vue",
+      "area": "core",
+      "label": "View members",
+      "auth": true,
+      "inMenu": true,
+      "lines": 180,
+      "linesWithChildren": 180,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /members"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 2,
+        "formFields": 1,
+        "tables": 8,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.members.list.unconfirmed",
+      "path": "/members/unconfirmed",
+      "component": "core/members/ListUnconfirmed",
+      "file": "frontend/src/views/core/members/ListUnconfirmed.vue",
+      "area": "core",
+      "label": "View unconfirmed members",
+      "auth": true,
+      "inMenu": true,
+      "lines": 177,
+      "linesWithChildren": 177,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /members/unconfirmed",
+        "POST core /members/:id/confirm"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 1,
+        "tables": 6,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.members.edituser",
+      "path": "/members/edituser",
+      "component": "core/members/EditUser",
+      "file": "frontend/src/views/core/members/EditUser.vue",
+      "area": "core",
+      "label": "Edit user info",
+      "auth": true,
+      "inMenu": false,
+      "lines": 111,
+      "linesWithChildren": 111,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /members/me",
+        "PUT core /members/me/password"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.members.edit",
+      "path": "/members/:id/edit",
+      "component": "core/members/Edit",
+      "file": "frontend/src/views/core/members/Edit.vue",
+      "area": "core",
+      "label": "Edit single member",
+      "auth": true,
+      "inMenu": false,
+      "lines": 258,
+      "linesWithChildren": 258,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /members/:id",
+        "GET core /members/:id/my_permissions",
+        "PUT core /members/:id"
+      ],
+      "thirdParty": [
+        "lodash",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-datepicker",
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 11,
+        "tables": 0,
+        "permissionChecks": 5,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.members.view",
+      "path": "/members/:id",
+      "component": "core/members/Single",
+      "file": "frontend/src/views/core/members/Single.vue",
+      "area": "core",
+      "label": "View single member",
+      "auth": true,
+      "inMenu": false,
+      "lines": 627,
+      "linesWithChildren": 848,
+      "childComponents": [
+        "frontend/src/views/core/members/EditPrimaryBodyModal.vue",
+        "frontend/src/views/core/members/EditPrimaryEmailModal.vue",
+        "frontend/src/views/core/members/PictureModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE core /members/:id",
+        "DELETE core /members/:id/event-application-ban",
+        "DELETE core /members/:id/image",
+        "GET ? :link",
+        "GET core /members/:id",
+        "POST core /members/:id/upload",
+        "PUT core /members/:id",
+        "PUT core /members/:id/active",
+        "PUT core /members/:id/email",
+        "PUT core /members/:id/event-application-ban",
+        "PUT core /members/:id/primary-body",
+        "PUT core /members/:id/superadmin"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 10,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 21,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 30,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.profile.update",
+      "path": "/profile/update",
+      "component": "core/members/UpdateProfile",
+      "file": "frontend/src/views/core/members/UpdateProfile.vue",
+      "area": "core",
+      "label": "Update your profile",
+      "auth": true,
+      "inMenu": false,
+      "lines": 326,
+      "linesWithChildren": 326,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /members/me",
+        "POST core /bodies/:bodyId/join-requests",
+        "PUT core /members/me",
+        "PUT core /members/me/email"
+      ],
+      "thirdParty": [
+        "lodash",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 12,
+        "formFields": 8,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "loggedIn",
+          "user",
+          "isValid",
+          "validationErrors"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.bodies.list",
+      "path": "/bodies",
+      "component": "core/bodies/List",
+      "file": "frontend/src/views/core/bodies/List.vue",
+      "area": "core",
+      "label": "View bodies",
+      "auth": false,
+      "inMenu": true,
+      "lines": 214,
+      "linesWithChildren": 214,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 2,
+        "tables": 7,
+        "permissionChecks": 9,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.members",
+      "path": "/bodies/:id/members",
+      "component": "core/bodies/ViewMembers",
+      "file": "frontend/src/views/core/bodies/ViewMembers.vue",
+      "area": "core",
+      "label": "View members of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 291,
+      "linesWithChildren": 617,
+      "childComponents": [
+        "frontend/src/views/core/bodies/ListFeePaymentsModal.vue",
+        "frontend/src/views/core/bodies/AddFeePaymentModal.vue",
+        "frontend/src/views/core/bodies/AddMemberModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE core /bodies/:id/members/:id",
+        "DELETE core /bodies/:id/payments/:id",
+        "GET core /bodies/:id",
+        "GET core /bodies/:id/members",
+        "GET core /bodies/:id/my_permissions",
+        "GET core /bodies/:id/payments",
+        "GET core /members_search",
+        "POST core /bodies/:id/members",
+        "POST core /bodies/:id/payments",
+        "PUT core /bodies/:id/members/:id"
+      ],
+      "thirdParty": [
+        "flatpickr",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 5,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 9,
+        "formFields": 1,
+        "tables": 8,
+        "permissionChecks": 33,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.campaigns.new",
+      "path": "/bodies/:body_id/campaigns/new",
+      "component": "core/campaigns/Edit",
+      "file": "frontend/src/views/core/campaigns/Edit.vue",
+      "area": "core",
+      "label": "Create campaign for a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 187,
+      "linesWithChildren": 210,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /campaigns/:id",
+        "POST core /campaigns/",
+        "PUT core /campaigns/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.campaigns.members",
+      "path": "/bodies/:body_id/campaigns/:id/members",
+      "component": "core/campaigns/ViewMembers",
+      "file": "frontend/src/views/core/campaigns/ViewMembers.vue",
+      "area": "core",
+      "label": "View members of a body campaign",
+      "auth": true,
+      "inMenu": false,
+      "lines": 129,
+      "linesWithChildren": 129,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :campaignUrl",
+        "GET core /campaigns/:id/members"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-loading"
+        ],
+        "rootHelpers": 2,
+        "formFields": 1,
+        "tables": 4,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.campaigns.edit",
+      "path": "/bodies/:body_id/campaigns/:id/edit",
+      "component": "core/campaigns/Edit",
+      "file": "frontend/src/views/core/campaigns/Edit.vue",
+      "area": "core",
+      "label": "Edit campaign of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 187,
+      "linesWithChildren": 210,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /campaigns/:id",
+        "POST core /campaigns/",
+        "PUT core /campaigns/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.campaigns.view",
+      "path": "/bodies/:body_id/campaigns/:id",
+      "component": "core/campaigns/Single",
+      "file": "frontend/src/views/core/campaigns/Single.vue",
+      "area": "core",
+      "label": "Display campaign of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 168,
+      "linesWithChildren": 168,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE core /campaigns/:id",
+        "GET core /bodies/:autojoin_body_id/my_permissions",
+        "GET core /campaigns/:id",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 16,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.campaigns",
+      "path": "/bodies/:id/campaigns",
+      "component": "core/bodies/CampaignsList",
+      "file": "frontend/src/views/core/bodies/CampaignsList.vue",
+      "area": "core",
+      "label": "View members of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 95,
+      "linesWithChildren": 95,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/:id/campaigns",
+        "GET core /bodies/:id/my_permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 4,
+        "permissionChecks": 5,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.join_requests",
+      "path": "/bodies/:id/join_requests",
+      "component": "core/bodies/ViewJoinRequests",
+      "file": "frontend/src/views/core/bodies/ViewJoinRequests.vue",
+      "area": "core",
+      "label": "View join requests of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 172,
+      "linesWithChildren": 172,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/:id/join-requests",
+        "GET core /bodies/:id/my_permissions",
+        "PUT core /bodies/:id/join-requests/:id/status"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 1,
+        "tables": 6,
+        "permissionChecks": 1,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.new_member",
+      "path": "/bodies/:id/new_member",
+      "component": "core/bodies/CreateMember",
+      "file": "frontend/src/views/core/bodies/CreateMember.vue",
+      "area": "core",
+      "label": "Create a member for body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 151,
+      "linesWithChildren": 151,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /bodies/:id/create-member"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-datepicker"
+        ],
+        "rootHelpers": 3,
+        "formFields": 10,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.bodies.bulk_import",
+      "path": "/bodies/:id/bulk_import",
+      "component": "core/bodies/BulkImport",
+      "file": "frontend/src/views/core/bodies/BulkImport.vue",
+      "area": "core",
+      "label": "Bulk importing members for body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 156,
+      "linesWithChildren": 156,
+      "childComponents": [],
+      "apiCalls": [
+        "POST core /bodies/:id/create-member"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 5,
+        "formFields": 1,
+        "tables": 7,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.bodies.edit",
+      "path": "/bodies/:id/edit",
+      "component": "core/bodies/Edit",
+      "file": "frontend/src/views/core/bodies/Edit.vue",
+      "area": "core",
+      "label": "Edit single body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 438,
+      "linesWithChildren": 461,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/:id",
+        "GET core /bodies/:id/my_permissions",
+        "POST core /bodies/",
+        "PUT core /bodies/:id"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-datepicker",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 18,
+        "tables": 0,
+        "permissionChecks": 19,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.create",
+      "path": "/bodies/new",
+      "component": "core/bodies/Edit",
+      "file": "frontend/src/views/core/bodies/Edit.vue",
+      "area": "core",
+      "label": "Create a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 438,
+      "linesWithChildren": 461,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/:id",
+        "GET core /bodies/:id/my_permissions",
+        "POST core /bodies/",
+        "PUT core /bodies/:id"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-datepicker",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 18,
+        "tables": 0,
+        "permissionChecks": 19,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.view",
+      "path": "/bodies/:id",
+      "component": "core/bodies/Single",
+      "file": "frontend/src/views/core/bodies/Single.vue",
+      "area": "core",
+      "label": "View single body",
+      "auth": false,
+      "inMenu": false,
+      "lines": 638,
+      "linesWithChildren": 1145,
+      "childComponents": [
+        "frontend/src/views/core/bodies/AddBoundCircleModal.vue",
+        "frontend/src/views/core/bodies/AddMemberModal.vue",
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "DELETE core /bodies/:id/members",
+        "DELETE network /bodies/:id/boards/:id",
+        "GET core /bodies/:id",
+        "GET core /bodies/:id/members",
+        "GET core /bodies/:id/my_permissions",
+        "GET core /members_search",
+        "GET network /bodies/:id/boards/current",
+        "POST core /bodies/:id/circles",
+        "POST core /bodies/:id/join-requests",
+        "POST core /bodies/:id/members",
+        "POST network /bodies/:id/boards",
+        "PUT core /bodies/:id",
+        "PUT core /bodies/:id/status",
+        "PUT network /bodies/:id/boards/:id"
+      ],
+      "thirdParty": [
+        "flatpickr"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 6,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 16,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 47,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.bodies.boards",
+      "path": "/bodies/:id/boards",
+      "component": "core/bodies/ViewBoards",
+      "file": "frontend/src/views/core/bodies/ViewBoards.vue",
+      "area": "core",
+      "label": "View boards of a body",
+      "auth": true,
+      "inMenu": false,
+      "lines": 174,
+      "linesWithChildren": 517,
+      "childComponents": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "DELETE network /bodies/:id/boards/:id",
+        "GET core /bodies/:id/members",
+        "GET core /bodies/:id/my_permissions",
+        "GET network /bodies/:id/boards?sort=start_date&direction=desc",
+        "POST network /bodies/:id/boards",
+        "PUT core /bodies/:id",
+        "PUT network /bodies/:id/boards/:id"
+      ],
+      "thirdParty": [
+        "flatpickr"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 2,
+        "buefyComponents": [
+          "b-collapse"
+        ],
+        "rootHelpers": 5,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.permissions.list",
+      "path": "/permissions",
+      "component": "core/permissions/List",
+      "file": "frontend/src/views/core/permissions/List.vue",
+      "area": "core",
+      "label": "View permissions",
+      "auth": true,
+      "inMenu": true,
+      "lines": 127,
+      "linesWithChildren": 127,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /my_permissions",
+        "GET core /permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 1,
+        "tables": 4,
+        "permissionChecks": 8,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.permissions.edit",
+      "path": "/permissions/:id/edit",
+      "component": "core/permissions/Edit",
+      "file": "frontend/src/views/core/permissions/Edit.vue",
+      "area": "core",
+      "label": "Edit single permission",
+      "auth": true,
+      "inMenu": false,
+      "lines": 161,
+      "linesWithChildren": 161,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /permissions/:id",
+        "POST core /permissions/",
+        "PUT core /permissions/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 7,
+        "tables": 0,
+        "permissionChecks": 2,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.permissions.members",
+      "path": "/permissions/:id/members",
+      "component": "core/permissions/ViewMembers",
+      "file": "frontend/src/views/core/permissions/ViewMembers.vue",
+      "area": "core",
+      "label": "View members with permission",
+      "auth": true,
+      "inMenu": false,
+      "lines": 66,
+      "linesWithChildren": 66,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /permissions/:id",
+        "GET core /permissions/:id/members"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 1,
+        "mapGetters": [],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.permissions.create",
+      "path": "/permissions/new",
+      "component": "core/permissions/Edit",
+      "file": "frontend/src/views/core/permissions/Edit.vue",
+      "area": "core",
+      "label": "Create a permission",
+      "auth": true,
+      "inMenu": false,
+      "lines": 161,
+      "linesWithChildren": 161,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /permissions/:id",
+        "POST core /permissions/",
+        "PUT core /permissions/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 7,
+        "tables": 0,
+        "permissionChecks": 2,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.permissions.view",
+      "path": "/permissions/:id",
+      "component": "core/permissions/Single",
+      "file": "frontend/src/views/core/permissions/Single.vue",
+      "area": "core",
+      "label": "View single permission",
+      "auth": true,
+      "inMenu": false,
+      "lines": 139,
+      "linesWithChildren": 139,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE core /permissions/:id",
+        "GET core /my_permissions",
+        "GET core /permissions/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 19,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.circles.list",
+      "path": "/circles",
+      "component": "core/circles/List",
+      "file": "frontend/src/views/core/circles/List.vue",
+      "area": "core",
+      "label": "View circles",
+      "auth": true,
+      "inMenu": true,
+      "lines": 136,
+      "linesWithChildren": 136,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /circles",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 1,
+        "tables": 3,
+        "permissionChecks": 8,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.circles.create",
+      "path": "/circles/new",
+      "component": "core/circles/Edit",
+      "file": "frontend/src/views/core/circles/Edit.vue",
+      "area": "core",
+      "label": "Create a circle",
+      "auth": true,
+      "inMenu": false,
+      "lines": 375,
+      "linesWithChildren": 375,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE core /circles/:id/permissions/:id",
+        "GET core /:context",
+        "GET core /circles/:id",
+        "POST core /circles/",
+        "POST core /circles/:id/permissions",
+        "PUT core /circles/:id",
+        "PUT core /circles/:id/parent"
+      ],
+      "thirdParty": [
+        "lodash"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading",
+          "b-autocomplete"
+        ],
+        "rootHelpers": 21,
+        "formFields": 7,
+        "tables": 0,
+        "permissionChecks": 15,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.circles.view",
+      "path": "/circles/:id",
+      "component": "core/circles/Single",
+      "file": "frontend/src/views/core/circles/Single.vue",
+      "area": "core",
+      "label": "View single circle",
+      "auth": true,
+      "inMenu": false,
+      "lines": 276,
+      "linesWithChildren": 369,
+      "childComponents": [
+        "frontend/src/views/core/circles/AddMemberModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE core /circles/:id",
+        "DELETE core /circles/:id/members",
+        "GET ? :url",
+        "GET core /circles/:id",
+        "GET core /circles/:id/my_permissions",
+        "GET core /circles/:id/permissions",
+        "POST core /circles/:id/members"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 3,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 11,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 31,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.circles.members",
+      "path": "/circles/:id/members",
+      "component": "core/circles/ViewMembers",
+      "file": "frontend/src/views/core/circles/ViewMembers.vue",
+      "area": "core",
+      "label": "View members of a circle",
+      "auth": true,
+      "inMenu": false,
+      "lines": 184,
+      "linesWithChildren": 242,
+      "childComponents": [
+        "frontend/src/views/core/circles/EditMemberPositionModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE core /circles/:id/members/:id",
+        "GET core /circles/:id/members",
+        "GET core /circles/:id/my_permissions",
+        "PUT core /circles/:id/members/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 2,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 5,
+        "formFields": 1,
+        "tables": 6,
+        "permissionChecks": 9,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.circles.edit",
+      "path": "/circles/:id/edit",
+      "component": "core/circles/Edit",
+      "file": "frontend/src/views/core/circles/Edit.vue",
+      "area": "core",
+      "label": "Edit single circle",
+      "auth": true,
+      "inMenu": false,
+      "lines": 375,
+      "linesWithChildren": 375,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE core /circles/:id/permissions/:id",
+        "GET core /:context",
+        "GET core /circles/:id",
+        "POST core /circles/",
+        "POST core /circles/:id/permissions",
+        "PUT core /circles/:id",
+        "PUT core /circles/:id/parent"
+      ],
+      "thirdParty": [
+        "lodash"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading",
+          "b-autocomplete"
+        ],
+        "rootHelpers": 21,
+        "formFields": 7,
+        "tables": 0,
+        "permissionChecks": 15,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.campaigns.list",
+      "path": "/campaigns",
+      "component": "core/campaigns/List",
+      "file": "frontend/src/views/core/campaigns/List.vue",
+      "area": "core",
+      "label": "View campaigns",
+      "auth": true,
+      "inMenu": true,
+      "lines": 128,
+      "linesWithChildren": 128,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /campaigns",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 1,
+        "tables": 5,
+        "permissionChecks": 5,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.campaigns.members",
+      "path": "/campaigns/:id/members",
+      "component": "core/campaigns/ViewMembers",
+      "file": "frontend/src/views/core/campaigns/ViewMembers.vue",
+      "area": "core",
+      "label": "View campaign members",
+      "auth": true,
+      "inMenu": false,
+      "lines": 129,
+      "linesWithChildren": 129,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :campaignUrl",
+        "GET core /campaigns/:id/members"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-loading"
+        ],
+        "rootHelpers": 2,
+        "formFields": 1,
+        "tables": 4,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.campaigns.edit",
+      "path": "/campaigns/:id/edit",
+      "component": "core/campaigns/Edit",
+      "file": "frontend/src/views/core/campaigns/Edit.vue",
+      "area": "core",
+      "label": "Edit single campaign",
+      "auth": true,
+      "inMenu": false,
+      "lines": 187,
+      "linesWithChildren": 210,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /campaigns/:id",
+        "POST core /campaigns/",
+        "PUT core /campaigns/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.campaigns.create",
+      "path": "/campaigns/new",
+      "component": "core/campaigns/Edit",
+      "file": "frontend/src/views/core/campaigns/Edit.vue",
+      "area": "core",
+      "label": "Create a campaign",
+      "auth": true,
+      "inMenu": false,
+      "lines": 187,
+      "linesWithChildren": 210,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /campaigns/:id",
+        "POST core /campaigns/",
+        "PUT core /campaigns/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.campaigns.view",
+      "path": "/campaigns/:id",
+      "component": "core/campaigns/Single",
+      "file": "frontend/src/views/core/campaigns/Single.vue",
+      "area": "core",
+      "label": "View single campaign",
+      "auth": true,
+      "inMenu": false,
+      "lines": 168,
+      "linesWithChildren": 168,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE core /campaigns/:id",
+        "GET core /bodies/:autojoin_body_id/my_permissions",
+        "GET core /campaigns/:id",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 16,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.events.admin",
+      "path": "/events/serviceadmin",
+      "component": "events/ServiceAdmin",
+      "file": "frontend/src/views/events/ServiceAdmin.vue",
+      "area": "events",
+      "label": "Service admin page",
+      "auth": true,
+      "inMenu": false,
+      "lines": 171,
+      "linesWithChildren": 171,
+      "childComponents": [],
+      "apiCalls": [
+        "GET events /getUser",
+        "GET events /status",
+        "POST events /"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.change_status",
+      "path": "/events/change_status",
+      "component": "events/ChangeStatus",
+      "file": "frontend/src/views/events/ChangeStatus.vue",
+      "area": "events",
+      "label": "Change events statuses",
+      "auth": true,
+      "inMenu": true,
+      "lines": 130,
+      "linesWithChildren": 130,
+      "childComponents": [],
+      "apiCalls": [
+        "GET events /mine/approvable",
+        "PUT events /single/:id/status"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 5,
+        "formFields": 0,
+        "tables": 7,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.boardview",
+      "path": "/events/boardview",
+      "component": "events/BoardView",
+      "file": "frontend/src/views/events/BoardView.vue",
+      "area": "events",
+      "label": "Board view",
+      "auth": true,
+      "inMenu": true,
+      "lines": 170,
+      "linesWithChildren": 170,
+      "childComponents": [],
+      "apiCalls": [
+        "GET events /boardview/:selectedBody",
+        "POST core /my_permissions/",
+        "PUT events /single/:id/applications/:id/comment/"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 2,
+        "tables": 7,
+        "permissionChecks": 2,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.list.all",
+      "path": "/events",
+      "component": "events/List",
+      "file": "frontend/src/views/events/List.vue",
+      "area": "events",
+      "label": "List all events",
+      "auth": false,
+      "inMenu": true,
+      "lines": 350,
+      "linesWithChildren": 350,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch",
+          "b-tag"
+        ],
+        "rootHelpers": 2,
+        "formFields": 3,
+        "tables": 1,
+        "permissionChecks": 4,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.list.participating",
+      "path": "/events/participating",
+      "component": "events/List",
+      "file": "frontend/src/views/events/List.vue",
+      "area": "events",
+      "label": "List events I'm participating at",
+      "auth": true,
+      "inMenu": true,
+      "lines": 350,
+      "linesWithChildren": 350,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch",
+          "b-tag"
+        ],
+        "rootHelpers": 2,
+        "formFields": 3,
+        "tables": 1,
+        "permissionChecks": 4,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.list.organizing",
+      "path": "/events/organizing",
+      "component": "events/List",
+      "file": "frontend/src/views/events/List.vue",
+      "area": "events",
+      "label": "List events I'm organising",
+      "auth": true,
+      "inMenu": true,
+      "lines": 350,
+      "linesWithChildren": 350,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch",
+          "b-tag"
+        ],
+        "rootHelpers": 2,
+        "formFields": 3,
+        "tables": 1,
+        "permissionChecks": 4,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.events.apply",
+      "path": "/events/:id/applications/:application_id",
+      "component": "events/Apply",
+      "file": "frontend/src/views/events/Apply.vue",
+      "area": "events",
+      "label": "View/edit the event application",
+      "auth": true,
+      "inMenu": false,
+      "lines": 322,
+      "linesWithChildren": 332,
+      "childComponents": [
+        "frontend/src/components/notifications/EventNoBodyNotification.vue"
+      ],
+      "apiCalls": [
+        "GET events /single/:id",
+        "GET events /single/:id/applications/:application_id",
+        "POST events /single/:id/applications",
+        "PUT events /single/:id/applications/:application_id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 7,
+        "formFields": 7,
+        "tables": 1,
+        "permissionChecks": 7,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.events.participants",
+      "path": "/events/:id/participants",
+      "component": "events/Participants",
+      "file": "frontend/src/views/events/Participants.vue",
+      "area": "events",
+      "label": "List/manage participants of the event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 218,
+      "linesWithChildren": 277,
+      "childComponents": [
+        "frontend/src/views/events/ViewParticipantModal.vue"
+      ],
+      "apiCalls": [
+        "GET events /single/:id",
+        "GET events /single/:id/applications",
+        "GET events /single/:id/applications/:participantId",
+        "GET events /single/:id/applications/export/",
+        "PUT ? :url"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 8,
+        "formFields": 3,
+        "tables": 8,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.events.accepted",
+      "path": "/events/:id/accepted",
+      "component": "events/Accepted",
+      "file": "frontend/src/views/events/Accepted.vue",
+      "area": "events",
+      "label": "List accepted participants for the event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 89,
+      "linesWithChildren": 89,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /members/:user_id",
+        "GET events /single/:id/participants?status=accepted"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.events.edit",
+      "path": "/events/:id/edit",
+      "component": "events/Edit",
+      "file": "frontend/src/views/events/Edit.vue",
+      "area": "events",
+      "label": "Edit single event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 1001,
+      "linesWithChildren": 1031,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /members_search",
+        "GET events /single/:id",
+        "POST events /",
+        "PUT events /single/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 17,
+        "formFields": 29,
+        "tables": 6,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.events.create",
+      "path": "/events/new",
+      "component": "events/Edit",
+      "file": "frontend/src/views/events/Edit.vue",
+      "area": "events",
+      "label": "Create event",
+      "auth": true,
+      "inMenu": true,
+      "lines": 1001,
+      "linesWithChildren": 1031,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /members_search",
+        "GET events /single/:id",
+        "POST events /",
+        "PUT events /single/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 17,
+        "formFields": 29,
+        "tables": 6,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.events.view",
+      "path": "/events/:id",
+      "component": "events/Single",
+      "file": "frontend/src/views/events/Single.vue",
+      "area": "events",
+      "label": "Display single event",
+      "auth": false,
+      "inMenu": false,
+      "lines": 601,
+      "linesWithChildren": 675,
+      "childComponents": [
+        "frontend/src/components/tooltips/TimezoneTooltip.vue",
+        "frontend/src/views/events/PictureModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE events /single/:id",
+        "GET events /single/:id",
+        "POST events /single/:id/upload",
+        "PUT events /single/:id/status",
+        "PUT events /single/:id/status/european_event"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 4,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 12,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 13,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.summeruniversity.change_status",
+      "path": "/summeruniversity/change_status",
+      "component": "summeruniversity/ChangeStatus",
+      "file": "frontend/src/views/summeruniversity/ChangeStatus.vue",
+      "area": "summeruniversity",
+      "label": "Change SU statuses",
+      "auth": true,
+      "inMenu": true,
+      "lines": 212,
+      "linesWithChildren": 324,
+      "childComponents": [
+        "frontend/src/views/summeruniversity/ApplicationPeriodModal.vue"
+      ],
+      "apiCalls": [
+        "GET summeruniversity /mine/approvable",
+        "PUT summeruniversity /single/:id/application_period",
+        "PUT summeruniversity /single/:id/published",
+        "PUT summeruniversity /single/:id/status"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 7,
+        "formFields": 0,
+        "tables": 11,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.summeruniversity.boardview",
+      "path": "/summeruniversity/boardview",
+      "component": "summeruniversity/BoardView",
+      "file": "frontend/src/views/summeruniversity/BoardView.vue",
+      "area": "summeruniversity",
+      "label": "Board view",
+      "auth": true,
+      "inMenu": true,
+      "lines": 193,
+      "linesWithChildren": 355,
+      "childComponents": [
+        "frontend/src/views/summeruniversity/ViewParticipantModal.vue"
+      ],
+      "apiCalls": [
+        "GET summeruniversity /boardview/:selectedBody",
+        "GET summeruniversity /single/:id/applications/:id",
+        "POST core /my_permissions/",
+        "PUT summeruniversity /single/:id/applications/:id/comment/"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 2,
+        "tables": 8,
+        "permissionChecks": 2,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.summeruniversity.list.all",
+      "path": "/summeruniversity",
+      "component": "summeruniversity/List",
+      "file": "frontend/src/views/summeruniversity/List.vue",
+      "area": "summeruniversity",
+      "label": "List all events",
+      "auth": false,
+      "inMenu": true,
+      "lines": 375,
+      "linesWithChildren": 375,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch"
+        ],
+        "rootHelpers": 2,
+        "formFields": 5,
+        "tables": 1,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.summeruniversity.list.participating",
+      "path": "/summeruniversity/participating",
+      "component": "summeruniversity/List",
+      "file": "frontend/src/views/summeruniversity/List.vue",
+      "area": "summeruniversity",
+      "label": "List events I'm participating",
+      "auth": true,
+      "inMenu": true,
+      "lines": 375,
+      "linesWithChildren": 375,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch"
+        ],
+        "rootHelpers": 2,
+        "formFields": 5,
+        "tables": 1,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.summeruniversity.list.organizing",
+      "path": "/summeruniversity/organizing",
+      "component": "summeruniversity/List",
+      "file": "frontend/src/views/summeruniversity/List.vue",
+      "area": "summeruniversity",
+      "label": "List events I'm organising",
+      "auth": true,
+      "inMenu": true,
+      "lines": 375,
+      "linesWithChildren": 375,
+      "childComponents": [],
+      "apiCalls": [
+        "GET ? :scope",
+        "GET core /my_permissions"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-switch"
+        ],
+        "rootHelpers": 2,
+        "formFields": 5,
+        "tables": 1,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.summeruniversity.apply",
+      "path": "/summeruniversity/:id/applications/:application_id",
+      "component": "summeruniversity/Apply",
+      "file": "frontend/src/views/summeruniversity/Apply.vue",
+      "area": "summeruniversity",
+      "label": "View/edit the event application",
+      "auth": true,
+      "inMenu": false,
+      "lines": 663,
+      "linesWithChildren": 673,
+      "childComponents": [
+        "frontend/src/components/notifications/EventNoBodyNotification.vue"
+      ],
+      "apiCalls": [
+        "GET summeruniversity /single/:id",
+        "GET summeruniversity /single/:id/applications/:application_id",
+        "POST summeruniversity /single/:id/applications",
+        "PUT summeruniversity /single/:id/applications/:application_id",
+        "PUT summeruniversity /single/:id/applications/:id/cancelled"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-checkbox",
+          "b-loading"
+        ],
+        "rootHelpers": 9,
+        "formFields": 22,
+        "tables": 1,
+        "permissionChecks": 10,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.summeruniversity.participants",
+      "path": "/summeruniversity/:id/participants",
+      "component": "summeruniversity/Participants",
+      "file": "frontend/src/views/summeruniversity/Participants.vue",
+      "area": "summeruniversity",
+      "label": "List/manage participants of the event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 254,
+      "linesWithChildren": 416,
+      "childComponents": [
+        "frontend/src/views/summeruniversity/ViewParticipantModal.vue"
+      ],
+      "apiCalls": [
+        "GET summeruniversity /single/:id",
+        "GET summeruniversity /single/:id/applications",
+        "GET summeruniversity /single/:id/applications/:participantId",
+        "GET summeruniversity /single/:id/applications/export/",
+        "PUT ? :url"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 10,
+        "formFields": 4,
+        "tables": 8,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.summeruniversity.edit",
+      "path": "/summeruniversity/:id/edit",
+      "component": "summeruniversity/Edit",
+      "file": "frontend/src/views/summeruniversity/Edit.vue",
+      "area": "summeruniversity",
+      "label": "Edit single event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 1181,
+      "linesWithChildren": 1215,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue",
+        "frontend/src/components/tooltips/URLTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /members/:user_id",
+        "GET core /members_search",
+        "GET core /my_permissions/",
+        "GET summeruniversity /single/:id",
+        "POST summeruniversity /",
+        "PUT summeruniversity /single/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 16,
+        "formFields": 44,
+        "tables": 9,
+        "permissionChecks": 16,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.summeruniversity.edit_second",
+      "path": "/summeruniversity/:id/edit_second",
+      "component": "summeruniversity/EditSecond",
+      "file": "frontend/src/views/summeruniversity/EditSecond.vue",
+      "area": "summeruniversity",
+      "label": "Edit single event for second submission",
+      "auth": true,
+      "inMenu": false,
+      "lines": 754,
+      "linesWithChildren": 758,
+      "childComponents": [
+        "frontend/src/components/tooltips/URLTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /members/:user_id",
+        "GET core /members_search",
+        "GET core /my_permissions/",
+        "GET summeruniversity /single/:id",
+        "POST summeruniversity /single/:id/upload",
+        "PUT summeruniversity /single/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 11,
+        "formFields": 25,
+        "tables": 8,
+        "permissionChecks": 11,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.summeruniversity.create",
+      "path": "/summeruniversity/new",
+      "component": "summeruniversity/Edit",
+      "file": "frontend/src/views/summeruniversity/Edit.vue",
+      "area": "summeruniversity",
+      "label": "Create event",
+      "auth": true,
+      "inMenu": true,
+      "lines": 1181,
+      "linesWithChildren": 1215,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue",
+        "frontend/src/components/tooltips/URLTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /members/:user_id",
+        "GET core /members_search",
+        "GET core /my_permissions/",
+        "GET summeruniversity /single/:id",
+        "POST summeruniversity /",
+        "PUT summeruniversity /single/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 16,
+        "formFields": 44,
+        "tables": 9,
+        "permissionChecks": 16,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.summeruniversity.view",
+      "path": "/summeruniversity/:id",
+      "component": "summeruniversity/Single",
+      "file": "frontend/src/views/summeruniversity/Single.vue",
+      "area": "summeruniversity",
+      "label": "Display single event",
+      "auth": false,
+      "inMenu": false,
+      "lines": 804,
+      "linesWithChildren": 878,
+      "childComponents": [
+        "frontend/src/components/tooltips/TimezoneTooltip.vue",
+        "frontend/src/views/summeruniversity/PictureModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE summeruniversity /single/:id",
+        "GET summeruniversity /single/:id",
+        "POST summeruniversity /single/:id/upload",
+        "PUT summeruniversity /single/:id/open_call",
+        "PUT summeruniversity /single/:id/published",
+        "PUT summeruniversity /single/:id/status"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 6,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 12,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 24,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.list.all",
+      "path": "/statutory",
+      "component": "statutory/List",
+      "file": "frontend/src/views/statutory/List.vue",
+      "area": "statutory",
+      "label": "List all statutory events",
+      "auth": true,
+      "inMenu": true,
+      "lines": 170,
+      "linesWithChildren": 170,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /my_permissions",
+        "GET statutory /"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 1,
+        "formFields": 1,
+        "tables": 0,
+        "permissionChecks": 6,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.limits",
+      "path": "/statutory/limits",
+      "component": "statutory/PaxLimits",
+      "file": "frontend/src/views/statutory/PaxLimits.vue",
+      "area": "statutory",
+      "label": "Manage participants limits for Agora",
+      "auth": true,
+      "inMenu": true,
+      "lines": 210,
+      "linesWithChildren": 210,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE statutory /limits/:eventType/:body_id",
+        "GET core /bodies/",
+        "GET statutory /limits/:eventType",
+        "GET statutory /limits/:eventType/defaults/",
+        "POST statutory /limits/:eventType"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 6,
+        "formFields": 5,
+        "tables": 1,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.tasks",
+      "path": "/statutory/tasks",
+      "component": "statutory/TasksList",
+      "file": "frontend/src/views/statutory/TasksList.vue",
+      "area": "statutory",
+      "label": "See background tasks for statutory",
+      "auth": true,
+      "inMenu": true,
+      "lines": 72,
+      "linesWithChildren": 72,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /tasks/"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 6,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.debug",
+      "path": "/statutory/:id/debug",
+      "component": "statutory/Debug",
+      "file": "frontend/src/views/statutory/Debug.vue",
+      "area": "statutory",
+      "label": "Service page",
+      "auth": true,
+      "inMenu": false,
+      "lines": 95,
+      "linesWithChildren": 95,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 2,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.applications",
+      "path": "/statutory/:id/applications",
+      "component": "statutory/Applications",
+      "file": "frontend/src/views/statutory/Applications.vue",
+      "area": "statutory",
+      "label": "Manage participants for the statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 297,
+      "linesWithChildren": 297,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/all",
+        "PUT ? :url"
+      ],
+      "thirdParty": [
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 4,
+        "formFields": 3,
+        "tables": 13,
+        "permissionChecks": 1,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.applications.stats",
+      "path": "/statutory/:id/applications/stats",
+      "component": "statutory/Stats",
+      "file": "frontend/src/views/statutory/Stats.vue",
+      "area": "statutory",
+      "label": "Applications statistics for statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 457,
+      "linesWithChildren": 457,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/stats"
+      ],
+      "thirdParty": [
+        "Chart.js (vue-chartjs)"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 0,
+        "tables": 1,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.applications.export",
+      "path": "/statutory/:id/applications/export",
+      "component": "statutory/Export",
+      "file": "frontend/src/views/statutory/Export.vue",
+      "area": "statutory",
+      "label": "Export stats for statutory",
+      "auth": true,
+      "inMenu": false,
+      "lines": 212,
+      "linesWithChildren": 212,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/export/:prefix",
+        "GET statutory /events/:id/applications/export/openslides",
+        "GET statutory /events/:id/fields/applications/:prefix"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 5,
+        "tables": 0,
+        "permissionChecks": 7,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.applications.new",
+      "path": "/statutory/:id/applications/new",
+      "component": "statutory/EditApplication",
+      "file": "frontend/src/views/statutory/EditApplication.vue",
+      "area": "statutory",
+      "label": "Apply for statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 619,
+      "linesWithChildren": 629,
+      "childComponents": [
+        "frontend/src/components/notifications/EventNoBodyNotification.vue"
+      ],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/:application_id",
+        "POST core /members/:id/listserv",
+        "POST statutory /events/:id/applications",
+        "PUT statutory /events/:id/applications/:application_id",
+        "PUT statutory /events/:id/applications/:application_id/board",
+        "PUT statutory /events/:id/applications/:id/cancel"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 14,
+        "formFields": 25,
+        "tables": 0,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.applications.edit",
+      "path": "/statutory/:id/applications/:application_id/edit",
+      "component": "statutory/EditApplication",
+      "file": "frontend/src/views/statutory/EditApplication.vue",
+      "area": "statutory",
+      "label": "Manage application for statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 619,
+      "linesWithChildren": 629,
+      "childComponents": [
+        "frontend/src/components/notifications/EventNoBodyNotification.vue"
+      ],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/:application_id",
+        "POST core /members/:id/listserv",
+        "POST statutory /events/:id/applications",
+        "PUT statutory /events/:id/applications/:application_id",
+        "PUT statutory /events/:id/applications/:application_id/board",
+        "PUT statutory /events/:id/applications/:id/cancel"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 14,
+        "formFields": 25,
+        "tables": 0,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.applications.view",
+      "path": "/statutory/:id/applications/:application_id",
+      "component": "statutory/ViewApplication",
+      "file": "frontend/src/views/statutory/ViewApplication.vue",
+      "area": "statutory",
+      "label": "View application for statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 371,
+      "linesWithChildren": 371,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/:application_id",
+        "PUT statutory /events/:id/applications/:id/cancel"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 15,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.accepted",
+      "path": "/statutory/:id/accepted",
+      "component": "statutory/Accepted",
+      "file": "frontend/src/views/statutory/Accepted.vue",
+      "area": "statutory",
+      "label": "List accepted participants for the statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 108,
+      "linesWithChildren": 108,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id/applications/accepted"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 2,
+        "formFields": 0,
+        "tables": 8,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.incoming",
+      "path": "/statutory/:id/incoming",
+      "component": "statutory/Incoming",
+      "file": "frontend/src/views/statutory/Incoming.vue",
+      "area": "statutory",
+      "label": "Manage incoming info for the statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 232,
+      "linesWithChildren": 232,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/incoming",
+        "PUT ? :url"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 8,
+        "formFields": 4,
+        "tables": 13,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.juridical",
+      "path": "/statutory/:id/juridical",
+      "component": "statutory/Juridical",
+      "file": "frontend/src/views/statutory/Juridical.vue",
+      "area": "statutory",
+      "label": "Manage juridical info for the statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 222,
+      "linesWithChildren": 222,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/export/delegates_jc",
+        "GET statutory /events/:id/applications/juridical",
+        "PUT ? :url"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 6,
+        "formFields": 3,
+        "tables": 10,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.network",
+      "path": "/statutory/:id/network",
+      "component": "statutory/NetworkListing",
+      "file": "frontend/src/views/statutory/NetworkListing.vue",
+      "area": "statutory",
+      "label": "Set members list status for participants",
+      "auth": true,
+      "inMenu": false,
+      "lines": 181,
+      "linesWithChildren": 181,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/network",
+        "PUT ? :url"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 4,
+        "formFields": 2,
+        "tables": 9,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.boardview",
+      "path": "/statutory/:id/boardview",
+      "component": "statutory/BoardView",
+      "file": "frontend/src/views/statutory/BoardView.vue",
+      "area": "statutory",
+      "label": "Board view for statutory events.",
+      "auth": true,
+      "inMenu": false,
+      "lines": 426,
+      "linesWithChildren": 426,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/applications/boardview/:selectedBody",
+        "GET statutory /limits/:type/:selectedBody",
+        "POST ? :url"
+      ],
+      "thirdParty": [
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 7,
+        "formFields": 5,
+        "tables": 14,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.memberslist.upload",
+      "path": "/statutory/:id/memberslist/upload",
+      "component": "statutory/UploadMembersList",
+      "file": "frontend/src/views/statutory/UploadMembersList.vue",
+      "area": "statutory",
+      "label": "Upload members list",
+      "auth": true,
+      "inMenu": false,
+      "lines": 434,
+      "linesWithChildren": 434,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET core /bodies/:bodyId",
+        "GET core /bodies/:selectedBody/members",
+        "GET core /bodies/:selectedBody/payments",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/memberslists/:selectedBody",
+        "POST statutory /events/:id/memberslists/:selectedBody"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [],
+        "rootHelpers": 15,
+        "formFields": 7,
+        "tables": 1,
+        "permissionChecks": 7,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.memberslist.list",
+      "path": "/statutory/:id/memberslist/list",
+      "component": "statutory/ListMembersLists",
+      "file": "frontend/src/views/statutory/ListMembersLists.vue",
+      "area": "statutory",
+      "label": "List members lists",
+      "auth": true,
+      "inMenu": false,
+      "lines": 152,
+      "linesWithChildren": 204,
+      "childComponents": [
+        "frontend/src/views/statutory/DisplayMembersListModal.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/memberslists",
+        "PUT statutory /events/:id/memberslists/:body_id/fee_paid"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 2,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 0,
+        "tables": 10,
+        "permissionChecks": 1,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.memberslist.list.missing",
+      "path": "/statutory/:id/memberslist/list/missing",
+      "component": "statutory/ListMissingMembersLists",
+      "file": "frontend/src/views/statutory/ListMissingMembersLists.vue",
+      "area": "statutory",
+      "label": "List missing members lists",
+      "auth": true,
+      "inMenu": false,
+      "lines": 77,
+      "linesWithChildren": 77,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/memberslists/missing"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.memberslist.list.without_fee",
+      "path": "/statutory/:id/memberslist/list/without_fee",
+      "component": "statutory/ListWithoutFeeMembersLists",
+      "file": "frontend/src/views/statutory/ListWithoutFeeMembersLists.vue",
+      "area": "statutory",
+      "label": "List members lists without fee",
+      "auth": true,
+      "inMenu": false,
+      "lines": 79,
+      "linesWithChildren": 79,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/memberslists/without_fee"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.massmailer",
+      "path": "/statutory/:id/massmailer",
+      "component": "statutory/MassMailer",
+      "file": "frontend/src/views/statutory/MassMailer.vue",
+      "area": "statutory",
+      "label": "Massmailer for statutory events",
+      "auth": true,
+      "inMenu": false,
+      "lines": 211,
+      "linesWithChildren": 211,
+      "childComponents": [],
+      "apiCalls": [
+        "POST statutory /events/:id/massmailer/"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 7,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.statutory.edit",
+      "path": "/statutory/:id/edit",
+      "component": "statutory/Edit",
+      "file": "frontend/src/views/statutory/Edit.vue",
+      "area": "statutory",
+      "label": "Edit single event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 830,
+      "linesWithChildren": 860,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /bodies/:body_id",
+        "GET statutory /events/:id",
+        "POST statutory /",
+        "PUT statutory /events/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 21,
+        "formFields": 26,
+        "tables": 2,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.create",
+      "path": "/statutory/new",
+      "component": "statutory/Edit",
+      "file": "frontend/src/views/statutory/Edit.vue",
+      "area": "statutory",
+      "label": "Create event",
+      "auth": true,
+      "inMenu": true,
+      "lines": 830,
+      "linesWithChildren": 860,
+      "childComponents": [
+        "frontend/src/components/notifications/TimezoneNotification.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /bodies/:body_id",
+        "GET statutory /events/:id",
+        "POST statutory /",
+        "PUT statutory /events/:id"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-autocomplete",
+          "b-loading"
+        ],
+        "rootHelpers": 21,
+        "formFields": 26,
+        "tables": 2,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.view",
+      "path": "/statutory/:id",
+      "component": "statutory/Single",
+      "file": "frontend/src/views/statutory/Single.vue",
+      "area": "statutory",
+      "label": "Display single event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 634,
+      "linesWithChildren": 704,
+      "childComponents": [
+        "frontend/src/views/statutory/PictureModal.vue"
+      ],
+      "apiCalls": [
+        "GET core /bodies/:body_id",
+        "GET statutory /events/:id",
+        "POST statutory /events/:id/image",
+        "PUT statutory /events/:id/status"
+      ],
+      "thirdParty": [
+        "Mapbox (vue-mapbox / mapbox-gl)",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 2,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 24,
+        "mapGetters": [
+          "user",
+          "services"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.votes",
+      "path": "/statutory/:id/votes",
+      "component": "statutory/VotesAmounts",
+      "file": "frontend/src/views/statutory/VotesAmounts.vue",
+      "area": "statutory",
+      "label": "Votes amount per antenna/delegates",
+      "auth": true,
+      "inMenu": false,
+      "lines": 152,
+      "linesWithChildren": 152,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies/",
+        "GET statutory /events/:id/votes-amounts/antenna",
+        "GET statutory /events/:id/votes-amounts/delegate"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 0,
+        "tables": 2,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.candidates.export",
+      "path": "/statutory/:id/positions/export",
+      "component": "statutory/ExportCandidates",
+      "file": "frontend/src/views/statutory/ExportCandidates.vue",
+      "area": "statutory",
+      "label": "Export candidates for statutory event",
+      "auth": true,
+      "inMenu": false,
+      "lines": 127,
+      "linesWithChildren": 127,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/fields/candidates",
+        "GET statutory /events/:id/positions/export"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 2,
+        "formFields": 2,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.positions",
+      "path": "/statutory/:id/positions/:prefix",
+      "component": "statutory/PositionsList",
+      "file": "frontend/src/views/statutory/PositionsList.vue",
+      "area": "statutory",
+      "label": "Positions list for Agora",
+      "auth": true,
+      "inMenu": false,
+      "lines": 407,
+      "linesWithChildren": 750,
+      "childComponents": [
+        "frontend/src/views/statutory/EditPositionModal.vue",
+        "frontend/src/components/tooltips/MarkdownTooltip.vue",
+        "frontend/src/views/statutory/ViewCandidateModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE statutory /events/:id/positions/:id",
+        "GET core /bodies",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/positions/:prefix",
+        "GET statutory /events/:id/positions/candidates/mine",
+        "POST statutory /events/:id/positions/",
+        "PUT ? :url",
+        "PUT statutory /events/:id/positions/:id"
+      ],
+      "thirdParty": [
+        "flatpickr",
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 2,
+        "buefyProgrammatic": 4,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 12,
+        "formFields": 2,
+        "tables": 21,
+        "permissionChecks": 3,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.candidates.new",
+      "path": "/statutory/:id/positions/:position_id/apply",
+      "component": "statutory/EditCandidate",
+      "file": "frontend/src/views/statutory/EditCandidate.vue",
+      "area": "statutory",
+      "label": "Apply as a candidate",
+      "auth": true,
+      "inMenu": false,
+      "lines": 407,
+      "linesWithChildren": 430,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+        "POST statutory /events/:id/positions/:position_id/candidates/",
+        "POST statutory /events/:id/positions/:position_id/candidates/:candidate_id/image",
+        "PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id"
+      ],
+      "thirdParty": [
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 10,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 9,
+        "formFields": 18,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.candidates.edit",
+      "path": "/statutory/:id/positions/:position_id/candidates/:candidate_id/edit",
+      "component": "statutory/EditCandidate",
+      "file": "frontend/src/views/statutory/EditCandidate.vue",
+      "area": "statutory",
+      "label": "Edit your application",
+      "auth": true,
+      "inMenu": false,
+      "lines": 407,
+      "linesWithChildren": 430,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+        "POST statutory /events/:id/positions/:position_id/candidates/",
+        "POST statutory /events/:id/positions/:position_id/candidates/:candidate_id/image",
+        "PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id"
+      ],
+      "thirdParty": [
+        "flatpickr",
+        "moment",
+        "vue-input-tag"
+      ],
+      "signals": {
+        "vHtml": 10,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 9,
+        "formFields": 18,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.statutory.question_lines",
+      "path": "/statutory/:id/question-lines/",
+      "component": "statutory/QuestionLinesList",
+      "file": "frontend/src/views/statutory/QuestionLinesList.vue",
+      "area": "statutory",
+      "label": "Question lines list for Agora",
+      "auth": true,
+      "inMenu": false,
+      "lines": 349,
+      "linesWithChildren": 493,
+      "childComponents": [
+        "frontend/src/views/statutory/EditQuestionLineModal.vue",
+        "frontend/src/views/statutory/EditQuestionModal.vue"
+      ],
+      "apiCalls": [
+        "DELETE statutory /events/:id/question-lines/:id",
+        "DELETE statutory /events/:id/question-lines/:id/questions/:id",
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/question-lines/",
+        "POST statutory /events/:id/question-lines/",
+        "POST statutory /events/:id/question-lines/:id/questions/",
+        "PUT ? :url",
+        "PUT statutory /events/:id/question-lines/:id",
+        "PUT statutory /events/:id/question-lines/:id/questions/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 6,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 16,
+        "formFields": 1,
+        "tables": 16,
+        "permissionChecks": 8,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.plenaries",
+      "path": "/statutory/:id/plenaries/",
+      "component": "statutory/PlenariesList",
+      "file": "frontend/src/views/statutory/PlenariesList.vue",
+      "area": "statutory",
+      "label": "Plenaries list for Agora",
+      "auth": true,
+      "inMenu": false,
+      "lines": 147,
+      "linesWithChildren": 262,
+      "childComponents": [
+        "frontend/src/views/statutory/EditPlenaryModal.vue"
+      ],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/plenaries/",
+        "GET statutory /events/:id/plenaries/stats/",
+        "POST statutory /events/:id/plenaries/",
+        "PUT statutory /events/:id/plenaries/:id"
+      ],
+      "thirdParty": [
+        "flatpickr"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 4,
+        "formFields": 0,
+        "tables": 7,
+        "permissionChecks": 2,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.statutory.plenaries.view",
+      "path": "/statutory/:id/plenaries/:plenary_id",
+      "component": "statutory/ViewPlenary",
+      "file": "frontend/src/views/statutory/ViewPlenary.vue",
+      "area": "statutory",
+      "label": "Plenary details and marking attendance",
+      "auth": true,
+      "inMenu": false,
+      "lines": 156,
+      "linesWithChildren": 156,
+      "childComponents": [],
+      "apiCalls": [
+        "GET statutory /events/:id",
+        "GET statutory /events/:id/plenaries/:plenary_id",
+        "POST statutory /events/:id/plenaries/:plenary_id/attendance/mark"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 5,
+        "formFields": 2,
+        "tables": 7,
+        "permissionChecks": 0,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 1
+      }
+    },
+    {
+      "name": "oms.network.boards.list",
+      "path": "/network/boards",
+      "component": "network/BoardListing",
+      "file": "frontend/src/views/network/BoardListing.vue",
+      "area": "network",
+      "label": "View current boards",
+      "auth": true,
+      "inMenu": true,
+      "lines": 207,
+      "linesWithChildren": 207,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /bodies",
+        "GET core /my_permissions",
+        "GET network /boards?sort=start_date&direction=desc"
+      ],
+      "thirdParty": [
+        "moment",
+        "vue-multiselect"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 2,
+        "formFields": 3,
+        "tables": 8,
+        "permissionChecks": 5,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.network.ac_check",
+      "path": "/network/ac_check",
+      "component": "network/AntennaCriteriaCheck",
+      "file": "frontend/src/views/network/AntennaCriteriaCheck.vue",
+      "area": "network",
+      "label": "Antenna Criteria check",
+      "auth": true,
+      "inMenu": true,
+      "lines": 617,
+      "linesWithChildren": 1228,
+      "childComponents": [
+        "frontend/src/views/network/AntennaCriteriaModal.vue",
+        "frontend/src/views/network/AntennaCriteriaInfo.vue",
+        "frontend/src/views/network/AntennaCriteriaMail.vue",
+        "frontend/src/views/network/AntennaCriteriaMailSend.vue"
+      ],
+      "apiCalls": [
+        "DELETE network /netcom/:id",
+        "GET core /bodies",
+        "GET core /bodies/:id/members",
+        "GET core /bodies?query=network%20commission",
+        "GET core /my_permissions",
+        "GET events /recents",
+        "GET network /antennaCriteria/:id",
+        "GET network /boards/recents",
+        "GET network /mailComponent/:id",
+        "GET network /netcom",
+        "GET statutory /",
+        "GET statutory /events/:id/memberslists",
+        "GET statutory /recents",
+        "GET summeruniversity /recents",
+        "POST network /antennaCriteria/sendFulfilmentMail",
+        "PUT network /antennaCriteria",
+        "PUT network /mailComponent",
+        "PUT network /netcom"
+      ],
+      "thirdParty": [
+        "moment"
+      ],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 4,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column",
+          "b-tag",
+          "b-button"
+        ],
+        "rootHelpers": 19,
+        "formFields": 1,
+        "tables": 16,
+        "permissionChecks": 6,
+        "mapGetters": [
+          "services",
+          "user"
+        ],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.about",
+      "path": "/about",
+      "component": "static/About",
+      "file": "frontend/src/views/static/About.vue",
+      "area": "static",
+      "label": "About MyAEGEE",
+      "auth": false,
+      "inMenu": false,
+      "lines": 239,
+      "linesWithChildren": 239,
+      "childComponents": [],
+      "apiCalls": [],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 0,
+        "formFields": 0,
+        "tables": 3,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.resources",
+      "path": "/resources",
+      "component": "static/Resources",
+      "file": "frontend/src/views/static/Resources.vue",
+      "area": "static",
+      "label": "Resources",
+      "auth": true,
+      "inMenu": true,
+      "lines": 214,
+      "linesWithChildren": 214,
+      "childComponents": [],
+      "apiCalls": [],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 0,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.discounts",
+      "path": "/discounts",
+      "component": "discounts/DiscountsList",
+      "file": "frontend/src/views/discounts/DiscountsList.vue",
+      "area": "discounts",
+      "label": "Discounts",
+      "auth": true,
+      "inMenu": true,
+      "lines": 94,
+      "linesWithChildren": 94,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /my_permissions",
+        "GET discounts /categories"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 6,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.discounts.categories.edit",
+      "path": "/discounts/categories/:id/edit",
+      "component": "discounts/CategoryEdit",
+      "file": "frontend/src/views/discounts/CategoryEdit.vue",
+      "area": "discounts",
+      "label": "Edit single category",
+      "auth": true,
+      "inMenu": false,
+      "lines": 154,
+      "linesWithChildren": 177,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET discounts /categories/:id",
+        "POST discounts /categories/",
+        "PUT discounts /categories/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.discounts.categories.list",
+      "path": "/discounts/categories/",
+      "component": "discounts/CategoriesList",
+      "file": "frontend/src/views/discounts/CategoriesList.vue",
+      "area": "discounts",
+      "label": "List a category of discounts",
+      "auth": true,
+      "inMenu": false,
+      "lines": 102,
+      "linesWithChildren": 102,
+      "childComponents": [],
+      "apiCalls": [
+        "DELETE discounts /categories/:id",
+        "GET core /my_permissions",
+        "GET discounts /categories"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 1,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 3,
+        "formFields": 0,
+        "tables": 5,
+        "permissionChecks": 5,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.discounts.categories.create",
+      "path": "/discounts/categories/new",
+      "component": "discounts/CategoryEdit",
+      "file": "frontend/src/views/discounts/CategoryEdit.vue",
+      "area": "discounts",
+      "label": "Create a category of discounts",
+      "auth": true,
+      "inMenu": false,
+      "lines": 154,
+      "linesWithChildren": 177,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET discounts /categories/:id",
+        "POST discounts /categories/",
+        "PUT discounts /categories/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 6,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.discounts.list",
+      "path": "/discounts/integrations",
+      "component": "discounts/List",
+      "file": "frontend/src/views/discounts/List.vue",
+      "area": "discounts",
+      "label": "View discount integrations",
+      "auth": true,
+      "inMenu": false,
+      "lines": 103,
+      "linesWithChildren": 103,
+      "childComponents": [],
+      "apiCalls": [
+        "GET core /my_permissions",
+        "GET discounts /integrations"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 1,
+        "formFields": 0,
+        "tables": 7,
+        "permissionChecks": 5,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.discounts.my_discounts",
+      "path": "/discounts/my",
+      "component": "discounts/MyDiscounts",
+      "file": "frontend/src/views/discounts/MyDiscounts.vue",
+      "area": "discounts",
+      "label": "My discounts",
+      "auth": true,
+      "inMenu": false,
+      "lines": 114,
+      "linesWithChildren": 114,
+      "childComponents": [],
+      "apiCalls": [
+        "GET discounts /codes/mine",
+        "GET discounts /integrations",
+        "POST discounts /integrations/:selectedIntegration/claim"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-table",
+          "b-table-column"
+        ],
+        "rootHelpers": 4,
+        "formFields": 1,
+        "tables": 5,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    },
+    {
+      "name": "oms.discounts.add_codes",
+      "path": "/discounts/integrations/:id/add-codes",
+      "component": "discounts/AddCodes",
+      "file": "frontend/src/views/discounts/AddCodes.vue",
+      "area": "discounts",
+      "label": "Add codes to integration",
+      "auth": true,
+      "inMenu": false,
+      "lines": 86,
+      "linesWithChildren": 86,
+      "childComponents": [],
+      "apiCalls": [
+        "GET discounts /integrations/:id",
+        "POST discounts /integrations/:id/codes"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 0,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 2,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.discounts.edit",
+      "path": "/discounts/integrations/:id/edit",
+      "component": "discounts/Edit",
+      "file": "frontend/src/views/discounts/Edit.vue",
+      "area": "discounts",
+      "label": "Edit single integration",
+      "auth": true,
+      "inMenu": false,
+      "lines": 141,
+      "linesWithChildren": 164,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET discounts /integrations/:id",
+        "POST discounts /integrations/",
+        "PUT discounts /integrations/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.discounts.create",
+      "path": "/discounts/integrations/new",
+      "component": "discounts/Edit",
+      "file": "frontend/src/views/discounts/Edit.vue",
+      "area": "discounts",
+      "label": "Create a integration",
+      "auth": true,
+      "inMenu": false,
+      "lines": 141,
+      "linesWithChildren": 164,
+      "childComponents": [
+        "frontend/src/components/tooltips/MarkdownTooltip.vue"
+      ],
+      "apiCalls": [
+        "GET discounts /integrations/:id",
+        "POST discounts /integrations/",
+        "PUT discounts /integrations/:id"
+      ],
+      "thirdParty": [],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [
+          "b-loading"
+        ],
+        "rootHelpers": 5,
+        "formFields": 6,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 2
+      }
+    },
+    {
+      "name": "oms.confluence",
+      "path": "/pages/:page_id",
+      "component": "static/ConfluencePage",
+      "file": "frontend/src/views/static/ConfluencePage.vue",
+      "area": "static",
+      "label": "Display page",
+      "auth": false,
+      "inMenu": true,
+      "lines": 53,
+      "linesWithChildren": 53,
+      "childComponents": [],
+      "apiCalls": [],
+      "thirdParty": [
+        "dompurify"
+      ],
+      "signals": {
+        "vHtml": 1,
+        "buefyProgrammatic": 0,
+        "buefyComponents": [],
+        "rootHelpers": 0,
+        "formFields": 0,
+        "tables": 0,
+        "permissionChecks": 0,
+        "mapGetters": [],
+        "routerPush": 0
+      }
+    }
+  ],
+  "apiCalls": [
+    {
+      "call": "DELETE core /bodies/:id/members",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /bodies/:id/members/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /bodies/:id/payments/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ListFeePaymentsModal.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /campaigns/:id",
+      "files": [
+        "frontend/src/views/core/campaigns/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /circles/:id",
+      "files": [
+        "frontend/src/views/core/circles/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /circles/:id/members",
+      "files": [
+        "frontend/src/views/core/circles/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /circles/:id/members/:id",
+      "files": [
+        "frontend/src/views/core/circles/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /circles/:id/permissions/:id",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /members/:id",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /members/:id/event-application-ban",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /members/:id/image",
+      "files": [
+        "frontend/src/views/core/members/PictureModal.vue"
+      ]
+    },
+    {
+      "call": "DELETE core /permissions/:id",
+      "files": [
+        "frontend/src/views/core/permissions/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE discounts /categories/:id",
+      "files": [
+        "frontend/src/views/discounts/CategoriesList.vue"
+      ]
+    },
+    {
+      "call": "DELETE events /single/:id",
+      "files": [
+        "frontend/src/views/events/Single.vue"
+      ]
+    },
+    {
+      "call": "DELETE network /bodies/:id/boards/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue"
+      ]
+    },
+    {
+      "call": "DELETE network /netcom/:id",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaModal.vue"
+      ]
+    },
+    {
+      "call": "DELETE statutory /events/:id/positions/:id",
+      "files": [
+        "frontend/src/views/statutory/PositionsList.vue"
+      ]
+    },
+    {
+      "call": "DELETE statutory /events/:id/question-lines/:id",
+      "files": [
+        "frontend/src/views/statutory/QuestionLinesList.vue"
+      ]
+    },
+    {
+      "call": "DELETE statutory /events/:id/question-lines/:id/questions/:id",
+      "files": [
+        "frontend/src/views/statutory/QuestionLinesList.vue"
+      ]
+    },
+    {
+      "call": "DELETE statutory /limits/:eventType/:body_id",
+      "files": [
+        "frontend/src/views/statutory/PaxLimits.vue"
+      ]
+    },
+    {
+      "call": "DELETE summeruniversity /single/:id",
+      "files": [
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    },
+    {
+      "call": "GET ? :campaignUrl",
+      "files": [
+        "frontend/src/views/core/campaigns/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET ? :healthcheckUrl",
+      "files": [
+        "frontend/src/views/static/Status.vue"
+      ]
+    },
+    {
+      "call": "GET ? :link",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "GET ? :scope",
+      "files": [
+        "frontend/src/views/events/List.vue",
+        "frontend/src/views/summeruniversity/List.vue"
+      ]
+    },
+    {
+      "call": "GET ? :url",
+      "files": [
+        "frontend/src/views/core/circles/AddMemberModal.vue"
+      ]
+    },
+    {
+      "call": "GET core /:context",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies",
+      "files": [
+        "frontend/src/views/core/bodies/List.vue",
+        "frontend/src/views/core/members/List.vue",
+        "frontend/src/views/core/members/UpdateProfile.vue",
+        "frontend/src/views/network/AntennaCriteriaCheck.vue",
+        "frontend/src/views/network/BoardListing.vue",
+        "frontend/src/views/statutory/Edit.vue",
+        "frontend/src/views/statutory/PositionsList.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies?query=network%20commission",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/",
+      "files": [
+        "frontend/src/views/core/campaigns/Edit.vue",
+        "frontend/src/views/events/Edit.vue",
+        "frontend/src/views/statutory/BoardView.vue",
+        "frontend/src/views/statutory/ListMembersLists.vue",
+        "frontend/src/views/statutory/ListMissingMembersLists.vue",
+        "frontend/src/views/statutory/ListWithoutFeeMembersLists.vue",
+        "frontend/src/views/statutory/PaxLimits.vue",
+        "frontend/src/views/statutory/Stats.vue",
+        "frontend/src/views/statutory/UploadMembersList.vue",
+        "frontend/src/views/statutory/VotesAmounts.vue",
+        "frontend/src/views/summeruniversity/Edit.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:autojoin_body_id/my_permissions",
+      "files": [
+        "frontend/src/views/core/campaigns/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:body_id",
+      "files": [
+        "frontend/src/views/statutory/Edit.vue",
+        "frontend/src/views/statutory/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:bodyId",
+      "files": [
+        "frontend/src/views/statutory/UploadMembersList.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id",
+      "files": [
+        "frontend/src/views/core/bodies/Edit.vue",
+        "frontend/src/views/core/bodies/Single.vue",
+        "frontend/src/views/core/bodies/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id/campaigns",
+      "files": [
+        "frontend/src/views/core/bodies/CampaignsList.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id/join-requests",
+      "files": [
+        "frontend/src/views/core/bodies/ViewJoinRequests.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id/members",
+      "files": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue",
+        "frontend/src/views/core/bodies/Single.vue",
+        "frontend/src/views/core/bodies/ViewBoards.vue",
+        "frontend/src/views/core/bodies/ViewMembers.vue",
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id/my_permissions",
+      "files": [
+        "frontend/src/views/core/bodies/CampaignsList.vue",
+        "frontend/src/views/core/bodies/Edit.vue",
+        "frontend/src/views/core/bodies/Single.vue",
+        "frontend/src/views/core/bodies/ViewBoards.vue",
+        "frontend/src/views/core/bodies/ViewJoinRequests.vue",
+        "frontend/src/views/core/bodies/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:id/payments",
+      "files": [
+        "frontend/src/views/core/bodies/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:selectedBody/members",
+      "files": [
+        "frontend/src/views/statutory/UploadMembersList.vue"
+      ]
+    },
+    {
+      "call": "GET core /bodies/:selectedBody/payments",
+      "files": [
+        "frontend/src/views/statutory/UploadMembersList.vue"
+      ]
+    },
+    {
+      "call": "GET core /campaigns",
+      "files": [
+        "frontend/src/views/core/campaigns/List.vue"
+      ]
+    },
+    {
+      "call": "GET core /campaigns/:id",
+      "files": [
+        "frontend/src/views/auth/Register.vue",
+        "frontend/src/views/core/campaigns/Edit.vue",
+        "frontend/src/views/core/campaigns/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /campaigns/:id/members",
+      "files": [
+        "frontend/src/views/core/campaigns/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /circles",
+      "files": [
+        "frontend/src/views/core/circles/List.vue"
+      ]
+    },
+    {
+      "call": "GET core /circles/:id",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue",
+        "frontend/src/views/core/circles/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /circles/:id/members",
+      "files": [
+        "frontend/src/views/core/circles/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /circles/:id/my_permissions",
+      "files": [
+        "frontend/src/views/core/circles/Single.vue",
+        "frontend/src/views/core/circles/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /circles/:id/permissions",
+      "files": [
+        "frontend/src/views/core/circles/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /members",
+      "files": [
+        "frontend/src/views/core/members/List.vue"
+      ]
+    },
+    {
+      "call": "GET core /members_search",
+      "files": [
+        "frontend/src/views/core/bodies/AddMemberModal.vue",
+        "frontend/src/views/events/Edit.vue",
+        "frontend/src/views/summeruniversity/Edit.vue",
+        "frontend/src/views/summeruniversity/EditSecond.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/:id",
+      "files": [
+        "frontend/src/views/core/members/Edit.vue",
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/:id/my_permissions",
+      "files": [
+        "frontend/src/views/core/members/Edit.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/:user_id",
+      "files": [
+        "frontend/src/views/events/Accepted.vue",
+        "frontend/src/views/summeruniversity/Edit.vue",
+        "frontend/src/views/summeruniversity/EditSecond.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/me",
+      "files": [
+        "frontend/src/views/core/members/EditUser.vue",
+        "frontend/src/views/core/members/UpdateProfile.vue",
+        "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET core /members/unconfirmed",
+      "files": [
+        "frontend/src/views/core/members/ListUnconfirmed.vue"
+      ]
+    },
+    {
+      "call": "GET core /my_permissions",
+      "files": [
+        "frontend/src/views/core/bodies/List.vue",
+        "frontend/src/views/core/campaigns/List.vue",
+        "frontend/src/views/core/campaigns/Single.vue",
+        "frontend/src/views/core/circles/List.vue",
+        "frontend/src/views/core/permissions/List.vue",
+        "frontend/src/views/core/permissions/Single.vue",
+        "frontend/src/views/discounts/CategoriesList.vue",
+        "frontend/src/views/discounts/DiscountsList.vue",
+        "frontend/src/views/discounts/List.vue",
+        "frontend/src/views/events/List.vue",
+        "frontend/src/views/network/AntennaCriteriaCheck.vue",
+        "frontend/src/views/network/BoardListing.vue",
+        "frontend/src/views/statutory/List.vue",
+        "frontend/src/views/summeruniversity/List.vue"
+      ]
+    },
+    {
+      "call": "GET core /my_permissions/",
+      "files": [
+        "frontend/src/views/summeruniversity/Edit.vue",
+        "frontend/src/views/summeruniversity/EditSecond.vue"
+      ]
+    },
+    {
+      "call": "GET core /permissions",
+      "files": [
+        "frontend/src/views/core/permissions/List.vue"
+      ]
+    },
+    {
+      "call": "GET core /permissions/:id",
+      "files": [
+        "frontend/src/views/core/permissions/Edit.vue",
+        "frontend/src/views/core/permissions/Single.vue",
+        "frontend/src/views/core/permissions/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET core /permissions/:id/members",
+      "files": [
+        "frontend/src/views/core/permissions/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "GET discounts /categories",
+      "files": [
+        "frontend/src/views/discounts/CategoriesList.vue",
+        "frontend/src/views/discounts/DiscountsList.vue"
+      ]
+    },
+    {
+      "call": "GET discounts /categories/:id",
+      "files": [
+        "frontend/src/views/discounts/CategoryEdit.vue"
+      ]
+    },
+    {
+      "call": "GET discounts /codes/mine",
+      "files": [
+        "frontend/src/views/discounts/MyDiscounts.vue"
+      ]
+    },
+    {
+      "call": "GET discounts /integrations",
+      "files": [
+        "frontend/src/views/discounts/List.vue",
+        "frontend/src/views/discounts/MyDiscounts.vue"
+      ]
+    },
+    {
+      "call": "GET discounts /integrations/:id",
+      "files": [
+        "frontend/src/views/discounts/AddCodes.vue",
+        "frontend/src/views/discounts/Edit.vue"
+      ]
+    },
+    {
+      "call": "GET events /",
+      "files": [
+        "frontend/src/views/dashboard/Calendar.vue"
+      ]
+    },
+    {
+      "call": "GET events /boardview/:selectedBody",
+      "files": [
+        "frontend/src/views/events/BoardView.vue"
+      ]
+    },
+    {
+      "call": "GET events /getUser",
+      "files": [
+        "frontend/src/views/events/ServiceAdmin.vue"
+      ]
+    },
+    {
+      "call": "GET events /mine/approvable",
+      "files": [
+        "frontend/src/views/events/ChangeStatus.vue"
+      ]
+    },
+    {
+      "call": "GET events /mine/participating",
+      "files": [
+        "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET events /recents",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id",
+      "files": [
+        "frontend/src/views/events/Apply.vue",
+        "frontend/src/views/events/Edit.vue",
+        "frontend/src/views/events/Participants.vue",
+        "frontend/src/views/events/Single.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id/applications",
+      "files": [
+        "frontend/src/views/events/Participants.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/events/Apply.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id/applications/:participantId",
+      "files": [
+        "frontend/src/views/events/Participants.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id/applications/export/",
+      "files": [
+        "frontend/src/views/events/Participants.vue"
+      ]
+    },
+    {
+      "call": "GET events /single/:id/participants?status=accepted",
+      "files": [
+        "frontend/src/views/events/Accepted.vue"
+      ]
+    },
+    {
+      "call": "GET events /status",
+      "files": [
+        "frontend/src/views/events/ServiceAdmin.vue"
+      ]
+    },
+    {
+      "call": "GET network /antennaCriteria/:id",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET network /boards?sort=start_date&direction=desc",
+      "files": [
+        "frontend/src/views/network/BoardListing.vue"
+      ]
+    },
+    {
+      "call": "GET network /boards/recents",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET network /bodies/:id/boards?sort=start_date&direction=desc",
+      "files": [
+        "frontend/src/views/core/bodies/ViewBoards.vue"
+      ]
+    },
+    {
+      "call": "GET network /bodies/:id/boards/current",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
+      "call": "GET network /mailComponent/:id",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET network /netcom",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /",
+      "files": [
+        "frontend/src/views/dashboard/Calendar.vue",
+        "frontend/src/views/network/AntennaCriteriaCheck.vue",
+        "frontend/src/views/statutory/List.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id",
+      "files": [
+        "frontend/src/views/statutory/Applications.vue",
+        "frontend/src/views/statutory/BoardView.vue",
+        "frontend/src/views/statutory/Debug.vue",
+        "frontend/src/views/statutory/Edit.vue",
+        "frontend/src/views/statutory/EditApplication.vue",
+        "frontend/src/views/statutory/Export.vue",
+        "frontend/src/views/statutory/ExportCandidates.vue",
+        "frontend/src/views/statutory/Incoming.vue",
+        "frontend/src/views/statutory/Juridical.vue",
+        "frontend/src/views/statutory/ListMembersLists.vue",
+        "frontend/src/views/statutory/ListMissingMembersLists.vue",
+        "frontend/src/views/statutory/ListWithoutFeeMembersLists.vue",
+        "frontend/src/views/statutory/NetworkListing.vue",
+        "frontend/src/views/statutory/PlenariesList.vue",
+        "frontend/src/views/statutory/PositionsList.vue",
+        "frontend/src/views/statutory/QuestionLinesList.vue",
+        "frontend/src/views/statutory/Single.vue",
+        "frontend/src/views/statutory/Stats.vue",
+        "frontend/src/views/statutory/UploadMembersList.vue",
+        "frontend/src/views/statutory/ViewApplication.vue",
+        "frontend/src/views/statutory/ViewPlenary.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue",
+        "frontend/src/views/statutory/ViewApplication.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/accepted",
+      "files": [
+        "frontend/src/views/statutory/Accepted.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/all",
+      "files": [
+        "frontend/src/views/statutory/Applications.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/boardview/:selectedBody",
+      "files": [
+        "frontend/src/views/statutory/BoardView.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/export/:prefix",
+      "files": [
+        "frontend/src/views/statutory/Export.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/export/delegates_jc",
+      "files": [
+        "frontend/src/views/statutory/Juridical.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/export/openslides",
+      "files": [
+        "frontend/src/views/statutory/Export.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/incoming",
+      "files": [
+        "frontend/src/views/statutory/Incoming.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/juridical",
+      "files": [
+        "frontend/src/views/statutory/Juridical.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/network",
+      "files": [
+        "frontend/src/views/statutory/NetworkListing.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/applications/stats",
+      "files": [
+        "frontend/src/views/statutory/Stats.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/fields/applications/:prefix",
+      "files": [
+        "frontend/src/views/statutory/Export.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/fields/candidates",
+      "files": [
+        "frontend/src/views/statutory/ExportCandidates.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/memberslists",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue",
+        "frontend/src/views/statutory/ListMembersLists.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/memberslists/:selectedBody",
+      "files": [
+        "frontend/src/views/statutory/UploadMembersList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/memberslists/missing",
+      "files": [
+        "frontend/src/views/statutory/ListMissingMembersLists.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/memberslists/without_fee",
+      "files": [
+        "frontend/src/views/statutory/ListWithoutFeeMembersLists.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/plenaries/",
+      "files": [
+        "frontend/src/views/statutory/PlenariesList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/plenaries/:plenary_id",
+      "files": [
+        "frontend/src/views/statutory/ViewPlenary.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/plenaries/stats/",
+      "files": [
+        "frontend/src/views/statutory/PlenariesList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+      "files": [
+        "frontend/src/views/statutory/EditCandidate.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/positions/:prefix",
+      "files": [
+        "frontend/src/views/statutory/PositionsList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/positions/candidates/mine",
+      "files": [
+        "frontend/src/views/statutory/PositionsList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/positions/export",
+      "files": [
+        "frontend/src/views/statutory/ExportCandidates.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/question-lines/",
+      "files": [
+        "frontend/src/views/statutory/QuestionLinesList.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/votes-amounts/antenna",
+      "files": [
+        "frontend/src/views/statutory/VotesAmounts.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/:id/votes-amounts/delegate",
+      "files": [
+        "frontend/src/views/statutory/VotesAmounts.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /events/latest",
+      "files": [
+        "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /limits/:eventType",
+      "files": [
+        "frontend/src/views/statutory/PaxLimits.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /limits/:eventType/defaults/",
+      "files": [
+        "frontend/src/views/statutory/PaxLimits.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /limits/:type/:selectedBody",
+      "files": [
+        "frontend/src/views/statutory/BoardView.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /mine",
+      "files": [
+        "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /recents",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET statutory /tasks/",
+      "files": [
+        "frontend/src/views/statutory/TasksList.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /",
+      "files": [
+        "frontend/src/views/dashboard/Calendar.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /boardview/:selectedBody",
+      "files": [
+        "frontend/src/views/summeruniversity/BoardView.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /mine/approvable",
+      "files": [
+        "frontend/src/views/summeruniversity/ChangeStatus.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /mine/participating",
+      "files": [
+        "frontend/src/views/dashboard/index.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /recents",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaCheck.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id",
+      "files": [
+        "frontend/src/views/summeruniversity/Apply.vue",
+        "frontend/src/views/summeruniversity/Edit.vue",
+        "frontend/src/views/summeruniversity/EditSecond.vue",
+        "frontend/src/views/summeruniversity/Participants.vue",
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id/applications",
+      "files": [
+        "frontend/src/views/summeruniversity/Participants.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/summeruniversity/Apply.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id/applications/:id",
+      "files": [
+        "frontend/src/views/summeruniversity/BoardView.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id/applications/:participantId",
+      "files": [
+        "frontend/src/views/summeruniversity/Participants.vue"
+      ]
+    },
+    {
+      "call": "GET summeruniversity /single/:id/applications/export/",
+      "files": [
+        "frontend/src/views/summeruniversity/Participants.vue"
+      ]
+    },
+    {
+      "call": "POST ? :url",
+      "files": [
+        "frontend/src/views/statutory/BoardView.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/",
+      "files": [
+        "frontend/src/views/core/bodies/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:bodyId/join-requests",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/circles",
+      "files": [
+        "frontend/src/views/core/bodies/AddBoundCircleModal.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/create-member",
+      "files": [
+        "frontend/src/views/core/bodies/BulkImport.vue",
+        "frontend/src/views/core/bodies/CreateMember.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/join-requests",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/members",
+      "files": [
+        "frontend/src/views/core/bodies/AddMemberModal.vue"
+      ]
+    },
+    {
+      "call": "POST core /bodies/:id/payments",
+      "files": [
+        "frontend/src/views/core/bodies/AddFeePaymentModal.vue"
+      ]
+    },
+    {
+      "call": "POST core /bug-report",
+      "files": [
+        "frontend/src/views/static/BugReport.vue"
+      ]
+    },
+    {
+      "call": "POST core /campaigns/",
+      "files": [
+        "frontend/src/views/core/campaigns/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /circles/",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /circles/:id/members",
+      "files": [
+        "frontend/src/views/core/circles/AddMemberModal.vue",
+        "frontend/src/views/core/circles/Single.vue"
+      ]
+    },
+    {
+      "call": "POST core /circles/:id/permissions",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /confirm-email",
+      "files": [
+        "frontend/src/views/auth/ConfirmToken.vue"
+      ]
+    },
+    {
+      "call": "POST core /confirm-email-change",
+      "files": [
+        "frontend/src/views/auth/MailChange.vue"
+      ]
+    },
+    {
+      "call": "POST core /members/:id/confirm",
+      "files": [
+        "frontend/src/views/core/members/ListUnconfirmed.vue"
+      ]
+    },
+    {
+      "call": "POST core /members/:id/listserv",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue"
+      ]
+    },
+    {
+      "call": "POST core /members/:id/upload",
+      "files": [
+        "frontend/src/views/core/members/PictureModal.vue"
+      ]
+    },
+    {
+      "call": "POST core /my_permissions/",
+      "files": [
+        "frontend/src/views/events/BoardView.vue",
+        "frontend/src/views/summeruniversity/BoardView.vue"
+      ]
+    },
+    {
+      "call": "POST core /password_confirm",
+      "files": [
+        "frontend/src/views/auth/PasswordConfirm.vue"
+      ]
+    },
+    {
+      "call": "POST core /password_reset",
+      "files": [
+        "frontend/src/views/auth/PasswordReset.vue"
+      ]
+    },
+    {
+      "call": "POST core /permissions/",
+      "files": [
+        "frontend/src/views/core/permissions/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST core /signup/:id",
+      "files": [
+        "frontend/src/views/auth/Register.vue"
+      ]
+    },
+    {
+      "call": "POST discounts /categories/",
+      "files": [
+        "frontend/src/views/discounts/CategoryEdit.vue"
+      ]
+    },
+    {
+      "call": "POST discounts /integrations/",
+      "files": [
+        "frontend/src/views/discounts/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST discounts /integrations/:id/codes",
+      "files": [
+        "frontend/src/views/discounts/AddCodes.vue"
+      ]
+    },
+    {
+      "call": "POST discounts /integrations/:selectedIntegration/claim",
+      "files": [
+        "frontend/src/views/discounts/MyDiscounts.vue"
+      ]
+    },
+    {
+      "call": "POST events /",
+      "files": [
+        "frontend/src/views/events/Edit.vue",
+        "frontend/src/views/events/ServiceAdmin.vue"
+      ]
+    },
+    {
+      "call": "POST events /single/:id/applications",
+      "files": [
+        "frontend/src/views/events/Apply.vue"
+      ]
+    },
+    {
+      "call": "POST events /single/:id/upload",
+      "files": [
+        "frontend/src/views/events/PictureModal.vue"
+      ]
+    },
+    {
+      "call": "POST network /antennaCriteria/sendFulfilmentMail",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaMailSend.vue"
+      ]
+    },
+    {
+      "call": "POST network /bodies/:id/boards",
+      "files": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /",
+      "files": [
+        "frontend/src/views/statutory/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/applications",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/image",
+      "files": [
+        "frontend/src/views/statutory/PictureModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/massmailer/",
+      "files": [
+        "frontend/src/views/statutory/MassMailer.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/memberslists/:selectedBody",
+      "files": [
+        "frontend/src/views/statutory/UploadMembersList.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/plenaries/",
+      "files": [
+        "frontend/src/views/statutory/EditPlenaryModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/plenaries/:plenary_id/attendance/mark",
+      "files": [
+        "frontend/src/views/statutory/ViewPlenary.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/positions/",
+      "files": [
+        "frontend/src/views/statutory/EditPositionModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/positions/:position_id/candidates/",
+      "files": [
+        "frontend/src/views/statutory/EditCandidate.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/positions/:position_id/candidates/:candidate_id/image",
+      "files": [
+        "frontend/src/views/statutory/EditCandidate.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/question-lines/",
+      "files": [
+        "frontend/src/views/statutory/EditQuestionLineModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /events/:id/question-lines/:id/questions/",
+      "files": [
+        "frontend/src/views/statutory/EditQuestionModal.vue"
+      ]
+    },
+    {
+      "call": "POST statutory /limits/:eventType",
+      "files": [
+        "frontend/src/views/statutory/PaxLimits.vue"
+      ]
+    },
+    {
+      "call": "POST summeruniversity /",
+      "files": [
+        "frontend/src/views/summeruniversity/Edit.vue"
+      ]
+    },
+    {
+      "call": "POST summeruniversity /single/:id/applications",
+      "files": [
+        "frontend/src/views/summeruniversity/Apply.vue"
+      ]
+    },
+    {
+      "call": "POST summeruniversity /single/:id/upload",
+      "files": [
+        "frontend/src/views/summeruniversity/EditSecond.vue",
+        "frontend/src/views/summeruniversity/PictureModal.vue"
+      ]
+    },
+    {
+      "call": "PUT ? :url",
+      "files": [
+        "frontend/src/views/events/Participants.vue",
+        "frontend/src/views/statutory/Applications.vue",
+        "frontend/src/views/statutory/Incoming.vue",
+        "frontend/src/views/statutory/Juridical.vue",
+        "frontend/src/views/statutory/NetworkListing.vue",
+        "frontend/src/views/statutory/PositionsList.vue",
+        "frontend/src/views/statutory/QuestionLinesList.vue",
+        "frontend/src/views/summeruniversity/Participants.vue"
+      ]
+    },
+    {
+      "call": "PUT core /bodies/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue",
+        "frontend/src/views/core/bodies/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT core /bodies/:id/join-requests/:id/status",
+      "files": [
+        "frontend/src/views/core/bodies/ViewJoinRequests.vue"
+      ]
+    },
+    {
+      "call": "PUT core /bodies/:id/members/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ViewMembers.vue"
+      ]
+    },
+    {
+      "call": "PUT core /bodies/:id/status",
+      "files": [
+        "frontend/src/views/core/bodies/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /campaigns/:id",
+      "files": [
+        "frontend/src/views/core/campaigns/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT core /circles/:id",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT core /circles/:id/members/:id",
+      "files": [
+        "frontend/src/views/core/circles/EditMemberPositionModal.vue"
+      ]
+    },
+    {
+      "call": "PUT core /circles/:id/parent",
+      "files": [
+        "frontend/src/views/core/circles/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id",
+      "files": [
+        "frontend/src/views/core/members/Edit.vue",
+        "frontend/src/views/core/members/EditPrimaryEmailModal.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/active",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/email",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/event-application-ban",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/primary-body",
+      "files": [
+        "frontend/src/views/core/members/EditPrimaryBodyModal.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/:id/superadmin",
+      "files": [
+        "frontend/src/views/core/members/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/me",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/me/email",
+      "files": [
+        "frontend/src/views/core/members/UpdateProfile.vue"
+      ]
+    },
+    {
+      "call": "PUT core /members/me/password",
+      "files": [
+        "frontend/src/views/core/members/EditUser.vue"
+      ]
+    },
+    {
+      "call": "PUT core /permissions/:id",
+      "files": [
+        "frontend/src/views/core/permissions/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT discounts /categories/:id",
+      "files": [
+        "frontend/src/views/discounts/CategoryEdit.vue"
+      ]
+    },
+    {
+      "call": "PUT discounts /integrations/:id",
+      "files": [
+        "frontend/src/views/discounts/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id",
+      "files": [
+        "frontend/src/views/events/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/events/Apply.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id/applications/:id/comment/",
+      "files": [
+        "frontend/src/views/events/BoardView.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id/status",
+      "files": [
+        "frontend/src/views/events/ChangeStatus.vue",
+        "frontend/src/views/events/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT events /single/:id/status/european_event",
+      "files": [
+        "frontend/src/views/events/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT network /antennaCriteria",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaModal.vue"
+      ]
+    },
+    {
+      "call": "PUT network /bodies/:id/boards/:id",
+      "files": [
+        "frontend/src/views/core/bodies/ChangeBoardModal.vue"
+      ]
+    },
+    {
+      "call": "PUT network /mailComponent",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaMail.vue"
+      ]
+    },
+    {
+      "call": "PUT network /netcom",
+      "files": [
+        "frontend/src/views/network/AntennaCriteriaModal.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id",
+      "files": [
+        "frontend/src/views/statutory/Edit.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/applications/:application_id/board",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/applications/:id/cancel",
+      "files": [
+        "frontend/src/views/statutory/EditApplication.vue",
+        "frontend/src/views/statutory/ViewApplication.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/memberslists/:body_id/fee_paid",
+      "files": [
+        "frontend/src/views/statutory/ListMembersLists.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/plenaries/:id",
+      "files": [
+        "frontend/src/views/statutory/EditPlenaryModal.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/positions/:id",
+      "files": [
+        "frontend/src/views/statutory/EditPositionModal.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id",
+      "files": [
+        "frontend/src/views/statutory/EditCandidate.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/question-lines/:id",
+      "files": [
+        "frontend/src/views/statutory/EditQuestionLineModal.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/question-lines/:id/questions/:id",
+      "files": [
+        "frontend/src/views/statutory/EditQuestionModal.vue"
+      ]
+    },
+    {
+      "call": "PUT statutory /events/:id/status",
+      "files": [
+        "frontend/src/views/statutory/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id",
+      "files": [
+        "frontend/src/views/summeruniversity/Edit.vue",
+        "frontend/src/views/summeruniversity/EditSecond.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/application_period",
+      "files": [
+        "frontend/src/views/summeruniversity/ApplicationPeriodModal.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/applications/:application_id",
+      "files": [
+        "frontend/src/views/summeruniversity/Apply.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/applications/:id/cancelled",
+      "files": [
+        "frontend/src/views/summeruniversity/Apply.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/applications/:id/comment/",
+      "files": [
+        "frontend/src/views/summeruniversity/BoardView.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/open_call",
+      "files": [
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/published",
+      "files": [
+        "frontend/src/views/summeruniversity/ChangeStatus.vue",
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    },
+    {
+      "call": "PUT summeruniversity /single/:id/status",
+      "files": [
+        "frontend/src/views/summeruniversity/ChangeStatus.vue",
+        "frontend/src/views/summeruniversity/Single.vue"
+      ]
+    }
+  ]
+}

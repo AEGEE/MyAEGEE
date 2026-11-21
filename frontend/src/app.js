@@ -40,6 +40,8 @@ import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
 import EmptyTableStub from './components/EmptyTableStub'
 import Tooltip from './components/Tooltip'
+import migratedRoutes from './migrated-routes.json'
+import { handOver } from './methods/flash'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -88,7 +90,22 @@ const nprogress = new NProgress({ parent: '.nprogress-container' })
 
 const { state } = store
 
+// Pages that moved to the React app (frontend-react/) are served by the gateway from there, so
+// links to them have to load the page from the server instead of rendering a Vue view.
+// On the first page load (no `from.name`) the gateway sent the page here, so Vue shows it.
+const reactPaths = process.env.VUE_APP_REACT_ROUTES === 'true'
+  ? migratedRoutes.patterns.map(pattern => new RegExp(pattern))
+  : []
+
 router.beforeEach((to, from, next) => {
+  if (from.name && reactPaths.some(pattern => pattern.test(to.path))) {
+    handOver()
+    window.location.assign(to.fullPath)
+    // Not calling next() leaves the navigation pending until the page unloads; next(false)
+    // would reject the $router.push() promises of the views with "Navigation aborted".
+    return undefined
+  }
+
   const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
   const loggedInRedirectPath = to.query.to ? decodeURI(to.query.to) : '/dashboard'
 

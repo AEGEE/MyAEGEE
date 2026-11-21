@@ -1,28 +1,15 @@
-// Minimal gateway for e2e: serves the built frontend from e2e/.frontend-dist and
+// Minimal gateway for e2e: serves the built frontend (see support/frontend-routing.ts) and
 // proxies /api/<service>/... to the services started by Playwright, the way the
 // production gateway does. Services not running in e2e answer with 502.
-import fs from 'node:fs';
 import http from 'node:http';
-import path from 'node:path';
 
 import { PORTS, type Service } from './constants.ts';
+import { serveStatic, staticFileFor } from './frontend-routing.ts';
 
-const distDir = path.resolve(import.meta.dirname, '../.frontend-dist');
 const proxied: Service[] = ['core', 'events', 'summeruniversity'];
-
-const MIME_TYPES: Record<string, string> = {
-    '.html': 'text/html; charset=utf-8',
-    '.js': 'application/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.svg': 'image/svg+xml',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.ico': 'image/x-icon',
-    '.woff': 'font/woff',
-    '.woff2': 'font/woff2',
-    '.ttf': 'font/ttf'
-};
+// With E2E_FRONTEND=react, the migrated paths are served by the React build
+// (e2e/.frontend-react-dist) and everything else by the Vue build, like production would.
+const react = process.env.E2E_FRONTEND === 'react';
 
 const isProxied = (service: string): service is Service => (proxied as string[]).includes(service);
 
@@ -51,7 +38,7 @@ const proxy = (req: http.IncomingMessage, res: http.ServerResponse, service: Ser
     req.pipe(upstream);
 };
 
-const serveStatic = (req: http.IncomingMessage, res: http.ServerResponse): void => {
+const serveFrontend = (req: http.IncomingMessage, res: http.ServerResponse): void => {
     let pathname: string;
     try {
         pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname);
@@ -61,26 +48,14 @@ const serveStatic = (req: http.IncomingMessage, res: http.ServerResponse): void 
         return;
     }
 
-    let file = path.join(distDir, path.normalize(pathname));
-    if (!file.startsWith(distDir + path.sep) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-        // Single page app: unknown paths are handled by the frontend router.
-        file = path.join(distDir, 'index.html');
-    }
-
-    if (!fs.existsSync(file)) {
-        res.writeHead(503);
-        res.end('The frontend is not built, run `npm run setup` in e2e/.');
-        return;
-    }
-
-    res.writeHead(200, { 'Content-Type': MIME_TYPES[path.extname(file)] || 'application/octet-stream' });
-    fs.createReadStream(file).pipe(res);
+    serveStatic(staticFileFor(pathname, { react }), res);
 };
 
 http.createServer((req, res) => {
-    const match = (req.url ?? '/').match(/^\/api\/([a-z-]+)(\/.*)?$/);
+    // `/api/events?limit=30` is the events list: the query can follow the service name directly.
+    const match = (req.url ?? '/').match(/^\/api\/([a-z-]+)([/?].*)?$/);
     if (!match) {
-        serveStatic(req, res);
+        serveFrontend(req, res);
         return;
     }
 
@@ -91,5 +66,7 @@ http.createServer((req, res) => {
         return;
     }
 
-    proxy(req, res, service, rest || '/');
+    let upstreamPath = rest || '/';
+    if (upstreamPath.startsWith('?')) upstreamPath = `/${upstreamPath}`;
+    proxy(req, res, service, upstreamPath);
 }).listen(PORTS.gateway, '127.0.0.1');

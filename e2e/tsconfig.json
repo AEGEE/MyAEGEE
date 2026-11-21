@@ -17,5 +17,5 @@
     "skipLibCheck": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", ".frontend-dist", "playwright-report", "test-results"]
+  "exclude": ["node_modules", ".frontend-dist", ".frontend-coexist-dist", ".frontend-react-dist", "playwright-report", "playwright-report-ui", "test-results", "test-results-ui"]
 }

@@ -1,0 +1,74 @@
+/* Design tokens proposed in docs/react-migration/05-design-system-inventory.md ("Proposed
+   token set"). Every text/background pair here meets WCAG AA. The component library will own
+   these; the proof of concept uses them so it doesn't hard-code colours. */
+:root {
+    --color-bg-page: #fafafa;
+    --color-bg-surface: #ffffff;
+    --color-bg-subtle: #f5f5f5;
+    --color-text: #434242;
+    --color-text-strong: #363636;
+    --color-text-subtle: #6b6b6b;
+    --color-text-inverse: #ffffff;
+    --color-link: #1468c5;
+    --color-link-hover: #0f4f99;
+    --color-border: #dbdbdb;
+    --color-border-control: #898989;
+    --color-focus-ring: #1468c5;
+    --color-action-primary-bg: #1468c5;
+    --color-action-primary-fg: #ffffff;
+    --color-action-danger-bg: #c51c13;
+    --color-action-danger-fg: #ffffff;
+    --color-action-neutral-bg: #ffffff;
+    --color-action-neutral-fg: #363636;
+    --color-status-info-bg: #ecf4fd;
+    --color-status-info-fg: #0f4f99;
+    --color-status-info-border: #4ca0ff;
+    --color-status-success-bg: #f4f9e0;
+    --color-status-success-fg: #4a5c09;
+    --color-status-success-border: #a0c514;
+    --color-status-warning-bg: #fff6d6;
+    --color-status-warning-fg: #6b4f00;
+    --color-status-warning-border: #fbba00;
+    --color-status-danger-bg: #fdedec;
+    --color-status-danger-fg: #a51710;
+    --color-status-danger-border: #c51c13;
+    --color-event-training-bg: #a0c514;
+    --color-event-training-fg: #1f1f1f;
+    --color-event-conference-bg: #931991;
+    --color-event-conference-fg: #ffffff;
+    --color-event-nwm-bg: #fbba00;
+    --color-event-nwm-fg: #1f1f1f;
+    --color-event-cultural-bg: #c51c13;
+    --color-event-cultural-fg: #ffffff;
+    --color-event-thematic-bg: #a8329f;
+    --color-event-thematic-fg: #ffffff;
+
+    --font-sans: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    --line-height: 1.5;
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --shadow-card: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
+    --focus-ring: 2px solid var(--color-focus-ring);
+    --header-height: 3.25rem;
+    --sidebar-width: 12rem;
+    --z-header: 30;
+    --z-toast: 100;
+    --duration: 150ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root { --duration: 0ms; }
+}
