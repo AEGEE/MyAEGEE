@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { RefreshToken } = require('../../models');
 
 describe('Authorization', () => {
     beforeAll(async () => {
@@ -199,5 +200,24 @@ describe('Authorization', () => {
         expect(res.body).toHaveProperty('access_token');
         expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should not revoke the other sessions of the user', async () => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const otherSession = await generator.createRefreshToken(user);
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: user.email,
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const tokensFromDb = await RefreshToken.findAll({ where: { user_id: user.id } });
+        expect(tokensFromDb.map((t) => t.value).sort()).toEqual([otherSession.value, res.body.refresh_token].sort());
     });
 });

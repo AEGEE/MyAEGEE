@@ -5,6 +5,7 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
+const config = require('../config');
 
 module.exports.login = async (req, res) => {
     const username = (req.body.username || '').trim();
@@ -108,22 +109,45 @@ module.exports.login = async (req, res) => {
 // };
 
 module.exports.renew = async (req, res) => {
-    const token = await RefreshToken.findOne({
-        where: { value: req.body.refresh_token }
+    const tokens = await sequelize.transaction(async (t) => {
+        // Locking the row so parallel renews with the same token are processed one by one.
+        const token = await RefreshToken.findOne({
+            where: { value: req.body.refresh_token },
+            lock: t.LOCK.UPDATE,
+            transaction: t
+        });
+
+        if (!token) {
+            return null;
+        }
+
+        // A rotated token keeps working for a short grace period, so parallel renews both succeed.
+        if (token.rotated_at) {
+            const graceEnd = moment(token.rotated_at).add(config.ttl.refresh_token_grace_period, 'seconds');
+            if (graceEnd.isBefore(moment())) {
+                return null;
+            }
+        } else {
+            await token.update({ rotated_at: new Date() }, { transaction: t });
+        }
+
+        return {
+            accessToken: await AccessToken.createForUser(token.user_id, t),
+            refreshToken: await RefreshToken.createForUser(token.user_id, t)
+        };
     });
 
-    if (!token) {
+    if (!tokens) {
         return res.status(403).json({
             success: false,
             message: 'Token is not found.'
         });
     }
 
-    const accessToken = await AccessToken.createForUser(token.user_id);
-
     return res.json({
         success: true,
-        access_token: accessToken.value
+        access_token: tokens.accessToken.value,
+        refresh_token: tokens.refreshToken.value
     });
 };
 

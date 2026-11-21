@@ -3,7 +3,8 @@ const moment = require('moment');
 const { startServer, stopServer } = require('../../lib/server');
 const generator = require('../scripts/generator');
 const cron = require('../../lib/cron');
-const { User } = require('../../models');
+const config = require('../../config');
+const { User, RefreshToken } = require('../../models');
 
 describe('Cron testing', () => {
     beforeAll(async () => {
@@ -61,7 +62,7 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(0);
 
         cron.registerAllTasks();
-        expect(Object.keys(cron.jobs).length).toEqual(1);
+        expect(Object.keys(cron.jobs).length).toEqual(2);
     });
 
     describe('DELETE_NOT_CONFIRMED_USERS', () => {
@@ -86,6 +87,25 @@ describe('Cron testing', () => {
             const ids = usersFromDb.map((u) => u.id);
             expect(ids).toContain(userActivated.id);
             expect(ids).toContain(userWithValidConfirmation.id);
+        });
+    });
+
+    describe('DELETE_ROTATED_REFRESH_TOKENS', () => {
+        test('should only delete rotated tokens after the grace period', async () => {
+            const user = await generator.createUser();
+            const notRotated = await generator.createRefreshToken(user);
+            const withinGrace = await generator.createRefreshToken(user, {
+                rotated_at: moment().subtract(config.ttl.refresh_token_grace_period - 10, 'seconds').toDate()
+            });
+            await generator.createRefreshToken(user, {
+                rotated_at: moment().subtract(config.ttl.refresh_token_grace_period + 10, 'seconds').toDate()
+            });
+
+            const jobId = cron.addJob(cron.JOB_TYPES.DELETE_ROTATED_REFRESH_TOKENS);
+            await cron.executeJob(jobId);
+
+            const tokensFromDb = await RefreshToken.findAll();
+            expect(tokensFromDb.map((t) => t.id).sort()).toEqual([notRotated.id, withinGrace.id].sort());
         });
     });
 });
