@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { Sequelize } = require('./sequelize');
+const constants = require('./constants');
 
 // A helper to traverse indirect circles (so if a person is a member
 // of a circle which is a child circle, it should return both of the circles.)
@@ -207,6 +208,12 @@ const addGaugeData = (gauge, array) => {
     }
 };
 
+// Blocks the restricted domains and their subdomains, but not e.g. 'notaegee.org'.
+const isRestrictedEmail = (email) => {
+    const normalized = email.trim().toLowerCase();
+    return constants.RESTRICTED_EMAILS.some((domain) => normalized.endsWith('@' + domain) || normalized.endsWith('.' + domain));
+};
+
 module.exports = {
     isNumber,
     traverseIndirectCircles,
@@ -217,5 +224,6 @@ module.exports = {
     whitelistObject,
     getRandomBytes,
     getMailText,
-    addGaugeData
+    addGaugeData,
+    isRestrictedEmail
 };

@@ -27,7 +27,7 @@ const MailChange = sequelize.define('mail_change', {
             notNull: { msg: 'New email should be set.' },
             isEmail: { msg: 'New email should be valid.' },
             isValid(value) {
-                if (constants.RESTRICTED_EMAILS.some((email) => value.includes(email))) {
+                if (helpers.isRestrictedEmail(value)) {
                     throw new Error('Email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
                 }
             }
