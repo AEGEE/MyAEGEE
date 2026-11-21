@@ -4,7 +4,10 @@ const RESTRICTED_EMAILS = ['aegee.org', 'aegee.eu']
 const ALLOWED_BODY_TYPES = ['antenna', 'contact antenna', 'contact', 'external', 'other']
 
 // Blocks the domain itself and its subdomains, but not e.g. 'notaegee.org'.
-const isRestrictedEmail = (email) => RESTRICTED_EMAILS.some(domain => email.endsWith('@' + domain) || email.endsWith('.' + domain))
+const isRestrictedEmail = (email) => {
+  const normalized = email.trim().toLowerCase()
+  return RESTRICTED_EMAILS.some(domain => normalized.endsWith('@' + domain) || normalized.endsWith('.' + domain))
+}
 
 const validate = (user) => {
   if (user.superadmin) {
