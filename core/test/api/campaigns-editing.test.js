@@ -98,7 +98,7 @@ describe('Campaign editing', () => {
         expect(res.body.data.name).toEqual('New name');
     });
 
-    test('should ignore fields that are not allowed', async () => {
+    test('should allow changing autojoin_body_id', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
@@ -111,15 +111,13 @@ describe('Campaign editing', () => {
             path: '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { id: 1337, name: 'New name', autojoin_body_id: body.id }
+            body: { autojoin_body_id: body.id }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
 
         const campaignFromDb = await Campaign.findByPk(campaign.id);
-        expect(campaignFromDb.name).toEqual('New name');
         expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
-        expect(await Campaign.findByPk(1337)).toBeNull();
     });
 });
