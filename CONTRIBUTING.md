@@ -97,7 +97,7 @@ semantic-release does not use a personal account. GitHub releases are made, and 
 | Variable | Value |
 |----------|-------|
 | `GITHUB_APP_ID` | `5863453` |
-| `GITHUB_APP_PRIVATE_KEY` | The App's private key (`.pem`), base64-encoded on one line, because CircleCI variables cannot hold multiple lines |
+| `GITHUB_APP_PRIVATE_KEY` | The App's private key (`.pem`), base64-encoded on one line (`base64 -w0 <file>`), because CircleCI variables cannot hold multiple lines. Pasting the `.pem` itself also works: the script puts its line breaks back |
 
 The private key is deliberately not kept anywhere else, such as a password manager. If it is lost, generate a new one. In each release job, `.circleci/github-app-token.mjs` uses the key to get an installation token that lasts one hour and only works on this repository. No other GitHub credential is needed: remove any `GH_TOKEN`, `GITHUB_TOKEN` or `GIT_CREDENTIALS` variable from the CircleCI project settings, and have its owner revoke the token. Don't put the App variables in the project settings either: every job on every branch can read those.
 
@@ -115,7 +115,7 @@ The private key is deliberately not kept anywhere else, such as a password manag
 **When releases fail at "Run semantic-release":** look for a line starting with `github-app-token:` in the job log:
 
 - `GITHUB_APP_ID is not set` or `GITHUB_APP_PRIVATE_KEY is not set`: a variable is missing from the context, or the job doesn't have `context: myaegee-release-bot` in `.circleci/config.yml`.
-- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable doesn't hold a whole base64-encoded `.pem` file, for example because it was cut off when pasting.
+- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable doesn't hold the whole key, for example because it was cut off when pasting, or it was base64-encoded twice. In CircleCI the masked value shows its last four characters: for `base64 -w0` output they are usually `LQo=`.
 - `GET /repos/AEGEE/MyAEGEE/installation returned 404: Integration not found`: `GITHUB_APP_ID` is wrong.
 - `GET /repos/AEGEE/MyAEGEE/installation returned 404` with another message: the App is not installed on MyAEGEE.
 - `... returned 401`: the key is not this App's or was deleted (regenerate it as described above), or `GITHUB_APP_ID` is wrong.

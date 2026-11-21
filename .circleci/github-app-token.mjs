@@ -30,11 +30,18 @@ function fail(message) {
   process.exit(1);
 }
 
+// Accepts the base64-encoded .pem, or the .pem itself pasted into CircleCI's
+// one-line field (its newlines dropped, turned into spaces or written as \n).
 function readPrivateKey() {
-  const value = process.env.GITHUB_APP_PRIVATE_KEY;
+  const value = (process.env.GITHUB_APP_PRIVATE_KEY || '').trim();
   if (!value) fail('GITHUB_APP_PRIVATE_KEY is not set');
-  if (value.includes('-----BEGIN')) return value.replace(/\\n/g, '\n');
-  return Buffer.from(value, 'base64').toString('utf8');
+  const pem = value.includes('-----BEGIN') ? value : Buffer.from(value, 'base64').toString('utf8');
+  const match = pem.match(/-----BEGIN ([A-Z ]+)-----([\s\S]*?)-----END \1-----/);
+  // Not a PEM: leave it to createJwt to report the invalid key.
+  if (!match) return pem;
+  const [, label, body] = match;
+  const lines = body.replace(/\\n|\s/g, '').match(/.{1,64}/g) || [];
+  return `-----BEGIN ${label}-----\n${lines.join('\n')}\n-----END ${label}-----\n`;
 }
 
 function base64url(input) {
@@ -50,7 +57,7 @@ function createJwt(appId, privateKey) {
   try {
     signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(privateKey, 'base64url');
   } catch (error) {
-    fail(`GITHUB_APP_PRIVATE_KEY is not a valid private key (${error.code || error.message}). Set it to the output of base64 -w0 key.pem`);
+    fail(`GITHUB_APP_PRIVATE_KEY is not a valid private key (${error.code || error.message}). Is the value complete? Set it to the output of base64 -w0 key.pem`);
   }
   return `${header}.${payload}.${signature}`;
 }
