@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Campaign } = require('../../models');
 
 describe('Campaigns creating', () => {
     beforeAll(async () => {
@@ -76,5 +77,30 @@ describe('Campaigns creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual(campaign.name);
+    });
+
+    test('should ignore fields that are not allowed', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
+
+        const campaign = generator.generateCampaign({ id: 1337, autojoin_body_id: body.id });
+
+        const res = await request({
+            path: '/campaigns',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: campaign
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).not.toEqual(1337);
+
+        const campaignFromDb = await Campaign.findByPk(res.body.data.id);
+        expect(campaignFromDb.name).toEqual(campaign.name);
+        expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
 });

@@ -99,8 +99,7 @@ exports.createCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:create:campaign is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
-    const campaign = await Campaign.create(req.body);
+    const campaign = await Campaign.create(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE, 'autojoin_body_id']));
     return res.json({
         success: true,
         data: campaign
@@ -112,8 +111,7 @@ exports.updateCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update:campaign is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
-    await req.currentCampaign.update(req.body);
+    await req.currentCampaign.update(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE, 'autojoin_body_id']));
     return res.json({
         success: true,
         data: req.currentCampaign

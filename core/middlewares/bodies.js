@@ -64,8 +64,7 @@ exports.createBody = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:create:body is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
-    const body = await Body.create(req.body);
+    const body = await Body.create(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.BODY.CREATE));
     return res.json({
         success: true,
         data: body
@@ -80,8 +79,8 @@ exports.updateBody = async (req, res) => {
     // Passing the allowed fields as `fields` would make Sequelize validate all of them, also the
     // ones that don't change, so an old value that wouldn't pass validation today (like a website
     // from before links were validated) would block editing anything else.
-    const allowedFields = req.permissions.getPermissionFilters('update:body');
-    await req.currentBody.update(allowedFields ? helpers.whitelistObject(req.body, allowedFields) : req.body);
+    const allowedFields = req.permissions.getPermissionFilters('update:body') || constants.FIELDS_TO_UPDATE.BODY.UPDATE;
+    await req.currentBody.update(helpers.whitelistObject(req.body, allowedFields));
     return res.json({
         success: true,
         data: req.currentBody
@@ -156,9 +155,10 @@ exports.createBoundCircle = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission create:circle is required, but not present.');
     }
 
-    req.body.body_id = req.currentBody.id;
-
-    const circle = await Circle.create(req.body);
+    const circle = await Circle.create({
+        ...helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CIRCLE.CREATE),
+        body_id: req.currentBody.id
+    });
 
     return res.json({
         success: true,

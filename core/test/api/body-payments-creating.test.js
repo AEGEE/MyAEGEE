@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Payment } = require('../../models');
 
 describe('Body payments creating', () => {
     beforeAll(async () => {
@@ -167,5 +168,34 @@ describe('Body payments creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.body_id).not.toEqual(1337);
+    });
+
+    test('should ignore fields that are not allowed', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
+
+        const body = await generator.createBody();
+        const otherUser = await generator.createUser();
+        await generator.createBodyMembership(body, otherUser);
+
+        const payment = generator.generatePayment(body, otherUser, { id: 1337, comment: 'Some comment' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/payments',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: payment
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).not.toEqual(1337);
+
+        const paymentFromDb = await Payment.findByPk(res.body.data.id);
+        expect(paymentFromDb.comment).toEqual('Some comment');
+        expect(paymentFromDb.body_id).toEqual(body.id);
+        expect(paymentFromDb.user_id).toEqual(otherUser.id);
     });
 });
