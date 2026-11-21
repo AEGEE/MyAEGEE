@@ -52,6 +52,11 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 422)
     assert_no_emails_delivered()
   end
+  test "POST / rejects more template bodies than recipients", %{conn: conn} do
+    conn = post conn, "/", %{template: "custom.html", parameters: [%{email_body: "one"}, %{email_body: "two"}, %{email_body: "three"}], from: "mailer@aegee.org", to: ["first@aegee.org", "second@aegee.org"], subject: "pirates"}
+    assert json_response(conn, 422)["error"] =~ "Mismatch in amounts of mails"
+    assert_no_emails_delivered()
+  end
   test "POST / rejects an empty from address", %{conn: conn} do
     conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, from: "", to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 422)
