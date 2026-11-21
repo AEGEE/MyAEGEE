@@ -14,7 +14,7 @@ COMPOSE := $(shell command -v docker-compose >/dev/null 2>&1 && echo docker-comp
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
 	    bump install-agents remove-agents backup backup_core backup_events backup_discounts backup_network backup_summeruniversity \
-	    backup_knowledge backup_statping backup_statistics backup_security backup_shortener backup_survey
+	    backup_knowledge backup_media backup_statping backup_statistics backup_security backup_shortener backup_survey
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -154,6 +154,11 @@ backup_summeruniversity:
 
 backup_knowledge:
 	./scripts-server/dump.sh postgres-knowledge
+
+MEDIA_VOLUMES = $(foreach svc,core events statutory summeruniversity discounts network knowledge,$${COMPOSE_PROJECT_NAME:-myaegee}_$(svc)-media)
+
+backup_media:
+	./scripts-server/dump.sh -- $(MEDIA_VOLUMES)
 
 backup_statping:
 	docker run --volumes-from=myaegee_statping_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup "/opt/MyAEGEE/statup.db.backup-$(shell date +%Y-%m-%dT%H:%M)"
