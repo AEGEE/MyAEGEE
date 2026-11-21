@@ -57,10 +57,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(discounts_requests_total{endpoint!~\".*metrics.*\"}[1m])) by (method, endpoint)",
+          "expr": "sum(rate(discounts_requests_total{path!~\".*metrics.*\"}[1m])) by (method, path)",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{ method }} {{ endpoint}}",
+          "legendFormat": "{{ method }} {{ path }}",
           "refId": "A"
         }
       ],

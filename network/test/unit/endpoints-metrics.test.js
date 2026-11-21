@@ -52,6 +52,7 @@ describe('Endpoint metrics', () => {
         const metrics = await getRequestsMetrics();
         expect(metrics).toContain('path="/things/:thing_id/parts/:part_id"');
         expect(metrics).not.toContain('path="/things/42');
+        expect(metrics).not.toContain('endpoint=');
     });
 
     test('should label the root route of a mounted router with the mount pattern', async () => {
@@ -73,7 +74,7 @@ describe('Endpoint metrics', () => {
         await fetch(baseUrl + '/');
 
         const metrics = await getRequestsMetrics();
-        expect(metrics).toMatch(/endpoint="\/",status="200",path="\/"/);
+        expect(metrics).toMatch(/status="200",path="\/",method="GET"/);
     });
 
     test('should label requests that match no route as unmatched', async () => {
@@ -81,14 +82,13 @@ describe('Endpoint metrics', () => {
         await fetch(baseUrl + '/things/42/nonexistent');
 
         const metrics = await getRequestsMetrics();
-        expect(metrics).toMatch(/endpoint="\/nonexistent\/42",status="404",path="unmatched"/);
-        expect(metrics).toMatch(/endpoint="\/things\/42\/nonexistent",status="404",path="unmatched"/);
+        expect(metrics).toMatch(/status="404",path="unmatched",method="GET"} 2/);
     });
 
     test('should label requests answered by router-level middleware as unmatched', async () => {
         await fetch(baseUrl + '/private/42');
 
         const metrics = await getRequestsMetrics();
-        expect(metrics).toMatch(/endpoint="\/private\/42",status="401",path="unmatched"/);
+        expect(metrics).toMatch(/status="401",path="unmatched",method="GET"} 1/);
     });
 });
