@@ -23,24 +23,20 @@ describe('sendNewBoardEmail', () => {
         expect(mailer.sendMail).not.toHaveBeenCalled();
     });
 
-    it('should not send email if not newBoard and start_date is not today', async () => {
-        const board = { start_date: moment().subtract(1, 'day').toDate() };
+    it('should send email for a board that started before today', async () => {
+        const board = {
+            start_date: moment().subtract(1, 'day').toDate(),
+            president: 1,
+            secretary: 2,
+            treasurer: 3
+        };
         Board.findByPk.mockResolvedValue(board);
-
-        await sendNewBoardEmail(1, false);
-
-        expect(Board.findByPk).toHaveBeenCalledWith(1);
-        expect(mailer.sendMail).not.toHaveBeenCalled();
-    });
-
-    it('should not send email if newBoard is undefined and start_date is not today', async () => {
-        const board = { start_date: moment().subtract(1, 'day').toDate() };
-        Board.findByPk.mockResolvedValue(board);
+        core.getMails.mockResolvedValue([{ notification_email: 'president@example.com' }]);
 
         await sendNewBoardEmail(1);
 
-        expect(Board.findByPk).toHaveBeenCalledWith(1);
-        expect(mailer.sendMail).not.toHaveBeenCalled();
+        expect(core.getMails).toHaveBeenCalledWith('1,2,3');
+        expect(mailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
     it('should not send email if newBoard and end_date is before today', async () => {

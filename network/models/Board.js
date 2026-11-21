@@ -81,6 +81,10 @@ const Board = sequelize.define('board', {
         type: Sequelize.TEXT,
         allowNull: true
     },
+    new_board_email_sent_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+    },
     image_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
