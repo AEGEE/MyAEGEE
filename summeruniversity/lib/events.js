@@ -3,7 +3,7 @@ const errors = require('./errors');
 const merge = require('./merge');
 const constants = require('./constants');
 const helpers = require('./helpers');
-const { Application, Event } = require('../models');
+const { Application, Event, Season } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
@@ -185,6 +185,12 @@ const canManageTypes = (permissions, types) => types
     .filter(Boolean)
     .every((type) => permissions.manage_summeruniversity[type] === true);
 
+// The year of the active season, which new events belong to by default.
+const getActiveSeasonYear = async () => {
+    const season = await Season.findOne({ where: { active: true } });
+    return season ? season.year : null;
+};
+
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
 // Organizers have to be members of one of the organizing or cooperation bodies.
@@ -248,11 +254,12 @@ exports.addEvent = async (req, res) => {
 
     data.status = 'first submission';
 
-    if (!data.season) {
-        data.season = 2026;
-    }
-
     const event = new Event(data);
+
+    // Only managers can choose the season, other events get the active one.
+    if (!event.season || !canManageTypes(req.permissions, [event.type])) {
+        event.season = await getActiveSeasonYear();
+    }
 
     // we'll catch these on validation inside the Event model.
     if (Array.isArray(event.organizers)) {
@@ -354,8 +361,9 @@ exports.editEvent = async (req, res) => {
 
     removeBlockedFields(data);
 
-    if (!data.season) {
-        data.season = 2026;
+    // Only managers can change the season.
+    if (!data.season || !canManageTypes(req.permissions, [event.type, data.type])) {
+        delete data.season;
     }
 
     if (Object.keys(data).length === 0) {

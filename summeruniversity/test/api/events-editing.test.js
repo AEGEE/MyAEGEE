@@ -208,15 +208,46 @@ describe('Events editing', () => {
         expect(res.body.data.season).toEqual(2025);
     });
 
-    // BUG: editEvent defaults a missing season to 2026, so any edit that does not resend
-    // the season silently moves an older event to the 2026 season.
-    test('should currently reset the season to 2026 if it is not in the body', async () => {
+    test('should keep the season if it is not in the body', async () => {
         const event = await generator.createEvent({ season: 2025 });
 
         const res = await editEvent(event, { name: 'Changed' });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data.season).toEqual(2026);
+        expect(res.body.data.season).toEqual(2025);
+    });
+
+    test('should let managers change the season', async () => {
+        const event = await generator.createEvent({ season: 2025 });
+
+        const res = await editEvent(event, { season: 2026 });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.season).toEqual(2026);
+    });
+
+    test('should not let organizers change the season', async () => {
+        mockAndCapture(organizerMocks);
+        const event = await generator.createEvent({ season: 2025, status: 'second submission' });
+
+        const res = await editEvent(event, { season: 2026, name: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.name).toEqual('Changed');
+        expect(event.season).toEqual(2025);
+    });
+
+    test('should not let managers of only the other type change the season', async () => {
+        mockAndCapture({ mainPermissions: { permissions: ['global:manage_summeruniversity:pilot'] } });
+        const event = await generator.createEvent({ season: 2025, type: 'regular', status: 'second submission' });
+
+        const res = await editEvent(event, { season: 2026, name: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.season).toEqual(2025);
     });
 
     test('should keep the organizers and notify them if the organizers are not in the body', async () => {
@@ -233,13 +264,13 @@ describe('Events editing', () => {
         expect(mails[0].to).toEqual(Array(4).fill(user.notification_email));
     });
 
-    // Because season is always defaulted, the 'No valid field changes requested' branch is unreachable.
-    test('should currently accept an empty body', async () => {
+    test('should return 422 on an empty body', async () => {
         const event = await generator.createEvent();
 
         const res = await request({ path: '/single/' + event.id, method: 'PUT', headers: { 'X-Auth-Token': 'foobar' }, body: {} });
 
-        expect(res.statusCode).toEqual(200);
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('No valid field changes requested');
     });
 
     describe('status transitions when saving', () => {

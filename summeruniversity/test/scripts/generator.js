@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker');
 
-const { Event, Application } = require('../../models');
+const { Event, Application, Season } = require('../../models');
 const firstUser = require('../assets/oms-core-valid.json').data;
 
 const notSet = (field) => typeof field === 'undefined';
@@ -90,6 +90,23 @@ exports.createApplication = (event, options = {}) => Application.create(exports.
 exports.clearAll = async () => {
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });
+
+    // Back to the 2026 season that the migration creates.
+    await Season.destroy({ where: {}, truncate: true });
+    await Season.create({ year: 2026, name: 'Summer University 2026', active: true });
+};
+
+exports.createSeason = (options = {}) => {
+    if (notSet(options.year)) options.year = faker.number.int({ min: 2030, max: 2999 });
+    if (notSet(options.name)) options.name = 'Summer University ' + options.year;
+
+    return Season.create(options);
+};
+
+// Makes the season with this year the only active one.
+exports.activateSeason = async (year) => {
+    await Season.update({ active: false }, { where: {} });
+    await Season.update({ active: true }, { where: { year } });
 };
 
 // A valid request body for POST / (event creation).
