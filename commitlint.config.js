@@ -22,7 +22,8 @@ module.exports = {
         'dispatcher',
         'e2e',
         
-        // Infrastructure scopes (trigger all modules)
+        // Infrastructure scopes (describe the change; releases depend only on
+        // which module folders a commit changes, see CONTRIBUTING.md)
         'ci',
         'docker',
         'deps',

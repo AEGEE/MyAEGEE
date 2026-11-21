@@ -36,7 +36,7 @@ git commit -m "feat(core): add OAuth2 authentication support"
 # Fixing a bug in frontend
 git commit -m "fix(frontend): resolve infinite scroll pagination"
 
-# Updating CI configuration (triggers all modules)
+# Updating CI configuration (no release)
 git commit -m "chore(ci): upgrade CircleCI Node image to 22.20"
 
 # Documentation change
@@ -68,28 +68,32 @@ git commit -m "fix(core): something"
 This monorepo uses **independent versioning** with `semantic-release-monorepo` - each module releases independently when it has changes.
 
 **How it works:**
-- The `semantic-release-monorepo` plugin filters commits to only analyze changes affecting each specific module
-- Only commits that touch a module's directory or have the module's scope trigger a release
-- This prevents unnecessary releases when unrelated modules change
+- The `semantic-release-monorepo` plugin only looks at commits that change files inside a module's folder (for example `core/`). The commit's scope doesn't matter for this: a `fix(core):` commit that only changes files in `events/` releases `events`, not `core`.
+- Of those commits, the type decides whether there is a release (see [Version Bumping](#version-bumping)).
+- Pull requests are squash-merged into one commit, titled with the PR title (or, for a PR with a single commit, that commit's title). That title's type decides the release for every module whose files the PR changes.
 
 **Workflow:**
 1. Create feature branch from `stable`
 2. Make changes with properly scoped commits
 3. Push and create Pull Request
 4. After PR approval and merge, CI automatically:
-   - Determines affected modules based on commit paths and scopes
+   - Determines affected modules based on the files each commit changes
    - Runs semantic-release for each affected module
    - Creates version tags (e.g., `core@1.40.2`)
    - Updates CHANGELOGs
    - Builds and pushes Docker images
    - Creates GitHub releases
 
+### Release bot credentials
+
+Releases are made by the **AEGEE Release Bot** GitHub App, not a personal account. Where its key is kept (a CircleCI context), how to regenerate or revoke it, and what its error messages mean: [docs/release-bot.md](docs/release-bot.md).
+
 ### Version Bumping
 
 - `feat(module):` → Minor version bump (1.2.0 → 1.3.0)
-- `fix(module):` → Patch version bump (1.2.0 → 1.2.1)
+- `fix(module):`, `perf(module):`, `refactor(module):` and reverts → Patch version bump (1.2.0 → 1.2.1)
 - `feat(module)!:` or `BREAKING CHANGE:` → Major version bump (1.2.0 → 2.0.0)
-- `chore(ci):`, `chore(docker):`, etc. → Bumps ALL modules
+- Other types (`chore`, `ci`, `docs`, `test`, `build`, `style`) → No release, whatever the scope
 
 ### Cross-Module Changes
 
@@ -105,13 +109,9 @@ git commit -m "feat(core): add dashboard API endpoint"
 
 ### Infrastructure Changes
 
-Commits affecting infrastructure trigger releases for ALL modules:
+Changes outside the module folders (`.circleci/`, root `package.json`, `docker/`, compose files at the root) don't release any module, whatever their type or scope. The scopes `ci`, `docker`, `deps`, `deps-dev`, `monorepo` and `infra` only describe the change.
 
-- `fix(ci):` - CircleCI changes
-- `chore(docker):` - Docker compose changes
-- `chore(deps):` - Root dependency updates
-
-This ensures all modules stay synchronized with infrastructure updates.
+To ship such a change in a module's Docker image, the module needs a release: merge it together with, or followed by, a `fix`/`feat` change to that module's files.
 
 ## Development Workflow
 
