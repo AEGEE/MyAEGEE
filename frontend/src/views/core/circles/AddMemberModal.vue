@@ -80,7 +80,7 @@ export default {
         this.showSuccess('Member is added.')
         this.$parent.close()
       }).catch((err) => {
-        if (err.response.status === 422) {
+        if (err.response && err.response.status === 422) {
           this.showError('Could not add member: this person is already a member of this circle.')
         } else {
           this.showError('Could not add member', err)

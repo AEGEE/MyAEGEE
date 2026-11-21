@@ -96,7 +96,7 @@ export default {
       }).catch((err) => {
         this.$set(member, 'status', 'error')
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           this.$set(member, 'errors', err.response.data.errors)
           return this.$root.showError('Some of the user data is invalid.')
         }
