@@ -40,6 +40,8 @@ const config = {
         salt_rounds: 12,
         ttl: {
             access_token: 10 * 60, // 10 minutes
+            // How long a rotated refresh token keeps working, so parallel renews (e.g. two tabs) both succeed.
+            refresh_token_grace_period: 30, // 30 seconds
             mail_confirmation: 48 * 60 * 60, // 48 hours,
             mail_change: 48 * 60 * 60, // 48 hours,
             password_reset: 24 * 60 * 60 // 24 hours
