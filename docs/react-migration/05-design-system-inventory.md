@@ -45,7 +45,7 @@ All counts come from two scripts in `docs/react-migration/tools/` (see
    date picker. Radix is maintained only slowly and lacks combobox, date picker and table.
 7. **Styling: CSS Modules + CSS custom properties** for design tokens, styled against RAC's
    `data-*` state attributes. Don't take Bulma into React. Tailwind v4 is an acceptable alternative
-   if the team prefers it. This needs to agree with [02-target-stack.md](02-target-stack.md).
+   if the team prefers it. [02-target-stack.md](02-target-stack.md) adopts this.
 8. **Third-party widgets:** keep FullCalendar (React adapter) and add an agenda list. Move maps
    from vue-mapbox / mapbox-gl 0.53 to MapLibre with `react-map-gl`, always with a text list of
    locations. Move charts to Chart.js 4 + `react-chartjs-2` (or SVG charts), always with a data
