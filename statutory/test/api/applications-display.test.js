@@ -152,6 +152,53 @@ describe('Applications displaying', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should return the notification email for incoming managers', async () => {
+        mock.mockAll({ mainPermissions: { incomingPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const application = await generator.createApplication({
+            user_id: 1337,
+            body_id: 1337,
+            status: 'accepted'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.notification_email).toEqual('admin@example.com');
+    });
+
+    test('should succeed for incoming managers if the notification email is not available', async () => {
+        mock.mockAll({
+            mainPermissions: { incomingPermissions: true },
+            mails: { unsuccessfulResponse: true }
+        });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const application = await generator.createApplication({
+            user_id: 1337,
+            body_id: 1337,
+            status: 'accepted'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data).not.toHaveProperty('notification_email');
+    });
+
     test('should return 404 if application is not found', async () => {
         const event = await generator.createEvent({ applications: [] });
 
