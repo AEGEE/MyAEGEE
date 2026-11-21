@@ -1,5 +1,9 @@
 services:
   network:
+    restart: "no"
+    depends_on:
+      postgres-network:
+        condition: service_healthy
     build:
       context: ./${PATH_NETWORK}/..
       dockerfile: ./docker/network/Dockerfile
@@ -10,3 +14,12 @@ services:
       - ./${PATH_NETWORK}/../migrations:/usr/app/src/migrations
       - ./${PATH_NETWORK}/../models:/usr/app/src/models
     command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
+
+  postgres-network:
+    restart: "no"
+    # TCP: while initialising, Postgres only listens on a Unix socket.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30

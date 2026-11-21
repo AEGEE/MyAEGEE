@@ -7,7 +7,6 @@ services:
         build:
             target: devserver
         image: aegee/frontend:devserver
-        restart: unless-stopped
         environment:
             # Set FRONTEND_POLLING=true in .env if edits don't trigger a reload,
             # which can happen with some Docker Desktop file sharing setups.

@@ -1,6 +1,10 @@
 ### CORE     #######################################
 services:
   core:
+    restart: "no"
+    depends_on:
+      postgres-core:
+        condition: service_healthy
     build:
       context: ./${PATH_CORE}/..
       dockerfile: ./docker/core/Dockerfile
@@ -13,3 +17,15 @@ services:
       - ./${PATH_CORE}/../migrations/:/usr/app/src/migrations
       - ./${PATH_CORE}/../models/:/usr/app/src/models
       - ./${PATH_CORE}/../scripts/:/usr/app/src/scripts
+
+  postgres-core:
+    restart: "no"
+    # TCP: while initialising, Postgres only listens on a Unix socket.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  core-static:
+    restart: "no"

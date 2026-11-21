@@ -2,5 +2,9 @@ version: "3.4"
 
 services:
   traefik:
+    restart: "no"
     volumes:
       - ./${PATH_GATEWAYS}/traefik/traefik.toml.dev:/etc/traefik/traefik.toml
+
+  portal:
+    restart: "no"
