@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 // The largest Postgres INTEGER, which is the type of the IDs.
 const MAX_ID = 2147483647;
 
@@ -16,6 +14,23 @@ exports.isNumber = (value) => {
     return false;
 };
 
+// Claim times are shown in Brussels time, with CET or CEST after them.
+const claimTimeFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Brussels',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZoneName: 'short'
+});
+
+const formatClaimTime = (date) => {
+    const parts = Object.fromEntries(claimTimeFormat.formatToParts(new Date(date)).map(({ type, value }) => [type, value]));
+    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} ${parts.timeZoneName}`;
+};
+
 exports.getMailText = ({ code, integration, user }) => {
     return `Hey ${user.first_name},<br/>
     <br/>
@@ -23,7 +38,7 @@ You've claimed the code for the discount, here are the details.<br/>
 <br/>
 Partner: ${integration.name}<br/>
 Code: ${code.value}<br/>
-Claimed on: ${moment.utc(code.updated_at).format('YYYY-MM-DD HH:mm')} UTC<br/>
+Claimed on: ${formatClaimTime(code.updated_at)}<br/>
 <br/>
 ${integration.description}<br/>
 <br/>
