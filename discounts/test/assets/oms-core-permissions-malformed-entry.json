@@ -1,0 +1,12 @@
+{
+    "success": true,
+    "data": [{
+      "scope": "global",
+      "object": "discounts",
+      "id": 73,
+      "filters": [],
+      "description": "Manage discounts",
+      "circles": null,
+      "action": "manage"
+    }]
+}
