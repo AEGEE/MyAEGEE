@@ -45,6 +45,18 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(1);
     });
 
+    test('should not run the scheduled job after cancelling it', async () => {
+        const executeSpy = jest.spyOn(cron, 'executeJob');
+
+        const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(500, 'millisecond').toDate(), { id: 1337 });
+        cron.cancelJob(id);
+
+        await sleep(1000);
+        expect(executeSpy).not.toHaveBeenCalled();
+
+        executeSpy.mockRestore();
+    });
+
     test('should do nothing if trying to execute nonexistant job', async () => {
         const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
         expect(Object.keys(cron.jobs).length).toEqual(1);

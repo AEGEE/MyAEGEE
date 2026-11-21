@@ -93,7 +93,7 @@ class JobManager {
 
         const id = ++this.currentJob;
 
-        scheduler.scheduleJob(time, () => this.executeJob(id));
+        scheduler.scheduleJob(String(id), time, () => this.executeJob(id));
 
         this.jobs[id] = {
             key,
@@ -133,7 +133,7 @@ class JobManager {
         }
 
         logger.info({ job }, 'Cancelling job');
-        scheduler.cancelJob(job.job);
+        scheduler.cancelJob(String(id));
         delete this.jobs[id];
     }
 
