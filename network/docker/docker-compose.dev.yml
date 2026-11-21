@@ -1,5 +1,9 @@
+# Development: retry a failed start a few times (e.g. one before the database is
+# ready), but don't crash-loop forever or start again on every boot. Production
+# keeps the restart policies of docker-compose.yml.
 services:
   network:
+    restart: on-failure:10
     build:
       context: ./${PATH_NETWORK}/..
       dockerfile: ./docker/network/Dockerfile
@@ -10,3 +14,6 @@ services:
       - ./${PATH_NETWORK}/../migrations:/usr/app/src/migrations
       - ./${PATH_NETWORK}/../models:/usr/app/src/models
     command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
+
+  postgres-network:
+    restart: on-failure:10

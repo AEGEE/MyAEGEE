@@ -1,5 +1,9 @@
+# Development: retry a failed start a few times (e.g. one before the database is
+# ready), but don't crash-loop forever or start again on every boot. Production
+# keeps the restart policies of docker-compose.yml.
 services:
     events:
+        restart: on-failure:10
         build:
             context: ./${PATH_EVENTS}/..
             dockerfile: ./docker/events/Dockerfile
@@ -11,3 +15,9 @@ services:
             - ./${PATH_EVENTS}/../migrations:/usr/app/src/migrations
             - ./${PATH_EVENTS}/../models:/usr/app/src/models
             - ./${PATH_EVENTS}/../scripts:/usr/app/src/scripts
+
+    postgres-events:
+        restart: on-failure:10
+
+    events-static:
+        restart: on-failure:10

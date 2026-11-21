@@ -1,6 +1,10 @@
 ### CORE     #######################################
+# Development: retry a failed start a few times (e.g. one before the database is
+# ready), but don't crash-loop forever or start again on every boot. Production
+# keeps the restart policies of docker-compose.yml.
 services:
   core:
+    restart: on-failure:10
     build:
       context: ./${PATH_CORE}/..
       dockerfile: ./docker/core/Dockerfile
@@ -13,3 +17,9 @@ services:
       - ./${PATH_CORE}/../migrations/:/usr/app/src/migrations
       - ./${PATH_CORE}/../models/:/usr/app/src/models
       - ./${PATH_CORE}/../scripts/:/usr/app/src/scripts
+
+  postgres-core:
+    restart: on-failure:10
+
+  core-static:
+    restart: on-failure:10

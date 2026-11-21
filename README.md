@@ -279,6 +279,8 @@ You can invoke the easy scripting in the following way (this shell command must 
 
 Guest? Host? wtf? read the [under the hood](#under-the-hood) section, and the [difference between start.sh and makefile](#start.sh-and-Makefile).
 
+In development (`MYAEGEE_ENV=development`) the containers don't start again by themselves after a reboot: run `make start` when you want to work on MyAEGEE (Vagrant does it on every `vagrant up`). A container that keeps failing is restarted up to 10 times, then stays down; check it with `./helper.sh --monitor <service>`.
+
 ### Reading the logs
 
 For now, if one wants to follow some specific logs, they have to invoke helper.sh manually e.g.

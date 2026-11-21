@@ -1,7 +1,11 @@
 version: "3.4"
 
+# Development: retry a failed start a few times (e.g. one before the database is
+# ready), but don't crash-loop forever or start again on every boot. Production
+# keeps the restart policies of docker-compose.yml.
 services:
     mailer:
+        restart: on-failure:10
         build:
             context: ./${PATH_MAILER}/../
             dockerfile: ./docker/mailer/Dockerfile
@@ -10,6 +14,7 @@ services:
         image: aegee/mailer:dev
 
     mail-transfer-agent:
+        restart: on-failure:10
         build:
             context: ./${PATH_MAILER}/..
             dockerfile: docker/mail_transfer_agent/Dockerfile
