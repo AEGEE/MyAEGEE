@@ -69,9 +69,6 @@ import { faHandHoldingMedical } from '@fortawesome/free-solid-svg-icons/faHandHo
 import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage'
 import { faGlobeEurope } from '@fortawesome/free-solid-svg-icons/faGlobeEurope'
 import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList'
-
-// Icons Buefy renders internally (table sort/detail arrows, datepicker chevrons,
-// dialog/input status icons), mapped to their FA names, plus ones used in dialogs.
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons/faAngleLeft'
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp'
