@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const moment = require('moment');
 
 const constants = require('../lib/constants');
+const helpers = require('../lib/helpers');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
@@ -34,7 +35,7 @@ const User = sequelize.define('user', {
             notNull: { msg: 'Email should be set.' },
             isEmail: { msg: 'Email should be valid.' },
             isValid(value) {
-                if (constants.RESTRICTED_EMAILS.some((email) => value.includes(email))) {
+                if (helpers.isRestrictedEmail(value)) {
                     throw new Error('Email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
                 }
             }

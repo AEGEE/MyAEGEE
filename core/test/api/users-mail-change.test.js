@@ -139,6 +139,47 @@ describe('User mail change', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if new mail is in a subdomain of a restricted domain', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            path: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@sub.aegee.org' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed if new mail only looks like a restricted domain', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            path: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@notaegee.org' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+
+        const changeFromDb = await MailChange.findOne({ where: { user_id: user.id } });
+        expect(changeFromDb.new_email).toEqual('test@notaegee.org');
+    });
+
     test('should fail if mailer fails', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
