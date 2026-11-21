@@ -59,10 +59,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(statutory_requests_total{endpoint!~\".*metrics.*\"}[1m]) * 60) by (method, endpoint)",
+          "expr": "sum(rate(statutory_requests_total{path!~\".*metrics.*\"}[1m]) * 60) by (method, path)",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{ method }} {{ endpoint}}",
+          "legendFormat": "{{ method }} {{ path }}",
           "refId": "A"
         }
       ],
