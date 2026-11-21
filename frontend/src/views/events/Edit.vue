@@ -967,7 +967,7 @@ export default {
         this.can = eventsResponse.data.permissions
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.starts = new Date(this.event.ends)
+        this.dates.ends = this.event.ends = new Date(this.event.ends)
         this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
         this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
 
@@ -993,7 +993,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.events.list' })
+      this.$router.push({ name: 'oms.events.list.all' })
     })
   }
 }
