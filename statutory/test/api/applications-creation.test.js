@@ -4,6 +4,7 @@ const tk = require('timekeeper');
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const { Application } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
@@ -1388,6 +1389,33 @@ describe('Applications creation', () => {
 
         expect(firstApplication.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0001');
         expect(res.body.data.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0002');
+    });
+
+    test('should not reuse a lower statutory_id after an application is deleted', async () => {
+        const event = await generator.createEvent({ applications: [] });
+        const prefix = event.id.toString().padStart(3, '0');
+
+        const firstApplication = await generator.createApplication({ user_id: 2 }, event);
+        const secondApplication = await generator.createApplication({ user_id: 3 }, event);
+        await firstApplication.destroy();
+        const thirdApplication = await generator.createApplication({ user_id: 4 }, event);
+
+        expect(secondApplication.statutory_id).toEqual(prefix + '-0002');
+        expect(thirdApplication.statutory_id).toEqual(prefix + '-0003');
+    });
+
+    test('should give different statutory_id to concurrent applications', async () => {
+        const event = await generator.createEvent({ applications: [] });
+
+        const applications = await Promise.all([2, 3].map((userId) => sequelize.transaction((t) => Application.create(
+            generator.generateApplication({ user_id: userId }, event),
+            { transaction: t }
+        ))));
+
+        expect(applications.map((application) => application.statutory_id).sort()).toEqual([
+            event.id.toString().padStart(3, '0') + '-0001',
+            event.id.toString().padStart(3, '0') + '-0002'
+        ]);
     });
 
     test('should prevent applying if cannot assign pax type', async () => {

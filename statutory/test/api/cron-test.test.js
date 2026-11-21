@@ -1,4 +1,5 @@
 const moment = require('moment');
+const scheduler = require('node-schedule');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -43,6 +44,14 @@ describe('Cron testing', () => {
 
         cron.cancelJob(id + 1);
         expect(Object.keys(cron.jobs).length).toEqual(1);
+    });
+
+    test('should cancel the scheduled job when cancelling a job', async () => {
+        const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+        expect(scheduler.scheduledJobs[String(id)]).toBeDefined();
+
+        cron.cancelJob(id);
+        expect(scheduler.scheduledJobs[String(id)]).toBeUndefined();
     });
 
     test('should do nothing if trying to execute nonexistant job', async () => {

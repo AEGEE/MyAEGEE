@@ -480,6 +480,44 @@ describe('Plenaries exports', () => {
         expect(row[8]).toEqual(0.0.toFixed(2) + '%'); // avg% for 3st delegate (0%)
     });
 
+    test('should count unfinished attendances as 0 for bodies', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            name: 'First',
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(1, 'week').add(1, 'hour').toDate(),
+        }, event);
+
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1,
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        // the attendance has started during the plenary but has no end
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(plenary.starts).add(1, 'minute').toDate(),
+            ends: null,
+        }, plenary);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        const row = data[1].data.find((r) => r[2] === regularUser.bodies[0].name);
+        expect(row).toBeTruthy();
+        expect(row[5]).toEqual(0.0.toFixed(2) + '%'); // avg% for all
+        expect(row[6]).toEqual(0.0.toFixed(2) + '%'); // avg% for the delegate
+    });
+
     test('should not display non A/CAs on bodies stats', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
