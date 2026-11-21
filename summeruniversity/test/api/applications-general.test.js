@@ -121,6 +121,13 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.message).toEqual('User ID should be a number.');
         });
 
+        test('should return 400 if the user id is above the maximum ID', async () => {
+            const res = await get('/applications/future/2147483648');
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('User ID should be a number.');
+        });
+
         test('should list the active future applications of the user for a manager', async () => {
             const later = await generator.createEvent({ name: 'Later', starts: generator.daysFromNow(90) });
             const sooner = await generator.createEvent({ name: 'Sooner', starts: generator.daysFromNow(45) });

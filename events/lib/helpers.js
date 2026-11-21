@@ -66,14 +66,17 @@ exports.flattenObject = (obj, prefix = '') => {
     }, {});
 };
 
-// Figure out if the value is an integer or a string containing only digits
+// The largest Postgres INTEGER, which is the type of the IDs.
+const MAX_ID = 2147483647;
+
+// Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
     if (typeof value === 'number') {
-        return Number.isInteger(value);
+        return Number.isInteger(value) && value >= 0 && value <= MAX_ID;
     }
 
     if (typeof value === 'string') {
-        return /^\d+$/.test(value);
+        return /^\d+$/.test(value) && Number(value) <= MAX_ID;
     }
 
     return false;
