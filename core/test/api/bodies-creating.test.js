@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Body } = require('../../models');
 
 describe('Bodies creating', () => {
     beforeAll(async () => {
@@ -124,4 +125,27 @@ describe('Bodies creating', () => {
             expect(res.body).toHaveProperty('data');
         });
     }
+
+    test('should ignore fields that are not allowed', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'body' });
+
+        const body = generator.generateBody({ status: 'deleted' });
+
+        const res = await request({
+            path: '/bodies/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const bodyFromDb = await Body.findByPk(res.body.data.id);
+        expect(bodyFromDb.name).toEqual(body.name);
+        expect(bodyFromDb.status).toEqual('active');
+    });
 });

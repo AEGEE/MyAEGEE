@@ -40,7 +40,7 @@ exports.createPayment = async (req, res) => {
     }
 
     const payment = await Payment.create({
-        ...req.body,
+        ...helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.PAYMENT.UPDATE),
         user_id: user.id,
         body_id: req.currentBody.id
     });

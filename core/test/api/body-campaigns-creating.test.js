@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Campaign } = require('../../models');
 
 describe('Campaigns creating', () => {
     beforeAll(async () => {
@@ -61,14 +62,15 @@ describe('Campaigns creating', () => {
         expect(res.body.data.name).toEqual(campaign.name);
     });
 
-    test('should override body id', async () => {
+    test('should set autojoin_body_id to the body from the URL', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
+        const otherBody = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
 
-        const campaign = generator.generateCampaign({ body_id: 1337 });
+        const campaign = generator.generateCampaign({ autojoin_body_id: otherBody.id });
 
         const res = await request({
             path: '/bodies/' + body.id + '/campaigns',
@@ -81,7 +83,10 @@ describe('Campaigns creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.autojoin_body_id).toEqual(body.id);
+
+        const campaignFromDb = await Campaign.findByPk(res.body.data.id);
+        expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
 
     test('should succeed on local permission', async () => {
