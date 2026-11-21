@@ -1,8 +1,5 @@
 version: "3.4"
 
-# Development: no automatic restarts, so the stack doesn't come back on every
-# boot (`make start` starts it) and a broken container doesn't crash-loop.
-# Production keeps the restart policies of docker-compose.yml.
 services:
     mailer:
         restart: "no"
