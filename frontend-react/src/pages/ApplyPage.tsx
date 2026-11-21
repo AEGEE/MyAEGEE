@@ -1,7 +1,7 @@
 // /events/:id/applications/:application_id (views/events/Apply.vue in the Vue app): the
 // application form built from the event's questions, or the application read-only once the
 // application period is over.
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
@@ -85,6 +85,7 @@ function ApplicationForm({ event, existing, bodies }: { event: Event; existing: 
     const { id = '', application_id: applicationId = 'me' } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
+    const queryClient = useQueryClient();
     const bodyId = useId();
     const errorsId = useId();
     const [body, setBody] = useState<number | null>(existing?.body_id ?? bodies[0]?.id ?? null);
@@ -98,7 +99,9 @@ function ApplicationForm({ event, existing, bodies }: { event: Event; existing: 
             const url = `${SERVICES.events}/single/${encodeURIComponent(id)}/applications`;
             return existing ? api.put(`${url}/${encodeURIComponent(applicationId)}`, payload) : api.post(url, payload);
         },
-        onSuccess: () => {
+        onSuccess: async () => {
+            // Coming back to this page has to show the saved application, not the cached "none yet".
+            await queryClient.invalidateQueries({ queryKey: ['application', id] });
             toast.success('Your application was saved, you can still edit it until the application period ends');
             navigate(href('oms.events.view', { id: eventKey(event) }));
         },
@@ -252,7 +255,8 @@ export function ApplyPage() {
             {isNew && banned && ban ? (
                 <p className="notice warning">You are temporarily banned from submitting new event applications until {formatDateTime(ban.ban_until)}.</p>
             ) : null}
-            {canSubmit ? <ApplicationForm event={event} existing={application} bodies={bodies} /> : null}
+            {/* Keyed, so the form starts over from the application when it arrives or changes. */}
+            {canSubmit ? <ApplicationForm key={application?.id ?? 'new'} event={event} existing={application} bodies={bodies} /> : null}
             {!isNew && !canApply && application ? <ApplicationView event={event} application={application} bodies={bodies} /> : null}
         </section>
     );
