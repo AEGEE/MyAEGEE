@@ -302,7 +302,7 @@ export default {
       return 'This application is recorded and waiting for organiser review.'
     },
     showOwnDeadlineEditHint () {
-      return this.isOwnApplication && this.can.edit_application
+      return this.isOwnApplication && this.can.edit_application && this.event.can_apply
     },
     showOwnDeadlineCancelHint () {
       return this.isOwnApplication && this.can.set_application_cancelled
