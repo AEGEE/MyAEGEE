@@ -1,13 +1,52 @@
 {
   "generatedBy": "e2e/scripts/a11y-summary.ts",
   "rules": "axe-core, WCAG 2.2 A + AA tags",
+  "react": {
+    "pages": 5,
+    "pagesWithViolations": 0,
+    "elements": 0,
+    "byImpact": {},
+    "rules": [],
+    "perPage": [
+      {
+        "route": "oms.events.apply",
+        "url": "/events/1/applications/me",
+        "rules": 0,
+        "elements": 0
+      },
+      {
+        "route": "oms.events.list.all",
+        "url": "/events",
+        "rules": 0,
+        "elements": 0
+      },
+      {
+        "route": "oms.events.list.organizing",
+        "url": "/events/organizing",
+        "rules": 0,
+        "elements": 0
+      },
+      {
+        "route": "oms.events.list.participating",
+        "url": "/events/participating",
+        "rules": 0,
+        "elements": 0
+      },
+      {
+        "route": "oms.events.view",
+        "url": "/events/1",
+        "rules": 0,
+        "elements": 0
+      }
+    ]
+  },
   "vue": {
     "pages": 113,
     "pagesWithViolations": 113,
-    "elements": 1689,
+    "elements": 1713,
     "byImpact": {
-      "serious": 1325,
-      "critical": 364
+      "serious": 1340,
+      "critical": 373
     },
     "rules": [
       {
@@ -19,7 +58,7 @@
           "wcag2aa",
           "wcag143"
         ],
-        "nodes": 1074,
+        "nodes": 1089,
         "targets": [
           "div:nth-child(1) > .menu-label",
           "div:nth-child(2) > .menu-label",
@@ -54,7 +93,7 @@
           "wcag2a",
           "wcag111"
         ],
-        "nodes": 118,
+        "nodes": 127,
         "targets": [
           ".image"
         ],
@@ -290,6 +329,18 @@
         "elements": 19
       },
       {
+        "route": "oms.events.list.organizing",
+        "url": "/events/organizing",
+        "rules": 4,
+        "elements": 19
+      },
+      {
+        "route": "oms.events.list.participating",
+        "url": "/events/participating",
+        "rules": 4,
+        "elements": 19
+      },
+      {
         "route": "oms.statutory.edit",
         "url": "/statutory/1/edit",
         "rules": 5,
@@ -306,6 +357,12 @@
         "url": "/summeruniversity/1/applications/me",
         "rules": 6,
         "elements": 18
+      },
+      {
+        "route": "oms.events.list.all",
+        "url": "/events",
+        "rules": 4,
+        "elements": 17
       },
       {
         "route": "oms.network.boards.list",
@@ -556,18 +613,6 @@
       {
         "route": "oms.events.change_status",
         "url": "/events/change_status",
-        "rules": 4,
-        "elements": 11
-      },
-      {
-        "route": "oms.events.list.organizing",
-        "url": "/events/organizing",
-        "rules": 4,
-        "elements": 11
-      },
-      {
-        "route": "oms.events.list.participating",
-        "url": "/events/participating",
         "rules": 4,
         "elements": 11
       },
@@ -826,12 +871,6 @@
       {
         "route": "oms.bodies.view",
         "url": "/bodies/1",
-        "rules": 4,
-        "elements": 9
-      },
-      {
-        "route": "oms.events.list.all",
-        "url": "/events",
         "rules": 4,
         "elements": 9
       },

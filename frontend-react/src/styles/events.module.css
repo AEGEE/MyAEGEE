@@ -1,0 +1,27 @@
+.searchRow { display: flex; gap: var(--space-2); }
+.types { border: 0; padding: 0; margin: 0 0 var(--space-4); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); }
+.list { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-4); }
+.card, .row { background: var(--color-bg-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); }
+.row { display: grid; grid-template-columns: 6rem 1fr; gap: var(--space-4); }
+.image { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.cardTitle { font-size: var(--font-size-lg); margin: var(--space-3) 0 var(--space-2); }
+.tags { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.typeTag { display: inline-block; font-size: var(--font-size-sm); font-weight: 600; padding: 0 var(--space-2); border-radius: var(--radius-sm); }
+.typeTag[data-type="training"] { background: var(--color-event-training-bg); color: var(--color-event-training-fg); }
+.typeTag[data-type="conference"] { background: var(--color-event-conference-bg); color: var(--color-event-conference-fg); }
+.typeTag[data-type="nwm"] { background: var(--color-event-nwm-bg); color: var(--color-event-nwm-fg); }
+.typeTag[data-type="cultural"] { background: var(--color-event-cultural-bg); color: var(--color-event-cultural-fg); }
+.typeTag[data-type="thematic"] { background: var(--color-event-thematic-bg); color: var(--color-event-thematic-fg); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-3); }
+.facts dt { font-weight: 600; color: var(--color-text-strong); }
+.facts dd { margin: 0; }
+.bodies { list-style: none; margin: 0; padding: 0; display: inline; }
+.bodies li { display: inline; }
+.bodies li + li::before { content: ", "; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+.empty { font-size: var(--font-size-lg); text-align: center; padding: var(--space-8) 0; }
+.layout { display: grid; grid-template-columns: 16rem 1fr; gap: var(--space-6); }
+.sideActions { display: flex; flex-direction: column; gap: var(--space-2); }
+.headImage { width: 100%; border-radius: var(--radius-md); margin-bottom: var(--space-4); }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }

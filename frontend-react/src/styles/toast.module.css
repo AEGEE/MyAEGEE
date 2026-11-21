@@ -1,0 +1,17 @@
+.region {
+    position: fixed; z-index: var(--z-toast); bottom: var(--space-4); left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: var(--space-2); width: min(32rem, calc(100vw - 2rem));
+}
+.toast {
+    display: flex; align-items: flex-start; gap: var(--space-3); justify-content: space-between;
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border-left: 4px solid;
+    box-shadow: var(--shadow-card); font-weight: 600;
+}
+.success { background: var(--color-status-success-bg); color: var(--color-status-success-fg); border-color: var(--color-status-success-border); }
+.info { background: var(--color-status-info-bg); color: var(--color-status-info-fg); border-color: var(--color-status-info-border); }
+.warning { background: var(--color-status-warning-bg); color: var(--color-status-warning-fg); border-color: var(--color-status-warning-border); }
+.danger { background: var(--color-status-danger-bg); color: var(--color-status-danger-fg); border-color: var(--color-status-danger-border); }
+.close {
+    font: inherit; font-size: var(--font-size-lg); line-height: 1; background: none; border: 0; color: inherit;
+    cursor: pointer; min-width: 1.5rem; min-height: 1.5rem; padding: 0;
+}

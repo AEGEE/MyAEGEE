@@ -6,7 +6,7 @@
 //   react: migrated paths from the React build, the rest from the Vue build (like production).
 import http from 'node:http';
 
-import { distFor, serveStatic } from '../../support/frontend-routing.ts';
+import { serveStatic, staticFileFor } from '../../support/frontend-routing.ts';
 
 const [port, mode] = process.argv.slice(2);
 const react = mode === 'react';
@@ -27,5 +27,5 @@ http.createServer((req, res) => {
         return;
     }
 
-    serveStatic(distFor(pathname, { react }), pathname, res);
+    serveStatic(staticFileFor(pathname, { react }), res);
 }).listen(Number(port), '127.0.0.1');

@@ -103,12 +103,14 @@ test.describe('events list', { tag: '@migrated' }, () => {
     test('shows "Create event" only to members who may create events', async ({ page, api, myPermissions }) => {
         api.json('GET events /', ok([]));
         await page.goto('/events');
-        await expect(page.getByRole('link', { name: 'Create event' })).toHaveAttribute('href', '/events/new');
+        // The sidebar menu may link there too; this is the button on the page.
+        const main = page.getByRole('main');
+        await expect(main.getByRole('link', { name: 'Create event' })).toHaveAttribute('href', '/events/new');
 
         myPermissions.splice(0, myPermissions.length, ...MEMBER_PERMISSIONS.filter((p) => !p.endsWith('create:event')).map(permission));
         await page.reload();
         await expect(page.getByText('No events found.')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'Create event' })).toHaveCount(0);
+        await expect(main.getByRole('link', { name: 'Create event' })).toHaveCount(0);
     });
 
     test('lists the events I take part in without paging', async ({ page, api }) => {

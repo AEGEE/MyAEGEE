@@ -4,7 +4,7 @@
 import http from 'node:http';
 
 import { PORTS, type Service } from './constants.ts';
-import { distFor, serveStatic } from './frontend-routing.ts';
+import { serveStatic, staticFileFor } from './frontend-routing.ts';
 
 const proxied: Service[] = ['core', 'events', 'summeruniversity'];
 // With E2E_FRONTEND=react, the migrated paths are served by the React build
@@ -48,7 +48,7 @@ const serveFrontend = (req: http.IncomingMessage, res: http.ServerResponse): voi
         return;
     }
 
-    serveStatic(distFor(pathname, { react }), pathname, res);
+    serveStatic(staticFileFor(pathname, { react }), res);
 };
 
 http.createServer((req, res) => {
