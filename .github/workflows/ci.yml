@@ -1,0 +1,300 @@
+# Checks for pull requests and pushes to stable.
+#
+# Only the services a change touches are linted, tested and built; the
+# `changes` job decides which (see .github/scripts/ci_plan.py). Jobs that are
+# not needed are skipped, and the final `ci` job reports the overall result,
+# so branch protection only needs to require `ci`.
+#
+# Releases and Docker image pushes still run on CircleCI for now.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - stable
+  workflow_dispatch:
+
+# A new push to a pull request cancels its previous run. Every push to stable
+# gets its own group, so no stable commit is skipped or cancelled.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "26.13.1"
+  PYTHON_VERSION: "3.15"
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      lint: ${{ steps.plan.outputs.lint }}
+      test: ${{ steps.plan.outputs.test }}
+      build: ${{ steps.plan.outputs.build }}
+      db: ${{ steps.plan.outputs.db }}
+      mailer: ${{ steps.plan.outputs.mailer }}
+      dispatcher: ${{ steps.plan.outputs.dispatcher }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Work out which jobs to run
+        id: plan
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 .github/scripts/ci_plan.py "$BASE" HEAD
+
+  lint-yaml:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install yamllint
+      - run: yamllint -d .yamllint.yml .
+
+  lint-shell:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Run shellcheck
+        # Same version as CircleCI's shellcheck orb. The file list is meant to
+        # be split into separate arguments.
+        run: |
+          curl -sSLo shellcheck.tar.xz https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.x86_64.tar.xz
+          echo "6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87  shellcheck.tar.xz" | sha256sum -c -
+          sudo tar -xJf shellcheck.tar.xz --strip-components=1 -C /usr/local/bin shellcheck-v0.10.0/shellcheck
+          rm shellcheck.tar.xz
+          shellcheck --version
+          # shellcheck disable=SC2046
+          shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
+
+  lint-python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install pylint
+      # FIXME: enable W0511 and E0401 as well
+      - run: pylint scripts-server --disable C0114,C0116,W0511,E0401
+
+  lint-dockerfile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Lint Dockerfiles
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint:latest-alpine \
+            sh -c "hadolint \$(find . -name '*Dockerfile*' -not -path './mailer/*')"
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.lint != '[]'
+    name: lint (${{ matrix.service }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.lint) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Run eslint
+        if: matrix.kind == 'npm'
+        run: |
+          npm ci --legacy-peer-deps
+          npm run lint
+      - name: Run eslint (frontend)
+        if: matrix.kind == 'frontend'
+        run: |
+          npm ci --legacy-peer-deps --ignore-scripts
+          npx eslint --ext .js,.vue .
+
+  test:
+    needs: changes
+    if: needs.changes.outputs.test != '[]'
+    name: test (${{ matrix.service }} ${{ matrix.shard }}/${{ matrix.shards }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.test) }}
+    services:
+      postgres:
+        image: postgres:18.7
+        env:
+          # Matches the default PG_PASSWORD in the services' config/index.js
+          POSTGRES_PASSWORD: 5ecr3t
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - name: Run tests
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ matrix.shards }}
+
+  db-recreate:
+    needs: changes
+    if: needs.changes.outputs.db != '[]'
+    name: db-recreate (${{ matrix.service }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.db) }}
+    services:
+      postgres:
+        image: postgres:18.7
+        env:
+          POSTGRES_PASSWORD: 5ecr3t
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - name: Recreate the database
+        env:
+          NODE_ENV: test
+          DB_SCRIPT: ${{ matrix.script }}
+        run: npm run "$DB_SCRIPT"
+
+  build:
+    needs: changes
+    # Images for stable are built and pushed by the release jobs instead.
+    if: github.event_name == 'pull_request' && needs.changes.outputs.build != '[]'
+    name: build (${{ matrix.service }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.changes.outputs.build) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Build the image
+        env:
+          # Only needed by the mailer's compose file
+          MIX_ENV: test
+          SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
+          SMTP_PASSWORD: 5ecr3t
+          SMTP_HOST: mail.aegee.eu
+        run: |
+          docker compose \
+            -f ${{ matrix.service }}/docker/docker-compose.yml \
+            -f ${{ matrix.service }}/docker/docker-compose.dev.yml \
+            build --no-cache ${{ matrix.service }}
+
+  mailer-test:
+    needs: changes
+    if: needs.changes.outputs.mailer == 'true'
+    runs-on: ubuntu-24.04
+    env:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_NAME: AEGEE <mailer@aegee.eu>
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
+    defaults:
+      run:
+        working-directory: mailer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Install Elixir
+        run: |
+          sudo apt-get update
+          sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y elixir erlang
+      - run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - run: mix deps.get
+      - run: mix coveralls
+
+  dispatcher:
+    needs: changes
+    if: needs.changes.outputs.dispatcher == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: dispatcher
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run ruff
+        run: |
+          pip install ruff
+          ruff check .
+      - name: Run tests
+        # Also run the tests when ruff fails, as CircleCI does in separate jobs
+        if: ${{ !cancelled() }}
+        run: |
+          pip install poetry
+          poetry install --with dev
+          poetry run pytest
+
+  # The single check branch protection needs: fails if any job above failed or
+  # was cancelled, passes if they all passed or were skipped as not needed.
+  ci:
+    if: always()
+    needs:
+      - changes
+      - lint-yaml
+      - lint-shell
+      - lint-python
+      - lint-dockerfile
+      - lint
+      - test
+      - db-recreate
+      - build
+      - mailer-test
+      - dispatcher
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check job results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$RESULTS" | jq -e 'all(.[]; .result == "success" or .result == "skipped")' > /dev/null
