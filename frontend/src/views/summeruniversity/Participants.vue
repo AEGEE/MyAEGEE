@@ -246,7 +246,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.summeruniversity.list' })
+      this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
   }
 }
