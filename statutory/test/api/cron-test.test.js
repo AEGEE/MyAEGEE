@@ -28,6 +28,7 @@ describe('Cron testing', () => {
         mock.cleanAll();
         await generator.clearAll();
         cron.clearAll();
+        jest.restoreAllMocks();
     });
 
     test('should log the scheduled time with seconds when adding a job', async () => {
@@ -40,7 +41,6 @@ describe('Cron testing', () => {
             expect.objectContaining({ scheduled_on: time.format('YYYY-MM-DD HH:mm') + ':56' }),
             'Added a job'
         );
-        infoSpy.mockRestore();
     });
 
     test('should log the scheduled time with seconds when not adding a job in the past', async () => {
@@ -53,7 +53,6 @@ describe('Cron testing', () => {
             expect.objectContaining({ scheduled_on: time.format('YYYY-MM-DD HH:mm') + ':56' }),
             'Job is not added: is in the past, not scheduling.'
         );
-        warnSpy.mockRestore();
     });
 
     test('should not clear the events that don\'t match the params', async () => {
