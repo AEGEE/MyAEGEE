@@ -113,6 +113,27 @@ describe('Plenary attendance marking', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if application ID is not an integer', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: application.id + 0.5 }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail if applicant is not a delegate', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
