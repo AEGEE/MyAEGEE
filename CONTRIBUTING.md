@@ -84,6 +84,42 @@ This monorepo uses **independent versioning** with `semantic-release-monorepo` -
    - Builds and pushes Docker images
    - Creates GitHub releases
 
+### Release bot credentials
+
+semantic-release does not use a personal account. Tags, GitHub releases and `released-<module>` labels are made by the **AEGEE Release Bot** GitHub App:
+
+- App settings (AEGEE organization owners only): https://github.com/organizations/AEGEE/settings/apps/aegee-release-bot
+- App ID: `5863453`
+- Installed on `AEGEE/MyAEGEE` only, with repository permissions Contents, Issues and Pull requests (read and write). It needs no webhook.
+
+**Where the credential is:** only in the CircleCI project environment variables (https://app.circleci.com/settings/project/github/AEGEE/MyAEGEE/environment-variables):
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_APP_ID` | `5863453` |
+| `GITHUB_APP_PRIVATE_KEY` | The App's private key (`.pem`), base64-encoded on one line, because CircleCI variables cannot hold multiple lines |
+
+The private key is deliberately not kept anywhere else, such as a password manager. If it is lost, generate a new one. In each release job, `.circleci/github-app-token.mjs` uses the key to get an installation token that lasts one hour and only works on this repository.
+
+**Regenerate the key** (when it is lost or leaked, or when someone who had it leaves):
+
+1. On the App settings page, under **Private keys**, click **Generate a private key**. The `.pem` file downloads.
+2. Encode it on one line: `base64 -w0 aegee-release-bot.*.private-key.pem` (on macOS: `base64 -i <file>`).
+3. In CircleCI, replace the value of `GITHUB_APP_PRIVATE_KEY` with the output.
+4. Back on the App settings page, delete the old key.
+5. Delete the downloaded `.pem` file.
+6. The next release job on `stable` shows whether it works. To check straight away, rerun the last `*-docker-build-and-push` job on `stable` in CircleCI. semantic-release creates nothing when there is nothing new to release, but the job does build and push that module's Docker image again under the same version.
+
+**Revoke access straight away** (for example after a leak): delete the key on the App settings page. Tokens made before that keep working for up to an hour. To stop those too, suspend the App's installation: AEGEE organization settings, **GitHub Apps**, **AEGEE Release Bot**, **Configure**, **Suspend**. Releases fail until the installation is unsuspended and a new key is set as described above.
+
+**When releases fail at "Run semantic-release":** the job log shows a line starting with `github-app-token:`:
+
+- `GITHUB_APP_ID is not set` or `GITHUB_APP_PRIVATE_KEY is not set`: a CircleCI variable is missing.
+- `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable is not a base64-encoded `.pem` file, for example because it was pasted with line breaks.
+- `... returned 401`: the key is not this App's, or was deleted. Regenerate it as described above.
+- `GET /repos/AEGEE/MyAEGEE/installation returned 404`: the App is not installed on MyAEGEE, or the installation is suspended.
+- `POST /app/installations/.../access_tokens returned 422`: the App is missing one of the permissions listed above.
+
 ### Version Bumping
 
 - `feat(module):` → Minor version bump (1.2.0 → 1.3.0)

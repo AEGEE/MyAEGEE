@@ -42,7 +42,12 @@ function createJwt(appId, privateKey) {
   // Backdate iat to allow for clock drift; GitHub accepts at most 10 minutes.
   const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = base64url(JSON.stringify({ iat: now - 60, exp: now + 540, iss: appId }));
-  const signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(privateKey, 'base64url');
+  let signature;
+  try {
+    signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(privateKey, 'base64url');
+  } catch (error) {
+    fail(`GITHUB_APP_PRIVATE_KEY is not a valid private key (${error.code || error.message}). Set it to the output of base64 -w0 key.pem`);
+  }
   return `${header}.${payload}.${signature}`;
 }
 
