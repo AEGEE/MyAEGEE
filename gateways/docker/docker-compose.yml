@@ -6,7 +6,7 @@ services:
 ### Proxy container #######################################
 
   traefik:
-    image: traefik:v1.7.4-alpine
+    image: traefik:v2.0-alpine
     restart: always
     command: --web.metrics.prometheus
     ports:
