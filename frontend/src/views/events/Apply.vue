@@ -6,9 +6,9 @@
           This event does not accept any applications, you can join without applying.
         </div>
         <template v-else>
-          <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-          <div class="title" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
-          <div class="title" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
+          <div class="title" role="heading" aria-level="1" v-show="isNew">Apply to {{ event.name }}</div>
+          <div class="title" role="heading" aria-level="1" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
+          <div class="title" role="heading" aria-level="1" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
 
           <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply: the applications are closed or the event is not published yet.</div>
           <div class="notification is-warning" v-if="isNew && activeEventApplicationBan">
@@ -19,9 +19,9 @@
             <div class="tile is-parent" v-show="canSubmitApplication">
               <div class="tile is-child">
                 <div class="field">
-                  <label class="label">Body <span class="has-text-danger">*</span></label>
+                  <label class="label" for="application-body">Body <span class="has-text-danger">*</span></label>
                   <div class="select" v-show="bodies.length > 0">
-                    <select v-model="application.body_id">
+                    <select id="application-body" v-model="application.body_id">
                       <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                     </select>
                   </div>
@@ -49,18 +49,20 @@
 
                 <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                   <div class="control">
-                    <label class="has-text-weight-bold">
+                    <label class="has-text-weight-bold" :for="'question-' + index">
                       {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
                     </label>
                   </div>
                   <div class="control" v-if="question.type === 'text'">
                     <textarea
+                      :id="'question-' + index"
                       class="textarea"
                       :required="question.required"
                       v-model="application.answers[index]" />
                   </div>
                   <div class="control" v-if="question.type === 'string'">
                     <input
+                      :id="'question-' + index"
                       class="input"
                       type="text"
                       :required="question.required"
@@ -68,12 +70,14 @@
                   </div>
                   <div class="control" v-if="question.type === 'number'">
                     <input
+                      :id="'question-' + index"
                       class="input"
                       type="number"
                       v-model.number="application.answers[index]" />
                   </div>
                   <div class="control" v-if="question.type === 'checkbox'">
                     <input
+                      :id="'question-' + index"
                       class="checkbox"
                       type="checkbox"
                       :required="question.required"
@@ -81,8 +85,8 @@
                   </div>
                   <div class="control" v-if="question.type === 'select'">
                     <div class="select">
-                      <select v-model="application.answers[index]" required>
-                        <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
+                      <select :id="'question-' + index" v-model="application.answers[index]" required>
+                        <option v-for="(value, valueIndex) in question.values" v-bind:key="valueIndex">{{ value }}</option>
                       </select>
                     </div>
                   </div>
