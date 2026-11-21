@@ -119,6 +119,26 @@ describe('Events creation', () => {
         expect(event.status).toEqual('first submission');
     });
 
+    test('should ignore the application period, open call and participant counters from the body', async () => {
+        const body = generator.generateEventBody({ max_participants: 25 });
+        body.application_starts = generator.daysFromNow(1);
+        body.application_ends = generator.daysFromNow(10);
+        body.open_call = true;
+        body.accepted_participants = 20;
+        body.available_spots = 5;
+
+        const res = await createEvent(body);
+
+        expect(res.statusCode).toEqual(201);
+
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.application_starts).toEqual(null);
+        expect(event.application_ends).toEqual(null);
+        expect(event.open_call).toEqual(false);
+        expect(event.accepted_participants).toEqual(null);
+        expect(event.max_participants).toEqual(25);
+    });
+
     test('should fetch the organizing bodies and cooperation bodies names from core', async () => {
         const body = generator.generateEventBody({
             organizing_bodies: [{ body_id: 34, body_name: 'wrong name' }],
@@ -186,7 +206,6 @@ describe('Events creation', () => {
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
         ['questions', { questions: 'not an array' }, 'Event questions should be an array of strings.'],
         ['course_level', { course_level: 'expert' }, 'SU course level should be one of these: beginner, intermediate, advanced.'],
-        ['application_ends', { application_starts: generator.daysFromNow(10), application_ends: generator.daysFromNow(5) }, 'Application period cannot end before or at the same time it starts.'],
         ['locations', { locations: [] }, null],
         ['organizers', { organizers: [{ user_id: user.id, role: 'main_coordinator' }] }, null],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {

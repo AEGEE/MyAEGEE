@@ -9,6 +9,28 @@ const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
 
+// Fields that can't be set through the generic event create and edit.
+// The application period and the open call have their own endpoints,
+// and the participant counters are maintained by the system.
+const BLOCKED_EVENT_FIELDS = [
+    'id',
+    'image',
+    'status',
+    'deleted',
+    'published',
+    'application_starts',
+    'application_ends',
+    'open_call',
+    'accepted_participants',
+    'available_spots'
+];
+
+const removeBlockedFields = (data) => {
+    for (const field of BLOCKED_EVENT_FIELDS) {
+        delete data[field];
+    }
+};
+
 exports.listEvents = async (req, res) => {
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
@@ -222,10 +244,7 @@ exports.addEvent = async (req, res) => {
 
     // Make sure the user doesn't insert malicious stuff
     const data = req.body;
-    delete data.id;
-    delete data.image;
-    delete data.deleted;
-    delete data.published;
+    removeBlockedFields(data);
 
     data.status = 'first submission';
 
@@ -331,13 +350,9 @@ exports.editEvent = async (req, res) => {
 
     const data = req.body;
     const event = req.event;
-    const oldStatus = data.status;
+    const oldStatus = event.status;
 
-    delete data.id;
-    delete data.image;
-    delete data.status;
-    delete data.deleted;
-    delete data.published;
+    removeBlockedFields(data);
 
     if (!data.season) {
         data.season = 2026;
@@ -393,7 +408,8 @@ exports.editEvent = async (req, res) => {
         await event.update(data, { transaction: t });
 
         const adminToken = await core.getAdminToken();
-        data.organizers = await Promise.all(data.organizers.map((organizer) =>
+        const organizers = Array.isArray(data.organizers) ? data.organizers : event.organizers;
+        data.organizers = await Promise.all(organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.
