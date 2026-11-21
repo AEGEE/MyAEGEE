@@ -16,7 +16,9 @@ const {
     BodyMembership,
     JoinRequest,
     Payment,
-    EventApplicationBan
+    EventApplicationBan,
+    ResourceCategory,
+    ResourceLink
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -209,7 +211,33 @@ exports.createMailChange = (user = null, options = {}) => {
     return MailChange.create(exports.generateMailChange(user, options));
 };
 
+exports.generateResourceCategory = (options = {}) => {
+    if (notSet(options.name)) options.name = faker.lorem.words(2);
+    if (notSet(options.theme)) options.theme = 'blue';
+
+    return options;
+};
+
+exports.createResourceCategory = (options = {}) => {
+    return ResourceCategory.create(exports.generateResourceCategory(options));
+};
+
+exports.generateResourceLink = (category, options = {}) => {
+    if (category && category.id) options.category_id = category.id;
+    if (notSet(options.title)) options.title = faker.lorem.words(3);
+    if (notSet(options.description)) options.description = faker.lorem.sentence();
+    if (notSet(options.url)) options.url = faker.internet.url();
+
+    return options;
+};
+
+exports.createResourceLink = (category, options = {}) => {
+    return ResourceLink.create(exports.generateResourceLink(category, options));
+};
+
 exports.clearAll = async () => {
+    await ResourceLink.destroy({ where: {}, truncate: { cascade: true } });
+    await ResourceCategory.destroy({ where: {}, truncate: { cascade: true } });
     await MailChange.destroy({ where: {}, truncate: { cascade: true } });
     await EventApplicationBan.destroy({ where: {}, truncate: { cascade: true } });
     await Payment.destroy({ where: {}, truncate: { cascade: true } });

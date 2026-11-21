@@ -9,7 +9,9 @@ const {
     BodyMembership,
     JoinRequest,
     Payment,
-    CircleMembership
+    CircleMembership,
+    ResourceCategory,
+    ResourceLink
 } = require('../models');
 
 const { Sequelize } = require('../lib/sequelize');
@@ -243,5 +245,33 @@ exports.fetchCircleMembership = async (req, res, next) => {
     }
 
     req.currentCircleMembership = membership;
+    return next();
+};
+
+exports.fetchResourceCategory = async (req, res, next) => {
+    if (!helpers.isNumber(req.params.category_id)) {
+        return errors.makeBadRequestError(res, 'Section ID is invalid.');
+    }
+
+    const category = await ResourceCategory.findByPk(Number(req.params.category_id));
+    if (!category) {
+        return errors.makeNotFoundError(res, 'Section is not found.');
+    }
+
+    req.currentResourceCategory = category;
+    return next();
+};
+
+exports.fetchResourceLink = async (req, res, next) => {
+    if (!helpers.isNumber(req.params.link_id)) {
+        return errors.makeBadRequestError(res, 'Link ID is invalid.');
+    }
+
+    const link = await ResourceLink.findByPk(Number(req.params.link_id));
+    if (!link) {
+        return errors.makeNotFoundError(res, 'Link is not found.');
+    }
+
+    req.currentResourceLink = link;
     return next();
 };

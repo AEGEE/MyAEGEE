@@ -31,6 +31,7 @@ const circlePermissions = require('../middlewares/circle-permissions');
 const endpointsMetrics = require('../middlewares/endpoint-metrics');
 const metrics = require('../middlewares/metrics');
 const bugReport = require('../middlewares/bug-report');
+const resources = require('../middlewares/resources');
 
 const GeneralRouter = express.Router({ mergeParams: true });
 const MemberRouter = express.Router({ mergeParams: true });
@@ -43,6 +44,8 @@ const CampaignsRouter = express.Router({ mergeParams: true });
 const BodyCampaignsRouter = express.Router({ mergeParams: true });
 const PaymentsRouter = express.Router({ mergeParams: true });
 const CircleMembershipsRouter = express.Router({ mergeParams: true });
+const ResourceCategoriesRouter = express.Router({ mergeParams: true });
+const ResourceLinksRouter = express.Router({ mergeParams: true });
 
 const server = express();
 // Express 5 defaults to the 'simple' query parser, and its 'extended' parser
@@ -99,6 +102,9 @@ GeneralRouter.get('/permissions', middlewares.ensureAuthorized, permissions.list
 GeneralRouter.post('/permissions', middlewares.ensureAuthorized, permissions.createPermission);
 GeneralRouter.get('/campaigns', middlewares.ensureAuthorized, campaigns.listAllCampaigns);
 GeneralRouter.post('/campaigns', middlewares.ensureAuthorized, campaigns.createCampaign);
+GeneralRouter.get('/resources', middlewares.ensureAuthorized, resources.listAllResources);
+GeneralRouter.post('/resources/categories', middlewares.ensureAuthorized, resources.createCategory);
+GeneralRouter.post('/resources/links', middlewares.ensureAuthorized, resources.createLink);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchUser);
@@ -196,8 +202,23 @@ PaymentsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fet
 PaymentsRouter.put('/', payments.updatePayment);
 PaymentsRouter.delete('/', payments.deletePayment);
 
+// Everything related to a specific section of the Resources page. Auth only.
+ResourceCategoriesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchResourceCategory);
+ResourceCategoriesRouter.get('/', resources.getCategory);
+ResourceCategoriesRouter.put('/', resources.updateCategory);
+ResourceCategoriesRouter.delete('/', resources.deleteCategory);
+ResourceCategoriesRouter.put('/links/order', resources.setLinksOrder);
+
+// Everything related to a specific link of the Resources page. Auth only.
+ResourceLinksRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchResourceLink);
+ResourceLinksRouter.get('/', resources.getLink);
+ResourceLinksRouter.put('/', resources.updateLink);
+ResourceLinksRouter.delete('/', resources.deleteLink);
+
 server.use(endpointsMetrics.addEndpointMetrics);
 server.get('/members/unconfirmed', middlewares.maybeAuthorize, middlewares.ensureAuthorized, members.listAllUnconfirmedUsers);
+// Before the section router, which would take `order` as a section ID.
+server.put('/resources/categories/order', middlewares.maybeAuthorize, middlewares.ensureAuthorized, resources.setCategoriesOrder);
 server.use('/members/:user_id', endpointsMetrics.recordMountPath('/members/:user_id'), MemberRouter);
 server.use('/bodies/:body_id/members/:membership_id', endpointsMetrics.recordMountPath('/bodies/:body_id/members/:membership_id'), BodyMembershipsRouter);
 server.use('/bodies/:body_id/join-requests/:request_id', endpointsMetrics.recordMountPath('/bodies/:body_id/join-requests/:request_id'), JoinRequestsRouter);
@@ -208,6 +229,8 @@ server.use('/circles/:circle_id/members/:membership_id', endpointsMetrics.record
 server.use('/circles/:circle_id', endpointsMetrics.recordMountPath('/circles/:circle_id'), CirclesRouter);
 server.use('/permissions/:permission_id', endpointsMetrics.recordMountPath('/permissions/:permission_id'), PermissionsRouter);
 server.use('/campaigns/:campaign_id', endpointsMetrics.recordMountPath('/campaigns/:campaign_id'), CampaignsRouter);
+server.use('/resources/categories/:category_id', endpointsMetrics.recordMountPath('/resources/categories/:category_id'), ResourceCategoriesRouter);
+server.use('/resources/links/:link_id', endpointsMetrics.recordMountPath('/resources/links/:link_id'), ResourceLinksRouter);
 server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
 
 server.use(middlewares.notFound);
