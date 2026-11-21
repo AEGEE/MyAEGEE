@@ -57,4 +57,17 @@ describe('Categories displaying', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should return 400 if category ID is not an integer', async () => {
+        const res = await request({
+            path: '/categories/1.5',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });
