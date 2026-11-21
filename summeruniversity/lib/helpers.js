@@ -128,7 +128,7 @@ exports.beautify = (value) => {
 
     // If it's date, return date formatted.
     if (Object.prototype.toString.call(value) === '[object Date]') {
-        return moment(value).format('YYYY-MM-DD HH:mm:SS');
+        return moment(value).format('YYYY-MM-DD HH:mm:ss');
     }
 
     // Else, present it as it is.

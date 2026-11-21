@@ -111,6 +111,25 @@ describe('Events details', () => {
         expect(res.body.data).not.toHaveProperty('deleted');
     });
 
+    it('should return the vegetarian field if the user does not have rights', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'published',
+            vegetarian: true,
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            path: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).not.toHaveProperty('budget');
+        expect(res.body.data.vegetarian).toEqual(true);
+    });
+
     it('should not return event if it\'s deleted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
