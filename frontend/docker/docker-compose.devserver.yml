@@ -1,0 +1,22 @@
+# Added on top of docker-compose.yml and docker-compose.dev.yml when the stack
+# runs without Traefik (MYAEGEE_GATEWAY=devserver, see helper.sh).
+# The frontend becomes the webpack dev server: hot reload, plus the routing that
+# Traefik does otherwise (docker/devserver/proxy.js). Needs the Docker Compose plugin 2.24.4+.
+services:
+    frontend:
+        build:
+            target: devserver
+        image: aegee/frontend:devserver
+        environment:
+            # Set FRONTEND_POLLING=true in .env if edits don't trigger a reload,
+            # which can happen with some Docker Desktop file sharing setups.
+            WATCHPACK_POLLING: "${FRONTEND_POLLING:-false}"
+        volumes: !override
+            - ./${PATH_FRONTEND}/..:/usr/app/src
+            - frontend-node-modules:/usr/app/src/node_modules
+        ports:
+            - "127.0.0.1:${FRONTEND_PORT:-8083}:8080"
+        labels: !reset []
+
+volumes:
+    frontend-node-modules:

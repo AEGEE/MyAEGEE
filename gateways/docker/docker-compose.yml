@@ -35,6 +35,15 @@ services:
       timeout: 5s
       retries: 3
 
+  portal:
+    build:
+      context: ./$PATH_GATEWAYS/portal/
+      dockerfile: ./Dockerfile.dev
+    image: aegee/portal:dev
+    restart: always
+    expose:
+      - 80
+
 volumes:
   caddy_data:
   caddy_config:

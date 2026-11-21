@@ -458,7 +458,7 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the application data is invalid.')
         }
@@ -481,7 +481,7 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the application data is invalid.')
         }
@@ -585,6 +585,15 @@ export default {
 
       // Fetching application
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
+        if (!application.data.data.permissions.edit_application) {
+          this.$root.showError('You cannot edit this application.')
+          this.$router.push({
+            name: 'oms.statutory.applications.view',
+            params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
+          })
+          return
+        }
+
         this.application = application.data.data
         this.can = application.data.data.permissions
         // We only know the primary body of the applicant if it's the current user
@@ -602,7 +611,7 @@ export default {
         }
       })
     }).catch((err) => {
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Application is not found')
       } else {
         this.$root.showError('Some error happened', err)

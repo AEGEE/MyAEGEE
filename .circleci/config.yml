@@ -4,6 +4,26 @@ orbs:
   shellcheck: circleci/shellcheck@3.5.1
   slack: circleci/slack@6.1.3
 version: 2.1
+commands:
+  semantic-release:
+    description: >-
+      Run semantic-release for a service as the AEGEE release GitHub App, not a
+      personal account. Needs GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY from
+      the myaegee-release-bot context.
+    parameters:
+      service:
+        type: string
+    steps:
+      - run:
+          name: Run semantic-release for << parameters.service >>
+          working_directory: ~/project/<< parameters.service >>
+          command: |
+            # semantic-release reads GH_TOKEN before GITHUB_TOKEN for the API and
+            # GIT_CREDENTIALS first for git push. Set all three so an old project
+            # variable can't win. Git needs the x-access-token: user for an App token.
+            GH_TOKEN="$(node ../.circleci/github-app-token.mjs)"
+            export GH_TOKEN GITHUB_TOKEN="${GH_TOKEN}" GIT_CREDENTIALS="x-access-token:${GH_TOKEN}"
+            npm run semantic-release
 jobs:
   yamllint:
     docker:
@@ -193,10 +213,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for core
-          working_directory: ~/project/core
-          command: npm run semantic-release
+      - semantic-release:
+          service: core
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -414,10 +432,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for discounts
-          working_directory: ~/project/discounts
-          command: npm run semantic-release
+      - semantic-release:
+          service: discounts
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -652,10 +668,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for events
-          working_directory: ~/project/events
-          command: npm run semantic-release
+      - semantic-release:
+          service: events
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -847,10 +861,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for frontend
-          working_directory: ~/project/frontend
-          command: npm run semantic-release
+      - semantic-release:
+          service: frontend
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -1068,10 +1080,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for knowledge
-          working_directory: ~/project/knowledge
-          command: npm run semantic-release
+      - semantic-release:
+          service: knowledge
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -1240,10 +1250,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for mailer
-          working_directory: ~/project/mailer
-          command: npm run semantic-release
+      - semantic-release:
+          service: mailer
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -1572,10 +1580,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for network
-          working_directory: ~/project/network
-          command: npm run semantic-release
+      - semantic-release:
+          service: network
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -1793,10 +1799,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for statutory
-          working_directory: ~/project/statutory
-          command: npm run semantic-release
+      - semantic-release:
+          service: statutory
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -2031,10 +2035,8 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Run semantic-release for summeruniversity
-          working_directory: ~/project/summeruniversity
-          command: npm run semantic-release
+      - semantic-release:
+          service: summeruniversity
       - run:
           name: Set up Docker Buildx for multi-platform builds
           command: |
@@ -2217,6 +2219,7 @@ workflows:
   core-docker-build-and-push:
     jobs:
       - core-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2244,6 +2247,7 @@ workflows:
   discounts-docker-build-and-push:
     jobs:
       - discounts-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2275,6 +2279,7 @@ workflows:
   events-docker-build-and-push:
     jobs:
       - events-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2299,6 +2304,7 @@ workflows:
   frontend-docker-build-and-push:
     jobs:
       - frontend-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2326,6 +2332,7 @@ workflows:
   knowledge-docker-build-and-push:
     jobs:
       - knowledge-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2353,6 +2360,7 @@ workflows:
   network-docker-build-and-push:
     jobs:
       - network-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2380,6 +2388,7 @@ workflows:
   statutory-docker-build-and-push:
     jobs:
       - statutory-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2407,6 +2416,7 @@ workflows:
   mailer-docker-build-and-push:
     jobs:
       - mailer-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2423,6 +2433,7 @@ workflows:
   summeruniversity-docker-build-and-push:
     jobs:
       - summeruniversity-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable

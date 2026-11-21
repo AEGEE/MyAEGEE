@@ -7,6 +7,13 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
 
+// Fields applicants can't set when applying or editing their application: these change
+// through their own endpoints, with their own permission checks (status, board comment,
+// confirmed, attended), or come from the applicant's body.
+// The fields an applicant sets. The others are set by the server (applicant, event, body name)
+// or through their own endpoints (status, board comment, confirmed, attended).
+const APPLICATION_FIELDS = ['body_id', 'answers', 'agreed_to_privacy_policy'];
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -98,24 +105,26 @@ exports.createApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
     }
 
-    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
+    const body = req.user.bodies.find((b) => b.id === Number(req.body.body_id));
+    if (!body) {
         return errors.makeBadRequestError(res, 'You are not a member of this body.');
     }
 
-    delete req.body.board_comment;
-    delete req.body.status;
-
-    req.body.first_name = req.user.first_name;
-    req.body.last_name = req.user.last_name;
-    req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
-    req.body.user_id = req.user.id;
-    req.body.event_id = req.event.id;
+    const application = {
+        ...helpers.whitelistObject(req.body, APPLICATION_FIELDS),
+        first_name: req.user.first_name,
+        last_name: req.user.last_name,
+        body_id: body.id,
+        body_name: body.name,
+        user_id: req.user.id,
+        event_id: req.event.id
+    };
 
     let newApplication;
 
     // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
     await sequelize.transaction(async (t) => {
-        newApplication = await Application.create(req.body, { transaction: t });
+        newApplication = await Application.create(application, { transaction: t });
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -145,28 +154,24 @@ exports.updateApplication = async (req, res) => {
     // The application can also be edited by organizers and event managers, so the
     // applicant's details come from the applicant, not from whoever is editing.
     const applicant = req.applicant;
-    const applicantBody = typeof req.body.body_id !== 'undefined'
-        ? applicant.bodies.find((body) => body.id === req.body.body_id)
-        : null;
+    const application = helpers.whitelistObject(req.body, APPLICATION_FIELDS);
+    application.first_name = applicant.first_name;
+    application.last_name = applicant.last_name;
 
-    if (typeof req.body.body_id !== 'undefined' && !applicantBody) {
-        return errors.makeForbiddenError(res, 'The applicant is not a member of this body.');
+    // Only a new body is checked: the applicant may have left the body they applied with.
+    if (application.body_id !== undefined && Number(application.body_id) !== req.application.body_id) {
+        const applicantBody = applicant.bodies.find((body) => body.id === Number(application.body_id));
+        if (!applicantBody) {
+            return errors.makeForbiddenError(res, 'The applicant is not a member of this body.');
+        }
+
+        application.body_id = applicantBody.id;
+        application.body_name = applicantBody.name;
     }
-
-    delete req.body.board_comment;
-    delete req.body.status;
-
-    req.body.first_name = applicant.first_name;
-    req.body.last_name = applicant.last_name;
-    if (applicantBody) {
-        req.body.body_name = applicantBody.name;
-    }
-    req.body.user_id = applicant.id;
-    req.body.event_id = req.event.id;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        await req.application.update(req.body, { transaction: t });
+        await req.application.update(application, { transaction: t });
 
         // Sending the mail to the applicant.
         await mailer.sendMail({

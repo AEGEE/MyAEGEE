@@ -76,7 +76,12 @@
 		reverse_proxy knowledge:8084
 	}
 
-	handle_path /api/mailer/* {
+	@mailer_health {
+		method GET
+		path /api/mailer/healthcheck
+	}
+	handle @mailer_health {
+		uri strip_prefix /api/mailer
 		reverse_proxy mailer:4000
 	}
 

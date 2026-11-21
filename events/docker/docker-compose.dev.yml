@@ -1,5 +1,9 @@
 services:
     events:
+        restart: "no"
+        depends_on:
+            postgres-events:
+                condition: service_healthy
         build:
             context: ./${PATH_EVENTS}/..
             dockerfile: ./docker/events/Dockerfile
@@ -10,4 +14,16 @@ services:
             - ./${PATH_EVENTS}/../lib:/usr/app/src/lib
             - ./${PATH_EVENTS}/../migrations:/usr/app/src/migrations
             - ./${PATH_EVENTS}/../models:/usr/app/src/models
-            - ./${PATH_EVENTS}/../cli.js:/usr/app/src/cli.js
+            - ./${PATH_EVENTS}/../scripts:/usr/app/src/scripts
+
+    postgres-events:
+        restart: "no"
+        # TCP: while initialising, Postgres only listens on a Unix socket.
+        healthcheck:
+            test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 30
+
+    events-static:
+        restart: "no"

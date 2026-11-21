@@ -25,8 +25,12 @@ const storage = multer.diskStorage({ // multers disk storage settings
         cb(null, `${prefix}-${date}${extension}`);
     },
 });
+// Profile and event pictures; a photo from a phone fits well within this.
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
 const upload = multer({
     storage,
+    limits: { fileSize: MAX_IMAGE_SIZE, files: 1, fields: 10 },
     fileFilter(req, file, cb) {
         const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
@@ -40,7 +44,22 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+// Removes a file from disk. A file that's already gone (or can't be removed) is
+// only logged: by then the event points to the new image, so the request succeeded.
+const removeFile = async (filePath) => {
+    try {
+        await fs.promises.unlink(filePath);
+    } catch (err) {
+        log.warn({ err, filePath }, 'Could not remove image file');
+    }
+};
+
 exports.uploadImage = async (req, res) => {
+    // Only those who can edit the event can change its image.
+    if (!req.permissions.edit_event) {
+        return errors.makeForbiddenError(res, 'You cannot edit this event');
+    }
+
     const oldimg = req.event.image;
 
     // If upload folder doesn't exists, create it.
@@ -52,6 +71,10 @@ exports.uploadImage = async (req, res) => {
         await uploadAsync(req, res);
     } catch (err) {
         log.error({ err }, 'Could not store image');
+
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return errors.makeValidationError(res, 'The image should be at most 5 MB.');
+        }
 
         if (err.message === 'Unexpected end of form') {
             return errors.makeValidationError(res, 'No head_image is specified.');
@@ -73,6 +96,7 @@ exports.uploadImage = async (req, res) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await removeFile(req.file.path);
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
@@ -82,7 +106,7 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await fs.promises.unlink(path.join(uploadFolderName, oldimg));
+        await removeFile(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({

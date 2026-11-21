@@ -1,5 +1,7 @@
 .vagrant
 .env
+# Leftover if start.sh was interrupted while editing .env
+.env.tmp.*
 .init
 *.log
 *.swp

@@ -1,5 +1,9 @@
 services:
   discounts:
+    restart: "no"
+    depends_on:
+      postgres-discounts:
+        condition: service_healthy
     build:
       context: ./${PATH_DISCOUNTS}/..
       dockerfile: ./docker/discounts/Dockerfile
@@ -9,5 +13,13 @@ services:
       - ./${PATH_DISCOUNTS}/../lib:/usr/app/src/lib
       - ./${PATH_DISCOUNTS}/../migrations:/usr/app/src/migrations
       - ./${PATH_DISCOUNTS}/../models:/usr/app/src/models
-      - ./${PATH_DISCOUNTS}/../cli.js:/usr/app/src/cli.js
     command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
+
+  postgres-discounts:
+    restart: "no"
+    # TCP: while initialising, Postgres only listens on a Unix socket.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30

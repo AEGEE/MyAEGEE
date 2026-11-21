@@ -26,8 +26,12 @@ const storage = multer.diskStorage({ // multers disk storage settings
         cb(null, `${prefix}-${date}${extension}`);
     },
 });
+// Profile and event pictures; a photo from a phone fits well within this.
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
 const upload = multer({
     storage,
+    limits: { fileSize: MAX_IMAGE_SIZE, files: 1, fields: 10 },
     fileFilter(req, file, cb) {
         const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
@@ -41,6 +45,15 @@ const upload = multer({
 
 const uploadAsync = util.promisify(upload);
 
+// Checks the permission before uploadImage runs, so a refused upload never stores a file.
+exports.requirePermission = (permission, message) => (req, res, next) => {
+    if (!req.permissions[permission]) {
+        return errors.makeForbiddenError(res, message);
+    }
+
+    return next();
+};
+
 exports.uploadImage = async (req, res, next) => {
     // If upload folder doesn't exists, create it.
     if (!fs.existsSync(uploadFolderName)) {
@@ -52,11 +65,20 @@ exports.uploadImage = async (req, res, next) => {
     } catch (err) {
         log.error('Could not store image', err);
 
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return errors.makeValidationError(res, 'The image should be at most 5 MB.');
+        }
+
         if (err.message === 'Unexpected end of form') {
-            return errors.makeValidationError(res, 'No head_image is specified.');
+            return errors.makeValidationError(res, 'No image is specified.');
         }
 
         return errors.makeValidationError(res, err);
+    }
+
+    // If the image field is missing, do nothing.
+    if (!req.file) {
+        return errors.makeValidationError(res, 'No image is specified.');
     }
 
     // If the file's content is malformed, don't save it.
@@ -67,6 +89,7 @@ exports.uploadImage = async (req, res, next) => {
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
+        await fs.promises.unlink(req.file.path).catch((err) => log.warn({ err }, 'Could not remove rejected image'));
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 

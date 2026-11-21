@@ -115,6 +115,22 @@ h1, h2, h3, h4, h5, h6 {
 @import '~buefy/src/scss/components/_table';
 @import '~buefy/src/scss/components/_tag';
 
+// Buefy places the table sort arrow absolutely at the edge of the header without
+// leaving room for it, so it covers labels that fill their column (e.g. "#").
+.b-table .table th.is-sortable .th-wrap {
+	padding-right: 1.5rem;
+
+	&.is-numeric {
+		padding-right: 0;
+		padding-left: 1.5rem;
+	}
+
+	// Keep centered labels centered over their column.
+	&.is-centered {
+		padding-left: 1.5rem;
+	}
+}
+
 @import '~nprogress/nprogress.css';
 
 .has-text-pre-wrap {

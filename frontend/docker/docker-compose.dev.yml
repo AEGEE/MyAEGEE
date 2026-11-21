@@ -2,6 +2,7 @@ version: "3.4"
 
 services:
     frontend:
+        restart: "no"
         build:
             context: ./${PATH_FRONTEND}/..
             dockerfile: ./docker/Dockerfile

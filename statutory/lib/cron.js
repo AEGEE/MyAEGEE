@@ -85,7 +85,7 @@ class JobManager {
         if (moment().isAfter(time)) {
             logger.warn({
                 description,
-                scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:SS'),
+                scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:ss'),
                 params
             }, 'Job is not added: is in the past, not scheduling.');
             return;
@@ -93,7 +93,7 @@ class JobManager {
 
         const id = ++this.currentJob;
 
-        scheduler.scheduleJob(time, () => this.executeJob(id));
+        scheduler.scheduleJob(String(id), time, () => this.executeJob(id));
 
         this.jobs[id] = {
             key,
@@ -106,7 +106,7 @@ class JobManager {
         logger.info({
             id,
             description,
-            scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:SS'),
+            scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:ss'),
             params
         }, 'Added a job');
         return id;
@@ -133,7 +133,7 @@ class JobManager {
         }
 
         logger.info({ job }, 'Cancelling job');
-        scheduler.cancelJob(job.job);
+        scheduler.cancelJob(String(id));
         delete this.jobs[id];
     }
 

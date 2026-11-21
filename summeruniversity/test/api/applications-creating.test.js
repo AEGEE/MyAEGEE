@@ -97,8 +97,16 @@ describe('Applications creation', () => {
         ]);
     });
 
-    test('should ignore the status and board comment from the body', async () => {
-        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, status: 'accepted', board_comment: 'Great!' }));
+    test('should ignore the fields the applicant cannot set', async () => {
+        const res = await apply(generator.generateApplicationBody(event, {
+            body_id: 1,
+            status: 'accepted',
+            board_comment: 'Great!',
+            confirmed: true,
+            attended: true,
+            cancelled: true,
+            body_name: 'Fake body'
+        }));
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.status).toEqual('pending');
@@ -106,6 +114,10 @@ describe('Applications creation', () => {
         const application = await Application.findByPk(res.body.data.id);
         expect(application.status).toEqual('pending');
         expect(application.board_comment).toEqual(null);
+        expect(application.confirmed).toEqual(false);
+        expect(application.attended).toEqual(false);
+        expect(application.cancelled).toEqual(false);
+        expect(application.body_name).toEqual('AEGEE-Dresden');
     });
 
     test('should override the user and event fields from the body', async () => {
@@ -181,13 +193,14 @@ describe('Applications creation', () => {
     // BUG: createApplication looks up the body name with req.user.bodies.find(...).name
     // without checking that body_id was given, so a missing body_id crashes with a 500
     // instead of returning a validation error.
-    test('should currently return 500 if the body_id is missing', async () => {
+    test('should return 400 if the body_id is missing', async () => {
         const body = generator.generateApplicationBody(event, { body_id: 1 });
         delete body.body_id;
 
         const res = await apply(body);
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('You are not a member of this body.');
         expect(await Application.count()).toEqual(0);
     });
 

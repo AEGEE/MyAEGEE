@@ -166,4 +166,26 @@ describe('Events editing', () => {
         const eventFromDb = await Event.findOne({ where: { id: event.id } });
         expect(eventFromDb.application_status_revealed_at).toBeTruthy();
     });
+
+    test.each([
+        // eslint-disable-next-line no-script-url
+        'javascript:alert(1)',
+        'ftp://example.org/booklet',
+        'not a url'
+    ])('should reject %j as the booklet folder', async (link) => {
+        const event = await generator.createEvent({ booklet_folder: 'https://drive.google.com/booklet' });
+
+        const res = await request({
+            path: '/events/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { booklet_folder: link }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('booklet_folder');
+
+        const eventFromDb = await Event.findByPk(event.id);
+        expect(eventFromDb.booklet_folder).toEqual('https://drive.google.com/booklet');
+    });
 });

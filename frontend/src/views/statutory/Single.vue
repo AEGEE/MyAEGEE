@@ -305,7 +305,7 @@
                 <tr v-if="event.booklet_folder">
                   <th>KMS page</th>
                   <td>
-                    <a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{
+                    <a :href="event.booklet_folder | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       event.booklet_folder
                     }}</a>
                   </td>
@@ -446,6 +446,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
@@ -518,7 +519,7 @@ export default {
     askSwitchStatus (newStatus) {
       this.$buefy.dialog.confirm({
         title: 'Switching status',
-        message: `Are you sure you want to <b>switch this event's status to "${newStatus}"</b>?`,
+        message: `Are you sure you want to <b>switch this event's status to "${escapeHtml(newStatus)}"</b>?`,
         confirmText: 'Switch status',
         type: 'is-info',
         hasIcon: true,
@@ -593,7 +594,7 @@ export default {
       })
       .catch((err) => {
         this.isLoading = false
-        if (err.response.status === 404) {
+        if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
         } else {
           this.$root.showError('Some error happened', err)

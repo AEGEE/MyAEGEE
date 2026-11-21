@@ -66,21 +66,19 @@ exports.flattenObject = (obj, prefix = '') => {
     }, {});
 };
 
-// Figure out if the value is a number or a string containing only numbers
+// The largest Postgres INTEGER, which is the type of the IDs.
+const MAX_ID = 2147483647;
+
+// Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
-    /* istanbul ignore if */
     if (typeof value === 'number') {
-        return true;
+        return Number.isInteger(value) && value >= 0 && value <= MAX_ID;
     }
 
-    /* istanbul ignore else */
     if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
+        return /^\d+$/.test(value) && Number(value) <= MAX_ID;
     }
 
-    // Is not covered, probably will be in the future.
-    /* istanbul ignore next */
     return false;
 };
 
@@ -109,7 +107,7 @@ exports.beautify = (value) => {
 
     // If it's date, return date formatted.
     if (Object.prototype.toString.call(value) === '[object Date]') {
-        return moment(value).format('YYYY-MM-DD HH:mm:SS');
+        return moment(value).format('YYYY-MM-DD HH:mm:ss');
     }
 
     // Else, present it as it is.
@@ -120,7 +118,9 @@ exports.beautify = (value) => {
 exports.whitelistObject = (object, allowedFields) => {
     const newObject = {};
     for (const field of allowedFields) {
-        newObject[field] = object[field];
+        if (object[field] !== undefined) {
+            newObject[field] = object[field];
+        }
     }
 
     return newObject;

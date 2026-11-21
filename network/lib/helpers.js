@@ -1,24 +1,25 @@
-// Figure out if the value is a number or a string containing only numbers
+// The largest Postgres INTEGER, which is the type of the IDs.
+const MAX_ID = 2147483647;
+
+// Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
-    /* istanbul ignore next */
     if (typeof value === 'number') {
-        return true;
+        return Number.isInteger(value) && value >= 0 && value <= MAX_ID;
     }
 
-    /* istanbul ignore else */
     if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
+        return /^\d+$/.test(value) && Number(value) <= MAX_ID;
     }
 
-    /* istanbul ignore next */
     return false;
 };
+
+const SORT_FIELDS = ['id', 'body_id', 'elected_date', 'start_date', 'end_date'];
 
 exports.getSorting = (query) => {
     const result = [['id', 'ASC']];
 
-    if (typeof query.sort === 'string') {
+    if (typeof query.sort === 'string' && SORT_FIELDS.includes(query.sort)) {
         result[0][0] = query.sort;
     }
 
@@ -31,7 +32,13 @@ exports.getSorting = (query) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
+    return permissionsList.some((permission) => permission
+        && typeof permission.combined === 'string'
+        && permission.combined.endsWith(combinedPermission));
 }
 
 // A helper to get bodies list where I have some permission

@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import EditMemberPositionModal from './EditMemberPositionModal.vue'
 
@@ -119,7 +120,7 @@ export default {
     },
     askDeleteMember (membership) {
       const message = 'Are you sure you want to <b>delete</b> '
-        + membership.user.first_name + ' ' + membership.user.last_name
+        + escapeHtml(membership.user.first_name + ' ' + membership.user.last_name)
         + ' from this circle? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({

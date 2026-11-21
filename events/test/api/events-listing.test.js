@@ -25,7 +25,7 @@ describe('Events listing', () => {
             approvePermissions: { unauthorized: true }
         });
 
-        const event = await generator.createEvent({ status: 'published' });
+        const event = await generator.createEvent({ status: 'published', vegetarian: true });
         await generator.createEvent({ status: 'draft' });
 
         const res = await request({
@@ -53,6 +53,7 @@ describe('Events listing', () => {
         expect(res.body.data[0]).toHaveProperty('optional_programme');
         expect(res.body.data[0]).toHaveProperty('optional_fee');
         expect(res.body.data[0]).toHaveProperty('link_info_travel_country');
+        expect(res.body.data[0].vegetarian).toEqual(true);
 
         expect(res.body.data[0].id).toEqual(event.id);
     });

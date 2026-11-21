@@ -506,13 +506,24 @@ Application.afterValidate(async (application, options) => {
 
 // Generating and setting statutory_id
 Application.beforeCreate(async (application, options) => {
-    const applicationsCount = await Application.count({
-        where: { event_id: application.event_id }
+    // Locking per event until the transaction ends, so concurrent applications
+    // to the same event can't get the same statutory ID.
+    await sequelize.query('SELECT pg_advisory_xact_lock(hashtext(\'applications.statutory_id\'), :eventId)', {
+        replacements: { eventId: application.event_id },
+        transaction: options.transaction
+    });
+
+    // Using the highest number instead of the count, so numbers aren't reused.
+    const { max } = await sequelize.query('SELECT MAX(SPLIT_PART(statutory_id, \'-\', 2)::INTEGER) AS max FROM applications WHERE event_id = :eventId', {
+        replacements: { eventId: application.event_id },
+        type: Sequelize.QueryTypes.SELECT,
+        plain: true,
+        transaction: options.transaction
     });
 
     const newStatutoryId = application.event_id.toString().padStart(3, '0')
         + '-'
-        + (applicationsCount + 1).toString().padStart(4, '0');
+        + ((max || 0) + 1).toString().padStart(4, '0');
 
     options.fields.push('statutory_id');
     application.setDataValue('statutory_id', newStatutoryId);

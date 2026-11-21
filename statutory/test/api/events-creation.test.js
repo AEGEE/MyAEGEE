@@ -4,7 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Event } = require('../../models');
+const { Event, Image } = require('../../models');
 
 describe('Events creation', () => {
     beforeAll(async () => {
@@ -68,6 +68,22 @@ describe('Events creation', () => {
         for (const question of event.questions) {
             expect(eventFromDb.questions.find((q) => question.name === q.name)).toBeTruthy();
         }
+    });
+
+    test('should ignore the image_id from the body', async () => {
+        const otherImage = await Image.create({ user_id: 1337, file_name: 'other.png', file_folder: 'test' });
+        const event = generator.generateEvent({ image_id: otherImage.id });
+
+        const res = await request({
+            path: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(200);
+        const eventFromDb = await Event.findByPk(res.body.data.id);
+        expect(eventFromDb.image_id).toEqual(null);
     });
 
     test('should fail if the event is invalid', async () => {

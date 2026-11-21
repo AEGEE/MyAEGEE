@@ -461,7 +461,7 @@
             </div>
           </div>
 
-          <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
+          <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
         </template>
 
         <template v-if="!isOnlineEvent">
@@ -566,6 +566,7 @@
             <input class="input" type="url" v-model="event.budget" />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -574,6 +575,7 @@
             <input class="input" type="url" v-model="event.programme" />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.programme">{{ errors.programme.join(', ') }}</p>
         </div>
 
         <div class="notification is-success">
@@ -871,7 +873,8 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        // Validation errors per field; other 422s only have a message.
+        if (err.response && err.response.status === 422 && err.response.data.errors) {
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the event data is invalid.')
         }
@@ -984,7 +987,7 @@ export default {
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

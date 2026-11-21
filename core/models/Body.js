@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isWebLink } = require('../lib/links');
 
 const Body = sequelize.define('body', {
     name: {
@@ -110,7 +111,8 @@ const Body = sequelize.define('body', {
     },
     website: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        validate: { isWebLink }
     },
     gsuite_id: {
         type: Sequelize.STRING,

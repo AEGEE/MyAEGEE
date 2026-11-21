@@ -16,6 +16,22 @@ module.exports = {
       },
     },
   },
+  // Only used by `vue-cli-service serve`, i.e. the frontend container when the
+  // stack runs without Traefik (MYAEGEE_GATEWAY=devserver).
+  devServer: {
+    proxy: require('./docker/devserver/proxy'),
+    // Answer /healthcheck like the nginx frontend does (the Status page uses it).
+    setupMiddlewares: (middlewares, devServer) => {
+      devServer.app.get('/healthcheck', (req, res) => res.sendFile(path.resolve(__dirname, 'public/status.json')));
+      return middlewares;
+    },
+    client: {
+      // The browser reaches the dev server through a published port, so the
+      // hot reload socket must use whatever host and port the page came from.
+      webSocketURL: 'auto://0.0.0.0:0/ws',
+      overlay: { errors: true, warnings: false },
+    },
+  },
   configureWebpack: {
     resolve: {
       alias: {

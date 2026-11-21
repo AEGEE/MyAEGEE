@@ -104,13 +104,13 @@ export default {
           this.$router.push({ name: 'oms.login' })
         })
         .catch((err) => {
-          if (err.response.status === 422) {
+          if (err.response && err.response.status === 422) {
             // validation errors
             this.errors = err.response.data.errors
             return this.$root.showError('Some of the password data is invalid.')
           }
 
-          if (err.response.status === 404) {
+          if (err.response && err.response.status === 404) {
             return this.$root.showError('Your token is invalid.')
           }
 

@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 moment.tz.setDefault('CET');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isWebLink } = require('../lib/links');
 
 // A lot of workarounds here like this one:
 // allowNull: false,
@@ -56,7 +57,7 @@ const Event = sequelize.define('event', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            isUrl: { msg: 'The provided link is not a valid URL.' }
+            isWebLink
         }
     },
     status: {

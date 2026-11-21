@@ -112,20 +112,19 @@ exports.normalizeMoney = (value) => {
     return Object.is(roundedValue, -0) ? 0 : roundedValue;
 };
 
-// Figure out if the value is a number or a string containing only numbers
+// The largest Postgres INTEGER, which is the type of the IDs.
+const MAX_ID = 2147483647;
+
+// Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
     if (typeof value === 'number') {
-        return true;
+        return Number.isInteger(value) && value >= 0 && value <= MAX_ID;
     }
 
-    /* istanbul ignore else */
     if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
+        return /^\d+$/.test(value) && Number(value) <= MAX_ID;
     }
 
-    // Is not covered, probably will be in the future.
-    /* istanbul ignore next */
     return false;
 };
 
@@ -133,7 +132,9 @@ exports.isNumber = (value) => {
 exports.whitelistObject = (object, allowedFields) => {
     const newObject = {};
     for (const field of allowedFields) {
-        newObject[field] = object[field];
+        if (object[field] !== undefined) {
+            newObject[field] = object[field];
+        }
     }
 
     return newObject;
@@ -431,8 +432,9 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.see_application = mine || canManage || permissions.see_boardview[application.body_id];
     permissions.see_application_incoming = isIncoming;
 
-    // User can edit application if it's his application and it's within the deadline and it's not accepted yet, or if he has the permission.
-    permissions.edit_application = (mine && event.can_apply && application.status !== 'accepted') || canManage || (canApply && application.status !== 'accepted');
+    // User can edit application if it's his application, it's within the deadline (or he can apply regardless of it)
+    // and it's not accepted yet, or if he can manage applications.
+    permissions.edit_application = (mine && (event.can_apply || canApply) && application.status !== 'accepted') || canManage;
 
     // For cancellation, the same.
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;

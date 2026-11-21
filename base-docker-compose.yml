@@ -1,13 +1,19 @@
-services:
+version: "3.4"
 
-  portal:
-    build:
-      context: ./$PATH_GATEWAYS/portal/
-      dockerfile: ./Dockerfile.dev
-    image: aegee/portal:dev
-    restart: always
-    expose:
-      - 80
+services: {}
+
+secrets:
+  jwt_key:
+    file: secrets/jwt_key
+  sendgrid_key:
+    file: secrets/sendgrid_key
+  mail_user:
+    file: secrets/mail_user
+  mail_password:
+    file: secrets/mail_password
+  db_password:
+    file: secrets/core-db_password
+
 networks:
   default:
     name: OMS

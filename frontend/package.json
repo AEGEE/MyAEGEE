@@ -14,7 +14,7 @@
     "build": "vue-cli-service build",
     "build-and-refresh": "npm run build && npm run refresh",
     "lint": "eslint --ext .js,.vue .",
-    "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1",
+    "refresh": "chmod 775 -R dist && ../helper.sh --docker -- restart frontend",
     "semantic-release": "semantic-release"
   },
   "dependencies": {

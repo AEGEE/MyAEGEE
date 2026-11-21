@@ -238,7 +238,7 @@ export default {
           this.router.go(0)
         }).catch((err) => {
           this.isSaving = false
-          if (err.response.status === 422) {
+          if (err.response && err.response.status === 422) {
             this.showError('Some input data is invalid')
             return
           }

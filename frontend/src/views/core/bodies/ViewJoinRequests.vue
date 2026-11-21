@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -109,7 +110,7 @@ export default {
       const message = 'Are you sure you want to <b>'
         + (approved ? 'approve' : 'reject')
         + '</b> '
-        + member.user.first_name + ' ' + member.user.last_name + '?'
+        + escapeHtml(member.user.first_name + ' ' + member.user.last_name) + '?'
       const type = approved ? 'is-info' : 'is-danger'
 
       this.$buefy.dialog.confirm({

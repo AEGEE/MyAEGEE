@@ -239,7 +239,7 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the application data is invalid.')
         }
@@ -299,12 +299,12 @@ export default {
       }).catch((err) => {
         this.isLoading = false
         // if there's no application, just ignore, otherwise re-throw the error
-        if (err.response.status !== 404) {
+        if (!err.response || err.response.status !== 404) {
           throw err
         }
       })
     }).catch((err) => {
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

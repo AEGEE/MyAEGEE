@@ -286,7 +286,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
+          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
         </div>
 
         <hr />
@@ -353,7 +353,7 @@
           </div>
         </div>
 
-        <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
+        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <hr />
@@ -698,7 +698,7 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           if (!err.response.data.errors) {
             return this.$root.showError('Some of the event data is invalid', err)
           }
@@ -816,7 +816,7 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

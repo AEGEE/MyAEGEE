@@ -2,16 +2,16 @@ version: "3.4"
 
 services:
     mailer:
+        restart: "no"
         build:
             context: ./${PATH_MAILER}/../
             dockerfile: ./docker/mailer/Dockerfile
             args:
                 MIX_ENV: development
         image: aegee/mailer:dev
-        volumes:
-            - /usr/src/myapp/deps
 
     mail-transfer-agent:
+        restart: "no"
         build:
             context: ./${PATH_MAILER}/..
             dockerfile: docker/mail_transfer_agent/Dockerfile

@@ -114,6 +114,20 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.message).toEqual('User ID should be a number.');
         });
 
+        test('should return 400 if the user id is not an integer', async () => {
+            const res = await get('/applications/future/1.5');
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('User ID should be a number.');
+        });
+
+        test('should return 400 if the user id is above the maximum ID', async () => {
+            const res = await get('/applications/future/2147483648');
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('User ID should be a number.');
+        });
+
         test('should list the active future applications of the user for a manager', async () => {
             const later = await generator.createEvent({ name: 'Later', starts: generator.daysFromNow(90) });
             const sooner = await generator.createEvent({ name: 'Sooner', starts: generator.daysFromNow(45) });
@@ -223,9 +237,33 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.data.by_status[0]).toEqual({ type: 'total_applications', value: 2 });
         });
 
-        // Note: the statistics are visible to every authenticated user, without permission checks.
-        test('should be visible to an authenticated user without permissions', async () => {
+        test('should return 403 for an authenticated user without SU management or approval permissions', async () => {
             mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+
+            const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+        });
+
+        test('should be visible to a user who can approve Summer Universities', async () => {
+            mock.mockAll({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:approve_summeruniversity:regular'] },
+                approvePermissions: { noPermissions: true }
+            });
+
+            const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        test('should be visible to a user who can manage Summer Universities', async () => {
+            mock.mockAll({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:manage_summeruniversity:regular'] },
+                approvePermissions: { noPermissions: true }
+            });
 
             const res = await get('/applications');
 

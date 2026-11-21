@@ -52,7 +52,7 @@ export default {
           return this.$router.push({ name: 'oms.login' })
         })
         .catch((err) => {
-          if (err.response.status === 404) {
+          if (err.response && err.response.status === 404) {
             // validation errors
             return this.$root.showError('The token is invalid.')
           }

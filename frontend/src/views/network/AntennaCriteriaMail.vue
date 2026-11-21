@@ -137,7 +137,9 @@ export default {
     mail () {
       // Combine all the different items in parts, in order
       const rawMail = Object.values(this.parts).join('<br><br>')
-      return rawMail.replaceAll('<r>', '<span style="color: red">').replaceAll('</r>', '</span>')
+      // <font color> instead of a styled span: the markdown filter drops style attributes,
+      // and email clients show <font> too.
+      return rawMail.replaceAll('<r>', '<font color="red">').replaceAll('</r>', '</font>')
     }
   },
   mounted () {

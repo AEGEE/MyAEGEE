@@ -226,7 +226,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.learning_objectives">{{ errors.learning_objectives.message }}</p>
+        <p class="help is-danger" v-if="errors.learning_objectives">{{ errors.learning_objectives.join(', ') }}</p>
 
         <div class="field">
           <label class="label">List of activities <span class="has-text-danger">*</span></label>
@@ -342,7 +342,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.social_media">{{ errors.social_media.message }}</p>
+        <p class="help is-danger" v-if="errors.social_media">{{ errors.social_media.join(', ') }}</p>
 
         <!-- TODO: add ability to upload up to 6 photos (upload after saving) -->
         <div class="field">
@@ -380,7 +380,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.photos">{{ errors.photos.message }}</p>
+        <p class="help is-danger" v-if="errors.photos">{{ errors.photos.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Video <URLTooltip /></label>
@@ -674,7 +674,7 @@
             </tbody>
           </table>
         </div>
-        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
+        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Regulations</div>
         <hr />
@@ -722,6 +722,7 @@
             <input class="input" type="url" v-model="event.budget" />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -730,6 +731,7 @@
             <input class="input" type="url" v-model="event.programme_suct" required />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.programme_suct">{{ errors.programme_suct.join(', ') }}</p>
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">SU terms</div>
@@ -1047,9 +1049,10 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        // Validation errors per field; other 422s only have a message.
+        if (err.response && err.response.status === 422 && err.response.data.errors) {
           this.errors = err.response.data.errors
-          return this.$root.showError(this.errors)
+          return this.$root.showError('Some of the event data is invalid.')
         }
 
         this.$root.showError('Could not save event', err)
@@ -1164,7 +1167,7 @@ export default {
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

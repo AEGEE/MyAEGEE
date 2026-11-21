@@ -9,5 +9,4 @@ services:
       - ./${PATH_KNOWLEDGE}/../lib:/usr/app/src/lib
       - ./${PATH_KNOWLEDGE}/../migrations:/usr/app/src/migrations
       - ./${PATH_KNOWLEDGE}/../models:/usr/app/src/models
-      - ./${PATH_KNOWLEDGE}/../cli.js:/usr/app/src/cli.js
     command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"

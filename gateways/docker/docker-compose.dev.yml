@@ -1,1 +1,6 @@
-services: {}
+services:
+  caddy:
+    restart: "no"
+
+  portal:
+    restart: "no"

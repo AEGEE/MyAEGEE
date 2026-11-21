@@ -1,6 +1,7 @@
 services:
 
   rabbit:
+    restart: "no"
     image: rabbitmq:4-management
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
@@ -10,6 +11,7 @@ services:
       retries: 5
 
   dispatcher:
+    restart: "no"
     build:
       context: ./${PATH_DISPATCHER}/..
       dockerfile: ./docker/Dockerfile
@@ -22,8 +24,8 @@ services:
       - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
 
   mailpit:
+    restart: "no"
     image: axllent/mailpit:v1.29
-    restart: always
     ports:
       - 8025:8025
       - 1025:1025

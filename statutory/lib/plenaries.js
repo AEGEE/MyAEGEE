@@ -212,7 +212,7 @@ exports.listPlenariesStats = async (req, res) => {
 
                                 // Return array of avg% per each plenary.
                                 return (plenaryAttendancesForBody
-                                    .map((attendance) => helpers.calculateTimeForPlenary(plenary, attendance))
+                                    .map((attendance) => helpers.calculateTimeForPlenary(attendance, plenary))
                                     .reduce((acc, val) => acc + val, 0) * 100) / plenary.duration;
                             }).reduce((acc, val) => acc + val, 0) / plenaries.length;
                         });
@@ -299,7 +299,7 @@ exports.markPlenaryAttendance = async (req, res) => {
     };
 
     if (!helpers.isNumber(req.body.application_id)) {
-        whereClause.statutory_id = req.body.application_id;
+        whereClause.statutory_id = String(req.body.application_id);
     } else {
         whereClause.id = Number(req.body.application_id);
     }

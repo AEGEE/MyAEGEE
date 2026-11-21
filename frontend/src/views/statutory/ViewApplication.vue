@@ -302,7 +302,7 @@ export default {
       return 'This application is recorded and waiting for organiser review.'
     },
     showOwnDeadlineEditHint () {
-      return this.isOwnApplication && this.can.edit_application
+      return this.isOwnApplication && this.can.edit_application && this.event.can_apply
     },
     showOwnDeadlineCancelHint () {
       return this.isOwnApplication && this.can.set_application_cancelled
@@ -351,13 +351,13 @@ export default {
       }).catch((err) => {
         this.isLoading = false
         // if there's no application, just ignore, otherwise re-throw the error
-        if (err.response.status !== 404) {
+        if (!err.response || err.response.status !== 404) {
           throw err
         }
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)

@@ -85,7 +85,7 @@
             <span v-html="$options.filters.markdown(body.task_description)" />
           </div>
           <p class="help is-danger" v-if="errors.task_description">
-            {{ errors.task_description.message }}
+            {{ errors.task_description.join(', ') }}
           </p>
         </div>
 
@@ -217,7 +217,7 @@
           <label class="label">Website</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="globe" /></span>
-            <input class="input" type="text" v-model="body.website" />
+            <input class="input" type="url" placeholder="https://" v-model="body.website" />
           </div>
           <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ') }}</p>
         </div>
@@ -382,7 +382,7 @@ export default {
         .catch((err) => {
           this.isSaving = false
 
-          if (err.response.status === 422) {
+          if (err.response && err.response.status === 422) {
             // validation errors
             this.errors = err.response.data.errors
             return this.$root.showError('Some of the body data is invalid.')
@@ -424,7 +424,7 @@ export default {
         this.can.editGsuite = editGlobalPermission
       })
       .catch((err) => {
-        if (err.response.status === 404) {
+        if (err.response && err.response.status === 404) {
           this.$root.showError('Body is not found')
         } else {
           this.$root.showError('Some error happened', err)

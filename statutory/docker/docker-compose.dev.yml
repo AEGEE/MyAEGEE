@@ -1,5 +1,9 @@
 services:
   statutory:
+    restart: "no"
+    depends_on:
+      postgres-statutory:
+        condition: service_healthy
     build:
       context: ./${PATH_STATUTORY}/..
       dockerfile: ./docker/statutory/Dockerfile
@@ -10,4 +14,15 @@ services:
       - ./${PATH_STATUTORY}/../lib:/usr/app/src/lib
       - ./${PATH_STATUTORY}/../migrations:/usr/app/src/migrations
       - ./${PATH_STATUTORY}/../models:/usr/app/src/models
-      - ./${PATH_STATUTORY}/../cli.js:/usr/app/src/cli.js
+
+  postgres-statutory:
+    restart: "no"
+    # TCP: while initialising, Postgres only listens on a Unix socket.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  statutory-static:
+    restart: "no"

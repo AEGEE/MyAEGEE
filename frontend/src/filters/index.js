@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { marked } from 'marked'
-import DOMPurify from 'dompurify'
+import sanitizeHtml from '../methods/sanitize-html'
+import safeUrl from '../methods/safe-url'
 
 export default {
   date (value) {
@@ -15,11 +16,15 @@ export default {
   markdown (value) {
     // Sanitize the rendered HTML, not the markdown source: marked turns
     // `[x](javascript:...)` into a live link that DOMPurify never sees otherwise.
-    return `<div class="markdown">${DOMPurify.sanitize(marked.parse(value == null ? '' : String(value)))}</div>`
+    return `<div class="markdown">${sanitizeHtml(marked.parse(value == null ? '' : String(value)))}</div>`
   },
   capitalize (value) {
     if (typeof value !== 'string') return ''
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+  },
+  safeUrl (value) {
+    // For :href bindings; null leaves the href out, so unsafe links can't be clicked.
+    return safeUrl(value)
   },
   beautify (value) {
     if (typeof value === 'boolean') return value ? 'Yes' : 'No'

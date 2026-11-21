@@ -5,7 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
-const { Position } = require('../../models');
+const { Candidate, Image, Position } = require('../../models');
 
 describe('Candidates submission', () => {
     beforeAll(async () => {
@@ -214,6 +214,31 @@ describe('Candidates submission', () => {
 
         const positionFromDb = await Position.findByPk(position.id);
         expect(positionFromDb.status).toEqual('open');
+    });
+
+    test('should ignore the image_id from the body', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        // An image that belongs to somebody else, for example another candidate's photo.
+        const otherImage = await Image.create({ user_id: 1337, file_name: 'other.png', file_folder: 'test' });
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id, image_id: otherImage.id });
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const candidateFromDb = await Candidate.findByPk(res.body.data.id);
+        expect(candidateFromDb.image_id).toEqual(null);
     });
 
     test('should succeed if the deadline has passed, but the position does not have enough places', async () => {

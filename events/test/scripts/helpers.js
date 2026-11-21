@@ -39,10 +39,13 @@ const request = async (options) => {
         const formData = new FormData();
         for (const [key, item] of entries) {
             const filename = item.filename || path.basename(item.path);
-            const buffer = fs.readFileSync(item.path);
+            const buffer = item.buffer || fs.readFileSync(item.path);
             formData.append(key, new Blob([buffer]), filename);
         }
-        if (entries.length > 0) {
+        for (const [key, value] of Object.entries(options.fields || {})) {
+            formData.append(key, value);
+        }
+        if (entries.length > 0 || options.fields) {
             fetchOptions.body = formData;
         } else {
             headers['Content-Type'] = 'multipart/form-data; boundary=empty-form';

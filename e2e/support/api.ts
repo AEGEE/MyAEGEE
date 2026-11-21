@@ -157,8 +157,8 @@ export class Api {
             questions: [],
             meals_per_day: 1,
             accommodation_type: 'Hostel',
-            budget: 'Budget for the e2e event',
-            programme: 'Programme for the e2e event',
+            budget: 'https://docs.google.com/spreadsheets/d/e2e-budget',
+            programme: 'https://docs.google.com/spreadsheets/d/e2e-programme',
             method: 'in person',
             has_applications: true,
             ...overrides

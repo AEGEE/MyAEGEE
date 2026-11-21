@@ -76,24 +76,77 @@ pw_changer ()
     bash "${DIR}"/scripts-server/password-setter.sh
 }
 
+# Pick docker-compose (v1) when it's installed, the docker compose plugin (v2) otherwise.
+# The devserver overlays use `!override`/`!reset`, which need the plugin, 2.24.4 or newer.
+compose_binary ()
+{
+    if [[ "${MYAEGEE_GATEWAY}" == "devserver" ]]; then
+        echo "docker compose"
+    elif command -v docker-compose >/dev/null 2>&1; then
+        echo "docker-compose"
+    else
+        echo "docker compose"
+    fi
+}
+
+# version_at_least WANTED HAVE: whether the version HAVE (e.g. 2.24.4, also
+# 2.29.1-desktop.1) is WANTED or newer. Plain bash, `sort -V` isn't everywhere.
+version_at_least ()
+{
+    local -a wanted have
+    local i
+    IFS=. read -r -a wanted <<< "${1}"
+    IFS=. read -r -a have <<< "${2%%[-+]*}"
+    for i in 0 1 2; do
+        [[ "${have[i]:-0}" =~ ^[0-9]+$ ]] || return 1
+        (( 10#${have[i]:-0} > 10#${wanted[i]:-0} )) && return 0
+        (( 10#${have[i]:-0} < 10#${wanted[i]:-0} )) && return 1
+    done
+    return 0
+}
+
+check_devserver_compose ()
+{
+    local version
+    version=$(docker compose version --short 2>/dev/null) || version=""
+    version=${version#v}
+    if [[ -z "${version}" ]] || ! version_at_least 2.24.4 "${version}"; then
+      echo "Error: MYAEGEE_GATEWAY=devserver needs the Docker Compose plugin 2.24.4 or newer (\`docker compose version\`: ${version:-not found})"
+      exit 1
+    fi
+}
+
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
 compose_wrapper ()
 { #TO DO: put hostname check and do not accept the nuke and stop in production
     service_string=$(printenv ENABLED_SERVICES)
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
-    command=( docker-compose -f "${DIR}/base-docker-compose.yml" )
+    # shellcheck disable=SC2207
+    command=( $(compose_binary) -f "${DIR}/base-docker-compose.yml" )
     for s in "${services[@]}"; do
+        # Without Traefik there is nothing for the gateways to do.
+        if [[ "${MYAEGEE_GATEWAY}" == "devserver" && "${s}" == "gateways" ]]; then
+            continue
+        fi
         if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
             if [[ "${MYAEGEE_ENV}" == "production" ]]; then
               command+=( -f "${DIR}/${s}/docker/docker-compose.yml" )
             else
               command+=( -f "${DIR}/${s}/docker/docker-compose.yml" -f "${DIR}/${s}/docker/docker-compose.dev.yml" )
+              if [[ "${MYAEGEE_GATEWAY}" == "devserver" && -f "${DIR}/${s}/docker/docker-compose.devserver.yml" ]]; then
+                command+=( -f "${DIR}/${s}/docker/docker-compose.devserver.yml" )
+              fi
             fi
         else
             echo -e "[MyAEGEE] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
+    # The frontend dev server mounts a volume on frontend/node_modules. Create
+    # the directory first, or Docker creates it on the host owned by root.
+    if [[ "${MYAEGEE_GATEWAY}" == "devserver" && ":${service_string}:" == *:frontend:* ]]; then
+        mkdir -p "${DIR}/frontend/node_modules"
+    fi
     command+=( "${@}" )
     if ( $verbose ); then
         echo -e "\n[MyAEGEE] Full command:\n${command[*]}\n"
@@ -145,24 +198,49 @@ function retry {
   done
 }
 
-WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
-HOST=$(hostname -f)
-# TODO: ignore this when using --no-vagrant in start.sh
-if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
-  echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
-  exit 1
-fi
-
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
-# shellcheck disable=SC2046
-export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+# shellcheck source=scripts-server/load-env.sh
+. "${DIR}/scripts-server/load-env.sh"
+load_env "${DIR}/.env"
 if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1
+fi
+
+# caddy: Caddy routes my.<BASE_URL> to the containers (Docker-only, Vagrant, production).
+# traefik: accepted as an alias of caddy for older .env files.
+# devserver: no edge gateway; the frontend dev server on http://localhost:${FRONTEND_PORT}
+#   serves the app with hot reload and proxies /api, /media and /services.
+MYAEGEE_GATEWAY=${MYAEGEE_GATEWAY:-caddy}
+if [[ "${MYAEGEE_GATEWAY}" == "traefik" ]]; then
+  MYAEGEE_GATEWAY=caddy
+fi
+export MYAEGEE_GATEWAY
+if [[ "${MYAEGEE_GATEWAY}" != "caddy" && "${MYAEGEE_GATEWAY}" != "devserver" ]]; then
+  echo "Error: MYAEGEE_GATEWAY can only be 'caddy' or 'devserver'"
+  exit 1
+fi
+if [[ "${MYAEGEE_GATEWAY}" == "devserver" ]]; then
+  if [[ "${MYAEGEE_ENV}" == "production" ]]; then
+    echo "Error: MYAEGEE_GATEWAY=devserver is only for development"
+    exit 1
+  fi
+  check_devserver_compose
+fi
+
+# The devserver setup runs on the host by design. Otherwise only run on the
+# Vagrant guest, unless the host-side bootstrap (start.sh --no-vagrant) opted out.
+if [[ "${MYAEGEE_GATEWAY}" != "devserver" && "${MYAEGEE_SKIP_GUEST_CHECK:-false}" != "true" ]]; then
+  # sed, not `grep -P`, which macOS doesn't have (WANTEDNAME stayed empty, so the check always passed).
+  WANTEDNAME=$(head -n1 Vagrantfile | sed -n 's/.*machine_name = "\([^"]*\)".*/\1/p')
+  HOST=$(hostname -f)
+  if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
+    echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
+    exit 1
+  fi
 fi
 
 HOSTNAME="$(hostname)"
@@ -363,7 +441,8 @@ if ( $nuke ); then
   if [[ "$(hostname)" == *prod* ]]; then
     echo "DUUUDE you can't kill production" && exit 1;
   else
-      compose_wrapper down -v
+      # --remove-orphans: also the containers of the other MYAEGEE_GATEWAY mode.
+      compose_wrapper down -v --remove-orphans
       exit $?
   fi
 fi

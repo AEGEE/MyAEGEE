@@ -213,7 +213,7 @@
                 <tr v-if="body.website">
                   <th>Website</th>
                   <td>
-                    <a :href="body.website" target="_blank" rel="noopener noreferrer">{{
+                    <a :href="body.website | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       body.website
                     }}</a>
                   </td>
@@ -306,6 +306,7 @@
 </template>
 
 <script>
+import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import AddBoundCircleModal from './AddBoundCircleModal'
 import AddMemberModal from './AddMemberModal'
@@ -469,7 +470,7 @@ export default {
         })
         .catch((err) => {
           this.isLoading = false
-          if (err.response.status === 422) {
+          if (err.response && err.response.status === 422) {
             this.$root.showError("You've already requested to join this body.")
           } else {
             this.$root.showError('Could not sent join request', err)
@@ -484,14 +485,7 @@ export default {
 
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
-    escapeHtml (value) {
-      return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-    },
+    escapeHtml,
     askLeaveBody () {
       this.$buefy.dialog.confirm({
         title: 'Leaving a body',
@@ -568,7 +562,7 @@ export default {
           })
           .catch((err) => {
             // TODO: remove 403 once all members can view boards
-            if (err.response.status === 403 || err.response.status === 404) {
+            if (err.response && (err.response.status === 403 || err.response.status === 404)) {
               return
             }
             this.$root.showError('Some error happened', err)
@@ -603,7 +597,7 @@ export default {
         this.isLoading = false
       })
       .catch((err) => {
-        if (err.response.status === 404) {
+        if (err.response && err.response.status === 404) {
           this.$root.showError('Body is not found')
         } else {
           this.$root.showError('Some error happened', err)

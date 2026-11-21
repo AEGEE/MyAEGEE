@@ -30,8 +30,8 @@ exports.generateEvent = (options = {}) => {
     }
     if (notSet(options.max_participants)) options.max_participants = faker.number.int({ min: 5, max: 100 });
 
-    if (notSet(options.budget)) options.budget = faker.lorem.sentence();
-    if (notSet(options.programme)) options.programme = faker.lorem.sentence();
+    if (notSet(options.budget)) options.budget = faker.internet.url();
+    if (notSet(options.programme)) options.programme = faker.internet.url();
 
     if (notSet(options.accommodation_type)) options.accommodation_type = faker.lorem.sentence();
     if (notSet(options.optional_programme)) options.optional_programme = faker.lorem.sentence();
