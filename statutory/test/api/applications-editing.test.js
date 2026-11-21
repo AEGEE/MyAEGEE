@@ -106,9 +106,60 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should succeed for user with apply permissions for own application after the deadline', async () => {
+        mock.mockAll({ mainPermissions: { applyPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+
+        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.body_id).toEqual(regularUser.bodies[0].id);
+    });
+
+    test('should return 403 for user with apply permissions for other user application', async () => {
+        mock.mockAll({ mainPermissions: { applyPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({ user_id: 1337 }, event);
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+
+        const unchangedApplication = await Application.findOne({ where: { id: application.id } });
+        expect(unchangedApplication.body_id).toEqual(application.body_id);
+    });
+
     test('should return 403 for user with apply permissions with an accepted application', async () => {
         const event = await generator.createEvent({ type: 'agora' });
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ user_id: regularUser.id }, event);
 
         await request({
             path: '/events/' + event.id + '/applications/' + application.id + '/status',
@@ -376,7 +427,7 @@ describe('Applications editing', () => {
         expect(newApplication.board_comment).toEqual(null);
     });
 
-    test('should not reset pax type and board comment when switching body for other user', async () => {
+    test('should reset pax type and board comment when switching body for other user', async () => {
         mock.mockAll();
 
         const event = await generator.createEvent();
@@ -410,13 +461,15 @@ describe('Applications editing', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.participant_type).toEqual('envoy');
-        expect(res.body.data.board_comment).toEqual('Awesome guy, accept');
+        expect(res.body.data.body_id).toEqual(regularUser.bodies[1].id);
+        expect(res.body.data.participant_type).toEqual(null);
+        expect(res.body.data.participant_order).toEqual(null);
+        expect(res.body.data.board_comment).toEqual(null);
 
         const newApplication = await Application.findOne({ where: { id: application.id } });
-        expect(newApplication.participant_type).toEqual('envoy');
-        expect(newApplication.participant_order).toEqual(1);
-        expect(newApplication.board_comment).toEqual('Awesome guy, accept');
+        expect(newApplication.participant_type).toEqual(null);
+        expect(newApplication.participant_order).toEqual(null);
+        expect(newApplication.board_comment).toEqual(null);
     });
 
     test('should return 403 when switching to a body without pax limits for other user', async () => {

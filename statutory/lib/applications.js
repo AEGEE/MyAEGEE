@@ -417,8 +417,8 @@ exports.updateApplication = async (req, res) => {
         req.body.body_name = requestedBody.name;
     }
 
-    // If user changed his body (by himself), reset his board comment and participant type/order.
-    if (req.application.user_id === req.user.id && req.body.body_id && req.body.body_id !== req.application.body_id) {
+    // If the body was changed, reset the board comment and participant type/order.
+    if (req.body.body_id && req.body.body_id !== req.application.body_id) {
         req.body.participant_type = null;
         req.body.participant_order = null;
         req.body.board_comment = null;
