@@ -66,8 +66,10 @@ describe('New board emails', () => {
         jest.spyOn(logger, 'error').mockImplementation(() => {});
         const failedBoard = await generator.createBoard({ start_date: daysAgo(1) });
         const otherBoard = await generator.createBoard({ start_date: daysAgo(1) });
+        const realSendNewBoardEmail = boards.sendNewBoardEmail;
         const sendNewBoardEmail = jest.spyOn(boards, 'sendNewBoardEmail').mockImplementation(async (id) => {
             if (id === failedBoard.id) throw new Error('mailer is down');
+            return realSendNewBoardEmail(id);
         });
 
         await cron.sendAllEmails();
@@ -77,6 +79,7 @@ describe('New board emails', () => {
         expect((await otherBoard.reload()).new_board_email_sent_at).not.toBeNull();
 
         sendNewBoardEmail.mockRestore();
+        sendMailSpy.mockClear();
         await cron.sendAllEmails();
 
         expect(sendMailSpy).toHaveBeenCalledTimes(1);
