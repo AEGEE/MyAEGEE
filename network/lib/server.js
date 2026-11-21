@@ -61,7 +61,7 @@ GeneralRouter.get('/mailComponent/:agora_id', mailComponent.listMailComponents);
 GeneralRouter.put('/mailComponent', mailComponent.setMailComponent);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use('/', GeneralRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 

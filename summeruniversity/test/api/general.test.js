@@ -73,7 +73,7 @@ describe('General endpoints and error handling', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body).toContain('summeruniversity_requests_total');
             expect(res.body).toMatch(/summeruniversity_requests_total\{endpoint="\/healthcheck",status="200",path="\/healthcheck",method="GET"\} \d+/);
-            expect(res.body).toMatch(/summeruniversity_requests_total\{endpoint="\/nonexistent-endpoint",status="404",path="\/nonexistent-endpoint",method="GET"\} \d+/);
+            expect(res.body).toMatch(/summeruniversity_requests_total\{endpoint="\/nonexistent-endpoint",status="404",path="unmatched",method="GET"\} \d+/);
         });
     });
 
