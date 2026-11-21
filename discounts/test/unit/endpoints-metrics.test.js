@@ -82,13 +82,13 @@ describe('Endpoint metrics', () => {
         await fetch(baseUrl + '/things/42/nonexistent');
 
         const metrics = await getRequestsMetrics();
-        expect(metrics).toMatch(/status="404",path="unmatched",method="GET"} 2/);
+        expect(metrics).toMatch(/status="404",path="unmatched",method="GET"} 2$/m);
     });
 
     test('should label requests answered by router-level middleware as unmatched', async () => {
         await fetch(baseUrl + '/private/42');
 
         const metrics = await getRequestsMetrics();
-        expect(metrics).toMatch(/status="401",path="unmatched",method="GET"} 1/);
+        expect(metrics).toMatch(/status="401",path="unmatched",method="GET"} 1$/m);
     });
 });
