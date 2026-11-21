@@ -145,6 +145,41 @@ describe('Campaign submission', () => {
         expect(res.body.errors).toHaveProperty('email');
     });
 
+    test('should fail if the email is in a subdomain of a restricted domain', async () => {
+        const campaign = await generator.createCampaign();
+        const user = generator.generateUser({ email: 'test@sub.aegee.org' });
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('email');
+    });
+
+    test('should succeed if the email only looks like a restricted domain', async () => {
+        const campaign = await generator.createCampaign();
+        const user = generator.generateUser({ email: 'test@notaegee.org' });
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
     test('should fail if the password is not set', async () => {
         const campaign = await generator.createCampaign();
         const user = generator.generateUser({ password: null });
