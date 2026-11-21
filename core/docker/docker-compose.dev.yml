@@ -1,10 +1,14 @@
 ### CORE     #######################################
-# Development: retry a failed start a few times (e.g. one before the database is
-# ready), but don't crash-loop forever or start again on every boot. Production
-# keeps the restart policies of docker-compose.yml.
+# Development: no automatic restarts, so the stack doesn't come back on every
+# boot (`make start` starts it) and a broken container doesn't crash-loop. The
+# service waits for its database to accept connections instead of restarting
+# until it does. Production keeps the restart policies of docker-compose.yml.
 services:
   core:
-    restart: on-failure:10
+    restart: "no"
+    depends_on:
+      postgres-core:
+        condition: service_healthy
     build:
       context: ./${PATH_CORE}/..
       dockerfile: ./docker/core/Dockerfile
@@ -19,7 +23,14 @@ services:
       - ./${PATH_CORE}/../scripts/:/usr/app/src/scripts
 
   postgres-core:
-    restart: on-failure:10
+    restart: "no"
+    # Postgres only listens on a Unix socket while it initialises a new
+    # database, so check TCP, which the service connects with.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   core-static:
-    restart: on-failure:10
+    restart: "no"

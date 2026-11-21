@@ -1,9 +1,13 @@
-# Development: retry a failed start a few times (e.g. one before the database is
-# ready), but don't crash-loop forever or start again on every boot. Production
-# keeps the restart policies of docker-compose.yml.
+# Development: no automatic restarts, so the stack doesn't come back on every
+# boot (`make start` starts it) and a broken container doesn't crash-loop. The
+# service waits for its database to accept connections instead of restarting
+# until it does. Production keeps the restart policies of docker-compose.yml.
 services:
   discounts:
-    restart: on-failure:10
+    restart: "no"
+    depends_on:
+      postgres-discounts:
+        condition: service_healthy
     build:
       context: ./${PATH_DISCOUNTS}/..
       dockerfile: ./docker/discounts/Dockerfile
@@ -14,3 +18,13 @@ services:
       - ./${PATH_DISCOUNTS}/../migrations:/usr/app/src/migrations
       - ./${PATH_DISCOUNTS}/../models:/usr/app/src/models
     command: "sh -c 'sh /usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
+
+  postgres-discounts:
+    restart: "no"
+    # Postgres only listens on a Unix socket while it initialises a new
+    # database, so check TCP, which the service connects with.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30

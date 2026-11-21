@@ -1,10 +1,10 @@
-# Development: retry a failed start a few times (e.g. one before the database is
-# ready), but don't crash-loop forever or start again on every boot. Production
-# keeps the restart policies of docker-compose.yml.
+# Development: no automatic restarts, so the stack doesn't come back on every
+# boot (`make start` starts it) and a broken container doesn't crash-loop.
+# Production keeps the restart policies of docker-compose.yml.
 services:
 
   rabbit:
-    restart: on-failure:10
+    restart: "no"
     image: rabbitmq:4-management
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
@@ -14,7 +14,7 @@ services:
       retries: 5
 
   dispatcher:
-    restart: on-failure:10
+    restart: "no"
     build:
       context: ./${PATH_DISPATCHER}/..
       dockerfile: ./docker/Dockerfile
@@ -27,7 +27,7 @@ services:
       - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
 
   mailpit:
-    restart: on-failure:10
+    restart: "no"
     image: axllent/mailpit:v1.29
     ports:
       - 8025:8025
