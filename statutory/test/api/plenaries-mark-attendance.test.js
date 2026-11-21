@@ -113,7 +113,10 @@ describe('Plenary attendance marking', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if application ID is not an integer', async () => {
+    test.each([
+        ['a non-integer string', (id) => id + '.0'],
+        ['a non-integer number', (id) => id + 0.5]
+    ])('should fail if application ID is %s', async (description, makeId) => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
@@ -125,7 +128,7 @@ describe('Plenary attendance marking', () => {
             path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { application_id: application.id + 0.5 }
+            body: { application_id: makeId(application.id) }
         });
 
         expect(res.statusCode).toEqual(404);
