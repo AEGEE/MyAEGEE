@@ -112,20 +112,16 @@ exports.normalizeMoney = (value) => {
     return Object.is(roundedValue, -0) ? 0 : roundedValue;
 };
 
-// Figure out if the value is a number or a string containing only numbers
+// Figure out if the value is an integer or a string containing only digits
 exports.isNumber = (value) => {
     if (typeof value === 'number') {
-        return true;
+        return Number.isInteger(value);
     }
 
-    /* istanbul ignore else */
     if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
+        return /^\d+$/.test(value);
     }
 
-    // Is not covered, probably will be in the future.
-    /* istanbul ignore next */
     return false;
 };
 

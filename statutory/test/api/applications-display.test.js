@@ -166,4 +166,20 @@ describe('Applications displaying', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should return 404 if application ID is not an integer', async () => {
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({}, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id + '.0',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
 });
