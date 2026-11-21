@@ -152,6 +152,9 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+
+        const unchangedApplication = await Application.findOne({ where: { id: application.id } });
+        expect(unchangedApplication.body_id).toEqual(application.body_id);
     });
 
     test('should return 403 for user with apply permissions with an accepted application', async () => {
