@@ -196,7 +196,7 @@ exports.updateBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
     }
 
-    await req.board.update(req.body);
+    await req.board.update({ ...req.body, body_id: req.board.body_id });
 
     return res.json({
         success: true,

@@ -1,0 +1,15 @@
+{
+    "success": true,
+    "data": [
+        {
+            "scope": "global",
+            "object": "board",
+            "id": 1,
+            "filters": [],
+            "description": "View boards in network module",
+            "combined": "global:view:board",
+            "circles": null,
+            "action": "view"
+        }
+    ]
+}
