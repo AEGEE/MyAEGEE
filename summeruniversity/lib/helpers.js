@@ -205,6 +205,7 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
 
     permissions.create_summeruniversity = hasPermission(corePermissions, 'create:summeruniversity');
     permissions.apply_general = hasPermission(corePermissions, 'apply:summeruniversity');
+    permissions.manage_seasons = hasPermission(corePermissions, 'global:manage_seasons:summeruniversity');
 
     permissions.set_board_comment = {};
     permissions.see_boardview = {
@@ -235,13 +236,13 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
     if (user) {
-        // TODO: this is a temporary solution so people that have applied in 2021, 2022, 2023, 2024 and/or 2025 can apply again
+        // A user can have only one application per season.
         const applicationCount = await Application.count({ where: {
             user_id: user.id,
             event_id: { [Sequelize.Op.ne]: event.id },
             status: { [Sequelize.Op.ne]: 'rejected' },
             cancelled: false,
-            '$event.season$': 2026
+            '$event.season$': event.season
         },
         include: [{
             model: Event,

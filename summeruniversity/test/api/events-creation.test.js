@@ -89,14 +89,36 @@ describe('Events creation', () => {
         expect(mails[1].to).toEqual(['suct@aegee.eu']);
     });
 
-    test('should default the season to 2026', async () => {
+    test('should default the season to the active season', async () => {
+        await generator.createSeason({ year: 2027 });
+        await generator.activateSeason(2027);
         const body = generator.generateEventBody();
         delete body.season;
 
         const res = await createEvent(body);
 
         expect(res.statusCode).toEqual(201);
+        expect(res.body.data.season).toEqual(2027);
+    });
+
+    test('should use the active season if the user cannot manage the event type', async () => {
+        mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity', 'global:manage_summeruniversity:pilot'] } });
+
+        const res = await createEvent(generator.generateEventBody({ season: 2025, type: 'regular' }));
+
+        expect(res.statusCode).toEqual(201);
         expect(res.body.data.season).toEqual(2026);
+    });
+
+    test('should leave the season empty if no season is active', async () => {
+        await generator.activateSeason(null);
+        const body = generator.generateEventBody();
+        delete body.season;
+
+        const res = await createEvent(body);
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.season).toEqual(null);
     });
 
     test('should ignore id, image, deleted, published and status from the body', async () => {

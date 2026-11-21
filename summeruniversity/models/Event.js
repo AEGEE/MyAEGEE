@@ -55,7 +55,7 @@ const Event = sequelize.define(
             unique: true
         },
         season: {
-            // TODO: season should become a separate Model later
+            // The year of the season (see the Season model) this event belongs to.
             type: Sequelize.INTEGER,
             allowNull: true
         },
