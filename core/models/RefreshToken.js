@@ -15,6 +15,10 @@ const RefreshToken = sequelize.define('refresh_token', {
             notEmpty: { msg: 'Value should be set.' },
         },
         unique: true
+    },
+    rotated_at: {
+        type: Sequelize.DATE,
+        allowNull: true
     }
 }, {
     underscored: true,
@@ -23,12 +27,12 @@ const RefreshToken = sequelize.define('refresh_token', {
     updatedAt: 'updated_at'
 });
 
-RefreshToken.createForUser = async function createForUser(userId) {
+RefreshToken.createForUser = async function createForUser(userId, transaction) {
     const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.REFRESH_TOKEN);
     return RefreshToken.create({
         user_id: userId,
         value
-    });
+    }, { transaction });
 };
 
 module.exports = RefreshToken;

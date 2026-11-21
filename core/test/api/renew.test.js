@@ -1,6 +1,23 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const config = require('../../config');
+const { RefreshToken } = require('../../models');
+
+// Only faking Date, so the DB driver and HTTP requests keep working.
+const useFakeDate = (now) => jest.useFakeTimers({
+    now,
+    doNotFake: ['hrtime', 'nextTick', 'performance', 'queueMicrotask', 'setImmediate', 'clearImmediate', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout']
+});
+
+const renew = (refreshToken) => request({
+    path: '/renew',
+    method: 'POST',
+    headers: { 'X-Auth-Token': 'blablabla' },
+    body: {
+        refresh_token: refreshToken
+    }
+});
 
 describe('Tokens renewal', () => {
     beforeAll(async () => {
@@ -12,6 +29,7 @@ describe('Tokens renewal', () => {
     });
 
     afterEach(async () => {
+        jest.useRealTimers();
         await generator.clearAll();
     });
 
@@ -47,5 +65,64 @@ describe('Tokens renewal', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('access_token');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should return a new refresh token and mark the old one as rotated', async () => {
+        const user = await generator.createUser({ mail_confirmed_at: new Date() });
+        const refreshToken = await generator.createRefreshToken(user);
+        const res = await renew(refreshToken.value);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('refresh_token');
+        expect(res.body.refresh_token).not.toEqual(refreshToken.value);
+
+        const newToken = await RefreshToken.findOne({ where: { value: res.body.refresh_token } });
+        expect(newToken.user_id).toEqual(user.id);
+        expect(newToken.rotated_at).toEqual(null);
+
+        await refreshToken.reload();
+        expect(refreshToken.rotated_at).not.toEqual(null);
+    });
+
+    test('should accept the old token within the grace period and reject it after', async () => {
+        const now = new Date();
+        useFakeDate(now);
+
+        const user = await generator.createUser({ mail_confirmed_at: new Date() });
+        const refreshToken = await generator.createRefreshToken(user);
+        const first = await renew(refreshToken.value);
+        expect(first.statusCode).toEqual(200);
+
+        useFakeDate(new Date(now.getTime() + ((config.ttl.refresh_token_grace_period - 1) * 1000)));
+        const withinGrace = await renew(refreshToken.value);
+        expect(withinGrace.statusCode).toEqual(200);
+        expect(withinGrace.body).toHaveProperty('access_token');
+        expect(withinGrace.body).toHaveProperty('refresh_token');
+
+        useFakeDate(new Date(now.getTime() + ((config.ttl.refresh_token_grace_period + 1) * 1000)));
+        const afterGrace = await renew(refreshToken.value);
+        expect(afterGrace.statusCode).toEqual(403);
+        expect(afterGrace.body.success).toEqual(false);
+        expect(afterGrace.body).toHaveProperty('message');
+
+        // The new token is not affected by the old one expiring.
+        const withNewToken = await renew(first.body.refresh_token);
+        expect(withNewToken.statusCode).toEqual(200);
+    });
+
+    test('should succeed for parallel renews with the same token', async () => {
+        const user = await generator.createUser({ mail_confirmed_at: new Date() });
+        const refreshToken = await generator.createRefreshToken(user);
+
+        const responses = await Promise.all([renew(refreshToken.value), renew(refreshToken.value)]);
+
+        for (const res of responses) {
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('access_token');
+            expect(res.body).toHaveProperty('refresh_token');
+        }
+        expect(responses[0].body.refresh_token).not.toEqual(responses[1].body.refresh_token);
     });
 });
