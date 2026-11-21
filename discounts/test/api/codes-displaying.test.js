@@ -67,10 +67,11 @@ describe('Codes displaying', () => {
     test('should return my codes ordered by updated_at descending', async () => {
         const integration = await generator.createIntegration();
 
-        const olderCode = await generator.createCode({ claimed_by: user.id }, integration);
+        // The code created first was updated last, so the order can only come from updated_at.
         const newerCode = await generator.createCode({ claimed_by: user.id }, integration);
-        await setCodeUpdatedAt(olderCode, new Date('2024-01-01T00:00:00.000Z'));
+        const olderCode = await generator.createCode({ claimed_by: user.id }, integration);
         await setCodeUpdatedAt(newerCode, new Date('2024-01-02T00:00:00.000Z'));
+        await setCodeUpdatedAt(olderCode, new Date('2024-01-01T00:00:00.000Z'));
 
         const res = await request({
             path: '/codes/mine',

@@ -7,6 +7,7 @@
         "inserted_at": "2018-05-03T23:12:01.111566",
         "id": 1,
         "email": "admin@aegee.org",
+        "notification_email": "admin@aegee.org",
         "active": true,
         "primary_body_id": null,
         "primary_body": null,
