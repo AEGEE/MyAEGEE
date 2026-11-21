@@ -86,7 +86,7 @@ This monorepo uses **independent versioning** with `semantic-release-monorepo` -
 
 ### Release bot credentials
 
-semantic-release does not use a personal account. Tags and GitHub releases are made by the **AEGEE Release Bot** GitHub App:
+semantic-release does not use a personal account. GitHub releases are made, and tags pushed, by the **AEGEE Release Bot** GitHub App:
 
 - App settings (AEGEE organization owners only): https://github.com/organizations/AEGEE/settings/apps/aegee-release-bot
 - App ID: `5863453`
@@ -118,7 +118,7 @@ The private key is deliberately not kept anywhere else, such as a password manag
 - `GITHUB_APP_PRIVATE_KEY is not a valid private key`: the variable doesn't hold a whole base64-encoded `.pem` file, for example because it was cut off when pasting.
 - `GET /repos/AEGEE/MyAEGEE/installation returned 404: Integration not found`: `GITHUB_APP_ID` is wrong.
 - `GET /repos/AEGEE/MyAEGEE/installation returned 404` with another message: the App is not installed on MyAEGEE.
-- `... returned 401`: the key is not this App's, or was deleted. Regenerate it as described above.
+- `... returned 401`: the key is not this App's or was deleted (regenerate it as described above), or `GITHUB_APP_ID` is wrong.
 - `POST /app/installations/.../access_tokens returned 403`: the installation is probably suspended.
 - `POST /app/installations/.../access_tokens returned 422`: the App is missing the Contents permission.
 - `... failed: ...`: GitHub could not be reached. The script tries three times (logging `; retrying`) before it gives up.

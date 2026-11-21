@@ -21,6 +21,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 const API = 'https://api.github.com';
 const ATTEMPTS = 3;
+const TIMEOUT_MS = 30_000;
 const owner = process.env.CIRCLE_PROJECT_USERNAME || 'AEGEE';
 const repo = process.env.CIRCLE_PROJECT_REPONAME || 'MyAEGEE';
 
@@ -62,6 +63,7 @@ async function github(path, jwt, init = {}) {
     try {
       const response = await fetch(`${API}${path}`, {
         ...init,
+        signal: AbortSignal.timeout(TIMEOUT_MS),
         headers: {
           Accept: 'application/vnd.github+json',
           Authorization: `Bearer ${jwt}`,
@@ -75,6 +77,8 @@ async function github(path, jwt, init = {}) {
       problem = `${request} returned ${response.status}: ${body.message || 'no message'}`;
       if (response.status < 500) fail(problem);
     } catch (error) {
+      // fetch puts the system error (ECONNREFUSED, EAI_AGAIN, ...) on cause;
+      // a timeout is a TimeoutError of its own.
       problem = `${request} failed: ${error.cause?.code || error.cause?.message || error.message}`;
     }
     if (attempt === ATTEMPTS) fail(problem);
@@ -96,4 +100,5 @@ const { token } = await github(`/app/installations/${installation.id}/access_tok
   }),
 });
 
+if (!token) fail('GitHub returned no token');
 process.stdout.write(token);
