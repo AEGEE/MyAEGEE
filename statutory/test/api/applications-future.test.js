@@ -65,4 +65,17 @@ describe('Statutory future applications', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
     });
+
+    test('should return 400 if the user ID is above the maximum ID', async () => {
+        mock.mockAll({ mainPermissions: { applicationBanPermission: true }, approvePermissions: { noPermissions: true } });
+
+        const res = await request({
+            path: '/applications/future/2147483648',
+            headers: { 'X-Auth-Token': 'foobar' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('User ID should be a number.');
+    });
 });

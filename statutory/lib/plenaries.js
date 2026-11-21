@@ -299,7 +299,7 @@ exports.markPlenaryAttendance = async (req, res) => {
     };
 
     if (!helpers.isNumber(req.body.application_id)) {
-        whereClause.statutory_id = req.body.application_id;
+        whereClause.statutory_id = String(req.body.application_id);
     } else {
         whereClause.id = Number(req.body.application_id);
     }

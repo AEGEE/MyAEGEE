@@ -75,6 +75,39 @@ describe('Events application comments', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should return 400 if the application ID is not an integer', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { body_id: user.bodies[0].id });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/' + application.id + '.0/comment',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { board_comment: 'Not good.' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 400 if the application ID is above the maximum ID', async () => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/2147483648/comment',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { board_comment: 'Not good.' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     it('should allow changing status if everything is okay', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication(event, {
