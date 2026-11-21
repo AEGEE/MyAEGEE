@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Circle } = require('../../models');
 
 describe('Circle editing', () => {
     beforeAll(async () => {
@@ -122,5 +123,37 @@ describe('Circle editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should ignore fields that are not allowed', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        const parentCircle = await generator.createCircle();
+        const circle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
+
+        const res = await request({
+            path: '/circles/' + circle.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: {
+                name: 'New name',
+                gsuite_id: 'circle@aegee.eu',
+                body_id: body.id,
+                parent_circle_id: parentCircle.id
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const circleFromDb = await Circle.findByPk(circle.id);
+        expect(circleFromDb.name).toEqual('New name');
+        expect(circleFromDb.gsuite_id).toEqual('circle@aegee.eu');
+        expect(circleFromDb.body_id).toBeNull();
+        expect(circleFromDb.parent_circle_id).toBeNull();
     });
 });

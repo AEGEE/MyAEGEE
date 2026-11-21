@@ -64,9 +64,8 @@ exports.updateCircle = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:circle is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
     // TODO: check if the parent circle's joinable is the same as child circle's one
-    await req.currentCircle.update(req.body);
+    await req.currentCircle.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CIRCLE.UPDATE));
     return res.json({
         success: true,
         data: req.currentCircle
