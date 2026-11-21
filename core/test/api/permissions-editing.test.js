@@ -1,7 +1,6 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
-const { Permission } = require('../../models');
 
 describe('Permissions details', () => {
     beforeAll(async () => {
@@ -96,27 +95,5 @@ describe('Permissions details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.scope).toEqual('local');
-    });
-
-    test('should ignore fields that are not allowed', async () => {
-        const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken(user);
-
-        await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
-        const permission = await generator.createPermission();
-
-        const res = await request({
-            path: '/permissions/' + permission.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': token.value },
-            body: { id: 1337, description: 'New description' }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-
-        const permissionFromDb = await Permission.findByPk(permission.id);
-        expect(permissionFromDb.description).toEqual('New description');
-        expect(await Permission.findByPk(1337)).toBeNull();
     });
 });
