@@ -513,7 +513,7 @@ export default {
       file: null,
       errors: {},
       isLoading: false,
-      loaded: false,
+      savedStarts: null,
       isSaving: false
     }
   },
@@ -753,9 +753,10 @@ export default {
     'dates.starts': function (newDate) {
       this.event.starts = new Date(newDate)
 
-      // Keep the saved deadlines when an existing event is loaded,
-      // only suggest them for new events or when the start date is changed.
-      if (this.$route.params.id && !this.loaded) {
+      // Keep the saved deadlines when an existing event is loaded (also when the
+      // date picker writes the same start date back), only suggest them for new
+      // events or when the start date is changed.
+      if (this.$route.params.id && this.savedStarts && moment(newDate).isSame(this.savedStarts, 'minute')) {
         return
       }
 
@@ -800,6 +801,7 @@ export default {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
+      this.savedStarts = new Date(this.event.starts)
       this.dates.starts = this.event.starts = new Date(this.event.starts)
       this.dates.ends = this.event.ends = new Date(this.event.ends)
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
@@ -812,9 +814,6 @@ export default {
       this.dates.candidature_deadline = this.event.candidature_deadline = new Date(this.event.candidature_deadline)
       this.dates.booklet_publication_deadline = this.event.booklet_publication_deadline = new Date(this.event.booklet_publication_deadline)
       this.dates.updated_booklet_publication_deadline = this.event.updated_booklet_publication_deadline = new Date(this.event.updated_booklet_publication_deadline)
-
-      // The date watchers run on the next tick, so only mark the event as loaded after that.
-      this.$nextTick(() => { this.loaded = true })
 
       return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
