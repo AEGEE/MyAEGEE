@@ -241,4 +241,16 @@ describe('Antenna Criteria', () => {
         expect(res.body.data).toHaveProperty('comment');
         expect(res.body.data.comment).toEqual('They are responding!');
     });
+
+    test('should fail listing if agora_id is not a number', async () => {
+        const res = await request({
+            path: '/antennaCriteria/lalala',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Agora ID is invalid.');
+    });
 });

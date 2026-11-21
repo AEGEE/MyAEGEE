@@ -1,9 +1,14 @@
 const { MailComponent } = require('../models');
 const errors = require('./errors');
+const helpers = require('./helpers');
 
 exports.listMailComponents = async (req, res) => {
     if (!req.permissions.send_mails) {
         return errors.makeForbiddenError(res, 'You are not allowed to list mail components.');
+    }
+
+    if (!helpers.isNumber(req.params.agora_id)) {
+        return errors.makeBadRequestError(res, 'Agora ID is invalid.');
     }
 
     const components = await MailComponent.findAll({

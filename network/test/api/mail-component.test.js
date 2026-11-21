@@ -190,4 +190,16 @@ describe('MailComponent', () => {
         expect(res.body.data).toHaveProperty('text');
         expect(res.body.data.text).toEqual('Goodbye!');
     });
+
+    test('should fail listing if agora_id is not a number', async () => {
+        const res = await request({
+            path: '/mailComponent/lalala',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Agora ID is invalid.');
+    });
 });

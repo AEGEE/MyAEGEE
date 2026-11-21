@@ -235,6 +235,23 @@ describe('Board listing', () => {
         expect(res.body.data[2].id).toEqual(third.id);
     });
 
+    test('should ignore an unknown sort field and use the default order', async () => {
+        const first = await generator.createBoard();
+        const second = await generator.createBoard();
+
+        const res = await request({
+            path: '/boards?sort=lalala&direction=desc',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(second.id);
+        expect(res.body.data[1].id).toEqual(first.id);
+    });
+
     test('should sort boards properly on /:body_id GET', async () => {
         const first = await generator.createBoard({
             body_id: 1,
