@@ -1,7 +1,10 @@
+const nock = require('nock');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
+const config = require('../../config');
 
 describe('User subscribe listserv', () => {
     beforeAll(async () => {
@@ -252,6 +255,42 @@ describe('User subscribe listserv', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed if listserv responds with a successful status', async () => {
+        nock(config.listserv_endpoint).post('').reply(200, 'OK');
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/' + user.id + '/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.message).toEqual('Request for subscribing to ANNOUNCE-L has been sent.');
+    });
+
+    test('should fail if listserv responds with a non-successful status', async () => {
+        nock(config.listserv_endpoint).post('').reply(500, 'Some error happened.');
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/' + user.id + '/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
     });
 });

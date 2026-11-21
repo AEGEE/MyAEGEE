@@ -286,4 +286,50 @@ describe('Bodies editing', () => {
             expect(bodyFromDb.website).toEqual(website);
         });
     });
+
+    test('should ignore fields that are not allowed on global permission without filters', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody();
+
+        const res = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { email: 'test@test.io', status: 'deleted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const bodyFromDb = await Body.findByPk(body.id);
+        expect(bodyFromDb.email).toEqual('test@test.io');
+        expect(bodyFromDb.status).toEqual('active');
+    });
+
+    test('should allow setting the shadow circle', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { shadow_circle_id: circle.id }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const bodyFromDb = await Body.findByPk(body.id);
+        expect(bodyFromDb.shadow_circle_id).toEqual(circle.id);
+    });
 });
