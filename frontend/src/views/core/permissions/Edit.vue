@@ -120,7 +120,7 @@ export default {
       }).catch((err) => {
         this.isSaving = false
 
-        if (err.response.status === 422) { // validation errors
+        if (err.response && err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the permission data is invalid.')
         }
@@ -147,7 +147,7 @@ export default {
       this.permission = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Permission is not found')
       } else {
         this.$root.showError('Some error happened', err)

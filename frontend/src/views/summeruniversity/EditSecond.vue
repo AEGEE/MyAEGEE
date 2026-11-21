@@ -666,7 +666,7 @@ export default {
         this.isSaving = false
 
         // Validation errors per field; other 422s only have a message.
-        if (err.response.status === 422 && err.response.data.errors) {
+        if (err.response && err.response.status === 422 && err.response.data.errors) {
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the event data is invalid.')
         }
@@ -740,7 +740,7 @@ export default {
       })
     }).catch((err) => {
       this.isLoading = false
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
