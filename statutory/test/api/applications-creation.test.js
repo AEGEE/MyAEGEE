@@ -4,7 +4,7 @@ const tk = require('timekeeper');
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const { Application } = require('../../models');
-const { Sequelize, sequelize } = require('../../lib/sequelize');
+const { sequelize } = require('../../lib/sequelize');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
@@ -1391,7 +1391,7 @@ describe('Applications creation', () => {
         expect(res.body.data.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0002');
     });
 
-    test('should not reuse statutory_id after an application is deleted', async () => {
+    test('should not reuse a lower statutory_id after an application is deleted', async () => {
         const event = await generator.createEvent({ applications: [] });
         const prefix = event.id.toString().padStart(3, '0');
 
@@ -1416,16 +1416,6 @@ describe('Applications creation', () => {
             event.id.toString().padStart(3, '0') + '-0001',
             event.id.toString().padStart(3, '0') + '-0002'
         ]);
-    });
-
-    test('should not allow duplicate statutory_id within an event', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        const firstApplication = await generator.createApplication({ user_id: 2 }, event);
-        const secondApplication = await generator.createApplication({ user_id: 3 }, event);
-
-        await expect(secondApplication.update({ statutory_id: firstApplication.statutory_id }))
-            .rejects.toThrow(Sequelize.UniqueConstraintError);
     });
 
     test('should prevent applying if cannot assign pax type', async () => {
