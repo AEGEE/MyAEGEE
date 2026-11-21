@@ -138,7 +138,7 @@ export default {
         this.exportVotesTXT = prepareExportTxt(this.antennae, this.$route.params.id)
       }).catch(console.error)
     }).catch((err) => {
-      if (err.response.status === 404) {
+      if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
