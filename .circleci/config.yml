@@ -2137,6 +2137,70 @@ jobs:
                 }
               ]
             }
+  frontend-react-check:
+    docker:
+      - image: cimg/node:26.13.1
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - run:
+          name: Lint and type-check the React frontend
+          working_directory: ~/project/frontend-react
+          command: npm run lint
+      - run:
+          name: Run the React frontend unit tests
+          working_directory: ~/project/frontend-react
+          command: npx vitest run --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
+      - run:
+          name: Build the React frontend
+          working_directory: ~/project/frontend-react
+          command: npx vite build
+      - store_test_results:
+          path: ~/project/frontend-react/reports
+  frontend-mocked-test:
+    # The frontend in a browser with every API call mocked (e2e/playwright.ui.config.ts): no
+    # services needed. The same specs run against the Vue and the React app.
+    docker:
+      - image: cimg/node:26.13.1
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - run:
+          name: Install Playwright browser
+          working_directory: ~/project/e2e
+          command: npx playwright install --with-deps chromium
+      - run:
+          name: Build the Vue and React frontends
+          working_directory: ~/project/e2e
+          command: npm run setup:frontend
+      - run:
+          name: Run the mocked-API tests
+          working_directory: ~/project/e2e
+          command: npx playwright test -c playwright.ui.config.ts --grep-invert @a11y
+      - run:
+          # Report only: records the axe violations per page, never fails on them.
+          name: Record the accessibility baseline
+          working_directory: ~/project/e2e
+          command: |
+            npx playwright test -c playwright.ui.config.ts --grep @a11y --reporter=list
+            node scripts/a11y-summary.ts > a11y-results/summary.md
+          when: always
+      - store_test_results:
+          path: ~/project/e2e/test-results-ui
+      - store_artifacts:
+          path: ~/project/e2e/playwright-report-ui
+          destination: playwright-report-ui
+      - store_artifacts:
+          path: ~/project/e2e/a11y-results
+          destination: a11y-results
   e2e-test:
     # Runs core, events and summeruniversity as plain Node processes against one
     # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
@@ -2176,8 +2240,17 @@ jobs:
           name: Run e2e tests
           working_directory: ~/project/e2e
           command: npx playwright test
+      - run:
+          # The migrated pages from the React app (frontend-react/), the rest from the Vue app.
+          name: Run e2e tests against the React app
+          working_directory: ~/project/e2e
+          command: E2E_FRONTEND=react npx playwright test --reporter=list,junit --output=test-results-react
+          environment:
+            PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results-react/junit.xml
       - store_test_results:
           path: ~/project/e2e/test-results
+      - store_test_results:
+          path: ~/project/e2e/test-results-react
       - store_artifacts:
           path: ~/project/e2e/playwright-report
           destination: playwright-report
@@ -2444,3 +2517,9 @@ workflows:
   e2e-test:
     jobs:
       - e2e-test
+  frontend-react-check:
+    jobs:
+      - frontend-react-check
+  frontend-mocked-test:
+    jobs:
+      - frontend-mocked-test

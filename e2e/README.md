@@ -84,6 +84,34 @@ DB_PORT=55432 npm test             # or: npm run test:ui
 Run `npm run setup:no-frontend` to skip the frontend build when only the backend changed.
 Tests create their own events with unique names, so you can rerun them without running setup again.
 
+## The frontend: mocked-API suite and the React app
+
+Frontend behaviour (what a page shows and does) doesn't need the services, so it lives in a
+second suite: `playwright.ui.config.ts`, specs in `ui/`. It serves the frontend builds and
+answers every `/api` call inside the browser (`ui/support/api-mock.ts`, data from the typed
+factories in `ui/support/factories.ts`). It's fast and runs in parallel.
+
+```sh
+npm run setup:frontend      # builds the Vue app (twice, see below) and the React app (frontend-react/)
+npm run test:mocked         # all projects; add --project=vue or --project=react
+npx playwright test -c playwright.ui.config.ts --grep @a11y && node scripts/a11y-summary.ts   # axe baseline
+```
+
+The same specs run against two frontends:
+
+- project `vue`: the Vue app as production builds it today (`.frontend-dist`);
+- project `react`: the React app for the paths in `frontend/src/migrated-routes.json`, and the
+  Vue app for the rest (`.frontend-coexist-dist`, built with `VUE_APP_REACT_ROUTES=true` so its
+  links to those paths load them from the server). Only specs tagged `@migrated` run here.
+
+The real-stack suite can do the same: `E2E_FRONTEND=react npm test` makes `support/gateway.ts`
+route the migrated paths to the React build. `tests/fixture-contract.spec.ts` checks the
+mocked suite's factories against the real responses.
+
+Specs in `ui/` find elements by role, label and text only, so they keep working when a page moves
+from Vue to React. The rules and the reasoning are in
+[`docs/react-migration/04-test-strategy.md`](../docs/react-migration/04-test-strategy.md).
+
 ## TypeScript
 
 The workspace is written in TypeScript and isn't compiled: Playwright runs the tests and the config,
@@ -105,4 +133,6 @@ tests and see how they fail.
 ## CI
 
 The `e2e-test` CircleCI job runs the same steps in `cimg/node` with a `cimg/postgres` sidecar,
-then stores the JUnit results, the HTML report and traces of failing tests as artifacts.
+once against the Vue app and once with `E2E_FRONTEND=react`, then stores the JUnit results, the
+HTML report and traces of failing tests as artifacts. The `frontend-mocked-test` job runs the
+mocked-API suite and records the axe baseline (report only, stored as an artifact).
