@@ -53,12 +53,14 @@ describe('Cron Job Tests', () => {
         Board.findAll.mockResolvedValue([{ id: 1 }, { id: 2 }]);
         boards.sendNewBoardEmail.mockRejectedValueOnce(error).mockResolvedValueOnce();
 
-        await expect(cron.sendAllEmails()).resolves.toBeUndefined();
+        try {
+            await expect(cron.sendAllEmails()).resolves.toBeUndefined();
 
-        expect(boards.sendNewBoardEmail).toHaveBeenCalledTimes(2);
-        expect(boards.sendNewBoardEmail).toHaveBeenLastCalledWith(2);
-        expect(logSpy).toHaveBeenCalledWith({ err: error, board_id: 1 }, 'Could not send new board email');
-
-        logSpy.mockRestore();
+            expect(boards.sendNewBoardEmail).toHaveBeenCalledTimes(2);
+            expect(boards.sendNewBoardEmail).toHaveBeenLastCalledWith(2);
+            expect(logSpy).toHaveBeenCalledWith({ err: error, board_id: 1 }, 'Could not send new board email');
+        } finally {
+            logSpy.mockRestore();
+        }
     });
 });
