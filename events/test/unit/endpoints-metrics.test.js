@@ -15,14 +15,21 @@ describe('Endpoint metrics', () => {
         const app = express();
         const GeneralRouter = express.Router({ mergeParams: true });
         const ThingsRouter = express.Router({ mergeParams: true });
+        const PartsRouter = express.Router({ mergeParams: true });
+        const PrivateRouter = express.Router({ mergeParams: true });
 
         GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
+        GeneralRouter.get('/', (req, res) => res.json({}));
         GeneralRouter.get('/things', (req, res) => res.json({}));
         ThingsRouter.get('/', (req, res) => res.json({}));
-        ThingsRouter.get('/parts/:part_id', (req, res) => res.json({}));
+        PartsRouter.get('/:part_id', (req, res) => res.json({}));
+        PrivateRouter.use((req, res) => res.status(401).json({}));
+        PrivateRouter.get('/:secret_id', (req, res) => res.json({}));
 
         app.use(endpointsMetrics.addEndpointMetrics);
         app.use('/things/:thing_id', endpointsMetrics.recordMountPath('/things/:thing_id'), ThingsRouter);
+        app.use('/things/:thing_id/parts', endpointsMetrics.recordMountPath('/things/:thing_id/parts'), PartsRouter);
+        app.use('/private', endpointsMetrics.recordMountPath('/private'), PrivateRouter);
         app.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
         app.use((req, res) => res.status(404).json({}));
 
@@ -39,6 +46,7 @@ describe('Endpoint metrics', () => {
     });
 
     test('should label requests with the route pattern including the mount pattern', async () => {
+        // passes through the /things/:thing_id router before matching in the /things/:thing_id/parts one
         await fetch(baseUrl + '/things/42/parts/7?foo=bar');
 
         const metrics = await getRequestsMetrics();
@@ -61,6 +69,13 @@ describe('Endpoint metrics', () => {
         expect(metrics).not.toContain('path="/things?foo=bar"');
     });
 
+    test('should label the root route on the root mount as /', async () => {
+        await fetch(baseUrl + '/');
+
+        const metrics = await getRequestsMetrics();
+        expect(metrics).toMatch(/endpoint="\/",status="200",path="\/"/);
+    });
+
     test('should label requests that match no route as unmatched', async () => {
         await fetch(baseUrl + '/nonexistent/42');
         await fetch(baseUrl + '/things/42/nonexistent');
@@ -68,5 +83,12 @@ describe('Endpoint metrics', () => {
         const metrics = await getRequestsMetrics();
         expect(metrics).toMatch(/endpoint="\/nonexistent\/42",status="404",path="unmatched"/);
         expect(metrics).toMatch(/endpoint="\/things\/42\/nonexistent",status="404",path="unmatched"/);
+    });
+
+    test('should label requests answered by router-level middleware as unmatched', async () => {
+        await fetch(baseUrl + '/private/42');
+
+        const metrics = await getRequestsMetrics();
+        expect(metrics).toMatch(/endpoint="\/private\/42",status="401",path="unmatched"/);
     });
 });
