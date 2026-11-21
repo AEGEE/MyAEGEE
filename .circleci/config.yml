@@ -8,7 +8,8 @@ commands:
   semantic-release:
     description: >-
       Run semantic-release for a service as the AEGEE release GitHub App, not a
-      personal account. Needs GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY.
+      personal account. Needs GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY from
+      the myaegee-release-bot context.
     parameters:
       service:
         type: string
@@ -2218,6 +2219,7 @@ workflows:
   core-docker-build-and-push:
     jobs:
       - core-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2245,6 +2247,7 @@ workflows:
   discounts-docker-build-and-push:
     jobs:
       - discounts-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2276,6 +2279,7 @@ workflows:
   events-docker-build-and-push:
     jobs:
       - events-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2300,6 +2304,7 @@ workflows:
   frontend-docker-build-and-push:
     jobs:
       - frontend-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2327,6 +2332,7 @@ workflows:
   knowledge-docker-build-and-push:
     jobs:
       - knowledge-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2354,6 +2360,7 @@ workflows:
   network-docker-build-and-push:
     jobs:
       - network-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2381,6 +2388,7 @@ workflows:
   statutory-docker-build-and-push:
     jobs:
       - statutory-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2408,6 +2416,7 @@ workflows:
   mailer-docker-build-and-push:
     jobs:
       - mailer-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
@@ -2424,6 +2433,7 @@ workflows:
   summeruniversity-docker-build-and-push:
     jobs:
       - summeruniversity-docker-build-and-push:
+          context: myaegee-release-bot
           filters:
             branches:
               only: stable
