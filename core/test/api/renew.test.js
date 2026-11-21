@@ -94,13 +94,13 @@ describe('Tokens renewal', () => {
         const first = await renew(refreshToken.value);
         expect(first.statusCode).toEqual(200);
 
-        useFakeDate(new Date(now.getTime() + ((config.ttl.refresh_token_grace_period - 1) * 1000)));
+        jest.setSystemTime(now.getTime() + ((config.ttl.refresh_token_grace_period - 1) * 1000));
         const withinGrace = await renew(refreshToken.value);
         expect(withinGrace.statusCode).toEqual(200);
         expect(withinGrace.body).toHaveProperty('access_token');
         expect(withinGrace.body).toHaveProperty('refresh_token');
 
-        useFakeDate(new Date(now.getTime() + ((config.ttl.refresh_token_grace_period + 1) * 1000)));
+        jest.setSystemTime(now.getTime() + ((config.ttl.refresh_token_grace_period + 1) * 1000));
         const afterGrace = await renew(refreshToken.value);
         expect(afterGrace.statusCode).toEqual(403);
         expect(afterGrace.body.success).toEqual(false);
