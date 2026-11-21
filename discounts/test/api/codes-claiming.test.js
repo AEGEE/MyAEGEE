@@ -62,6 +62,8 @@ describe('Codes claiming', () => {
         });
 
         await generator.createCode({ claimed_by: user.id }, integration);
+        // A free code is available, so only the quota can block the claim.
+        await generator.createCode({}, integration);
 
         const res = await request({
             path: '/integrations/' + integration.id + '/claim',
@@ -72,7 +74,7 @@ describe('Codes claiming', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toContain('quota');
     });
 
     test('should succeed if the user is still under the quota', async () => {
@@ -156,7 +158,7 @@ describe('Codes claiming', () => {
         const code = await generator.createCode({ value: 'CLAIM-ME' }, integration);
 
         const mailerScope = nock(`${config.mailer.url}:${config.mailer.port}`)
-            .post('/', (body) => body.to === user.notification_email
+            .post('/', (body) => body.to === 'admin@aegee.org'
                 && body.subject === 'Your Flixbus discount code'
                 && body.template === 'custom.html'
                 && body.parameters.email_body.includes('Partner: Flixbus')
