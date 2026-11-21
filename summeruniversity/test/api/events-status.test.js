@@ -433,6 +433,16 @@ describe('Events status, publication, periods and deletion', () => {
             expect(event.open_call).toEqual(false);
         });
 
+        test('should keep the open call if there is no max_participants', async () => {
+            const event = await generator.createEvent({ max_participants: null, accepted_participants: null });
+
+            const res = await put(event, '/open_call', { open_call: true });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.open_call).toEqual(true);
+        });
+
         test('should allow closing the call', async () => {
             const event = await generator.createEvent({ open_call: true });
 
