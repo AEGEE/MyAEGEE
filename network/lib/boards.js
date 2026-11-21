@@ -224,10 +224,6 @@ exports.sendNewBoardEmail = async (id, newBoard) => {
         return;
     }
 
-    if (!newBoard && !moment(board.start_date).isSame(moment(), 'day')) {
-        return;
-    }
-
     if (newBoard && moment(board.end_date).isBefore(moment())) {
         return;
     }

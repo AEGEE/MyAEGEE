@@ -21,21 +21,25 @@ describe('Cron Job Tests', () => {
         expect(cron.job.nextDate().toJSDate().getTime()).toBeGreaterThan(Date.now());
     });
 
-    test('sendAllEmails should fetch all boards and send emails', async () => {
-        const mockBoards = [{ id: 1 }, { id: 2 }];
+    test('sendAllEmails should fetch unsent boards, send emails and mark them as sent', async () => {
+        const mockBoards = [{ id: 1, update: jest.fn() }, { id: 2, update: jest.fn() }];
         Board.findAll.mockResolvedValue(mockBoards);
 
         await cron.sendAllEmails();
 
         expect(Board.findAll).toHaveBeenCalledTimes(1);
+        expect(Board.findAll.mock.calls[0][0].where.new_board_email_sent_at).toBeNull();
         expect(boards.sendNewBoardEmail).toHaveBeenCalledTimes(mockBoards.length);
         expect(boards.sendNewBoardEmail).toHaveBeenCalledWith(1);
         expect(boards.sendNewBoardEmail).toHaveBeenCalledWith(2);
+        for (const board of mockBoards) {
+            expect(board.update).toHaveBeenCalledWith({ new_board_email_sent_at: expect.any(Date) });
+        }
     });
 
     test('sendAllEmails should wait for each email before sending the next one', async () => {
         const events = [];
-        Board.findAll.mockResolvedValue([{ id: 1 }, { id: 2 }]);
+        Board.findAll.mockResolvedValue([{ id: 1, update: jest.fn() }, { id: 2, update: jest.fn() }]);
         boards.sendNewBoardEmail.mockImplementation(async (id) => {
             events.push(`start ${id}`);
             await new Promise((resolve) => { setImmediate(resolve); });
@@ -50,7 +54,7 @@ describe('Cron Job Tests', () => {
     test('sendAllEmails should log a failed email and continue with the other boards', async () => {
         const logSpy = jest.spyOn(logger, 'error').mockImplementation(() => {});
         const error = new Error('mailer is down');
-        Board.findAll.mockResolvedValue([{ id: 1 }, { id: 2 }]);
+        Board.findAll.mockResolvedValue([{ id: 1, update: jest.fn() }, { id: 2, update: jest.fn() }]);
         boards.sendNewBoardEmail.mockRejectedValueOnce(error).mockResolvedValueOnce();
 
         try {
