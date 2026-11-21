@@ -51,7 +51,14 @@ Vue.router = router
 Vue.use(VueAxios, axios)
 Vue.use(Auth)
 Vue.use(NProgress)
-ConfigProgrammatic.setOptions({ defaultNoticeQueue: false, defaultIconPack: 'fa' })
+// Buefy renders its icons through the SVG <font-awesome-icon> component, as the
+// FontAwesome webfont CSS is not loaded. Every icon Buefy needs must be registered
+// in ./fontawesome.js.
+ConfigProgrammatic.setOptions({
+  defaultNoticeQueue: false,
+  defaultIconPack: 'fas',
+  defaultIconComponent: 'font-awesome-icon'
+})
 Vue.use(Autocomplete)
 Vue.use(Button)
 Vue.use(Checkbox)

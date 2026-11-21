@@ -70,6 +70,14 @@ import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage'
 import { faGlobeEurope } from '@fortawesome/free-solid-svg-icons/faGlobeEurope'
 import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList'
 
+// Icons Buefy renders internally (table sort/detail arrows, datepicker chevrons,
+// dialog/input status icons), mapped to their FA names, plus ones used in dialogs.
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons/faAngleLeft'
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp'
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
+
 library.add(faTimesCircle)
 library.add(faHeart)
 library.add(faBars)
@@ -137,5 +145,10 @@ library.add(faHandHoldingMedical)
 library.add(faLanguage)
 library.add(faGlobeEurope)
 library.add(faClipboardList)
+library.add(faAngleLeft)
+library.add(faAngleRight)
+library.add(faArrowUp)
+library.add(faExclamationTriangle)
+library.add(faPlusCircle)
 
 export default FontAwesomeIcon
