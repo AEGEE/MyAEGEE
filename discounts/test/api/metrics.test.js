@@ -58,6 +58,6 @@ describe('Metrics requests', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.headers['content-type']).toContain('text/plain');
-        expect(res.body).toMatch(/discounts_requests_total\{[^\n]*endpoint="\/healthcheck"[^\n]*status="200"[^\n]*\} 1/);
+        expect(res.body).toMatch(/discounts_requests_total\{(?=[^}]*path="\/healthcheck")(?=[^}]*status="200")[^}]*\} 1/);
     });
 });

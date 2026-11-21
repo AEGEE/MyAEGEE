@@ -198,17 +198,17 @@ PaymentsRouter.delete('/', payments.deletePayment);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.get('/members/unconfirmed', middlewares.maybeAuthorize, middlewares.ensureAuthorized, members.listAllUnconfirmedUsers);
-server.use('/members/:user_id', MemberRouter);
-server.use('/bodies/:body_id/members/:membership_id', BodyMembershipsRouter);
-server.use('/bodies/:body_id/join-requests/:request_id', JoinRequestsRouter);
-server.use('/bodies/:body_id/campaigns/:campaign_id', BodyCampaignsRouter);
-server.use('/bodies/:body_id/payments/:payment_id', PaymentsRouter);
-server.use('/bodies/:body_id', BodiesRouter);
-server.use('/circles/:circle_id/members/:membership_id', CircleMembershipsRouter);
-server.use('/circles/:circle_id', CirclesRouter);
-server.use('/permissions/:permission_id', PermissionsRouter);
-server.use('/campaigns/:campaign_id', CampaignsRouter);
-server.use('/', GeneralRouter);
+server.use('/members/:user_id', endpointsMetrics.recordMountPath('/members/:user_id'), MemberRouter);
+server.use('/bodies/:body_id/members/:membership_id', endpointsMetrics.recordMountPath('/bodies/:body_id/members/:membership_id'), BodyMembershipsRouter);
+server.use('/bodies/:body_id/join-requests/:request_id', endpointsMetrics.recordMountPath('/bodies/:body_id/join-requests/:request_id'), JoinRequestsRouter);
+server.use('/bodies/:body_id/campaigns/:campaign_id', endpointsMetrics.recordMountPath('/bodies/:body_id/campaigns/:campaign_id'), BodyCampaignsRouter);
+server.use('/bodies/:body_id/payments/:payment_id', endpointsMetrics.recordMountPath('/bodies/:body_id/payments/:payment_id'), PaymentsRouter);
+server.use('/bodies/:body_id', endpointsMetrics.recordMountPath('/bodies/:body_id'), BodiesRouter);
+server.use('/circles/:circle_id/members/:membership_id', endpointsMetrics.recordMountPath('/circles/:circle_id/members/:membership_id'), CircleMembershipsRouter);
+server.use('/circles/:circle_id', endpointsMetrics.recordMountPath('/circles/:circle_id'), CirclesRouter);
+server.use('/permissions/:permission_id', endpointsMetrics.recordMountPath('/permissions/:permission_id'), PermissionsRouter);
+server.use('/campaigns/:campaign_id', endpointsMetrics.recordMountPath('/campaigns/:campaign_id'), CampaignsRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
