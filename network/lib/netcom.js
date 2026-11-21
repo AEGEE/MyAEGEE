@@ -1,5 +1,6 @@
 const { Netcom } = require('../models');
 const errors = require('./errors');
+const helpers = require('./helpers');
 
 exports.listNetcomAssignment = async (req, res) => {
     if (!req.permissions.manage_netcom_assignment) {
@@ -32,11 +33,19 @@ exports.removeNetcomAssignment = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to remove NetCom assignment.');
     }
 
+    if (!helpers.isNumber(req.params.body_id)) {
+        return errors.makeBadRequestError(res, 'Body ID is invalid.');
+    }
+
     const assignment = await Netcom.findOne({
         where: {
-            body_id: req.params.body_id
+            body_id: Number(req.params.body_id)
         }
     });
+
+    if (!assignment) {
+        return errors.makeNotFoundError(res, 'NetCom assignment is not found.');
+    }
 
     await assignment.destroy();
 
