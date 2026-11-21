@@ -2,3 +2,7 @@ node_modules/
 .frontend-dist/
 playwright-report/
 test-results/
+.frontend-coexist-dist/
+.frontend-react-dist/
+playwright-report-ui/
+test-results-ui/
