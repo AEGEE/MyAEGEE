@@ -553,9 +553,10 @@ Event.beforeValidate(async (event) => {
     if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
 });
 
-Event.afterSave(async (event) => {
-    if (event.available_spots === 0 && event.open_call === true) {
-        event.open_call = false;
+Event.afterSave(async (event, options) => {
+    // Without max_participants there's no limit, even though available_spots computes to 0.
+    if (event.max_participants !== null && event.available_spots === 0 && event.open_call === true) {
+        await event.update({ open_call: false }, { hooks: false, transaction: options.transaction });
     }
 });
 
