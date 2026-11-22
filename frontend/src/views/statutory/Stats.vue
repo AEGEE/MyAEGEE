@@ -119,6 +119,10 @@ import { Line, Pie } from 'vue-chartjs'
 // everything else they draw with has to be registered here.
 Chart.register(ArcElement, CategoryScale, Filler, Legend, LinearScale, LineElement, PointElement, Tooltip)
 
+// chart.js 4 starts the palette over after the last colour; past it, use
+// chart.js 2's grey so the slices match the uncoloured tags under the body chart.
+const sliceColors = (colors, items) => items.map((item, index) => colors[index] || 'rgba(0, 0, 0, 0.1)')
+
 const lineOptions = () => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -246,7 +250,7 @@ export default {
         labels: this.stats.by_type.map(s => `${s.type === null ? 'Not set' : s.type} (${s.value})`),
         datasets: [{
           label: 'Applications by participant type',
-          backgroundColor: this.colors,
+          backgroundColor: sliceColors(this.colors, this.stats.by_type),
           data: this.stats.by_type.map(s => s.value)
         }]
       }
@@ -311,7 +315,7 @@ export default {
         labels: this.stats.by_body.map(s => `${s.body ? s.body.name : s.body_id} (${s.value})`),
         datasets: [{
           label: 'Applications by body',
-          backgroundColor: this.colors,
+          backgroundColor: sliceColors(this.colors, this.stats.by_body),
           data: this.stats.by_body.map(s => s.value)
         }]
       }
@@ -321,7 +325,7 @@ export default {
         labels: this.stats.by_gender.map(s => `${s.type} (${s.value})`),
         datasets: [{
           label: 'Applications by gender',
-          backgroundColor: this.colors,
+          backgroundColor: sliceColors(this.colors, this.stats.by_gender),
           data: this.stats.by_gender.map(s => s.value)
         }]
       }
@@ -342,7 +346,7 @@ export default {
         labels: this.stats.by_number_of_events_visited.map(s => `${s.type} (${s.value})`),
         datasets: [{
           label: `Applications by number of ${this.eventTypePluralized} visited`,
-          backgroundColor: this.colors,
+          backgroundColor: sliceColors(this.colors, this.stats.by_number_of_events_visited),
           data: this.stats.by_number_of_events_visited.map(s => s.value)
         }]
       }
