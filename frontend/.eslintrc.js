@@ -17,6 +17,15 @@ module.exports = {
       }
     ],
     'no-restricted-syntax': 'off',
+    'vue/no-restricted-syntax': [
+      'error',
+      {
+        // b-table-column is renderless, so a column that comes and goes makes Vue pair the
+        // columns after it with other column components: their headers update, their cells don't.
+        selector: 'VElement[rawName=/^(b-table-column|BTableColumn)$/] > VStartTag > VAttribute[directive=true][key.name.name=/^(if|else|else-if|show)$/]',
+        message: 'Hide table columns with the `:visible` prop, not v-if/v-else/v-show: Buefy columns are renderless, so their cells desync from the headers.'
+      }
+    ],
     semi: ['error', 'never'],
     'max-len': 'off',
     'comma-dangle': ['error', 'never'],
