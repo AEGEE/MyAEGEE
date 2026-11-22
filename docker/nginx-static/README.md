@@ -4,12 +4,12 @@ A minimal static file server based on nginx, used across MyAEGEE services to ser
 
 ## Base Image
 
-- **nginx:1.28.1-alpine3.23** (stable version)
-- Based on Alpine Linux 3.23 for minimal image size
+- **nginx:1.30.7-alpine3.24** (stable version)
+- Based on Alpine Linux 3.24 for minimal image size
 
 ## What's Included
 
-- nginx 1.28.1 (stable release)
+- nginx 1.30.7 (stable release)
 - curl (for healthcheck endpoints)
 
 ## Usage
@@ -47,7 +47,7 @@ docker build -t aegee/nginx-static:latest docker/nginx-static/
 
 The image is automatically built and pushed to Docker Hub when changes are merged to the `stable` branch via CircleCI. The build creates multi-platform images (amd64 and arm64) with the following tags:
 
-- `aegee/nginx-static:1.28.1` - Version-specific tag
+- `aegee/nginx-static:1.30.7` - Version-specific tag
 - `aegee/nginx-static:stable` - Stable release tag
 - `aegee/nginx-static:latest` - Latest release tag
 
@@ -64,7 +64,7 @@ To update to a newer nginx version:
 
 ## Migration from Previous Version
 
-The previous version used nginx 1.17.0 (from 2019). This version updates to nginx 1.28.1, which includes:
+The previous version used nginx 1.17.0 (from 2019). This version updates to nginx 1.30.7, which includes:
 
 - Security fixes and patches
 - Performance improvements

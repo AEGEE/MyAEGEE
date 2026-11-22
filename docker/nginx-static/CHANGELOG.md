@@ -1,5 +1,12 @@
 # Changelog - aegee/nginx-static
 
+## [1.30.7] - 2026-11-22
+
+### Changed
+- Updated from nginx 1.28.1 to nginx 1.30.7 (latest stable; odd minor versions such as 1.31 are nginx's mainline branch)
+- Updated base Alpine Linux from 3.23 to 3.24
+- Tags: `1.30.7`, `stable`, `latest`
+
 ## [1.28.1] - 2026-02-01
 
 ### Changed

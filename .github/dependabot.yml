@@ -35,6 +35,33 @@ updates:
         group-by: dependency-name
         update-types:
           - "major"
+    # The frontend stays on Vue 2.7; it won't move to Vue 3. The next major of each
+    # of these packages needs Vue 3 (or, for mapbox-gl, breaks the Vue 2-only
+    # vue-mapbox wrapper), so Dependabot would keep reopening PRs we can't merge.
+    ignore:
+      - dependency-name: "vue"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-router"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vuex"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "buefy"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-multiselect"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-flatpickr-component"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@fortawesome/vue-fontawesome"
+        update-types: ["version-update:semver-major"]
+      # vue-mapbox 0.4 needs mapbox-gl ^0.53, so 0.54 is already too new.
+      - dependency-name: "mapbox-gl"
+        versions: [">=0.54"]
+      # @fortawesome/vue-fontawesome 2 (the Vue 2 version) only supports
+      # fontawesome-svg-core 1 and 6, so stay on Font Awesome 6.
+      - dependency-name: "@fortawesome/fontawesome-svg-core"
+        versions: [">=7"]
+      - dependency-name: "@fortawesome/free-solid-svg-icons"
+        versions: [">=7"]
     schedule:
       interval: "weekly"
       day: "friday"
@@ -59,6 +86,11 @@ updates:
       - "/monitor/docker/logstash"
       - "/dispatcher/docker"
       - "/docker/nginx-static"
+    # nginx-static follows nginx's stable branch (even minor versions); the odd
+    # minor versions are mainline releases.
+    ignore:
+      - dependency-name: "nginx"
+        versions: [">= 1.31, < 1.32", ">= 1.33, < 1.34"]
     # Base images are pinned by digest. Bump each image in all Dockerfiles in one
     # PR (node:26-alpine alone is used by eight of them) instead of one per directory.
     groups:
