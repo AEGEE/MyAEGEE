@@ -67,7 +67,7 @@
               v-bind:key="index"
               class="tag"
               :style="{ 'background-color': index >= colors.length ? '' : colors[index], color: index >= backgroundColors.length ? '' : backgroundColors[index] }">
-              {{ body.body ? body.body.name : body.body_id }} ({{ body.value }})
+              {{ body.body ? body.body.name : body.type }} ({{ body.value }})
             </span>
           </div>
         </div>
@@ -312,7 +312,7 @@ export default {
     },
     byBodyData () {
       return {
-        labels: this.stats.by_body.map(s => `${s.body ? s.body.name : s.body_id} (${s.value})`),
+        labels: this.stats.by_body.map(s => `${s.body ? s.body.name : s.type} (${s.value})`),
         datasets: [{
           label: 'Applications by body',
           backgroundColor: sliceColors(this.colors, this.stats.by_body),
