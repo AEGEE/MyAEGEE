@@ -59,7 +59,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in sorted(stats[section.key])" :key="item.type">
+                <!-- Keyed by position, as two events can have the same name. -->
+                <tr v-for="(item, index) in sorted(stats[section.key])" :key="index">
                   <td>{{ item.type }}</td>
                   <td class="has-text-right">{{ item.value }}</td>
                 </tr>
@@ -78,18 +79,20 @@
 <script>
 import { mapGetters } from 'vuex'
 
+const emptyStats = () => ({
+  by_event: [],
+  by_body: [],
+  by_nationality: [],
+  by_status: []
+})
+
 export default {
   name: 'SummerUniversityStats',
   data () {
     return {
       season: null,
       seasons: [],
-      stats: {
-        by_event: [],
-        by_body: [],
-        by_nationality: [],
-        by_status: []
-      },
+      stats: emptyStats(),
       sections: [
         { key: 'by_event', title: 'Applications by event', label: 'Event', valueLabel: 'Applications' },
         { key: 'by_body', title: 'Applicants by body', label: 'Body', valueLabel: 'Applicants' },
@@ -124,6 +127,8 @@ export default {
       }).catch((err) => {
         if (requestId !== this.requestId) return
 
+        // Not leaving the previous season's numbers under the newly selected season.
+        this.stats = emptyStats()
         this.isLoading = false
         this.$root.showError('Could not fetch statistics', err)
       })
@@ -146,9 +151,19 @@ export default {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
         this.isExporting = false
-      }).catch((err) => {
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the API's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
         this.isExporting = false
         this.$root.showError('Could not export statistics', err)
       })
