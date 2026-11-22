@@ -27,7 +27,7 @@ services:
 
 ### pg Admin Container #######################################
   pgadmin:
-    image: dpage/pgadmin4:4.23
+    image: dpage/pgadmin4:9.19
     restart: on-failure
     expose:
       - "5050"
@@ -45,7 +45,7 @@ services:
 
 ### show api docs Container #######################################
   swagger:
-    image: swaggerapi/swagger-ui:v3.28.0
+    image: swaggerapi/swagger-ui:v5.35.0
     environment:
       # API_URL: http://events/api-docs.json
       URLS: "[{url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/core/api-docs.json\", \
