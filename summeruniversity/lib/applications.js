@@ -440,14 +440,14 @@ exports.exportAll = async (req, res) => {
 const canSeeStats = (permissions) => Object.values(permissions.manage_summeruniversity).some(Boolean)
     || Object.values(permissions.approve_summeruniversity).some(Boolean);
 
-// Returns the season as a number, null when it's not given, or NaN when it's not a valid year.
+// Returns the season as a number, null when it's not given, or NaN when it's not a four-digit year.
+// Anything but a plain string (an array from `season[]=`, or `true` from the boolean query parser) is invalid.
 const parseSeason = (season) => {
     if (season === undefined || season === '') {
         return null;
     }
 
-    const parsed = Number(season);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : NaN;
+    return typeof season === 'string' && /^\d{4}$/.test(season) ? Number(season) : NaN;
 };
 
 const calculateStats = async (season) => {

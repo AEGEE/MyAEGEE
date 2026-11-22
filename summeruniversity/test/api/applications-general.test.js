@@ -247,10 +247,32 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.message).toEqual('Season should be a year.');
         });
 
-        test('should return 400 if the season is not a whole number', async () => {
-            const res = await get('/applications', { season: '2025.5' });
+        test.each([
+            ['not a whole number', '2025.5'],
+            ['zero', '0'],
+            ['negative', '-2025'],
+            ['not four digits', '20250'],
+            ['in another notation', '2.025e3'],
+            ['padded with spaces', ' 2025 '],
+            ['a boolean', 'true'],
+            ['given twice', ['2025', '2026']]
+        ])('should return 400 if the season is %s', async (description, season) => {
+            const res = await get('/applications', { season });
 
             expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test('should return all seasons for an empty season', async () => {
+            const current = await generator.createEvent({ season: 2026 });
+            const old = await generator.createEvent({ season: 2025 });
+            await generator.createApplication(current, { user_id: 10 });
+            await generator.createApplication(old, { user_id: 11 });
+
+            const res = await get('/applications', { season: '' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_status[0]).toEqual({ type: 'total_applications', value: 2 });
         });
 
         test('should return empty statistics for a season without applications', async () => {
@@ -326,6 +348,13 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.message).toEqual('Season should be a year.');
         });
 
+        test('should return 400 if the season is empty', async () => {
+            const res = await get('/applications/export', { season: '' });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
         test('should return 400 if the season is not a year', async () => {
             const res = await get('/applications/export', { season: 'abc' });
 
@@ -337,11 +366,13 @@ describe('Cross-event application endpoints', () => {
             const first = await generator.createEvent({ name: 'First SU', season: 2026 });
             const second = await generator.createEvent({ name: 'Second SU', season: 2026 });
             const old = await generator.createEvent({ name: 'Old SU', season: 2025 });
+            // Created out of the expected order, so the test fails if the export isn't sorted.
+            // Rejected and cancelled applicants count too, like in the statistics.
+            await generator.createApplication(second, { user_id: 13, body_name: 'AEGEE-Zaragoza', status: 'rejected' });
+            await generator.createApplication(first, { user_id: 12, body_name: 'AEGEE-Alicante', cancelled: true });
             await generator.createApplication(first, { user_id: 10, body_name: 'AEGEE-Dresden' });
             await generator.createApplication(second, { user_id: 10, body_name: 'AEGEE-Dresden' });
             await generator.createApplication(first, { user_id: 11, body_name: 'AEGEE-Dresden' });
-            await generator.createApplication(first, { user_id: 12, body_name: 'AEGEE-Alicante' });
-            await generator.createApplication(second, { user_id: 13, body_name: 'AEGEE-Zaragoza' });
             await generator.createApplication(old, { user_id: 14, body_name: 'AEGEE-Kyiv' });
 
             const res = await getExport({ season: '2026' });
