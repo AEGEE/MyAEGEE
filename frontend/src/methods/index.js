@@ -1,8 +1,10 @@
 import sluggify from './sluggify'
 import escapeHtml from './escape-html'
+import { remember } from './flash'
 
 export default {
   showNotification (options) {
+    remember(options)
     // Buefy renders toast messages as HTML. None of ours need markup, and they often
     // contain names or server messages, so they're always shown as plain text.
     options.message = escapeHtml(options.message)

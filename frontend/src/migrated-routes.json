@@ -1,0 +1,10 @@
+{
+  "description": "Paths the React app (frontend-react/) serves when it runs next to this app. The gateway sends these to React, and the Vue router loads them with a full page load instead of rendering its own view (only when the app is built with VUE_APP_REACT_ROUTES=true). See docs/react-migration/03-coexistence.md.",
+  "patterns": [
+    "^/events/?$",
+    "^/events/(participating|organizing)/?$",
+    "^/events/(?!new/?$|serviceadmin/?$|change_status/?$|boardview/?$)[^/]+/?$",
+    "^/events/[^/]+/applications/[^/]+/?$"
+  ],
+  "assets": "^/react/"
+}
