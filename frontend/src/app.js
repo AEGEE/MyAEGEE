@@ -28,6 +28,9 @@ import {
 import qs from 'qs'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VTooltip from 'v-tooltip'
+import '@fontsource/open-sans/300.css'
+import '@fontsource/open-sans/400.css'
+import '@fontsource/open-sans/600.css'
 
 import App from './App.vue'
 import FontAwesomeIcon from './fontawesome'

@@ -223,7 +223,7 @@ const knownBugErrors = new Map<string, RegExp>();
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
 export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void }>({
-    // The frontend loads fonts and map tiles from the internet. The tests don't need them,
+    // The frontend loads map tiles from the internet. The tests don't need them,
     // and a slow or failing external request would delay the page's load event, so block them.
     context: async ({ context }, use) => {
         await context.route((requestUrl) => !LOCAL_HOSTS.includes(requestUrl.hostname), (route) => route.abort());
