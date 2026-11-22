@@ -25,7 +25,10 @@ const root = path.resolve(import.meta.dirname, '..');
 const resultsDir = path.join(root, 'a11y-results');
 const outFile = path.resolve(root, '../docs/react-migration/data/a11y-baseline.json');
 
-const frontends = fs.existsSync(resultsDir) ? fs.readdirSync(resultsDir) : [];
+// One directory per frontend. CI writes summary.md next to them before this runs, so skip files.
+const frontends = fs.existsSync(resultsDir)
+    ? fs.readdirSync(resultsDir, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name)
+    : [];
 if (frontends.length === 0) {
     console.error('No results in e2e/a11y-results. Run: npx playwright test -c playwright.ui.config.ts --grep @a11y');
     process.exit(1);
