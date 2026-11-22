@@ -436,14 +436,21 @@ exports.exportAll = async (req, res) => {
     return res.send(resultBuffer);
 };
 
-exports.getStats = async (req, res) => {
-    // The statistics cover every Summer University, so only SU managers and approvers can see them.
-    const canSeeStats = Object.values(req.permissions.manage_summeruniversity).some(Boolean)
-        || Object.values(req.permissions.approve_summeruniversity).some(Boolean);
-    if (!canSeeStats) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see the application statistics.');
+// The statistics cover every Summer University, so only SU managers and approvers can see them.
+const canSeeStats = (permissions) => Object.values(permissions.manage_summeruniversity).some(Boolean)
+    || Object.values(permissions.approve_summeruniversity).some(Boolean);
+
+// Returns the season as a number, null when it's not given, or NaN when it's not a valid year.
+const parseSeason = (season) => {
+    if (season === undefined || season === '') {
+        return null;
     }
 
+    const parsed = Number(season);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : NaN;
+};
+
+const calculateStats = async (season) => {
     const statsObject = {
         by_event: [],
         by_body: [],
@@ -454,9 +461,9 @@ exports.getStats = async (req, res) => {
     let applicationQuery = { attributes: ['user_id', 'event_id', 'body_name', 'nationality', 'confirmed'] };
     let eventQuery = { attributes: ['id', 'name'] };
 
-    if (req.query.season) {
-        applicationQuery = { ...applicationQuery, ...{ include: [{ model: Event, where: { season: Number(req.query.season) } }] } };
-        eventQuery = { ...eventQuery, ...{ where: { season: Number(req.query.season) } } };
+    if (season !== null) {
+        applicationQuery = { ...applicationQuery, ...{ include: [{ model: Event, where: { season } }] } };
+        eventQuery = { ...eventQuery, ...{ where: { season } } };
     }
 
     const applications = await Application.findAll(applicationQuery);
@@ -479,8 +486,51 @@ exports.getStats = async (req, res) => {
         { type: 'confirmed', value: applications.filter((app) => app.confirmed === true).length }
     ];
 
+    return statsObject;
+};
+
+exports.getStats = async (req, res) => {
+    if (!canSeeStats(req.permissions)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see the application statistics.');
+    }
+
+    const season = parseSeason(req.query.season);
+    if (Number.isNaN(season)) {
+        return errors.makeBadRequestError(res, 'Season should be a year.');
+    }
+
     return res.json({
         success: true,
-        data: statsObject
+        data: await calculateStats(season)
     });
+};
+
+exports.exportStatsByBody = async (req, res) => {
+    if (!canSeeStats(req.permissions)) {
+        return errors.makeForbiddenError(res, 'You are not allowed to export the application statistics.');
+    }
+
+    const season = parseSeason(req.query.season);
+    if (season === null || Number.isNaN(season)) {
+        return errors.makeBadRequestError(res, 'Season should be a year.');
+    }
+
+    const { by_body: byBody } = await calculateStats(season);
+
+    const resultBuffer = xlsx.build([
+        {
+            name: 'By body',
+            data: [
+                ['Body', 'Applicants'],
+                ...byBody
+                    .sort((a, b) => b.value - a.value || a.type.localeCompare(b.type))
+                    .map(({ type, value }) => [type, value])
+            ]
+        }
+    ]);
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=su_stats_by_body_' + season + '.xlsx');
+
+    return res.send(resultBuffer);
 };
