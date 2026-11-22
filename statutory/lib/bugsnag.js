@@ -9,7 +9,9 @@ const bugsnagClient = Bugsnag.start({
     logger,
     appVersion: packageInfo.version,
     hostname: config.host,
-    releaseStage: process.env.NODE_ENV
+    releaseStage: process.env.NODE_ENV,
+    // Never report errors from end-to-end test runs.
+    ...(process.env.NODE_ENV === 'e2e' && { enabledReleaseStages: [] })
 });
 
 module.exports = bugsnagClient;
