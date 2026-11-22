@@ -35,6 +35,32 @@ updates:
         group-by: dependency-name
         update-types:
           - "major"
+    # The frontend stays on Vue 2.7; it won't move to Vue 3. The next major of each
+    # of these packages needs Vue 3 (or, for mapbox-gl, breaks the Vue 2-only
+    # vue-mapbox wrapper), so Dependabot would keep reopening PRs we can't merge.
+    ignore:
+      - dependency-name: "vue"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-router"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vuex"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "buefy"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-multiselect"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-flatpickr-component"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@fortawesome/vue-fontawesome"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mapbox-gl"
+        update-types: ["version-update:semver-major"]
+      # @fortawesome/vue-fontawesome 2 (the Vue 2 version) only supports
+      # fontawesome-svg-core 1 and 6, so stay on Font Awesome 6.
+      - dependency-name: "@fortawesome/fontawesome-svg-core"
+        versions: [">=7"]
+      - dependency-name: "@fortawesome/free-solid-svg-icons"
+        versions: [">=7"]
     schedule:
       interval: "weekly"
       day: "friday"
