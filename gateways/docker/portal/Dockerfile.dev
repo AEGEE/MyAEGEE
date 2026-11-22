@@ -1,4 +1,4 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM php:8.5.12-apache@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
+FROM --platform=$BUILDPLATFORM php:8.6.0RC7-apache@sha256:909de12becaed2b74c9188e4f152b63723d13708f2b08489c1ef44045bbfbaea
 
 COPY files/ /var/www/html/
