@@ -55,6 +55,21 @@ export interface Application {
     event_type?: string;
 }
 
+export interface StatutoryEvent {
+    id: number;
+    name: string;
+    url: string;
+    type: string;
+    questions: { description: string }[];
+}
+
+export interface StatutoryApplication {
+    id: number;
+    statutory_id: string;
+    user_id: number;
+    body_name: string;
+}
+
 export interface Mail {
     subject: string;
     to?: string | string[];
@@ -192,6 +207,53 @@ export class Api {
             agreed_to_privacy_policy: true
         });
         expect(status, `apply as ${username}: ${JSON.stringify(body)}`).toBe(200);
+        return body.data;
+    }
+
+    // Creates a statutory event as admin whose applications are open from yesterday until
+    // in 10 days, with the later deadlines after that. Admin organizes it on behalf of
+    // member's antenna, as admin has no bodies.
+    async createStatutoryEvent(overrides: Record<string, unknown> = {}): Promise<StatutoryEvent> {
+        const now = Date.now();
+        const at = (days: number) => new Date(now + days * DAY);
+        const payload = {
+            name: `E2E statutory event ${now}`,
+            url: `e2e-statutory-${now}-${Math.round(Math.random() * 1e6)}`,
+            description: 'Created by the e2e tests',
+            type: 'agora',
+            body_id: (await this.me('member')).bodies[0].id,
+            fee: 0,
+            application_period_starts: at(-1),
+            application_period_ends: at(10),
+            board_approve_deadline: at(11),
+            participants_list_publish_deadline: at(12),
+            memberslist_submission_deadline: at(13),
+            draft_proposal_deadline: at(5),
+            final_proposal_deadline: at(8),
+            candidature_deadline: at(8),
+            booklet_publication_deadline: at(9),
+            updated_booklet_publication_deadline: at(12),
+            starts: at(20),
+            ends: at(22),
+            questions: [{ type: 'string', description: 'Why do you want to come?', required: true }],
+            ...overrides
+        };
+
+        const { status, body } = await this.call<Envelope<StatutoryEvent>>('admin', 'POST', '/api/statutory/', payload);
+        expect(status, `create statutory event: ${JSON.stringify(body)}`).toBe(200);
+        return body.data;
+    }
+
+    async applyToStatutory(username: Username, event: StatutoryEvent): Promise<StatutoryApplication> {
+        const user = await this.me(username);
+        const { status, body } = await this.call<Envelope<StatutoryApplication>>(username, 'POST', `/api/statutory/events/${event.id}/applications/`, {
+            body_id: user.bodies[0].id,
+            nationality: 'Belgian',
+            meals: 'Vegetarian',
+            number_of_events_visited: 0,
+            answers: event.questions.map(() => 'Created by the e2e tests')
+        });
+        expect(status, `apply to statutory event as ${username}: ${JSON.stringify(body)}`).toBe(200);
         return body.data;
     }
 

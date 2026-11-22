@@ -74,7 +74,7 @@
             <span v-else>-</span>
           </b-table-column>
 
-          <b-table-column field="status" label="Status" v-if="includeDeleted" v-slot="props">
+          <b-table-column field="status" label="Status" :visible="includeDeleted" v-slot="props">
             <span class="tag is-small is-info" v-if="props.row.status === 'active'">Active</span>
             <span class="tag is-small is-danger" v-if="props.row.status === 'deleted'">Deleted</span>
           </b-table-column>

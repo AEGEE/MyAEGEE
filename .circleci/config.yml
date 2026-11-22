@@ -2140,7 +2140,7 @@ jobs:
               ]
             }
   e2e-test:
-    # Runs core, events and summeruniversity as plain Node processes against one
+    # Runs core, events, summeruniversity and statutory as plain Node processes against one
     # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
     docker:
       - image: cimg/node:26.13.1

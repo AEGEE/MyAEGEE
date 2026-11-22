@@ -49,6 +49,7 @@ export default defineConfig({
         service('core'),
         service('events'),
         service('summeruniversity'),
+        service('statutory'),
         {
             command: 'node support/gateway.ts',
             url: url('gateway'),

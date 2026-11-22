@@ -21,7 +21,7 @@ const run = (command: string, cwd: string, { ignoreErrors = false } = {}): void 
     }
 };
 
-for (const service of ['core', 'events', 'summeruniversity']) {
+for (const service of ['core', 'events', 'summeruniversity', 'statutory']) {
     const cwd = path.join(root, service);
     run('npx sequelize db:drop', cwd, { ignoreErrors: true });
     run('npx sequelize db:create', cwd);

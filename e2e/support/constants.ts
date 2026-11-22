@@ -1,10 +1,11 @@
 // Shared settings for the e2e stack. Service ports must match the `e2e` block
-// in core/events/summeruniversity config/index.js.
+// in core/events/summeruniversity/statutory config/index.js.
 export const PORTS = {
     gateway: 18080,
     core: 18084,
     events: 18085,
     summeruniversity: 18086,
+    statutory: 18087,
     mailer: 18090
 } as const;
 
