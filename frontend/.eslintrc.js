@@ -24,6 +24,10 @@ module.exports = {
         // columns after it with other column components: their headers update, their cells don't.
         selector: 'VElement[rawName=/^(b-table-column|BTableColumn)$/] > VStartTag > VAttribute[directive=true][key.name.name=/^(if|else|else-if|show)$/]',
         message: 'Hide table columns with the `:visible` prop, not v-if/v-else/v-show: Buefy columns are renderless, so their cells desync from the headers.'
+      },
+      {
+        selector: 'VElement[rawName=/^(b-table|BTable)$/] > VElement[name=template] > VStartTag > VAttribute[directive=true][key.name.name=/^(if|else|else-if)$/]',
+        message: 'Hide table columns with the `:visible` prop instead of wrapping them in a conditional <template>: Buefy columns are renderless, so their cells desync from the headers.'
       }
     ],
     semi: ['error', 'never'],
