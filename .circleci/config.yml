@@ -1380,7 +1380,7 @@ jobs:
             printf '%s\n' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
-              --tag aegee/nginx-static:1.28.1 \
+              --tag aegee/nginx-static:1.30.7 \
               --tag aegee/nginx-static:stable \
               --tag aegee/nginx-static:latest \
               -f docker/nginx-static/Dockerfile \
@@ -1394,7 +1394,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":white_check_mark: The Docker image for nginx-static with tags `1.28.1`, `stable` and `latest` has been pushed to Dockerhub."
+                    "text": ":white_check_mark: The Docker image for nginx-static with tags `1.30.7`, `stable` and `latest` has been pushed to Dockerhub."
                   }
                 },
                 {
@@ -2140,7 +2140,7 @@ jobs:
               ]
             }
   e2e-test:
-    # Runs core, events and summeruniversity as plain Node processes against one
+    # Runs core, events, summeruniversity and statutory as plain Node processes against one
     # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
     docker:
       - image: cimg/node:26.13.1

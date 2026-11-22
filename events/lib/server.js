@@ -84,8 +84,8 @@ EventsRouter.put('/applications/:application_id/status', middlewares.fetchSingle
 EventsRouter.put('/applications/:application_id/comment', middlewares.fetchSingleApplication, applications.setApplicationComment);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use('/', GeneralRouter);
-server.use('/single/:event_id', EventsRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
+server.use('/single/:event_id', endpointsMetrics.recordMountPath('/single/:event_id'), EventsRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

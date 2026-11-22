@@ -2,7 +2,7 @@ import { test, expect, loginInBrowser, type Envelope } from '../support/api.ts';
 import { loadSeedPermissions } from '../support/core.ts';
 
 test.describe('e2e stack', () => {
-    for (const service of ['core', 'events', 'summeruniversity']) {
+    for (const service of ['core', 'events', 'summeruniversity', 'statutory']) {
         test(`${service} is reachable through the gateway`, async ({ api }) => {
             const { status, body } = await api.call<Envelope<unknown>>(null, 'GET', `/api/${service}/healthcheck`);
             expect(status).toBe(200);

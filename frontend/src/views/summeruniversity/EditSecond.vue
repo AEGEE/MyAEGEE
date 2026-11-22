@@ -56,16 +56,11 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
-        <div class="field" v-if="can.editSeason">
+        <div class="field" v-if="managedTypes.includes(event.type)">
           <label class="label">Season <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="season">
-              <option value="2021">2021</option>
-              <option value="2022">2022</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option selected value="2026">2026</option>
+            <select v-model="event.season">
+              <option v-for="season in seasons" :key="season.year" :value="season.year">{{ season.name }}</option>
             </select>
           </div>
           <p class="help is-danger" v-if="errors.season">{{ errors.season.join(', ') }}</p>
@@ -522,9 +517,11 @@ export default {
       roles: constants.SUMMERUNIVERSITY_ROLES,
       courseLevels: constants.SUMMERUNIVERSITY_COURSE_LEVELS,
       file: null,
+      seasons: [],
+      // The event types the user can manage. Only managers of the event's type can choose its season.
+      managedTypes: [],
       can: {
-        editEventType: false,
-        editSeason: false
+        editEventType: false
       },
       errors: {},
       isLoading: false,
@@ -715,15 +712,18 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
+    this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
+      this.seasons = response.data.data
+    }).catch((err) => this.$root.showError('Could not fetch seasons', err))
+
     this.axios.get(this.services['core'] + '/my_permissions/').then((response) => {
       this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-      this.can.editSeason = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_season'))
+      this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
 
       return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-        this.can.editSeason = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_season'))
 
         for (const organizer of this.event.organizers) {
           this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
@@ -746,7 +746,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.summeruniversity.list' })
+      this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
   }
 }

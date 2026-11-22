@@ -3,11 +3,33 @@ const errors = require('./errors');
 const merge = require('./merge');
 const constants = require('./constants');
 const helpers = require('./helpers');
-const { Application, Event } = require('../models');
+const { Application, Event, Season } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
+
+// Fields that can't be set through the generic event create and edit.
+// The application period and the open call have their own endpoints,
+// and the participant counters are maintained by the system.
+const BLOCKED_EVENT_FIELDS = [
+    'id',
+    'image',
+    'status',
+    'deleted',
+    'published',
+    'application_starts',
+    'application_ends',
+    'open_call',
+    'accepted_participants',
+    'available_spots'
+];
+
+const removeBlockedFields = (data) => {
+    for (const field of BLOCKED_EVENT_FIELDS) {
+        delete data[field];
+    }
+};
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -163,6 +185,12 @@ const canManageTypes = (permissions, types) => types
     .filter(Boolean)
     .every((type) => permissions.manage_summeruniversity[type] === true);
 
+// The year of the active season, which new events belong to by default.
+const getActiveSeasonYear = async () => {
+    const season = await Season.findOne({ where: { active: true } });
+    return season ? season.year : null;
+};
+
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
 // Organizers have to be members of one of the organizing or cooperation bodies.
@@ -222,18 +250,16 @@ exports.addEvent = async (req, res) => {
 
     // Make sure the user doesn't insert malicious stuff
     const data = req.body;
-    delete data.id;
-    delete data.image;
-    delete data.deleted;
-    delete data.published;
+    removeBlockedFields(data);
 
     data.status = 'first submission';
 
-    if (!data.season) {
-        data.season = 2026;
-    }
-
     const event = new Event(data);
+
+    // Only managers can choose the season, other events get the active one.
+    if (!event.season || !canManageTypes(req.permissions, [event.type])) {
+        event.season = await getActiveSeasonYear();
+    }
 
     // we'll catch these on validation inside the Event model.
     if (Array.isArray(event.organizers)) {
@@ -331,16 +357,13 @@ exports.editEvent = async (req, res) => {
 
     const data = req.body;
     const event = req.event;
-    const oldStatus = data.status;
+    const oldStatus = event.status;
 
-    delete data.id;
-    delete data.image;
-    delete data.status;
-    delete data.deleted;
-    delete data.published;
+    removeBlockedFields(data);
 
-    if (!data.season) {
-        data.season = 2026;
+    // Only managers can change the season.
+    if (!data.season || !canManageTypes(req.permissions, [event.type, data.type])) {
+        delete data.season;
     }
 
     if (Object.keys(data).length === 0) {
@@ -393,7 +416,8 @@ exports.editEvent = async (req, res) => {
         await event.update(data, { transaction: t });
 
         const adminToken = await core.getAdminToken();
-        data.organizers = await Promise.all(data.organizers.map((organizer) =>
+        const organizers = Array.isArray(data.organizers) ? data.organizers : event.organizers;
+        data.organizers = await Promise.all(organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.

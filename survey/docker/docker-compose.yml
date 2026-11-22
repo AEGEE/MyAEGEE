@@ -17,7 +17,7 @@ services:
       - upload:/app/upload
   postgres-limesurvey:
     restart: always
-    image: postgres:10.6
+    image: postgres:10.21
     volumes:
       - postgres-limesurvey:/var/lib/postgresql/data
     expose:

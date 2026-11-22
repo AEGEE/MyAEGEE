@@ -8,6 +8,7 @@ const morgan = require('./morgan');
 const db = require('./sequelize');
 const applications = require('./applications'); // API middlewares for applications management
 const events = require('./events'); // API middlewares for events management
+const seasons = require('./seasons'); // API middlewares for seasons management
 const imageserv = require('./imageserv');
 const log = require('./logger');
 const middlewares = require('./middlewares');
@@ -58,8 +59,16 @@ GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.li
 
 GeneralRouter.get('/applications/future/:user_id', middlewares.ensureAuthorized, applications.listFutureApplicationsForUser);
 GeneralRouter.get('/applications', middlewares.ensureAuthorized, applications.getStats);
+GeneralRouter.get('/applications/export', middlewares.ensureAuthorized, applications.exportStatsByBody);
 
 GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
+
+// Listing the seasons is public, like listing the events.
+GeneralRouter.get('/seasons', cors(corsOptions), seasons.listSeasons);
+GeneralRouter.get('/seasons/active', cors(corsOptions), seasons.getActiveSeason);
+GeneralRouter.post('/seasons', middlewares.ensureAuthorized, seasons.createSeason);
+GeneralRouter.put('/seasons/:year', middlewares.ensureAuthorized, seasons.updateSeason);
+GeneralRouter.put('/seasons/:year/active', middlewares.ensureAuthorized, seasons.setActiveSeason);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
@@ -89,8 +98,8 @@ EventsRouter.put('/applications/:application_id/status', middlewares.fetchSingle
 EventsRouter.put('/applications/:application_id/comment', middlewares.fetchSingleApplication, applications.setApplicationComment);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use('/', GeneralRouter);
-server.use('/single/:event_id', EventsRouter);
+server.use('/', endpointsMetrics.recordMountPath('/'), GeneralRouter);
+server.use('/single/:event_id', endpointsMetrics.recordMountPath('/single/:event_id'), EventsRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

@@ -14,6 +14,8 @@ const BodyMembership = require('./BodyMembership');
 const JoinRequest = require('./JoinRequest');
 const Payment = require('./Payment');
 const EventApplicationBan = require('./EventApplicationBan');
+const ResourceCategory = require('./ResourceCategory');
+const ResourceLink = require('./ResourceLink');
 
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
@@ -92,6 +94,9 @@ EventApplicationBan.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 EventApplicationBan.belongsTo(User, { foreignKey: 'banned_by_user_id', as: 'banned_by' });
 EventApplicationBan.belongsTo(User, { foreignKey: 'lifted_by_user_id', as: 'lifted_by' });
 
+ResourceCategory.hasMany(ResourceLink, { foreignKey: 'category_id', as: 'links', onDelete: 'RESTRICT' });
+ResourceLink.belongsTo(ResourceCategory, { foreignKey: 'category_id', as: 'category' });
+
 module.exports = {
     User,
     Campaign,
@@ -109,4 +114,6 @@ module.exports = {
     JoinRequest,
     Payment,
     EventApplicationBan,
+    ResourceCategory,
+    ResourceLink,
 };

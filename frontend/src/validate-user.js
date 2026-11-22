@@ -3,13 +3,19 @@ const RESTRICTED_EMAILS = ['aegee.org', 'aegee.eu']
 // TODO: Remove 'other' and find a different way to allow non-AEGEEans in the system (Secretariat, but maybe also Honorary Members and Les Anciens until they can be anciens in their own body)
 const ALLOWED_BODY_TYPES = ['antenna', 'contact antenna', 'contact', 'external', 'other']
 
+// Blocks the domain itself and its subdomains, but not e.g. 'notaegee.org'.
+const isRestrictedEmail = (email) => {
+  const normalized = email.trim().toLowerCase()
+  return RESTRICTED_EMAILS.some(domain => normalized.endsWith('@' + domain) || normalized.endsWith('.' + domain))
+}
+
 const validate = (user) => {
   if (user.superadmin) {
     return {}
   }
 
   const errorsMap = {}
-  if (RESTRICTED_EMAILS.some(email => user.email.endsWith(email))) {
+  if (isRestrictedEmail(user.email)) {
     errorsMap.email = 'Your email can not be in one of the following domains: ' + RESTRICTED_EMAILS.join(', ').trim() + '.'
   }
 
@@ -30,6 +36,7 @@ const validate = (user) => {
 
 export {
   validate,
+  isRestrictedEmail,
   RESTRICTED_EMAILS,
   ALLOWED_BODY_TYPES
 }

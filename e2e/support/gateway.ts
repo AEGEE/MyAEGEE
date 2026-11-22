@@ -8,7 +8,7 @@ import path from 'node:path';
 import { PORTS, type Service } from './constants.ts';
 
 const distDir = path.resolve(import.meta.dirname, '../.frontend-dist');
-const proxied: Service[] = ['core', 'events', 'summeruniversity'];
+const proxied: Service[] = ['core', 'events', 'summeruniversity', 'statutory'];
 
 const MIME_TYPES: Record<string, string> = {
     '.html': 'text/html; charset=utf-8',

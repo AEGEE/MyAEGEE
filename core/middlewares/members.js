@@ -444,7 +444,7 @@ exports.triggerEmailChange = async (req, res) => {
         return errors.makeBadRequestError(res, 'No new email is provided.');
     }
 
-    if (constants.RESTRICTED_EMAILS.some((email) => req.body.new_email.includes(email))) {
+    if (helpers.isRestrictedEmail(req.body.new_email)) {
         return errors.makeValidationError(res, 'New email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
     }
 
@@ -528,7 +528,7 @@ exports.subscribeListserv = async (req, res) => {
     }
 
     try {
-        await request({
+        const response = await request({
             url: config.listserv_endpoint,
             method: 'POST',
             form: {
@@ -536,8 +536,13 @@ exports.subscribeListserv = async (req, res) => {
                 email: req.user.notification_email,
                 name: `${req.user.first_name} ${req.user.last_name}`,
                 lists: mailinglists.join(','),
-            }
+            },
+            fullResponse: true
         });
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+            throw new Error(`Listserv responded with status ${response.statusCode}.`);
+        }
     } catch (err) {
         return errors.makeInternalError(res, err);
     }

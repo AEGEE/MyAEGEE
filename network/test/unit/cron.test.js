@@ -21,13 +21,14 @@ describe('Cron Job Tests', () => {
         expect(cron.job.nextDate().toJSDate().getTime()).toBeGreaterThan(Date.now());
     });
 
-    test('sendAllEmails should fetch all boards and send emails', async () => {
+    test('sendAllEmails should fetch unsent boards and send emails', async () => {
         const mockBoards = [{ id: 1 }, { id: 2 }];
         Board.findAll.mockResolvedValue(mockBoards);
 
         await cron.sendAllEmails();
 
         expect(Board.findAll).toHaveBeenCalledTimes(1);
+        expect(Board.findAll.mock.calls[0][0].where.new_board_email_sent_at).toBeNull();
         expect(boards.sendNewBoardEmail).toHaveBeenCalledTimes(mockBoards.length);
         expect(boards.sendNewBoardEmail).toHaveBeenCalledWith(1);
         expect(boards.sendNewBoardEmail).toHaveBeenCalledWith(2);

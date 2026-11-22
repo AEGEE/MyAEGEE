@@ -510,6 +510,38 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.stats',
+    path: '/summeruniversity/stats',
+    component: 'summeruniversity/Stats',
+    meta: {
+      label: 'Summer University statistics'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.seasons',
+    path: '/summeruniversity/seasons',
+    component: 'summeruniversity/Seasons',
+    meta: {
+      label: 'Manage SU seasons'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.seasons.create',
+    path: '/summeruniversity/seasons/new',
+    component: 'summeruniversity/SeasonEdit',
+    meta: {
+      label: 'Create SU season'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.seasons.edit',
+    path: '/summeruniversity/seasons/:year/edit',
+    component: 'summeruniversity/SeasonEdit',
+    meta: {
+      label: 'Edit SU season'
+    }
+  },
+  {
     name: 'oms.summeruniversity.list.all',
     path: '/summeruniversity',
     component: 'summeruniversity/List',
@@ -866,6 +898,46 @@ module.exports = [
       label: 'Resources'
     },
     component: 'static/Resources'
+  },
+  {
+    name: 'oms.resources.manage',
+    path: '/resources/manage',
+    meta: {
+      label: 'Manage resources'
+    },
+    component: 'resources/Manage'
+  },
+  {
+    name: 'oms.resources.categories.create',
+    path: '/resources/categories/new',
+    meta: {
+      label: 'Add a resources section'
+    },
+    component: 'resources/CategoryEdit'
+  },
+  {
+    name: 'oms.resources.categories.edit',
+    path: '/resources/categories/:id/edit',
+    meta: {
+      label: 'Edit a resources section'
+    },
+    component: 'resources/CategoryEdit'
+  },
+  {
+    name: 'oms.resources.links.create',
+    path: '/resources/links/new',
+    meta: {
+      label: 'Add a resources link'
+    },
+    component: 'resources/LinkEdit'
+  },
+  {
+    name: 'oms.resources.links.edit',
+    path: '/resources/links/:id/edit',
+    meta: {
+      label: 'Edit a resources link'
+    },
+    component: 'resources/LinkEdit'
   },
   /* Discounts distribution */
   {

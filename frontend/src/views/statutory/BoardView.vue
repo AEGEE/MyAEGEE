@@ -166,18 +166,6 @@
               </span>
             </b-table-column>
 
-            <b-table-column label="View" centered v-slot="props">
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-                View
-              </router-link>
-            </b-table-column>
-
-            <b-table-column label="Edit" centered v-slot="props" v-if="can.manage_applications">
-              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-                Edit
-              </router-link>
-            </b-table-column>
-
             <b-table-column field="status" label="Status" centered v-slot="props">
               <span v-if="props.row.status === 'accepted'">Accepted</span>
               <span v-if="props.row.status === 'rejected'">Rejected</span>
@@ -187,6 +175,18 @@
 
             <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" v-slot="props">
               {{ field.get(props.row) | beautify }}
+            </b-table-column>
+
+            <b-table-column label="View" centered v-slot="props">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
+
+            <b-table-column label="Edit" centered v-slot="props" :visible="!!can.manage_applications">
+              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                Edit
+              </router-link>
             </b-table-column>
 
             <template slot="empty">
@@ -384,7 +384,7 @@ export default {
     this.isLoading = true
 
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-      this.loading = false
+      this.isLoading = false
 
       this.event = event.data.data
       this.can = event.data.data.permissions

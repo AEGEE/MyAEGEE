@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Campaign } = require('../../models');
 
 describe('Campaign editing', () => {
     beforeAll(async () => {
@@ -95,5 +96,28 @@ describe('Campaign editing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual('New name');
+    });
+
+    test('should allow changing autojoin_body_id', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const campaign = await generator.createCampaign();
+
+        const res = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: body.id }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const campaignFromDb = await Campaign.findByPk(campaign.id);
+        expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
 });

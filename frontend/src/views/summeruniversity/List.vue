@@ -30,12 +30,7 @@
           <div class="control">
             <div class="select">
               <select v-model="season" @change="refetch()">
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option selected value="2026">2026</option>
+                <option v-for="item in seasons" :key="item.year" :value="item.year">{{ item.year }}</option>
               </select>
             </div>
           </div>
@@ -115,7 +110,7 @@
                       :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                       class="button">Go to event page</router-link>
                   </p>
-                  <p class="control" v-if="can.apply">
+                  <p class="control" v-if="can.apply && event.application_status === 'open'">
                     <router-link
                       :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                       class="button is-primary">
@@ -190,7 +185,7 @@
                           :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                           class="button">Go to event page</router-link>
                       </p>
-                      <p class="control" v-if="can.apply">
+                      <p class="control" v-if="can.apply && event.application_status === 'open'">
                         <router-link
                           :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                           class="button is-primary">
@@ -253,7 +248,8 @@ export default {
       eventTypes,
       eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       applicationStatuses,
-      season: 2026,
+      season: null,
+      seasons: [],
       isLoading: {
         events: false,
         permissions: false
@@ -352,6 +348,7 @@ export default {
 
       this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
         this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:summeruniversity'))
+        this.can.apply = response.data.data.some(permission => permission.combined.endsWith('apply:summeruniversity'))
 
         this.isLoading.permissions = false
       }).catch((err) => {
@@ -367,7 +364,16 @@ export default {
     }
   },
   mounted () {
-    this.refetch()
+    // Showing the active season by default.
+    this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
+      this.seasons = response.data.data
+      const active = this.seasons.find((item) => item.active)
+      this.season = active ? active.year : null
+    }).catch((err) => {
+      this.$root.showError('Could not fetch seasons', err)
+    }).finally(() => {
+      this.refetch()
+    })
     this.fetchPermissions()
   }
 }

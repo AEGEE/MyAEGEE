@@ -1,3 +1,5 @@
+const xlsx = require('node-xlsx').default;
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -27,7 +29,7 @@ describe('Cross-event application endpoints', () => {
         await generator.clearAll();
     });
 
-    const get = (path, query) => request({ path, method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, query });
+    const get = (path, query, options = {}) => request({ path, method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, query, ...options });
 
     describe('GET /boardview/:body_id', () => {
         test('should return 401 if the user is not authenticated', async () => {
@@ -237,6 +239,54 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.data.by_status[0]).toEqual({ type: 'total_applications', value: 2 });
         });
 
+        test('should return 400 if the season is not a year', async () => {
+            const res = await get('/applications', { season: 'abc' });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test.each([
+            ['not a whole number', '2025.5'],
+            ['zero', '0'],
+            ['negative', '-2025'],
+            ['not four digits', '20250'],
+            ['in another notation', '2.025e3'],
+            ['padded with spaces', ' 2025 '],
+            ['a boolean', 'true'],
+            ['given twice', ['2025', '2026']]
+        ])('should return 400 if the season is %s', async (description, season) => {
+            const res = await get('/applications', { season });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test('should return all seasons for an empty season', async () => {
+            const current = await generator.createEvent({ season: 2026 });
+            const old = await generator.createEvent({ season: 2025 });
+            await generator.createApplication(current, { user_id: 10 });
+            await generator.createApplication(old, { user_id: 11 });
+
+            const res = await get('/applications', { season: '' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_status[0]).toEqual({ type: 'total_applications', value: 2 });
+        });
+
+        test('should return empty statistics for a season without applications', async () => {
+            const event = await generator.createEvent({ season: 2026 });
+            await generator.createApplication(event, { user_id: 10 });
+
+            const res = await get('/applications', { season: '2024' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_event).toEqual([]);
+            expect(res.body.data.by_body).toEqual([]);
+            expect(res.body.data.by_status[0]).toEqual({ type: 'total_applications', value: 0 });
+        });
+
         test('should return 403 for an authenticated user without SU management or approval permissions', async () => {
             mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
 
@@ -266,6 +316,110 @@ describe('Cross-event application endpoints', () => {
             });
 
             const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(200);
+        });
+    });
+    describe('GET /applications/export', () => {
+        const getExport = (query) => get('/applications/export', query, { responseType: 'buffer' });
+
+        test('should return 401 if the user is not authenticated', async () => {
+            mock.mockAll(unauthorizedMocks);
+
+            const res = await get('/applications/export', { season: '2026' });
+
+            expect(res.statusCode).toEqual(401);
+        });
+
+        test('should return 403 for an authenticated user without SU management or approval permissions', async () => {
+            mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+
+            const res = await get('/applications/export', { season: '2026' });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('You are not allowed to export the application statistics.');
+        });
+
+        test('should return 400 if the season is not given', async () => {
+            const res = await get('/applications/export');
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test('should return 400 if the season is empty', async () => {
+            const res = await get('/applications/export', { season: '' });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test('should return 400 if the season is not a year', async () => {
+            const res = await get('/applications/export', { season: 'abc' });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Season should be a year.');
+        });
+
+        test('should export the unique applicants by body for the season', async () => {
+            const first = await generator.createEvent({ name: 'First SU', season: 2026 });
+            const second = await generator.createEvent({ name: 'Second SU', season: 2026 });
+            const old = await generator.createEvent({ name: 'Old SU', season: 2025 });
+            // Created out of the expected order, so the test fails if the export isn't sorted.
+            // Rejected and cancelled applicants count too, like in the statistics.
+            await generator.createApplication(second, { user_id: 13, body_name: 'AEGEE-Zaragoza', status: 'rejected' });
+            await generator.createApplication(first, { user_id: 12, body_name: 'AEGEE-Alicante', cancelled: true });
+            await generator.createApplication(first, { user_id: 10, body_name: 'AEGEE-Dresden' });
+            await generator.createApplication(second, { user_id: 10, body_name: 'AEGEE-Dresden' });
+            await generator.createApplication(first, { user_id: 11, body_name: 'AEGEE-Dresden' });
+            await generator.createApplication(old, { user_id: 14, body_name: 'AEGEE-Kyiv' });
+
+            const res = await getExport({ season: '2026' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['content-type']).toEqual('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            expect(res.headers['content-disposition']).toEqual('attachment; filename=su_stats_by_body_2026.xlsx');
+
+            const [sheet] = xlsx.parse(res.body);
+            expect(sheet.name).toEqual('By body');
+            expect(sheet.data).toEqual([
+                ['Body', 'Applicants'],
+                ['AEGEE-Dresden', 2],
+                ['AEGEE-Alicante', 1],
+                ['AEGEE-Zaragoza', 1]
+            ]);
+        });
+
+        test('should export only the header for a season without applications', async () => {
+            const res = await getExport({ season: '2024' });
+
+            expect(res.statusCode).toEqual(200);
+
+            const [sheet] = xlsx.parse(res.body);
+            expect(sheet.data).toEqual([['Body', 'Applicants']]);
+        });
+
+        test('should be allowed for a user who can approve Summer Universities', async () => {
+            mock.mockAll({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:approve_summeruniversity:pilot'] },
+                approvePermissions: { noPermissions: true }
+            });
+
+            const res = await getExport({ season: '2026' });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        test('should be allowed for a user who can manage pilot Summer Universities', async () => {
+            mock.mockAll({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:manage_summeruniversity:pilot'] },
+                approvePermissions: { noPermissions: true }
+            });
+
+            const res = await getExport({ season: '2026' });
 
             expect(res.statusCode).toEqual(200);
         });

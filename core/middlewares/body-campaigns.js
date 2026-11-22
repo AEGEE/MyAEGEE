@@ -40,10 +40,9 @@ exports.createCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission create:campaign is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
     const circle = await Campaign.create({
-        ...req.body,
-        body_id: req.currentBody.idd
+        ...helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE),
+        autojoin_body_id: req.currentBody.id
     });
 
     return res.json({
@@ -57,8 +56,7 @@ exports.updateCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:campaign is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
-    await req.currentBodyCampaign.update(req.body);
+    await req.currentBodyCampaign.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE));
     return res.json({
         success: true,
         data: req.currentBodyCampaign

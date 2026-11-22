@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker');
 
-const { Event, Application } = require('../../models');
+const { Event, Application, Season } = require('../../models');
 const firstUser = require('../assets/oms-core-valid.json').data;
 
 const notSet = (field) => typeof field === 'undefined';
@@ -90,6 +90,29 @@ exports.createApplication = (event, options = {}) => Application.create(exports.
 exports.clearAll = async () => {
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });
+
+    // Back to the seasons that the migration creates.
+    await Season.destroy({ where: {}, truncate: true });
+    await Season.bulkCreate([2021, 2022, 2023, 2024, 2025, 2026].map((year) => ({
+        year,
+        name: 'Summer University ' + year,
+        active: year === 2026
+    })));
+};
+
+exports.createSeason = (options = {}) => {
+    if (notSet(options.year)) options.year = faker.number.int({ min: 2030, max: 2999 });
+    if (notSet(options.name)) options.name = 'Summer University ' + options.year;
+
+    return Season.create(options);
+};
+
+exports.deactivateSeasons = () => Season.update({ active: false }, { where: {} });
+
+// Makes the season with this year the only active one.
+exports.activateSeason = async (year) => {
+    await exports.deactivateSeasons();
+    await Season.update({ active: true }, { where: { year } });
 };
 
 // A valid request body for POST / (event creation).

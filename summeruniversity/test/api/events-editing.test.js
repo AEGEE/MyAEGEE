@@ -101,18 +101,77 @@ describe('Events editing', () => {
         expect(res.body.data.description).toEqual('New description');
     });
 
-    test('should ignore id, image, deleted and published from the body', async () => {
+    test('should ignore id, image, status, deleted and published from the body', async () => {
         const event = await generator.createEvent({ image: 'original.png' });
 
-        const res = await editEvent(event, { id: 1337, image: 'hacked.png', deleted: true, published: 'none', name: 'Changed' });
+        const res = await editEvent(event, { id: 1337, image: 'hacked.png', status: 'first draft', deleted: true, published: 'none', name: 'Changed' });
 
         expect(res.statusCode).toEqual(200);
         await event.reload();
         expect(event.id).not.toEqual(1337);
         expect(event.image).toEqual('original.png');
+        expect(event.status).toEqual('second approval');
         expect(event.deleted).toEqual(false);
         expect(event.published).toEqual('full');
         expect(event.name).toEqual('Changed');
+    });
+
+    test('should ignore the application period, open call and participant counters from the body', async () => {
+        const event = await generator.createEvent({ max_participants: 20, accepted_participants: 5 });
+        const applicationStarts = event.application_starts.toISOString();
+        const applicationEnds = event.application_ends.toISOString();
+
+        const res = await editEvent(event, {
+            application_starts: generator.daysFromNow(5),
+            application_ends: generator.daysFromNow(10),
+            open_call: true,
+            accepted_participants: 0,
+            available_spots: 100,
+            name: 'Changed'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.application_starts.toISOString()).toEqual(applicationStarts);
+        expect(event.application_ends.toISOString()).toEqual(applicationEnds);
+        expect(event.open_call).toEqual(false);
+        expect(event.accepted_participants).toEqual(5);
+        expect(event.available_spots).toEqual(15);
+        expect(event.name).toEqual('Changed');
+    });
+
+    test('should allow changing max_participants', async () => {
+        const event = await generator.createEvent({ max_participants: 20 });
+
+        const res = await editEvent(event, { max_participants: 30 });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.max_participants).toEqual(30);
+        await event.reload();
+        expect(event.max_participants).toEqual(30);
+    });
+
+    test('should close the open call in the database if no spots are left', async () => {
+        const event = await generator.createEvent({ max_participants: 20, accepted_participants: 10, open_call: true });
+
+        const res = await editEvent(event, { max_participants: 10 });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.available_spots).toEqual(0);
+        expect(event.open_call).toEqual(false);
+    });
+
+    test('should keep the open call if the edit is rolled back', async () => {
+        mockAndCapture({ mailer: { netError: true } });
+        const event = await generator.createEvent({ max_participants: 20, accepted_participants: 10, open_call: true });
+
+        const res = await editEvent(event, { max_participants: 10 });
+
+        expect(res.statusCode).toEqual(500);
+        await event.reload();
+        expect(event.max_participants).toEqual(20);
+        expect(event.open_call).toEqual(true);
     });
 
     test('should refetch the organizing and cooperation bodies from core', async () => {
@@ -149,36 +208,69 @@ describe('Events editing', () => {
         expect(res.body.data.season).toEqual(2025);
     });
 
-    // BUG: editEvent defaults a missing season to 2026, so any edit that does not resend
-    // the season silently moves an older event to the 2026 season.
-    test('should currently reset the season to 2026 if it is not in the body', async () => {
+    test('should keep the season if it is not in the body', async () => {
         const event = await generator.createEvent({ season: 2025 });
 
         const res = await editEvent(event, { name: 'Changed' });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data.season).toEqual(2026);
+        expect(res.body.data.season).toEqual(2025);
     });
 
-    // BUG: editEvent always calls data.organizers.map(), so a body without organizers
-    // crashes with a 500 (the update is rolled back by the transaction). Because season
-    // is always defaulted, the 'No valid field changes requested' branch is unreachable.
-    test('should currently return 500 if the organizers are not in the body', async () => {
+    test('should let managers change the season', async () => {
+        const event = await generator.createEvent({ season: 2025 });
+
+        const res = await editEvent(event, { season: 2026 });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.season).toEqual(2026);
+    });
+
+    test('should not let organizers change the season', async () => {
+        mockAndCapture(organizerMocks);
+        const event = await generator.createEvent({ season: 2025, status: 'second submission' });
+
+        const res = await editEvent(event, { season: 2026, name: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.name).toEqual('Changed');
+        expect(event.season).toEqual(2025);
+    });
+
+    test('should not let managers of only the other type change the season', async () => {
+        mockAndCapture({ mainPermissions: { permissions: ['global:manage_summeruniversity:pilot'] } });
+        const event = await generator.createEvent({ season: 2025, type: 'regular', status: 'second submission' });
+
+        const res = await editEvent(event, { season: 2026, name: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        await event.reload();
+        expect(event.season).toEqual(2025);
+    });
+
+    test('should keep the organizers and notify them if the organizers are not in the body', async () => {
         const event = await generator.createEvent();
+        const organizers = event.organizers;
 
         const res = await request({ path: '/single/' + event.id, method: 'PUT', headers: { 'X-Auth-Token': 'foobar' }, body: { name: 'Changed' } });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(200);
         await event.reload();
-        expect(event.name).not.toEqual('Changed');
+        expect(event.name).toEqual('Changed');
+        expect(event.organizers).toEqual(organizers);
+        expect(mails.map((mail) => mail.template)).toEqual(['summeruniversity_event_updated.html']);
+        expect(mails[0].to).toEqual(Array(4).fill(user.notification_email));
     });
 
-    test('should currently return 500 on an empty body', async () => {
+    test('should return 422 on an empty body', async () => {
         const event = await generator.createEvent();
 
         const res = await request({ path: '/single/' + event.id, method: 'PUT', headers: { 'X-Auth-Token': 'foobar' }, body: {} });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('No valid field changes requested');
     });
 
     describe('status transitions when saving', () => {
@@ -231,24 +323,42 @@ describe('Events editing', () => {
             expect(mails.length).toEqual(1);
         });
 
-        test('should return 403 if the claimed status does not match an allowed transition', async () => {
+        test('should use the stored status if the status is not in the body', async () => {
             mockAndCapture(organizerMocks);
-            // The event is actually in first submission, so first draft -> first submission is not allowed.
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await editEvent(event, { name: 'Submitted' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('first submission');
+            expect(mails.length).toEqual(2);
+        });
+
+        test('should ignore a status in the body that differs from the stored one', async () => {
+            mockAndCapture(organizerMocks);
             const event = await generator.createEvent({ status: 'first submission', published: 'none' });
 
             const res = await editEvent(event, { status: 'first draft', name: 'Changed' });
 
-            expect(res.statusCode).toEqual(403);
-            expect(res.body.message).toEqual('You are not allowed to change status.');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('first submission');
+            expect(mails.map((mail) => mail.template)).toEqual(['summeruniversity_event_updated.html']);
         });
 
-        test('should return 403 if the claimed first approval does not match the actual status', async () => {
-            mockAndCapture(organizerMocks);
-            const event = await generator.createEvent({ status: 'first submission', published: 'none' });
+        test.each([
+            ['first draft', 'none'],
+            ['first approval', 'minimal']
+        ])('should return 403 for a manager who cannot submit a %s', async (status, published) => {
+            // A manager who is neither an organizer nor an approver can edit, but not submit.
+            mockAndCapture({ mainPermissions: { data: mock.permissionsList(['global:manage_summeruniversity:regular']) } });
+            const event = await generator.createEvent({ status, published, organizers: generator.generateOrganizers(9999) });
 
-            const res = await editEvent(event, { status: 'first approval' });
+            const res = await editEvent(event, { name: 'Changed' });
 
             expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('You are not allowed to change status.');
+            await event.reload();
+            expect(event.status).toEqual(status);
         });
     });
 

@@ -1,14 +1,14 @@
 # MyAEGEE end-to-end tests
 
-Playwright tests that run against real `core`, `events` and `summeruniversity`
+Playwright tests that run against real `core`, `events`, `summeruniversity` and `statutory`
 services and the built frontend.
 
 ## Scope
 
 e2e tests are slow and need the whole stack, so keep them for what the module tests can't cover:
 
-- behaviour that crosses services, such as what core grants and what events or
-  summeruniversity then allow (the per-service jest tests mock core away);
+- behaviour that crosses services, such as what core grants and what events,
+  summeruniversity or statutory then allow (the per-service jest tests mock core away);
 - the frontend working against the real APIs;
 - a few smoke tests of the stack itself.
 
@@ -30,8 +30,8 @@ can't be tested yet.
 
 No Docker images or Caddy are involved:
 
-- One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`).
-- `core`, `events` and `summeruniversity` run as plain Node processes with `NODE_ENV=e2e`
+- One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`, `statutory-e2e`).
+- `core`, `events`, `summeruniversity` and `statutory` run as plain Node processes with `NODE_ENV=e2e`
   (see the `e2e` block in each service's `config/index.js`).
 - `support/fake-mailer.ts` replaces the mailer and records every mail, so tests can check recipients.
 - `support/gateway.ts` serves the frontend build and proxies `/api/<service>/` to the services.
@@ -43,6 +43,7 @@ No Docker images or Caddy are involved:
 | core | 18084 |
 | events | 18085 |
 | summeruniversity | 18086 |
+| statutory | 18087 |
 | fake mailer | 18090 |
 
 ## Data
