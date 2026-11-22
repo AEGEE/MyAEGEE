@@ -65,7 +65,7 @@ export interface StatutoryEvent {
 
 export interface StatutoryApplication {
     id: number;
-    statutory_id: number;
+    statutory_id: string;
     user_id: number;
     body_name: string;
 }
