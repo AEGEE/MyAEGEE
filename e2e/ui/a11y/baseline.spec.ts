@@ -20,6 +20,8 @@ for (const route of ROUTES) {
         test.use({ session: route.auth ? 'superadmin' : 'anonymous' });
 
         test(`${route.name} (${route.url})`, { tag: route.migrated ? ['@a11y', '@migrated'] : ['@a11y'] }, async ({ page, api, frontend }, testInfo) => {
+            // axe on a full page takes a few seconds by itself.
+            test.slow();
             mockEverything(api);
             await page.goto(route.url);
             await expect(page).toHaveTitle(/^MyAEGEE \| /);

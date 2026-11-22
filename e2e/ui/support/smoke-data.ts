@@ -45,6 +45,14 @@ export const mockEverything = (api: ApiMock): void => {
     api.json('GET core /bodies/:id', ok(body({ id: 1 })));
     api.json('GET core /members/:id', ok(member({ id: 1 })));
     api.json('GET core /members/unconfirmed', ok([], { meta: { count: 0 } }));
+    api.json('GET summeruniversity /seasons', ok([{
+        year: 2027,
+        name: 'Summer University 2027',
+        active: true,
+        event_submission_deadline: '2026-12-01T00:00:00.000Z',
+        application_period_starts: '2027-03-01T00:00:00.000Z',
+        application_period_ends: '2027-04-01T00:00:00.000Z'
+    }]));
 
     // statutory puts the permissions inside `data`.
     api.json('GET statutory /events/:id', ok({
@@ -67,5 +75,15 @@ export const mockEverything = (api: ApiMock): void => {
             see_memberslist: {},
             manage_membership_fee: {}
         }
+    }));
+    // The member's own application, which they may edit.
+    api.json('GET statutory /events/:id/applications/me', ok({
+        id: 1,
+        user_id: 1,
+        body_id: 1,
+        status: 'pending',
+        answers: [],
+        editable_bodies: [body({ id: 1 })],
+        permissions: { edit_application: true, set_application_status: true }
     }));
 };

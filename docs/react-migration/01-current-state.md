@@ -100,7 +100,7 @@ rather than "fixed" in Vue, so the React port can decide.
 
 | Finding | Where | What the specs do |
 |---|---|---|
-| When an event isn't found, `Apply.vue` redirects to the route name `oms.events.list`, which doesn't exist. The browser ends up on `/` | `views/events/Apply.vue` | `ui/events/apply.spec.ts` expects the intended `/events`; marked as a known failure for Vue (`UI_SHOW_KNOWN_BUGS=1` shows it) |
+| When an event isn't found, `Apply.vue` redirects to the route name `oms.events.list`, which doesn't exist. The browser ends up on `/` | `views/events/Apply.vue` | `ui/events/apply.spec.ts` expects the intended `/events`. Fixed on stable in #2347, so the spec now runs normally for both apps |
 | For visitors who aren't logged in, public pages keep the default title (the router's `catch()` path skips setting it) | `app.js` | the smoke test accepts any `MyAEGEE \| …` title for anonymous visits; React sets the right one |
 | If `POST /renew` itself answered 401, the interceptor would wait on its own renewal and hang. core answers 403, so it doesn't happen today | `app.js` | React's renewal bypasses the retry logic |
 | Many views' `catch()` read `err.response.status`. When the error is a plain JS error (a crash inside `then()`), that throws again and the page stays half-loaded | e.g. `views/statutory/Stats.vue`, `views/events/Edit.vue` | the smoke test has 3 statutory pages marked as needing realistic data |

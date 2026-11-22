@@ -104,7 +104,7 @@ OpenAPI specs (see the [roadmap](07-roadmap.md#open-questions)).
 | JS loaded for the events list | 251 KB gzipped (vendors 227 + app 24, plus the route chunk) | 171 KB gzipped (all three pages, not yet split) |
 | CSS | 55 KB gzipped | 3 KB gzipped |
 | axe WCAG 2.2 AA violations on the 5 events pages | 4 rules each, 9–19 elements per page | 0 |
-| Behavioural specs passing | 38 (one is a documented known bug) | 38 |
+| Behavioural specs passing | 38 (one was a known bug, since fixed on stable) | 38 |
 | Build time | ~60 s (Vue CLI, with zopfli/brotli compression) | < 1 s (Vite) |
 
 The React bundle isn't code-split yet. Route-level `lazy()` and separating React Aria

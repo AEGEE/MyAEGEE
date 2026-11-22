@@ -24,6 +24,9 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
+    // The CI container sees all the host's CPUs (18 workers on a 4 vCPU `large` executor), which
+    // starves the browsers and makes the axe runs time out. Match the executor instead.
+    workers: process.env.CI ? 4 : undefined,
     timeout: 15 * 1000,
     expect: { timeout: 5 * 1000 },
     outputDir: 'test-results-ui',

@@ -32,6 +32,7 @@ const PARAMS: Record<string, string> = {
     application_id: 'me',
     token: 'mock-token',
     prefix: 'agora-spring',
+    year: '2027',
     type: 'antenna'
 };
 

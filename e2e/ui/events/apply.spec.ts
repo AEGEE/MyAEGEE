@@ -210,11 +210,7 @@ test.describe('applying to an event', { tag: '@migrated' }, () => {
         await expect(page.getByRole('button', { name: 'Save application!' })).toBeHidden();
     });
 
-    test('an unknown event goes back to the events list', async ({ page, api, frontend }) => {
-        // Vue pushes to a route name that doesn't exist (`oms.events.list`), which leaves the
-        // browser on `/`. The React app goes to the list, which is what the code meant to do.
-        // UI_SHOW_KNOWN_BUGS=1 runs it as a normal test to see the failure.
-        test.fail(frontend === 'vue' && !process.env.UI_SHOW_KNOWN_BUGS, 'Known Vue bug: views/events/Apply.vue redirects to the unknown route oms.events.list');
+    test('an unknown event goes back to the events list', async ({ page, api }) => {
         api.on('GET events /single/:id', { status: 404, json: notFound('Event is not found') });
         api.json('GET events /', ok([]));
 
