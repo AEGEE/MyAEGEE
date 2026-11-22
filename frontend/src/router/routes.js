@@ -510,6 +510,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.stats',
+    path: '/summeruniversity/stats',
+    component: 'summeruniversity/Stats',
+    meta: {
+      label: 'Summer University statistics'
+    }
+  },
+  {
     name: 'oms.summeruniversity.seasons',
     path: '/summeruniversity/seasons',
     component: 'summeruniversity/Seasons',
