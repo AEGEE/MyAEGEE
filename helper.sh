@@ -54,16 +54,6 @@ init_boot ()
 
     docker network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker network create OMS)
 
-    touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
-    chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
-
-    touch "${DIR}"/gateways/docker/traefik/traefik.toml # to avoid making it think it's a folder
-    if [[ "${MYAEGEE_ENV}" != "development" ]]; then
-      envsubst < "${DIR}"/gateways/docker/traefik/traefik.toml.template > "${DIR}"/gateways/docker/traefik/traefik.toml
-    else
-      cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev > "${DIR}"/gateways/docker/traefik/traefik.toml
-    fi
-
     echo -e "\n[Deployment] Setting secrets\n"
     bash "${DIR}"/scripts-vagrant_provision/generate_secrets.sh
 
@@ -220,13 +210,17 @@ if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; 
   exit 1
 fi
 
-# traefik: Traefik routes my.<BASE_URL> to the containers (Vagrant, production).
-# devserver: no Traefik; the frontend dev server on http://localhost:${FRONTEND_PORT}
+# caddy: Caddy routes my.<BASE_URL> to the containers (Docker-only, Vagrant, production).
+# traefik: accepted as an alias of caddy for older .env files.
+# devserver: no edge gateway; the frontend dev server on http://localhost:${FRONTEND_PORT}
 #   serves the app with hot reload and proxies /api, /media and /services.
-MYAEGEE_GATEWAY=${MYAEGEE_GATEWAY:-traefik}
+MYAEGEE_GATEWAY=${MYAEGEE_GATEWAY:-caddy}
+if [[ "${MYAEGEE_GATEWAY}" == "traefik" ]]; then
+  MYAEGEE_GATEWAY=caddy
+fi
 export MYAEGEE_GATEWAY
-if [[ "${MYAEGEE_GATEWAY}" != "traefik" && "${MYAEGEE_GATEWAY}" != "devserver" ]]; then
-  echo "Error: MYAEGEE_GATEWAY can only be 'traefik' or 'devserver'"
+if [[ "${MYAEGEE_GATEWAY}" != "caddy" && "${MYAEGEE_GATEWAY}" != "devserver" ]]; then
+  echo "Error: MYAEGEE_GATEWAY can only be 'caddy' or 'devserver'"
   exit 1
 fi
 if [[ "${MYAEGEE_GATEWAY}" == "devserver" ]]; then

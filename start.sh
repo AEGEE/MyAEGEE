@@ -21,12 +21,12 @@ done
 
 check_etc_hosts () {
   # shellcheck disable=SC2143
-  if grep -qF "traefik.${2}" /etc/hosts ; then
+  if grep -qF "my.${2}" /etc/hosts ; then
     echo '[Start script] ##### host file already good!'
   else
     echo '[Start script] ##### modifying the hosts file'
     # shellcheck disable=SC2016
-    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" "apidocs.$2" >> /etc/hosts' -- "${1}" "${2}"
+    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "pgadmin.$2" "apidocs.$2" "portal.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
 }
 
@@ -87,7 +87,7 @@ reset_host_stack () {
 
 #run accordingly
 if ( $notraefik ); then
-  # Everything runs on the host; the frontend dev server replaces Traefik.
+  # Everything runs on the host; the frontend dev server replaces Traefik/Caddy.
   set_env_var MYAEGEE_GATEWAY devserver
   reset_host_stack
   make bootstrap || exit 1
@@ -95,7 +95,7 @@ if ( $notraefik ); then
 elif ( $novagrant ); then
   check_etc_hosts "127.0.0.1" "localhost"
   edit_env 's/appserver/localhost/'
-  set_env_var MYAEGEE_GATEWAY traefik
+  set_env_var MYAEGEE_GATEWAY caddy
   # Also keeps later `make` calls on the host working.
   set_env_var MYAEGEE_SKIP_GUEST_CHECK true
   reset_host_stack
@@ -103,7 +103,7 @@ elif ( $novagrant ); then
 else
   # The VM reads this .env too (/vagrant), so switch off the settings of an
   # earlier --no-traefik or --no-vagrant (BASE_URL stays as it is).
-  set_env_var MYAEGEE_GATEWAY traefik
+  set_env_var MYAEGEE_GATEWAY caddy
   set_env_var MYAEGEE_SKIP_GUEST_CHECK false
   check_etc_hosts "192.168.168.168" "${BASE_URL}"
   if ( $fast ); then
@@ -115,4 +115,3 @@ else
   export ANSIBLE_NOCOWS=false
   vagrant up
 fi
-

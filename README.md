@@ -18,16 +18,30 @@ A short perspective: the educational value of this project. Head to [roadmap.sh]
 1. ... and more ;)
 
 # Installation
-## Pre-requisites: installations required
+
+## Docker-only (recommended)
+
+Works the same on Windows, macOS, and Linux with [Docker](https://docs.docker.com/get-docker/) and the Compose plugin.
+
+```sh
+git clone --recursive https://github.com/AEGEE/MyAEGEE.git
+cd MyAEGEE
+cp .env.example .env
+docker compose up -d --build
+```
+
+Open http://my.localhost (login: `admin@example.com` / `5ecr3t5ecr3t`).
+
+Caddy is the HTTP edge: path routing for `/api/*` and `/media/*`, plus tool hosts like `pgadmin.localhost`. No Traefik, no Vagrant, and no `/etc/hosts` edits for `*.localhost`.
+
+## Pre-requisites: installations required (Vagrant path)
 
 Install
 1. First [Git](https://git-scm.com/downloads) (you might already have Git installed through other sources if you worked with git/GitHub before)
 2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads),
 3. and finally [Vagrant](https://www.vagrantup.com/downloads.html).
 
-Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
-
-If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions, they can be found in the provisioning scripts --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
+Or skip the VM and use the Docker-only path above.
 
 Note: if you use Vagrant, Docker will be already automatically on the virtual machine.
 
@@ -74,7 +88,7 @@ As a helper in the windows case, you have the script "`run_as_win_administrator.
 1. To open it you have to right-click it and click "run as administrator".
 2. It will open the file you need to edit in notepad, AND open a different terminal window that will tell you the line to copy (which you can find below).
 3. Paste the content at the last line of the file
-	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
+	```192.168.168.168 appserver.test my.appserver.test portainer.appserver.test pgadmin.appserver.test portal.appserver.test```
 4. Delete the file called `Vagrantfile` and rename `Vagrantfile.windows` into `Vagrantfile`
 5. Save, and exit.
 
@@ -124,9 +138,11 @@ To switch between modes, change `MYAEGEE_GATEWAY` in `.env` (`traefik` or `devse
 **MANUAL EDIT**
 If the script above did not work, you can also manually edit the `/etc/hosts` file on the _HOST_ machine (on Windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
-Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+Vagrant case: `192.168.168.168 appserver.test my.appserver.test portainer.appserver.test pgadmin.appserver.test portal.appserver.test`
 
-Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+Pure docker case (non-localhost BASE_URL): `127.0.0.1 appserver.test my.appserver.test portainer.appserver.test pgadmin.appserver.test portal.appserver.test`
+
+With the default `BASE_URL=localhost`, browsers resolve `*.localhost` without hosts edits.
 
 **Windows write-permission issue**
 For security reason, Windows could have rescrited writing permession. A workaround (original [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
@@ -205,7 +221,7 @@ f3110b11d9c6        postgres:10                            "docker-entrypoint.s�
 623356e7ef0d        dpage/pgadmin4:4.23                    "/entrypoint.sh"         6 hours ago         Up 6 hours             80/tcp, 443/tcp, 5050/tcp                  myaegee_pgadmin_1
 8263f843df15        portainer/portainer:1.22.1             "/portainer -H unix:…"   6 hours ago         Up 6 hours             9000/tcp                                   myaegee_portainer_1
 d056ce2c92e3        swaggerapi/swagger-ui:v3.28.0          "/docker-entrypoint.…"   6 hours ago         Up 6 hours             80/tcp, 8080/tcp                           myaegee_swagger_1
-4ee964dede44        traefik:v1.7.4-alpine                  "/entrypoint.sh --we…"   6 hours ago         Up 6 hours (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   myaegee_traefik_1
+4ee964dede44        caddy:2-alpine                         "caddy run --config…"    6 hours ago         Up 6 hours (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   myaegee_caddy_1
 30963e2faf63        aegee/portal:dev                       "docker-php-entrypoi…"   6 hours ago         Up 6 hours             80/tcp                                     myaegee_portal_1
 49485e19dc87        aegee/frontend:dev                     "nginx"                  6 hours ago         Up 6 hours             80/tcp, 8083/tcp                           myaegee_frontend_1
 e81bcc38bf76        aegee/nginx-static:latest              "nginx -g 'daemon of…"   6 hours ago         Up 6 hours (healthy)   80/tcp                                     myaegee_statutory-static_1
@@ -222,29 +238,28 @@ For any issue, see [**Troubleshooting**](#troubleshooting--other)
 
 For accessing it, the three most important URLs (*NB there is no https for development*):
 
-| Service | URL | Description |
-|---|---|---|
-| The app (MyAEGEE) | http://my.appserver.test | What you're here for |
-| Traefik | http://traefik.appserver.test | Quick test to see if everything works well |
-| Portainer | http://portainer.appserver.test | Visual docker manager |
+| Service | URL (Docker-only default) | URL (Vagrant) | Description |
+|---|---|---|---|
+| The app (MyAEGEE) | http://my.localhost | http://my.appserver.test | What you're here for |
+| Portainer | http://portainer.localhost | http://portainer.appserver.test | Visual docker manager |
+| pgAdmin | http://pgadmin.localhost | http://pgadmin.appserver.test | Database UI |
 
-Do you connect to any of these three URLs without troubles? **HOORAY! YOUR SYSTEM IS UP!**
+Do you connect to the app URL without troubles? **HOORAY! YOUR SYSTEM IS UP!**
 
 See right below for the URL of extra services.
 
 See at the bottom for the [default credentials](#default-credentials) of MyAEGEE's fresh install.
 
-### Subdomains registered on traefik
-read "_subdomain_.appserver.test"; e.g. you put in your _HOST_ browser `http://traefik.appserver.test`
+### Subdomains registered on Caddy
+read "_subdomain_._BASE_URL_"; e.g. with defaults open `http://my.localhost`
 
 |Subdomain|What|Container|
 |---|---|---|
-| my | MyAEGEE | frontend |
-| portainer | Easier container mgmt (development only) (under login)  | portainer |
-| traefik | Traefik's dashboard (under login) | traefik |
-| pgadmin | Administration of databases (development only) (under login) | pgadmin |
-| www | Website | wordpress |
-| wiki | AEGEE's Wiki, the backbone of knowledge | mediawiki |
+| my | MyAEGEE | frontend (+ API/media via Caddy) |
+| portainer | Easier container mgmt (development only) | portainer |
+| pgadmin | Administration of databases (development only) | pgadmin |
+| portal | Landing/portal page | portal |
+| apidocs | Swagger UI | swagger |
 
 You can customise these subdomains by editing the `.env` file as mentioned above, and relaunching the script (see below about `Makefile`).
 
@@ -386,14 +401,12 @@ How would you do that? Example: your service is into a folder called `boombastic
 - Add the service at the end of the array `ENABLED_SERVICES=<whatever is here already>:boombastic`. Remember: all the services are separated by colon (`:`)
 - `make start` (on the GUEST)
 
-### docker-compose.yml
-In the docker-compose files there are the definitions of where an app should be reached.
-
-Docker-compose will use the variables defined above, and put them under the `labels` section of a container (if a container needs it). The `labels` section is parsed by traefik to route all the HTTP calls to the correct containers. In other words, this is where the values contained in the `.env` file are used to specify that the app replies on '`my.`appserver.test' instead of e.g. '`magic.`appserver.test'.
+### docker-compose.yml and Caddyfile
+Service containers are defined in per-app `docker-compose.yml` files. HTTP routing lives in [`gateways/docker/caddy/Caddyfile`](gateways/docker/caddy/Caddyfile): Caddy uses Compose DNS names (`core`, `frontend`, …) and the `SUBDOMAIN_*` / `BASE_URL` values from `.env`.
 
 ### /etc/hosts
 
-This file which is located on the _HOST_ machine is used to add new [subdomains for the services](#subdomains-registered-on-traefik): e.g. add `pgadmin` to be able to go to `pgadmin.appserver.test` and use a visual tool for the databases. The important part is that this name of subdomain matches the one defined in the file `.env`
+Only needed when `BASE_URL` is not `localhost` (for example Vagrant's `appserver.test`). Add matching [subdomains](#subdomains-registered-on-caddy) so the browser reaches Caddy on the host.
 
 # Troubleshooting / other
 
