@@ -891,6 +891,46 @@ module.exports = [
     },
     component: 'static/Resources'
   },
+  {
+    name: 'oms.resources.manage',
+    path: '/resources/manage',
+    meta: {
+      label: 'Manage resources'
+    },
+    component: 'resources/Manage'
+  },
+  {
+    name: 'oms.resources.categories.create',
+    path: '/resources/categories/new',
+    meta: {
+      label: 'Add a resources section'
+    },
+    component: 'resources/CategoryEdit'
+  },
+  {
+    name: 'oms.resources.categories.edit',
+    path: '/resources/categories/:id/edit',
+    meta: {
+      label: 'Edit a resources section'
+    },
+    component: 'resources/CategoryEdit'
+  },
+  {
+    name: 'oms.resources.links.create',
+    path: '/resources/links/new',
+    meta: {
+      label: 'Add a resources link'
+    },
+    component: 'resources/LinkEdit'
+  },
+  {
+    name: 'oms.resources.links.edit',
+    path: '/resources/links/:id/edit',
+    meta: {
+      label: 'Edit a resources link'
+    },
+    component: 'resources/LinkEdit'
+  },
   /* Discounts distribution */
   {
     name: 'oms.discounts',

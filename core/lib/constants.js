@@ -93,6 +93,8 @@ module.exports = {
                 'invoice_address',
             ],
         },
+        RESOURCE_CATEGORY: ['name', 'theme'],
+        RESOURCE_LINK: ['category_id', 'title', 'description', 'url'],
     },
     FIELDS_TO_QUERY: {
         BODY: ['code', 'name', 'abbreviation'],
@@ -153,4 +155,6 @@ module.exports = {
     },
     RESTRICTED_EMAILS: ['aegee.org', 'aegee.eu'],
     LISTSERV_LISTS: ['AEGEE-L', 'AEGEENEWS-L', 'ANNOUNCE-L', 'AEGEE-EVENT-L'],
+    // Must match THEMES in frontend/src/views/resources/helpers.js.
+    RESOURCE_THEMES: ['blue', 'blue-dark', 'purple', 'red', 'grey', 'yellow', 'green'],
 };

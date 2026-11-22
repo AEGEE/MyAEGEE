@@ -72,6 +72,7 @@ import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardLi
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons/faAngleLeft'
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
 
@@ -145,6 +146,7 @@ library.add(faClipboardList)
 library.add(faAngleLeft)
 library.add(faAngleRight)
 library.add(faArrowUp)
+library.add(faArrowDown)
 library.add(faExclamationTriangle)
 library.add(faPlusCircle)
 
