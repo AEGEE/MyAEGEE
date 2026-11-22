@@ -50,16 +50,16 @@
         </table>
 
         <div class="subtitle">By date</div>
-        <line-chart class="chart" :chart-data="byDateData" :options="byDateOptions" />
+        <div class="chart"><line-chart :data="byDateData" :options="byDateOptions" /></div>
 
         <div class="subtitle">By date (cumulative)</div>
-        <line-chart class="chart" :chart-data="byDateCumulativeData" :options="byDateCumulativeOptions" />
+        <div class="chart"><line-chart :data="byDateCumulativeData" :options="byDateCumulativeOptions" /></div>
 
         <div class="subtitle">By participant type</div>
-        <pie-chart class="chart" :chart-data="byTypeData" :options="byTypeOptions" />
+        <div class="chart"><pie-chart :data="byTypeData" :options="byTypeOptions" /></div>
 
         <div class="subtitle">By body</div>
-        <pie-chart class="chart" :chart-data="byBodyData()" :options="byBodyOptions" />
+        <div class="chart"><pie-chart :data="byBodyData" :options="byBodyOptions" /></div>
         <div class="content">
           <div class="tags">
             <span
@@ -73,13 +73,13 @@
         </div>
 
         <div class="subtitle">By gender</div>
-        <pie-chart class="chart" :chart-data="byGenderData()" :options="byGenderOptions" />
+        <div class="chart"><pie-chart :data="byGenderData" :options="byGenderOptions" /></div>
 
         <div class="subtitle">By meal preference</div>
-        <pie-chart class="chart" :chart-data="byMealData()" :options="byMealOptions" />
+        <div class="chart"><pie-chart :data="byMealData" :options="byMealOptions" /></div>
 
         <div class="subtitle">By number of {{ eventTypePluralized }} visited</div>
-        <pie-chart class="chart" :chart-data="byNumOfEventsData()" :options="byNumOfEventsOptions" />
+        <div class="chart"><pie-chart :data="byNumOfEventsData" :options="byNumOfEventsOptions" /></div>
 
         <div class="subtitle">Quorum</div>
         <p>
@@ -87,7 +87,7 @@
           {{ stats.quorum.accepted_only ? 'accepted non-cancelled delegate applications' : 'non-cancelled applications' }}.
           Required: {{ quorum.required }} (50%).
         </p>
-        <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions" />
+        <div class="chart"><pie-chart :data="byQuorumData" :options="byQuorumOptions" /></div>
       </div>
     </div>
   </div>
@@ -95,37 +95,60 @@
 
 <style>
 .chart {
-  max-height: 500px;
+  position: relative;
+  height: 400px;
 }
 </style>
 
 <script>
 import { mapGetters } from 'vuex'
-import { Pie, Line, mixins } from 'vue-chartjs'
-import Vue from 'vue'
+import {
+  Chart,
+  ArcElement,
+  CategoryScale,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip
+} from 'chart.js'
+import { Line, Pie } from 'vue-chartjs'
 
-const { reactiveProp } = mixins
+// The Line and Pie components register their own controllers,
+// everything else they draw with has to be registered here.
+Chart.register(ArcElement, CategoryScale, Filler, Legend, LinearScale, LineElement, PointElement, Tooltip)
 
-Vue.component('pie-chart', {
-  extends: Pie,
-  mixins: [reactiveProp],
-  props: ['options'],
-  mounted () {
-    this.renderChart(this.chartData, this.options)
+const lineOptions = () => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { precision: 0 }
+    }
   }
 })
 
-Vue.component('line-chart', {
-  extends: Line,
-  mixins: [reactiveProp],
-  props: ['options'],
-  mounted () {
-    this.renderChart(this.chartData, this.options)
+const pieOptions = ({ showLegend = true } = {}) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: showLegend
+      ? { position: 'bottom', align: 'center', onClick: () => {} }
+      : { display: false }
   }
 })
 
 export default {
   name: 'ApplicationStats',
+  components: {
+    LineChart: Line,
+    PieChart: Pie
+  },
   data () {
     return {
       event: {
@@ -190,7 +213,8 @@ export default {
       return {
         labels: this.stats.by_date.map(s => s.date),
         datasets: [{
-          lineTension: 0,
+          tension: 0,
+          fill: true,
           label: 'Applications by date',
           borderColor: '#1468C5',
           backgroundColor: '#B2D6FF',
@@ -202,7 +226,8 @@ export default {
       return {
         labels: this.stats.by_date_cumulative.map(s => s.date),
         datasets: [{
-          lineTension: 0,
+          tension: 0,
+          fill: true,
           label: 'Applications by date',
           borderColor: '#1468C5',
           backgroundColor: '#B2D6FF',
@@ -211,36 +236,10 @@ export default {
       }
     },
     byDateOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { display: false },
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepValue: 1,
-              maxTicksSize: 20
-            }
-          }]
-        }
-      }
+      return lineOptions()
     },
     byDateCumulativeOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { display: false },
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepValue: 1,
-              maxTicksSize: 20
-            }
-          }]
-        }
-      }
+      return lineOptions()
     },
     byTypeData () {
       return {
@@ -253,61 +252,19 @@ export default {
       }
     },
     byTypeOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'bottom',
-          align: 'center',
-          onClick: (e) => e.stopPropagation()
-        }
-      }
+      return pieOptions()
     },
     byBodyOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: false
-        }
-      }
+      return pieOptions({ showLegend: false })
     },
     byGenderOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'bottom',
-          align: 'center',
-          onClick: (e) => e.stopPropagation()
-        }
-      }
+      return pieOptions()
     },
     byMealOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'bottom',
-          align: 'center',
-          onClick: (e) => e.stopPropagation()
-        }
-      }
+      return pieOptions()
     },
     byNumOfEventsOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        title: {
-          display: true,
-          label: `Applications by number of ${this.eventTypePluralized} visited`
-        },
-        legend: {
-          position: 'bottom',
-          align: 'center',
-          onClick: (e) => e.stopPropagation()
-        }
-      }
+      return pieOptions()
     },
     quorum () {
       const localsMap = {}
@@ -338,15 +295,7 @@ export default {
       }
     },
     byQuorumOptions () {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'bottom',
-          align: 'center',
-          onClick: (e) => e.stopPropagation()
-        }
-      }
+      return pieOptions()
     },
     eventTypePluralized () {
       const eventTypePlural = {
@@ -356,9 +305,7 @@ export default {
       }
 
       return eventTypePlural[this.event.type]
-    }
-  },
-  methods: {
+    },
     byBodyData () {
       return {
         labels: this.stats.by_body.map(s => `${s.body ? s.body.name : s.body_id} (${s.value})`),
