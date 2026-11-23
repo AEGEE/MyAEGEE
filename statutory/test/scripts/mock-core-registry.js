@@ -439,22 +439,25 @@ exports.mockCoreMailer = (options) => {
         .reply(200, { success: true });
 };
 
+// Read on every call: a test can point the configuration at another host.
+const conversionRateApiHost = () => (config.conversion_rate_api ? config.conversion_rate_api.host : constants.CONVERSION_RATE_API.host);
+
 exports.mockConversionApi = (options) => {
     if (options.netError) {
-        return nock(constants.CONVERSION_RATE_API.host)
+        return nock(conversionRateApiHost())
             .persist()
             .get(constants.CONVERSION_RATE_API.path)
             .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
-        return nock(constants.CONVERSION_RATE_API.host)
+        return nock(conversionRateApiHost())
             .persist()
             .get(constants.CONVERSION_RATE_API.path)
             .reply(500, 'Some error happened.');
     }
 
-    return nock(constants.CONVERSION_RATE_API.host)
+    return nock(conversionRateApiHost())
         .persist()
         .get(constants.CONVERSION_RATE_API.path)
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'conversion-rates-api.json'));
