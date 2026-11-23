@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { Question } = require('../../models');
 
 describe('Questions editing', () => {
     beforeAll(async () => {
@@ -155,5 +156,75 @@ describe('Questions editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
+    });
+
+    describe('in a closed question line', () => {
+        test('should not let the author edit the question', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: regularUser.id, confirmed: true }, event);
+            const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
+            const question = await generator.createQuestion({ application_id: application.id, text: 'Original' }, questionLine);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+                method: 'PUT',
+                body: { text: 'Changed' },
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('The question line is closed, you cannot edit questions now.');
+
+            const questionFromDb = await Question.findByPk(question.id);
+            expect(questionFromDb.text).toEqual('Original');
+        });
+
+        test('should let a question lines manager edit the question', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_question_lines:agora'] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: 1337, confirmed: true }, event);
+            const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
+            const question = await generator.createQuestion({ application_id: application.id, text: 'Original' }, questionLine);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+                method: 'PUT',
+                body: { text: 'Changed' },
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.data.text).toEqual('Changed');
+
+            const questionFromDb = await Question.findByPk(question.id);
+            expect(questionFromDb.text).toEqual('Changed');
+        });
+
+        test('should not let a question lines manager of another event type edit the question', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_question_lines:epm'] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: 1337, confirmed: true }, event);
+            const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
+            const question = await generator.createQuestion({ application_id: application.id, text: 'Original' }, questionLine);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+                method: 'PUT',
+                body: { text: 'Changed' },
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+
+            const questionFromDb = await Question.findByPk(question.id);
+            expect(questionFromDb.text).toEqual('Original');
+        });
     });
 });
