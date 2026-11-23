@@ -14,7 +14,7 @@
 
         <div class="field">
           <div class="control">
-            <router-link class="button is-primary" v-if="can.create" :to="{ name: 'oms.statutory.create' }">Create event</router-link>
+            <router-link class="button is-primary" v-if="canCreate" :to="{ name: 'oms.statutory.create' }">Create event</router-link>
           </div>
         </div>
 
@@ -96,9 +96,7 @@ export default {
       events: [],
       isLoading: false,
       query: '',
-      source: null,
-      can: { create: false },
-      permissions: []
+      source: null
     }
   },
   computed: {
@@ -108,7 +106,11 @@ export default {
       if (this.query) queryObj.search = this.query
       return queryObj
     },
-    ...mapGetters(['services'])
+    // The member's permissions as the app loaded them when the member logged in.
+    canCreate () {
+      return this.permissions.some(permission => permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
+    },
+    ...mapGetters(['services', 'permissions'])
   },
   methods: {
     refetch () {
@@ -122,12 +124,6 @@ export default {
 
       this.axios.get(this.services['statutory'], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = response.data.data
-
-        return this.axios.get(this.services['core'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
