@@ -475,7 +475,14 @@ exports.setApprovalStatus = async (req, res) => {
         event.organizers = await Promise.all(event.organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
-        await req.event.update({ status: req.body.status }, { transaction: t });
+        // Moving back from an approval to the submission stage also unpublishes the event.
+        const isRegression = (oldStatus === 'first approval' && req.body.status === 'first submission')
+            || (oldStatus === 'second approval' && req.body.status === 'second submission');
+        const changes = isRegression
+            ? { status: req.body.status, published: 'none' }
+            : { status: req.body.status };
+
+        await req.event.update(changes, { transaction: t });
 
         // Send the mail to all organizers.
         await mailer.sendMail({
