@@ -27,7 +27,7 @@
 
               <event-no-body-notification v-if="bodies.length == 0" />
 
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth || otherErrors.length > 0">
                 <div class="content">
                   Could not apply because of these reasons:
                   <ul>
@@ -41,6 +41,9 @@
                   </ul>
                   <ul v-if="errors.date_of_birth">
                     <li>Please set the date of birth in <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
+                  </ul>
+                  <ul v-if="otherErrors.length > 0">
+                    <li v-for="(error, index) in otherErrors" v-bind:key="index">{{ error }}</li>
                   </ul>
                 </div>
               </div>
@@ -417,6 +420,9 @@ const FORM_FIELDS = [
   'answers'
 ]
 
+// The keys of a validation error the form shows in a place of its own.
+const ERRORS_SHOWN_ELSEWHERE = ['answers', 'body_id', 'gender', 'date_of_birth', 'nationality', 'meals']
+
 export default {
   name: 'EditApplication',
   components: {
@@ -571,6 +577,13 @@ export default {
     // permissions, the board's fields), which isn't for the applicant to send back.
     formFields () {
       return Object.fromEntries(FORM_FIELDS.map((field) => [field, this.application[field]]))
+    },
+    // The reasons statutory gave that have no place of their own in the form, such as
+    // "There's already an application with such user ID for this event."
+    otherErrors () {
+      return Object.keys(this.errors)
+        .filter((key) => !ERRORS_SHOWN_ELSEWHERE.includes(key))
+        .flatMap((key) => this.errors[key])
     },
     selectedMailinglists () {
       return Object.keys(this.subscription).filter(value => this.subscription[value] === true)
