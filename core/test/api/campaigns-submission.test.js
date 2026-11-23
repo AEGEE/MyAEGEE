@@ -2,7 +2,8 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
-const { BodyMembership, User } = require('../../models');
+const { BodyMembership, MailConfirmation, User } = require('../../models');
+const constants = require('../../lib/constants');
 
 describe('Campaign submission', () => {
     beforeAll(async () => {
@@ -393,5 +394,206 @@ describe('Campaign submission', () => {
             mail_confirmed_at: null,
             campaign_id: campaign.id
         }));
+    });
+
+    describe('an email or username that is taken', () => {
+        const signUp = async (fields) => {
+            const campaign = await generator.createCampaign({});
+            const mails = mock.captureMails();
+
+            const res = await request({
+                path: '/signup/' + campaign.url,
+                method: 'POST',
+                body: generator.generateUser(fields)
+            });
+
+            return { res, mails };
+        };
+
+        test.each([
+            ['the same', 'taken@example.com'],
+            ['in another case', 'Taken@Example.COM'],
+            ['with spaces around it', '  taken@example.com  ']
+        ])('should fail if the email is taken (%s)', async (name, email) => {
+            const existing = await generator.createUser({ email: 'taken@example.com' });
+
+            const { res, mails } = await signUp({ email });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { email: ['email must be unique'] } });
+
+            const users = await User.findAll();
+            expect(users.map((user) => user.id)).toEqual([existing.id]);
+            expect(await MailConfirmation.count()).toEqual(0);
+            expect(mails).toEqual([]);
+        });
+
+        test.each([
+            ['the same', 'john'],
+            ['in another case', 'John'],
+            ['with spaces around it', ' john ']
+        ])('should fail if the username is taken (%s)', async (name, username) => {
+            const existing = await generator.createUser({ username: 'john' });
+
+            const { res, mails } = await signUp({ username });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { username: ['username must be unique'] } });
+
+            const users = await User.findAll();
+            expect(users.map((user) => user.id)).toEqual([existing.id]);
+            expect(await MailConfirmation.count()).toEqual(0);
+            expect(mails).toEqual([]);
+        });
+
+        test('should not take the email of one member as the username of another', async () => {
+            await generator.createUser({ username: 'john', email: 'john@example.com' });
+
+            const { res } = await signUp({ username: 'jane', email: 'john.other@example.com' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(await User.count()).toEqual(2);
+        });
+    });
+
+    test.each([
+        ['has no domain', 'not-an-email'],
+        ['has no name', '@example.com'],
+        ['has a space in it', 'some one@example.com']
+    ])('should fail if the email %s', async (name, email) => {
+        const campaign = await generator.createCampaign({});
+        const mails = mock.captureMails();
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            body: generator.generateUser({ email })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors: { email: ['Email should be valid.'] } });
+
+        expect(await User.count()).toEqual(0);
+        expect(mails).toEqual([]);
+    });
+
+    test('should name every field that is not valid, and store nothing', async () => {
+        const body = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+        const mails = mock.captureMails();
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            body: generator.generateUser({ username: '1234', email: 'not-an-email', password: 'short', first_name: '!@#' })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({
+            success: false,
+            errors: {
+                username: ['Username should have at least 1 letter.'],
+                email: ['Email should be valid.'],
+                password: ['Password should be at least 8 characters long.'],
+                first_name: ['First name should only contain letters, spaces and dashes, got "!@#".']
+            }
+        });
+
+        expect(await User.count()).toEqual(0);
+        expect(await BodyMembership.count()).toEqual(0);
+        expect(await MailConfirmation.count()).toEqual(0);
+        expect(mails).toEqual([]);
+    });
+
+    test('should mail the confirmation token to the new member', async () => {
+        const campaign = await generator.createCampaign({});
+        const mails = mock.captureMails();
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            body: generator.generateUser({ first_name: ' Some ', last_name: 'One', email: 'Some.One@Example.com' })
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const confirmations = await MailConfirmation.findAll();
+        expect(confirmations.length).toEqual(1);
+        expect(confirmations[0].user_id).toEqual(res.body.data.id);
+        expect(confirmations[0].value.length).toEqual(constants.TOKEN_LENGTH.MAIL_CONFIRMATION);
+        expect(confirmations[0].is_expired).toEqual(false);
+
+        // What the mailer gets: the member's address and name as stored, and the token of the confirmation.
+        expect(mails).toEqual([{
+            to: 'some.one@example.com',
+            subject: constants.MAIL_SUBJECTS.MAIL_CONFIRMATION,
+            template: 'confirm_email.html',
+            parameters: {
+                name: 'Some',
+                surname: 'One',
+                token: confirmations[0].value
+            }
+        }]);
+
+        // The token is only in the mail.
+        expect(JSON.stringify(res.body)).not.toContain(confirmations[0].value);
+    });
+
+    test('should let the new member confirm with the token from the mail, and log in after that', async () => {
+        const campaign = await generator.createCampaign({});
+        const mails = mock.captureMails();
+        const user = generator.generateUser({ password: 'a-secret-password' });
+
+        await request({ path: '/signup/' + campaign.url, method: 'POST', body: user });
+
+        const login = () => request({
+            path: '/login',
+            method: 'POST',
+            body: { username: user.email, password: 'a-secret-password' }
+        });
+
+        const before = await login();
+        expect(before.statusCode).toEqual(403);
+        expect(before.body.message).toEqual('Please confirm your mail first.');
+
+        const confirmed = await request({
+            path: '/confirm-email',
+            method: 'POST',
+            body: { token: mails[0].parameters.token }
+        });
+        expect(confirmed.statusCode).toEqual(200);
+
+        const after = await login();
+        expect(after.statusCode).toEqual(200);
+    });
+
+    test('should not find a campaign by its id', async () => {
+        const campaign = await generator.createCampaign({});
+
+        const res = await request({
+            path: '/signup/' + campaign.id,
+            method: 'POST',
+            body: generator.generateUser()
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toEqual({ success: false, message: 'Campaign is not found.' });
+        expect(await User.count()).toEqual(0);
+    });
+
+    test('should store nobody and send nothing if the campaign is not active', async () => {
+        const campaign = await generator.createCampaign({ active: false });
+        const mails = mock.captureMails();
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            body: generator.generateUser()
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Campaign is not active.' });
+        expect(await User.count()).toEqual(0);
+        expect(mails).toEqual([]);
     });
 });
