@@ -131,6 +131,30 @@ describe('Body members creating', () => {
         expect(memberFromDb.superadmin).not.toEqual(true);
     });
 
+    test('should create the member with the personal email as primary email, whatever is sent', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
+
+        const body = await generator.createBody();
+        const member = generator.generateUser({ primary_email: 'gsuite' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/create-member',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: member
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const memberFromDb = await User.findByPk(res.body.data.user_id);
+        expect(memberFromDb.primary_email).toEqual('personal');
+        expect(memberFromDb.notification_email).toEqual(memberFromDb.email);
+    });
+
     test('should create a body membership', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
