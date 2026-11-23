@@ -159,7 +159,7 @@
           <p class="title" role="heading" aria-level="1">{{ user.first_name }}</p>
           <p class="subtitle">{{ user.last_name }}</p>
           <div class="content">
-            <table class="table is-narrow">
+            <table class="table is-narrow facts">
               <tbody>
                 <tr>
                   <th scope="row">Profile link</th>
@@ -663,3 +663,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Long values (the profile link, addresses) wrap instead of making the page wider than a phone. */
+.facts td {
+  overflow-wrap: anywhere;
+}
+</style>
