@@ -234,6 +234,22 @@ describe('Events editing', () => {
         expect(response.body.data.is_european_event).toEqual(true);
     });
 
+    test.each(['notFound', 'forbidden'])('should return 422 if a new organizing body cannot be fetched (%s)', async (failure) => {
+        mock.mockAll({ body: { [failure]: true } });
+
+        const res = await request({
+            path: '/single/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { organizing_bodies: [{ body_id: 4242 }] }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+        const fromDb = await Event.findByPk(event.id);
+        expect(fromDb.organizing_bodies).toEqual(event.organizing_bodies);
+    });
+
     describe('dates on partial edits', () => {
         const DAY = 24 * 60 * 60 * 1000;
         const inDays = (days) => new Date(Date.now() + days * DAY);

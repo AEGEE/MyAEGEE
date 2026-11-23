@@ -567,6 +567,23 @@ describe('Events editing', () => {
         expect(event.name).not.toEqual('Changed');
     });
 
+    test.each([
+        ['organizing_bodies', 'notFound'],
+        ['organizing_bodies', 'forbidden'],
+        ['cooperation', 'notFound']
+    ])('should return 422 if a body in %s cannot be fetched (%s)', async (field, failure) => {
+        mockAndCapture({ body: { [failure]: true } });
+        const event = await generator.createEvent();
+
+        const res = await editEvent(event, { [field]: [{ body_id: 4242 }] });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty(field);
+        const before = event[field];
+        await event.reload();
+        expect(event[field]).toEqual(before);
+    });
+
     test('should return 500 if fetching a body fails', async () => {
         mockAndCapture({ body: { netError: true } });
         const event = await generator.createEvent();

@@ -257,6 +257,20 @@ describe('Events creation', () => {
         expect(res.body.data.cooperation).toEqual([{ body_id: 34, body_name: 'AEGEE-Alicante' }]);
     });
 
+    test.each([
+        ['organizing_bodies', 'notFound'],
+        ['organizing_bodies', 'forbidden'],
+        ['cooperation', 'notFound']
+    ])('should return 422 if a body in %s cannot be fetched (%s)', async (field, failure) => {
+        mock.mockAll({ body: { [failure]: true } });
+
+        const res = await createEvent(generator.generateEventBody({ organizing_bodies: [{ body_id: 4242 }], cooperation: [{ body_id: 4243 }] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty(field);
+        expect(await Event.count()).toEqual(0);
+    });
+
     test('should return 422 if the organizing bodies are malformed', async () => {
         const res = await createEvent(generator.generateEventBody({ organizing_bodies: ['not an object'] }));
 

@@ -1138,6 +1138,23 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test.each(['notFound', 'forbidden'])('should return 422 if an organizing body cannot be fetched (%s)', async (failure) => {
+        mock.mockAll({ body: { [failure]: true } });
+        const event = generator.generateEvent();
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+        expect(await Event.count()).toEqual(0);
+    });
+
     it('should return an error if organizers is not an array', async () => {
         const event = generator.generateEvent({ organizers: false });
         event.locations = false;

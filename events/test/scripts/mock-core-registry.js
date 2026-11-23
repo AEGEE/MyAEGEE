@@ -235,6 +235,21 @@ exports.mockCoreBody = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    // Core answers 404 for an unknown body and 403 for a deleted one.
+    if (options.notFound) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .reply(404, { success: false, message: 'Body is not found.' });
+    }
+
+    if (options.forbidden) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .reply(403, { success: false, message: 'You are not allowed to see deleted bodies.' });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/bodies\/[0-9].*/)
