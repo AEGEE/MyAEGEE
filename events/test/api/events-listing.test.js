@@ -475,4 +475,38 @@ describe('Events listing', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].latest_event).toEqual(mostRecentEuropeanEvent.ends.toISOString());
     });
+    describe('invalid filters', () => {
+        const get = (path) => request({ path, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        test.each([
+            '/?type=foo',
+            '/?type[a]=training',
+            '/?type[]=training&type[]=foo',
+            '/?starts=garbage',
+            '/?ends=2020-13-45',
+            '/mine/organizing?type=foo',
+            '/mine/participating?starts=garbage',
+            '/recents?ends=garbage'
+        ])('should return 422 for %s', async (path) => {
+            await generator.createEvent({ status: 'published' });
+
+            const res = await get(path);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        test.each([
+            '/?type=training',
+            '/?type[]=training&type[]=nwm',
+            '/?starts=2020-01-01&ends=2040-12-31',
+            '/recents?ends=2040-12-31'
+        ])('should accept %s', async (path) => {
+            const res = await get(path);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+        });
+    });
 });
