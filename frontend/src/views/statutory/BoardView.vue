@@ -83,7 +83,7 @@
                 </div>
               </b-table-column>
 
-              <b-table-column field="board_comment" label="Board comment" sortable v-slot="props">
+              <b-table-column field="board_comment" label="Board comment" v-slot="props">
                 <textarea class="textarea" v-model="props.row.board_comment" :aria-label="'Board comment for ' + props.row.participant_type + ' ' + props.row.participant_order" />
               </b-table-column>
             </b-table>
