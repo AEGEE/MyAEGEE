@@ -695,7 +695,7 @@ exports.confirmEmailChange = async (req, res) => {
 
 exports.subscribeListserv = async (req, res) => {
     if (!req.permissions.hasPermission('global:subscribe:listserv') && req.user.id !== req.currentUser.id) {
-        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+        return errors.makeForbiddenError(res, 'Permission global:subscribe:listserv is required, but not present.');
     }
 
     if (!req.body.mailinglists) {
@@ -722,8 +722,8 @@ exports.subscribeListserv = async (req, res) => {
             method: 'POST',
             form: {
                 token: config.listserv_token,
-                email: req.user.notification_email,
-                name: `${req.user.first_name} ${req.user.last_name}`,
+                email: req.currentUser.notification_email,
+                name: `${req.currentUser.first_name} ${req.currentUser.last_name}`,
                 lists: mailinglists.join(','),
             },
             fullResponse: true
