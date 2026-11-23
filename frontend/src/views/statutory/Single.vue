@@ -71,7 +71,7 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_plenaries || can.manage_plenaries">
+          <div class="field is-grouped" v-if="(can.see_plenaries || can.manage_plenaries) && event.type === 'agora'">
             <router-link
               :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }"
               class="button is-fullwidth"
