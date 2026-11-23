@@ -33,7 +33,8 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 # Coverage ratchet: the threshold is the coverage reached, floored to one decimal. Raise it
-# when coverage goes up; lowering it needs a reason in the pull request.
+# when coverage goes up; lowering it needs an approved `Coverage-lowered: dispatcher: <why>`
+# commit trailer (packages/backend-test-utils/check-coverage-lowered.js, in CI).
 addopts = "--cov=dispatcher --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=100"
 
 [tool.coverage.report]

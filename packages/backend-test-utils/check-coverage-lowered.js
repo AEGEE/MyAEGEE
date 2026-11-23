@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 // Usage: node packages/backend-test-utils/check-coverage-lowered.js [--base <ref>] <service>...
 //
-// Fails when this branch lowers a number in <service>/package.json
-// jest.coverageThreshold.global compared with its merge base with <ref> (default
-// origin/stable), unless a commit on the branch carries the trailer
+// Fails when this branch lowers a coverage threshold of <service> compared with its merge base
+// with <ref> (default origin/stable), unless a commit on the branch carries the trailer
 //
 //   Coverage-lowered: <service>: <reason>
 //
 // The trailer is part of the pull request's commits, so the reviewer sees and approves it,
 // and it applies to that branch only. Raising the numbers needs nothing.
+//
+// The thresholds are the first of these the service has at the merge base:
+//   package.json    jest.coverageThreshold.global (the Node services)
+//   coveralls.json  coverage_options.minimum_coverage, as `lines` (the mailer, ExCoveralls)
+//   pyproject.toml  --cov-fail-under, as `total` (the dispatcher, pytest-cov)
 
 const { execFileSync } = require('node:child_process');
 const path = require('node:path');
-
-const METRICS = ['statements', 'branches', 'functions', 'lines'];
 
 function gitRunner(cwd) {
     return (...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -24,9 +26,25 @@ function thresholdsOf(manifestText) {
     return (manifest.jest && manifest.jest.coverageThreshold && manifest.jest.coverageThreshold.global) || undefined;
 }
 
+function coverallsMinimum(text) {
+    const options = JSON.parse(text).coverage_options || {};
+    return typeof options.minimum_coverage === 'number' ? { lines: options.minimum_coverage } : undefined;
+}
+
+function covFailUnder(text) {
+    const match = /--cov-fail-under[= ](\d+(?:\.\d+)?)/.exec(text);
+    return match ? { total: Number(match[1]) } : undefined;
+}
+
+const RATCHETS = [
+    { file: 'package.json', read: thresholdsOf },
+    { file: 'coveralls.json', read: coverallsMinimum },
+    { file: 'pyproject.toml', read: covFailUnder }
+];
+
 function findLowered(before, after) {
     if (!before) return [];
-    return METRICS
+    return Object.keys(before)
         .filter((m) => typeof before[m] === 'number' && !(typeof (after || {})[m] === 'number' && after[m] >= before[m]))
         .map((m) => ({ metric: m, from: before[m], to: after ? after[m] : undefined }));
 }
@@ -47,16 +65,29 @@ function checkCoverageLowered({ repoRoot, service, base = 'origin/stable', git =
     } catch (err) {
         throw new Error(`No merge base with ${base} (fetch it first: git fetch origin stable): ${err.message.split('\n')[0]}`);
     }
-    const manifest = `${service}/package.json`;
+    let manifest;
     let before;
-    try {
-        before = thresholdsOf(git('show', `${mergeBase}:${manifest}`));
-    } catch (err) { // eslint-disable-line no-unused-vars
-        before = undefined; // a new service
+    let ratchet;
+    for (const candidate of RATCHETS) {
+        try {
+            before = candidate.read(git('show', `${mergeBase}:${service}/${candidate.file}`));
+        } catch (err) { // eslint-disable-line no-unused-vars
+            before = undefined; // not this kind of service, or a new one
+        }
+        if (before) {
+            ratchet = candidate;
+            manifest = `${service}/${candidate.file}`;
+            break;
+        }
     }
     if (!before) return { failed: false, lines: [`${service}: no coverage ratchet at the merge base, nothing to compare`] };
 
-    const after = thresholdsOf(git('show', `HEAD:${manifest}`));
+    let after;
+    try {
+        after = ratchet.read(git('show', `HEAD:${manifest}`));
+    } catch (err) { // eslint-disable-line no-unused-vars
+        after = undefined; // the file is gone
+    }
     const lowered = findLowered(before, after);
     if (lowered.length === 0) return { failed: false, lines: [`${service}: the coverage ratchet was not lowered`] };
 

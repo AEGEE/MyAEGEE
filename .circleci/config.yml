@@ -125,7 +125,7 @@ jobs:
           name: Check that no coverage ratchet was lowered without a Coverage-lowered trailer
           command: |
             git fetch --quiet origin stable
-            node packages/backend-test-utils/check-coverage-lowered.js core statutory events summeruniversity network discounts
+            node packages/backend-test-utils/check-coverage-lowered.js core statutory events summeruniversity network discounts mailer dispatcher
   core-test:
     docker:
       - image: cimg/node:26.13.1
