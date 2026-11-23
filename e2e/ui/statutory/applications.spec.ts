@@ -1,7 +1,7 @@
 // Managing the applications to a statutory event (/statutory/:id/applications): the table of
 // every application, its columns, the status of each, and searching, paging and sorting, which
 // the service does.
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import type { ApiMock, MockRequest } from '../support/api-mock.ts';
 import { forbidden, notFound, ok, okList } from '../support/factories/base.ts';
@@ -60,6 +60,14 @@ const listCalls = (api: ApiMock) => api.callsTo('GET statutory /events/:id/appli
 const applicationsTable = (page: Page) => page.getByRole('region', { name: 'Applications' }).getByRole('table');
 const rowOf = (page: Page, name: string) => tableRows(applicationsTable(page)).filter({ hasText: name });
 
+// Every cell of `row`, column by column: its count, and the text under each header.
+const expectCells = async (table: Locator, row: Locator, cells: [string, string | RegExp][]) => {
+    await expect(row.getByRole('cell')).toHaveCount(cells.length);
+    for (const [column, text] of cells) {
+        await test.step(`cell under "${column}"`, async () => expect(await cellOf(table, row, column)).toHaveText(text));
+    }
+};
+
 const fieldsPicker = (page: Page) => page.getByRole('combobox', { name: 'Application fields' });
 
 // Ticks the fields in the picker and closes it again.
@@ -71,6 +79,48 @@ const pickFields = async (page: Page, ...fields: (string | RegExp)[]) => {
 };
 
 test.describe('managing the applications to a statutory event', () => {
+    test('every cell stays under its header after load, after adding a question column and after showing cancelled applications', async ({ page, api }) => {
+        // Buefy's columns are renderless: a column that came and went could leave the cells
+        // of the columns after it under the wrong headers ("View" under "Confirmed?").
+        mockPage(api, { list: () => okList([JAN]) });
+        await page.goto('/statutory/agora-spring/applications');
+
+        const table = applicationsTable(page);
+        const row = rowOf(page, 'Jansen');
+        const leading: [string, string | RegExp][] = [
+            ['#', '001-0002'],
+            ['User ID', '7'],
+            ['Body', 'AEGEE-Utrecht'],
+            ['Is on memberslist?', 'No'],
+            ['Was on previous memberslist?', 'Yes'],
+            ['First name', 'Jan'],
+            ['Last name', 'Jansen'],
+            // The board hasn't set these yet.
+            ['Participant type', ''],
+            ['Board comment', '']
+        ];
+        const trailing: [string, string | RegExp][] = [
+            ['Confirmed?', 'No'],
+            ['Attended?', 'No'],
+            ['Manage status', /Pending\s*Accepted\s*Waiting list\s*Rejected/],
+            ['View', 'View'],
+            ['Edit', 'Edit']
+        ];
+
+        await test.step('after the event loads', () => expectCells(table, row, [...leading, ...trailing]));
+
+        await test.step('after adding the question column', async () => {
+            await pickFields(page, /^Why do you want to go\?/);
+            await expectCells(table, row, [...leading, ['Why do you want to go?', 'To learn'], ...trailing]);
+        });
+
+        await test.step('after showing cancelled applications', async () => {
+            await page.getByRole('button', { name: 'Display all applications' }).click();
+            await expect(page.getByRole('button', { name: 'Display only not cancelled applications' })).toBeVisible();
+            await expectCells(table, row, [...leading, ['Why do you want to go?', 'To learn'], ['Cancelled?', 'No'], ...trailing]);
+        });
+    });
+
     test('a manager sees every application with the default fields', async ({ page, api }) => {
         mockPage(api);
         await page.goto('/statutory/agora-spring/applications');
