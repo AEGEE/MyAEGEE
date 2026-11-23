@@ -382,8 +382,8 @@
             </div>
 
             <div class="field">
-              <button type="submit" class="button is-primary" @click="saveBoard()">
-                Save application!
+              <button type="button" class="button is-primary" @click="saveBoard()">
+                Save board information
               </button>
             </div>
           </div>
