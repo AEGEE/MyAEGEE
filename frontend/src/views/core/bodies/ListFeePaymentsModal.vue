@@ -5,7 +5,7 @@
       <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
-      <b-table :data="member.payments" v-if="member.payments.length > 0">
+      <b-table :data="member.payments" v-if="member.payments && member.payments.length > 0">
         <b-table-column field="id" label="#" numeric sortable v-slot="props">
           {{ props.row.id }}
         </b-table-column>
