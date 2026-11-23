@@ -157,11 +157,6 @@ export default {
       })
     }
   },
-  watch: {
-    '$route.name': function () {
-      this.fetchData()
-    }
-  },
   mounted () {
     this.fetchData()
   }
