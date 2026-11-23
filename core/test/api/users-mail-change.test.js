@@ -1,9 +1,12 @@
+const nock = require('nock');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const { MailChange, User } = require('../../models');
 const constants = require('../../lib/constants');
+const config = require('../../config');
 
 const REQUESTED_NEW_ADDRESS = 'The email change was requested. It takes effect after it is confirmed from the new address.';
 const REQUESTED_BOTH_ADDRESSES = 'The email change was requested. The member has to confirm it from both their current address '
@@ -842,5 +845,72 @@ describe('User mail change', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    describe('while the mails are being sent', () => {
+        // A mailer that, before it answers, saves something on the member's row,
+        // like every request of that member does (last_active).
+        const mailerThatSavesTheMember = (member) => {
+            nock.cleanAll();
+
+            const mails = [];
+            nock(`${config.mailer.url}:${config.mailer.port}`)
+                .persist()
+                .post('/')
+                .reply(async (uri, body) => {
+                    await User.update({ about_me: `saved during mail ${mails.length + 1}` }, { where: { id: member.id } });
+                    mails.push(body);
+                    return [200, { success: true }];
+                });
+
+            return mails;
+        };
+
+        test('should not keep the member from being saved when a change is requested', async () => {
+            const member = await generator.createUser({ email: 'current@example.com' });
+            const token = await generator.createAccessToken(member);
+            const mails = mailerThatSavesTheMember(member);
+
+            const res = await request({
+                path: '/members/' + member.id + '/email',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { new_email: 'new@example.com' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails.length).toEqual(1);
+
+            const memberFromDb = await User.findByPk(member.id);
+            expect(memberFromDb.about_me).toEqual('saved during mail 1');
+        });
+
+        test('should not keep the member from being saved when a change is confirmed', async () => {
+            const member = await generator.createUser({ email: 'current@example.com' });
+            const token = await generator.createAccessToken(member);
+            const requestMails = mock.captureMails();
+
+            await request({
+                path: '/members/' + member.id + '/email',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { new_email: 'new@example.com' }
+            });
+
+            const mails = mailerThatSavesTheMember(member);
+
+            const res = await request({
+                path: '/confirm-email-change',
+                method: 'POST',
+                body: { token: requestMails[0].parameters.token }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails.length).toEqual(1);
+
+            const memberFromDb = await User.findByPk(member.id);
+            expect(memberFromDb.email).toEqual('new@example.com');
+            expect(memberFromDb.about_me).toEqual('saved during mail 1');
+        });
     });
 });
