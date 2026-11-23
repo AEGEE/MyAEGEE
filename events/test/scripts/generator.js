@@ -5,6 +5,15 @@ const firstUser = require('../assets/oms-core-valid.json').data;
 
 const notSet = (field) => typeof field === 'undefined';
 
+// Applicants get user ids no other generated application has, so two applications of one
+// test never collide on the one-application-per-user rule. They start above the ids the
+// fixtures and tests use by hand.
+let lastUserId = 100000;
+const nextUserId = () => {
+    lastUserId += 1;
+    return lastUserId;
+};
+
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
@@ -50,7 +59,7 @@ exports.createEvent = (options = {}) => {
 };
 
 exports.generateApplication = (event, options = {}) => {
-    if (notSet(options.user_id)) options.user_id = faker.number.int(100);
+    if (notSet(options.user_id)) options.user_id = nextUserId();
     if (notSet(options.body_id)) options.body_id = faker.number.int(100);
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
