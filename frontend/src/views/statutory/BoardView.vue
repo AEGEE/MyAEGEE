@@ -94,7 +94,7 @@
             <p>If you are swapping 2 applications, please swap their board comments as well.</p>
           </div>
 
-          <button class="button is-fullwidth is-primary" @click="updateParticipants()">Save!</button>
+          <button class="button is-fullwidth is-primary" :disabled="isSaving" @click="updateParticipants()">Save!</button>
         </div>
 
         <div v-show="scope === 'view' && selectedBody" role="tabpanel" aria-label="View applications">
@@ -331,14 +331,17 @@ export default {
       }
 
       this.errors = {}
+      this.isSaving = true
       const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
       const body = this.bodyStatuses.filter(entry => entry.user_id !== null && typeof entry.user_id !== 'undefined')
 
       this.axios.post(url, body).then(() => {
+        this.isSaving = false
         this.$root.showSuccess('Participants info is successfully updated.')
         // The places as statutory has them now, also in the list of applications.
         this.fetchBoardview()
       }).catch((err) => {
+        this.isSaving = false
         if (err.response && err.response.data.errors) {
           this.errors = err.response.data.errors
         } else {
