@@ -109,7 +109,7 @@ exports.getApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.application,
+        data: helpers.applicationForCaller(req.application, req),
         permissions: req.permissions
     });
 };
@@ -193,7 +193,7 @@ exports.createApplication = async (req, res) => {
     return res.json({
         success: true,
         message: 'Application is created.',
-        data: newApplication,
+        data: helpers.applicationForCaller(newApplication, req),
     });
 };
 
@@ -273,7 +273,7 @@ exports.updateApplication = async (req, res) => {
     return res.json({
         success: true,
         message: 'Application is updated',
-        data: req.application,
+        data: helpers.applicationForCaller(req.application, req),
     });
 };
 
@@ -328,7 +328,7 @@ exports.setApplicationCancelled = async (req, res) => {
 
     return res.json({
         success: true,
-        data: dbResult
+        data: helpers.applicationForCaller(dbResult, req)
     });
 };
 

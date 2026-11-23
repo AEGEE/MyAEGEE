@@ -309,6 +309,22 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     return permissions;
 };
 
+// The board comment is written by the board of the applicant's body about the applicant.
+// It is returned to the boards and to those who may list the event's applications, but
+// not to the applicant, unless they may set board comments for that body themselves.
+exports.applicationForCaller = (application, { user, permissions }) => {
+    const data = application.toJSON();
+    const isApplicant = Boolean(user) && data.user_id === user.id;
+    const maySeeBoardComment = permissions.list_applications
+        || (permissions.set_board_comment && permissions.set_board_comment[data.body_id]);
+
+    if (isApplicant && !maySeeBoardComment) {
+        delete data.board_comment;
+    }
+
+    return data;
+};
+
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
