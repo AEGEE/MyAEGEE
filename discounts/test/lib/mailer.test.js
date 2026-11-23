@@ -18,7 +18,7 @@ describe('Mailer client', () => {
     });
 
     test('sendMail should call mailer with expected payload', async () => {
-        request.mockResolvedValue({ success: true });
+        request.mockResolvedValue({ statusCode: 200, body: { success: true } });
 
         const body = await mailer.sendMail(mail);
 
@@ -26,18 +26,19 @@ describe('Mailer client', () => {
         expect(request).toHaveBeenCalledWith({
             url: `${config.mailer.url}:${config.mailer.port}/`,
             method: 'POST',
-            body: mail
+            body: mail,
+            fullResponse: true
         });
     });
 
     test('sendMail should fail on malformed response', async () => {
-        request.mockResolvedValue('bad response');
+        request.mockResolvedValue({ statusCode: 200, body: 'bad response' });
 
         await expect(mailer.sendMail(mail)).rejects.toThrow('Malformed response from mailer');
     });
 
     test('sendMail should fail on unsuccessful response', async () => {
-        request.mockResolvedValue({ success: false, message: 'Nope' });
+        request.mockResolvedValue({ statusCode: 500, body: { success: false, message: 'Nope' } });
 
         await expect(mailer.sendMail(mail)).rejects.toThrow('Unsuccessful response from mailer');
     });
