@@ -276,10 +276,7 @@ async function resolveBodies(target, fields, token) {
 
 const BODY_FIELDS = ['organizing_bodies'];
 
-const makeOrganizersError = (res, message) => res.status(422).json({
-    success: false,
-    errors: { organizers: [message] }
-});
+const makeOrganizersError = (res, message) => helpers.makeFieldError(res, 'organizers', message);
 
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event) {
@@ -299,7 +296,7 @@ exports.addEvent = async (req, res) => {
     // Malformed bodies are caught by the Event model validation; unknown ones here.
     const bodyErrors = await resolveBodies(event, BODY_FIELDS, req.headers['x-auth-token']);
     if (bodyErrors) {
-        return res.status(422).json({ success: false, errors: bodyErrors });
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     if (Array.isArray(event.organizers)) {
@@ -400,7 +397,7 @@ exports.editEvent = async (req, res) => {
     // Malformed bodies are caught by the Event model validation; unknown ones here.
     const bodyErrors = await resolveBodies(data, BODY_FIELDS, req.headers['x-auth-token']);
     if (bodyErrors) {
-        return res.status(422).json({ success: false, errors: bodyErrors });
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     const newBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : null;
