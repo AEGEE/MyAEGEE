@@ -119,10 +119,6 @@ exports.listAllBoardsBody = async (req, res) => {
         order: helpers.getSorting(req.query)
     });
 
-    if (boards.length === 0) {
-        return errors.makeNotFoundError(res, 'There are no boards for this body.');
-    }
-
     return res.json({
         success: true,
         data: boards
