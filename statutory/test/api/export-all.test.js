@@ -434,4 +434,20 @@ describe('Export all', () => {
         expect(sheet.length).toEqual(2); // headers + 1 application
         expect(sheet[1][0]).toEqual(application.id);
     });
+
+    test('should take a single selected field as a list of one', async () => {
+        await generator.createApplication({ user_id: regularUser.id, first_name: 'Anna', answers: [true, 'An answer'] }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?select=first_name',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const [sheet] = xlsx.parse(res.body);
+        expect(sheet.data).toEqual([['First name'], ['Anna']]);
+    });
 });

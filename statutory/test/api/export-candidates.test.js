@@ -293,4 +293,21 @@ describe('Export candidates', () => {
         expect(row['position.name']).toEqual('President');
         expect(row.notification_email).toEqual('test@example.com');
     });
+
+    test('should take a single selected field as a list of one', async () => {
+        const position = await generator.createPosition({}, event);
+        await generator.createCandidate({ first_name: 'Carla' }, position);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/export?select=first_name',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const [sheet] = xlsx.parse(res.body);
+        expect(sheet.data).toEqual([['First name'], ['Carla']]);
+    });
 });
