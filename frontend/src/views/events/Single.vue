@@ -419,8 +419,6 @@ export default {
         confirmText: 'Delete event',
         type: 'is-danger',
         hasIcon: true,
-        ariaRole: 'alertdialog',
-        ariaModal: true,
         onConfirm: () => this.deleteEvent()
       })
     },
@@ -454,8 +452,6 @@ export default {
         confirmText: 'Change status',
         type: 'is-warning',
         hasIcon: true,
-        ariaRole: 'alertdialog',
-        ariaModal: true,
         onConfirm: () => this.changeStatus(newStatus)
       })
     },
@@ -492,8 +488,6 @@ export default {
         confirmText: 'Change European Event status',
         type: 'is-warning',
         hasIcon: true,
-        ariaRole: 'alertdialog',
-        ariaModal: true,
         onConfirm: () => this.changeEuropeanEventStatus()
       })
     },
