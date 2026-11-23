@@ -459,6 +459,9 @@ import credentials from '../../credentials'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 import URLTooltip from '../../components/tooltips/URLTooltip'
 
+// A date picker that was emptied gives '': that date is not set.
+const toDate = (value) => (value ? new Date(value) : null)
+
 export default {
   name: 'EditStatutory',
   components: {
@@ -748,30 +751,34 @@ export default {
       }
     },
     'dates.application_period_starts': function (newDate) {
-      this.event.application_period_starts = new Date(newDate)
+      this.event.application_period_starts = toDate(newDate)
     },
     'dates.application_period_ends': function (newDate) {
-      this.event.application_period_ends = new Date(newDate)
+      this.event.application_period_ends = toDate(newDate)
     },
     'dates.board_approve_deadline': function (newDate) {
-      this.event.board_approve_deadline = new Date(newDate)
+      this.event.board_approve_deadline = toDate(newDate)
 
-      if (!this.dates.participants_list_publish_deadline) {
+      if (newDate && !this.dates.participants_list_publish_deadline) {
         this.dates.participants_list_publish_deadline = moment(newDate).add(1, 'day').toDate()
       }
     },
     'dates.participants_list_publish_deadline': function (newDate) {
-      this.event.participants_list_publish_deadline = new Date(newDate)
+      this.event.participants_list_publish_deadline = toDate(newDate)
     },
     'dates.memberslist_submission_deadline': function (newDate) {
-      this.event.memberslist_submission_deadline = new Date(newDate)
+      this.event.memberslist_submission_deadline = toDate(newDate)
     },
     'dates.starts': function (newDate) {
-      this.event.starts = new Date(newDate)
+      this.event.starts = toDate(newDate)
 
       // Keep the saved deadlines when an existing event is loaded (also when the
-      // date picker writes the same start date back), only suggest them for new
-      // events or when the start date is changed.
+      // date picker writes the same start date back), or when the start is emptied;
+      // only suggest them for new events or when the start date is changed.
+      if (!newDate) {
+        return
+      }
+
       if (this.$route.params.id && this.savedStarts && moment(newDate).isSame(this.savedStarts, 'minute')) {
         return
       }
@@ -788,22 +795,22 @@ export default {
         .toDate()
     },
     'dates.ends': function (newDate) {
-      this.event.ends = new Date(newDate)
+      this.event.ends = toDate(newDate)
     },
     'dates.draft_proposal_deadline': function (newDate) {
-      this.event.draft_proposal_deadline = new Date(newDate)
+      this.event.draft_proposal_deadline = toDate(newDate)
     },
     'dates.final_proposal_deadline': function (newDate) {
-      this.event.final_proposal_deadline = new Date(newDate)
+      this.event.final_proposal_deadline = toDate(newDate)
     },
     'dates.candidature_deadline': function (newDate) {
-      this.event.candidature_deadline = new Date(newDate)
+      this.event.candidature_deadline = toDate(newDate)
     },
     'dates.booklet_publication_deadline': function (newDate) {
-      this.event.booklet_publication_deadline = new Date(newDate)
+      this.event.booklet_publication_deadline = toDate(newDate)
     },
     'dates.updated_booklet_publication_deadline': function (newDate) {
-      this.event.updated_booklet_publication_deadline = new Date(newDate)
+      this.event.updated_booklet_publication_deadline = toDate(newDate)
     }
   },
   mounted () {
