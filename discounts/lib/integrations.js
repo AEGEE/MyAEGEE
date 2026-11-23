@@ -104,11 +104,14 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeValidationError(res, 'Every code should be a non-empty string.');
     }
 
-    if (req.body.some((code) => code.length > MAX_CODE_LENGTH)) {
+    // Codes are stored without the spaces around them, which a pasted list often has.
+    const codes = req.body.map((code) => code.trim());
+
+    if (codes.some((code) => code.length > MAX_CODE_LENGTH)) {
         return errors.makeValidationError(res, 'Every code should be at most 255 characters long.');
     }
 
-    const arrayToCreate = req.body.map((code) => ({
+    const arrayToCreate = codes.map((code) => ({
         integration_id: req.integration.id,
         value: code
     }));
