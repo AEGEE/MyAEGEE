@@ -424,7 +424,8 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.participant_type).toEqual(null);
         expect(res.body.data.participant_order).toEqual(null);
-        expect(res.body.data.board_comment).toEqual(null);
+        // The applicant is not in the board of the new body, so does not get the board comment back.
+        expect(res.body.data).not.toHaveProperty('board_comment');
 
         const newApplication = await Application.findOne({ where: { id: application.id } });
         expect(newApplication.participant_type).toEqual(null);
