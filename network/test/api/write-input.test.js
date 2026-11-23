@@ -2,10 +2,12 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
-const { AntennaCriterion, Netcom, MailComponent } = require('../../models');
+const mailer = require('../../lib/mailer');
+const { AntennaCriterion, Board, Netcom, MailComponent } = require('../../models');
 
 // The upserts of NetCom assignments, mail texts and Antenna Criteria take only their own
-// fields, check them all before storing, and refuse a body that is not an object.
+// fields and check them all before storing. Every write route refuses a body that is not
+// an object.
 const PAST = '2000-01-01T00:00:00.000Z';
 
 const routes = {
@@ -115,6 +117,14 @@ describe('Input of the upserts', () => {
             expect(row.updated_at.toISOString()).not.toEqual(PAST);
         });
 
+        test('should answer 422 if the request has no body', async () => {
+            const res = await put(route, undefined);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(await route.model.count()).toEqual(0);
+        });
+
         test('should refuse a list as the body with 400', async () => {
             const res = await put(route, [route.valid()]);
 
@@ -141,6 +151,52 @@ describe('Input of the upserts', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toEqual({ [field]: [message] });
             expect(await route.model.count()).toEqual(0);
+        });
+    });
+
+    describe('other write routes', () => {
+        test('POST a board should refuse a list as the body with 400', async () => {
+            const res = await request({
+                path: '/bodies/34/boards',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: [generator.generateBoard({ body_id: 34 })]
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body should be an object.' });
+            expect(await Board.count()).toEqual(0);
+        });
+
+        test('PUT a board should refuse a list as the body with 400', async () => {
+            const board = await generator.createBoard({ body_id: 34, message: 'some text' });
+
+            const res = await request({
+                path: '/bodies/34/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: [{ message: 'a new text' }]
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body should be an object.' });
+            expect((await Board.findByPk(board.id)).message).toEqual('some text');
+        });
+
+        test('POST the fulfilment mail should refuse a list as the body with 400', async () => {
+            const sendMailSpy = jest.spyOn(mailer, 'sendMail');
+
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: [{ to: 'board@example.org', subject: 'Check', body: '<p>Text</p>' }]
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body should be an object.' });
+            expect(sendMailSpy).not.toHaveBeenCalled();
+            sendMailSpy.mockRestore();
         });
     });
 });
