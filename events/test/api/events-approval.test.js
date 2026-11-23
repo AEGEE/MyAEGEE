@@ -574,4 +574,29 @@ describe('Events status change', () => {
             expect(res.body).toHaveProperty('message');
         });
     });
+    describe('invalid status values', () => {
+        test.each([
+            ['an unknown status', { status: 'foo' }],
+            ['an inherited property name', { status: 'constructor' }],
+            ['a status that is not a string', { status: 123 }],
+            ['no status', {}]
+        ])('should return 422 for %s', async (name, body) => {
+            const mails = mock.captureMails(mock.mockAll().omsMailerStub);
+            const event = await generator.createEvent({ status: 'submitted' });
+
+            const res = await request({
+                path: '/single/' + event.id + '/status',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+
+            await event.reload();
+            expect(event.status).toEqual('submitted');
+            expect(mails).toHaveLength(0);
+        });
+    });
 });
