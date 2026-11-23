@@ -1,5 +1,4 @@
 const http = require('http');
-const { faker } = require('@faker-js/faker');
 const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server');
@@ -143,7 +142,7 @@ describe('Board creation', () => {
     });
 
     test('should fail if elected_date is in the future', async () => {
-        const board = generator.generateBoard({ elected_date: faker.date.future() });
+        const board = generator.generateBoard({ elected_date: moment().add(30, 'days').format('YYYY-MM-DD') });
 
         const res = await request({
             path: '/bodies/' + body.id + '/boards',
@@ -207,7 +206,7 @@ describe('Board creation', () => {
     });
 
     test('should fail if end_date is in the past', async () => {
-        const board = generator.generateBoard({ end_date: faker.date.past() });
+        const board = generator.generateBoard({ start_date: '2026-01-10', end_date: '2026-01-09' });
 
         const res = await request({
             path: '/bodies/' + body.id + '/boards',

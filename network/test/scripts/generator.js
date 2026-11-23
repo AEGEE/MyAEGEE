@@ -1,9 +1,11 @@
 const { faker } = require('@faker-js/faker');
+const moment = require('moment');
 
 const { Board, AntennaCriterion, Netcom, MailComponent } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
-const toDate = (date) => date.toISOString().slice(0, 10);
+// A day relative to today in the server's time zone, as the frontend sends it.
+const daysFromToday = (days) => moment().add(days, 'days').format('YYYY-MM-DD');
 
 // Random body IDs stay above the bodies used in the core fixtures (e.g. 9 and 34 in
 // core-manage-permissions-full.json); otherwise a "no permissions" test fails
@@ -12,9 +14,10 @@ const randomBodyId = () => faker.number.int({ min: 1000, max: 100000 });
 
 exports.generateBoard = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = randomBodyId();
-    // Dates as the frontend sends them (DATEONLY columns).
-    if (notSet(options.elected_date)) options.elected_date = toDate(faker.date.past());
-    if (notSet(options.start_date)) options.start_date = toDate(faker.date.recent({ days: 5 }));
+    // Random, but never across a validation boundary: elected before today, the term
+    // started in the last days and without an end.
+    if (notSet(options.elected_date)) options.elected_date = daysFromToday(-faker.number.int({ min: 1, max: 365 }));
+    if (notSet(options.start_date)) options.start_date = daysFromToday(-faker.number.int({ min: 0, max: 5 }));
     if (notSet(options.president)) options.president = faker.number.int(4);
     if (notSet(options.secretary)) options.secretary = faker.number.int(4);
     if (notSet(options.treasurer)) options.treasurer = faker.number.int(4);
