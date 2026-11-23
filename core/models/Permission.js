@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const validators = require('../lib/validators');
 
 const Permission = sequelize.define('permission', {
     scope: {
@@ -46,7 +47,10 @@ const Permission = sequelize.define('permission', {
     filters: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
-        defaultValue: []
+        defaultValue: [],
+        validate: {
+            isListOfTexts: validators.isListOfTexts('Filters should be a list of field names.')
+        }
     }
 }, {
     underscored: true,

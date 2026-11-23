@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
+const validators = require('../lib/validators');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
@@ -60,7 +61,7 @@ const User = sequelize.define('user', {
         allowNull: false,
         defaultValue: true,
         validate: {
-            isBoolean: { msg: 'Active should be valid.' }
+            isBoolean: validators.isBoolean('Active should be valid.')
         }
     },
     superadmin: {
@@ -68,12 +69,15 @@ const User = sequelize.define('user', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean: { msg: 'Superadmin should be valid.' }
+            isBoolean: validators.isBoolean('Superadmin should be valid.')
         }
     },
     privacy_consent: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
+        validate: {
+            isDate: validators.isDate('Privacy consent should be a valid date.')
+        }
     },
     first_name: {
         type: Sequelize.STRING,
@@ -105,6 +109,7 @@ const User = sequelize.define('user', {
         type: Sequelize.DATEONLY,
         allowNull: true,
         validate: {
+            isDate: validators.isDate('Birthday should be a valid date.'),
             isPast(value) {
                 if (!value) {
                     return;
@@ -143,7 +148,10 @@ const User = sequelize.define('user', {
     primary_email: {
         type: Sequelize.ENUM('personal', 'gsuite'),
         allowNull: false,
-        defaultValue: 'personal'
+        defaultValue: 'personal',
+        validate: {
+            isOneOf: validators.isOneOf(['personal', 'gsuite'], 'Primary email should be one of these: "personal", "gsuite".')
+        }
     },
     notification_email: {
         type: Sequelize.VIRTUAL,

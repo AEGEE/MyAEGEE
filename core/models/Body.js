@@ -1,5 +1,6 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
+const validators = require('../lib/validators');
 
 const Body = sequelize.define('body', {
     name: {
@@ -80,13 +81,17 @@ const Body = sequelize.define('body', {
     pays_fees: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: true,
+        validate: {
+            isBoolean: validators.isBoolean('Pays fees should be true or false.')
+        }
     },
     founded_at: {
         type: Sequelize.DATEONLY,
         allowNull: true,
         defaultValue: null,
         validate: {
+            isDate: validators.isDate('Foundation date should be a valid date.'),
             isValid(value) {
                 if (['antenna', 'contact antenna', 'contact'].includes(this.type) && value === null) {
                     throw new Error('Foundation date must be set');
