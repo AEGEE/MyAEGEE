@@ -1,12 +1,30 @@
 import { test, expect, loginInBrowser, type Envelope } from '../support/api.ts';
+import type { Username } from '../support/constants.ts';
 import { loadSeedPermissions } from '../support/core.ts';
 
 test.describe('e2e stack', () => {
-    for (const service of ['core', 'events', 'summeruniversity', 'statutory']) {
+    for (const service of ['core', 'events', 'summeruniversity', 'statutory', 'network', 'discounts']) {
         test(`${service} is reachable through the gateway`, async ({ api }) => {
             const { status, body } = await api.call<Envelope<unknown>>(null, 'GET', `/api/${service}/healthcheck`);
             expect(status).toBe(200);
             expect(body.success).toBe(true);
+        });
+    }
+
+    // Network and discounts ask core who the caller is and what they may do, so an answer for
+    // a logged-in user and a refusal for an anonymous one show they reach core.
+    const listings: [string, Username, string][] = [
+        ['network', 'netcom', '/boards'],
+        ['discounts', 'member', '/categories']
+    ];
+    for (const [service, username, path] of listings) {
+        test(`${service} recognises a logged-in user through core`, async ({ api }) => {
+            const loggedIn = await api.call<Envelope<unknown[]>>(username, 'GET', `/api/${service}${path}`);
+            expect(loggedIn.status, JSON.stringify(loggedIn.body)).toBe(200);
+            expect(Array.isArray(loggedIn.body.data)).toBe(true);
+
+            const anonymous = await api.call(null, 'GET', `/api/${service}${path}`);
+            expect(anonymous.status).toBe(401);
         });
     }
 

@@ -30,7 +30,7 @@ const run = (command: string, cwd: string, { ignoreErrors = false, extraEnv = {}
     }
 };
 
-const services: Service[] = ['core', 'events', 'summeruniversity', 'statutory'];
+const services: Service[] = ['core', 'events', 'summeruniversity', 'statutory', 'network', 'discounts'];
 
 if (!frontendOnly) {
     for (const service of services) {

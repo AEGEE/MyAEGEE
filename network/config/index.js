@@ -35,6 +35,28 @@ const config = {
     development: {
 
     },
+    // End-to-end tests: services run as plain Node processes on localhost (see e2e/README.md).
+    e2e: {
+        port: Number(process.env.E2E_PORT) || 18088,
+        postgres: {
+            host: process.env.DB_HOST || 'localhost',
+            username: process.env.DB_USERNAME || 'postgres',
+            database: process.env.E2E_DB_NAME || 'network-e2e'
+        },
+        // Logs in to core as the seeded admin (the default `core.user`) to look up mail addresses.
+        core: {
+            url: 'http://localhost',
+            port: Number(process.env.E2E_CORE_PORT) || 18084
+        },
+        mailer: {
+            url: 'http://localhost',
+            port: Number(process.env.E2E_MAILER_PORT) || 18090
+        },
+        logger: {
+            level: process.env.LOGLEVEL || 'warn'
+        },
+        bugsnagKey: '00000000000000000000000000000000' // valid format; reporting is disabled in e2e
+    },
     test: {
         port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
