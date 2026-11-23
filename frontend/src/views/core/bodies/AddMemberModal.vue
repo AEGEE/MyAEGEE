@@ -9,9 +9,9 @@
         <b-autocomplete
           v-model="memberName"
           :data="members"
-          field="title"
+          :custom-formatter="(option) => option.first_name + ' ' + option.last_name"
           :loading="isLoadingMembers"
-          @input="fetchMembers"
+          @typing="fetchMembers"
           :expanded="true"
           @select="option => addMember(option)"
           aria-label="Search by name or email"
@@ -44,7 +44,7 @@ export default {
     }
   },
   methods: {
-    fetchMembers () {
+    fetchMembers (query) {
       this.isLoadingMembers = true
       this.members = []
 
@@ -53,7 +53,7 @@ export default {
 
       this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,
-        params: { query: this.memberName }
+        params: { query }
       }).then((response) => {
         this.members = response.data.data
         this.isLoadingMembers = false
