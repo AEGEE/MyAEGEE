@@ -12,24 +12,27 @@ const APPLICATION_STATUSES = ['open', 'closed'];
 
 const asList = (value) => (Array.isArray(value) ? value : [value]);
 
+// An empty filter (?type=) is no filter, as in the list queries below.
+const isSet = (value) => typeof value !== 'undefined' && value !== '';
+
 // Checks the filters of the event lists. Returns a message for the user, or null if the
 // filters are fine. Without this, an unknown type or date reaches Postgres and fails there.
 exports.validateListQuery = (query) => {
-    if (typeof query.type !== 'undefined' && !asList(query.type).every((type) => constants.EVENT_TYPES.includes(type))) {
+    if (isSet(query.type) && !asList(query.type).every((type) => constants.EVENT_TYPES.includes(type))) {
         return `The type filter should be one or more of: ${constants.EVENT_TYPES.join(', ')}.`;
     }
 
-    if (typeof query.season !== 'undefined' && !exports.isNumber(query.season)) {
+    if (isSet(query.season) && !exports.isNumber(query.season)) {
         return 'The season filter should be a year.';
     }
 
     for (const field of ['starts', 'ends']) {
-        if (typeof query[field] !== 'undefined' && !isValidDay(query[field])) {
+        if (isSet(query[field]) && !isValidDay(query[field])) {
             return `The ${field} filter should be a date (YYYY-MM-DD).`;
         }
     }
 
-    if (typeof query.application_status !== 'undefined'
+    if (isSet(query.application_status)
         && !asList(query.application_status).every((status) => APPLICATION_STATUSES.includes(status))) {
         return `The application_status filter should be one or more of: ${APPLICATION_STATUSES.join(', ')}.`;
     }
