@@ -52,7 +52,7 @@ exports.authenticateUser = async (req, res, next) => {
     // If the service returned faulty answer (either garbage, or HTTP code other than 401),
     // throw an error.
     for (const errorObject of errorObjectsMap) {
-        if (typeof errorObject.object.body !== 'object') {
+        if (errorObject.object.body === null || typeof errorObject.object.body !== 'object') {
             throw new Error(`Malformed response when fetching ${errorObject.name}: ${errorObject.object.body}`);
         }
 

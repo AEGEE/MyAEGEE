@@ -31,7 +31,7 @@ const fetchUser = async (user, token) => {
         token
     });
 
-    if (typeof userRequest !== 'object') {
+    if (userRequest === null || typeof userRequest !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userRequest);
     }
 
@@ -61,7 +61,7 @@ const fetchApplicationUser = async (user) => {
         }
     });
 
-    if (typeof authRequest !== 'object') {
+    if (authRequest === null || typeof authRequest !== 'object') {
         throw new Error('Malformed response when fetching auth request: ' + authRequest);
     }
 
@@ -75,7 +75,7 @@ const fetchApplicationUser = async (user) => {
         token: authRequest.access_token,
     });
 
-    if (typeof userResponse !== 'object') {
+    if (userResponse === null || typeof userResponse !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userResponse);
     }
 
@@ -107,7 +107,7 @@ const fetchBody = async (body, token) => {
 
     const bodyRequest = response.body;
 
-    if (typeof bodyRequest !== 'object') {
+    if (bodyRequest === null || typeof bodyRequest !== 'object') {
         throw new Error('Malformed response when fetching body: ' + bodyRequest);
     }
 
@@ -132,7 +132,7 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
-    if (typeof authRequest !== 'object') {
+    if (authRequest === null || typeof authRequest !== 'object') {
         throw new Error('Malformed response when fetching auth request: ' + authRequest);
     }
 
@@ -149,7 +149,7 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
-    if (typeof membersResponse !== 'object') {
+    if (membersResponse === null || typeof membersResponse !== 'object') {
         throw new Error('Malformed response when fetching members for permission: ' + membersResponse);
     }
 
@@ -171,7 +171,7 @@ const getAdminToken = async () => {
         }
     });
 
-    if (typeof authRequest !== 'object') {
+    if (authRequest === null || typeof authRequest !== 'object') {
         throw new Error('Malformed response when fetching auth request: ' + authRequest);
     }
 
