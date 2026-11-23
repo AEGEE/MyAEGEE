@@ -123,4 +123,171 @@ describe('Question lines listing', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    describe('who may see the question lines', () => {
+        const FORBIDDEN = { success: false, message: 'You are not allowed to see questions' };
+        let event;
+        let questionLine;
+
+        beforeEach(async () => {
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            questionLine = await generator.createQuestionLine({ name: 'Questions to the board' }, event);
+        });
+
+        const list = (targetEvent = event) => request({
+            path: '/events/' + targetEvent.id + '/question-lines',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test.each([
+            'global:manage_question_lines:agora',
+            'global:see_question_lines:agora'
+        ])('lets a holder of %s alone, without an application, see them', async (permission) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const res = await list();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((line) => line.id)).toEqual([questionLine.id]);
+        });
+
+        test('refuses the permissions for another event type and the other permissions for an Agora', async () => {
+            mock.mockAll({
+                mainPermissions: {
+                    permissions: [
+                        'global:manage_question_lines:epm',
+                        'global:see_question_lines:epm',
+                        'global:manage_question_lines:spm',
+                        'global:see_question_lines:spm',
+                        'global:manage_event:agora',
+                        'global:manage_applications:agora',
+                        'global:manage_plenaries:agora',
+                        'global:see_plenaries:agora'
+                    ]
+                }
+            });
+
+            const res = await list();
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual(FORBIDDEN);
+        });
+
+        test('refuses a member whose application to the event is not confirmed', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: false }, event);
+
+            const res = await list();
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual(FORBIDDEN);
+        });
+
+        test('refuses a member whose confirmed application is to another event', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, otherEvent);
+
+            const res = await list();
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual(FORBIDDEN);
+        });
+
+        // BUG: an application that was confirmed and then cancelled keeps `confirmed`, and only
+        // `confirmed` is looked at. Expected: 403, as for a member without an application.
+        test('lets a member whose confirmed application was cancelled see them', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const application = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
+            await application.update({ cancelled: true });
+
+            const res = await list();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((line) => line.id)).toEqual([questionLine.id]);
+        });
+    });
+
+    describe('what the list holds', () => {
+        test('gives each question with the name, the body and the participant type of the member who asked it', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:see_question_lines:agora'] } });
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const questionLine = await generator.createQuestionLine({ name: 'Questions to the board', status: 'closed' }, event);
+            const application = await generator.createApplication({
+                first_name: 'Asker',
+                last_name: 'Example',
+                body_name: 'Example body',
+                participant_type: 'delegate',
+                participant_order: 2
+            }, event);
+            const question = await generator.createQuestion({ application_id: application.id, text: 'What about the budget?' }, questionLine);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0]).toMatchObject({
+                id: questionLine.id,
+                event_id: event.id,
+                name: 'Questions to the board',
+                status: 'closed'
+            });
+            expect(res.body.data[0].questions.length).toEqual(1);
+            expect(res.body.data[0].questions[0]).toMatchObject({
+                id: question.id,
+                question_line_id: questionLine.id,
+                application_id: application.id,
+                text: 'What about the budget?'
+            });
+            // Nothing else of the application: no email, no answers, no board comment.
+            expect(res.body.data[0].questions[0].application).toEqual({
+                id: application.id,
+                statutory_id: application.statutory_id,
+                user_id: application.user_id,
+                first_name: 'Asker',
+                last_name: 'Example',
+                participant_type: 'delegate',
+                participant_order: 2,
+                body_id: application.body_id,
+                body_name: 'Example body'
+            });
+        });
+
+        test('answers with an empty list for an event without question lines', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createQuestionLine({}, otherEvent);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, data: [] });
+        });
+
+        // Question lines are not only for the Agora: unlike the plenaries and the positions,
+        // these routes do not look at the type of the event.
+        test.each(['agora', 'epm', 'spm'])('lists the question lines of an %s event', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: [`global:see_question_lines:${type}`] } });
+            const event = await generator.createEvent({ type, applications: [] });
+            const questionLine = await generator.createQuestionLine({}, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/question-lines',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((line) => line.id)).toEqual([questionLine.id]);
+        });
+    });
 });

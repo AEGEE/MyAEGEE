@@ -2,6 +2,8 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const regularUser = require('../assets/core-valid.json').data;
+const { QuestionLine } = require('../../models');
 
 describe('Question line creation', () => {
     beforeAll(async () => {
@@ -75,5 +77,120 @@ describe('Question line creation', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.name).toEqual(questionLine.name);
         expect(res.body.data.status).toEqual('open');
+    });
+
+    describe('who may add a question line', () => {
+        let event;
+
+        beforeEach(async () => {
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+        });
+
+        const create = (body, targetEvent = event) => request({
+            path: '/events/' + targetEvent.id + '/question-lines',
+            method: 'POST',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        // Question lines exist for every type of event.
+        test.each(['agora', 'epm', 'spm'])('lets a holder of global:manage_question_lines:%s alone add one to an event of that type', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: [`global:manage_question_lines:${type}`] } });
+            const typedEvent = await generator.createEvent({ type, applications: [] });
+
+            const res = await create({ name: 'Questions to the board' }, typedEvent);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ event_id: typedEvent.id, name: 'Questions to the board', status: 'open' });
+
+            const questionLines = await QuestionLine.findAll({ raw: true });
+            expect(questionLines.length).toEqual(1);
+            expect(questionLines[0]).toMatchObject({
+                id: res.body.data.id,
+                event_id: typedEvent.id,
+                name: 'Questions to the board',
+                status: 'open'
+            });
+        });
+
+        test.each([
+            ['the permission for another event type', ['global:manage_question_lines:epm', 'global:manage_question_lines:spm']],
+            ['the permission to see question lines', ['global:see_question_lines:agora']],
+            ['the other permissions for an Agora', ['global:manage_event:agora', 'global:manage_applications:agora', 'global:manage_plenaries:agora']]
+        ])('refuses %s and stores nothing', async (description, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+
+            const res = await create({ name: 'Questions to the board' });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You cannot manage question lines.' });
+            expect(await QuestionLine.count()).toEqual(0);
+        });
+
+        test('refuses a member with a confirmed application and stores nothing', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
+
+            const res = await create({ name: 'Questions to the board' });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You cannot manage question lines.' });
+            expect(await QuestionLine.count()).toEqual(0);
+        });
+    });
+
+    describe('what is stored', () => {
+        let event;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_question_lines:agora'] } });
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+        });
+
+        const create = (body) => request({
+            path: '/events/' + event.id + '/question-lines',
+            method: 'POST',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('opens the new question line for the event in the URL, whatever status and event the body names', async () => {
+            const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await create({ name: 'Questions to the board', status: 'closed', event_id: otherEvent.id });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('open');
+            expect(res.body.data.event_id).toEqual(event.id);
+
+            const questionLine = await QuestionLine.findByPk(res.body.data.id);
+            expect(questionLine.status).toEqual('open');
+            expect(questionLine.event_id).toEqual(event.id);
+        });
+
+        test.each([
+            ['an empty name', '', 'Question line name should be set.'],
+            ['a name of spaces only', '   ', 'Question line name should be set.'],
+            ['a list as name', ['Questions'], 'name cannot be an array or an object']
+        ])('answers 422 for %s and stores nothing', async (description, name, message) => {
+            const res = await create({ name });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { name: [message] } });
+            expect(await QuestionLine.count()).toEqual(0);
+        });
+
+        // BUG: the whole body goes to the model, so the client chooses the id and the creation
+        // time, which the list is sorted by. Expected: both are ignored, as `status` is.
+        test('takes the id and the creation time from the body', async () => {
+            const res = await create({ name: 'Questions to the board', id: 4242, created_at: '2001-01-01T00:00:00.000Z' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(4242);
+
+            const questionLine = await QuestionLine.findByPk(4242);
+            expect(questionLine.name).toEqual('Questions to the board');
+            expect(questionLine.created_at.toISOString()).toEqual('2001-01-01T00:00:00.000Z');
+        });
     });
 });
