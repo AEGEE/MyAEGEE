@@ -93,7 +93,6 @@ class JobManager {
 
         const id = ++this.currentJob;
 
-        /* istanbul ignore next */
         const job = cron.schedule(rule, () => this.executeJob(id));
 
         this.jobs[id] = {
