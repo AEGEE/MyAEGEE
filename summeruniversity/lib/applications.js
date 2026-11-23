@@ -343,6 +343,15 @@ exports.setApplicationCancelled = async (req, res) => {
         return undefined;
     }
 
+    // Taking back one's own cancellation is applying again, so the ban applies. Organizers
+    // and managers are not limited by the applicant's ban.
+    const isOwnUncancel = req.body.cancelled === false
+        && req.application.user_id === req.user.id
+        && !req.permissions.set_participants_cancelled;
+    if (isOwnUncancel && isApplicationBanActive(req.user)) {
+        return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
+    }
+
     const dbResult = await req.application.update(
         { cancelled: req.body.cancelled },
         { returning: ['*'] }
