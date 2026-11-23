@@ -7,11 +7,11 @@ replace it. This file is what both sides are checked against.
 
 | Check | Where | What it checks |
 |---|---|---|
-| `node --test mailer/contract/` | CI job `mail-contract` | the manifest is consistent; every example is valid; the mailer, the dispatcher and the manifest have the same templates; every `template:` in a service's `lib/` or `middlewares/` is a literal name from the manifest and its file is in that template's `senders` |
+| `node --test mailer/contract/` | CI job `mail-contract` | the manifest is consistent; every example is valid; the mailer, the dispatcher and the manifest have the same templates; every `template:` in a service's `lib/` or `middlewares/` is a literal name from the manifest (a shorthand `template` property is a problem) and its file is in that template's `senders`; `sendMail` is used only as `<client>.sendMail(...)`, which is what the jest hook sees |
 | `node mailer/contract/check-senders.cjs` | locally | the last of those checks alone, with one line per problem |
 | ExUnit (`mailer/test/omsmailer_web/contract/`) | `mailer-test` | every example renders in the mailer, also with only its required keys and with every nullable value `null`; the paths each template reads are declared, and the ones it can't render without are required |
 | pytest (`dispatcher/tests/test_contract_templates.py`) | `dispatcher-test` | the same for the dispatcher's templates |
-| jest hook (`<service>/test/scripts/mail-contract.js`, `jest-hook.cjs`) | each service's `test` job | every mail a test sends matches its template's schema; the test fails afterwards otherwise. A test that sends an invalid mail on purpose calls `allowViolations()` of `jest-hook.cjs` |
+| jest hook (`<service>/test/scripts/mail-contract.js`, `jest-hook.cjs`) | each service's `test` job | every mail a test sends matches its template's schema; the test fails afterwards otherwise. A test that sends an invalid mail on purpose calls `allowViolations()` of `jest-hook.cjs`. A mocked client is checked through the calls its mock recorded; a test file that mocks the client and gets no mail checked fails at its end, unless it calls `allowUncheckedMails('<reason>')`. `MAIL_CONTRACT_REPORT=<file>` writes how many mails each test file had checked |
 
 ## Schemas
 
