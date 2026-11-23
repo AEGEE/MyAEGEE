@@ -342,7 +342,7 @@ export default {
         editCode: true,
         editShadowCircle: true,
         editType: true,
-        editGsuite: false
+        editGsuite: true
       },
       countries,
       autocompleteBody: '',
