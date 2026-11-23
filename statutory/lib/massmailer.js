@@ -2,6 +2,8 @@ const core = require('./core');
 const errors = require('./errors');
 const mailer = require('./mailer');
 const logger = require('./logger');
+const constants = require('./constants');
+const helpers = require('./helpers');
 const { Application } = require('../models');
 
 exports.sendAll = async (req, res) => {
@@ -22,15 +24,20 @@ exports.sendAll = async (req, res) => {
         req.body.filter = {};
     }
 
+    const filterError = helpers.getFilterError(req.body.filter, constants.ALLOWED_APPLICATION_FILTER_FIELDS);
+    if (filterError) {
+        return errors.makeBadRequestError(res, filterError);
+    }
+
     // Filter object, the default one is filtering out cancelled applications.
     const baseObject = { cancelled: false };
 
     // Then applying the filter the user has passed
     const filterObject = Object.assign(baseObject, req.body.filter);
 
-    // Then filter application based on that filter.
+    // Then filter application based on that filter, always within this event.
     const applications = await Application.findAll({
-        where: { event_id: req.event.id, ...filterObject }
+        where: { ...filterObject, event_id: req.event.id }
     });
 
     logger.info({ count: applications.length }, 'Sending mass mailer to users');

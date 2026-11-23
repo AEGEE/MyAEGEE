@@ -920,6 +920,11 @@ exports.exportAll = async (req, res) => {
         req.query.filter = { status: 'accepted' };
     }
 
+    const filterError = helpers.getFilterError(req.query.filter, constants.ALLOWED_APPLICATION_FILTER_FIELDS);
+    if (filterError) {
+        return errors.makeBadRequestError(res, filterError);
+    }
+
     // Default query is filtering out cancelled applications.
     const defaultFilter = { cancelled: false };
 
@@ -929,7 +934,8 @@ exports.exportAll = async (req, res) => {
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = req.query.select.map((field) => headersNames[field]);
 
-    const applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
+    // The export is always for this event only.
+    const applications = await Application.findAll({ where: { ...applicationsFilter, event_id: req.event.id } });
 
     if (applications.length > 0) {
         const userIds = applications.map((application) => application.user_id).toString();

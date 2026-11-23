@@ -150,6 +150,27 @@ exports.blacklistObject = (object, filteredFields) => {
     return newObject;
 };
 
+// A helper to check a filter passed by a client before using it in a query.
+// The filter can only contain the allowed fields, and each of them should be
+// a plain value (or a list of plain values).
+// Returns the error message, or null if the filter is fine.
+exports.getFilterError = (filter, allowedFields) => {
+    const isPlainValue = (value) => value === null || ['string', 'number', 'boolean'].includes(typeof value);
+
+    for (const [field, value] of Object.entries(filter)) {
+        if (!allowedFields.includes(field)) {
+            return `Filtering by "${field}" is not supported. The supported filter fields are: ${allowedFields.join(', ')}.`;
+        }
+
+        const values = Array.isArray(value) ? value : [value];
+        if (!values.every(isPlainValue)) {
+            return `The filter value for "${field}" should be a single value or a list of values.`;
+        }
+    }
+
+    return null;
+};
+
 // A helper to filter object by another object fields.
 exports.filterObject = (object, targetObject) => {
     for (const field in targetObject) {

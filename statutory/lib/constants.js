@@ -115,6 +115,16 @@ module.exports = {
         'user_id',
         'body_id'
     ],
+    ALLOWED_APPLICATION_FILTER_FIELDS: [
+        'status',
+        'cancelled',
+        'confirmed',
+        'incoming',
+        'participant_type'
+    ],
+    ALLOWED_CANDIDATE_FILTER_FIELDS: [
+        'status'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',
