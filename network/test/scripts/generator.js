@@ -3,6 +3,7 @@ const { faker } = require('@faker-js/faker');
 const { Board, AntennaCriterion, Netcom, MailComponent } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
+const toDate = (date) => date.toISOString().slice(0, 10);
 
 // Random body IDs stay above the bodies used in the core fixtures (e.g. 9 and 34 in
 // core-manage-permissions-full.json); otherwise a "no permissions" test fails
@@ -11,8 +12,9 @@ const randomBodyId = () => faker.number.int({ min: 1000, max: 100000 });
 
 exports.generateBoard = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = randomBodyId();
-    if (notSet(options.elected_date)) options.elected_date = faker.date.past();
-    if (notSet(options.start_date)) options.start_date = faker.date.recent({ days: 5 });
+    // Dates as the frontend sends them (DATEONLY columns).
+    if (notSet(options.elected_date)) options.elected_date = toDate(faker.date.past());
+    if (notSet(options.start_date)) options.start_date = toDate(faker.date.recent({ days: 5 }));
     if (notSet(options.president)) options.president = faker.number.int(4);
     if (notSet(options.secretary)) options.secretary = faker.number.int(4);
     if (notSet(options.treasurer)) options.treasurer = faker.number.int(4);
