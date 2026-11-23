@@ -53,6 +53,7 @@ COMPLETE_PARAMETERS = {
     "body": "AEGEE-Delft",
     "body_id": 42,
     "body_name": "AEGEE-Delft",
+    "changed_by": "Grace Hopper",
     "candidate": {
         "first_name": "Grace",
         "last_name": "Hopper",
@@ -76,6 +77,7 @@ COMPLETE_PARAMETERS = {
     "member_workspace_email": "ada.lovelace@example.org",
     "membership_fee": "15 EUR",
     "name": "Ada",
+    "new_email": "new.address@example.org",
     "old_status": "draft",
     "place": "Delft",
     "position": {
@@ -86,6 +88,7 @@ COMPLETE_PARAMETERS = {
         {"function": "President", "name": "Ada Lovelace"},
         {"function": "Treasurer", "name": "Grace Hopper"},
     ],
+    "requester_name": "Grace Hopper",
     "surname": "Lovelace",
     "token": "test-token",
     "user_id": 123,
@@ -128,3 +131,98 @@ def test_missing_template_parameter_fails_fast():
 
     with pytest.raises(UndefinedError):
         render_template("confirm_email.jinja2", parameters)
+
+
+def test_mail_change_old_confirm_shows_requester_new_address_and_token():
+    rendered = render_template("mail_change_old_confirm.jinja2")
+
+    assert "<title>MyAEGEE: Confirm the change of your email</title>" in rendered
+    assert "Hello Ada Lovelace" in rendered
+    assert (
+        "Grace Hopper asked to change the login email of your MyAEGEE account"
+        " to new.address@example.org. The address only changes if you confirm it:"
+    ) in rendered
+    assert 'href="https://my.aegee.eu/mail-change?token=test-token"' in rendered
+    assert "<i>test-token</i>" in rendered
+    assert "The new address has to confirm the change as well." in rendered
+    assert "If you did not expect this, just ignore this email and nothing changes." in rendered
+
+
+def test_mail_change_old_confirm_escapes_values():
+    parameters = {
+        "name": "<i>Ada</i>",
+        "surname": "<u>Lovelace</u>",
+        "new_email": "<script>new</script>@example.org",
+        "requester_name": "<b>x</b>",
+        "token": '"><b>token</b>',
+    }
+
+    rendered = render_template("mail_change_old_confirm.jinja2", parameters)
+
+    assert "Hello &lt;i&gt;Ada&lt;/i&gt; &lt;u&gt;Lovelace&lt;/u&gt;" in rendered
+    assert "&lt;script&gt;new&lt;/script&gt;@example.org" in rendered
+    assert "&lt;b&gt;x&lt;/b&gt; asked to change" in rendered
+    assert 'token=&#34;&gt;&lt;b&gt;token&lt;/b&gt;"' in rendered
+    for raw in ("<i>Ada</i>", "<u>Lovelace</u>", "<script>", "<b>x</b>", "<b>token</b>"):
+        assert raw not in rendered
+
+
+@pytest.mark.parametrize("missing", ["name", "surname", "new_email", "requester_name", "token"])
+def test_mail_change_old_confirm_needs_every_parameter(missing):
+    parameters = copy.deepcopy(COMPLETE_PARAMETERS)
+    del parameters[missing]
+
+    with pytest.raises(UndefinedError):
+        render_template("mail_change_old_confirm.jinja2", parameters)
+
+
+@pytest.mark.parametrize("changed_by", ["yourself", "Grace Hopper"])
+def test_mail_change_notice_shows_new_address_and_who_asked(changed_by):
+    parameters = {
+        "name": "Ada",
+        "surname": "Lovelace",
+        "new_email": "new.address@example.org",
+        "changed_by": changed_by,
+    }
+
+    rendered = render_template("mail_change_notice.jinja2", parameters)
+
+    assert "<title>MyAEGEE: Your email was changed</title>" in rendered
+    assert "Hello Ada Lovelace" in rendered
+    assert (
+        "The login email of your MyAEGEE account was changed to new.address@example.org."
+        f" The change was requested by {changed_by}."
+    ) in rendered
+    assert "From now on you log in with the new address." in rendered
+    assert (
+        "If you did not expect this, contact the Helpdesk as soon as possible:"
+        ' <a href="http://aegee.org/helpdesk">'
+    ) in rendered
+    assert "mail-change" not in rendered
+    assert "token" not in rendered
+
+
+def test_mail_change_notice_escapes_values():
+    parameters = {
+        "name": "<i>Ada</i>",
+        "surname": "<u>Lovelace</u>",
+        "new_email": "<script>new</script>@example.org",
+        "changed_by": "<b>x</b>",
+    }
+
+    rendered = render_template("mail_change_notice.jinja2", parameters)
+
+    assert "Hello &lt;i&gt;Ada&lt;/i&gt; &lt;u&gt;Lovelace&lt;/u&gt;" in rendered
+    assert "&lt;script&gt;new&lt;/script&gt;@example.org" in rendered
+    assert "requested by &lt;b&gt;x&lt;/b&gt;." in rendered
+    for raw in ("<i>Ada</i>", "<u>Lovelace</u>", "<script>", "<b>x</b>"):
+        assert raw not in rendered
+
+
+@pytest.mark.parametrize("missing", ["name", "surname", "new_email", "changed_by"])
+def test_mail_change_notice_needs_every_parameter(missing):
+    parameters = copy.deepcopy(COMPLETE_PARAMETERS)
+    del parameters[missing]
+
+    with pytest.raises(UndefinedError):
+        render_template("mail_change_notice.jinja2", parameters)
