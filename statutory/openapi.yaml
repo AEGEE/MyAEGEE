@@ -101,11 +101,16 @@ paths:
                 items: {$ref: '#/components/schemas/EventType'}
         - name: starts
           in: query
-          description: Only events that start on or after this day (`YYYY-MM-DD`).
+          description: |
+            Only events that start on or after this day (`YYYY-MM-DD`). The day is a day on
+            the Central European calendar: it starts at midnight there.
           schema: {type: string, format: date}
         - name: ends
           in: query
-          description: Only events that end on or before this day (`YYYY-MM-DD`).
+          description: |
+            Only events that end on or before this day (`YYYY-MM-DD`), until the last moment
+            of that day in Central Europe. With `starts`, only events that lie between the
+            two days as a whole.
           schema: {type: string, format: date}
       responses:
         '200':
@@ -209,11 +214,13 @@ paths:
       parameters:
         - name: ends
           in: query
-          description: Only events that end on or before this day (`YYYY-MM-DD`).
+          description: |
+            Only events that end on or before this day (`YYYY-MM-DD`), until the last moment
+            of that day in Central Europe.
           schema: {type: string, format: date}
       responses:
         '200':
-          description: One entry per organising body.
+          description: One entry per organising body that has a published event.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/RecentEventListResponse'}
