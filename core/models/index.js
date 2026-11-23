@@ -1,3 +1,4 @@
+const validators = require('../lib/validators');
 const User = require('./User');
 const Campaign = require('./Campaign');
 const MailConfirmation = require('./MailConfirmation');
@@ -97,7 +98,7 @@ EventApplicationBan.belongsTo(User, { foreignKey: 'lifted_by_user_id', as: 'lift
 ResourceCategory.hasMany(ResourceLink, { foreignKey: 'category_id', as: 'links', onDelete: 'RESTRICT' });
 ResourceLink.belongsTo(ResourceCategory, { foreignKey: 'category_id', as: 'category' });
 
-module.exports = {
+const models = {
     User,
     Campaign,
     MailConfirmation,
@@ -117,3 +118,9 @@ module.exports = {
     ResourceCategory,
     ResourceLink,
 };
+
+for (const model of Object.values(models)) {
+    validators.addLengthValidators(model);
+}
+
+module.exports = models;
