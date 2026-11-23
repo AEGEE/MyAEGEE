@@ -502,7 +502,13 @@ exports.deleteEvent = async (req, res) => {
     });
 };
 
+const EVENT_STATUSES = ['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval'];
+
 exports.setApprovalStatus = async (req, res) => {
+    if (!EVENT_STATUSES.includes(req.body.status)) {
+        return errors.makeValidationError(res, `The status should be one of: ${EVENT_STATUSES.join(', ')}.`);
+    }
+
     if (!req.permissions.change_status[req.body.status.replace(' ', '_')]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
