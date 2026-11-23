@@ -12,7 +12,7 @@ const mail = {
     to: RECIPIENT,
     subject: 'Subject',
     template: 'custom.html',
-    parameters: { body: 'Hello' }
+    parameters: { email_body: 'Hello' }
 };
 
 describe('Mailer client errors', () => {
