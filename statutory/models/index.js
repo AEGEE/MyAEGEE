@@ -1,3 +1,4 @@
+const { Sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
 const Application = require('./Application');
 const MembersList = require('./MembersList');
@@ -48,6 +49,56 @@ QuestionLine.hasMany(Question, { foreignKey: 'question_line_id' });
 
 Application.hasMany(Question, { foreignKey: 'application_id' });
 Question.belongsTo(Application, { foreignKey: 'application_id' });
+
+const models = [
+    Event,
+    Application,
+    MembersList,
+    PaxLimit,
+    VotesPerAntenna,
+    VotesPerDelegate,
+    Position,
+    Candidate,
+    Plenary,
+    Attendance,
+    Image,
+    QuestionLine,
+    Question
+];
+
+// The length of a string column (255 unless the model says otherwise), also for the
+// items of an array of strings. Undefined for every other column, long texts included.
+const getStringLength = (type) => {
+    if (type instanceof Sequelize.ARRAY) {
+        return getStringLength(type.type);
+    }
+
+    // eslint-disable-next-line no-underscore-dangle
+    return type instanceof Sequelize.STRING ? type._length : undefined;
+};
+
+// Every string column refuses a value that is longer than the column, with a validation
+// error on the field. Without it such a value fails in the database.
+for (const model of models) {
+    for (const attribute of Object.values(model.rawAttributes)) {
+        const length = getStringLength(attribute.type);
+        if (!length) {
+            continue;
+        }
+
+        attribute.validate = {
+            ...attribute.validate,
+            fitsInColumn(value) {
+                const values = Array.isArray(value) ? value : [value];
+                if (values.some((item) => typeof item === 'string' && item.length > length)) {
+                    throw new Error(`The value should be at most ${length} characters long.`);
+                }
+            }
+        };
+    }
+
+    model.refreshAttributes();
+}
 
 module.exports = {
     Event,
