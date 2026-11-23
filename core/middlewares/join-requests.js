@@ -31,6 +31,14 @@ exports.listAllJoinRequests = async (req, res) => {
 };
 
 exports.createJoinRequest = async (req, res) => {
+    if (req.currentBody.status === 'deleted') {
+        return errors.makeValidationError(res, 'This body is deleted and does not take join requests.');
+    }
+
+    if (req.user.bodies.some((body) => body.id === req.currentBody.id)) {
+        return errors.makeValidationError(res, 'You are already a member of this body.');
+    }
+
     let request;
     await sequelize.transaction(async (t) => {
         request = await JoinRequest.create({
