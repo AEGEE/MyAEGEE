@@ -210,9 +210,13 @@ export default {
     },
     askToChangeComment (member) {
       this.$buefy.dialog.prompt({
-        message: 'Change comment',
+        title: 'Change comment',
+        message: 'The comment on ' + escapeHtml(member.user.first_name + ' ' + member.user.last_name) + ' in this body. Leave it empty to remove it.',
+        confirmText: 'Save comment',
         inputAttrs: {
-          placeholder: 'Comment'
+          value: member.comment || '',
+          placeholder: 'Comment',
+          required: false
         },
         onConfirm: (comment) => this.changeComment(member, comment)
       })
