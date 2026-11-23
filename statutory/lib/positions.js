@@ -206,6 +206,11 @@ exports.exportAll = async (req, res) => {
         req.query.filter = {};
     }
 
+    const filterError = helpers.getFilterError(req.query.filter, constants.ALLOWED_CANDIDATE_FILTER_FIELDS);
+    if (filterError) {
+        return errors.makeBadRequestError(res, filterError);
+    }
+
     // Default query is empty.
     const defaultFilter = {};
 
@@ -215,10 +220,11 @@ exports.exportAll = async (req, res) => {
     const headersNames = constants.CANDIDATE_FIELDS;
     const headers = req.query.select.map((field) => headersNames[field]);
 
+    // The export is always for this event only.
     const applications = await Candidate.findAll({
         where: {
-            '$position.event_id$': req.event.id,
             ...applicationsFilter,
+            '$position.event_id$': req.event.id,
             '$position.deleted$': false
         },
         include: [{

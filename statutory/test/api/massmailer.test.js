@@ -244,6 +244,107 @@ describe('Massmailer', () => {
         expect(res.body.meta.sent).toEqual(1);
     });
 
+    test('should work with all the fields the filter supports', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter: {
+                    status: 'accepted',
+                    cancelled: false,
+                    confirmed: false,
+                    incoming: false,
+                    participant_type: 'envoy'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.meta.sent).toEqual(1);
+    });
+
+    test('should fail if the filter has a field other than the supported ones', async () => {
+        const otherEvent = await generator.createEvent({ applications: [] });
+        await generator.createApplication({ user_id: 1, body_id: regularUser.bodies[0].id }, otherEvent);
+        await generator.createApplication({ user_id: 2, body_id: regularUser.bodies[0].id }, otherEvent);
+
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter: { event_id: otherEvent.id }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toMatch(/event_id/);
+    });
+
+    test('should fail if a filter value is not a plain value or a list of them', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter: { status: { accepted: true } }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toMatch(/status/);
+    });
+
+    test.each([
+        ['an unknown status', { status: 'unknown' }],
+        ['an empty status', { status: '' }],
+        ['a flag that is not a boolean', { confirmed: 'maybe' }],
+        ['an unknown participant type', { participant_type: 'chair' }],
+        ['a list with an unknown status', { status: ['accepted', 'unknown'] }]
+    ])('should fail if the filter has %s', async (name, filter) => {
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toMatch(new RegExp(Object.keys(filter)[0]));
+    });
+
+    test('should accept a list of values in the filter', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter: { status: ['accepted', 'rejected'] }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.meta.sent).toEqual(2);
+    });
+
     test('should fail if no users match the filter', async () => {
         const res = await request({
             path: '/events/' + event.id + '/massmailer/',

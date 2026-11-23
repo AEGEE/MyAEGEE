@@ -115,6 +115,18 @@ module.exports = {
         'user_id',
         'body_id'
     ],
+    // The fields the filters support, with the values each of them accepts:
+    // either a list of values or 'boolean'.
+    ALLOWED_APPLICATION_FILTER_FIELDS: {
+        status: ['pending', 'waiting_list', 'accepted', 'rejected'],
+        cancelled: 'boolean',
+        confirmed: 'boolean',
+        incoming: 'boolean',
+        participant_type: ['delegate', 'observer', 'envoy', 'visitor']
+    },
+    ALLOWED_CANDIDATE_FILTER_FIELDS: {
+        status: ['approved', 'rejected', 'pending']
+    },
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',

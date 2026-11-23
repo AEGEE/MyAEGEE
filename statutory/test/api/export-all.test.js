@@ -291,4 +291,147 @@ describe('Export all', () => {
         const sheet = data[0].data;
         expect(sheet.length).toEqual(2); // headers + 1 application
     });
+
+    test('should work with all the fields the filter supports', async () => {
+        await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'accepted',
+            confirmed: true,
+            participant_type: 'envoy',
+            participant_order: 1
+        }, event);
+
+        await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'accepted',
+            confirmed: true,
+            participant_type: 'visitor',
+            participant_order: 1
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: Object.keys(helpers.getApplicationFields(event)),
+                filter: {
+                    status: 'accepted',
+                    cancelled: false,
+                    confirmed: true,
+                    incoming: false,
+                    participant_type: 'envoy'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(1);
+
+        const sheet = data[0].data;
+        expect(sheet.length).toEqual(2); // headers + 1 application
+    });
+
+    test('should return 400 if the filter has a field other than the supported ones', async () => {
+        const otherEvent = await generator.createEvent({ applications: [] });
+        await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, otherEvent);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: Object.keys(helpers.getApplicationFields(event)),
+                filter: { event_id: otherEvent.id }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(/event_id/);
+    });
+
+    test('should return 400 if a filter value is not a plain value or a list of them', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?filter[status][accepted]=true',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(/status/);
+    });
+
+    test.each([
+        ['an unknown status', 'filter[status]=unknown', 'status'],
+        ['an empty status', 'filter[status]=', 'status'],
+        ['a flag that is not a boolean', 'filter[confirmed]=maybe', 'confirmed'],
+        ['an unknown participant type', 'filter[participant_type]=chair', 'participant_type']
+    ])('should return 400 if the filter has %s', async (name, query, field) => {
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?' + query,
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(new RegExp(field));
+    });
+
+    test('should ignore the passed filter on /incoming', async () => {
+        const otherEvent = await generator.createEvent({ applications: [] });
+        await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id,
+            status: 'accepted'
+        }, otherEvent);
+
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'accepted'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/incoming',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: ['id', 'statutory_id'],
+                filter: { event_id: otherEvent.id }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        const sheet = data[0].data;
+        expect(sheet.length).toEqual(2); // headers + 1 application
+        expect(sheet[1][0]).toEqual(application.id);
+    });
 });
