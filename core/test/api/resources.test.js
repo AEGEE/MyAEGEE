@@ -323,11 +323,13 @@ describe('Resources', () => {
 
         test.each([
             ['missing', undefined],
-            ['not existing', 1337],
+            ['not existing', 2147483647],
             ['not a number', 'abc'],
             ['not an integer', 1.5]
         ])('should refuse a section that is %s', async (_name, categoryId) => {
             const token = await createManager();
+            // Another section exists: the link does not end up there either.
+            await generator.createResourceCategory();
 
             const res = await call(token, 'POST', '/resources/links', {
                 category_id: categoryId,
@@ -337,7 +339,8 @@ describe('Resources', () => {
             });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('category_id');
+            expect(res.body).toEqual({ success: false, errors: { category_id: ['Section is not found.'] } });
+            expect(await ResourceLink.count()).toEqual(0);
         });
 
         test('should refuse a javascript: URL', async () => {
@@ -397,10 +400,10 @@ describe('Resources', () => {
             const category = await generator.createResourceCategory();
             const link = await generator.createResourceLink(category);
 
-            const res = await call(token, 'PUT', '/resources/links/' + link.id, { category_id: 1337 });
+            const res = await call(token, 'PUT', '/resources/links/' + link.id, { category_id: 2147483647 });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('category_id');
+            expect(res.body).toEqual({ success: false, errors: { category_id: ['Section is not found.'] } });
             expect((await ResourceLink.findByPk(link.id)).category_id).toEqual(category.id);
         });
 

@@ -137,6 +137,22 @@ describe('Resources testing', () => {
             await expectValidationError(generator.createResourceLink(category, { url }), 'url');
         });
 
+        test.each([
+            ['a number', 5],
+            ['a boolean', true],
+            ['an object', { href: 'https://aegee.org' }],
+            ['a list', ['https://aegee.org']]
+        ])('should reject a URL that is %s', async (_name, url) => {
+            await expect(generator.createResourceLink(category, { url })).rejects.toMatchObject({
+                name: 'SequelizeValidationError',
+                errors: expect.arrayContaining([expect.objectContaining({
+                    path: 'url',
+                    message: 'URL should be a MyAEGEE path starting with / or an http(s):// address.'
+                })])
+            });
+            expect(await ResourceLink.count()).toEqual(0);
+        });
+
         test('should be listed with its section', async () => {
             const link = await generator.createResourceLink(category);
             const found = await ResourceCategory.findByPk(category.id, { include: [{ model: ResourceLink, as: 'links' }] });
