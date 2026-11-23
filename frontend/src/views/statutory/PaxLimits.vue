@@ -10,10 +10,10 @@
         <br />
 
         <div class="field">
-          <label class="label">Select event type</label>
+          <label class="label" for="pax-limits-event-type">Select event type</label>
           <div class="control">
             <div class="select">
-              <select v-model="eventType">
+              <select id="pax-limits-event-type" v-model="eventType">
                 <option value="agora">Agora</option>
                 <option value="epm">EPM</option>
                 <option value="spm">SPM</option>
@@ -35,22 +35,10 @@
                 <th>Envoys</th>
                 <th>Observers</th>
                 <th>Visitors</th>
-                <th />
-                <th />
+                <th><span class="is-sr-only">Edit</span></th>
+                <th><span class="is-sr-only">Use default</span></th>
               </tr>
             </thead>
-            <tfoot>
-              <tr>
-                <th>Body</th>
-                <th>Body type</th>
-                <th>Delegates</th>
-                <th>Envoys</th>
-                <th>Observers</th>
-                <th>Visitors</th>
-                <th />
-                <th />
-              </tr>
-            </tfoot>
             <tbody>
               <tr v-for="limit in limits" v-bind:key="limit.body_id">
                 <td>
@@ -64,28 +52,28 @@
                 <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.observer | numberOrUnlimited }} </td>
                 <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.visitor | numberOrUnlimited }} </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')">
+                  <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')" :aria-label="'Delegates of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')">
+                  <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')" :aria-label="'Envoys of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')">
+                  <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')" :aria-label="'Observers of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')">
+                  <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')" :aria-label="'Visitors of ' + bodyName(limit)">
                 </td>
                 <td>
-                  <button class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
-                  <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
+                  <button type="button" class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
+                  <button type="button" class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
                 </td>
                 <td>
-                  <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
+                  <button type="button" class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
                 </td>
               </tr>
               <tr v-show="isLoading">
                 <td colspan="8" class="has-text-centered">
-                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" />
+                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" title="Loading" />
                 </td>
               </tr>
             </tbody>
@@ -113,6 +101,9 @@ export default {
   },
   computed: mapGetters(['services']),
   methods: {
+    bodyName (limit) {
+      return limit.body ? limit.body.name : 'body ' + limit.body_id
+    },
     saveLimit (limit) {
       this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, limit).then(() => {
         this.$root.showSuccess('Limit is saved.')
