@@ -825,7 +825,7 @@ paths:
               type: object
               required: [ban_until]
               properties:
-                ban_until: {type: string, description: 'A date or date and time in the future, at most 3 months from now.'}
+                ban_until: {type: string, description: 'An ISO date or timestamp in the future, at most 3 months from now.'}
               additionalProperties: true
       responses:
         '200':
@@ -2887,11 +2887,11 @@ components:
         username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming.'}
         first_name: {type: string, description: 'At most 255 characters after trimming.'}
         last_name: {type: string, description: 'At most 255 characters after trimming.'}
-        date_of_birth: {type: [string, 'null'], description: A date in the past. An empty string unsets it.}
+        date_of_birth: {type: [string, 'null'], description: 'A date in the past, as an ISO date (1990-01-31). An empty string unsets it.'}
         gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
         gsuite_id: {type: [string, 'null'], description: 'An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`. At most 255 characters after trimming.'}
         phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
-        privacy_consent: {type: [string, 'null'], description: The date and time of the consent.}
+        privacy_consent: {type: [string, 'null'], description: 'The date and time of the consent, as an ISO timestamp.'}
         address: {type: [string, 'null']}
         about_me: {type: [string, 'null']}
         primary_email: {$ref: '#/components/schemas/UserPrimaryEmail'}
@@ -2906,10 +2906,10 @@ components:
         password: {type: string, minLength: 8, maxLength: 255}
         first_name: {type: string, description: 'At most 255 characters after trimming.'}
         last_name: {type: string, description: 'At most 255 characters after trimming.'}
-        date_of_birth: {type: [string, 'null'], description: A date in the past.}
+        date_of_birth: {type: [string, 'null'], description: 'A date in the past, as an ISO date (1990-01-31).'}
         gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
         phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
-        privacy_consent: {type: [string, 'null'], description: The date and time of the consent.}
+        privacy_consent: {type: [string, 'null'], description: 'The date and time of the consent, as an ISO timestamp.'}
         address: {type: [string, 'null']}
         about_me: {type: [string, 'null']}
       additionalProperties: true
@@ -3087,7 +3087,7 @@ components:
         type: {$ref: '#/components/schemas/BodyType'}
         fee_currency: {type: [string, 'null'], maxLength: 255}
         pays_fees: {type: boolean}
-        founded_at: {type: [string, 'null'], description: 'A date. Required for antennae, contact antennae and contacts.'}
+        founded_at: {type: [string, 'null'], description: 'An ISO date (1990-01-31). Required for antennae, contact antennae and contacts.'}
         country: {type: [string, 'null'], maxLength: 255}
         website: {type: [string, 'null'], maxLength: 255, description: An http or https address.}
         gsuite_id: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
@@ -3238,8 +3238,8 @@ components:
       description: The fields of a payment. Unknown fields are ignored.
       type: object
       properties:
-        starts: {type: string, description: A date.}
-        expires: {type: string, description: A date after `starts`.}
+        starts: {type: string, description: An ISO date (2026-01-31).}
+        expires: {type: string, description: An ISO date (2026-01-31) after `starts`.}
         amount: {type: [string, number], description: Not negative.}
         currency: {type: string, description: 'At most 255 characters after trimming.'}
         comment: {type: [string, 'null']}

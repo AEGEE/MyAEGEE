@@ -1675,7 +1675,7 @@ export interface components {
             first_name?: string;
             /** @description At most 255 characters after trimming. */
             last_name?: string;
-            /** @description A date in the past. An empty string unsets it. */
+            /** @description A date in the past, as an ISO date (1990-01-31). An empty string unsets it. */
             date_of_birth?: string | null;
             /** @description At most 255 characters after trimming. */
             gender?: string | null;
@@ -1683,7 +1683,7 @@ export interface components {
             gsuite_id?: string | null;
             /** @description At most 255 characters after trimming. */
             phone?: string | null;
-            /** @description The date and time of the consent. */
+            /** @description The date and time of the consent, as an ISO timestamp. */
             privacy_consent?: string | null;
             address?: string | null;
             about_me?: string | null;
@@ -1702,13 +1702,13 @@ export interface components {
             first_name: string;
             /** @description At most 255 characters after trimming. */
             last_name: string;
-            /** @description A date in the past. */
+            /** @description A date in the past, as an ISO date (1990-01-31). */
             date_of_birth?: string | null;
             /** @description At most 255 characters after trimming. */
             gender?: string | null;
             /** @description At most 255 characters after trimming. */
             phone?: string | null;
-            /** @description The date and time of the consent. */
+            /** @description The date and time of the consent, as an ISO timestamp. */
             privacy_consent?: string | null;
             address?: string | null;
             about_me?: string | null;
@@ -1850,7 +1850,7 @@ export interface components {
             type?: components["schemas"]["BodyType"];
             fee_currency?: string | null;
             pays_fees?: boolean;
-            /** @description A date. Required for antennae, contact antennae and contacts. */
+            /** @description An ISO date (1990-01-31). Required for antennae, contact antennae and contacts. */
             founded_at?: string | null;
             country?: string | null;
             /** @description An http or https address. */
@@ -1982,9 +1982,9 @@ export interface components {
         };
         /** @description The fields of a payment. Unknown fields are ignored. */
         PaymentInput: {
-            /** @description A date. */
+            /** @description An ISO date (2026-01-31). */
             starts?: string;
-            /** @description A date after `starts`. */
+            /** @description An ISO date (2026-01-31) after `starts`. */
             expires?: string;
             /** @description Not negative. */
             amount?: string | number;
@@ -3514,7 +3514,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description A date or date and time in the future, at most 3 months from now. */
+                    /** @description An ISO date or timestamp in the future, at most 3 months from now. */
                     ban_until: string;
                 } & {
                     [key: string]: unknown;
