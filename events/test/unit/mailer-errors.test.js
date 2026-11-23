@@ -1,3 +1,4 @@
+const http = require('http');
 const nock = require('nock');
 
 const config = require('../../config');
@@ -48,5 +49,32 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
+    });
+    describe('timeout', () => {
+        test('should wait 10 seconds by default', () => {
+            expect(config.mailer.timeout).toEqual(10000);
+        });
+
+        test('should give up when the mailer does not answer in time', async () => {
+            // A local server that accepts the request and never answers. (nock's delayed
+            // replies crash the process when the request was aborted before.)
+            const silentServer = http.createServer(() => {});
+            await new Promise((resolve) => { silentServer.listen(0, '127.0.0.1', resolve); });
+
+            const saved = { ...config.mailer };
+            Object.assign(config.mailer, { url: 'http://127.0.0.1', port: silentServer.address().port, timeout: 100 });
+
+            try {
+                const started = Date.now();
+                const err = await mailer.sendMail(mail).catch((e) => e);
+
+                expect(err.message).toEqual('No answer from mailer within 100 ms');
+                expect(Date.now() - started).toBeLessThan(1500);
+            } finally {
+                Object.assign(config.mailer, saved);
+                silentServer.closeAllConnections();
+                await new Promise((resolve) => { silentServer.close(resolve); });
+            }
+        });
     });
 });
