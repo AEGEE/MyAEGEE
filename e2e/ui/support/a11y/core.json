@@ -74,19 +74,11 @@
   "oms.circles.members": {
     "color-contrast": 1
   },
-  "oms.members.edit": {
-    "label": 4
-  },
   "oms.members.list": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.members.list.unconfirmed": {
-    "color-contrast": 1,
-    "link-name": 2
-  },
-  "oms.members.view": {
-    "image-alt": 1
+    "color-contrast": 1
   },
   "oms.permissions.create": {
     "color-contrast": 1,
