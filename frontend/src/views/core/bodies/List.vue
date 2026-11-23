@@ -128,7 +128,6 @@ export default {
       query: '',
       limit: 30,
       offset: 0,
-      type: null,
       canLoadMore: true,
       source: null,
       includeDeleted: false,

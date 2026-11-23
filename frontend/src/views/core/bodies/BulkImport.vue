@@ -69,12 +69,7 @@ export default {
   name: 'BulkImportMembers',
   data () {
     return {
-      members: [],
-      source: null,
-      permissions: [],
-      can: {
-        create: false
-      }
+      members: []
     }
   },
   computed: mapGetters(['services']),
@@ -111,13 +106,11 @@ export default {
         return
       }
 
-      if (file) {
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = (evt) => this.processFileContent(evt.target.result)
-        reader.onerror = (err) => {
-          this.$root.showError('Could not open file', err)
-        }
+      const reader = new FileReader()
+      reader.readAsText(file, 'UTF-8')
+      reader.onload = (evt) => this.processFileContent(evt.target.result)
+      reader.onerror = (err) => {
+        this.$root.showError('Could not open file', err)
       }
     },
     parseCsv (input) {
@@ -185,9 +178,6 @@ export default {
         }
       })
     }
-  },
-  mounted () {
-
   }
 }
 </script>

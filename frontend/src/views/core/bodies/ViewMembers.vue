@@ -72,7 +72,7 @@
             </b-table-column>
 
             <b-table-column label="Delete" centered :visible="can.delete" v-slot="props">
-              <button type="button" class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+              <button type="button" class="button is-small is-danger" @click="askDeleteMember(props.row)">
                 <span class="icon"><font-awesome-icon icon="minus" /></span>
                 <span>Delete</span>
               </button>
@@ -139,7 +139,6 @@ export default {
         ariaLabel: 'Fee payments for ' + member.user.first_name + ' ' + member.user.last_name,
         props: {
           member,
-          payments: this.payments,
           canDelete: this.can.deletePayment,
           route: this.$route,
           services: this.services,

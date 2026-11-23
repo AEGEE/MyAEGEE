@@ -35,7 +35,7 @@
         </b-table-column>
 
         <b-table-column label="Delete" centered :visible="canDelete" v-slot="props">
-          <button type="button" class="button is-small is-danger" @click="askDeleteMemberPaymentFee(props.row, false)">
+          <button type="button" class="button is-small is-danger" @click="askDeleteMemberPaymentFee(props.row)">
             <span class="icon"><font-awesome-icon icon="minus" /></span>
             <span>Delete</span>
           </button>
@@ -60,17 +60,11 @@ export default {
   name: 'ListFeePaymentsModal',
   props: [
     'member',
-    'payments',
     'canDelete',
     'route',
     'services',
     'root'
   ],
-  data () {
-    return {
-
-    }
-  },
   methods: {
     askDeleteMemberPaymentFee (fee) {
       const payment = `${fee.amount} ${fee.currency} (${fee.starts} to ${fee.expires})`

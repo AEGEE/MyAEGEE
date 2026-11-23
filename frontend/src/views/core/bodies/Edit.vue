@@ -243,7 +243,6 @@
               field="name"
               v-model="autocompleteBody"
               :data="filteredShadowCircles"
-              :disabled="!can.editShadowCircle"
               :open-on-focus="true"
               @select="
                 (circle) => {
@@ -262,7 +261,7 @@
                 </div>
               </template>
             </b-autocomplete>
-            <p class="control" v-if="can.editShadowCircle">
+            <p class="control">
               <button
                 type="button"
                 class="button is-danger"
@@ -274,12 +273,6 @@
               >{{ body.shadow_circle.name }} (Click to unset)</button
               >
               <span class="button is-static" v-if="!body.shadow_circle">Not set.</span>
-            </p>
-            <p class="control" v-if="!can.editShadowCircle">
-              <a class="button is-static" v-if="body.shadow_circle">{{
-                body.shadow_circle.name
-              }}</a>
-              <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
             </p>
           </div>
           <p class="help is-danger" v-if="errors.shadow_circle_id">
