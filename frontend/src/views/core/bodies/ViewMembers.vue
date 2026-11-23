@@ -46,7 +46,7 @@
               {{ props.row.comment }}
             </b-table-column>
 
-            <b-table-column field="lastPaymentExpires" sortable label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees" v-slot="props">
+            <b-table-column field="lastPaymentExpires" sortable :custom-sort="sortByLastPayment" label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees" v-slot="props">
               <span v-if="props.row.payments && props.row.payments.length > 0">{{ getLastPaymentExpiration(props.row) | date }}</span>
             </b-table-column>
 
@@ -185,6 +185,12 @@ export default {
     },
     getLastPaymentExpiration (member) {
       return member.payments[member.payments.length - 1].expires
+    },
+    sortByLastPayment (first, second, isAsc) {
+      // Members without payments count as having paid long ago.
+      const expires = (member) => (member.payments && member.payments.length ? this.getLastPaymentExpiration(member) : this.PAST_DATE_PLACEHOLDER)
+      const order = expires(first).localeCompare(expires(second))
+      return isAsc ? order : -order
     },
     askDeleteMember (member) {
       const message = 'Are you sure you want to <b>delete</b> '
