@@ -84,4 +84,36 @@ describe('Export Delegates JC', () => {
 
         expect(res.statusCode).toEqual(403);
     });
+
+    test('should replace every character of a name that is not a letter, a dash or a space', async () => {
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            status: 'accepted',
+            participant_type: 'delegate',
+            body_id: 34,
+            first_name: 'Zoë-Añna; [x]',
+            last_name: 'O\'Neil_^`\\ Jr'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
+            method: 'GET',
+            responseType: 'text',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const lines = res.body.split('\n').filter((l) => l.length > 0);
+        expect(lines.length).toEqual(1);
+        // Six fields, whatever the name holds.
+        expect(lines[0].split(';')).toEqual([
+            application.statutory_id,
+            'admin@example.com',
+            'Zo?-A?na? ?x?',
+            'O?Neil???? Jr',
+            'ALC',
+            'delegate'
+        ]);
+    });
 });
