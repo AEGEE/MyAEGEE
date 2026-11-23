@@ -350,7 +350,19 @@ describe('Board listing', () => {
         expect(res.body.data.length).toEqual(1);
     });
 
-    test.each(['not-a-date', '2026-13-45', ['2021-01-10', '2021-01-11']])('should fail with 422 if ends is %p', async (ends) => {
+    test.each([
+        'not-a-date',
+        '2026-13-45',
+        ['2021-01-10', '2021-01-11'],
+        'x2026',
+        '1',
+        '2021',
+        '20210110',
+        '2021-01-10garbage',
+        '2021-01-10 16:00',
+        '2021-01-10T25:00:00.000Z',
+        '2021-01-10T16:00:00.000Zgarbage'
+    ])('should fail with 422 if ends is %p', async (ends) => {
         const res = await request({
             path: '/boards/recents',
             method: 'GET',
@@ -360,7 +372,7 @@ describe('Board listing', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body.errors).toHaveProperty('ends');
+        expect(res.body.errors).toEqual({ ends: ['The end date should be a date (YYYY-MM-DD) or an ISO 8601 timestamp.'] });
     });
 
     test('should list the boards elected up to the day in ends', async () => {
@@ -387,6 +399,25 @@ describe('Board listing', () => {
             path: '/boards/recents',
             method: 'GET',
             query: { ends: '2021-01-10T16:00:00.000Z' },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([{ body_id: 1, latest_election: '2021-01-10' }]);
+    });
+
+    test.each([
+        '2021-01-10T23:59:59Z',
+        '2021-01-10T16:00:00+02:00',
+        '2021-01-10T16:00Z'
+    ])('should accept the timestamp %p in ends and count it by its day', async (ends) => {
+        await generator.createBoard({ body_id: 1, elected_date: '2021-01-10' });
+        await generator.createBoard({ body_id: 2, elected_date: '2021-01-11' });
+
+        const res = await request({
+            path: '/boards/recents',
+            method: 'GET',
+            query: { ends },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
