@@ -349,4 +349,48 @@ describe('Board listing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body.data.length).toEqual(1);
     });
+
+    test.each(['not-a-date', '2026-13-45', ['2021-01-10', '2021-01-11']])('should fail with 422 if ends is %p', async (ends) => {
+        const res = await request({
+            path: '/boards/recents',
+            method: 'GET',
+            query: { ends },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('ends');
+    });
+
+    test('should list the boards elected up to the day in ends', async () => {
+        await generator.createBoard({ body_id: 1, elected_date: '2020-01-10' });
+        await generator.createBoard({ body_id: 1, elected_date: '2021-01-10' });
+        await generator.createBoard({ body_id: 2, elected_date: '2022-01-10' });
+
+        const res = await request({
+            path: '/boards/recents',
+            method: 'GET',
+            query: { ends: '2021-01-10' },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([{ body_id: 1, latest_election: '2021-01-10' }]);
+    });
+
+    test('should read the day of a timestamp in ends, as the Antenna Criteria page sends an Agora end', async () => {
+        await generator.createBoard({ body_id: 1, elected_date: '2021-01-10' });
+        await generator.createBoard({ body_id: 2, elected_date: '2021-01-11' });
+
+        const res = await request({
+            path: '/boards/recents',
+            method: 'GET',
+            query: { ends: '2021-01-10T16:00:00.000Z' },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([{ body_id: 1, latest_election: '2021-01-10' }]);
+    });
 });
