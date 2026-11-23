@@ -66,8 +66,8 @@ defmodule Omsmailer.Page do
   end
 
   # Delivers a list of mails (or a single mail). Bamboo 2 returns errors instead of
-  # raising them, so every mail is checked first: if any has an empty sender or
-  # recipient, nothing is sent and the request fails with 422.
+  # raising them, so every mail is checked first: if any has an empty sender,
+  # recipient, cc or bcc address, nothing is sent and the request fails with 422.
   def deliver_all_mails(mails) do
     mails = List.wrap(mails)
 
@@ -78,7 +78,11 @@ defmodule Omsmailer.Page do
     end
   end
 
-  defp missing_address?(mail), do: blank_address?(mail.from) or blank_address?(mail.to)
+  defp missing_address?(mail) do
+    blank_address?(mail.from) or blank_address?(mail.to) or
+      Enum.any?(List.wrap(mail.cc), &blank_address?/1) or
+      Enum.any?(List.wrap(mail.bcc), &blank_address?/1)
+  end
 
   defp blank_address?(nil), do: true
   defp blank_address?(""), do: true
