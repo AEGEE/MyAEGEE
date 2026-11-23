@@ -576,6 +576,8 @@ export interface components {
         ErrorWithFields: {
             /** @constant */
             success: false;
+            /** @description The field messages joined. Sent by the checks of the handlers, not by model validation. */
+            message?: string;
             errors: {
                 [key: string]: string[];
             };
@@ -661,7 +663,7 @@ export interface components {
             questions: components["schemas"]["Question"][];
             max_participants: number | null;
             /**
-             * @description `open` while now is within the application period (both ends included).
+             * @description `open` while now is within the application period (both ends included); always `closed` for an event without applications.
              * @enum {string}
              */
             application_status: "open" | "closed";
@@ -731,29 +733,46 @@ export interface components {
                 published: boolean;
             };
         };
+        /** @description A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a whole number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999. */
+        DateInput: string | number;
+        /** @description A number, or its text: digits with an optional sign, decimal point and exponent ('5', '+5', '.5', '2.50', '1e2'), at most 308 digits before the point and 16383 after it. */
+        DecimalInput: number | string | null;
         EventInputFields: {
             name?: string;
             /** @description Letters, digits and dashes, not only digits; stored in lower case. */
             url?: string | null;
             description?: string;
-            application_starts?: string;
-            application_ends?: string;
-            starts?: string;
-            ends?: string;
-            fee?: number | string | null;
-            optional_fee?: number | string | null;
+            application_starts?: components["schemas"]["DateInput"];
+            application_ends?: components["schemas"]["DateInput"];
+            starts?: components["schemas"]["DateInput"];
+            ends?: components["schemas"]["DateInput"];
+            fee?: components["schemas"]["DecimalInput"];
+            optional_fee?: components["schemas"]["DecimalInput"];
             /** @description Only `body_id` is read; the name comes from core. */
             organizing_bodies?: {
                 body_id: number;
             }[];
-            locations?: components["schemas"]["Location"][];
+            locations?: {
+                name: string;
+                position: {
+                    lat: number;
+                    lng: number;
+                };
+            }[];
             type?: components["schemas"]["EventType"];
             /** @description Only `user_id` and `comment` are read; the names come from core. */
             organizers?: {
                 user_id: number;
                 comment?: string;
             }[];
-            questions?: components["schemas"]["Question"][];
+            questions?: {
+                /** @enum {string} */
+                type: "string" | "text" | "number" | "checkbox" | "select";
+                description: string;
+                required: boolean;
+                values?: string[];
+            }[];
+            /** @description A whole number up to 2147483647, or a string of digits. */
             max_participants?: number | string | null;
             budget?: string | null;
             programme?: string | null;
@@ -764,7 +783,7 @@ export interface components {
             /** @description Required for in-person events; "none" if there is none. */
             accommodation_type?: string | null;
             method?: components["schemas"]["EventMethod"];
-            /** @description Always true for in-person events. */
+            /** @description Always true for in-person events. The application dates of an event without applications are not checked against each other or the event dates; they are checked again when it starts to take applications. */
             has_applications?: boolean;
         };
         /** @description Unknown keys are ignored. */
@@ -797,13 +816,6 @@ export interface components {
             status: components["schemas"]["ApplicationStatus"];
             confirmed: boolean;
             attended: boolean;
-            /**
-             * @description The board's comment on the applicant. Left out of the answers the applicant gets
-             *     about their own application (getApplication, createApplication, updateApplication),
-             *     unless they may also list the event's applications or set board comments for the
-             *     application's body.
-             */
-            board_comment?: string | null;
             /** @description One answer per question of the event, in order. */
             answers: (string | number | boolean)[];
             agreed_to_privacy_policy: boolean;
@@ -812,16 +824,41 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        /**
+         * @description The board's comment on the applicant. Left out of the answers the applicant gets about
+         *     their own application (the ForApplicant variants), unless they may also list the
+         *     event's applications or set board comments for the application's body. Not in the
+         *     answer to a create (the column has no default).
+         */
+        BoardComment: string | null;
+        /** @description An application as organizers, managers and boards get it. */
         Application: {
             body_id?: number;
+            board_comment?: components["schemas"]["BoardComment"];
         } & components["schemas"]["ApplicationFields"];
-        /** @description An application with the applicant's notification email from core. */
+        /** @description An application in the list of an event's applications (organizers and managers). */
+        ApplicationListed: {
+            body_id?: number;
+            board_comment: components["schemas"]["BoardComment"];
+        } & components["schemas"]["ApplicationFields"];
+        /** @description An application as its applicant gets it, without the board comment. */
+        ApplicationForApplicant: {
+            body_id?: number;
+        } & components["schemas"]["ApplicationFields"];
+        /** @description An application with the applicant's notification email from core, as organizers, managers and boards get it. */
         ApplicationWithEmail: {
+            body_id?: number;
+            notification_email: string;
+            board_comment?: components["schemas"]["BoardComment"];
+        } & components["schemas"]["ApplicationFields"];
+        /** @description An application with the applicant's notification email from core, as its applicant gets it, without the board comment. */
+        ApplicationWithEmailForApplicant: {
             body_id?: number;
             notification_email: string;
         } & components["schemas"]["ApplicationFields"];
         ApplicationWithEvent: {
             body_id?: number;
+            board_comment: components["schemas"]["BoardComment"];
             event: components["schemas"]["EventPublic"];
         } & components["schemas"]["ApplicationFields"];
         ApplicationInputFields: {
@@ -907,7 +944,7 @@ export interface components {
         ApplicationListResponse: {
             /** @constant */
             success: true;
-            data: components["schemas"]["Application"][];
+            data: components["schemas"]["ApplicationListed"][];
         };
         ApplicationWithEventListResponse: {
             /** @constant */
@@ -922,19 +959,56 @@ export interface components {
         ApplicationResponse: {
             /** @constant */
             success: true;
-            data: components["schemas"]["ApplicationWithEmail"];
+            /** @description The applicant gets ApplicationWithEmailForApplicant, unless they may see the board comment. */
+            data: components["schemas"]["ApplicationWithEmail"] | components["schemas"]["ApplicationWithEmailForApplicant"];
         };
         ApplicationSavedResponse: {
             /** @constant */
             success: true;
             message: string;
-            /** @description The created application has no notification email; an edited one has. */
-            data: components["schemas"]["Application"] | components["schemas"]["ApplicationWithEmail"];
+            /** @description The created application has no notification email; an edited one has. The applicant gets a ForApplicant variant, unless they may see the board comment. */
+            data: components["schemas"]["Application"] | components["schemas"]["ApplicationWithEmail"] | components["schemas"]["ApplicationForApplicant"] | components["schemas"]["ApplicationWithEmailForApplicant"];
         };
     };
     responses: {
         /** @description The application id is neither a number nor `me`. */
         BadApplicationId: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The application id is neither a number nor `me`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read."). */
+        BadApplicationIdOrBody: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is larger than 1 MB ("The request body could not be read."). */
+        BodyTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is in another charset than UTF-8 or in an unknown encoding ("The request body could not be read."). */
+        BodyUnsupported: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read."). */
+        BodyNotObject: {
             headers: {
                 [name: string]: unknown;
             };
@@ -971,17 +1045,17 @@ export interface components {
         };
     };
     parameters: {
-        /** @description Ignored unless a positive integer. */
+        /** @description Ignored unless an integer from 1 to 2147483647. */
         Limit: number;
-        /** @description Ignored unless a non-negative integer. */
+        /** @description Ignored unless an integer from 0 to 2147483647. */
         Offset: number;
         /** @description Case-insensitive search in the name and the description. */
         Search: string;
         /** @description One type, or several as `type[]=a&type[]=b`. */
         EventTypeFilter: components["schemas"]["EventType"] | components["schemas"]["EventType"][];
-        /** @description Only events that start on or after this day (YYYY-MM-DD). */
+        /** @description Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
         StartsFilter: string;
-        /** @description Only events that end on or before this day (YYYY-MM-DD). */
+        /** @description Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
         EndsFilter: string;
         /**
          * @description The event's id, or its `url` in any letter case (Express routes both through this path).
@@ -1086,13 +1160,13 @@ export interface operations {
                 search?: components["parameters"]["Search"];
                 /** @description One type, or several as `type[]=a&type[]=b`. */
                 type?: components["parameters"]["EventTypeFilter"];
-                /** @description Only events that start on or after this day (YYYY-MM-DD). */
+                /** @description Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only events that end on or before this day (YYYY-MM-DD). */
+                /** @description Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
-                /** @description Ignored unless a non-negative integer. */
+                /** @description Ignored unless an integer from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
-                /** @description Ignored unless a positive integer. */
+                /** @description Ignored unless an integer from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
             };
             header?: never;
@@ -1139,6 +1213,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventCreatedResponse"];
                 };
             };
+            400: components["responses"]["BodyNotObject"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not create events, or is not one of the organizers. */
             403: {
@@ -1149,6 +1224,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1159,13 +1236,13 @@ export interface operations {
                 search?: components["parameters"]["Search"];
                 /** @description One type, or several as `type[]=a&type[]=b`. */
                 type?: components["parameters"]["EventTypeFilter"];
-                /** @description Only events that start on or after this day (YYYY-MM-DD). */
+                /** @description Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only events that end on or before this day (YYYY-MM-DD). */
+                /** @description Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
-                /** @description Ignored unless a non-negative integer. */
+                /** @description Ignored unless an integer from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
-                /** @description Ignored unless a positive integer. */
+                /** @description Ignored unless an integer from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
             };
             header?: never;
@@ -1202,13 +1279,13 @@ export interface operations {
                 search?: components["parameters"]["Search"];
                 /** @description One type, or several as `type[]=a&type[]=b`. */
                 type?: components["parameters"]["EventTypeFilter"];
-                /** @description Only events that start on or after this day (YYYY-MM-DD). */
+                /** @description Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only events that end on or before this day (YYYY-MM-DD). */
+                /** @description Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
-                /** @description Ignored unless a non-negative integer. */
+                /** @description Ignored unless an integer from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
-                /** @description Ignored unless a positive integer. */
+                /** @description Ignored unless an integer from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
             };
             header?: never;
@@ -1346,7 +1423,7 @@ export interface operations {
     listMostRecentEuropeanEvents: {
         parameters: {
             query?: {
-                /** @description Only events that end on or before this day (YYYY-MM-DD). */
+                /** @description Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: string;
             };
             header?: never;
@@ -1438,6 +1515,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventResponse"];
                 };
             };
+            400: components["responses"]["BodyNotObject"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not edit this event. */
             403: {
@@ -1449,6 +1527,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1519,6 +1599,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["BodyNotObject"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not make this transition (also to the current status). */
             403: {
@@ -1530,6 +1611,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1608,6 +1691,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["BodyNotObject"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not change the European status of events of this type. */
             403: {
@@ -1619,6 +1703,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1685,7 +1771,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationSavedResponse"];
                 };
             };
-            /** @description The caller is not a member of the body in `body_id`. */
+            /** @description The caller is not a member of the body in `body_id`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read."). */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -1705,6 +1791,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1816,7 +1904,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationSavedResponse"];
                 };
             };
-            400: components["responses"]["BadApplicationId"];
+            400: components["responses"]["BadApplicationIdOrBody"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not edit this application, or the applicant is not a member of the new body. */
             403: {
@@ -1828,6 +1916,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1866,7 +1956,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
-            400: components["responses"]["BadApplicationId"];
+            400: components["responses"]["BadApplicationIdOrBody"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not change this application. */
             403: {
@@ -1878,6 +1968,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1916,7 +2008,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
-            400: components["responses"]["BadApplicationId"];
+            400: components["responses"]["BadApplicationIdOrBody"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not change this application. */
             403: {
@@ -1928,6 +2020,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1966,7 +2060,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
-            400: components["responses"]["BadApplicationId"];
+            400: components["responses"]["BadApplicationIdOrBody"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller may not accept or reject applicants. */
             403: {
@@ -1978,6 +2072,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2016,7 +2112,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
-            400: components["responses"]["BadApplicationId"];
+            400: components["responses"]["BadApplicationIdOrBody"];
             401: components["responses"]["Unauthorized"];
             /** @description The caller is not on the board of the application's body. */
             403: {
@@ -2028,6 +2124,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
