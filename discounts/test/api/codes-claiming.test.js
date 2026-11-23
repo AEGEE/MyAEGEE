@@ -523,6 +523,23 @@ describe('Codes claiming: waiting for other claims of the integration', () => {
         expect(codeFromDb.claimed_by).toEqual(null);
     });
 
+    test('should answer 404 when the integration is deleted while the claim waits for the lock', async () => {
+        config.claim.lockTimeout = 2000;
+        const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
+
+        // A delete that holds the integration's lock and commits after 100 ms.
+        const transaction = await sequelize.transaction();
+        await Integration.findOne({ where: { id: integration.id }, lock: transaction.LOCK.UPDATE, transaction });
+        await Integration.destroy({ where: { id: integration.id }, transaction });
+        const deleted = new Promise((resolve) => { setTimeout(resolve, 100); }).then(() => transaction.commit());
+
+        const res = await claim(integration);
+        await deleted;
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.message).toEqual('The integration is not found.');
+    });
+
     test('should claim the code when the lock is free within the lock timeout', async () => {
         config.claim.lockTimeout = 2000;
         const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });

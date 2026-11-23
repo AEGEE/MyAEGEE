@@ -192,4 +192,20 @@ describe('Integrations edition', () => {
         const integrationFromDb = await Integration.findByPk(integration.id);
         expect(res.body.data).toEqual(JSON.parse(JSON.stringify(integrationFromDb)));
     });
+
+    test('should list every failing check of a field', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { quota_amount: '' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.quota_amount).toEqual([
+            'Integration quota amount should be set.',
+            'Integration quota amount should be valid.'
+        ]);
+    });
 });
