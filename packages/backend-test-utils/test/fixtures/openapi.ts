@@ -170,6 +170,8 @@ export interface components {
             name: string;
             description: string | null;
             fee: components["schemas"]["Decimal"];
+            /** @description JSONB that each body fills with its own keys. */
+            custom_fields?: Record<string, never> | null;
         } & components["schemas"]["Timestamps"];
         CourseInput: {
             name: string;
@@ -361,15 +363,7 @@ export interface operations {
                     "application/json": components["schemas"]["CourseListResponse"];
                 };
             };
-            /** @description Any client error. */
-            "4XX": {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     createCourse: {

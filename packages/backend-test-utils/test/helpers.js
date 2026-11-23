@@ -15,4 +15,33 @@ function tmpDir(prefix) {
     return fs.mkdtempSync(path.join(os.tmpdir(), `backend-test-utils-${prefix}-`));
 }
 
-module.exports = { REPO_ROOT, REQUIRE_FROM, FIXTURES, requireFromService, tmpDir };
+// A minimal OpenAPI 3.1 document with one operation, GET /x, whose 200 response has
+// the given JSON schema (or the given content), for specs that break one rule each.
+function minimalSpec({ schema, content, responses, schemas = {}, operation = {}, extra = {} } = {}) {
+    return {
+        openapi: '3.1.1',
+        info: { title: 'x', version: '1' },
+        paths: {
+            '/x': {
+                get: {
+                    operationId: 'getX',
+                    responses: responses || {
+                        200: { description: 'ok', content: content || { 'application/json': { schema } } }
+                    },
+                    ...operation
+                }
+            }
+        },
+        components: { schemas: { ...schemas } },
+        ...extra
+    };
+}
+
+// Writes a spec (JSON is valid YAML) to a fresh directory and returns the directory.
+function writeSpec(spec) {
+    const dir = tmpDir('spec');
+    fs.writeFileSync(path.join(dir, 'openapi.yaml'), JSON.stringify(spec, null, 2));
+    return dir;
+}
+
+module.exports = { REPO_ROOT, REQUIRE_FROM, FIXTURES, requireFromService, tmpDir, minimalSpec, writeSpec };

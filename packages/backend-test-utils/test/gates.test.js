@@ -7,7 +7,8 @@ const path = require('node:path');
 const { execFileSync, spawnSync } = require('node:child_process');
 
 const { checkCoverage, parseArgs } = require('../check-coverage');
-const { findUnexercised } = require('../unexercised');
+const { findUnexercised, readHits } = require('../unexercised');
+const { checkCoverageLowered, parseArgs: parseLoweredArgs } = require('../check-coverage-lowered');
 const { checkCodecovBuilds } = require('../check-codecov-builds');
 const { createContract } = require('../openapi');
 const { FIXTURES, REQUIRE_FROM, tmpDir } = require('./helpers');
@@ -107,7 +108,7 @@ describe('unexercised (documented but never exercised)', () => {
     const { spec } = createContract({ serviceRoot: FIXTURES, requireFrom: REQUIRE_FROM });
     const allHits = [
         'GET /healthcheck 200', 'GET /metrics 200', 'GET /members/me 200', 'GET /members/me 401',
-        'GET /members/{user_id} 200', 'GET /members/{user_id} 404', 'GET /courses 200', 'GET /courses 404',
+        'GET /members/{user_id} 200', 'GET /members/{user_id} 404', 'GET /courses 200', 'GET /courses 401',
         'POST /courses 201', 'POST /courses 401', 'POST /courses 422',
         'GET /courses/{course_id} 200', 'GET /courses/{course_id} 400', 'GET /courses/{course_id} 404',
         'DELETE /courses/{course_id} 204', 'DELETE /courses/{course_id} 404', 'GET /courses/{course_id}/export 200'
@@ -122,21 +123,40 @@ describe('unexercised (documented but never exercised)', () => {
         assert.deepEqual(findUnexercised(spec, hits).missing, ['GET /courses/{course_id} 400  (getCourse)']);
     });
 
-    test('a 4XX response is exercised by any 4xx hit on the operation', () => {
-        const hits = allHits.filter((h) => h !== 'GET /courses 404');
-        assert.deepEqual(findUnexercised(spec, hits).missing, ['GET /courses 4XX  (listCourses)']);
-        assert.deepEqual(findUnexercised(spec, [...hits, 'GET /courses 422']).missing, []);
+    test('a 4XX range is a spec problem, and one 4xx hit does not exercise it', () => {
+        const withRange = JSON.parse(JSON.stringify(spec));
+        withRange.paths['/courses'].get.responses['4XX'] = withRange.paths['/courses'].get.responses['401'];
+        const result = findUnexercised(withRange, [...allHits, 'GET /courses 404']);
+        assert.deepEqual(result.missing, ['GET /courses 4XX  (listCourses)']);
+        assert.match(result.problems.join('\n'), /GET \/courses 4XX \(listCourses\): .*'4XX' is not allowed/);
     });
 
-    test('x-untested on a shared $ref response applies to every use, and needs a reason', () => {
+    test('x-untested on a shared response exempts nothing and is a problem; an empty reason is a problem', () => {
         const withShared = JSON.parse(JSON.stringify(spec));
         withShared.components.responses.NotFound['x-untested'] = 'reason';
-        withShared.paths['/courses/{course_id}'].get.responses['400']['x-untested'] = '';
-        const hits = allHits.filter((h) => !h.endsWith(' 404'));
-        assert.deepEqual(findUnexercised(withShared, hits), {
-            missing: ['GET /courses 4XX  (listCourses)'],
-            problems: ['GET /courses/{course_id} 400: x-untested needs a reason']
-        });
+        withShared.paths['/courses/{course_id}'].get['x-untested'] = { 400: '' };
+        const hits = allHits.filter((h) => h !== 'GET /courses/{course_id}/export 200' && !h.endsWith(' 404'));
+        const result = findUnexercised(withShared, hits);
+        assert.deepEqual(result.missing, [
+            'GET /members/{user_id} 404  (getMember)',
+            'GET /courses/{course_id} 404  (getCourse)',
+            'DELETE /courses/{course_id} 404  (deleteCourse)',
+            'GET /courses/{course_id}/export 200  (exportCourse)'
+        ]);
+        assert.match(result.problems.join('\n'), /#\/components\/responses\/NotFound: x-untested on a shared response would exempt every operation/);
+        assert.match(result.problems.join('\n'), /GET \/courses\/\{course_id\} 400 \(getCourse\): x-untested needs a reason/);
+    });
+
+    test('an exemption for a response that a test produced is stale', () => {
+        assert.deepEqual(findUnexercised(spec, [...allHits, 'POST /courses 403']).problems, [
+            'POST /courses 403: x-untested is stale, a test produced this response; remove the exemption'
+        ]);
+    });
+
+    test('the run header line of a hits file is not a hit', () => {
+        const file = path.join(tmpDir('hits'), 'hits.txt');
+        fs.writeFileSync(file, '# openapi hits, jest run 42\nGET /metrics 200\n');
+        assert.deepEqual(readHits([file]), ['GET /metrics 200']);
     });
 
     test('the CLI exits 1 and names the gap', () => {
@@ -149,6 +169,10 @@ describe('unexercised (documented but never exercised)', () => {
         const run = spawnSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' });
         assert.equal(run.status, 1);
         assert.match(run.stdout, /Documented but never exercised[^\n]*\n {2}GET \/metrics 200 {2}\(getMetrics\)/);
+        fs.writeFileSync(hits, [...allHits, 'POST /courses 403'].join('\n'));
+        const stale = spawnSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' });
+        assert.equal(stale.status, 1);
+        assert.match(stale.stdout, /POST \/courses 403: x-untested is stale/);
         fs.writeFileSync(hits, allHits.join('\n'));
         assert.match(
             execFileSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' }),
@@ -191,5 +215,71 @@ describe('check-codecov-builds (after_n_builds)', () => {
     test('the repository files agree', () => {
         const run = spawnSync(process.execPath, [path.join(__dirname, '..', 'check-codecov-builds.js')], { encoding: 'utf8' });
         assert.equal(run.status, 0, run.stdout + run.stderr);
+    });
+});
+
+describe('check-coverage-lowered (lowering the ratchet needs an approved trailer)', () => {
+    // A scratch repository: "stable" has the service's ratchet, the branch changes it.
+    function repo(thresholds) {
+        const dir = tmpDir('git');
+        const git = (...args) => execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: dir, encoding: 'utf8' });
+        const write = (t) => {
+            fs.mkdirSync(path.join(dir, 'svc'), { recursive: true });
+            fs.writeFileSync(path.join(dir, 'svc', 'package.json'), JSON.stringify({ jest: { coverageThreshold: { global: t } } }));
+        };
+        git('init', '-q', '-b', 'stable');
+        write(thresholds);
+        git('add', '.');
+        git('commit', '-q', '-m', 'base');
+        git('switch', '-q', '-c', 'branch');
+        const commit = (t, message) => {
+            if (t) write(t);
+            git('commit', '-q', '--allow-empty', '-am', message);
+        };
+        const check = () => checkCoverageLowered({ repoRoot: dir, service: 'svc', base: 'stable' });
+        return { commit, check };
+    }
+    const base = { statements: 90, branches: 80, functions: 85, lines: 90 };
+
+    test('raising or keeping the numbers passes', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 81 }, 'raise');
+        assert.deepEqual(check(), { failed: false, lines: ['svc: the coverage ratchet was not lowered'] });
+    });
+
+    test('lowering a number fails and names it', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 79.5, lines: 89 }, 'lower');
+        const { failed, lines } = check();
+        assert.equal(failed, true);
+        assert.match(lines.join('\n'), /svc: this branch lowers the coverage ratchet in svc\/package\.json: branches 80 -> 79\.5, lines 90 -> 89\./);
+        assert.match(lines.join('\n'), /Coverage-lowered: svc: <why>/);
+    });
+
+    test('removing the ratchet counts as lowering', () => {
+        const { commit, check } = repo(base);
+        commit({ statements: 90 }, 'remove');
+        assert.match(check().lines[0], /branches 80 -> removed/);
+    });
+
+    test('a Coverage-lowered trailer for the service on the branch approves it; one for another service does not', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 79 }, 'lower\n\nCoverage-lowered: other: not this one');
+        assert.equal(check().failed, true);
+        commit(undefined, 'chore: note\n\nCoverage-lowered: svc: the removed export had the best-covered branches');
+        assert.deepEqual(check(), {
+            failed: false,
+            lines: ['svc: coverage ratchet lowered (branches 80 -> 79), approved by a commit trailer: the removed export had the best-covered branches']
+        });
+    });
+
+    test('the CLI takes several services and a base', () => {
+        assert.deepEqual(parseLoweredArgs(['--base', 'origin/main', 'core', 'network']), { services: ['core', 'network'], base: 'origin/main' });
+        assert.throws(() => parseLoweredArgs([]), /Usage/);
+    });
+
+    test('a service without a ratchet on the merge base has nothing to compare', () => {
+        const { check } = repo(undefined);
+        assert.equal(check().failed, false);
     });
 });

@@ -3,8 +3,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { createContract, createRequestHook } = require('../openapi');
-const { FIXTURES, REQUIRE_FROM, tmpDir } = require('./helpers');
+const { createContract, createRequestHook, resetHitsFile } = require('../openapi');
+const jestGlobalSetup = require('../jest-global-setup');
+const { FIXTURES, REQUIRE_FROM, tmpDir, minimalSpec, writeSpec } = require('./helpers');
 
 const contract = createContract({ serviceRoot: FIXTURES, requireFrom: REQUIRE_FROM });
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
@@ -96,9 +97,29 @@ describe('path and operation matching', () => {
         );
     });
 
-    test('falls back to a 4XX range response', () => {
-        ok({ path: '/courses', statusCode: 418, body: { success: false, message: 'Teapot' } });
-        violation({ path: '/courses', statusCode: 418, body: { message: 'Teapot' } }, /must have required property 'success'/);
+    test('matches path and method together: PUT /members/me goes to /members/{user_id} when only GET /members/me is literal', () => {
+        const spec = minimalSpec();
+        const member = { description: 'ok', content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } }, additionalProperties: false } } } };
+        spec.paths = {
+            '/members/me': { get: { operationId: 'getMe', responses: { 200: member } } },
+            '/members/{user_id}': { get: { operationId: 'getMember', responses: { 200: member } }, put: { operationId: 'updateMember', responses: { 200: member } } }
+        };
+        const scratch = createContract({ serviceRoot: writeSpec(spec), requireFrom: REQUIRE_FROM });
+        assert.equal(scratch.findOperation('PUT', '/members/me').template, '/members/{user_id}');
+        assert.equal(scratch.findOperation('GET', '/members/me').template, '/members/me');
+        assert.doesNotThrow(() => scratch.check({ method: 'PUT', path: '/members/me', statusCode: 200, headers: JSON_HEADERS, body: { id: 1 } }));
+    });
+
+    test('a literal segment wins over a parameter from the left, whatever the order in the file', () => {
+        const spec = minimalSpec();
+        const response = { 200: { description: 'ok' } };
+        spec.paths = {
+            '/a/{x}/c': { get: { operationId: 'getAXC', responses: response } },
+            '/a/b/{y}': { get: { operationId: 'getABY', responses: response } }
+        };
+        const scratch = createContract({ serviceRoot: writeSpec(spec), requireFrom: REQUIRE_FROM });
+        assert.equal(scratch.findOperation('GET', '/a/b/c').template, '/a/b/{y}');
+        assert.equal(scratch.findOperation('GET', '/a/z/c').template, '/a/{x}/c');
     });
 });
 
@@ -190,6 +211,28 @@ describe('response bodies', () => {
         );
     });
 
+    test('application/*+json response bodies are validated like application/json', () => {
+        const problem = { type: 'object', properties: { title: { type: 'string' } }, additionalProperties: false };
+        const scratch = createContract({ serviceRoot: writeSpec(minimalSpec({ content: { 'application/problem+json': { schema: problem } } })), requireFrom: REQUIRE_FROM });
+        const headers = { 'content-type': 'application/problem+json; charset=utf-8' };
+        assert.doesNotThrow(() => scratch.check({ path: '/x', statusCode: 200, headers, body: { title: 'x' } }));
+        assert.throws(() => scratch.check({ path: '/x', statusCode: 200, headers, body: { title: 'x', secret: 1 } }), /must NOT have additional properties 'secret'/);
+        assert.throws(() => scratch.check({ path: '/x', statusCode: 200, headers, body: 'nope' }), /content-type is application\/problem\+json, but the body is not JSON/);
+    });
+
+    test('a property whose name starts with x- is kept: only extension keywords are stripped', () => {
+        const schema = {
+            type: 'object',
+            'x-note': 'an extension keyword, stripped',
+            required: ['x-request-id'],
+            properties: { 'x-request-id': { type: 'string', 'x-note': 'stripped' } },
+            additionalProperties: false
+        };
+        const scratch = createContract({ serviceRoot: writeSpec(minimalSpec({ schema })), requireFrom: REQUIRE_FROM });
+        assert.doesNotThrow(() => scratch.check({ path: '/x', statusCode: 200, headers: JSON_HEADERS, body: { 'x-request-id': 'abc' } }));
+        assert.throws(() => scratch.check({ path: '/x', statusCode: 200, headers: JSON_HEADERS, body: { 'x-request-id': 1 } }), /\/x-request-id must be string/);
+    });
+
     test('non-JSON media types are compared without parameters, and the body is not parsed', () => {
         ok({ path: '/metrics', statusCode: 200, headers: { 'content-type': 'text/plain; version=0.0.4; charset=utf-8' }, body: '# HELP x' });
         ok({
@@ -222,6 +265,24 @@ describe('request bodies', () => {
         );
     });
 
+    test('a JSON body sent to an operation that documents none fails when the server accepted it', () => {
+        violation(
+            { path: '/courses/1', requestBody: { name: 'A' }, statusCode: 200, body: { success: true, data: course() } },
+            /GET \/courses\/1 -> 200 \(getCourse\): the server accepted a request with a JSON body, but the operation documents no requestBody/
+        );
+        ok({ path: '/courses/1', requestBody: { name: 'A' }, statusCode: 404, body: { success: false, message: 'Not found' } });
+    });
+
+    test('application/*+json request bodies are validated like application/json', () => {
+        const spec = minimalSpec({ schema: { type: 'object', additionalProperties: false } });
+        spec.paths['/x'].get.requestBody = { content: { 'application/merge-patch+json': { schema: { type: 'object', required: ['name'] } } } };
+        const scratch = createContract({ serviceRoot: writeSpec(spec), requireFrom: REQUIRE_FROM });
+        assert.throws(
+            () => scratch.check({ path: '/x', requestBody: {}, statusCode: 200, headers: JSON_HEADERS, body: {} }),
+            /the server accepted a request body that the spec rejects:\n {2}\(root\) must have required property 'name'/
+        );
+    });
+
     test('request body schemas stay open: extra fields are accepted', () => {
         ok({ method: 'POST', path: '/courses', requestBody: { name: 'A', extra: true }, statusCode: 201, body: { success: true, data: course() } });
     });
@@ -240,12 +301,30 @@ describe('hits file', () => {
     afterEach(() => {
         delete process.env.OPENAPI_HITS_FILE;
     });
+    const header = `# openapi hits, jest run ${process.pid}\n`;
 
     test('records METHOD template status for documented responses, not for implicit ones', () => {
-        ok({ path: '/courses/7', statusCode: 200, body: { success: true, data: course() } });
-        ok({ path: '/courses/7', statusCode: 500, body: { success: false, message: 'boom' } });
-        ok({ path: '/courses', statusCode: 418, body: { success: false, message: 'Teapot' } });
-        assert.equal(fs.readFileSync(file, 'utf8'), 'GET /courses/{course_id} 200\nGET /courses 418\n');
+        resetHitsFile();
+        const fresh = createContract({ serviceRoot: FIXTURES, requireFrom: REQUIRE_FROM });
+        fresh.check({ path: '/courses/7', statusCode: 200, headers: JSON_HEADERS, body: { success: true, data: course() } });
+        fresh.check({ path: '/courses/7', statusCode: 500, headers: JSON_HEADERS, body: { success: false, message: 'boom' } });
+        fresh.check({ path: '/courses', statusCode: 401, headers: JSON_HEADERS, body: { success: false, message: 'No token' } });
+        assert.equal(fs.readFileSync(file, 'utf8'), `${header}GET /courses/{course_id} 200\nGET /courses 401\n`);
+    });
+
+    test('the jest globalSetup starts the file afresh, so an earlier run cannot leave hits behind', async () => {
+        fs.writeFileSync(file, '# openapi hits, jest run 1\nGET /courses/{course_id} 400\n');
+        await jestGlobalSetup();
+        assert.equal(fs.readFileSync(file, 'utf8'), header);
+    });
+
+    test('the check refuses a hits file that this run did not start', () => {
+        const fresh = createContract({ serviceRoot: FIXTURES, requireFrom: REQUIRE_FROM });
+        const hit = () => fresh.check({ path: '/courses/7', statusCode: 200, headers: JSON_HEADERS, body: { success: true, data: course() } });
+        fs.writeFileSync(file, 'GET /courses/{course_id} 400\n');
+        assert.throws(hit, /OPENAPI_HITS_FILE .* was not started by this jest run/);
+        fs.unlinkSync(file);
+        assert.throws(hit, /was not started by this jest run/);
     });
 });
 

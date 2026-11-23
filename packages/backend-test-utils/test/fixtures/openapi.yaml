@@ -86,16 +86,15 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CourseListResponse'}
-        4XX:
-          description: Any client error.
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
     post:
       operationId: createCourse
       summary: Create a course
       tags: [courses]
       x-permission: manage:fixture
+      # One exemption, one operation, one reason (a shared response cannot carry it).
+      x-untested:
+        '403': needs a core that answers 403 on my_permissions, which the mocks cannot do
       requestBody:
         $ref: '#/components/requestBodies/CourseInput'
       responses:
@@ -107,7 +106,6 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: Not allowed.
-          x-untested: needs a core that answers 403 on my_permissions, which the mocks cannot do
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -240,6 +238,10 @@ components:
         name: {type: string}
         description: {type: [string, 'null']}
         fee: {$ref: '#/components/schemas/Decimal'}
+        custom_fields:
+          description: JSONB that each body fills with its own keys.
+          type: [object, 'null']
+          x-free-form: each body defines its own keys; the service stores them without looking at them
       unevaluatedProperties: false
     CourseInput:
       type: object

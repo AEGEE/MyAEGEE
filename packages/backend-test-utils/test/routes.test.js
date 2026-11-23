@@ -110,6 +110,65 @@ describe('listExpressRoutes', () => {
         assert.throws(() => listExpressRoutes(app), /uses Express pattern syntax/);
     });
 
+    test('an array of mount paths throws instead of listing the routes under /', () => {
+        const app = record(() => {
+            const server = express();
+            const router = express.Router();
+            router.get('/items', noop);
+            server.use(['/a', '/b'], router);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(app), /use\(\) at \/ with an array of paths \(\/a,\/b\): routes\.js cannot list its routes/);
+    });
+
+    test('a mounted Express application throws instead of being dropped', () => {
+        const viaApp = record(() => {
+            const server = express();
+            const sub = express();
+            sub.get('/status', noop);
+            server.use('/sub', sub);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(viaApp), /An Express application is mounted at \/sub: routes\.js cannot list its routes; mount an express\.Router\(\) instead/);
+        const viaRouter = record(() => {
+            const server = express();
+            const router = express.Router();
+            const sub = express();
+            router.use('/inner', sub);
+            server.use('/outer', router);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(viaRouter), /An Express application is mounted at \/outer\/inner/);
+    });
+
+    test('a plain handler mounted under a prefix without a router throws', () => {
+        const app = record(() => {
+            const server = express();
+            const serveFiles = (req, res) => res.end();
+            server.get('/x', noop);
+            server.use('/files', serveFiles);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(app), /serveFiles is mounted at \/files without a router: it may answer requests that the route parity test cannot see/);
+    });
+
+    test('middleware mounted at a router\'s prefix, in the same use() call or another, is the router\'s middleware', () => {
+        const app = record(() => {
+            const server = express();
+            const single = express.Router();
+            const other = express.Router();
+            single.get('/', noop);
+            other.get('/', noop);
+            const recordMountPath = () => function recordPath(req, res, next) { next(); };
+            server.use((req, res, next) => next());
+            server.use('/single/:event_id', recordMountPath(), single);
+            server.use('/other', recordMountPath());
+            server.use('/other', other);
+            return server;
+        });
+        assert.deepEqual(listExpressRoutes(app), ['GET /other', 'GET /single/{event_id}']);
+    });
+
     test('an app loaded without the recorder throws', () => {
         const server = express();
         server.get('/x', noop);
