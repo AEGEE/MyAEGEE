@@ -277,8 +277,10 @@ paths:
       description: >-
         Sends the text through the mailer's `custom.html` template. Every address is one
         address without a display name (a dot-atom local part and a domain of at least two
-        labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). The
-        addresses and the subject are one line each.
+        labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). `to`
+        and `cc` also take several addresses, as a list or as one string separated by
+        commas. The addresses and the subject are one line each; the subject is at most
+        255 characters.
       tags: [antenna_criteria]
       x-permission: global:manage_network:fulfilment_email
       requestBody:
@@ -632,6 +634,13 @@ components:
           items: {$ref: '#/components/schemas/AntennaCriterion'}
       additionalProperties: false
     MailAddress: {type: string, format: email, maxLength: 254}
+    MailAddressString:
+      description: >-
+        Several addresses in one string, separated by commas, as the send dialog's field
+        holds them. Spaces and tabs around each address are dropped; each must be an
+        address. The mailer gets them as a list.
+      type: string
+      pattern: '^[^,\r\n]+(,[^,\r\n]+)+$'
     FulfilmentMailInput:
       type: object
       required: [to, subject, body]
@@ -645,10 +654,12 @@ components:
         to:
           anyOf:
             - {$ref: '#/components/schemas/MailAddress'}
+            - {$ref: '#/components/schemas/MailAddressString'}
             - {type: array, minItems: 1, items: {$ref: '#/components/schemas/MailAddress'}}
         cc:
           anyOf:
             - {$ref: '#/components/schemas/MailAddress'}
+            - {$ref: '#/components/schemas/MailAddressString'}
             - {type: array, minItems: 1, items: {$ref: '#/components/schemas/MailAddress'}}
             - {type: string, maxLength: 0}
             - {type: 'null'}
@@ -657,7 +668,7 @@ components:
             - {$ref: '#/components/schemas/MailAddress'}
             - {type: string, maxLength: 0}
             - {type: 'null'}
-        subject: {type: string, minLength: 1, pattern: '^[^\r\n]+$'}
+        subject: {type: string, minLength: 1, maxLength: 255, pattern: '^[^\r\n]+$'}
         body: {type: string, minLength: 1, description: The HTML text of the mail.}
       additionalProperties: true
     Netcom:

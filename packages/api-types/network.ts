@@ -206,7 +206,7 @@ export interface paths {
         put?: never;
         /**
          * Send the Antenna Criteria fulfilment mail to a body
-         * @description Sends the text through the mailer's `custom.html` template. Every address is one address without a display name (a dot-atom local part and a domain of at least two labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). The addresses and the subject are one line each.
+         * @description Sends the text through the mailer's `custom.html` template. Every address is one address without a display name (a dot-atom local part and a domain of at least two labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). `to` and `cc` also take several addresses, as a list or as one string separated by commas. The addresses and the subject are one line each; the subject is at most 255 characters.
          */
         post: operations["sendFulfilmentMail"];
         delete?: never;
@@ -431,11 +431,13 @@ export interface components {
         };
         /** Format: email */
         MailAddress: string;
+        /** @description Several addresses in one string, separated by commas, as the send dialog's field holds them. Spaces and tabs around each address are dropped; each must be an address. The mailer gets them as a list. */
+        MailAddressString: string;
         FulfilmentMailInput: {
             /** @description One address on aegee.org or aegee.eu; empty or absent sends from network@aegee.eu. */
             from?: components["schemas"]["MailAddress"] | string | null;
-            to: components["schemas"]["MailAddress"] | components["schemas"]["MailAddress"][];
-            cc?: components["schemas"]["MailAddress"] | components["schemas"]["MailAddress"][] | string | null;
+            to: components["schemas"]["MailAddress"] | components["schemas"]["MailAddressString"] | components["schemas"]["MailAddress"][];
+            cc?: components["schemas"]["MailAddress"] | components["schemas"]["MailAddressString"] | components["schemas"]["MailAddress"][] | string | null;
             reply_to?: components["schemas"]["MailAddress"] | string | null;
             subject: string;
             /** @description The HTML text of the mail. */
