@@ -61,13 +61,13 @@ producers (none yet)
          │ send_email                                          │ TTL expires:
          ▼                                                     │ back to email
    one mail per recipient                                      │
-         │ rejected by the SMTP server / unexpected error     │
-         │ (nack without requeue)                              │
-         ▼                                                     │
+   recipients the SMTP server refused: a new message for       │
+   only them, into wait_100h for one more try, with an alert   │
+                                                               │
   ┌─────────────────────┐  process_dead_letter_messages        │
   │ error_queue         │ ─────────────────────────────────────┘
   │ (dead_letter_exch.) │  into the last parking queue, with an alert
-  └─────────────────────┘
+  └─────────────────────┘  (a safety net: the dispatcher doesn't nack into it)
 ```
 
 ### What happens to a message
@@ -79,8 +79,12 @@ producers (none yet)
 | A template parameter is missing (`StrictUndefined`) | Drops it with an alert |
 | Template or one of its snippets not found | Parks it for a retry (the template may be deployed meanwhile) |
 | SMTP not connected and reconnecting fails | Parks it for a retry (`smtp_unavailable`) |
-| SMTP connection lost while sending | Reconnects and puts the message back in the queue (nack with requeue) |
-| SMTP server rejects it, or any other error while sending | Nacks it without requeue, so it goes to `error_queue` |
+| SMTP connection lost while sending | Reconnects. Nothing sent yet: puts the message back in the queue (nack with requeue). Sent to some recipients already: publishes a message for the others only back to `email`, with the same headers, and acks |
+| SMTP server refuses a recipient's mail, or any other error while sending it | The other recipients still get theirs. A message for the refused recipients only, with their parameters, waits in `wait_100h` for one more try, with an alert; refused again, it is dropped with an alert |
+
+A recipient who got the mail never gets it again because of another recipient's failure.
+Logs and alerts name the template and the names of fields, never the addresses, the
+parameters or the body.
 
 ### Retry logic
 
@@ -149,7 +153,7 @@ kept in both renderers on purpose.
 | Queue | Exchange | Purpose |
 |---|---|---|
 | `email` | `eml` (direct, routing key `mail`) | Normal delivery queue |
-| `error_queue` | `dead_letter_exchange` | Messages nacked by the dispatcher (should stay empty) |
+| `error_queue` | `dead_letter_exchange` | Messages dead-lettered from `email` (should stay empty) |
 | `wait_5min` … `wait_100h` | default exchange | Parking queues between retry attempts |
 
 Future queues (not yet implemented):
