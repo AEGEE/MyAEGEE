@@ -135,7 +135,7 @@ describe('Board listing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if no boards exist', async () => {
+    test('should return an empty list for a body without boards', async () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
@@ -144,10 +144,9 @@ describe('Board listing', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body.message).toEqual('There are no boards for this body.');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data).toEqual([]);
     });
 
     test('should list current board on', async () => {
