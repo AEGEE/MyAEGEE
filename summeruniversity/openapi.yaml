@@ -1,0 +1,1670 @@
+# The summeruniversity API as the code answers today. Hand-written; the service's jest tests
+# check every response against it. How to read and change it: docs/testing/backend-openapi.md.
+openapi: 3.1.1
+info:
+  title: MyAEGEE summeruniversity
+  version: '1'
+  description: |
+    Summer Universities: their submission and approval, publication, seasons and the
+    applications to them.
+
+    Every route except the health check and the metrics asks core for the caller's profile and
+    permissions with the caller's `X-Auth-Token`. Routes marked as public also answer without
+    a valid token, with fewer fields. Errors are `{success: false, message}`, or
+    `{success: false, errors: {<field>: [<message>]}}` for validation errors.
+  license: {name: ISC, identifier: ISC}
+servers:
+  - url: /api/summeruniversity
+security:
+  - XAuthToken: []
+tags:
+  - name: general
+    description: Health check and metrics.
+  - name: events
+    description: Summer Universities, their status and publication.
+  - name: applications
+    description: Applications to Summer Universities and the statistics about them.
+  - name: seasons
+    description: The yearly seasons that Summer Universities belong to.
+  - name: images
+    description: The head image of a Summer University.
+paths:
+  /healthcheck:
+    get:
+      operationId: getHealthcheck
+      summary: Health check
+      tags: [general]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: The service is up.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthcheckResponse'}
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics of the Summer Universities and applications
+      tags: [general]
+      x-permission: none (the gateway asks for basic authentication)
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /metrics/requests:
+    get:
+      operationId: getRequestMetrics
+      summary: Prometheus metrics of the requests to the service
+      tags: [general]
+      x-permission: none (the gateway asks for basic authentication)
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /:
+    get:
+      operationId: listEvents
+      summary: List the published Summer Universities
+      description: |
+        Deleted and unpublished Summer Universities are left out. Each item has the fields of its
+        publication level (`EventFull` or `EventMinimal`), whoever asks.
+      tags: [events]
+      x-permission: none (public)
+      security: [{}, {XAuthToken: []}]
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/SeasonFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - name: application_status
+          in: query
+          description: open or closed, or both as an array. Applied after offset and limit.
+          schema:
+            oneOf:
+              - {type: string, enum: [open, closed]}
+              - {type: array, items: {type: string, enum: [open, closed]}}
+      responses:
+        '200':
+          description: The published Summer Universities, earliest start first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PublicEventListResponse'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    post:
+      operationId: createEvent
+      summary: Submit a new Summer University
+      description: |
+        The new Summer University starts in `first submission`, belongs to the active season
+        (managers of its type may choose another), and its organizers get a mail, as does SUCT.
+        The caller must be one of the organizers. Organizers must be members of one of the
+        organizing or cooperation bodies, unless the caller manages Summer Universities of the type.
+      tags: [events]
+      x-permission: create:summeruniversity
+      requestBody:
+        $ref: '#/components/requestBodies/EventInput'
+      responses:
+        '201':
+          description: The created Summer University.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventCreatedResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /mine/organizing:
+    get:
+      operationId: listOrganizedEvents
+      summary: List the Summer Universities the caller organizes
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/SeasonFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The caller's Summer Universities that are not deleted, earliest start first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /mine/participating:
+    get:
+      operationId: listParticipatingEvents
+      summary: List the Summer Universities the caller applied to
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/SeasonFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The Summer Universities that are not deleted, with the status of the caller's application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithOwnApplicationListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /mine/approvable:
+    get:
+      operationId: listApprovableEvents
+      summary: List the Summer Universities the caller may approve
+      tags: [events]
+      x-permission: authenticated; lists the types the caller holds approve_summeruniversity:<type> for
+      responses:
+        '200':
+          description: Every Summer University of those types that is not deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /boardview/{body_id}:
+    parameters:
+      - name: body_id
+        in: path
+        required: true
+        schema: {type: integer}
+    get:
+      operationId: listBodyApplications
+      summary: List the applications of a body's members
+      tags: [applications]
+      x-permission: approve_members:summeruniversity in the body (board), or global:approve_members:summeruniversity
+      responses:
+        '200':
+          description: The applications from the body, each with its Summer University.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithEventListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /applications/future/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema: {type: integer}
+    get:
+      operationId: listFutureApplications
+      summary: List a member's applications to Summer Universities that have not started
+      description: Pending and accepted applications that are not cancelled, to Summer Universities that are not deleted.
+      tags: [applications]
+      x-permission: global:update_application_ban:member, or manage_summeruniversity of any type
+      responses:
+        '200':
+          description: The applications, earliest start first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FutureApplicationListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /applications:
+    get:
+      operationId: getApplicationStats
+      summary: Statistics of the applications
+      tags: [applications]
+      x-permission: manage_summeruniversity or approve_summeruniversity of any type
+      parameters:
+        - name: season
+          in: query
+          description: A four-digit year; without it, every season counts.
+          schema: {type: string, pattern: '^[0-9]{4}$'}
+      responses:
+        '200':
+          description: The counts.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/StatsResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /applications/export:
+    get:
+      operationId: exportApplicationStats
+      summary: Export the applicants of a season per body as a spreadsheet
+      tags: [applications]
+      x-permission: manage_summeruniversity or approve_summeruniversity of any type
+      parameters:
+        - name: season
+          in: query
+          required: true
+          description: A four-digit year.
+          schema: {type: string, pattern: '^[0-9]{4}$'}
+      responses:
+        '200':
+          description: 'One sheet, "By body": the body and its number of applicants, most applicants first.'
+          headers:
+            Content-Disposition:
+              description: attachment; filename=su_stats_by_body_<season>.xlsx
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /recents:
+    get:
+      operationId: listRecentEvents
+      summary: The end of the latest Summer University per set of organizing bodies
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - name: ends
+          in: query
+          description: Only Summer Universities that end on or before this day (YYYY-MM-DD).
+          schema: {type: string, format: date}
+      responses:
+        '200':
+          description: One item per distinct list of organizing bodies, over the fully published Summer Universities that are not deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RecentEventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /seasons:
+    get:
+      operationId: listSeasons
+      summary: List the seasons
+      tags: [seasons]
+      x-permission: none (public)
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The seasons, newest first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeasonListResponse'}
+    post:
+      operationId: createSeason
+      summary: Create a season
+      description: The new season is not active. Its year cannot be changed later.
+      tags: [seasons]
+      x-permission: global:manage_seasons:summeruniversity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SeasonCreateInput'}
+      responses:
+        '201':
+          description: The created season.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeasonMessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /seasons/active:
+    get:
+      operationId: getActiveSeason
+      summary: The active season
+      tags: [seasons]
+      x-permission: none (public)
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The active season.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeasonResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /seasons/{year}:
+    parameters:
+      - $ref: '#/components/parameters/Year'
+    put:
+      operationId: updateSeason
+      summary: Change a season's name and dates
+      description: The year and the active flag stay as they are.
+      tags: [seasons]
+      x-permission: global:manage_seasons:summeruniversity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SeasonUpdateInput'}
+      responses:
+        '200':
+          description: The changed season.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeasonMessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /seasons/{year}/active:
+    parameters:
+      - $ref: '#/components/parameters/Year'
+    put:
+      operationId: activateSeason
+      summary: Make a season the active one
+      description: The season that was active before is deactivated in the same transaction.
+      tags: [seasons]
+      x-permission: global:manage_seasons:summeruniversity
+      responses:
+        '200':
+          description: The season, now active.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeasonMessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getEvent
+      summary: One Summer University
+      description: |
+        Organizers, and managers and approvers of the type, get every field (`Event`). Others get
+        the fields of the publication level (`EventFull` or `EventMinimal`), and only when the
+        Summer University is published and not deleted. `permissions` says what the caller may do;
+        `apply` and `see_own_application` are only there for a logged-in caller.
+      tags: [events]
+      x-permission: none (public) for a published Summer University that is not deleted; otherwise its organizers, and approvers of its type
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The Summer University and the caller's permissions on it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventDetailsResponse'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateEvent
+      summary: Edit a Summer University
+      description: |
+        Saving a Summer University in `first draft` submits it (`first submission`); saving one in
+        `first approval` or `second draft` submits it for the second round (`second submission`).
+        Only managers of the type may change the season. Organizers and SUCT get a mail.
+      tags: [events]
+      x-permission: organizer while the status is not second approval, or manage_summeruniversity:<type>
+      requestBody:
+        $ref: '#/components/requestBodies/EventInput'
+      responses:
+        '200':
+          description: The changed Summer University.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteEvent
+      summary: Delete a Summer University
+      description: Marks it as deleted; its applications stay.
+      tags: [events]
+      x-permission: manage_summeruniversity:<type>
+      responses:
+        '200':
+          description: Deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventStatus
+      summary: Move a Summer University to another status
+      description: |
+        Allowed transitions: first draft to first submission (organizers, approvers), first
+        submission to first draft or first approval (approvers), first approval to first submission
+        (approvers) or second submission (organizers, approvers), second draft to second submission
+        (organizers, approvers), second submission to second draft or second approval (approvers),
+        second approval to second submission (approvers). Organizers get a mail, and SUCT too when
+        the new status is a submission.
+      tags: [events]
+      x-permission: approve_summeruniversity:<type>, or organizer for the submissions (see the description)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventStatusInput'}
+      responses:
+        '200':
+          description: Changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/upload:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      operationId: uploadEventImage
+      summary: Upload the head image of a Summer University
+      description: A .png, .jpg or .jpeg file of at most 5 MB whose content matches its extension. The previous image is removed.
+      tags: [images]
+      x-permission: organizer while the status is not second approval, or manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [head_image]
+              properties:
+                head_image: {type: string, contentMediaType: application/octet-stream}
+      responses:
+        '200':
+          description: Uploaded; `data` is the new image's file name.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImageUploadResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/published:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventPublished
+      summary: Set the publication level of a Summer University
+      description: minimal needs first approval or later; full needs second approval; none is always allowed.
+      tags: [events]
+      x-permission: manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventPublishedInput'}
+      responses:
+        '200':
+          description: Changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}/application_period:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventApplicationPeriod
+      summary: Set the application period of a Summer University
+      description: Only for a fully published Summer University. Without application_starts, the period starts now.
+      tags: [events]
+      x-permission: manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationPeriodInput'}
+      responses:
+        '200':
+          description: The changed Summer University.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventMessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/open_call:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventOpenCall
+      summary: Open or close the open call of a Summer University
+      description: |
+        Only for a fully published Summer University. With max_participants, the maximum changes
+        too and the accepted participants are counted again. The open call closes by itself when
+        no spot is left.
+      tags: [events]
+      x-permission: organizer or manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OpenCallInput'}
+      responses:
+        '200':
+          description: Changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listEventApplications
+      summary: List the applications to a Summer University
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>
+      responses:
+        '200':
+          description: The applications, oldest first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createApplication
+      summary: Apply to a Summer University
+      description: |
+        The caller applies with one of their bodies. The applicant, the organizers and the board of
+        the body get a mail. Answers 200, not 201.
+      tags: [applications]
+      x-permission: apply:summeruniversity while applications are open, the Summer University is fully published, and the caller has no other active application in the season and no active ban
+      requestBody:
+        $ref: '#/components/requestBodies/ApplicationInput'
+      responses:
+        '200':
+          description: The created application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationMessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/export:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportEventApplications
+      summary: Export the applications to a Summer University as a spreadsheet
+      description: Rejected and cancelled applications are left out.
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>
+      responses:
+        '200':
+          description: 'One sheet, "Participants": the application fields, then one column per question.'
+          headers:
+            Content-Disposition:
+              description: 'attachment; filename="participants_<event name>_<timestamp>.xlsx", with filename*=UTF-8''''… added for a name outside latin1'
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}/applications/{application_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: getApplication
+      summary: One application
+      tags: [applications]
+      x-permission: the applicant, an organizer or manage_summeruniversity:<type>, the board of the application's body or global:approve_members:summeruniversity, or anyone who may edit the Summer University
+      responses:
+        '200':
+          description: The application and the caller's permissions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationDetailsResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateApplication
+      summary: Edit an application
+      description: A new body must be one of the applicant's bodies. The applicant, the organizers and the board of the body get a mail.
+      tags: [applications]
+      x-permission: the applicant while they may apply, or anyone who may edit the Summer University
+      requestBody:
+        $ref: '#/components/requestBodies/ApplicationInput'
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserMessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/{application_id}/attended:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationAttended
+      summary: Mark an applicant as attended or not
+      description: Only a confirmed application can be marked as attended.
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AttendedInput'}
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/{application_id}/cancelled:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationCancelled
+      summary: Cancel an application, or take the cancellation back
+      description: The accepted participants of the Summer University are counted again.
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>, or the applicant while they may apply
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CancelledInput'}
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/{application_id}/confirmed:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationConfirmed
+      summary: Mark an applicant as confirmed or not
+      description: An application marked as attended cannot be unconfirmed.
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConfirmedInput'}
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/{application_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationStatus
+      summary: Accept or reject an application
+      description: The applicant gets a mail, and the accepted participants are counted again.
+      tags: [applications]
+      x-permission: organizer or manage_summeruniversity:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationStatusInput'}
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/applications/{application_id}/comment:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationComment
+      summary: Set the board comment of an application
+      tags: [applications]
+      x-permission: approve_members:summeruniversity in the application's body (board)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BoardCommentInput'}
+      responses:
+        '200':
+          description: The changed application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+components:
+  securitySchemes:
+    XAuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: Access token issued by core. Other services check it against core on every request.
+  parameters:
+    Limit: {name: limit, in: query, schema: {type: integer, minimum: 1}}
+    Offset: {name: offset, in: query, schema: {type: integer, minimum: 0}}
+    Search: {name: search, in: query, description: Part of the name or description (case-insensitive)., schema: {type: string}}
+    TypeFilter:
+      name: type
+      in: query
+      description: One type, or several as an array (type[]=regular&type[]=pilot).
+      schema:
+        oneOf:
+          - {$ref: '#/components/schemas/EventType'}
+          - {type: array, items: {$ref: '#/components/schemas/EventType'}}
+    SeasonFilter: {name: season, in: query, description: The year of the season., schema: {type: integer}}
+    StartsFilter: {name: starts, in: query, description: Only Summer Universities that start on or after this day (YYYY-MM-DD)., schema: {type: string, format: date}}
+    EndsFilter: {name: ends, in: query, description: Only Summer Universities that end on or before this day (YYYY-MM-DD)., schema: {type: string, format: date}}
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: The id of the Summer University, or its url (Express routes both through this path).
+      schema: {type: [integer, string]}
+    ApplicationId:
+      name: application_id
+      in: path
+      required: true
+      description: The id of the application, or `me` for the caller's own (Express routes both through this path).
+      schema: {type: [integer, string]}
+    Year:
+      name: year
+      in: path
+      required: true
+      description: The year of the season.
+      schema: {type: integer}
+  requestBodies:
+    EventInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/EventInput'}
+    ApplicationInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApplicationInput'}
+  responses:
+    BadRequest: {description: 'Malformed request, for example a non-numeric ID.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  schemas:
+    ErrorResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ErrorWithMessage'
+        - $ref: '#/components/schemas/ErrorWithFields'
+    ErrorWithMessage:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: false}
+        message: {type: string}
+      additionalProperties: false
+    ErrorWithFields:
+      type: object
+      required: [success, errors]
+      properties:
+        success: {const: false}
+        message: {type: string, description: 'The field messages joined. Sent by the checks of the handlers, not by model validation.'}
+        errors:
+          type: object
+          additionalProperties: {type: array, items: {type: string}}
+      additionalProperties: false
+    MessageResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: true}
+        message: {type: string}
+      additionalProperties: false
+    Decimal:
+      description: Sequelize DECIMAL. A string when read from Postgres, the input value right after create or update.
+      type: [string, number]
+      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+    HealthcheckResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [name, description, version]
+          properties:
+            name: {type: string}
+            description: {type: string}
+            version: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+    EventType: {type: string, enum: [regular, pilot]}
+    EventStatus: {type: string, enum: [first draft, first submission, first approval, second draft, second submission, second approval]}
+    EventPublished: {type: string, enum: [none, minimal, full]}
+    EventThemeCategory:
+      type: string
+      enum: [arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering]
+    BodyRef:
+      description: An organizing or cooperation body, with its name from core when it was saved.
+      type: object
+      required: [body_id, body_name]
+      properties:
+        body_id: {type: integer}
+        body_name: {type: string}
+      additionalProperties: false
+    Location:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string}
+        position:
+          type: object
+          required: [lat, lng]
+          properties:
+            lat: {type: number}
+            lng: {type: number}
+          additionalProperties: false
+        description: {type: string}
+        start: {type: boolean}
+        end: {type: boolean}
+      additionalProperties: false
+    Organizer:
+      type: object
+      required: [user_id, role]
+      properties:
+        user_id: {type: integer}
+        body_id: {type: integer}
+        role: {type: string}
+      additionalProperties: false
+    SocialMedium:
+      description: A link in `description`; the frontend also sends the platform's `name`.
+      type: object
+      x-free-form: the model checks only the link in description; other keys (the frontend sends an empty name) are stored as sent
+    Question:
+      x-free-form: 'each Summer University defines its questions; the model only checks that they form a list (the frontend sends {description})'
+    Answer:
+      x-free-form: answers to the questions each Summer University defines; the model only checks how many there are
+    Event:
+      description: 'Every column of a Summer University, as organizers, managers and approvers of its type see it.'
+      type: object
+      required: [id, name, url, season, image, photos, video, description, email, website, social_media, application_starts, application_ends, starts, ends, fee, optional_fee, organizing_bodies, cooperation, locations, type, theme_category, theme, theme_implementation, learning_objectives, status, published, deleted, organizers, trainers, questions, pax_description, pax_confirmation, max_participants, accepted_participants, available_spots, application_status, open_call, budget, programme_suct, programme, activities_list, optional_programme, course_level, courses, accommodation_type, special_equipment, university_support, cancellation_rules, additional_regulation, agreed_to_su_terms, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
+        image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
+        photos: {x-free-form: no code reads or checks the photo list; the frontend stores links in it}
+        video: {type: [string, 'null']}
+        description: {type: string}
+        email: {type: string}
+        website: {type: [string, 'null']}
+        social_media: {type: [array, 'null'], items: {$ref: '#/components/schemas/SocialMedium'}}
+        application_starts: {type: [string, 'null'], format: date-time}
+        application_ends: {type: [string, 'null'], format: date-time}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/Decimal'}, {type: 'null'}]}
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        cooperation: {type: [array, 'null'], items: {$ref: '#/components/schemas/BodyRef'}}
+        locations: {type: array, items: {$ref: '#/components/schemas/Location'}}
+        type: {$ref: '#/components/schemas/EventType'}
+        theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
+        theme: {type: string}
+        theme_implementation: {type: string}
+        learning_objectives: {x-free-form: the model only checks that the value is not empty; the frontend sends a list of strings}
+        status: {$ref: '#/components/schemas/EventStatus'}
+        published: {$ref: '#/components/schemas/EventPublished'}
+        deleted: {type: boolean}
+        organizers: {type: array, items: {$ref: '#/components/schemas/Organizer'}}
+        trainers: {type: [string, 'null']}
+        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/Question'}}
+        pax_description: {type: [string, 'null']}
+        pax_confirmation: {type: [string, 'null'], enum: [no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket, null]}
+        max_participants: {type: [integer, 'null']}
+        accepted_participants: {type: [integer, 'null']}
+        available_spots: {type: integer, description: 'max_participants minus accepted_participants (computed; negative when more are accepted than there are spots, 0 without a maximum).'}
+        application_status: {type: string, enum: [open, closed], description: 'Computed: open within the application period, or while the open call is on.'}
+        open_call: {type: [boolean, 'null']}
+        budget: {type: [string, 'null']}
+        programme_suct: {type: string}
+        programme: {type: [string, 'null']}
+        activities_list: {type: [string, 'null']}
+        optional_programme: {type: [string, 'null']}
+        course_level: {type: [string, 'null'], enum: [beginner, intermediate, advanced, null]}
+        courses: {type: [string, 'null']}
+        accommodation_type: {type: string}
+        special_equipment: {type: [string, 'null']}
+        university_support: {type: [boolean, 'null']}
+        cancellation_rules: {type: [string, 'null']}
+        additional_regulation: {type: [string, 'null']}
+        agreed_to_su_terms: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    EventFull:
+      description: 'The public fields of a fully published Summer University (lib/constants.js EVENT_FULL_FIELDS).'
+      type: object
+      required: [id, name, url, season, image, photos, video, description, email, website, social_media, starts, ends, fee, organizing_bodies, locations, type, theme_category, theme, trainers, pax_description, pax_confirmation, questions, max_participants, accepted_participants, available_spots, open_call, accommodation_type, activities_list, course_level, courses, special_equipment, university_support, optional_fee, optional_programme, cancellation_rules, additional_regulation, application_status, published, application_starts, application_ends, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
+        image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
+        photos: {x-free-form: no code reads or checks the photo list; the frontend stores links in it}
+        video: {type: [string, 'null']}
+        description: {type: string}
+        email: {type: string}
+        website: {type: [string, 'null']}
+        social_media: {type: [array, 'null'], items: {$ref: '#/components/schemas/SocialMedium'}}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        locations: {type: array, items: {$ref: '#/components/schemas/Location'}}
+        type: {$ref: '#/components/schemas/EventType'}
+        theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
+        theme: {type: string}
+        trainers: {type: [string, 'null']}
+        pax_description: {type: [string, 'null']}
+        pax_confirmation: {type: [string, 'null'], enum: [no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket, null]}
+        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/Question'}}
+        max_participants: {type: [integer, 'null']}
+        accepted_participants: {type: [integer, 'null']}
+        available_spots: {type: integer, description: 'max_participants minus accepted_participants (computed; negative when more are accepted than there are spots, 0 without a maximum).'}
+        open_call: {type: [boolean, 'null']}
+        accommodation_type: {type: string}
+        activities_list: {type: [string, 'null']}
+        course_level: {type: [string, 'null'], enum: [beginner, intermediate, advanced, null]}
+        courses: {type: [string, 'null']}
+        special_equipment: {type: [string, 'null']}
+        university_support: {type: [boolean, 'null']}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/Decimal'}, {type: 'null'}]}
+        optional_programme: {type: [string, 'null']}
+        cancellation_rules: {type: [string, 'null']}
+        additional_regulation: {type: [string, 'null']}
+        application_status: {type: string, enum: [open, closed], description: 'Computed: open within the application period, or while the open call is on.'}
+        published: {$ref: '#/components/schemas/EventPublished'}
+        application_starts: {type: [string, 'null'], format: date-time}
+        application_ends: {type: [string, 'null'], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    EventMinimal:
+      description: 'The public fields of a Summer University published as minimal (lib/constants.js EVENT_MINIMAL_FIELDS).'
+      type: object
+      required: [id, name, url, season, image, description, email, starts, ends, fee, organizing_bodies, locations, type, theme_category, theme, max_participants, accommodation_type, optional_fee, optional_programme, published, application_status, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
+        image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
+        description: {type: string}
+        email: {type: string}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        locations: {type: array, items: {$ref: '#/components/schemas/Location'}}
+        type: {$ref: '#/components/schemas/EventType'}
+        theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
+        theme: {type: string}
+        max_participants: {type: [integer, 'null']}
+        accommodation_type: {type: string}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/Decimal'}, {type: 'null'}]}
+        optional_programme: {type: [string, 'null']}
+        published: {$ref: '#/components/schemas/EventPublished'}
+        application_status: {type: string, enum: [open, closed], description: 'Computed: open within the application period, or while the open call is on.'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    BoardviewEvent:
+      description: 'What a board sees of a Summer University in the board view: the minimal fields without the computed application status, and the questions.'
+      type: object
+      required: [id, name, url, season, image, description, email, starts, ends, fee, organizing_bodies, locations, type, theme_category, theme, max_participants, accommodation_type, optional_fee, optional_programme, published, created_at, updated_at, questions]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
+        image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
+        description: {type: string}
+        email: {type: string}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        locations: {type: array, items: {$ref: '#/components/schemas/Location'}}
+        type: {$ref: '#/components/schemas/EventType'}
+        theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
+        theme: {type: string}
+        max_participants: {type: [integer, 'null']}
+        accommodation_type: {type: string}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/Decimal'}, {type: 'null'}]}
+        optional_programme: {type: [string, 'null']}
+        published: {$ref: '#/components/schemas/EventPublished'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/Question'}}
+      additionalProperties: false
+    EventWithOwnApplication:
+      description: 'The minimal fields of a Summer University and the caller''s own application to it.'
+      type: object
+      required: [id, name, url, season, image, description, email, starts, ends, fee, organizing_bodies, locations, type, theme_category, theme, max_participants, accommodation_type, optional_fee, optional_programme, published, application_status, created_at, updated_at, applications]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
+        image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
+        description: {type: string}
+        email: {type: string}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        locations: {type: array, items: {$ref: '#/components/schemas/Location'}}
+        type: {$ref: '#/components/schemas/EventType'}
+        theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
+        theme: {type: string}
+        max_participants: {type: [integer, 'null']}
+        accommodation_type: {type: string}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/Decimal'}, {type: 'null'}]}
+        optional_programme: {type: [string, 'null']}
+        published: {$ref: '#/components/schemas/EventPublished'}
+        application_status: {type: string, enum: [open, closed], description: 'Computed: open within the application period, or while the open call is on.'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        applications: {type: array, items: {$ref: '#/components/schemas/OwnApplicationStatus'}}
+      additionalProperties: false
+    OwnApplicationStatus:
+      type: object
+      required: [user_id, status]
+      properties:
+        user_id: {type: integer}
+        status: {type: string, enum: [pending, accepted, rejected]}
+      additionalProperties: false
+    PublicEvent:
+      oneOf:
+        - $ref: '#/components/schemas/EventFull'
+        - $ref: '#/components/schemas/EventMinimal'
+    EventListMeta:
+      description: The offset and limit that were applied, if any.
+      type: object
+      properties:
+        offset: {type: integer}
+        limit: {type: integer}
+      additionalProperties: false
+    PublicEventListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PublicEvent'}}
+        meta: {$ref: '#/components/schemas/EventListMeta'}
+      additionalProperties: false
+    EventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Event'}}
+      additionalProperties: false
+    EventWithOwnApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/EventWithOwnApplication'}}
+      additionalProperties: false
+    EventResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventCreatedResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventMessageResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventDetailsResponse:
+      type: object
+      required: [success, data, permissions]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Event'
+            - $ref: '#/components/schemas/EventFull'
+            - $ref: '#/components/schemas/EventMinimal'
+        permissions: {$ref: '#/components/schemas/EventPermissions'}
+      additionalProperties: false
+    RecentEvent:
+      type: object
+      required: [organizing_bodies, latest_event]
+      properties:
+        organizing_bodies: {type: array, items: {$ref: '#/components/schemas/BodyRef'}}
+        latest_event: {type: string, format: date-time, description: The end of the latest Summer University of these bodies.}
+      additionalProperties: false
+    RecentEventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/RecentEvent'}}
+      additionalProperties: false
+    ImageUploadResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {type: string, description: The file name of the new image.}
+      additionalProperties: false
+    PermissionsPerType:
+      type: object
+      required: [regular, pilot]
+      properties:
+        regular: {type: boolean}
+        pilot: {type: boolean}
+      additionalProperties: false
+    PermissionsPerBody:
+      description: Keyed by the ids of the caller's bodies.
+      type: object
+      additionalProperties: {type: boolean}
+    BoardviewPermissions:
+      description: global, and one key per id of the caller's bodies.
+      type: object
+      required: [global]
+      properties:
+        global: {type: boolean}
+      additionalProperties: {type: boolean}
+    StatusPermissions:
+      type: object
+      required: [first_draft, first_approval, first_submission, second_draft, second_approval, second_submission]
+      properties:
+        first_draft: {type: boolean}
+        first_approval: {type: boolean}
+        first_submission: {type: boolean}
+        second_draft: {type: boolean}
+        second_approval: {type: boolean}
+        second_submission: {type: boolean}
+      additionalProperties: false
+    EventPermissionFields:
+      description: What the caller may do with a Summer University. Shared by the event and application permissions.
+      type: object
+      properties:
+        approve_summeruniversity: {$ref: '#/components/schemas/PermissionsPerType'}
+        manage_summeruniversity: {$ref: '#/components/schemas/PermissionsPerType'}
+        apply_general: {type: boolean}
+        create_summeruniversity: {type: boolean}
+        manage_seasons: {type: boolean}
+        edit_su_type: {type: boolean}
+        edit_su_fee: {type: boolean}
+        set_board_comment: {$ref: '#/components/schemas/PermissionsPerBody'}
+        see_boardview: {$ref: '#/components/schemas/BoardviewPermissions'}
+        see_summeruniversity: {type: boolean}
+        edit_summeruniversity: {type: boolean}
+        delete_summeruniversity: {type: boolean}
+        apply: {type: boolean, description: Only for a logged-in caller.}
+        see_own_application: {type: boolean, description: Only for a logged-in caller.}
+        list_applications: {type: boolean}
+        approve_participants: {type: boolean}
+        set_participants_cancelled: {type: boolean}
+        set_participants_attended: {type: boolean}
+        set_participants_confirmed: {type: boolean}
+        edit_summeruniversity_open_call: {type: boolean}
+        export_pax: {type: boolean}
+        change_status: {$ref: '#/components/schemas/StatusPermissions'}
+    EventPermissions:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPermissionFields'
+      required: [approve_summeruniversity, manage_summeruniversity, apply_general, create_summeruniversity, manage_seasons, edit_su_type, edit_su_fee, set_board_comment, see_boardview, see_summeruniversity, edit_summeruniversity, delete_summeruniversity, list_applications, approve_participants, set_participants_cancelled, set_participants_attended, set_participants_confirmed, edit_summeruniversity_open_call, export_pax, change_status]
+      unevaluatedProperties: false
+    ApplicationPermissions:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPermissionFields'
+      required: [approve_summeruniversity, manage_summeruniversity, apply_general, create_summeruniversity, manage_seasons, edit_su_type, edit_su_fee, set_board_comment, see_boardview, see_summeruniversity, edit_summeruniversity, delete_summeruniversity, apply, see_own_application, list_applications, approve_participants, set_participants_cancelled, set_participants_attended, set_participants_confirmed, edit_summeruniversity_open_call, export_pax, change_status, view_application, edit_application, set_application_cancelled]
+      properties:
+        view_application: {type: boolean}
+        edit_application: {type: boolean}
+        set_application_cancelled: {type: boolean}
+      unevaluatedProperties: false
+    Application:
+      type: object
+      required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        user_id: {type: integer}
+        event_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        nationality: {type: string}
+        travelling_from: {type: string}
+        visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null']}
+        visa_passport_number: {type: [string, 'null']}
+        visa_passport_issue_date: {type: [string, 'null']}
+        visa_passport_expiration_date: {type: [string, 'null']}
+        visa_passport_issue_authority: {type: [string, 'null']}
+        visa_embassy: {type: [string, 'null']}
+        visa_street_and_house: {type: [string, 'null']}
+        visa_postal_code: {type: [string, 'null']}
+        visa_city: {type: [string, 'null']}
+        visa_country: {type: [string, 'null']}
+        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_name: {type: string}
+        status: {type: string, enum: [pending, accepted, rejected]}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        cancelled: {type: boolean}
+        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
+        aegee_experience: {type: string}
+        ideal_su: {type: string}
+        motivation: {type: string}
+        answers: {type: array, items: {$ref: '#/components/schemas/Answer'}}
+        meals: {type: string}
+        allergies: {type: [string, 'null']}
+        agreed_to_privacy_policy: {type: boolean}
+        agreed_to_su_terms: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    ApplicationWithUser:
+      description: 'An application with the applicant''s gender, date of birth and notification email from core.'
+      type: object
+      required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at, gender, date_of_birth, notification_email]
+      properties:
+        id: {type: integer}
+        user_id: {type: integer}
+        event_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        nationality: {type: string}
+        travelling_from: {type: string}
+        visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null']}
+        visa_passport_number: {type: [string, 'null']}
+        visa_passport_issue_date: {type: [string, 'null']}
+        visa_passport_expiration_date: {type: [string, 'null']}
+        visa_passport_issue_authority: {type: [string, 'null']}
+        visa_embassy: {type: [string, 'null']}
+        visa_street_and_house: {type: [string, 'null']}
+        visa_postal_code: {type: [string, 'null']}
+        visa_city: {type: [string, 'null']}
+        visa_country: {type: [string, 'null']}
+        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_name: {type: string}
+        status: {type: string, enum: [pending, accepted, rejected]}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        cancelled: {type: boolean}
+        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
+        aegee_experience: {type: string}
+        ideal_su: {type: string}
+        motivation: {type: string}
+        answers: {type: array, items: {$ref: '#/components/schemas/Answer'}}
+        meals: {type: string}
+        allergies: {type: [string, 'null']}
+        agreed_to_privacy_policy: {type: boolean}
+        agreed_to_su_terms: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        gender: {type: [string, 'null'], description: From the applicant's core profile.}
+        date_of_birth: {type: [string, 'null'], format: date, description: From the applicant's core profile.}
+        notification_email: {type: [string, 'null'], description: From the applicant's core profile.}
+      additionalProperties: false
+    ApplicationWithEvent:
+      description: 'An application with what a board needs of the Summer University it belongs to.'
+      type: object
+      required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, board_comment, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at, event]
+      properties:
+        id: {type: integer}
+        user_id: {type: integer}
+        event_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        nationality: {type: string}
+        travelling_from: {type: string}
+        visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null']}
+        visa_passport_number: {type: [string, 'null']}
+        visa_passport_issue_date: {type: [string, 'null']}
+        visa_passport_expiration_date: {type: [string, 'null']}
+        visa_passport_issue_authority: {type: [string, 'null']}
+        visa_embassy: {type: [string, 'null']}
+        visa_street_and_house: {type: [string, 'null']}
+        visa_postal_code: {type: [string, 'null']}
+        visa_city: {type: [string, 'null']}
+        visa_country: {type: [string, 'null']}
+        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_name: {type: string}
+        status: {type: string, enum: [pending, accepted, rejected]}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        cancelled: {type: boolean}
+        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
+        aegee_experience: {type: string}
+        ideal_su: {type: string}
+        motivation: {type: string}
+        answers: {type: array, items: {$ref: '#/components/schemas/Answer'}}
+        meals: {type: string}
+        allergies: {type: [string, 'null']}
+        agreed_to_privacy_policy: {type: boolean}
+        agreed_to_su_terms: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        event: {$ref: '#/components/schemas/BoardviewEvent'}
+      additionalProperties: false
+    ApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Application'}}
+      additionalProperties: false
+    ApplicationWithEventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationWithEvent'}}
+      additionalProperties: false
+    ApplicationMessageResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/Application'}
+      additionalProperties: false
+    ApplicationWithUserMessageResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/ApplicationWithUser'}
+      additionalProperties: false
+    ApplicationWithUserResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ApplicationWithUser'}
+      additionalProperties: false
+    ApplicationDetailsResponse:
+      type: object
+      required: [success, data, permissions]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ApplicationWithUser'}
+        permissions: {$ref: '#/components/schemas/ApplicationPermissions'}
+      additionalProperties: false
+    FutureApplication:
+      type: object
+      required: [service, application_id, application_status, event_id, event_name, event_type, event_starts]
+      properties:
+        service: {const: summeruniversity}
+        application_id: {type: integer}
+        application_status: {type: string, enum: [pending, accepted]}
+        event_id: {type: integer}
+        event_name: {type: string}
+        event_type: {$ref: '#/components/schemas/EventType'}
+        event_starts: {type: string, format: date-time}
+      additionalProperties: false
+    FutureApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/FutureApplication'}}
+      additionalProperties: false
+    StatsCount:
+      type: object
+      required: [type, value]
+      properties:
+        type: {type: string}
+        value: {type: integer, minimum: 0}
+      additionalProperties: false
+    StatusCount:
+      type: object
+      required: [type, value]
+      properties:
+        type: {type: string, enum: [total_applications, total_members, confirmed]}
+        value: {type: integer, minimum: 0}
+      additionalProperties: false
+    StatsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [by_event, by_body, by_nationality, by_status]
+          properties:
+            by_event: {type: array, description: Applications per Summer University (type is its name)., items: {$ref: '#/components/schemas/StatsCount'}}
+            by_body: {type: array, description: Applicants per body (type is the body name; an applicant counts once)., items: {$ref: '#/components/schemas/StatsCount'}}
+            by_nationality: {type: array, description: Applicants per nationality (an applicant counts once)., items: {$ref: '#/components/schemas/StatsCount'}}
+            by_status: {type: array, items: {$ref: '#/components/schemas/StatusCount'}}
+          additionalProperties: false
+      additionalProperties: false
+    Season:
+      type: object
+      required: [id, year, name, active, event_submission_deadline, application_period_starts, application_period_ends, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        year: {type: integer}
+        name: {type: string}
+        active: {type: boolean}
+        event_submission_deadline: {type: [string, 'null'], format: date-time}
+        application_period_starts: {type: [string, 'null'], format: date-time}
+        application_period_ends: {type: [string, 'null'], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    SeasonResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Season'}
+      additionalProperties: false
+    SeasonMessageResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/Season'}
+      additionalProperties: false
+    SeasonListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Season'}}
+      additionalProperties: false
+    EventInput:
+      description: |
+        The fields of a Summer University. id, image, status, deleted, published, the application
+        period, open_call and the participant counters are ignored; season is ignored unless the
+        caller manages the type.
+      type: object
+      properties:
+        name: {type: string}
+        url: {type: [string, 'null']}
+        season: {type: [integer, 'null']}
+        description: {type: string}
+        email: {type: string}
+        starts: {type: string}
+        ends: {type: string}
+        fee: {type: [number, string]}
+        optional_fee: {type: [number, string, 'null']}
+        type: {type: string}
+        organizing_bodies: {type: array}
+        cooperation: {type: [array, 'null']}
+        organizers: {type: array}
+        questions: {type: array}
+      additionalProperties: true
+    ApplicationInput:
+      description: The applicant's answers. Other fields (status, board_comment and so on) are ignored.
+      type: object
+      properties:
+        body_id: {type: [integer, string]}
+        nationality: {type: string}
+        travelling_from: {type: string}
+        visa_required: {type: boolean}
+        aegee_experience: {type: string}
+        ideal_su: {type: string}
+        motivation: {type: string}
+        answers: {type: array}
+        meals: {type: string}
+        allergies: {type: [string, 'null']}
+        agreed_to_privacy_policy: {type: boolean}
+        agreed_to_su_terms: {type: boolean}
+      additionalProperties: true
+    SeasonCreateInput:
+      type: object
+      properties:
+        year: {type: integer}
+        name: {type: string}
+        event_submission_deadline: {type: [string, 'null']}
+        application_period_starts: {type: [string, 'null']}
+        application_period_ends: {type: [string, 'null']}
+      additionalProperties: true
+    SeasonUpdateInput:
+      description: The year and the active flag are ignored.
+      type: object
+      properties:
+        name: {type: string}
+        event_submission_deadline: {type: [string, 'null']}
+        application_period_starts: {type: [string, 'null']}
+        application_period_ends: {type: [string, 'null']}
+      additionalProperties: true
+    EventStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: {$ref: '#/components/schemas/EventStatus'}
+      additionalProperties: true
+    EventPublishedInput:
+      type: object
+      required: [published]
+      properties:
+        published: {$ref: '#/components/schemas/EventPublished'}
+      additionalProperties: true
+    ApplicationPeriodInput:
+      type: object
+      properties:
+        application_starts: {type: string, description: Defaults to now.}
+        application_ends: {type: string}
+      additionalProperties: true
+    OpenCallInput:
+      type: object
+      properties:
+        open_call: {type: boolean}
+        max_participants: {type: [integer, 'null']}
+      additionalProperties: true
+    AttendedInput:
+      type: object
+      required: [attended]
+      properties:
+        attended: {type: boolean}
+      additionalProperties: true
+    CancelledInput:
+      type: object
+      required: [cancelled]
+      properties:
+        cancelled: {type: boolean}
+      additionalProperties: true
+    ConfirmedInput:
+      type: object
+      required: [confirmed]
+      properties:
+        confirmed: {type: boolean}
+      additionalProperties: true
+    ApplicationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [pending, accepted, rejected]}
+      additionalProperties: true
+    BoardCommentInput:
+      type: object
+      required: [board_comment]
+      properties:
+        board_comment: {type: [string, 'null']}
+      additionalProperties: true

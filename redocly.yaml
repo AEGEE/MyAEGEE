@@ -24,6 +24,10 @@ apis:
     root: ./events/openapi.yaml
     x-openapi-ts:
       output: ./packages/api-types/events.ts
+  summeruniversity:
+    root: ./summeruniversity/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/api-types/summeruniversity.ts
 extends:
   - recommended
 rules:

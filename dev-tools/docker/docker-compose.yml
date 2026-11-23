@@ -55,8 +55,9 @@ services:
       - ./discounts/openapi.yaml:/usr/share/nginx/html/specs/discounts.yaml:ro
       - ./network/openapi.yaml:/usr/share/nginx/html/specs/network.yaml:ro
       - ./events/openapi.yaml:/usr/share/nginx/html/specs/events.yaml:ro
+      - ./summeruniversity/openapi.yaml:/usr/share/nginx/html/specs/summeruniversity.yaml:ro
     environment:
-      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}, {url: './specs/events.yaml', name: 'events'}]"
+      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}, {url: './specs/events.yaml', name: 'events'}, {url: './specs/summeruniversity.yaml', name: 'summeruniversity'}]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger
