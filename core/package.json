@@ -49,10 +49,7 @@
       "middlewares/**/*.js",
       "!lib/run.js",
       "!lib/sequelize.js",
-      "!lib/logger.js",
-      "!lib/fs.js",
-      "!lib/merge.js",
-      "!lib/errors.js"
+      "!lib/logger.js"
     ],
     "reporters": [
       "default",
