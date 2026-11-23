@@ -316,7 +316,7 @@ export default {
       // also checking if there's an entry with a board comment but without user (pointless)
       for (const entry of this.bodyStatuses) {
         if (!entry.user_id && entry.board_comment) {
-          return this.$root.showWarning('You\'ve specified a board comment but didn\'t select an appplication for it. Either remove the board comment or select an applicant for it.')
+          return this.$root.showWarning('You\'ve specified a board comment but didn\'t select an application for it. Either remove the board comment or select an applicant for it.')
         }
       }
 
