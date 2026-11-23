@@ -73,7 +73,7 @@
               </tr>
               <tr v-show="isLoading">
                 <td colspan="8" class="has-text-centered">
-                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" title="Loading" />
+                  <font-awesome-icon style="font-size:24px" icon="spinner" spin title="Loading" />
                 </td>
               </tr>
             </tbody>
