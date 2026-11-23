@@ -4,7 +4,11 @@
       <div class="tile is-child">
         <h1 class="title">Mass mailer</h1>
 
-        <form @submit.prevent="sendMassMailer()">
+        <div class="notification is-danger" v-if="event && !event.permissions.use_massmailer">
+          You are not allowed to use the mass mailer of this event.
+        </div>
+
+        <form @submit.prevent="sendMassMailer()" v-if="event && event.permissions.use_massmailer">
           <div class="tile is-parent">
             <div class="tile is-child">
 
@@ -145,6 +149,7 @@ export default {
       participant_type: null,
       subject: '',
       reply_to: '',
+      event: null,
       isSending: false,
       stabUser: {
         first_name: 'Name',
@@ -204,7 +209,18 @@ export default {
     }
   },
   mounted () {
+    // The form is only for those who may use it.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
+      this.event = response.data.data
+    }).catch((err) => {
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
+      this.$router.push({ name: 'oms.statutory.list.all' })
+    })
   }
 }
 </script>
