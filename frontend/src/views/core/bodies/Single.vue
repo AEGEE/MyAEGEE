@@ -522,7 +522,7 @@ export default {
           this.$root.showSuccess('You are not the member anymore.')
         })
         .catch((err) => {
-          this.$root.showError('Could not delete body', err)
+          this.$root.showError('Could not leave body', err)
         })
     }
   },
