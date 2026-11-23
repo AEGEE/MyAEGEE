@@ -253,12 +253,13 @@ const Event = sequelize.define(
                         throw new Error('At least 1 organizer should be presented.');
                     }
 
-                    /* istanbul ignore next -- lib/events.js rebuilds every organizer from core before validation */
                     for (const organizer of value) {
+                        /* istanbul ignore if -- lib/events.js builds every organizer as an object */
                         if (typeof organizer !== 'object' || organizer === null) {
                             throw new Error('Organizer is malformed.');
                         }
 
+                        /* istanbul ignore if -- lib/events.js accepts only positive whole numbers as user_id */
                         if (!organizer.user_id || typeof organizer.user_id !== 'number') {
                             throw new Error('user_id is malformed.');
                         }
@@ -271,6 +272,7 @@ const Event = sequelize.define(
                             throw new Error('last_name is malformed.');
                         }
 
+                        /* istanbul ignore if -- lib/events.js keeps a comment only when it is a string */
                         if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
                             throw new Error('comment is malformed.');
                         }

@@ -124,6 +124,17 @@ describe('Events application creating', () => {
         expect(res.body.errors).toHaveProperty('first_name');
     });
 
+    it('should return 422 if core gives a user id that is not a number', async () => {
+        callers.asSuperadminWith({ id: 'not-a-number' });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('user_id');
+        expect(await Application.count()).toEqual(0);
+    });
+
     it('should return 422 if core has no first name for the applicant', async () => {
         callers.asSuperadminWith({ first_name: '' });
         const event = await openEvent();

@@ -36,5 +36,15 @@ exports.asSuperadminWith = (user, options = {}) => {
     return stubs;
 };
 
+// Replaces the GET /members/:id answer of mockAll() (`stubs`) with the superadmin, changed by `user`.
+exports.withMember = (stubs, user) => {
+    nock.removeInterceptor(stubs.omsCoreMemberStub.interceptors[0]);
+    nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/members\/[0-9]+/)
+        .reply(200, { success: true, data: { ...superadmin, ...user } });
+    return stubs;
+};
+
 // An organizer entry as the events store it.
 exports.organizer = (user) => ({ user_id: user.id, first_name: 'Organizer', last_name: 'Test' });

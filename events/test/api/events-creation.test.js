@@ -129,6 +129,17 @@ describe('Events creation', () => {
         expect(res.body.data.meals_per_day).toEqual(2);
     });
 
+    test.each(['first_name', 'last_name'])('should return 422 if core has no %s for an organizer', async (field) => {
+        callers.withMember(mock.mockAll(), { [field]: '' });
+        const before = await Event.count();
+
+        const res = await createEvent(validEvent());
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('organizers');
+        expect(await Event.count()).toEqual(before);
+    });
+
     it('should store the URL in lower case without spaces', async () => {
         const res = await createEvent(validEvent({ url: ' My-Event ' }));
 

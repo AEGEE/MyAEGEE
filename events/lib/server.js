@@ -103,7 +103,6 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-        /* istanbul ignore next -- only for a server error after listen() succeeded */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
