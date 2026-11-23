@@ -28,6 +28,7 @@ describe('Categories creation', () => {
 
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('You are not allowed to create categories.');
     });
 
     test('should succeed if everything is okay', async () => {
