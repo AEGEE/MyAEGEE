@@ -336,6 +336,8 @@ export default {
 
       this.axios.post(url, body).then(() => {
         this.$root.showSuccess('Participants info is successfully updated.')
+        // The places as statutory has them now, also in the list of applications.
+        this.fetchBoardview()
       }).catch((err) => {
         if (err.response && err.response.data.errors) {
           this.errors = err.response.data.errors
