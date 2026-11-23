@@ -531,6 +531,18 @@ const Event = sequelize.define(
     }
 );
 
+// The date validators compare dates with each other, but on update Sequelize only validates
+// the attributes that changed. When one of the dates changes, validate all of them, so a
+// partial edit cannot put them out of order.
+const DATE_FIELDS = ['application_starts', 'application_ends', 'starts', 'ends'];
+Event.beforeValidate((event, options) => {
+    if (!Array.isArray(options.skip) || DATE_FIELDS.every((field) => options.skip.includes(field))) {
+        return;
+    }
+
+    options.skip = options.skip.filter((field) => !DATE_FIELDS.includes(field));
+});
+
 Event.beforeValidate(async (event) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
