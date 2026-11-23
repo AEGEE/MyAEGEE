@@ -177,4 +177,39 @@ describe('Request bodies', () => {
             expect(res.statusCode).toEqual(200);
         });
     });
+
+    // The server takes a number where a text belongs and stores it as a text. The answer
+    // shows what is stored, not what was sent.
+    describe('a number where a text belongs', () => {
+        test.each(ROUTES.filter((route) => !route.multipart))('$title answers with what is stored', async (route) => {
+            const valid = route.body(data);
+            const wrong = [];
+
+            for (const field of Object.keys(valid).filter((key) => typeof valid[key] === 'string')) {
+                const res = await send(route, { ...route.body(data), [field]: 5 });
+                const answered = res.statusCode === 200 && res.body.data ? res.body.data[field] : undefined;
+
+                if (typeof answered !== 'undefined' && typeof answered !== 'string') {
+                    wrong.push({ field, answered });
+                }
+            }
+
+            expect(wrong).toEqual([]);
+        });
+
+        test('PUT /bodies/:body_id/members/:membership_id still answers with the member and their computed fields', async () => {
+            const route = ROUTES.find((item) => item.title === 'PUT /bodies/:body_id/members/:membership_id');
+
+            const res = await send(route, { comment: 'A comment' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.comment).toEqual('A comment');
+            expect(res.body.data.user).toEqual(expect.objectContaining({
+                id: data.member.id,
+                email: 'member@example.com',
+                notification_email: 'member@example.com'
+            }));
+            expect(res.body.data.user).not.toHaveProperty('password');
+        });
+    });
 });
