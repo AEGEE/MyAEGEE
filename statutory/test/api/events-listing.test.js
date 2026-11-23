@@ -383,4 +383,23 @@ describe('Events listing', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].latest_event).toEqual(previousEvent.ends.toISOString());
     });
+
+    test.each([
+        ['/', { starts: 'not-a-date' }, 'starts'],
+        ['/', { ends: 'not-a-date' }, 'ends'],
+        ['/', { starts: ['2018-01-01', '2019-01-01'] }, 'starts'],
+        ['/recents', { ends: 'not-a-date' }, 'ends']
+    ])('should return 400 on %s if the date in %j is invalid', async (path, query, field) => {
+        const res = await request({
+            path,
+            query,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(`The "${field}" date is invalid, it should be in the YYYY-MM-DD format.`);
+        expect(res.body).not.toHaveProperty('data');
+    });
 });
