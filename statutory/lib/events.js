@@ -6,14 +6,6 @@ const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
 const { Event, Image, Application } = require('../models');
 
-function hasManageApplicationPermission(corePermissions, eventType) {
-    if (!Array.isArray(corePermissions)) {
-        return false;
-    }
-
-    return corePermissions.some((permission) => permission.combined.endsWith('manage_applications:' + eventType));
-}
-
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event[req.body.type]) {
         return errors.makeForbiddenError(res, 'You are not allowed to create events of this type.');
@@ -242,7 +234,7 @@ exports.listUserAppliedEvents = async (req, res) => {
         }
 
         if (helpers.shouldHideApplicationStatus(event, {
-            change_status: hasManageApplicationPermission(req.corePermissions, event.type)
+            change_status: helpers.hasPermission(req.corePermissions, 'global:manage_applications:' + event.type)
         })) {
             event.applications[0].status = 'pending';
         }
