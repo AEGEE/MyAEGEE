@@ -419,7 +419,7 @@
                 <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
               </td>
               <td>
-                <button class="button is-danger" @click="deleteLocation(index)" :aria-label="'Delete location ' + (index + 1)">Delete location</button>
+                <button type="button" class="button is-danger" @click="deleteLocation(index)" :aria-label="'Delete location ' + (index + 1)">Delete location</button>
               </td>
             </tr>
             <tr v-if="event.locations.length === 0">
