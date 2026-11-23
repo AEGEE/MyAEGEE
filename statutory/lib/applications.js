@@ -33,6 +33,26 @@ function canListFutureApplicationsForBan(corePermissions) {
         && corePermissions.some((permission) => permission.combined === 'global:update_application_ban:member');
 }
 
+// The board comment is for those who select the participants: the board of the applicant's
+// body, those who approve members of all bodies and those who manage applications.
+function canSeeBoardComment(req, application) {
+    return Boolean(
+        req.permissions.manage_applications
+        || req.permissions.see_boardview.global
+        || req.permissions.see_boardview[application.body_id]
+    );
+}
+
+// The application as the caller may see it: the applicant does not get the board comment.
+function presentApplication(req, application) {
+    const presented = application.toJSON();
+    if (!canSeeBoardComment(req, application)) {
+        delete presented.board_comment;
+    }
+
+    return presented;
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -353,7 +373,7 @@ exports.getApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
-    const application = req.application.toJSON();
+    const application = presentApplication(req, req.application);
     application.editable_bodies = [];
 
     if (req.permissions.edit_application) {
@@ -461,7 +481,7 @@ exports.updateApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.application
+        data: presentApplication(req, req.application)
     });
 };
 
@@ -493,7 +513,7 @@ function setApplicationBoolean(key) {
 
         return res.json({
             success: true,
-            data: dbResult
+            data: presentApplication(req, dbResult)
         });
     };
 }
@@ -802,7 +822,7 @@ exports.postApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: newApplication
+        data: presentApplication(req, newApplication)
     });
 };
 
