@@ -382,4 +382,45 @@ describe('Events listing', () => {
             expect(res.body.data).toEqual([]);
         });
     });
+    describe('invalid filters', () => {
+        const getPath = (path) => request({ path, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        test.each([
+            '/?type=foo',
+            '/?type[a]=regular',
+            '/?season=abc',
+            '/?season=2026.5',
+            '/?starts=garbage',
+            '/?ends=2020-13-45',
+            '/?application_status=true',
+            '/?application_status=maybe',
+            '/?application_status[]=open&application_status[]=maybe',
+            '/mine/organizing?season=abc',
+            '/mine/participating?type=foo',
+            '/recents?ends=garbage'
+        ])('should return 422 for %s', async (path) => {
+            await generator.createEvent();
+
+            const res = await getPath(path);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        test.each([
+            '/?type=pilot',
+            '/?type[]=regular&type[]=pilot',
+            '/?season=2026',
+            '/?starts=2020-01-01&ends=2040-12-31',
+            '/?application_status=open',
+            '/?application_status[]=open&application_status[]=closed',
+            '/recents?ends=2040-12-31T10:00:00.000Z'
+        ])('should accept %s', async (path) => {
+            const res = await getPath(path);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+        });
+    });
 });
