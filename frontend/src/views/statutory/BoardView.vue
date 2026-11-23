@@ -54,7 +54,7 @@
         <div v-show="scope === 'edit' && selectedBody" role="tabpanel" aria-label="Edit boardview">
           <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
             <div class="content">
-              <strong>This errors occured while trying to update the participant:</strong>
+              <strong>These errors occurred while trying to update the participant:</strong>
               <ul>
                 <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
                 <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
