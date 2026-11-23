@@ -119,4 +119,80 @@ describe('Board editing', () => {
         expect(boardFromDB.body_id).toEqual(body.id);
         expect(boardFromDB.message).toEqual('a new text');
     });
+
+    test('should let a board manager of the body edit its board without the view permission', async () => {
+        // The user manages body.id locally, but holds no global permission.
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const board = await generator.createBoard({ body_id: body.id, message: 'some text' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.message).toEqual('a new text');
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB.message).toEqual('a new text');
+    });
+
+    test('should let a board manager of the body who holds the view permission edit its board', async () => {
+        mock.mockAll({ mainPermissions: { viewOnly: true } });
+
+        const board = await generator.createBoard({ body_id: body.id, message: 'some text' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.message).toEqual('a new text');
+    });
+
+    test('should not let a board manager edit a board of another body', async () => {
+        mock.mockAll({ mainPermissions: { viewOnly: true } });
+
+        // The user manages body.id locally; 1337 is not one of their bodies.
+        const board = await generator.createBoard({ body_id: 1337, message: 'some text' });
+
+        const res = await request({
+            path: '/bodies/1337/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB.message).toEqual('some text');
+    });
+
+    test('should not let a member with only the view permission edit a board', async () => {
+        mock.mockAll({ mainPermissions: { viewOnly: true }, managePermissions: { noPermissions: true } });
+
+        const board = await generator.createBoard({ body_id: body.id, message: 'some text' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB.message).toEqual('some text');
+    });
 });
