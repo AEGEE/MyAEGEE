@@ -323,7 +323,7 @@
               </div>
 
               <div class="field">
-                <button type="submit" class="button is-primary">
+                <button type="submit" class="button is-primary" :disabled="isSaving">
                   Save application!
                 </button>
               </div>
@@ -388,7 +388,7 @@
             </div>
 
             <div class="field">
-              <button type="button" class="button is-primary" @click="saveBoard()">
+              <button type="button" class="button is-primary" :disabled="isSaving" @click="saveBoard()">
                 Save board information
               </button>
             </div>
@@ -489,12 +489,15 @@ export default {
       }
 
       this.errors = {}
+      this.isSaving = true
 
       const promise = this.isNew
         ? this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications', this.formFields)
         : this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.formFields)
 
       promise.then((application) => {
+        this.isSaving = false
+
         if (this.selectedMailinglists.length > 0) {
           this.axios.post(this.services['core'] + '/members/' + this.loginUser.id + '/listserv', { mailinglists: this.selectedMailinglists }).then(() => {
             this.$root.showSuccess('Application is saved. Check your email to confirm your subscription to the mailing lists.')
@@ -533,6 +536,7 @@ export default {
       }
 
       this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id + '/board', toServer).then(() => {
+        this.isSaving = false
         this.$root.showSuccess('Application is saved.')
       }).catch((err) => {
         this.isSaving = false
