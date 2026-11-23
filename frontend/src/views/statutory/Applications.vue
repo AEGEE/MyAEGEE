@@ -265,6 +265,8 @@ export default {
         this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
       }).catch((err) => {
         pax.isSaving = false
+        // Showing the status that is still stored.
+        pax.newStatus = pax.status
         this.$root.showError('Could not update participant status', err)
       })
     },
