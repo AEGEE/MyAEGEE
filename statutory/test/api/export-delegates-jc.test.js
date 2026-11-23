@@ -118,4 +118,66 @@ describe('Export Delegates JC', () => {
             'delegate'
         ]);
     });
+
+    test('should name the file after the moment of the export', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
+            method: 'GET',
+            responseType: 'text',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toMatch(/^text\/csv/);
+        expect(res.headers['content-disposition']).toMatch(/^attachment; filename=delegates_jc_\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\.csv$/);
+    });
+
+    describe('who may export', () => {
+        // Unlike the list and the flags of the Juridical Commission, this export is not open
+        // to those who only manage the applications.
+        test.each([
+            ['global:manage_juridical:agora', 200],
+            ['global:manage_applications:agora', 403],
+            ['global:manage_incoming:agora', 403],
+            ['global:update_memberslist_status:agora', 403],
+            ['global:approve_members:agora', 403],
+            ['global:manage_juridical:epm', 403]
+        ])('%s alone answers %i on an Agora', async (permission, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const agora = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({
+                user_id: 2,
+                status: 'accepted',
+                participant_type: 'delegate',
+                body_id: 34,
+                first_name: 'Anna',
+                last_name: 'Applicant'
+            }, agora);
+
+            const res = await request({
+                path: '/events/' + agora.id + '/applications/export/delegates_jc',
+                method: 'GET',
+                responseType: 'text',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(status);
+
+            if (status === 200) {
+                expect(res.body).toEqual([
+                    application.statutory_id,
+                    'test@example.com',
+                    'Anna',
+                    'Applicant',
+                    'ALC',
+                    'delegate'
+                ].join(';'));
+            } else {
+                // No delegate in the refusal.
+                expect(JSON.parse(res.body).success).toEqual(false);
+                expect(res.body).not.toContain('Anna');
+            }
+        });
+    });
 });
