@@ -3,6 +3,7 @@ const moment = require('moment');
 const { startServer, stopServer } = require('../../lib/server');
 const generator = require('../scripts/generator');
 const cron = require('../../lib/cron');
+const logger = require('../../lib/logger');
 const config = require('../../config');
 const { User, RefreshToken } = require('../../models');
 
@@ -87,6 +88,29 @@ describe('Cron testing', () => {
             const ids = usersFromDb.map((u) => u.id);
             expect(ids).toContain(userActivated.id);
             expect(ids).toContain(userWithValidConfirmation.id);
+        });
+    });
+
+    describe('DELETE_NOT_CONFIRMED_USERS logging', () => {
+        test('should log the ids of deleted users, and not their emails', async () => {
+            const user = await generator.createUser({ username: 'unconfirmed-log-marker' });
+            await generator.createMailConfirmation(user, { expires_at: moment().subtract(1, 'day') });
+
+            const written = [];
+            jest.spyOn(logger, 'info').mockImplementation((...args) => {
+                written.push(args);
+            });
+
+            try {
+                await cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS.callback();
+            } finally {
+                jest.restoreAllMocks();
+            }
+
+            const logged = JSON.stringify(written);
+            expect(logged).toContain(`"user_id":${user.id}`);
+            expect(logged).not.toContain(user.email);
+            expect(logged).not.toContain('unconfirmed-log-marker');
         });
     });
 

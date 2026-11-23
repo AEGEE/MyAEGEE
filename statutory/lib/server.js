@@ -48,7 +48,7 @@ server.use(morgan);
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
-    log.error('Unhandled rejection: %s', err.stack);
+    log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
@@ -208,7 +208,8 @@ server.use(middlewares.errorHandler);
 let app;
 async function startServer() {
     return new Promise((res, rej) => {
-        log.info({ config }, 'Starting server with the following config');
+        // Host, port and environment only: the configuration holds passwords and keys.
+        log.info({ host: config.host, port: config.port, env: process.env.NODE_ENV }, 'Starting server');
         const localApp = server.listen(config.port, async (err) => {
             // Express 5 also calls this on startup errors (EADDRINUSE etc.).
             if (err) return rej(err);

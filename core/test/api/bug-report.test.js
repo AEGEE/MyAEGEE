@@ -1,12 +1,14 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const Logger = require('bunyan');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const bugReport = require('../../middlewares/bug-report');
+const log = require('../../lib/logger');
 const config = require('../../config');
 
 const fields = {
@@ -103,6 +105,41 @@ describe('Bug report', () => {
         expect(requestsMock.atlassian.isDone()).toEqual(true);
     });
 
+    it('should log the user id of the reporter, and not their email or the report text', async () => {
+        const user = await generator.createUser({ email: 'notifications@example.com' });
+        const token = await generator.createAccessToken(user);
+        mock.mockAll();
+
+        const written = [];
+        jest.spyOn(log, 'child').mockImplementation((childFields) => {
+            written.push(childFields);
+            return log;
+        });
+        jest.spyOn(Logger.prototype, 'info').mockImplementation((...args) => {
+            written.push(args);
+        });
+
+        try {
+            const res = await request({
+                path: '/bug-report',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                files: {},
+                fields: { summary: fields.summary, description: fields.description }
+            });
+
+            expect(res.statusCode).toEqual(200);
+        } finally {
+            jest.restoreAllMocks();
+        }
+
+        const logged = JSON.stringify(written);
+        expect(logged).toContain(`"user_id":${user.id}`);
+        expect(logged).not.toContain('notifications@example.com');
+        expect(logged).not.toContain(fields.summary);
+        expect(logged).not.toContain(fields.description);
+    });
+
     it('should return 422 with the Atlassian reason if Atlassian rejects the issue', async () => {
         mock.mockAll({ atlassian: { requestError: true } });
 
@@ -116,6 +153,24 @@ describe('Bug report', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual('E-mail field is required');
+    });
+
+    it('should log only the status when Atlassian rejects the issue', async () => {
+        mock.mockAll({ atlassian: { requestError: true } });
+        const errorLog = jest.spyOn(Logger.prototype, 'error');
+
+        try {
+            await request({
+                path: '/bug-report',
+                method: 'POST',
+                files: {},
+                fields
+            });
+        } finally {
+            jest.restoreAllMocks();
+        }
+
+        expect(errorLog).toHaveBeenCalledWith({ atlassian: { status: 400 } }, 'Bug report: Atlassian rejected the issue');
     });
 
     it('should return 502 with a generic reason if Atlassian fails without a reason', async () => {
@@ -148,6 +203,29 @@ describe('Bug report', () => {
         expect(res.statusCode).toEqual(502);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
+    });
+
+    it('should log only the status when Atlassian rejects the screenshot upload', async () => {
+        mock.mockAll({ atlassian: { uploadError: true } });
+        const errorLog = jest.spyOn(Logger.prototype, 'error');
+
+        try {
+            await request({
+                path: '/bug-report',
+                method: 'POST',
+                files: {
+                    screenshots: { path: './test/assets/valid_image.png' }
+                },
+                fields
+            });
+        } finally {
+            jest.restoreAllMocks();
+        }
+
+        expect(errorLog).toHaveBeenCalledWith(
+            { file: 'valid_image.png', atlassian: { status: 500 } },
+            'Bug report: Atlassian rejected the screenshot upload'
+        );
     });
 
     it('should return 502 if Atlassian is unreachable', async () => {
@@ -210,15 +288,23 @@ describe('Bug report', () => {
             expect(res.statusCode).toEqual(200);
         }
 
-        const res = await request({
-            path: '/bug-report',
-            method: 'POST',
-            files: {},
-            fields
-        });
+        const warnLog = jest.spyOn(log, 'warn');
+        let res;
+        try {
+            res = await request({
+                path: '/bug-report',
+                method: 'POST',
+                files: {},
+                fields
+            });
+        } finally {
+            jest.restoreAllMocks();
+        }
 
         expect(res.statusCode).toEqual(429);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
+        // The user id only, not the client address.
+        expect(warnLog).toHaveBeenCalledWith({ user_id: null }, 'Bug report: rate limit exceeded');
     });
 });

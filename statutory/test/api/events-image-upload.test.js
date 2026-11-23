@@ -8,6 +8,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Image } = require('../../models');
 const config = require('../../config');
+const log = require('../../lib/logger');
 
 describe('Events image upload', () => {
     let event;
@@ -316,6 +317,20 @@ describe('Events image upload', () => {
         expect(res.body.message).toEqual('The image should be at most 5 MB.');
         expect(await Image.count()).toEqual(imagesBefore);
         expect(listUploadedFiles()).toEqual([]);
+    });
+
+    it('should log a refused upload through the error serializer', async () => {
+        const errorLog = jest.spyOn(log, 'error');
+
+        await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { buffer: Buffer.alloc(5 * 1024 * 1024 + 1), filename: 'big.png' } }
+        });
+
+        expect(errorLog).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Could not store image');
+        errorLog.mockRestore();
     });
 
     it('should not leave a file with malformed content on disk', async () => {
