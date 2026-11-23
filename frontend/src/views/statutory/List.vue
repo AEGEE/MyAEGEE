@@ -134,6 +134,7 @@ export default {
           return
         }
 
+        this.isLoading = false
         this.$root.showError('Could not fetch statutory events list', err)
       })
     }
