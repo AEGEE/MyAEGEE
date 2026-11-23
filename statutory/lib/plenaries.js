@@ -11,6 +11,9 @@ const helpers = require('./helpers');
 const { Plenary, Attendance, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
+// A sheet name holds at most 31 characters and none of \ / ? * [ ] :
+const toSheetName = (name) => name.replace(/[\\/?*[\]:]/g, '-').slice(0, 31).trim();
+
 // The average of the numbers, 0 if there are none.
 const average = (numbers) => (numbers.length > 0 ? numbers.reduce((acc, val) => acc + val, 0) / numbers.length : 0);
 
@@ -252,7 +255,8 @@ exports.listPlenariesStats = async (req, res) => {
 
     const plenariesSheets = plenaries.map((plenary, index) => {
         return {
-            name: `${index + 1} - ${plenary.name}`, // to prevent duplicate sheets when there's 2 plenaries with the same name
+            // The number prevents duplicate sheets when there's 2 plenaries with the same name.
+            name: toSheetName(`${index + 1} - ${plenary.name}`),
             data: [
                 ['Name', plenary.name],
                 ['Starts at', helpers.beautify(plenary.starts)],
