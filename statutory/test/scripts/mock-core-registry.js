@@ -253,48 +253,6 @@ exports.mockCoreMemberslistPermissions = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-approve-permissions-full.json'));
 };
 
-exports.mockCoreMembers = (options) => {
-    if (options.netError) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members')
-            .reply(500, 'Some random error.');
-    }
-
-    if (options.badResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members')
-            .reply(500, 'Some error happened.');
-    }
-
-    if (options.unsuccessfulResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members')
-            .reply(500, { success: false, message: 'Some error' });
-    }
-
-    if (options.unauthorized) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
-    }
-
-    if (options.empty) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/members')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
-    }
-
-    return nock(`${config.core.url}:${config.core.port}`)
-        .persist()
-        .get('/members')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-members.json'));
-};
-
 exports.mockCoreBodies = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
@@ -367,14 +325,12 @@ exports.mockCoreBody = (options) => {
             .reply(404, { success: false, message: 'Body is not found.' });
     }
 
+    // The user's first body, as a body of another type.
     if (options.type) {
-        const body = regularUser.bodies[0];
-        body.type = options.type;
-
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/^\/bodies\/[0-9].*$/)
-            .reply(500, { success: true, data: body });
+            .reply(200, { success: true, data: { ...regularUser.bodies[0], type: options.type } });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
@@ -583,7 +539,6 @@ exports.mockAll = (options = {}) => {
     const mainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const approvePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
     const memberslistPermissionsStub = exports.mockCoreMemberslistPermissions(options.memberslistPermissions || {});
-    const coreMembersStub = exports.mockCoreMembers(options.members || {});
     const coreBodyMembersStub = exports.mockCoreBodyMembers(options.bodyMembers || {});
     const coreBodiesStub = exports.mockCoreBodies(options.bodies || {});
     const coreBodyStub = exports.mockCoreBody(options.body || {});
@@ -598,7 +553,6 @@ exports.mockAll = (options = {}) => {
         mainPermissionsStub,
         approvePermissionsStub,
         memberslistPermissionsStub,
-        coreMembersStub,
         coreBodiesStub,
         coreBodyStub,
         coreMemberStub,
