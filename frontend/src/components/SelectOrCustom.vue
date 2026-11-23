@@ -1,10 +1,11 @@
 <template>
   <div class="fields">
-    <label class="label">{{ label }}</label>
+    <label class="label" :for="selectId">{{ label }}</label>
     <div class="field has-addons">
       <div class="control">
         <div class="select">
-          <select v-model="selectValue">
+          <select :id="selectId" :value="selectValue" @change="select($event.target.value)">
+            <option value="">Choose…</option>
             <option v-for="(val, index) in values" v-bind:key="index" :value="val">
               {{ val }}
             </option>
@@ -13,7 +14,13 @@
         </div>
       </div>
       <div class="control is-expanded" v-show="selectValue === 'custom'">
-        <input class="input" type="text" :required="required" v-model="customValue" />
+        <input
+          class="input"
+          type="text"
+          :required="required"
+          :aria-label="`${label} (custom)`"
+          :value="customValue"
+          @input="type($event.target.value)" />
       </div>
       <slot name="errors-slot" />
     </div>
@@ -26,27 +33,53 @@ export default {
   props: ['value', 'label', 'values', 'required'],
   data () {
     return {
+      // One of the values, 'custom', or '' while nothing is chosen.
       selectValue: '',
       customValue: ''
     }
   },
-  watch: {
-    selectValue () {
-      this.value = this.selectValue === 'custom' ? this.customValue : this.selectValue
-      this.$emit('input', this.value)
+  computed: {
+    selectId () {
+      return `select-or-custom-${this._uid}`
     },
-    customValue () {
-      this.value = this.customValue
-      this.$emit('input', this.value)
-    },
-    value () {
-      this.selectValue = this.values.includes(this.value) ? this.value : 'custom'
-      this.customValue = this.value
+    current () {
+      return this.selectValue === 'custom' ? this.customValue : this.selectValue
     }
   },
-  mounted () {
-    this.selectValue = this.values.includes(this.value) ? this.value : 'custom'
-    this.customValue = this.value
+  methods: {
+    select (selectValue) {
+      this.selectValue = selectValue
+      this.$emit('input', this.current)
+    },
+    type (customValue) {
+      this.customValue = customValue
+      this.$emit('input', this.current)
+    },
+    show (value) {
+      // What this component just emitted itself: nothing to change.
+      if (value === this.current) {
+        return
+      }
+
+      if (value === null || value === undefined || value === '') {
+        this.selectValue = ''
+        this.customValue = ''
+      } else if (this.values.includes(value)) {
+        this.selectValue = value
+        this.customValue = ''
+      } else {
+        this.selectValue = 'custom'
+        this.customValue = value
+      }
+    }
+  },
+  watch: {
+    value (value) {
+      this.show(value)
+    }
+  },
+  created () {
+    this.show(this.value)
   }
 }
 </script>
