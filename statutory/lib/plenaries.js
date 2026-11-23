@@ -9,6 +9,10 @@ const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { Plenary, Attendance, Application } = require('../models');
+const { Sequelize } = require('./sequelize');
+
+// The average of the numbers, 0 if there are none.
+const average = (numbers) => (numbers.length > 0 ? numbers.reduce((acc, val) => acc + val, 0) / numbers.length : 0);
 
 exports.findPlenary = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.plenary_id))) {
@@ -122,12 +126,20 @@ exports.listPlenariesStats = async (req, res) => {
         include: [Attendance]
     });
 
+    // The statistics are about those who can be marked as attending: delegates and envoys.
     const applications = await Application.findAll({
         where: {
             event_id: req.event.id,
-            participant_type: 'delegate'
+            participant_type: { [Sequelize.Op.in]: ['delegate', 'envoy'] }
         },
         order: [['id', 'ASC']],
+        attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
+    });
+
+    // Everybody who was marked at a plenary, also if their participant type has changed since.
+    const attendeeIds = plenaries.flatMap((plenary) => plenary.attendances.map((attendance) => attendance.application_id));
+    const attendees = await Application.findAll({
+        where: { event_id: req.event.id, id: { [Sequelize.Op.in]: attendeeIds } },
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
 
@@ -169,9 +181,7 @@ exports.listPlenariesStats = async (req, res) => {
                     });
 
                 // aaaand the average percent
-                const avgPercentPerApplication = plenariesAttendanceInPercents
-                    .reduce((acc, val) => acc + val, 0)
-                    / plenariesAttendanceInPercents.length;
+                const avgPercentPerApplication = average(plenariesAttendanceInPercents);
 
                 return [
                     application.id,
@@ -206,28 +216,25 @@ exports.listPlenariesStats = async (req, res) => {
                 .filter((body) => ['antenna', 'contact antenna'].includes(body.type))
                 .map((body) => {
                     // Getting applications for body.
-                    // TODO: refactor (at some point, this is super ugly).
-                    const applicationsForBody = applications.filter((a) => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
+                    const applicationsForBody = applications.filter((a) => a.body_id === body.id);
 
                     // Calculating avg% of visiting for each local.
                     const applicationsAttendances = applicationsForBody
                         .map((application) => {
                             // Calculate avg% per each plenary per each delegate/envoy,
                             // then calculating avg% for all of them to display the avg% per local.
-                            return plenaries.map((plenary) => {
+                            return average(plenaries.map((plenary) => {
                                 const plenaryAttendancesForBody = plenary.attendances.filter((a) => a.application_id === application.id);
 
                                 // Return array of avg% per each plenary.
                                 return (plenaryAttendancesForBody
                                     .map((attendance) => helpers.calculateTimeForPlenary(attendance, plenary))
                                     .reduce((acc, val) => acc + val, 0) * 100) / plenary.duration;
-                            }).reduce((acc, val) => acc + val, 0) / plenaries.length;
+                            }));
                         });
 
                     // Calculating avg% of the whole body.
-                    // Math.max() is for the cases when there are 0 delegates/envoys
-                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0)
-                        / Math.max(applicationsAttendances.length, 1);
+                    const totalAverageAttendance = average(applicationsAttendances);
 
                     return [
                         body.id,
@@ -264,7 +271,7 @@ exports.listPlenariesStats = async (req, res) => {
                 // attendances data
                 ...plenary.attendances.map((attendance) => {
                     const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
-                    const application = applications.find((a) => a.id === attendance.application_id);
+                    const application = attendees.find((a) => a.id === attendance.application_id);
 
                     return [
                         application.id,
