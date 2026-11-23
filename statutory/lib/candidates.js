@@ -56,9 +56,13 @@ exports.findCandidate = async (req, res, next) => {
 };
 
 exports.getMyCandidatures = async (req, res) => {
+    // The user's candidatures for the positions of this event.
     const candidatures = await Candidate.findAll({
         where: { user_id: req.user.id },
-        include: [Position, Image]
+        include: [
+            { model: Position, where: { event_id: req.event.id, deleted: false }, required: true },
+            Image
+        ]
     });
 
     return res.json({
