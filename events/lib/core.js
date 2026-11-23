@@ -71,13 +71,15 @@ const fetchUser = async (user, adminToken) => {
     };
 };
 
-const fetchApplicationUser = async (user) => {
-    const adminToken = await getAdminToken();
+// Fetches an applicant with the service account. Pass `adminToken` (from getAdminToken)
+// when fetching several applicants, so that the service logs in only once.
+const fetchApplicationUser = async (user, adminToken) => {
+    const token = adminToken || await getAdminToken();
 
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: adminToken,
+        token,
     });
 
     if (typeof userResponse !== 'object') {

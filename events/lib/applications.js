@@ -293,9 +293,11 @@ exports.exportAll = async (req, res) => {
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = Object.keys(headersNames).map((field) => headersNames[field]);
 
+    // One service login for all applicants.
+    const adminToken = applications.length > 0 ? await core.getAdminToken() : null;
     applications = await Promise.all(applications
         .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+            const user = await core.fetchApplicationUser(application.user_id, adminToken);
 
             application.dataValues.notification_email = user.notification_email;
 
