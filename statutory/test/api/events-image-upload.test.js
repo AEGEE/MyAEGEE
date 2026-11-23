@@ -393,4 +393,52 @@ describe('Events image upload', () => {
         expect(list.body.data.length).toEqual(1);
         expect(Object.keys(list.body.data[0].image).sort()).toEqual(IMAGE_FIELDS);
     });
+
+    describe('who may upload the image', () => {
+        test.each(['agora', 'epm', 'spm'])('should let the holder of global:manage_event:%s alone upload the image of such an event', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_event:' + type] } });
+            const typedEvent = await generator.createEvent({ type });
+
+            const res = await request({
+                path: '/events/' + typedEvent.id + '/image',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                files: { image: { path: './test/assets/valid_image.png' } }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(typedEvent.id);
+            expect(res.body.data.image_id).toEqual(res.body.data.image.id);
+            expect(listUploadedFiles()).toEqual([res.body.data.image.file_name]);
+
+            await typedEvent.reload();
+            expect(typedEvent.image_id).toEqual(res.body.data.image.id);
+        });
+
+        test.each([
+            ['agora', ['global:manage_event:epm', 'global:manage_event:spm']],
+            ['epm', ['global:manage_event:agora', 'global:manage_event:spm']],
+            ['spm', ['global:manage_event:agora', 'global:manage_event:epm']],
+            ['agora', ['global:manage_applications:agora', 'global:manage_incoming:agora', 'global:approve_members:agora']]
+        ])('should refuse the image of a published %s from somebody with %j and store nothing', async (type, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+            const typedEvent = await generator.createEvent({ type });
+            const imagesBefore = await Image.count();
+
+            const res = await request({
+                path: '/events/' + typedEvent.id + '/image',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                files: { image: { path: './test/assets/valid_image.png' } }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('You are not allowed to update events of this type.');
+            expect(await Image.count()).toEqual(imagesBefore);
+            expect(listUploadedFiles()).toEqual([]);
+
+            await typedEvent.reload();
+            expect(typedEvent.image_id).toEqual(null);
+        });
+    });
 });

@@ -346,9 +346,9 @@ paths:
       operationId: updateEvent
       summary: Edit an event
       description: |
-        `type`, `status`, `image_id` and `application_status_revealed_at` in the body are
-        ignored. Once the participants list deadline has passed, the edit records the moment
-        the application statuses were revealed.
+        `id`, `type`, `status`, `image_id` and `application_status_revealed_at` in the body
+        are ignored. The first edit at or after the participants list deadline (the stored
+        one, not the one in the edit) records that moment as `application_status_revealed_at`.
       tags: [events]
       x-permission: 'global:manage_event:<type>'
       requestBody:
@@ -423,7 +423,11 @@ paths:
     put:
       operationId: setEventStatus
       summary: Publish an event, or make it a draft again
-      description: Publishing sets `publication_date`. A request without `status` answers 400 before the permission is checked.
+      description: |
+        Publishing sets `publication_date` to the moment of the request, also when the event
+        is published already; making the event a draft leaves the date. A request without
+        `status` (or with a status that is null, empty, 0 or false) answers 400 before the
+        permission is checked.
       tags: [events]
       x-permission: 'global:manage_event:<type>'
       requestBody:
