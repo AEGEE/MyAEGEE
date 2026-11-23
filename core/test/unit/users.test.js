@@ -202,9 +202,9 @@ describe('Users testing', () => {
 
     test('should normalize fields', async () => {
         const data = generator.generateUser({
-            username: '\t\t\tSERGEY\t ',
-            first_name: '  \t Sergey\t  \t',
-            last_name: '\t   \tPeshkov\t\t\t',
+            username: '\t\t\tQUILLON\t ',
+            first_name: '  \t Quillon\t  \t',
+            last_name: '\t   \tExampleton\t\t\t',
             gender: '    male    ',
             email: '\t\tTEST@test.io   ',
             phone: '\t123    ',
@@ -213,9 +213,9 @@ describe('Users testing', () => {
         });
 
         const user = await User.create(data);
-        expect(user.username).toEqual('sergey');
-        expect(user.first_name).toEqual('Sergey');
-        expect(user.last_name).toEqual('Peshkov');
+        expect(user.username).toEqual('quillon');
+        expect(user.first_name).toEqual('Quillon');
+        expect(user.last_name).toEqual('Exampleton');
         expect(user.gender).toEqual('male');
         expect(user.email).toEqual('test@test.io');
         expect(user.phone).toEqual('123');
