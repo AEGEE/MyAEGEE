@@ -130,4 +130,67 @@ describe('Antenna Criteria fulfilment mail', () => {
             expect(sendMailSpy.mock.calls[0][0].from).toEqual('network@aegee.eu');
         });
     });
+
+    describe('input', () => {
+        test.each([
+            ['to', undefined],
+            ['to', ''],
+            ['to', []],
+            ['to', ['board@example.org', '']],
+            ['to', 42],
+            ['subject', undefined],
+            ['subject', ''],
+            ['subject', { text: 'x' }],
+            ['body', undefined],
+            ['body', ''],
+            ['body', ['<p>x</p>']],
+            ['cc', 42],
+            ['cc', [42]],
+            ['reply_to', ['network@aegee.eu']]
+        ])('should reject %s set to %p', async (field, value) => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ [field]: value })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(sendMailSpy).not.toHaveBeenCalled();
+        });
+
+        test('should list every invalid field', async () => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { from: 'x@example.org' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(Object.keys(res.body.errors).sort()).toEqual(['body', 'from', 'subject', 'to']);
+        });
+
+        test.each([
+            ['to', ['board@example.org', 'president@example.org']],
+            ['cc', ''],
+            ['cc', ['netcom@aegee.eu', 'network@aegee.eu']],
+            ['cc', undefined],
+            ['reply_to', ''],
+            ['reply_to', undefined]
+        ])('should accept %s set to %p', async (field, value) => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ [field]: value })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(sendMailSpy).toHaveBeenCalledTimes(1);
+            expect(sendMailSpy.mock.calls[0][0][field]).toEqual(value);
+        });
+    });
 });
