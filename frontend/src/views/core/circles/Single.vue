@@ -3,34 +3,34 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ circle.name }}</p>
+          <h1 class="title">{{ circle.name }}</h1>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Name</th>
+                  <th scope="row">Name</th>
                   <td>{{ circle.name }}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>{{ circle.description }}</td>
                 </tr>
                 <tr>
-                  <th>Body</th>
+                  <th scope="row">Body</th>
                   <td v-if="circle.body"><router-link :to="{ name: 'oms.bodies.view', params: { id: circle.body.id } }">{{ circle.body.name }} </router-link></td>
                   <td v-if="!circle.body"><i>This circle is not associated to a body</i></td>
                 </tr>
                 <tr>
-                  <th>Joinable?</th>
+                  <th scope="row">Joinable?</th>
                   <td>{{ circle.joinable ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
-                  <th>Parent circle</th>
+                  <th scope="row">Parent circle</th>
                   <td v-if="circle.parent_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: circle.parent_circle.id } }">{{ circle.parent_circle.name }} </router-link></td>
                   <td v-if="!circle.parent_circle"><i>This circle is a toplevel circle</i></td>
                 </tr>
                 <tr>
-                  <th>Child circles</th>
+                  <th scope="row">Child circles</th>
                   <td v-if="circle.child_circles.length === 0"><i>This circle does not have child circles.</i></td>
                   <td v-if="circle.child_circles.length > 0">
                     <ul>
@@ -43,7 +43,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Attached permissions</th>
+                  <th scope="row">Attached permissions</th>
                   <td v-if="circle.permissions.length === 0"><i> No permissions directly attached.</i></td>
                   <td v-if="circle.permissions.length > 0" class="circle-permissions-list">
                     <ul>
@@ -56,7 +56,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Inherited permissions</th>
+                  <th scope="row">Inherited permissions</th>
                   <td v-if="inheritedPermissions.length === 0"><i> No permissions inherited.</i></td>
                   <td v-if="inheritedPermissions.length > 0" class="circle-permissions-list">
                     <ul>
@@ -83,21 +83,21 @@
           Edit circle
         </router-link>
 
-        <a class="button is-info" @click="addMemberModal()" v-if="can.addMembers">
+        <button type="button" class="button is-info" @click="addMemberModal()" v-if="can.addMembers">
           Add member
-        </a>
+        </button>
 
         <a class="button is-info" @click="joinCircle()" v-if="can.join && !isMember">
           Join circle
         </a>
 
-        <a class="button is-danger" @click="askLeaveCircle()" v-if="isMember">
+        <button type="button" class="button is-danger" @click="askLeaveCircle()" v-if="isMember">
           Leave circle
-        </a>
+        </button>
 
-        <a class="button is-danger" @click="askDeleteCircle()" v-if="can.delete">
+        <button type="button" class="button is-danger" @click="askDeleteCircle()" v-if="can.delete">
           Delete circle
-        </a>
+        </button>
       </div>
     </div>
 
@@ -146,6 +146,7 @@ export default {
       this.$buefy.modal.open({
         component: AddMemberModal,
         hasModalCard: true,
+        ariaLabel: 'Add member',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
