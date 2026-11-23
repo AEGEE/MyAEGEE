@@ -111,12 +111,44 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeValidationError(res, 'Every code should be at most 255 characters long.');
     }
 
-    const arrayToCreate = codes.map((code) => ({
-        integration_id: req.integration.id,
-        value: code
-    }));
+    // Two members must never be handed the same code, so a code is stored once per integration:
+    // duplicates within the request are dropped, and codes the integration has already refuse
+    // the whole request. The lock on the integration's row makes requests that add codes to it
+    // run one after the other, so two of them cannot both store the same code.
+    const uniqueCodes = [...new Set(codes)];
 
-    await Code.bulkCreate(arrayToCreate, { validate: true });
+    const storedCodes = await sequelize.transaction(async (transaction) => {
+        await Integration.findOne({
+            where: { id: req.integration.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction
+        });
+
+        const existing = await Code.findAll({
+            attributes: ['value'],
+            where: {
+                integration_id: req.integration.id,
+                value: uniqueCodes
+            },
+            transaction
+        });
+
+        if (existing.length > 0) {
+            const existingValues = new Set(existing.map((code) => code.value));
+            return uniqueCodes.filter((code) => existingValues.has(code));
+        }
+
+        await Code.bulkCreate(uniqueCodes.map((code) => ({
+            integration_id: req.integration.id,
+            value: code
+        })), { validate: true, transaction });
+
+        return [];
+    });
+
+    if (storedCodes.length > 0) {
+        return errors.makeValidationError(res, `These codes are stored for this integration already: ${storedCodes.join(', ')}.`);
+    }
 
     return res.json({
         success: true,
