@@ -662,6 +662,14 @@ exports.setOpenCallPeriod = async (req, res) => {
         cancelled: false
     } });
 
+    // Opening the call needs a free spot; without one the call would close again at once.
+    // A maximum that is not a number of at least 0 is left to the model validation.
+    const maxParticipants = req.body.max_participants || req.event.max_participants;
+    const isFull = maxParticipants !== null && Number(maxParticipants) >= 0 && Number(maxParticipants) <= acceptedParticipants;
+    if (req.body.open_call === true && isFull) {
+        return helpers.makeFieldError(res, 'open_call', `The open call needs a free spot: max_participants should be more than the ${acceptedParticipants} accepted participants.`);
+    }
+
     if (req.body.max_participants) {
         req.body = {
             max_participants: req.body.max_participants,
