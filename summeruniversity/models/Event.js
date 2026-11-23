@@ -301,7 +301,7 @@ const Event = sequelize.define(
             defaultValue: 'regular',
             validate: {
                 notEmpty: { msg: 'SU type should be set.' },
-                isOneOf: isOneOf(['regular', 'pilot'], 'SU type should be one of these: normal, pilot.')
+                isOneOf: isOneOf(['regular', 'pilot'], 'SU type should be one of these: regular, pilot.')
             }
         },
         theme_category: {
@@ -310,7 +310,7 @@ const Event = sequelize.define(
             defaultValue: 'leisure',
             validate: {
                 notEmpty: { msg: 'Theme should be set.' },
-                isOneOf: isOneOf(['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.')
+                isOneOf: isOneOf(['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.')
             }
         },
         theme: {
@@ -387,7 +387,7 @@ const Event = sequelize.define(
             // TODO: validate for maximum of 3 questions
                 isValid(value) {
                     if (!Array.isArray(value)) {
-                        throw new Error('Event questions should be an array of strings.');
+                        throw new Error('Event questions should be a list.');
                     }
                 }
             }
@@ -399,7 +399,7 @@ const Event = sequelize.define(
         pax_confirmation: {
             type: Sequelize.ENUM('no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'),
             validate: {
-                isOneOf: isOneOf(['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'], 'Theme should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.')
+                isOneOf: isOneOf(['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'], 'Pax confirmation should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.')
             }
         },
         max_participants: {

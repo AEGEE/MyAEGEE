@@ -239,7 +239,7 @@ const Application = sequelize.define('application', {
         validate: {
             isValid(value) {
                 if (value !== true) {
-                    throw new Error('You should agree to Privacy Policy.');
+                    throw new Error('You should agree to the SU terms.');
                 }
             }
         }
