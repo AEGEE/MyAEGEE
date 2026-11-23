@@ -1,6 +1,7 @@
 const {
     User,
     MailConfirmation,
+    Body,
     BodyMembership,
     Campaign
 } = require('../models');
@@ -94,12 +95,34 @@ exports.getCampaign = async (req, res) => {
     });
 };
 
+// The fields of a campaign from a request body. The body that new members join is looked up:
+// `autojoinBodyError` is set if it's given and not the ID of a body.
+const getCampaignFields = async (body, allowedFields) => {
+    const fields = helpers.whitelistObject(body, [...allowedFields, 'autojoin_body_id']);
+
+    if (fields.autojoin_body_id === undefined || fields.autojoin_body_id === null) {
+        return { fields };
+    }
+
+    const bodyId = helpers.parseId(fields.autojoin_body_id);
+    if (!bodyId || await Body.count({ where: { id: bodyId } }) === 0) {
+        return { autojoinBodyError: { autojoin_body_id: ['The body does not exist.'] } };
+    }
+
+    return { fields: { ...fields, autojoin_body_id: bodyId } };
+};
+
 exports.createCampaign = async (req, res) => {
     if (!req.permissions.hasPermission('global:create:campaign')) {
         return errors.makeForbiddenError(res, 'Permission global:create:campaign is required, but not present.');
     }
 
-    const campaign = await Campaign.create(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE, 'autojoin_body_id']));
+    const { fields, autojoinBodyError } = await getCampaignFields(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE);
+    if (autojoinBodyError) {
+        return errors.makeValidationError(res, autojoinBodyError);
+    }
+
+    const campaign = await Campaign.create(fields);
     return res.json({
         success: true,
         data: campaign
@@ -111,7 +134,12 @@ exports.updateCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update:campaign is required, but not present.');
     }
 
-    await req.currentCampaign.update(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE, 'autojoin_body_id']));
+    const { fields, autojoinBodyError } = await getCampaignFields(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE);
+    if (autojoinBodyError) {
+        return errors.makeValidationError(res, autojoinBodyError);
+    }
+
+    await req.currentCampaign.update(fields);
     return res.json({
         success: true,
         data: req.currentCampaign
