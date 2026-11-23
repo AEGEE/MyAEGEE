@@ -189,10 +189,13 @@ describe('check-codecov-builds (after_n_builds)', () => {
             'b-test': { steps: ['checkout', { 'codecov/upload': { flags: 'b' } }] },
             'c-test': { parallelism: 4, steps: ['checkout'] },
             'nightly-test': { parallelism: 2, steps: ['codecov/upload'] },
-            'stable-test': { parallelism: 2, steps: ['codecov/upload'] }
+            'stable-test': { parallelism: 2, steps: ['codecov/upload'] },
+            'd-test': { parallelism: 2, steps: ['checkout'] },
+            'd-coverage': { steps: ['checkout', { 'codecov/upload': { flags: 'd' } }] }
         },
         workflows: {
             a: { jobs: ['a-test'] },
+            d: { jobs: ['d-test', { 'd-coverage': { requires: ['d-test'] } }] },
             b: { jobs: [{ 'b-test': { filters: { branches: { ignore: 'stable' } } } }, 'c-test'] },
             nightly: { triggers: [{ schedule: { cron: '0 0 * * 5' } }], jobs: ['nightly-test'] },
             release: { jobs: [{ 'stable-test': { filters: { branches: { only: 'stable' } } } }] }
@@ -203,6 +206,20 @@ describe('check-codecov-builds (after_n_builds)', () => {
         const result = checkCodecovBuilds(circle, codecov(4));
         assert.equal(result.ok, true);
         assert.deepEqual(result.uploads.map((u) => `${u.job}:${u.parallelism}`), ['a-test:3', 'b-test:1']);
+    });
+
+    test('does not count the upload of a job that only runs when the jobs it requires passed', () => {
+        // With it the number would be 5, and a failed d-test would leave Codecov waiting for
+        // an upload that never comes: no status at all for a-test and b-test either.
+        const result = checkCodecovBuilds(circle, codecov(4));
+        assert.equal(result.expected, 4);
+        assert.deepEqual(result.extra, [{ job: 'd-coverage', workflow: 'd', parallelism: 1 }]);
+        assert.equal(checkCodecovBuilds(circle, codecov(5)).ok, false);
+
+        // Without `requires` the same job uploads on every push and is waited for.
+        const independent = { ...circle, workflows: { ...circle.workflows, d: { jobs: ['d-test', 'd-coverage'] } } };
+        assert.equal(checkCodecovBuilds(independent, codecov(5)).ok, true);
+        assert.deepEqual(checkCodecovBuilds(independent, codecov(5)).extra, []);
     });
 
     test('fails on a mismatch, naming each wrong value', () => {

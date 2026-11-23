@@ -2,7 +2,11 @@ codecov:
   branch: stable
   require_ci_to_pass: true
   notify:
-    after_n_builds: 25  # 6 test jobs x parallelism 4, plus frontend-coverage; checked by packages/backend-test-utils/check-codecov-builds.js
+    # 6 test jobs x parallelism 4. The upload of frontend-coverage is one more and is not waited
+    # for: that job only runs when the frontend tests passed, and Codecov must report on the
+    # services also when they did not (docs/testing/coverage.md). Checked by
+    # packages/backend-test-utils/check-codecov-builds.js.
+    after_n_builds: 24
 
 coverage:
   status:
@@ -39,7 +43,7 @@ coverage:
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
-  after_n_builds: 25  # checked by packages/backend-test-utils/check-codecov-builds.js
+  after_n_builds: 24  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
 
 component_management:
   individual_components:
