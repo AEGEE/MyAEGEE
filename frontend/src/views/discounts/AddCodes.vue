@@ -43,7 +43,7 @@ export default {
     codes () {
       return this.codesRaw
         .split('\n')
-        .filter(l => l.length > 0)
+        .filter(l => l.trim().length > 0)
     }
   },
   methods: {
