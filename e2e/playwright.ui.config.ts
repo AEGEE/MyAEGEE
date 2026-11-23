@@ -5,7 +5,9 @@
 // Projects:
 //   vue         the Vue app on a desktop viewport: everything except @phone-only tests;
 //   vue-mobile  the same app on a phone (Pixel 7): everything except the axe run (@a11y) and
-//               @desktop-only tests.
+//               @desktop-only tests;
+//   self-check  the suite's check of its own safety nets (ui/harness/self-check.spec.ts), which
+//               runs the tests of ui/harness/must-fail/ once and has no viewport of its own.
 //
 // Build the frontend first: `npm run setup:frontend` (or `npm run setup`, which also does the
 // databases of the real stack).
@@ -14,11 +16,17 @@ import { defineConfig, devices } from '@playwright/test';
 import { PORTS } from './support/constants.ts';
 
 const baseURL = `http://127.0.0.1:${PORTS.mocked}`;
+const SELF_CHECK = /harness\/self-check\.spec\.ts$/;
 
 export default defineConfig({
     testDir: './ui',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
+    // With E2E_COVERAGE=1 a run starts without the coverage files of earlier mocked runs.
+    globalSetup: './support/coverage-setup.ts',
+    metadata: { coverageSuite: 'mocked' },
+    // One retry in CI tells a test that fails sometimes from one that is broken. Neither is
+    // green: the reporter below fails the run for a test that passed only on its retry.
     retries: process.env.CI ? 1 : 0,
     // The CI container sees all the host's CPUs (18 workers on a 4 vCPU `large` executor), which
     // starves the browsers and makes the axe runs time out. Match the executor instead.
@@ -46,13 +54,20 @@ export default defineConfig({
             name: 'vue',
             metadata: { frontend: 'vue', layout: 'desktop' },
             grepInvert: /@phone-only/,
+            testIgnore: SELF_CHECK,
             use: { ...devices['Desktop Chrome'] }
         },
         {
             name: 'vue-mobile',
             metadata: { frontend: 'vue', layout: 'phone' },
             grepInvert: /@a11y|@desktop-only/,
+            testIgnore: SELF_CHECK,
             use: { ...devices['Pixel 7'] }
+        },
+        {
+            name: 'self-check',
+            testMatch: SELF_CHECK,
+            use: { ...devices['Desktop Chrome'] }
         }
     ],
     webServer: {

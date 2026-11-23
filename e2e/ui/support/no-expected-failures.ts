@@ -1,6 +1,11 @@
-// The suite has no expected failures and no skipped tests: a page either works or its test is
-// red. ESLint forbids test.skip, test.fixme and test.fail in ui/; this reporter catches what
-// lint can't see (a skip inside a condition or a loop) and fails the run.
+// The suite has no expected failures, no skipped tests and no flaky tests: a page either works
+// or its test is red. ESLint forbids test.skip, test.fixme and test.fail in ui/; this reporter
+// catches what lint can't see (a skip inside a condition or a loop) and fails the run.
+//
+// CI retries a failed test once (playwright.ui.config.ts), which tells a test that fails
+// sometimes from one that is broken. A test that passed on its retry is "flaky" for Playwright
+// and would leave the run green; here it fails the run and is listed, so it gets fixed
+// instead of being retried for ever.
 //
 // It also lists the tests that opt out of the phone project with @desktop-only, each with the
 // reason its annotation gives, and writes them to test-results-ui/desktop-only.json.
@@ -56,11 +61,12 @@ class NoExpectedFailures implements Reporter {
         const offenders = [
             ...tests.filter((test) => test.expectedStatus !== 'passed').map((test) => `${location(test)} ${title(test)}: ${test.expectedStatus === 'skipped' ? 'skipped' : 'expected to fail'}`),
             ...tests.filter((test) => test.expectedStatus === 'passed' && test.results.length > 0 && test.outcome() === 'skipped').map((test) => `${location(test)} ${title(test)}: skipped`),
+            ...tests.filter((test) => test.outcome() === 'flaky').map((test) => `${location(test)} ${title(test)}: passed only on a retry (flaky)`),
             ...desktopOnly.filter((test) => !test.reason.trim()).map((test) => `${test.file} ${test.title}: @desktop-only without a reason`)
         ];
         if (!offenders.length) return undefined;
 
-        console.error(`\nThe suite has no skipped tests and no expected failures (docs/testing/writing-ui-specs.md), but found ${offenders.length}:`);
+        console.error(`\nThe suite has no skipped tests, no expected failures and no tests that pass only on a retry (docs/testing/writing-ui-specs.md), but found ${offenders.length}:`);
         for (const offender of offenders) console.error(`  ${offender}`);
         return { status: 'failed' };
     }
