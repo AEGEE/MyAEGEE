@@ -65,8 +65,8 @@ const MembersList = sequelize.define('memberslist', {
                     throw error;
                 }
 
-                // eslint-disable-next-line no-param-reassign
-                membersValue = value;
+                // Storing the members as the schema reads them: numbers as numbers, names trimmed.
+                this.setDataValue('members', value);
             }
         },
         get() {
