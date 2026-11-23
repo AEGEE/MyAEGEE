@@ -305,6 +305,14 @@ exports.mockCoreBodies = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
+    // Core knows exactly these bodies.
+    if (options.data) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies')
+            .reply(200, { success: true, data: options.data });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/bodies')
