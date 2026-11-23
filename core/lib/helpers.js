@@ -190,13 +190,6 @@ function getRandomBytes(length) {
     });
 }
 
-function getMailText({ user, mailinglists }) {
-    return `OK BEGIN
-REG ${user.first_name} ${user.last_name}
-SUBSCRIBE ${mailinglists.join('\r\nSUBSCRIBE ')}
-OK END`;
-}
-
 // A helper to add data to gauge Prometheus metric.
 const addGaugeData = (gauge, array) => {
     // reset gauge...
@@ -284,7 +277,6 @@ module.exports = {
     findBy,
     whitelistObject,
     getRandomBytes,
-    getMailText,
     addGaugeData,
     equalsIgnoreCase,
     isRestrictedEmail,

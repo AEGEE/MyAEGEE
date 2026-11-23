@@ -236,16 +236,4 @@ User.prototype.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
 };
 
-/* istanbul ignore next */
-User.prototype.notValidFields = function notValidFields() {
-    const errors = {};
-
-    if (!this.gender) errors.gender = ['Gender should be set.'];
-    if (!this.date_of_birth) errors.date_of_birth = ['Date of birth should be set.'];
-    if (!this.phone) errors.phone = ['Phone should be set.'];
-    if (!this.address) errors.address = ['Address should be set.'];
-
-    return errors;
-};
-
 module.exports = User;
