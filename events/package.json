@@ -44,7 +44,15 @@
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/scripts/mail-contract.js"
-    ]
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 99.6,
+        "functions": 100,
+        "lines": 100
+      }
+    }
   },
   "author": "Nico Westerbeck",
   "license": "ISC",
