@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const { Integration, Code } = require('../models');
-const { Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
@@ -109,39 +109,64 @@ exports.claimCode = async (req, res) => {
         return errors.makeForbiddenError(res, 'Only members of an antenna, contact antenna or contact can claim codes.');
     }
 
-    // Checking if a user has already claimed more codes than available.
-    const startPeriod = moment().startOf(req.integration.quota_period).toDate();
-    const endPeriod = moment().endOf(req.integration.quota_period).toDate();
+    // One transaction per claim, holding a lock on the integration's row: claims of one
+    // integration run one after the other, so the quota count and the free-code lookup
+    // see every claim made before them.
+    const result = await sequelize.transaction(async (transaction) => {
+        const integration = await Integration.findOne({
+            where: { id: req.integration.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction
+        });
 
-    const existingCodes = await Code.count({
-        where: {
-            claimed_by: req.user.id,
-            integration_id: req.integration.id,
-            updated_at: {
-                [Sequelize.Op.gte]: startPeriod,
-                [Sequelize.Op.lte]: endPeriod
-            }
+        /* istanbul ignore if -- only when the integration is deleted while the claim waits for the lock */
+        if (!integration) {
+            return { status: 404, message: 'The integration is not found.' };
         }
+
+        // Checking if a user has already claimed more codes than available.
+        const startPeriod = moment().startOf(integration.quota_period).toDate();
+        const endPeriod = moment().endOf(integration.quota_period).toDate();
+
+        const existingCodes = await Code.count({
+            where: {
+                claimed_by: req.user.id,
+                integration_id: integration.id,
+                updated_at: {
+                    [Sequelize.Op.gte]: startPeriod,
+                    [Sequelize.Op.lte]: endPeriod
+                }
+            },
+            transaction
+        });
+
+        if (existingCodes >= integration.quota_amount) {
+            return { status: 403, message: 'Your quota is exceeded for this integration.' };
+        }
+
+        // Trying to get a free code from DB.
+        const freeCode = await Code.findOne({
+            where: {
+                claimed_by: null,
+                integration_id: integration.id
+            },
+            transaction
+        });
+
+        // There can be cases when there are no free codes anymore.
+        if (!freeCode) {
+            return { status: 403, message: 'There are no codes left. Wait for CD to add them.' };
+        }
+
+        await freeCode.update({ claimed_by: req.user.id }, { transaction });
+        return { code: freeCode };
     });
 
-    if (existingCodes >= req.integration.quota_amount) {
-        return errors.makeForbiddenError(res, 'Your quota is exceeded for this integration.');
+    if (!result.code) {
+        return errors.makeError(res, result.status, result.message);
     }
 
-    // Trying to get a random code from DB.
-    const codeToClaim = await Code.findOne({
-        where: {
-            claimed_by: null,
-            integration_id: req.integration.id
-        }
-    });
-
-    // There can be cases when there are no free codes anymore.
-    if (!codeToClaim) {
-        return errors.makeForbiddenError(res, 'There are no codes left. Wait for CD to add them.');
-    }
-
-    await codeToClaim.update({ claimed_by: req.user.id });
+    const codeToClaim = result.code;
 
     await mailer.sendMail({
         to: req.user.notification_email,
