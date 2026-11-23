@@ -118,7 +118,7 @@
             </div>
           </div>
           <div class="control">
-            <button type="button" class="button is-info" @click="askToJoinBody(tmpBodyId)">Join body</button>
+            <button type="button" class="button is-info" :disabled="!tmpBodyId" @click="askToJoinBody(tmpBodyId)">Join body</button>
           </div>
         </div>
         <p class="help">
@@ -256,12 +256,11 @@ export default {
         })
     },
     getJoinRequestMessage (body) {
-      const contactDetails = body
-        ? [
-          'Local email: ' + this.escapeHtml(body.email),
-          body.website ? 'Website: ' + this.escapeHtml(body.website) : null
-        ].filter(Boolean).join('<br>')
-        : 'Local email: automatically filled after selecting a Local'
+      // A body is always chosen: the button waits for it.
+      const contactDetails = [
+        'Local email: ' + this.escapeHtml(body.email),
+        body.website ? 'Website: ' + this.escapeHtml(body.website) : null
+      ].filter(Boolean).join('<br>')
 
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
