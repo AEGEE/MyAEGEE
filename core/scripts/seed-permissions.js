@@ -192,7 +192,8 @@ const CIRCLE_PERMISSIONS = {
         'local:view_members:circle',
         'global:create:event',
         'local:view:member',
-        'global:apply:summeruniversity'
+        'global:apply:summeruniversity',
+        'global:view:board'
     ],
     // General other board circle: matches production.
     otherBoardCircle: [
