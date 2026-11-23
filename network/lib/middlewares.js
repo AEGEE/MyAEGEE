@@ -90,13 +90,11 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeValidationError(res, err);
     }
 
-    /* istanbul ignore next */
+    /* istanbul ignore next -- Bugsnag reports outside tests only */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err }, 'Unhandled error');
-    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };

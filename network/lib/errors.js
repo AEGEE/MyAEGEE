@@ -19,7 +19,7 @@ exports.makeError = (res, statusCode, err) => {
         return res.status(statusCode).json({
             success: false,
             errors: err.errors.reduce((acc, val) => {
-                // istanbul ignore next
+                // istanbul ignore next -- needs two failing validators on one field, which no model has
                 if (val.path in acc) {
                     acc[val.path].push(val.message);
                 } else {
