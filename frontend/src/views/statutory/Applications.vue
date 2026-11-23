@@ -301,6 +301,8 @@ export default {
         } else {
           this.$root.showError('Some error happened', err)
         }
+
+        this.$router.push({ name: 'oms.statutory.list.all' })
       })
     }
   },
