@@ -103,7 +103,10 @@ export default {
     closeAfterHover () {
       if (!this.userMenuPinned) this.userMenuOpened = false
     },
-    toggleUserMenu () {
+    toggleUserMenu (event) {
+      // The second click of a double-click is not a second decision: without this the menu
+      // would open and close again under the pointer.
+      if (event && event.detail > 1) return
       // A click on a menu that the pointer has just opened (a tap does both) keeps it open.
       const opened = this.userMenuOpened && !this.userMenuPinned ? true : !this.userMenuOpened
       this.userMenuOpened = opened
