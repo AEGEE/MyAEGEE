@@ -537,10 +537,12 @@ export default {
     changeEmail (newEmail) {
       this.axios
         .put(this.services['core'] + '/members/' + this.user.id + '/email', { new_email: newEmail })
-        .then(() => {
-          this.$root.showSuccess(
-            'An email change is triggered. Check your new inbox for a confirmation.'
-          )
+        .then((response) => {
+          // The server tells which addresses have to confirm the change, so showing its message a bit longer.
+          this.$root.showNotification({
+            message: response.data.message || 'An email change is triggered. Check your new inbox for a confirmation.',
+            duration: 10000
+          })
         })
         .catch((err) => {
           this.$root.showError('Error changing user email', err)

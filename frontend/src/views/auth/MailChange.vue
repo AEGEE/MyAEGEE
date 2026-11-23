@@ -3,6 +3,7 @@
     <div class="columns is-vcentered">
       <div class="column is-6 is-offset-3">
         <div class="box">
+          <div class="notification is-info" v-if="notice">{{ notice }}</div>
           <form v-on:submit.prevent="confirmToken">
             <div class="field">
               <label class="label">Token</label>
@@ -20,7 +21,7 @@
 
             <hr />
             <p class="control">
-              <button type="submit" class="button is-primary">Change your email</button>
+              <button type="submit" class="button is-primary">Confirm email change</button>
             </p>
           </form>
         </div>
@@ -37,24 +38,38 @@ export default {
   data () {
     return {
       token: '',
-      error: ''
+      error: '',
+      notice: ''
     }
   },
   computed: mapGetters(['services']),
   methods: {
     confirmToken () {
       this.error = ''
+      this.notice = ''
 
       this.axios
         .post(this.services['core'] + '/confirm-email-change', { token: this.token })
-        .then(() => {
-          this.$root.showSuccess('Your email is changed.')
+        .then((response) => {
+          const result = response.data.data || {}
+
+          // Some changes need a confirmation from both the current and the new address.
+          // Until the other one confirms there's nothing to see on the profile, so staying here.
+          if (result.changed === false) {
+            this.notice = response.data.message
+            return
+          }
+
+          this.$root.showSuccess(response.data.message || 'Your email is changed.')
           return this.$router.push({ name: 'oms.members.view', params: { id: 'me' } })
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {
-            // validation errors
-            return this.$root.showError('The token is invalid.')
+            return this.$root.showError('The token is invalid or expired.')
+          }
+
+          if (err.response && err.response.status === 422 && err.response.data.errors && err.response.data.errors.email) {
+            return this.$root.showError('Could not change email: ' + err.response.data.errors.email.join(', '))
           }
 
           this.$root.showError('Could not change email', err)
