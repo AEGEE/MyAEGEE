@@ -10,7 +10,7 @@
           </div>
         </div>
 
-        <div class="field is-grouped" v-if="can.create">
+        <div class="field is-grouped is-grouped-multiline" v-if="can.create">
           <div class="control">
             <button type="button" @click="openAddMemberModal()" class="button is-primary">Add member</button>
           </div>
