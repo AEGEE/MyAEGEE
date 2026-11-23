@@ -74,6 +74,7 @@ const User = sequelize.define('user', {
     },
     privacy_consent: {
         type: Sequelize.DATE,
+        set: validators.setDate('privacy_consent'),
         allowNull: true,
         validate: {
             isDate: validators.isDate('Privacy consent should be a valid date.')
@@ -107,6 +108,7 @@ const User = sequelize.define('user', {
     },
     date_of_birth: {
         type: Sequelize.DATEONLY,
+        set: validators.setDate('date_of_birth'),
         allowNull: true,
         validate: {
             isDate: validators.isDate('Birthday should be a valid date.'),

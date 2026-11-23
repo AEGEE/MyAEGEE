@@ -1,10 +1,12 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const validators = require('../lib/validators');
 
 const Payment = sequelize.define('payment', {
     starts: {
         type: Sequelize.DATEONLY,
+        set: validators.setDate('starts'),
         allowNull: false,
         defaultValue: '',
         validate: {
@@ -14,6 +16,7 @@ const Payment = sequelize.define('payment', {
     },
     expires: {
         type: Sequelize.DATEONLY,
+        set: validators.setDate('expires'),
         allowNull: false,
         defaultValue: '',
         validate: {

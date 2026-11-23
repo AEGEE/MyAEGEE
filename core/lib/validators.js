@@ -27,6 +27,22 @@ exports.isDate = (message) => function isDate(value) {
     }
 };
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/;
+
+// The setter of a DATE or DATEONLY field that clients fill in. Sequelize reads much more as a
+// date than a client should send ('1' becomes the year 2001, a number a timestamp), and does
+// so before any validator sees the value. So a value that is not a date (2020-01-31), a full
+// ISO timestamp, a Date or nothing is replaced by one that the date validator of the field refuses.
+exports.setDate = (field) => function setDate(value) {
+    const isDate = value instanceof Date
+        || moment.isMoment(value)
+        || (typeof value === 'string' && (ISO_DATE.test(value) || ISO_TIMESTAMP.test(value)));
+    const isNothing = value === null || typeof value === 'undefined' || value === '';
+
+    this.setDataValue(field, isDate || isNothing ? value : 'Invalid date');
+};
+
 // For an ARRAY(STRING) field.
 exports.isListOfTexts = (message) => function isListOfTexts(value) {
     if (isSet(value) && (!Array.isArray(value) || value.some((item) => typeof item !== 'string'))) {

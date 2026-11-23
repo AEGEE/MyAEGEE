@@ -88,6 +88,7 @@ const Body = sequelize.define('body', {
     },
     founded_at: {
         type: Sequelize.DATEONLY,
+        set: validators.setDate('founded_at'),
         allowNull: true,
         defaultValue: null,
         validate: {
