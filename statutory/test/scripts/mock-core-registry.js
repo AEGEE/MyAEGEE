@@ -359,6 +359,14 @@ exports.mockCoreBody = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    // Core does not know the body.
+    if (options.notFound) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/^\/bodies\/[0-9a-zA-Z].*$/)
+            .reply(404, { success: false, message: 'Body is not found.' });
+    }
+
     if (options.type) {
         const body = regularUser.bodies[0];
         body.type = options.type;
