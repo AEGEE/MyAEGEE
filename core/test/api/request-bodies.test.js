@@ -242,7 +242,7 @@ describe('Request bodies', () => {
             const wrong = [];
 
             for (const field of Object.keys(valid).filter((key) => typeof valid[key] === 'string')) {
-                const res = await send(route, { ...route.body(data), [field]: 5 });
+                const res = await sendUnchecked(route, { ...route.body(data), [field]: 5 });
                 const answered = res.statusCode === 200 && res.body.data ? res.body.data[field] : undefined;
 
                 if (typeof answered !== 'undefined' && typeof answered !== 'string') {

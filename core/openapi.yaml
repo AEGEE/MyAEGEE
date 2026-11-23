@@ -178,6 +178,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/Busy'}
   /login:
     post:
       operationId: login
@@ -324,6 +325,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/Busy'}
   /bodies:
     get:
       operationId: listBodies
@@ -982,6 +984,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/Busy'}
   /members/{user_id}/password:
     parameters:
       - $ref: '#/components/parameters/UserId'
@@ -2599,6 +2602,7 @@ components:
     BadSort: {description: 'A `sort` field that the listed rows do not have.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Busy: {description: 'Another request for the same token or member is being processed for longer than the lock timeout (3 seconds). Nothing was changed; try again.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   schemas:
@@ -2880,13 +2884,13 @@ components:
       description: The profile fields of a member. Unknown fields are ignored.
       type: object
       properties:
-        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case.'}
-        first_name: {type: string}
-        last_name: {type: string}
+        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming.'}
+        first_name: {type: string, description: 'At most 255 characters after trimming.'}
+        last_name: {type: string, description: 'At most 255 characters after trimming.'}
         date_of_birth: {type: [string, 'null'], description: A date in the past. An empty string unsets it.}
-        gender: {type: [string, 'null']}
-        gsuite_id: {type: [string, 'null'], description: 'An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`.'}
-        phone: {type: [string, 'null']}
+        gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        gsuite_id: {type: [string, 'null'], description: 'An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`. At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
         privacy_consent: {type: [string, 'null'], description: The date and time of the consent.}
         address: {type: [string, 'null']}
         about_me: {type: [string, 'null']}
@@ -2897,14 +2901,14 @@ components:
       type: object
       required: [username, email, first_name, last_name]
       properties:
-        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case.'}
-        email: {type: string, description: 'The login email. Not on aegee.org or aegee.eu.'}
-        password: {type: string, minLength: 8}
-        first_name: {type: string}
-        last_name: {type: string}
+        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming.'}
+        email: {type: string, description: 'The login email. Not on aegee.org or aegee.eu. At most 255 characters after trimming.'}
+        password: {type: string, minLength: 8, maxLength: 255}
+        first_name: {type: string, description: 'At most 255 characters after trimming.'}
+        last_name: {type: string, description: 'At most 255 characters after trimming.'}
         date_of_birth: {type: [string, 'null'], description: A date in the past.}
-        gender: {type: [string, 'null']}
-        phone: {type: [string, 'null']}
+        gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
         privacy_consent: {type: [string, 'null'], description: The date and time of the consent.}
         address: {type: [string, 'null']}
         about_me: {type: [string, 'null']}
@@ -3071,23 +3075,23 @@ components:
       description: The fields of a body. Unknown fields are ignored.
       type: object
       properties:
-        name: {type: string}
+        name: {type: string, maxLength: 255}
         description: {type: string}
         task_description: {type: [string, 'null']}
         code: {type: string, description: Three letters. Stored in upper case.}
-        abbreviation: {type: [string, 'null']}
-        email: {type: string}
-        phone: {type: [string, 'null']}
+        abbreviation: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        email: {type: string, description: 'At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], maxLength: 255}
         address: {type: [string, 'null']}
         postal_address: {type: [string, 'null']}
         type: {$ref: '#/components/schemas/BodyType'}
-        fee_currency: {type: [string, 'null']}
+        fee_currency: {type: [string, 'null'], maxLength: 255}
         pays_fees: {type: boolean}
         founded_at: {type: [string, 'null'], description: 'A date. Required for antennae, contact antennae and contacts.'}
-        country: {type: [string, 'null']}
-        website: {type: [string, 'null'], description: An http or https address.}
-        gsuite_id: {type: [string, 'null']}
-        google_group: {type: [string, 'null']}
+        country: {type: [string, 'null'], maxLength: 255}
+        website: {type: [string, 'null'], maxLength: 255, description: An http or https address.}
+        gsuite_id: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        google_group: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
         shadow_circle_id: {type: [integer, string, 'null'], description: A circle of this body. Only on update.}
       additionalProperties: true
     BodyCreateInput:
@@ -3237,7 +3241,7 @@ components:
         starts: {type: string, description: A date.}
         expires: {type: string, description: A date after `starts`.}
         amount: {type: [string, number], description: Not negative.}
-        currency: {type: string}
+        currency: {type: string, description: 'At most 255 characters after trimming.'}
         comment: {type: [string, 'null']}
         invoice_name: {type: [string, 'null']}
         invoice_address: {type: [string, 'null']}
@@ -3338,9 +3342,9 @@ components:
       description: The fields of a circle. Unknown fields are ignored.
       type: object
       properties:
-        name: {type: string}
+        name: {type: string, description: 'At most 255 characters after trimming.'}
         description: {type: string}
-        gsuite_id: {type: [string, 'null'], description: Only on update.}
+        gsuite_id: {type: [string, 'null'], description: 'Only on update. At most 255 characters after trimming.'}
       additionalProperties: true
     CircleCreateInput:
       type: object
@@ -3505,8 +3509,8 @@ components:
       type: object
       properties:
         scope: {$ref: '#/components/schemas/PermissionScope'}
-        action: {type: string, description: Stored in lower case.}
-        object: {type: string, description: Stored in lower case.}
+        action: {type: string, description: 'Stored in lower case. At most 255 characters after trimming.'}
+        object: {type: string, description: 'Stored in lower case. At most 255 characters after trimming.'}
         description: {type: string}
         filters:
           type: array
@@ -3630,8 +3634,8 @@ components:
       description: The fields of a signup campaign. Unknown fields are ignored.
       type: object
       properties:
-        name: {type: string}
-        url: {type: string, description: Stored in lower case. Unique.}
+        name: {type: string, description: 'At most 255 characters after trimming.'}
+        url: {type: string, description: 'Stored in lower case. Unique. At most 255 characters after trimming.'}
         active: {type: boolean}
         description_short: {type: [string, 'null']}
         description_long: {type: string}
@@ -3700,7 +3704,7 @@ components:
       description: The fields of a section. Unknown fields are ignored; the position is set with the order operation.
       type: object
       properties:
-        name: {type: string, maxLength: 100}
+        name: {type: string, description: 'At most 100 characters after trimming.'}
         theme: {$ref: '#/components/schemas/ResourceTheme'}
       additionalProperties: true
     ResourceCategoryCreateInput:
@@ -3749,9 +3753,9 @@ components:
       type: object
       properties:
         category_id: {type: [integer, string], description: The section of the link.}
-        title: {type: string, maxLength: 100}
-        description: {type: string, maxLength: 255}
-        url: {type: string, maxLength: 2048, description: 'A MyAEGEE path starting with `/`, or an http or https address.'}
+        title: {type: string, description: 'At most 100 characters after trimming.'}
+        description: {type: string, description: 'At most 255 characters after trimming.'}
+        url: {type: string, description: 'A MyAEGEE path starting with `/`, or an http or https address. At most 2048 characters after trimming.'}
       additionalProperties: true
     ResourceLinkCreateInput:
       type: object

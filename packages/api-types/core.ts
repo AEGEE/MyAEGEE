@@ -1669,15 +1669,19 @@ export interface components {
         };
         /** @description The profile fields of a member. Unknown fields are ignored. */
         UserInput: {
-            /** @description Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. */
+            /** @description Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming. */
             username?: string;
+            /** @description At most 255 characters after trimming. */
             first_name?: string;
+            /** @description At most 255 characters after trimming. */
             last_name?: string;
             /** @description A date in the past. An empty string unsets it. */
             date_of_birth?: string | null;
+            /** @description At most 255 characters after trimming. */
             gender?: string | null;
-            /** @description An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`. */
+            /** @description An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`. At most 255 characters after trimming. */
             gsuite_id?: string | null;
+            /** @description At most 255 characters after trimming. */
             phone?: string | null;
             /** @description The date and time of the consent. */
             privacy_consent?: string | null;
@@ -1689,16 +1693,20 @@ export interface components {
         };
         /** @description The fields of a new account. Unknown fields are ignored. */
         UserCreateInput: {
-            /** @description Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. */
+            /** @description Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming. */
             username: string;
-            /** @description The login email. Not on aegee.org or aegee.eu. */
+            /** @description The login email. Not on aegee.org or aegee.eu. At most 255 characters after trimming. */
             email: string;
             password?: string;
+            /** @description At most 255 characters after trimming. */
             first_name: string;
+            /** @description At most 255 characters after trimming. */
             last_name: string;
             /** @description A date in the past. */
             date_of_birth?: string | null;
+            /** @description At most 255 characters after trimming. */
             gender?: string | null;
+            /** @description At most 255 characters after trimming. */
             phone?: string | null;
             /** @description The date and time of the consent. */
             privacy_consent?: string | null;
@@ -1832,7 +1840,9 @@ export interface components {
             task_description?: string | null;
             /** @description Three letters. Stored in upper case. */
             code?: string;
+            /** @description At most 255 characters after trimming. */
             abbreviation?: string | null;
+            /** @description At most 255 characters after trimming. */
             email?: string;
             phone?: string | null;
             address?: string | null;
@@ -1845,7 +1855,9 @@ export interface components {
             country?: string | null;
             /** @description An http or https address. */
             website?: string | null;
+            /** @description At most 255 characters after trimming. */
             gsuite_id?: string | null;
+            /** @description At most 255 characters after trimming. */
             google_group?: string | null;
             /** @description A circle of this body. Only on update. */
             shadow_circle_id?: number | string | null;
@@ -1976,6 +1988,7 @@ export interface components {
             expires?: string;
             /** @description Not negative. */
             amount?: string | number;
+            /** @description At most 255 characters after trimming. */
             currency?: string;
             comment?: string | null;
             invoice_name?: string | null;
@@ -2036,9 +2049,10 @@ export interface components {
         } & components["schemas"]["CircleFields"];
         /** @description The fields of a circle. Unknown fields are ignored. */
         CircleInput: {
+            /** @description At most 255 characters after trimming. */
             name?: string;
             description?: string;
-            /** @description Only on update. */
+            /** @description Only on update. At most 255 characters after trimming. */
             gsuite_id?: string | null;
         } & {
             [key: string]: unknown;
@@ -2162,9 +2176,9 @@ export interface components {
         /** @description The fields of a permission. Unknown fields are ignored. */
         PermissionInput: {
             scope?: components["schemas"]["PermissionScope"];
-            /** @description Stored in lower case. */
+            /** @description Stored in lower case. At most 255 characters after trimming. */
             action?: string;
-            /** @description Stored in lower case. */
+            /** @description Stored in lower case. At most 255 characters after trimming. */
             object?: string;
             description?: string;
             filters?: string[];
@@ -2247,8 +2261,9 @@ export interface components {
         };
         /** @description The fields of a signup campaign. Unknown fields are ignored. */
         CampaignInput: {
+            /** @description At most 255 characters after trimming. */
             name?: string;
-            /** @description Stored in lower case. Unique. */
+            /** @description Stored in lower case. Unique. At most 255 characters after trimming. */
             url?: string;
             active?: boolean;
             description_short?: string | null;
@@ -2307,6 +2322,7 @@ export interface components {
         };
         /** @description The fields of a section. Unknown fields are ignored; the position is set with the order operation. */
         ResourceCategoryInput: {
+            /** @description At most 100 characters after trimming. */
             name?: string;
             theme?: components["schemas"]["ResourceTheme"];
         } & {
@@ -2348,9 +2364,11 @@ export interface components {
         ResourceLinkInput: {
             /** @description The section of the link. */
             category_id?: number | string;
+            /** @description At most 100 characters after trimming. */
             title?: string;
+            /** @description At most 255 characters after trimming. */
             description?: string;
-            /** @description A MyAEGEE path starting with `/`, or an http or https address. */
+            /** @description A MyAEGEE path starting with `/`, or an http or https address. At most 2048 characters after trimming. */
             url?: string;
         } & {
             [key: string]: unknown;
@@ -2392,6 +2410,15 @@ export interface components {
         };
         /** @description Authenticated but not allowed (see x-permission). */
         Forbidden: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description Another request for the same token or member is being processed for longer than the lock timeout (3 seconds). Nothing was changed; try again. */
+        Busy: {
             headers: {
                 [name: string]: unknown;
             };
@@ -2638,6 +2665,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            503: components["responses"]["Busy"];
         };
     };
     login: {
@@ -2829,6 +2857,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            503: components["responses"]["Busy"];
         };
     };
     listBodies: {
@@ -3713,6 +3742,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            503: components["responses"]["Busy"];
         };
     };
     setMemberPassword: {
