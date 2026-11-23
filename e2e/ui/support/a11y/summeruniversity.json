@@ -9,17 +9,17 @@
   "oms.summeruniversity.create": {
     "color-contrast": 36,
     "label": 12,
-    "select-name": 5
+    "select-name": 7
   },
   "oms.summeruniversity.edit": {
     "color-contrast": 23,
     "label": 12,
-    "select-name": 4
+    "select-name": 6
   },
   "oms.summeruniversity.edit_second": {
     "color-contrast": 23,
     "label": 5,
-    "select-name": 2
+    "select-name": 3
   },
   "oms.summeruniversity.list.all": {
     "color-contrast": 5,
