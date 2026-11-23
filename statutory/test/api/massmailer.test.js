@@ -305,6 +305,29 @@ describe('Massmailer', () => {
         expect(res.body.message).toMatch(/status/);
     });
 
+    test.each([
+        ['an unknown status', { status: 'unknown' }],
+        ['an empty status', { status: '' }],
+        ['a flag that is not a boolean', { confirmed: 'maybe' }],
+        ['an unknown participant type', { participant_type: 'chair' }],
+        ['a list with an unknown status', { status: ['accepted', 'unknown'] }]
+    ])('should fail if the filter has %s', async (name, filter) => {
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toMatch(new RegExp(Object.keys(filter)[0]));
+    });
+
     test('should accept a list of values in the filter', async () => {
         const res = await request({
             path: '/events/' + event.id + '/massmailer/',

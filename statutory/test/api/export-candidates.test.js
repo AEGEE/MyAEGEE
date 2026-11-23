@@ -172,6 +172,25 @@ describe('Export candidates', () => {
         expect(sheet[1][0]).toEqual(candidate.id);
     });
 
+    test('should return 400 if the filter has a status candidates cannot have', async () => {
+        const res = await request({
+            path: '/events/' + event.id + '/positions/export',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: constants.CANDIDATE_FIELDS,
+                filter: { status: 'accepted' }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(/approved, rejected, pending/);
+    });
+
     test('should return 400 if the filter has a field other than the supported ones', async () => {
         const position = await generator.createPosition({}, event);
         await generator.createCandidate({ status: 'approved' }, position);

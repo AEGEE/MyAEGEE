@@ -380,6 +380,27 @@ describe('Export all', () => {
         expect(body.message).toMatch(/status/);
     });
 
+    test.each([
+        ['an unknown status', 'filter[status]=unknown', 'status'],
+        ['an empty status', 'filter[status]=', 'status'],
+        ['a flag that is not a boolean', 'filter[confirmed]=maybe', 'confirmed'],
+        ['an unknown participant type', 'filter[participant_type]=chair', 'participant_type']
+    ])('should return 400 if the filter has %s', async (name, query, field) => {
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?' + query,
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: { select: Object.keys(helpers.getApplicationFields(event)) }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(new RegExp(field));
+    });
+
     test('should ignore the passed filter on /incoming', async () => {
         const otherEvent = await generator.createEvent({ applications: [] });
         await generator.createApplication({
