@@ -360,13 +360,13 @@ export default {
   },
   methods: {
     parseDate (date) {
-      return moment(date, 'YYYY-MM-DD').toDate()
+      return date ? moment(date, 'YYYY-MM-DD').toDate() : null
     },
     formatDate (date) {
       return moment(date).format('YYYY-MM-DD')
     },
     transformFoundedAt () {
-      this.body.founded_at = moment(this.foundationDate).format('YYYY-MM-DD')
+      this.body.founded_at = this.foundationDate ? moment(this.foundationDate).format('YYYY-MM-DD') : null
     },
     saveBody () {
       if (
