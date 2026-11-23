@@ -969,7 +969,7 @@ exports.exportOpenslides = async (req, res) => {
             1, // Is present
             0, // Is committee
             password,
-            user.notification_email
+            user ? user.notification_email : ''
         ].map(wrap).join(',');
     }));
 
@@ -1090,10 +1090,10 @@ exports.exportDelegatesJc = async (req, res) => {
 
         return [
             application.statutory_id,
-            user.notification_email,
+            user ? user.notification_email : '',
             application.first_name,
             application.last_name,
-            body.code,
+            body ? body.code : '',
             application.participant_type
         ].join(';');
     }));

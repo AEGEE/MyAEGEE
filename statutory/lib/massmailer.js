@@ -77,6 +77,10 @@ exports.sendAll = async (req, res) => {
 
     logger.info({ count: bodies.length }, 'Prepared letters');
 
+    if (to.length === 0) {
+        return errors.makeInternalError(res, 'Could not find the email addresses of the users matching this filter.');
+    }
+
     await mailer.sendMail({
         reply_to: req.body.reply_to,
         to,

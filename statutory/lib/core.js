@@ -1,6 +1,7 @@
 const { request } = require('./http');
 
 const config = require('../config');
+const logger = require('./logger');
 
 const makeRequest = (options) => {
     const requestOptions = {
@@ -34,11 +35,21 @@ const getMember = async (req, id) => {
     return user.data;
 };
 
+// Returns the notification emails core gives for these users: [{ id, notification_email }].
+// The list is empty when core refuses the lookup or fails, and lacks the users core does
+// not know, so the callers work with the addresses they get.
 const getMails = async (req, ids) => {
-    const mails = await makeRequest({
+    const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members_email?query=' + ids,
-        token: req.headers['x-auth-token']
+        token: req.headers['x-auth-token'],
+        fullResponse: true
     });
+    const mails = response.body;
+
+    if (!mails || !mails.success || !Array.isArray(mails.data)) {
+        logger.warn({ status: response.statusCode }, 'Could not fetch notification emails');
+        return [];
+    }
 
     return mails.data;
 };
