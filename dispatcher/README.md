@@ -45,66 +45,81 @@ make down
 
 ## Architecture
 
+No service publishes to the dispatcher yet: the services send their mails to the Elixir
+mailer (`mailer/`) over HTTP. The dispatcher is meant to replace it, and takes the same
+message as the mailer's `POST /` body.
+
 ```
-producers (core, events, statutory, …)
-        │
+producers (none yet)
+        │  exchange eml, routing key mail
         ▼
-  ┌─────────────┐     template missing    ┌─────────────────┐
-  │ email queue │ ──────────────────────► │  wait_exchange  │
-  │  (durable)  │                         │ (x-delayed-msg) │
-  └──────┬──────┘                         └────────┬────────┘
-         │                                         │ after delay
-         │ normal path                             ▼
-         ▼                               ┌──────────────────┐
-    dispatcher                          │  requeue_queue   │
-    (send_email)                         │   → re-enqueues  │
-         │                               │     on email     │
-         │ unexpected NACK               └──────────────────┘
-         ▼
-  ┌─────────────────────┐
-  │  dead_letter_queue  │  → process_dead_letter_messages
-  │  (error_queue)      │    (last-resort: pushes to wait_exchange with max delay)
+  ┌─────────────┐  template or snippet missing,   ┌──────────────────────────┐
+  │ email queue │  SMTP unavailable               │ parking queues           │
+  │  (durable)  │ ──────────────────────────────► │ wait_5min … wait_100h    │
+  └──────┬──────┘   new message, x-retry-index    │ (x-message-ttl, DLX eml) │
+         │                                        └────────────┬─────────────┘
+         │ send_email                                          │ TTL expires:
+         ▼                                                     │ back to email
+   one mail per recipient                                      │
+         │ rejected by the SMTP server / unexpected error     │
+         │ (nack without requeue)                              │
+         ▼                                                     │
+  ┌─────────────────────┐  process_dead_letter_messages        │
+  │ error_queue         │ ─────────────────────────────────────┘
+  │ (dead_letter_exch.) │  into the last parking queue, with an alert
   └─────────────────────┘
 ```
 
+### What happens to a message
+
+| Case | What the dispatcher does |
+|---|---|
+| Valid message | Renders the template and sends one mail per address in `to`, then acks |
+| Body is not a JSON object, a required field is missing, `template` is not a text, `to` is empty or holds an empty address, `parameters` don't match the recipients | Acks (drops) it and sends an operator alert: retrying can't fix the payload |
+| A template parameter is missing (`StrictUndefined`) | Drops it with an alert |
+| Template or one of its snippets not found | Parks it for a retry (the template may be deployed meanwhile) |
+| SMTP not connected and reconnecting fails | Parks it for a retry (`smtp_unavailable`) |
+| SMTP connection lost while sending | Reconnects and puts the message back in the queue (nack with requeue) |
+| SMTP server rejects it, or any other error while sending | Nacks it without requeue, so it goes to `error_queue` |
+
 ### Retry logic
 
-A message that cannot be processed (e.g. template not found) is not NACKed. Instead
-a *new* message carrying the same body is published to `wait_exchange` with an `x-delay`
-header. After the delay the broker routes it to `requeue_queue`, which re-enqueues it
-on `email`. The delay grows exponentially across up to 5 attempts:
+A message that is parked is not NACKed. Instead a *new* message carrying the same body is
+published to the next parking queue (default exchange, routing key = queue name) with the
+header `x-retry-index`. Each parking queue has an `x-message-ttl` and dead-letters expired
+messages back to exchange `eml` with routing key `mail`, so the message re-enters `email`.
+No broker plugin is needed.
 
-| Attempt | Delay |
-|---------|-------|
-| 1 | 5 min |
-| 2 | 50 min |
-| 3 | 5 h |
-| 4 | 50 h |
-| 5 (last) | 100 h |
+| Attempt | Queue | Delay |
+|---------|-------|-------|
+| 1 | `wait_5min` | 5 min |
+| 2 | `wait_50min` | 50 min |
+| 3 | `wait_5h` | 5 h |
+| 4 | `wait_50h` | 50 h |
+| 5 (last) | `wait_100h` | 100 h; the alert names the person on call |
 
-After the last attempt the message is dropped and an alert is sent via Apprise.
+When the message comes back after the last attempt, it is dropped and an alert is sent.
+`process_dead_letter_messages` pushes a message from `error_queue` into the last parking
+queue, so an operator has time to look at it before it is dropped.
 
-Errors where retry is pointless (e.g. `parameter_undefined`) are dropped immediately
-without entering the wait loop.
+### Message schema
 
-### Message schema validation
+The message is the body the services send to the mailer:
 
-Before any processing, every message dequeued from `email` is validated against a fixed
-set of required fields:
-
-| Field | Type | Description |
+| Field | Required | Description |
 |---|---|---|
-| `from` | string | Sender address |
-| `to` | string or list | Recipient address(es) |
-| `reply_to` | string | Reply-To address |
-| `subject` | string | Email subject line |
-| `template` | string | Template name (without `.jinja2` extension) |
-| `parameters` | object | Variables passed to the Jinja2 template |
+| `to` | yes | Recipient address, or a list: every address gets a mail of its own |
+| `subject` | yes | Subject line |
+| `template` | yes | Template name, with or without `.html` (`confirm_email.html` or `confirm_email`); the file is `templates/<name>.jinja2` |
+| `parameters` | yes | Object with the template's parameters, or a list with one object per address in `to` (each recipient gets the text rendered from their own object) |
+| `from` | no | Sender address; defaults to `EMAIL_ADDRESS` |
+| `reply_to` | no | Reply-To address |
+| `cc`, `bcc` | no | Address or list; set on every recipient's mail |
 
-If any field is missing the message is **dropped immediately** (acked, not NACKed) and an
-Apprise alert is fired. Retrying would be pointless because the payload cannot be fixed
-by waiting — the bug is in the producing service. The dropped message and all missing field
-names are written to the error log for investigation.
+The parameters each template needs, with examples, are in the mail contract,
+`mailer/contract/mail-templates.json`. The dispatcher's tests render every template with
+those examples and check that a template reads only declared parameters, and optional ones
+through `default`.
 
 ### Notification rate limiting
 
@@ -120,114 +135,34 @@ a restart one alert will fire before throttling kicks in, which is the desired b
 
 ### Templates
 
-Templates live in `templates/` as `.jinja2` files. Because the template is loaded from
-disk at message-processing time, **adding or editing a template takes effect immediately**
-without restarting the container — hot-reload is built-in.
+Templates live in `templates/` as `.jinja2` files, one for each template of the mailer
+(`mailer/lib/omsmailer_web/templates/page/`). Because the template is loaded from disk at
+message-processing time, **adding or editing a template takes effect immediately** without
+restarting the container. To add or change a mail, see `mailer/contract/README.md`.
 
-#### ⚠ Known naming debt: `body` vs `body_name` vs `email_body`
-
-Three template parameters share confusingly similar names and mean completely different things:
-
-| Parameter | Meaning | Used in |
-|---|---|---|
-| `body` | A European body (local/antenna), e.g. `AEGEE-Padova` | `membership_expired.jinja2` |
-| `body_name` | Short name of a body or commission, e.g. `ITC`, `HRC` | most other templates |
-| `email_body` | Raw HTML content of a fully custom email | `custom.jinja2` only |
-
-The ideal end state is to drop the standalone `body` key entirely and use `body_name`
-everywhere for the "European body" concept. This is blocked by the **CORE microservice**,
-which currently publishes `body` (not `body_name`) in the `membership_expired` payload.
-Until a coordinated change is made in CORE, `membership_expired.jinja2` must keep using
-`{{ body }}` and the field must remain in the test payload in `helpers/send.py`.
+`body` (`membership_expired`), `body_name` (most templates) and `email_body` (`custom`, raw
+HTML) are different parameters. `membership_expired` has no sender at the moment; it is
+kept in both renderers on purpose.
 
 ## Queues reference
 
 | Queue | Exchange | Purpose |
 |---|---|---|
-| `email` | `eml` (direct) | Normal delivery queue |
-| `error_queue` | `dead_letter_exchange` | Catches unexpected NACKs (should stay empty) |
-| `requeue_queue` | `wait_exchange` (x-delayed-message) | Holds messages between retry attempts |
+| `email` | `eml` (direct, routing key `mail`) | Normal delivery queue |
+| `error_queue` | `dead_letter_exchange` | Messages nacked by the dispatcher (should stay empty) |
+| `wait_5min` … `wait_100h` | default exchange | Parking queues between retry attempts |
 
 Future queues (not yet implemented):
 - `telegram`
 - `slack` (if EBs opt in)
 
-## Migrating away from `rabbitmq-delayed-message-exchange`
+## Tests
 
-> **Context** — The `x-delayed-message` exchange type is provided by the community plugin
-> [`rabbitmq-delayed-message-exchange`](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange).
-> The plugin was **archived on 2026-04-16** and will not be ported to RabbitMQ 4.x
-> (Mnesia — the storage layer the plugin relies on — is being removed in 4.3+).
-> The current setup works fine on RabbitMQ 3.13 but needs to be replaced before upgrading
-> to 4.x.
-
-### Replacement: per-tier TTL queues + DLX
-
-Native RabbitMQ supports the same pattern using **one "parking" queue per delay tier**.
-Each parking queue is configured with:
-- `x-message-ttl` — the delay in milliseconds
-- `x-dead-letter-exchange` — the main exchange (`eml`)
-- `x-dead-letter-routing-key` — `mail` (so the message re-enters the normal delivery queue)
-
-When a message expires in a parking queue, the broker automatically dead-letters it back
-into `email` — no plugin needed.
-
-**Queue declarations to add in `main()`:**
-
-```python
-RETRY_QUEUES = [
-    ("wait_5min",  5        * 60_000),   # 5 min
-    ("wait_50min", 50       * 60_000),   # 50 min
-    ("wait_5h",    5  * 60  * 60_000),   # 5 h
-    ("wait_50h",   50 * 60  * 60_000),   # 50 h
-    ("wait_100h",  100 * 60 * 60_000),   # 100 h
-]
-
-for queue_name, ttl_ms in RETRY_QUEUES:
-    channel.queue_declare(
-        queue=queue_name,
-        durable=True,
-        arguments={
-            "x-message-ttl": ttl_ms,
-            "x-dead-letter-exchange": "eml",
-            "x-dead-letter-routing-key": "mail",
-        },
-    )
-```
-
-**Updated `requeue_wait`** — instead of publishing to `wait_exchange` with `x-delay`,
-publish directly to the correct parking queue (exchange `""` = default exchange,
-routing key = queue name):
-
-```python
-RETRY_QUEUE_NAMES = [name for name, _ in RETRY_QUEUES]
-
-# current delay tier is tracked via x-retry-index header instead of x-delay
-current_index = (properties.headers or {}).get("x-retry-index", -1)
-next_index = int(current_index) + 1
-
-channel.basic_publish(
-    exchange="",
-    routing_key=RETRY_QUEUE_NAMES[next_index],
-    body=body,
-    properties=pika.BasicProperties(
-        headers={"reason": reason, "x-retry-index": next_index},
-        delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
-    ),
-)
-```
-
-**What to remove** once the migration is done:
-- `wait_exchange` declaration (type `x-delayed-message`)
-- `requeue_queue` declaration and its consumer (`process_requeue`)
-- The `aegee/rabbit` custom image — use the official `rabbitmq:3.13-management` directly
-- `Dockerfile.rabbit`
-
-The `error_queue` / `dead_letter_exchange` remain unchanged.
+`poetry install --with dev && poetry run pytest` runs the tests with line and branch
+coverage and fails below the threshold in `pyproject.toml`; `ruff check .` lints.
 
 ## TODO / backlog
 
-- [x] Run core with email as queue insertion instead of API request to mailer
 - [x] Traefik labels so RabbitMQ and Mailpit are on subdomains instead of `host:port`
 - [x] Mark queues and messages as durable so RabbitMQ survives restarts
 - [x] Exponential-backoff retry with wait exchange (DLQ-based, up to 5 attempts)
