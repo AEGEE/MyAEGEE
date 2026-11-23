@@ -1566,7 +1566,7 @@ components:
       properties:
         name: {type: string, maxLength: 255}
         url: {type: [string, 'null'], maxLength: 255}
-        season: {type: [integer, 'null']}
+        season: {type: [integer, string, 'null'], pattern: '^-?[0-9]+$', minimum: -2147483648, maximum: 2147483647}
         description: {type: string}
         email: {type: string, maxLength: 255}
         video: {type: [string, 'null'], maxLength: 255}
@@ -1583,6 +1583,7 @@ components:
         cooperation: {type: [array, 'null']}
         organizers: {type: array}
         questions: {type: array}
+        max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
       additionalProperties: true
     ApplicationInput:
       description: The applicant's answers. Other fields (status, board_comment and so on) are ignored.
@@ -1614,7 +1615,7 @@ components:
     SeasonCreateInput:
       type: object
       properties:
-        year: {type: integer}
+        year: {type: [integer, string], pattern: '^[0-9]+$', minimum: 2000, maximum: 2147483647}
         name: {type: string, maxLength: 255}
         event_submission_deadline: {type: [string, 'null']}
         application_period_starts: {type: [string, 'null']}
@@ -1651,7 +1652,7 @@ components:
       type: object
       properties:
         open_call: {type: boolean}
-        max_participants: {type: [integer, 'null']}
+        max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
       additionalProperties: true
     AttendedInput:
       type: object

@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf } = require('../lib/validators');
+const { isOneOf, isInteger } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -65,7 +65,10 @@ const Event = sequelize.define(
         season: {
             // The year of the season (see the Season model) this event belongs to.
             type: Sequelize.INTEGER,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isInteger: isInteger('Season should be a year.')
+            }
         },
         image: {
             type: Sequelize.STRING,
@@ -419,7 +422,7 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: null,
             validate: {
-                isNumeric: { msg: 'Max amount of participants should be valid.' },
+                isInteger: isInteger('Max amount of participants should be valid.'),
                 // TODO: min 15 participants
                 min: { args: [0], msg: 'Max amount of participants cannot be negative' }
             }

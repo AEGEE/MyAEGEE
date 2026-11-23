@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isInteger } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -15,7 +16,7 @@ const Season = sequelize.define(
             allowNull: false,
             unique: true,
             validate: {
-                isInt: { msg: 'Season year should be a valid year.' },
+                isInteger: isInteger('Season year should be a valid year.'),
                 min: { args: [2000], msg: 'Season year should be a valid year.' }
             }
         },

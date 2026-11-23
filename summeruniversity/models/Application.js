@@ -1,6 +1,6 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf } = require('../lib/validators');
+const { isOneOf, isInteger } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -156,7 +156,7 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInteger: isInteger('Body ID should be a number.')
         },
     },
     body_name: { // TODO: remove and replace with core query to body_id
