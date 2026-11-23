@@ -26,7 +26,6 @@ server.use(morgan);
 
 const GeneralRouter = express.Router({ mergeParams: true });
 
-/* istanbul ignore next -- unhandledRejection is process-level */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
@@ -79,7 +78,6 @@ async function startServer() {
             job.start();
             return res();
         });
-        /* istanbul ignore next -- Express 5 hands listen errors to the callback above; this is a fallback */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -88,7 +86,6 @@ async function stopServer() {
     log.info('Stopping server...');
     job.stop();
     app.close();
-    /* istanbul ignore next -- outside tests only; test/setup.js closes the database per file */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }
