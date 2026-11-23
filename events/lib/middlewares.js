@@ -11,7 +11,20 @@ const constants = require('./constants');
 
 const packageInfo = require('../package.json');
 
+// What core answers to a request without a token, so that ensureAuthorized() rejects it.
+const ANONYMOUS = { statusCode: 401, body: { success: false } };
+
 exports.authenticateUser = async (req, res, next) => {
+    // Without a token core can only answer 401: the caller is anonymous, and public routes
+    // keep working when core is down.
+    if (!req.headers['x-auth-token']) {
+        req.userRequest = ANONYMOUS;
+        req.permissionsRequest = ANONYMOUS;
+        req.approveRequest = ANONYMOUS;
+        req.permissions = helpers.getPermissions(undefined, undefined, undefined);
+        return next();
+    }
+
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
