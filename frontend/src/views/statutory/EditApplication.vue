@@ -381,6 +381,12 @@
               </div>
             </div>
 
+            <div class="notification is-danger" v-if="boardErrorMessages.length > 0">
+              <ul>
+                <li v-for="(error, index) in boardErrorMessages" v-bind:key="index">{{ error }}</li>
+              </ul>
+            </div>
+
             <div class="field">
               <button type="button" class="button is-primary" @click="saveBoard()">
                 Save board information
@@ -467,6 +473,7 @@ export default {
         apply: false
       },
       errors: {},
+      boardErrors: {},
       isLoading: false,
       isSaving: false
     }
@@ -517,6 +524,7 @@ export default {
     saveBoard () {
       // Copy data from the form into an object to submit it in the format the backend needs it
       this.isSaving = true
+      this.boardErrors = {}
 
       const toServer = {
         participant_type: this.application.participant_type,
@@ -530,7 +538,7 @@ export default {
         this.isSaving = false
 
         if (err.response && err.response.status === 422) { // validation errors
-          this.errors = err.response.data.errors
+          this.boardErrors = err.response.data.errors
           return this.$root.showError('Some of the application data is invalid.')
         }
 
@@ -584,6 +592,9 @@ export default {
       return Object.keys(this.errors)
         .filter((key) => !ERRORS_SHOWN_ELSEWHERE.includes(key))
         .flatMap((key) => this.errors[key])
+    },
+    boardErrorMessages () {
+      return Object.values(this.boardErrors).flat()
     },
     selectedMailinglists () {
       return Object.keys(this.subscription).filter(value => this.subscription[value] === true)
