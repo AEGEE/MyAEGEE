@@ -4,7 +4,7 @@
 import type { ApiMock } from '../support/api-mock.ts';
 import { FIXED_NOW, ok } from '../support/factories/base.ts';
 import { application, event, organizerPermissions } from '../support/factories/events.ts';
-import { cellOf, dialog, freezeTime, permissionsFor, sortBy, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, expectEmptyTable, freezeTime, permissionsFor, sortBy, tableRows, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const APPLICATIONS = [
@@ -60,6 +60,29 @@ test.describe('tables', () => {
     });
 });
 
+test.describe('empty tables', () => {
+    test('a table without data has no rows, although Buefy renders a row to say so', async ({ page, api }) => {
+        api.json('GET events /mine/approvable', ok([]));
+        await page.goto('/events/change_status');
+
+        const table = page.getByRole('table');
+        await expectEmptyTable(table);
+        await expect(table.getByText('Nothing here.')).toBeVisible();
+        // The row that says so is a row with a cell for the browser, and not one of tableRows().
+        await expect(table.getByRole('row').filter({ has: page.getByRole('cell') })).toHaveCount(1);
+        await expect(tableRows(table)).toHaveCount(0);
+    });
+
+    test('a table without a text for the empty state is empty too', async ({ page, api }) => {
+        api.json('GET events /single/:id', ok(event({ id: 9, url: 'spring', name: 'Spring Training' }), { permissions: organizerPermissions() }));
+        api.json('GET events /single/:id/applications', ok([]));
+        await page.goto('/events/spring/participants');
+        await expect(page.getByText('Total applications: 0.')).toBeVisible();
+
+        await expectEmptyTable(page.getByRole('table'), null);
+    });
+});
+
 test.describe('dialogs', () => {
     test('a modal opened from code is a dialog', async ({ page, api }) => {
         showParticipants(api);
@@ -77,16 +100,38 @@ test.describe('dialogs', () => {
         await expect(dialog(page)).toHaveCount(0);
     });
 
-    test('a confirmation opened from code is an alert dialog', async ({ page, api }) => {
+    test('a confirmation opened from code is an alert dialog, named by its title and described by its message', async ({ page, api }) => {
         api.json('GET events /single/:id', ok(event({ id: 9, url: 'spring', name: 'Spring Training' }), { permissions: organizerPermissions() }));
         await page.goto('/events/spring');
 
         await page.getByRole('button', { name: 'Delete event' }).click();
 
-        const confirmation = dialog(page).filter({ hasText: 'Are you sure you want to delete this event?' });
+        // Found by its role and its name, with nothing else to tell it apart.
+        const confirmation = page.getByRole('alertdialog', { name: 'Deleting an event', exact: true });
         await expect(confirmation).toBeVisible();
         await expect(confirmation).toHaveAttribute('aria-modal', 'true');
+        await expect(confirmation).toHaveAccessibleDescription('Are you sure you want to delete this event?');
+        // The helper finds the same dialog by that name.
+        await expect(dialog(page, 'Deleting an event')).toHaveCount(1);
+        await expect(dialog(page, 'Another dialog')).toHaveCount(0);
+
         await confirmation.getByRole('button', { name: 'Cancel' }).click();
+        await expect(dialog(page)).toHaveCount(0);
+    });
+
+    test('every dialog gets its own name, also the second one of a page', async ({ page, api }) => {
+        api.json('GET events /single/:id', ok(event({ id: 9, url: 'spring', name: 'Spring Training', status: 'draft', budget: 'x', programme: 'x' }), { permissions: organizerPermissions() }));
+        await page.goto('/events/spring');
+
+        await page.getByRole('button', { name: 'Delete event' }).click();
+        await dialog(page, 'Deleting an event').getByRole('button', { name: 'Cancel' }).click();
+        await expect(dialog(page)).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'Ask for approval' }).click();
+        const second = page.getByRole('alertdialog', { name: 'Change status', exact: true });
+        await expect(second).toBeVisible();
+        await expect(second).toHaveAccessibleDescription(/Are you sure you want to/);
+        await second.getByRole('button', { name: 'Cancel' }).click();
         await expect(dialog(page)).toHaveCount(0);
     });
 });
