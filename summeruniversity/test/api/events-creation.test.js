@@ -63,6 +63,73 @@ describe('Events creation', () => {
         expect(res.statusCode).toEqual(403);
     });
 
+    describe('type and fee permissions', () => {
+        test('should not let a creator without edit:su_type create a pilot', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
+
+            const res = await createEvent(generator.generateEventBody({ type: 'pilot' }));
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test('should let a creator with edit:su_type create a pilot', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity', 'global:edit:su_type'] } });
+
+            const res = await createEvent(generator.generateEventBody({ type: 'pilot' }));
+
+            expect(res.statusCode).toEqual(201);
+            expect(res.body.data.type).toEqual('pilot');
+        });
+
+        test('should let a creator without edit:su_type create a regular SU', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
+
+            const res = await createEvent(generator.generateEventBody({ type: 'regular' }));
+
+            expect(res.statusCode).toEqual(201);
+            expect(res.body.data.type).toEqual('regular');
+        });
+
+        test('should let a creator without edit:su_fee set the fee', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
+
+            const res = await createEvent(generator.generateEventBody({ fee: 77 }));
+
+            expect(res.statusCode).toEqual(201);
+            const event = await Event.findByPk(res.body.data.id);
+            expect(Number(event.fee)).toEqual(77);
+        });
+
+        test.each([
+            ['an unknown type', 'garbage']
+        ])('should answer 422 for a type that is %s, also without edit:su_type', async (_name, type) => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
+
+            const res = await createEvent(generator.generateEventBody({ type }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('type');
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each([
+            ['null', null],
+            ['empty', ''],
+            ['not a number', 'abc']
+        ])('should answer 422 for a fee that is %s', async (_name, fee) => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
+
+            const res = await createEvent(generator.generateEventBody({ fee }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('fee');
+            expect(await Event.count()).toEqual(0);
+        });
+    });
+
+
     test('should create an event and notify the organizers and SUCT', async () => {
         const body = generator.generateEventBody({ name: 'Brand new SU', season: 2027, url: 'brand-new-su' });
 
