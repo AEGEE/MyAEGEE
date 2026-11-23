@@ -34,7 +34,7 @@ const LISTS = [
     }
 ];
 
-describe('Sorting of lists', () => {
+describe('Sorting and paging of lists', () => {
     let token;
     let data;
 
@@ -125,5 +125,37 @@ describe('Sorting of lists', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+    });
+
+    // A limit or an offset that can't be used is ignored, as a missing one is.
+    describe.each(['limit', 'offset'])('%s', (parameter) => {
+        test.each(LISTS)('$name ignores a value that is not a whole number', async (row) => {
+            for (const value of ['Infinity', '1e3', '1.5', '-1', '0x10', '99999999999999999999', 'abc', '']) {
+                const res = await request({
+                    path: row.path(data),
+                    method: row.method || 'GET',
+                    headers: { 'X-Auth-Token': token.value },
+                    query: { ...row.query, [parameter]: value },
+                    body: row.body
+                });
+
+                expect({ value, status: res.statusCode }).toEqual({ value, status: 200 });
+            }
+        });
+    });
+
+    test('GET /circles respects a limit and an offset that are whole numbers', async () => {
+        await generator.createCircle({ name: 'Aaa' });
+        await generator.createCircle({ name: 'Bbb' });
+        await generator.createCircle({ name: 'Ccc' });
+
+        const res = await request({
+            path: '/circles?sort=name&limit=1&offset=1',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((circle) => circle.name)).toEqual(['Bbb']);
+        expect(res.body.meta.count).toEqual(3);
     });
 });
