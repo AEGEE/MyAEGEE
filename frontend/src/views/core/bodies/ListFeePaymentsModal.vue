@@ -73,7 +73,8 @@ export default {
   },
   methods: {
     askDeleteMemberPaymentFee (fee) {
-      const message = `Are you sure you want to <b>delete</b> ${escapeHtml(fee.id)} from ${escapeHtml(this.member.user.first_name + ' ' + this.member.user.last_name)}? This action cannot be undone.`
+      const payment = `${fee.amount} ${fee.currency} (${fee.starts} to ${fee.expires})`
+      const message = `Are you sure you want to <b>delete</b> the payment of ${escapeHtml(payment)} from ${escapeHtml(this.member.user.first_name + ' ' + this.member.user.last_name)}? This action cannot be undone.`
 
       this.$buefy.dialog.confirm({
         title: 'Deleting a fee',
