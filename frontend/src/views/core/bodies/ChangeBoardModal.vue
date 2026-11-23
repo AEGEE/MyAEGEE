@@ -163,6 +163,7 @@
 <script>
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
+import escapeHtml from 'src/methods/escape-html'
 import MarkdownTooltip from '../../../components/tooltips/MarkdownTooltip'
 
 const DATE_CONFIG = { allowInput: true, disableMobile: true }
@@ -199,6 +200,19 @@ export default {
   },
   methods: {
     deleteBoard () {
+      const term = this.oldBoard.start_date + ' - ' + (this.oldBoard.end_date || '')
+      const name = this.oldBoard.name ? this.oldBoard.name + ' (' + term + ')' : term
+
+      this.$buefy.dialog.confirm({
+        title: 'Deleting a board',
+        message: 'Are you sure you want to <b>delete</b> the board ' + escapeHtml(name) + '? This action cannot be undone.',
+        confirmText: 'Delete board',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.confirmDeleteBoard()
+      })
+    },
+    confirmDeleteBoard () {
       this.isSaving = true
       this.axios.delete(this.services['network'] + '/bodies/' + this.body.id + '/boards/' + this.oldBoard.id).then(() => {
         this.isSaving = false
