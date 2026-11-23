@@ -65,8 +65,9 @@
           v-model="position.name"
           :data="members"
           :loading="isLoading"
+          :placeholder="position.missing ? 'Member not found: pick a member' + (position.required ? '' : ' or remove the position') : ''"
           @input="query => fetchMembers(query)"
-          @select="user => position.id = user.id"
+          @select="user => selectMember(position, user)"
           :expanded="true"
           field="name">
           <template slot-scope="props">
@@ -172,9 +173,9 @@ export default {
         start_date: '',
         end_date: null,
         positions: [
-          { function: 'President', name: '', user_id: '', required: true },
-          { function: 'Secretary', name: '', user_id: '', required: true },
-          { function: 'Treasurer', name: '', user_id: '', required: true }
+          { function: 'President', name: '', user_id: '', required: true, missing: false },
+          { function: 'Secretary', name: '', user_id: '', required: true, missing: false },
+          { function: 'Treasurer', name: '', user_id: '', required: true, missing: false }
         ],
         name: '',
         message: ''
@@ -239,7 +240,8 @@ export default {
         }).catch((err) => {
           this.isSaving = false
           if (err.response && err.response.status === 422) {
-            this.showError('Some input data is invalid')
+            // showError lists the field messages.
+            this.showError('Some input data is invalid', err)
             return
           }
           this.showError('Something went wrong', err)
@@ -251,8 +253,15 @@ export default {
         function: '',
         name: '',
         user_id: '',
-        required: false
+        required: false,
+        missing: false
       })
+    },
+    selectMember (position, user) {
+      if (!user) return
+
+      position.id = user.id
+      position.missing = false
     },
     deletePosition (index) {
       this.board.positions.splice(index, 1)
@@ -292,26 +301,30 @@ export default {
       return
     }
 
-    // There must be a nicer way to do this, oops :p
+    // A position whose member is not found (no member stored, or no longer a member of
+    // the body) shows an empty member field to fill in; the stored member stays until then.
+    const memberName = (user) => (user ? user.first_name + ' ' + user.last_name : '')
+
     this.board.elected_date = this.oldBoard.elected_date
     this.board.start_date = this.oldBoard.start_date
     this.board.end_date = this.oldBoard.end_date
-    this.board.positions[0].id = this.oldBoard.president
-    this.board.positions[0].name = this.oldBoard.president_user.first_name + ' ' + this.oldBoard.president_user.last_name
-    this.board.positions[1].id = this.oldBoard.secretary
-    this.board.positions[1].name = this.oldBoard.secretary_user.first_name + ' ' + this.oldBoard.secretary_user.last_name
-    this.board.positions[2].id = this.oldBoard.treasurer
-    this.board.positions[2].name = this.oldBoard.treasurer_user.first_name + ' ' + this.oldBoard.treasurer_user.last_name
+    for (const [index, field] of ['president', 'secretary', 'treasurer'].entries()) {
+      const user = this.oldBoard[field + '_user']
+      this.board.positions[index].id = this.oldBoard[field]
+      this.board.positions[index].name = memberName(user)
+      this.board.positions[index].missing = !user
+    }
     this.board.name = this.oldBoard.name
     this.board.message = this.oldBoard.message
 
-    for (const other of this.oldBoard.other_members) {
+    for (const other of this.oldBoard.other_members || []) {
       this.board.positions.push({
         function: other.function,
-        name: other.user.first_name + ' ' + other.user.last_name,
+        name: memberName(other.user),
         id: other.user_id,
         user_id: other.user_id,
-        required: false
+        required: false,
+        missing: !other.user
       })
     }
   }
