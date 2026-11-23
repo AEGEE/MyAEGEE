@@ -24,6 +24,7 @@
     "testEnvironment": "node",
     "verbose": true,
     "collectCoverage": true,
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup.js"
     ],

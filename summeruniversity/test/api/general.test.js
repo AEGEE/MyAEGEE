@@ -66,7 +66,7 @@ describe('General endpoints and error handling', () => {
     describe('GET /metrics/requests', () => {
         test('should count the requests made to the service', async () => {
             await request({ path: '/healthcheck', method: 'GET' });
-            await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+            await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, skipOpenApi: 'the not-found handler' });
 
             const res = await request({ path: '/metrics/requests', method: 'GET', responseType: 'text' });
 
@@ -79,7 +79,7 @@ describe('General endpoints and error handling', () => {
 
     describe('error handling', () => {
         test('should return 404 on an unknown route', async () => {
-            const res = await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+            const res = await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, skipOpenApi: 'the not-found handler' });
 
             expect(res.statusCode).toEqual(404);
             expect(res.body.success).toEqual(false);
@@ -88,7 +88,12 @@ describe('General endpoints and error handling', () => {
 
         test('should return 404 on an unknown method for a known route', async () => {
             const event = await generator.createEvent();
-            const res = await request({ path: '/single/' + event.id + '/applications', method: 'DELETE', headers: { 'X-Auth-Token': 'foobar' } });
+            const res = await request({
+                path: '/single/' + event.id + '/applications',
+                method: 'DELETE',
+                headers: { 'X-Auth-Token': 'foobar' },
+                skipOpenApi: 'the not-found handler'
+            });
 
             expect(res.statusCode).toEqual(404);
             expect(res.body.success).toEqual(false);
