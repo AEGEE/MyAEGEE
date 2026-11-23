@@ -1155,13 +1155,6 @@ components:
         status: {$ref: '#/components/schemas/ApplicationStatus'}
         confirmed: {type: boolean}
         attended: {type: boolean}
-        board_comment:
-          description: |
-            The board's comment on the applicant. Left out of the answers the applicant gets
-            about their own application (getApplication, createApplication, updateApplication),
-            unless they may also list the event's applications or set board comments for the
-            application's body.
-          type: [string, 'null']
         answers:
           description: One answer per question of the event, in order.
           type: array
@@ -1169,7 +1162,34 @@ components:
         agreed_to_privacy_policy: {type: boolean}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
+    BoardComment:
+      description: |
+        The board's comment on the applicant. Left out of the answers the applicant gets about
+        their own application (the ForApplicant variants), unless they may also list the
+        event's applications or set board comments for the application's body. Not in the
+        answer to a create (the column has no default).
+      type: [string, 'null']
     Application:
+      description: An application as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      properties:
+        body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationListed:
+      description: An application in the list of an event's applications (organizers and managers).
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [board_comment]
+      properties:
+        body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationForApplicant:
+      description: An application as its applicant gets it, without the board comment.
       type: object
       allOf:
         - $ref: '#/components/schemas/ApplicationFields'
@@ -1177,7 +1197,18 @@ components:
         body_id: {type: integer}
       unevaluatedProperties: false
     ApplicationWithEmail:
-      description: An application with the applicant's notification email from core.
+      description: An application with the applicant's notification email from core, as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [notification_email]
+      properties:
+        body_id: {type: integer}
+        notification_email: {type: string}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationWithEmailForApplicant:
+      description: An application with the applicant's notification email from core, as its applicant gets it, without the board comment.
       type: object
       allOf:
         - $ref: '#/components/schemas/ApplicationFields'
@@ -1190,9 +1221,10 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ApplicationFields'
-      required: [event]
+      required: [event, board_comment]
       properties:
         body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
         event: {$ref: '#/components/schemas/EventPublic'}
       unevaluatedProperties: false
     ApplicationInputFields:
@@ -1313,7 +1345,9 @@ components:
       required: [success, data]
       properties:
         success: {const: true}
-        data: {type: array, items: {$ref: '#/components/schemas/Application'}}
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/ApplicationListed'}
       additionalProperties: false
     ApplicationWithEventListResponse:
       type: object
@@ -1334,7 +1368,11 @@ components:
       required: [success, data]
       properties:
         success: {const: true}
-        data: {$ref: '#/components/schemas/ApplicationWithEmail'}
+        data:
+          description: The applicant gets ApplicationWithEmailForApplicant, unless they may see the board comment.
+          anyOf:
+            - $ref: '#/components/schemas/ApplicationWithEmail'
+            - $ref: '#/components/schemas/ApplicationWithEmailForApplicant'
       additionalProperties: false
     ApplicationSavedResponse:
       type: object
@@ -1343,8 +1381,10 @@ components:
         success: {const: true}
         message: {type: string}
         data:
-          description: The created application has no notification email; an edited one has.
-          oneOf:
+          description: The created application has no notification email; an edited one has. The applicant gets a ForApplicant variant, unless they may see the board comment.
+          anyOf:
             - $ref: '#/components/schemas/Application'
             - $ref: '#/components/schemas/ApplicationWithEmail'
+            - $ref: '#/components/schemas/ApplicationForApplicant'
+            - $ref: '#/components/schemas/ApplicationWithEmailForApplicant'
       additionalProperties: false

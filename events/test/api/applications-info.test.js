@@ -131,7 +131,8 @@ describe('Events application info', () => {
 
             const res = await request({
                 path: '/single/' + event.id + '/applications/me',
-                headers: { 'X-Auth-Token': 'foobar' }
+                headers: { 'X-Auth-Token': 'foobar' },
+                openApiVariant: 'ApplicationWithEmailForApplicant'
             });
 
             expect(res.statusCode).toEqual(200);
@@ -146,7 +147,8 @@ describe('Events application info', () => {
 
             const res = await request({
                 path: '/single/' + event.id + '/applications/me',
-                headers: { 'X-Auth-Token': 'foobar' }
+                headers: { 'X-Auth-Token': 'foobar' },
+                openApiVariant: 'ApplicationWithEmail'
             });
 
             expect(res.statusCode).toEqual(200);
@@ -160,7 +162,8 @@ describe('Events application info', () => {
 
             const res = await request({
                 path: '/single/' + event.id + '/applications/' + application.id,
-                headers: { 'X-Auth-Token': 'foobar' }
+                headers: { 'X-Auth-Token': 'foobar' },
+                openApiVariant: 'ApplicationWithEmail'
             });
 
             expect(res.statusCode).toEqual(200);
@@ -176,7 +179,8 @@ describe('Events application info', () => {
                 path: '/single/' + event.id + '/applications/me',
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'foobar' },
-                body: { agreed_to_privacy_policy: true }
+                body: { agreed_to_privacy_policy: true },
+                openApiVariant: 'ApplicationWithEmailForApplicant'
             });
 
             expect(res.statusCode).toEqual(200);
@@ -191,7 +195,8 @@ describe('Events application info', () => {
                 path: '/single/' + event.id + '/applications',
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'foobar' },
-                body: { body_id: 9, answers: [], agreed_to_privacy_policy: true }
+                body: { body_id: 9, answers: [], agreed_to_privacy_policy: true },
+                openApiVariant: 'ApplicationForApplicant'
             });
 
             expect(res.statusCode).toEqual(200);
