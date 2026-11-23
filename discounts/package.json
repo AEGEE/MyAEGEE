@@ -35,7 +35,6 @@
     "collectCoverageFrom": [
       "lib/**/*.js",
       "models/**/*.js",
-      "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js"
     ],
@@ -46,9 +45,9 @@
     "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
     "coverageThreshold": {
       "global": {
-        "statements": 99.7,
+        "statements": 100,
         "branches": 100,
-        "functions": 98.3,
+        "functions": 100,
         "lines": 100
       }
     }

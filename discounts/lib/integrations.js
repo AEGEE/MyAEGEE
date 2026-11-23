@@ -177,7 +177,6 @@ exports.claimCode = async (req, res) => {
             transaction
         });
 
-        /* istanbul ignore if -- only when the integration is deleted while the claim waits for the lock */
         if (!integration) {
             return { status: 404, message: 'The integration is not found.' };
         }
