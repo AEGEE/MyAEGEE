@@ -105,6 +105,10 @@ exports.addCodesToIntegration = async (req, res) => {
 };
 
 exports.claimCode = async (req, res) => {
+    if (!helpers.canClaimCodes(req.user)) {
+        return errors.makeForbiddenError(res, 'Only members of an antenna, contact antenna or contact can claim codes.');
+    }
+
     // Checking if a user has already claimed more codes than available.
     const startPeriod = moment().startOf(req.integration.quota_period).toDate();
     const endPeriod = moment().endOf(req.integration.quota_period).toDate();

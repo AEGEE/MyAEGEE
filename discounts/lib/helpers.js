@@ -1,3 +1,5 @@
+const { CLAIM_BODY_TYPES } = require('./constants');
+
 // The largest Postgres INTEGER, which is the type of the IDs.
 const MAX_ID = 2147483647;
 
@@ -44,6 +46,18 @@ ${integration.description}<br/>
 <br/>
 Sincerely yours,<br/>
 MyAEGEE discounts team.`;
+};
+
+// A user may claim codes when they are a member of a body of one of the claim types
+// that still exists: core keeps a deleted body's row, with status 'deleted'.
+exports.canClaimCodes = (user) => {
+    if (!user || !Array.isArray(user.bodies)) {
+        return false;
+    }
+
+    return user.bodies.some((body) => body
+        && CLAIM_BODY_TYPES.includes(body.type)
+        && body.status !== 'deleted');
 };
 
 // A helper to determine if user has permission.
