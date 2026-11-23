@@ -14,7 +14,6 @@ module.exports = {
         'events',
         'frontend',
         'discounts',
-        'knowledge',
         'network',
         'statutory',
         'summeruniversity',

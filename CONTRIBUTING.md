@@ -17,7 +17,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) with MANDATO
 ### Scopes
 
 **Module scopes** (use when changing a specific module):
-- `core`, `events`, `frontend`, `discounts`, `knowledge`
+- `core`, `events`, `frontend`, `discounts`
 - `network`, `statutory`, `summeruniversity`, `mailer`
 
 **Infrastructure scopes** (use for CI/Docker/root-level changes):
@@ -162,7 +162,6 @@ To ship such a change in a module's Docker image, the module needs a release: me
 | events | 1.8.0 |
 | frontend | 1.45.5 |
 | discounts | 1.2.6 |
-| knowledge | 1.0.6 |
 | network | 1.3.2 |
 | statutory | 1.14.8 |
 | summeruniversity | 1.6.6 |
