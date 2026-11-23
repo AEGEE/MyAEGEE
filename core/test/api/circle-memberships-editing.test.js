@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { CircleMembership } = require('../../models');
 
 describe('Circle membership editing', () => {
     beforeAll(async () => {
@@ -120,5 +121,59 @@ describe('Circle membership editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test.each([
+        ['an object', { name: 'Treasurer' }],
+        ['a list', ['Treasurer']]
+    ])('should fail if the position is %s, and keep the position it had', async (name, position) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const circle = await generator.createCircle();
+        const membership = await generator.createCircleMembership(circle, user);
+        await membership.update({ position: 'President' });
+
+        await generator.createPermission({ scope: 'global', action: 'update_members', object: 'circle' });
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/members/' + membership.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { position }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({
+            success: false,
+            errors: { position: ['position cannot be an array or an object'] }
+        });
+
+        const membershipFromDb = await CircleMembership.findByPk(membership.id);
+        expect(membershipFromDb.position).toEqual('President');
+    });
+
+    test('should remove the position if it is null', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const circle = await generator.createCircle();
+        const membership = await generator.createCircleMembership(circle, user);
+        await membership.update({ position: 'President' });
+
+        await generator.createPermission({ scope: 'global', action: 'update_members', object: 'circle' });
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/members/' + membership.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { position: null }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.position).toEqual(null);
+
+        const membershipFromDb = await CircleMembership.findByPk(membership.id);
+        expect(membershipFromDb.position).toEqual(null);
     });
 });

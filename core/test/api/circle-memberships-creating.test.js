@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { CircleMembership } = require('../../models');
 
 describe('Circle memberships creating', () => {
     beforeAll(async () => {
@@ -199,5 +200,38 @@ describe('Circle memberships creating', () => {
 
         expect(res.statusCode).toEqual(400);
         expect(res.body).toEqual({ success: false, message: 'The user ID is not valid.' });
+    });
+
+    test.each([
+        ['a free circle', false],
+        ['a circle of a body', true]
+    ])('should fail for a member of %s who is in it already, and keep the one membership', async (name, bound) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
+
+        const member = await generator.createUser();
+        const body = await generator.createBody();
+        await generator.createBodyMembership(body, member);
+
+        const circle = await generator.createCircle(bound ? { body_id: body.id } : {});
+        const membership = await generator.createCircleMembership(circle, member);
+        await membership.update({ position: 'Treasurer' });
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/members',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { user_id: member.id }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({
+            success: false,
+            errors: { circle_id: ['circle_id must be unique'], user_id: ['user_id must be unique'] }
+        });
+
+        const memberships = await CircleMembership.findAll({ where: { circle_id: circle.id } });
+        expect(memberships.map((item) => [item.id, item.user_id, item.position])).toEqual([[membership.id, member.id, 'Treasurer']]);
     });
 });
