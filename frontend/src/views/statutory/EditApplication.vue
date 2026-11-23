@@ -623,10 +623,13 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        // If there's no application, just ignore, otherwise re-throw the error
-        if (!err.response || err.response.status !== 404) {
-          throw err
+        if (err.response && err.response.status === 404) {
+          this.$root.showError('Application is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
         }
+
+        this.$router.push({ name: 'oms.statutory.view', params: { id: this.$route.params.id } })
       })
     }).catch((err) => {
       if (err.response && err.response.status === 404) {
