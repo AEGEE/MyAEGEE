@@ -409,10 +409,11 @@ describe('Events creation', () => {
         expect(await Event.count()).toEqual(0);
     });
 
-    test('should currently return 500 if a manager gives a season that is not a number', async () => {
+    test('should return 422 if a manager gives a season that is not a number', async () => {
         const res = await createEvent(generator.generateEventBody({ season: 'abc' }));
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.season).toEqual(['Season should be a year.']);
         expect(await Event.count()).toEqual(0);
     });
 

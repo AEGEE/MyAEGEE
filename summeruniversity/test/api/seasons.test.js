@@ -162,12 +162,13 @@ describe('Seasons', () => {
             expect(await Season.count()).toEqual(6);
         });
 
-        test('should currently return 500 if the year is beyond the database integer range', async () => {
+        test('should return 422 if the year is beyond the database integer range', async () => {
             mock.mockAll(managerMocks);
 
             const res = await call('POST', '/seasons', { ...body, year: 99999999999 });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.year).toEqual(['Season year should be a valid year.']);
             expect(await Season.count()).toEqual(6);
         });
     });
