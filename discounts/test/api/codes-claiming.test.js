@@ -6,7 +6,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid.json').data;
-const { Code } = require('../../models');
+const { Code, Integration } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
 
 describe('Codes claiming', () => {
     beforeEach(async () => {
@@ -485,5 +486,83 @@ describe('Codes claiming: parallel claims', () => {
 
         const claimedCount = await Code.count({ where: { integration_id: integration.id, claimed_by: 1001 } });
         expect(claimedCount).toEqual(1);
+    });
+});
+
+describe('Codes claiming: waiting for other claims of the integration', () => {
+    const BUSY_MESSAGE = 'Other claims of this integration are being processed. Please try again in a moment.';
+    let originalClaimConfig;
+
+    // Holds the integration's row lock, as a running claim does, and releases it after `holdFor` ms.
+    const holdIntegrationLock = async (integration, holdFor) => {
+        const transaction = await sequelize.transaction();
+        await Integration.findOne({ where: { id: integration.id }, lock: transaction.LOCK.UPDATE, transaction });
+        const released = new Promise((resolve) => { setTimeout(resolve, holdFor); }).then(() => transaction.rollback());
+        return { released };
+    };
+
+    const claim = (integration) => request({
+        path: '/integrations/' + integration.id + '/claim',
+        method: 'POST',
+        headers: { 'X-Auth-Token': 'blablabla' }
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+        originalClaimConfig = config.claim;
+        config.claim = { ...config.claim, lockTimeout: 100 };
+        await startServer();
+    });
+
+    afterEach(async () => {
+        config.claim = originalClaimConfig;
+        jest.restoreAllMocks();
+        await stopServer();
+        mock.cleanAll();
+
+        await generator.clearAll();
+    });
+
+    test('should answer 503 and claim nothing when the lock is not free within the lock timeout', async () => {
+        const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
+        const code = await generator.createCode({}, integration);
+
+        const { released } = await holdIntegrationLock(integration, 1000);
+        const res = await claim(integration);
+        await released;
+
+        expect(res.statusCode).toEqual(503);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(BUSY_MESSAGE);
+
+        const codeFromDb = await Code.findByPk(code.id);
+        expect(codeFromDb.claimed_by).toEqual(null);
+    });
+
+    test('should still answer 500 and claim nothing when the database fails during the claim', async () => {
+        const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
+        const code = await generator.createCode({}, integration);
+        jest.spyOn(Code, 'count').mockRejectedValueOnce(new Error('Database is gone.'));
+
+        const res = await claim(integration);
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+
+        const codeFromDb = await Code.findByPk(code.id);
+        expect(codeFromDb.claimed_by).toEqual(null);
+    });
+
+    test('should claim the code when the lock is free within the lock timeout', async () => {
+        config.claim.lockTimeout = 2000;
+        const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
+        const code = await generator.createCode({}, integration);
+
+        const { released } = await holdIntegrationLock(integration, 100);
+        const res = await claim(integration);
+        await released;
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(code.id);
     });
 });
