@@ -54,9 +54,9 @@ export default {
         .post(this.services['core'] + '/password_reset', {
           email: this.email
         })
-        .then(() => {
+        .then((response) => {
           // The answer is the same whether or not the email belongs to an account.
-          this.$root.showSuccess('Password reset triggered. Check your email.')
+          this.$root.showSuccess(response.data.message)
           this.$router.push({ name: 'oms.password_confirm' })
         })
         .catch((err) => {
