@@ -87,4 +87,33 @@ describe('Field types', () => {
             expect(await Season.count()).toEqual(6);
         });
     });
+
+    describe('booleans', () => {
+        const values = [['a text', 'garbage'], ['an empty text', ''], ['a number', 5], ['an array', [true]], ['an object', { value: true }]];
+
+        test.each(values)('creating a Summer University refuses a university_support that is %s', async (_name, value) => {
+            const res = await call('POST', '/', generator.generateEventBody({ university_support: value }));
+
+            expectFieldError(res, 'university_support', 'The value should be true or false.');
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each(values)('editing a Summer University refuses a university_support that is %s', async (_name, value) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}`, { university_support: value });
+
+            expectFieldError(res, 'university_support', 'The value should be true or false.');
+            expect((await Event.findByPk(event.id)).university_support).toEqual(false);
+        });
+
+        test.each(values)('the open call refuses an open_call that is %s', async (_name, value) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}/open_call`, { open_call: value });
+
+            expectFieldError(res, 'open_call', 'The value should be true or false.');
+            expect((await Event.findByPk(event.id)).open_call).toEqual(false);
+        });
+    });
 });
