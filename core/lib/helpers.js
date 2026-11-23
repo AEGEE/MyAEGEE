@@ -168,6 +168,13 @@ function findBy(query, fields) {
     return whereObject;
 }
 
+// For a field of a request body that should be the ID of something: returns it as a number,
+// or null if it's not a positive whole number (given as a number or as a text of digits).
+const parseId = (value) => {
+    const id = typeof value === 'string' && /^[0-9]+$/.test(value) ? Number(value) : value;
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+};
+
 // For a field of a request body that should be a text: anything else counts as not given.
 const stringOrEmpty = (value) => (typeof value === 'string' ? value : '');
 
@@ -254,5 +261,6 @@ module.exports = {
     equalsIgnoreCase,
     isRestrictedEmail,
     lockMailChanges,
+    parseId,
     stringOrEmpty
 };

@@ -453,7 +453,12 @@ exports.setPrimaryBody = async (req, res) => {
     }
 
     if (req.body.primary_body_id) {
-        const body = await Body.findByPk(req.body.primary_body_id);
+        const bodyId = helpers.parseId(req.body.primary_body_id);
+        if (!bodyId) {
+            return errors.makeBadRequestError(res, 'The body ID is not valid.');
+        }
+
+        const body = await Body.findByPk(bodyId);
         if (!body) {
             return errors.makeNotFoundError(res, 'Body is not found.');
         }
