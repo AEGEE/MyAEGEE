@@ -6,6 +6,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
+const logger = require('./logger');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
@@ -179,20 +180,24 @@ exports.claimCode = async (req, res) => {
 
     const codeToClaim = result.code;
 
-    await mailer.sendMail({
-        to: req.user.notification_email,
-        subject: `Your ${req.integration.name} discount code`,
-        template: 'custom.html',
-        parameters: {
-            email_body: helpers.getMailText({
-                user: req.user,
-                integration: req.integration,
-                code: codeToClaim
-            })
-        }
-    });
+    // The mail is best effort: the code is claimed and shown under "My codes" either way.
+    try {
+        await mailer.sendMail({
+            to: req.user.notification_email,
+            subject: `Your ${req.integration.name} discount code`,
+            template: 'custom.html',
+            parameters: {
+                email_body: helpers.getMailText({
+                    user: req.user,
+                    integration: req.integration,
+                    code: codeToClaim
+                })
+            }
+        });
+    } catch (err) {
+        logger.error({ err, code_id: codeToClaim.id, integration_id: req.integration.id }, 'Could not send the claimed code mail');
+    }
 
-    // TODO: Send mail to user.
     return res.json({
         success: true,
         data: codeToClaim
