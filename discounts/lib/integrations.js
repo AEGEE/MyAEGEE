@@ -93,12 +93,16 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeBadRequestError(res, 'No codes are provided.');
     }
 
+    if (!req.body.every((code) => typeof code === 'string' && code.trim() !== '')) {
+        return errors.makeValidationError(res, 'Every code should be a non-empty string.');
+    }
+
     const arrayToCreate = req.body.map((code) => ({
         integration_id: req.integration.id,
         value: code
     }));
 
-    await Code.bulkCreate(arrayToCreate);
+    await Code.bulkCreate(arrayToCreate, { validate: true });
 
     return res.json({
         success: true,
