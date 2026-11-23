@@ -106,8 +106,14 @@ export default {
       return limit.body ? limit.body.name : 'body ' + limit.body_id
     },
     saveLimit (limit) {
-      const { body_id, delegate, envoy, observer, visitor } = limit
-      this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, { body_id, delegate, envoy, observer, visitor }).then(() => {
+      const payload = {
+        body_id: limit.body_id,
+        delegate: limit.delegate,
+        envoy: limit.envoy,
+        observer: limit.observer,
+        visitor: limit.visitor
+      }
+      this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, payload).then(() => {
         this.$root.showSuccess('Limit is saved.')
         this.$set(limit, 'isEditing', false)
         this.compareWithDefaults()
