@@ -63,7 +63,7 @@ exports.uploadImage = async (req, res, next) => {
     try {
         await uploadAsync(req, res);
     } catch (err) {
-        log.error('Could not store image', err);
+        log.error({ err }, 'Could not store image');
 
         if (err.code === 'LIMIT_FILE_SIZE') {
             return errors.makeValidationError(res, 'The image should be at most 5 MB.');

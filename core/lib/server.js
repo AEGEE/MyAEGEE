@@ -61,7 +61,7 @@ server.use(cors());
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
-    log.error('Unhandled rejection: ', err);
+    log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);

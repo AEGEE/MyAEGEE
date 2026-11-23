@@ -48,7 +48,7 @@ server.use(morgan);
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
-    log.error('Unhandled rejection: %s', err.stack);
+    log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
