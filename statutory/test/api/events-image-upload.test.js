@@ -8,6 +8,9 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Image } = require('../../models');
 const config = require('../../config');
+
+// What a client gets of an image: not where the server keeps the file, nor who uploaded it.
+const IMAGE_FIELDS = ['created_at', 'file_name', 'frontend_path', 'id', 'updated_at'];
 const log = require('../../lib/logger');
 
 describe('Events image upload', () => {
@@ -117,13 +120,14 @@ describe('Events image upload', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body.data).toHaveProperty('image');
-        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+        expect(Object.keys(res.body.data.image).sort()).toEqual(IMAGE_FIELDS);
 
         const imgPath = path.join(
             __dirname,
             '..',
             '..',
-            res.body.data.image.file_path_absolute
+            config.images_dir,
+            res.body.data.image.frontend_path
         );
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
@@ -144,13 +148,14 @@ describe('Events image upload', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body.data).toHaveProperty('image');
-        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+        expect(Object.keys(res.body.data.image).sort()).toEqual(IMAGE_FIELDS);
 
         const imgPath = path.join(
             __dirname,
             '..',
             '..',
-            res.body.data.image.file_path_absolute
+            config.images_dir,
+            res.body.data.image.frontend_path
         );
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
@@ -171,13 +176,14 @@ describe('Events image upload', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body.data).toHaveProperty('image');
-        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+        expect(Object.keys(res.body.data.image).sort()).toEqual(IMAGE_FIELDS);
 
         const imgPath = path.join(
             __dirname,
             '..',
             '..',
-            res.body.data.image.file_path_absolute
+            config.images_dir,
+            res.body.data.image.frontend_path
         );
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
@@ -201,7 +207,8 @@ describe('Events image upload', () => {
             __dirname,
             '..',
             '..',
-            firstRequest.body.data.image.file_path_absolute
+            config.images_dir,
+            firstRequest.body.data.image.frontend_path
         );
         const oldImgId = firstRequest.body.data.image.id;
 
@@ -220,7 +227,7 @@ describe('Events image upload', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body.data).toHaveProperty('image');
-        expect(res.body.data.image).toHaveProperty('file_path_absolute');
+        expect(Object.keys(res.body.data.image).sort()).toEqual(IMAGE_FIELDS);
 
         expect(fs.existsSync(oldImgPath)).toEqual(false);
 
@@ -266,7 +273,8 @@ describe('Events image upload', () => {
             __dirname,
             '..',
             '..',
-            firstRequest.body.data.image.file_path_absolute
+            config.images_dir,
+            firstRequest.body.data.image.frontend_path
         );
         await fs.promises.unlink(oldImgPath);
 
@@ -360,5 +368,29 @@ describe('Events image upload', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual('No image is specified.');
+    });
+
+    it('should return the image of an event without the server path and the uploader', async () => {
+        const upload = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { path: './test/assets/valid_image.png' } }
+        });
+        expect(upload.statusCode).toEqual(200);
+
+        const single = await request({
+            path: '/events/' + event.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+        expect(single.statusCode).toEqual(200);
+        expect(Object.keys(single.body.data.image).sort()).toEqual(IMAGE_FIELDS);
+        expect(single.body.data.image.frontend_path).toEqual('/' + single.body.data.image.file_name);
+
+        const list = await request({ path: '/', method: 'GET' });
+        expect(list.statusCode).toEqual(200);
+        expect(list.body.data.length).toEqual(1);
+        expect(Object.keys(list.body.data[0].image).sort()).toEqual(IMAGE_FIELDS);
     });
 });
