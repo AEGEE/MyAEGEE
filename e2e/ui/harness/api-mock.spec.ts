@@ -2,7 +2,7 @@
 // network errors, downloads, file uploads, requests outside /api, fallback answers and the
 // strict mode that fails a test for a request nobody answered.
 import { ok } from '../support/factories/base.ts';
-import { application, event, organizerPermissions } from '../support/factories/events.ts';
+import { application, event, eventSummary, organizerPermissions } from '../support/factories/events.ts';
 import { mockMap } from '../support/map.ts';
 import { dialog, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
@@ -89,10 +89,13 @@ test.describe('API mock', () => {
         await page.goto('/events/spring');
         await expect(page.getByRole('heading', { name: 'Spring Training', level: 1 })).toBeVisible();
 
-        // The map only starts where the browser has WebGL (ui/shell/navigation.spec.ts logs
-        // whether it does); without it there is no style request to check.
-        const webgl = await page.evaluate(() => !!document.createElement('canvas').getContext('webgl'));
-        if (webgl) await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/**')).toHaveLength(1);
+        // The map needs WebGL, which the browsers of CI and of a developer's machine have (in
+        // software where there is no GPU). Without it there would be no style request.
+        expect(await page.evaluate(() => {
+            const context = document.createElement('canvas').getContext('webgl');
+            return context ? String(context.getParameter(context.VERSION)) : 'no WebGL';
+        })).toMatch(/^WebGL/);
+        await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/**')).toHaveLength(1);
     });
 
     test('fallback answers only step in where the test has none', async ({ page, api }) => {
@@ -109,8 +112,62 @@ test.describe('API mock', () => {
         expect(api.unhandled).toEqual([]);
     });
 
+    test('a route that could never match is refused where it is written', async ({ api }) => {
+        const refused = (route: string): string => {
+            try {
+                api.on(route, { json: ok([]) });
+            } catch (error) {
+                return (error as Error).message;
+            }
+            return 'accepted';
+        };
+
+        expect(refused('get events /')).toContain('the method "get" is not one of GET, POST, PUT, PATCH, DELETE or *. Did you mean GET?');
+        expect(refused('FETCH events /')).toContain('the method "FETCH"');
+        expect(refused('GET events/')).toContain('needs three parts separated by one space each (method, service, path), and has 2');
+        expect(refused('GET events')).toContain('has 2');
+        expect(refused('GET  events /')).toContain('three parts separated by one space each');
+        expect(refused(' GET events /')).toContain('spaces around it');
+        expect(refused('POST evnts /')).toContain('the service "evnts" is not one of core, events, summeruniversity, statutory, discounts, network, mailer (or url, or *). Did you mean events?');
+        expect(refused('GET Events /')).toContain('Did you mean events?');
+        expect(refused('GET events single/1')).toContain('has to start with a slash');
+        expect(refused('GET events /api/events/single/1')).toContain('without the /api/<service> prefix');
+        expect(refused('GET events /?search=x')).toContain('no query string');
+        expect(refused('GET events /single//applications')).toContain('empty segment');
+        expect(refused('GET events /single/*')).toContain('* inside a path matches nothing');
+        expect(refused('GET events /single/:')).toContain(':parameter is a whole path segment');
+        expect(refused('GET url /media/**')).toContain('api.url(method, glob, respond)');
+        expect(refused('GET events /'), 'the message shows how a route is written').toBe('accepted');
+
+        // The same check where calls are counted: a typo there would read as "no call was made".
+        expect(() => api.callsTo('POST evnts /')).toThrow(/the service "evnts"/);
+        expect(() => api.callsTo('get events /')).toThrow(/the method "get"/);
+        expect(() => api.callsTo('GET url media/**')).toThrow(/a url pattern starts with \//);
+        expect(() => api.url('GET', 'api.github.com/**', { json: [] })).toThrow(/a url pattern starts with \//);
+        expect(() => api.json('GET events /mine', ok([]), { optional: 'maybe' })).toThrow(/at least 3 words/);
+
+        // Accepted above, and nothing asks for it here.
+        expect(api.unused).toEqual(['GET events /']);
+        api.json('GET events /', ok([]), { optional: 'only registered to show what is accepted' });
+        expect(api.unused).toEqual([]);
+    });
+
+    test('a handler nobody called is fine when it says why, when it was replaced, or when it is a fallback', async ({ page, api }) => {
+        api.json('GET events /', ok([eventSummary({ name: 'Replaced by the next answer' })]));
+        api.json('GET events /', ok([]));
+        api.json('GET events /mine/participating', ok([]), { optional: 'this test never opens "my events"' });
+        api.fallback(() => api.json('GET events /mine/organizing', ok([])));
+
+        await page.goto('/events');
+
+        await expect(page.getByText('No events found.')).toBeVisible();
+        expect(api.unused).toEqual([]);
+        expect([...new Set(api.callsTo('* * *').map((call) => `${call.method} ${call.service} ${call.path}`))].sort()).toEqual(['GET core /members/me', 'GET core /my_permissions', 'GET events /']);
+    });
+
     test.describe('strict mode', () => {
         // The check at the end of every test is what this is about, so do it by hand here.
+        // eslint-disable-next-line e2e-no-weakened-checks -- the strict check itself is under test here: these tests read api.unhandled by hand
         test.use({ strictApi: false });
 
         test('a request nobody answered is recorded as unhandled', async ({ page, api }) => {
@@ -126,6 +183,18 @@ test.describe('API mock', () => {
             await page.evaluate(() => fetch('/services/jira-cors/wiki/rest/api/content/1').then((response) => response.status));
 
             expect(api.unhandled.map((call) => `${call.method} ${call.service} ${new URL(call.path).pathname}`)).toEqual(['GET url /services/jira-cors/wiki/rest/api/content/1']);
+        });
+
+        test('and a request from a second page of the test', async ({ page, context, api }) => {
+            await page.goto('/about');
+            const second = await context.newPage();
+            await second.goto('/about');
+
+            expect(await second.evaluate(async () => (await fetch('/api/statutory/')).status)).toBe(501);
+
+            expect(api.unhandled.map((call) => `${call.method} ${call.service} ${call.path}`)).toEqual(['GET statutory /']);
+            // Both pages asked who is logged in, and both got the mock's answer.
+            expect(api.callsTo('GET core /members/me').map((call) => call.status)).toEqual([200, 200]);
         });
     });
 });

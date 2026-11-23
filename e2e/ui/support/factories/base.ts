@@ -13,10 +13,27 @@ export const NOW = Date.now();
 // time (CET) in Brussels, the time zone the suite runs in.
 export const FIXED_NOW = '2027-03-01T10:00:00+01:00';
 
+// What the factories date from: the real now, unless `withNow()` sets another instant.
+let base = NOW;
+
+// Builds data dated from `from` instead of from the real now: everything `build` makes with
+// `iso()` and `date()` (the defaults of the factories) is relative to that instant. The
+// generated smoke and axe tests use it with FIXED_NOW, so a page looks the same on any day.
+// Only what `build` creates before it returns counts, not what a responder creates later.
+export const withNow = <T>(from: number, build: () => T): T => {
+    const before = base;
+    base = from;
+    try {
+        return build();
+    } finally {
+        base = before;
+    }
+};
+
 // Dates are relative to now by default, so "open for applications" stays true whenever the
 // tests run. Pass `Date.parse(FIXED_NOW)` as `from` in a spec that freezes the time.
-export const iso = (offsetDays: number, from: number = NOW): string => new Date(from + offsetDays * DAY).toISOString();
-export const date = (offsetDays: number, from: number = NOW): string => iso(offsetDays, from).slice(0, 10);
+export const iso = (offsetDays: number, from: number = base): string => new Date(from + offsetDays * DAY).toISOString();
+export const date = (offsetDays: number, from: number = base): string => iso(offsetDays, from).slice(0, 10);
 
 let nextId = 1000;
 export const id = (): number => nextId++;

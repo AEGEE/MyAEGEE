@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { isArea, type Area } from './areas.ts';
+import type { Member } from './factories/core.ts';
 import { SMOKE } from './smoke/index.ts';
 
 interface RouteDefinition {
@@ -66,7 +67,7 @@ export const ROUTES: AppRoute[] = definitions.map((route) => {
 // A key in an area's smoke file must be a route of that area. Anything else is left over from
 // a route that was renamed, moved or removed, and would silently stop doing its job.
 for (const [area, data] of Object.entries(SMOKE)) {
-    for (const [kind, keys] of Object.entries({ params: data.params, redirects: data.redirects, expectedAlerts: data.expectedAlerts })) {
+    for (const [kind, keys] of Object.entries({ params: data.params, redirects: data.redirects, expectedAlerts: data.expectedAlerts, profiles: data.profiles ?? {} })) {
         for (const name of Object.keys(keys)) {
             const route = ROUTES.find((item) => item.name === name);
             if (!route) throw new Error(`ui/support/smoke/${area}.ts: \`${kind}\` has "${name}", which is not a route in frontend/src/router/routes.js`);
@@ -78,3 +79,10 @@ for (const [area, data] of Object.entries(SMOKE)) {
 export const redirectOf = (route: AppRoute): { url: string; title: string } | undefined => SMOKE[route.area].redirects[route.name];
 
 export const expectedAlertOf = (route: AppRoute): RegExp | undefined => SMOKE[route.area].expectedAlerts[route.name];
+
+// Changes the logged-in member into one who gets to see the route's page, where that takes more
+// than being logged in.
+export const prepareProfile = (route: AppRoute, me: Member | null): void => {
+    const change = SMOKE[route.area].profiles?.[route.name];
+    if (change && me) change(me);
+};

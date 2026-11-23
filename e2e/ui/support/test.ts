@@ -1,9 +1,10 @@
 // Fixtures of the mocked-API suite (playwright.ui.config.ts).
 //
-// Every test gets a browser whose /api calls are answered by `api` (an ApiMock). By default the
-// browser is logged in as a regular member (`test.use({ session: 'board' | 'superadmin' |
-// 'anonymous' })` to change that), and the test fails when the page throws or calls an endpoint
-// nobody mocked.
+// Every test gets a browser whose /api calls are answered by `api` (an ApiMock), whether the
+// test asks for `api` or not, and in every page of its browser context. By default the browser
+// is logged in as a regular member (`test.use({ session: 'board' | 'superadmin' | 'anonymous' })`
+// to change that), and the test fails when a page throws, calls an endpoint nobody mocked, or
+// never calls an endpoint the test did mock.
 //
 // Every spec runs on a desktop and on a phone viewport (projects `vue` and `vue-mobile`), and
 // is written to outlive the framework the pages are built with: it may only rely on what a
@@ -17,7 +18,8 @@ import { test as base, expect } from '@playwright/test';
 import { coverageFixtures, type CoverageFixtures, type CoverageWorkerFixtures } from '../../support/coverage.ts';
 import { ApiMock } from './api-mock.ts';
 import { isArea, type Area } from './areas.ts';
-import { ok } from './factories/base.ts';
+import { NOW, ok, withNow } from './factories/base.ts';
+import { freezeTime } from './shell.ts';
 import { allSeedPermissions, body, circle, member, seedPermissions, type Member, type Permission } from './factories/core.ts';
 
 export type Session = 'member' | 'board' | 'superadmin' | 'anonymous';
@@ -40,6 +42,10 @@ interface Options {
     area: Area | undefined;
     // console.error messages the test expects (see `consoleErrors`).
     allowedConsoleErrors: RegExp[];
+    // For the generated smoke and axe tests, which must find the same page on any day: an
+    // instant (FIXED_NOW) that the clock of the pages is set to before anything loads, and that
+    // the logged-in member is dated from. A behavioural spec calls freezeTime(page) instead.
+    now: string | undefined;
 }
 
 interface Fixtures {
@@ -51,8 +57,6 @@ interface Fixtures {
     pageErrors: Error[];
     consoleErrors: string[];
 }
-
-const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
 const ANTENNA = { id: 1, name: 'AEGEE-Antenna' };
 
@@ -95,6 +99,7 @@ export const test = base.extend<Options & Fixtures & CoverageFixtures, CoverageW
     strictApi: [true, { option: true }],
     area: [undefined, { option: true }],
     allowedConsoleErrors: [[], { option: true }],
+    now: [undefined, { option: true }],
 
     // eslint-disable-next-line no-empty-pattern -- Playwright wants the fixtures destructured, and this one needs none
     frontend: async ({}, use, testInfo) => {
@@ -108,60 +113,72 @@ export const test = base.extend<Options & Fixtures & CoverageFixtures, CoverageW
         await use((testInfo.project.metadata.layout ?? 'desktop') as Layout);
     },
 
-    // Fonts and map tiles come from the internet; the tests don't need them. A test that needs
-    // an answer from another host gives one with `api.url()`.
-    context: async ({ context }, use) => {
-        await context.route((requestUrl) => !LOCAL_HOSTS.includes(requestUrl.hostname), (route) => route.abort());
-        await use(context);
+    // Logged in the way the app stores it: both tokens in localStorage, from the first page of
+    // the context on. Storage state is set once, when the context is made, so what the app does
+    // to the tokens later (renewing them, logging out) is kept over page loads and new pages.
+    storageState: async ({ session, tokens, baseURL }, use) => {
+        const stored = tokens ?? (session === 'anonymous' ? 'none' : 'both');
+        const localStorage = [
+            ...(stored === 'both' || stored === 'access' ? [{ name: 'access-token', value: ACCESS_TOKEN }] : []),
+            ...(stored === 'both' || stored === 'refresh' ? [{ name: 'refresh-token', value: REFRESH_TOKEN }] : [])
+        ];
+        await use({ cookies: [], origins: localStorage.length ? [{ origin: new URL(baseURL!).origin, localStorage }] : [] });
     },
 
     // The logged-in member. A test may change it before going to a page (it is read when the
     // page asks for it), for example `me!.privacy_consent = null` for an incomplete profile.
-    me: async ({ session }, use) => {
-        await use(session === 'anonymous' ? null : PROFILES[session]());
+    me: async ({ session, now }, use) => {
+        await use(session === 'anonymous' ? null : withNow(now ? Date.parse(now) : NOW, PROFILES[session]));
     },
 
     myPermissions: async ({ session }, use) => {
         await use(PERMISSIONS[session]());
     },
 
-    api: async ({ page, me, myPermissions, session, tokens, strictApi }, use, testInfo) => {
+    // Automatic: a test that takes only `{ page }` gets the mock, the session and the checks
+    // below all the same. It answers on the browser context, so a second page or a popup of the
+    // test is covered as well.
+    api: [async ({ context, me, myPermissions, strictApi, now }, use, testInfo) => {
         const api = new ApiMock();
+        if (now) await freezeTime(context, now);
 
-        const stored = tokens ?? (session === 'anonymous' ? 'none' : 'both');
-        if (stored !== 'none') {
-            // Logged in the way the app stores it. Only on the first page load: init scripts run
-            // on every load, and a full page load (after logging out, say) must keep what the app
-            // did to the tokens.
-            await page.addInitScript(([access, refresh]) => {
-                if (window.sessionStorage.getItem('mock-session')) return;
-                window.sessionStorage.setItem('mock-session', 'set');
-                if (access) window.localStorage.setItem('access-token', access);
-                if (refresh) window.localStorage.setItem('refresh-token', refresh);
-            }, [stored === 'refresh' ? null : ACCESS_TOKEN, stored === 'access' ? null : REFRESH_TOKEN]);
-        }
-
+        // What every page asks for. Nothing has to call them: not every test goes to a page.
+        const optional = { optional: 'asked by every page, but not every test opens one' };
         if (me) {
             // Read the variables at request time, so a test can change them before going to a page.
-            api.on('GET core /members/me', () => ({ json: ok(me) }));
-            api.on('GET core /my_permissions', () => ({ json: ok(myPermissions) }));
+            api.on('GET core /members/me', () => ({ json: ok(me) }), optional);
+            api.on('GET core /my_permissions', () => ({ json: ok(myPermissions) }), optional);
         } else {
-            api.on('GET core /members/me', { status: 401, json: { success: false, message: 'Unauthorized' } });
+            api.on('GET core /members/me', { status: 401, json: { success: false, message: 'Unauthorized' } }, optional);
         }
-        api.json('POST core /logout', { success: true });
+        api.json('POST core /logout', { success: true }, optional);
 
-        await api.install(page);
+        await api.install(context);
         await use(api);
 
-        if (strictApi && testInfo.status === testInfo.expectedStatus) {
-            const unhandled = api.unhandled.map((call) => (call.service === 'url' ? `${call.method} ${call.path}` : `${call.method} /api/${call.service}${call.path}`));
-            expect(unhandled, 'requests nobody mocked').toEqual([]);
+        const passed = testInfo.status === testInfo.expectedStatus;
+        const unhandled = api.unhandled.map((call) => (call.service === 'url' ? `${call.method} ${call.path}` : `${call.method} /api/${call.service}${call.path}`));
+        const { unused } = api;
+        if (!passed) {
+            // Shown with the failure in the report, whatever the test's settings are.
+            if (unhandled.length) await testInfo.attach('requests nobody mocked', { body: unhandled.join('\n'), contentType: 'text/plain' });
+            if (unused.length) await testInfo.attach('handlers no request matched', { body: unused.join('\n'), contentType: 'text/plain' });
         }
-    },
+        // Also for a test that failed already: a forgotten mock is the usual reason for an
+        // assertion that timed out, and this puts the list next to that failure.
+        if (strictApi) {
+            expect(unhandled, passed ? 'requests nobody mocked' : 'requests nobody mocked (a likely reason for the failure above)').toEqual([]);
+        }
+        // Only for a test that got to its end: one that stopped half-way didn't make all its requests.
+        if (passed) {
+            expect(unused, 'handlers that no request matched: a typo in the route, or the page no longer asks. If that is expected, say why: api.on(route, answer, { optional: \'<reason>\' })').toEqual([]);
+        }
+    }, { auto: true }],
 
-    pageErrors: [async ({ page }, use) => {
+    // Uncaught errors in any page of the test.
+    pageErrors: [async ({ context }, use) => {
         const errors: Error[] = [];
-        page.on('pageerror', (error) => errors.push(error));
+        context.on('weberror', (webError) => errors.push(webError.error()));
         await use(errors);
         expect(errors.map((error) => error.message), 'uncaught errors in the page').toEqual([]);
     }, { auto: true }],
@@ -170,9 +187,9 @@ export const test = base.extend<Options & Fixtures & CoverageFixtures, CoverageW
     // and lifecycle hooks this way; they never reach `pageErrors`. Once an area's coverage gate
     // is enforced they fail its tests; until then they are only noted on the test.
     // A test that expects one: `test.use({ allowedConsoleErrors: [/Network Error/] })`.
-    consoleErrors: [async ({ page, area, allowedConsoleErrors }, use, testInfo) => {
+    consoleErrors: [async ({ context, area, allowedConsoleErrors }, use, testInfo) => {
         const errors: string[] = [];
-        page.on('console', (message) => {
+        context.on('console', (message) => {
             if (message.type() !== 'error') return;
             const text = message.text();
             // The browser's own line for every request that fails or is answered with an error

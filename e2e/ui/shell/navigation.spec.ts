@@ -7,18 +7,6 @@ import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 test.describe('navigation', () => {
-    test.beforeAll(async ({ browser }) => {
-        // Pages with a map need WebGL. Not asserted: this only records, in the output of the
-        // run, whether the browser of this machine has it.
-        const page = await browser.newPage();
-        const webgl = await page.evaluate(() => {
-            const context = document.createElement('canvas').getContext('webgl');
-            return context ? String(context.getParameter(context.VERSION)) : null;
-        });
-        await page.close();
-        console.log(`WebGL in this browser: ${webgl ?? 'not available'}`);
-    });
-
     test('a member reaches the events list through the menu', async ({ page, api, layout }) => {
         api.json('GET events /', ok([]));
         api.json('GET events /mine/participating', ok([]));
