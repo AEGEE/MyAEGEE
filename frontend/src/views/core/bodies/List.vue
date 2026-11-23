@@ -5,22 +5,23 @@
         <h4 class="title">Bodies list</h4>
 
         <div class="field">
-          <label class="label">Search by name, body code or abbreviation</label>
+          <label class="label" for="bodies-search">Search by name, body code or abbreviation</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
+              <input id="bodies-search" class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
             </div>
             <div class="control" v-if="can.viewDeleted">
-              <a class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</a>
-              <a class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</a>
+              <button type="button" class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</button>
+              <button type="button" class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</button>
             </div>
           </div>
         </div>
 
         <div class="field" v-if="loginUser">
-          <label class="label">Filter on body type</label>
+          <label class="label" id="bodies-type-filter-label">Filter on body type</label>
           <div class="control">
             <multiselect
+              aria-labelledby="bodies-type-filter-label"
               v-model="selectedTypes"
               :multiple="true"
               :searchable="false"
