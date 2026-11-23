@@ -556,4 +556,59 @@ describe('Bodies editing', () => {
         expect(unset.body.data.shadow_circle_id).toEqual(null);
         expect(unset.body.data.shadow_circle).toEqual(null);
     });
+
+    describe('with a value that another body has', () => {
+        const own = {
+            code: 'OWN',
+            abbreviation: 'AEGEE-Own',
+            gsuite_id: 'own@aegee.eu',
+            google_group: 'own-l@aegee.eu'
+        };
+        let token;
+        let body;
+
+        beforeEach(async () => {
+            const user = await generator.createUser({ superadmin: true });
+            token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            await generator.createBody({
+                code: 'ABC',
+                abbreviation: 'AEGEE-Somewhere',
+                gsuite_id: 'somewhere@aegee.eu',
+                google_group: 'somewhere-l@aegee.eu'
+            });
+            body = await generator.createBody({ ...own });
+        });
+
+        const update = (fields) => request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: fields
+        });
+
+        test.each([
+            ['code', 'abc', 'code must be unique'],
+            ['abbreviation', 'AEGEE-Somewhere', 'abbreviation must be unique'],
+            ['gsuite_id', 'Somewhere@AEGEE.eu', 'gsuite_id must be unique'],
+            ['google_group', 'Somewhere-L@aegee.eu', 'google_group must be unique']
+        ])('should fail for the %s, and keep the body as it was', async (field, value, message) => {
+            const res = await update({ [field]: value, name: 'Other name' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { [field]: [message] } });
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb[field]).toEqual(own[field]);
+            expect(bodyFromDb.name).toEqual(body.name);
+        });
+
+        test('should succeed when the body sends its own values back', async () => {
+            const res = await update({ ...own, name: 'Other name' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ ...own, name: 'Other name' });
+        });
+    });
 });
