@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Statutory background tasks</div>
+        <h1 class="title">Statutory background tasks</h1>
 
         <b-table :data="tasks" :loading="isLoading">
           <b-table-column field="id" label="ID" v-slot="props">
