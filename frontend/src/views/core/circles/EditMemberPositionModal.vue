@@ -2,13 +2,13 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Edit user membership</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Position</label>
+        <label class="label" for="circle-membership-position">Position</label>
         <div class="control">
-          <input class="input" type="text" v-model="membership.position" />
+          <input id="circle-membership-position" class="input" type="text" v-model="membership.position" />
         </div>
         <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
       </div>
@@ -21,8 +21,8 @@
       </div> -->
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="updateMembership()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="updateMembership()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
