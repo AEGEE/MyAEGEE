@@ -186,6 +186,106 @@ describe('Board creation', () => {
         expect(res.body.errors).toHaveProperty('image_id');
     });
 
+    test.each(['president', 'secretary', 'treasurer'])('should fail with 422 if the %s is not set', async (field) => {
+        const board = generator.generateBoard({ [field]: null });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty(field);
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if the president is not a number', async () => {
+        const board = generator.generateBoard({ president: 'abc' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('president');
+    });
+
+    test.each([
+        ['not a list', 'x'],
+        ['a list of strings', ['x']],
+        ['a member without a user', [{ function: 'Comms' }]],
+        ['a member without a function', [{ user_id: 1 }]],
+        ['a member with a user that is not a number', [{ function: 'Comms', user_id: 'abc' }]]
+    ])('should fail with 422 if other_members is %s', async (_, otherMembers) => {
+        const board = generator.generateBoard({ other_members: otherMembers });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('other_members');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 404 if core does not know the body', async () => {
+        mock.mockAll({ body: { notFound: true } });
+        const board = generator.generateBoard();
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if core does not know an officer', async () => {
+        mock.mockAll({ member: { notFound: [404] } });
+        const board = generator.generateBoard({ president: 1, secretary: 404, treasurer: 2 });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['secretary']);
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if core does not know one of the other members', async () => {
+        mock.mockAll({ member: { notFound: [99] } });
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: 99 }] });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['other_members']);
+        expect(await Board.count()).toEqual(0);
+    });
+
     test('should fail if core user request returns net error', async () => {
         mock.mockAll({ member: { netError: true } });
         const board = generator.generateBoard({ president: user.id });

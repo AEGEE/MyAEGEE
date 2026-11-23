@@ -155,6 +155,13 @@ exports.mockCoreBody = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    if (options.notFound) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .reply(404, { success: false, message: 'Body is not found.' });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/bodies\/[0-9].*/)
@@ -181,6 +188,16 @@ exports.mockCoreMember = (options) => {
             .persist()
             .get(/\/members\/[0-9].*/)
             .reply(500, { success: false, message: 'Some error' });
+    }
+
+    // Members whose id is listed in notFound are unknown to core; the others exist.
+    if (options.notFound) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members\/[0-9].*/)
+            .reply((uri) => (options.notFound.includes(Number(uri.split('/').pop()))
+                ? [404, { success: false, message: 'User is not found.' }]
+                : [200, { success: true, data: user }]));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
