@@ -1,5 +1,6 @@
 const crypto = require('crypto');
-const { sequelize, Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
+const config = require('../config');
 const constants = require('./constants');
 const { BadRequestError } = require('./errors');
 
@@ -220,6 +221,14 @@ const equalsIgnoreCase = (column, value) => Sequelize.where(
     String(value).toLowerCase()
 );
 
+// For a transaction that takes a lock another request may hold: it waits for that lock at most
+// `config.lock_timeout` milliseconds. Postgres then fails the statement with `lock_not_available`,
+// which the error handler answers with a 503.
+const setLockTimeout = (transaction) => sequelize.query(
+    `SET LOCAL lock_timeout = ${Number(config.lock_timeout)}`,
+    { transaction }
+);
+
 // Blocks the restricted domains and their subdomains, but not e.g. 'notaegee.org'.
 const isRestrictedEmail = (email) => {
     const normalized = email.trim().toLowerCase();
@@ -230,10 +239,14 @@ const isRestrictedEmail = (email) => {
 // lock does that without locking the member's row, which every request of that member
 // writes to (last_active), so the member is not held up while the mails are sent.
 const MAIL_CHANGE_LOCK_NAMESPACE = 1;
-const lockMailChanges = (userId, transaction) => sequelize.query(
-    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
-    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
-);
+// A request that would wait for longer than the lock timeout is answered with a 503.
+const lockMailChanges = async (userId, transaction) => {
+    await setLockTimeout(transaction);
+    await sequelize.query(
+        'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
+        { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
+    );
+};
 
 module.exports = {
     traverseIndirectCircles,
@@ -249,5 +262,6 @@ module.exports = {
     isRestrictedEmail,
     lockMailChanges,
     parseId,
+    setLockTimeout,
     stringOrEmpty
 };

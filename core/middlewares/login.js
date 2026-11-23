@@ -147,6 +147,8 @@ module.exports.renew = async (req, res) => {
     const value = helpers.stringOrEmpty(req.body.refresh_token);
 
     const tokens = value && await sequelize.transaction(async (t) => {
+        await helpers.setLockTimeout(t);
+
         // Locking the row so parallel renews with the same token are processed one by one.
         const token = await RefreshToken.findOne({
             where: { value },

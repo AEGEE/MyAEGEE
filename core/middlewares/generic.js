@@ -103,6 +103,11 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, err.message);
     }
 
+    // Handling a request that gave up waiting for another one (see helpers.setLockTimeout)
+    if (errors.isLockTimeout(err)) {
+        return errors.makeBusyError(res);
+    }
+
     // Handling validation errors
     /* istanbul ignore else */
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {

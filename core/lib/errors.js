@@ -63,3 +63,9 @@ exports.makeConflictError = (res, err) => exports.makeError(res, 409, err);
 // of another service. Whoever calls this logs the error.
 exports.makeInternalError = (res) => exports.makeError(res, 500, 'Something went wrong on the server.');
 exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
+
+// For a request that gave up waiting for another request that locks the same data.
+exports.makeBusyError = (res) => exports.makeError(res, 503, 'Another request for the same data is being processed. Please try again in a moment.');
+
+// What Postgres answers when a statement waited for a lock for longer than `lock_timeout`.
+exports.isLockTimeout = (err) => Boolean(err && err.parent && err.parent.code === '55P03');
