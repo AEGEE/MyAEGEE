@@ -206,7 +206,7 @@ export interface paths {
         put?: never;
         /**
          * Send the Antenna Criteria fulfilment mail to a body
-         * @description Sends the text through the mailer's `custom.html` template. `from` must be one address on aegee.org or aegee.eu (default network@aegee.eu).
+         * @description Sends the text through the mailer's `custom.html` template. Every address is one address without a display name (a dot-atom local part and a domain of at least two labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). The addresses and the subject are one line each.
          */
         post: operations["sendFulfilmentMail"];
         delete?: never;
@@ -421,12 +421,14 @@ export interface components {
             success: true;
             data: components["schemas"]["AntennaCriterion"][];
         };
+        /** Format: email */
+        MailAddress: string;
         FulfilmentMailInput: {
             /** @description One address on aegee.org or aegee.eu; empty or absent sends from network@aegee.eu. */
-            from?: string | null;
-            to: string | string[];
-            cc?: (string | null) | string[];
-            reply_to?: string | null;
+            from?: components["schemas"]["MailAddress"] | string | null;
+            to: components["schemas"]["MailAddress"] | components["schemas"]["MailAddress"][];
+            cc?: components["schemas"]["MailAddress"] | components["schemas"]["MailAddress"][] | string | null;
+            reply_to?: components["schemas"]["MailAddress"] | string | null;
             subject: string;
             /** @description The HTML text of the mail. */
             body: string;
