@@ -8,7 +8,10 @@ exports.findQuestionLine = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The question line ID is invalid.');
     }
 
-    const questionLine = await QuestionLine.findByPk(Number(req.params.question_line_id));
+    // Only a question line of the event in the URL.
+    const questionLine = await QuestionLine.findOne({
+        where: { id: Number(req.params.question_line_id), event_id: req.event.id }
+    });
     if (!questionLine) {
         return errors.makeNotFoundError(res, 'Question line is not found.');
     }

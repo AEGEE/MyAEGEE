@@ -7,8 +7,9 @@ exports.findQuestion = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The question ID is invalid.');
     }
 
+    // Only a question of the question line in the URL.
     const question = await Question.findOne({
-        where: { id: Number(req.params.question_id) },
+        where: { id: Number(req.params.question_id), question_line_id: req.questionLine.id },
         include: [{
             model: Application,
             attributes: constants.ALLOWED_QUESTION_LINE_APPLICATION_FIELDS

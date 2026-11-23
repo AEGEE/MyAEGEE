@@ -15,7 +15,10 @@ exports.findPlenary = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
-    const plenary = await Plenary.findByPk(Number(req.params.plenary_id));
+    // Only a plenary of the event in the URL.
+    const plenary = await Plenary.findOne({
+        where: { id: Number(req.params.plenary_id), event_id: req.event.id }
+    });
     if (!plenary) {
         return errors.makeNotFoundError(res, 'Plenary is not found.');
     }
@@ -78,7 +81,7 @@ exports.findPlenaryWithAttendances = async (req, res) => {
 
     // Preloading values.
     const plenary = await Plenary.findOne({
-        where: { id: Number(req.params.plenary_id) },
+        where: { id: Number(req.params.plenary_id), event_id: req.event.id },
         include: [{
             model: Attendance,
             include: [{

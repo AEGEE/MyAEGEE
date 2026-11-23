@@ -12,9 +12,11 @@ exports.findPosition = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }
 
+    // Only a position of the event in the URL.
     const position = await Position.findOne({
         where: {
             id: Number(req.params.position_id),
+            event_id: req.event.id,
             deleted: false
         }
     });
