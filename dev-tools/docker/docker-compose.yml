@@ -46,21 +46,14 @@ services:
 ### show api docs Container #######################################
   swagger:
     image: swaggerapi/swagger-ui:v5.35.0
+    # Reads each service's openapi.yaml from the checkout (docs/testing/backend-openapi.md).
+    # The pull request that writes a service's spec adds its two lines, in alphabetical order:
+    #   volumes:  - ./<service>/openapi.yaml:/usr/share/nginx/html/specs/<service>.yaml:ro
+    #   URLS:     {url: './specs/<service>.yaml', name: '<service>'}
+    # For reading only: "Try it out" cannot reach the APIs from this host.
+    volumes: []
     environment:
-      # API_URL: http://events/api-docs.json
-      URLS: "[{url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/core/api-docs.json\", \
-              name: \"core\"}, \
-              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/events/api-docs.json\", \
-              name: \"events\"}, \
-              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/statutory/api-docs.json\", \
-              name: \"statutory\"}, \
-              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/discounts/api-docs.json\", \
-              name: \"discounts\"}, \
-              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/network/api-docs.json\", \
-              name: \"network\"}, \
-              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/summeruniversity/api-docs.json\", \
-              name: \"summeruniversity\"}, \
-              ]"
+      URLS: "[]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger
