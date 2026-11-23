@@ -56,31 +56,60 @@ exports.setCriterion = async (req, res) => {
     });
 };
 
+const isFilledString = (value) => typeof value === 'string' && value.trim() !== '';
+const isEmpty = (value) => value === undefined || value === null || value === '';
+
+// Checks the fulfilment mail request and returns the errors per field.
+const validateFulfilmentMail = (input) => {
+    const fieldErrors = {};
+
+    if (!isEmpty(input.from) && !isAegeeAddress(input.from)) {
+        fieldErrors.from = ['The sender must be an address on one of these domains: ' + constants.AEGEE_MAIL_DOMAINS.join(', ') + '.'];
+    }
+
+    const to = Array.isArray(input.to) ? input.to : [input.to];
+    if (to.length === 0 || !to.every(isFilledString)) {
+        fieldErrors.to = ['The recipient must be an address or a list of addresses.'];
+    }
+
+    if (!isEmpty(input.cc) && !(Array.isArray(input.cc) ? input.cc : [input.cc]).every(isFilledString)) {
+        fieldErrors.cc = ['Cc must be an address or a list of addresses.'];
+    }
+
+    if (!isEmpty(input.reply_to) && typeof input.reply_to !== 'string') {
+        fieldErrors.reply_to = ['Reply-to must be an address.'];
+    }
+
+    if (!isFilledString(input.subject)) {
+        fieldErrors.subject = ['The subject must be set.'];
+    }
+
+    if (!isFilledString(input.body)) {
+        fieldErrors.body = ['The mail text must be set.'];
+    }
+
+    return fieldErrors;
+};
+
 exports.sendFulfilmentMail = async (req, res) => {
     if (!req.permissions.send_mails) {
         return errors.makeForbiddenError(res, 'You are not allowed to send Antenna Criteria fulfilment mails.');
     }
 
-    let from = constants.FULFILMENT_MAIL_DEFAULT_FROM;
-    if (![undefined, null, ''].includes(req.body.from)) {
-        if (!isAegeeAddress(req.body.from)) {
-            return res.status(422).json({
-                success: false,
-                errors: { from: ['The sender must be an address on one of these domains: ' + constants.AEGEE_MAIL_DOMAINS.join(', ') + '.'] }
-            });
-        }
-
-        from = req.body.from;
+    const input = req.body || {};
+    const fieldErrors = validateFulfilmentMail(input);
+    if (Object.keys(fieldErrors).length > 0) {
+        return res.status(422).json({ success: false, errors: fieldErrors });
     }
 
     await mailer.sendMail({
-        from,
-        to: req.body.to,
-        cc: req.body.cc,
-        subject: req.body.subject,
+        from: isEmpty(input.from) ? constants.FULFILMENT_MAIL_DEFAULT_FROM : input.from,
+        to: input.to,
+        cc: input.cc,
+        subject: input.subject,
         template: 'custom.html',
-        reply_to: req.body.reply_to,
-        parameters: { email_body: req.body.body }
+        reply_to: input.reply_to,
+        parameters: { email_body: input.body }
     });
 
     return res.json({
