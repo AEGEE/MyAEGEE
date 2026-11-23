@@ -139,7 +139,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            path: 'bodies/1',
+            path: '/bodies/1/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -147,7 +147,7 @@ describe('Board listing', () => {
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toEqual('There are no boards for this body.');
     });
 
     test('should list current board on', async () => {
