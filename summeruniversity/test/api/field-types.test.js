@@ -241,4 +241,36 @@ describe('Field types', () => {
             expect((await Season.findOne({ where: { year: 2026 } })).event_submission_deadline.toISOString()).toEqual(stored);
         });
     });
+
+    describe('decimals', () => {
+        const values = [['an array', [5]], ['an array of text', ['5']], ['an object', { value: 5 }], ['a boolean', true],
+            ['more decimals than the column keeps', `0.${'1'.repeat(16384)}`]];
+        const rows = [['fee', 'Event fee should be valid.'], ['optional_fee', 'Optional fee should be valid.']]
+            .flatMap(([field, message]) => values.map(([name, value]) => [field, name, value, message]));
+
+        test.each(rows)('creating a Summer University refuses a %s that is %s', async (field, _name, value, message) => {
+            const res = await call('POST', '/', generator.generateEventBody({ [field]: value }));
+
+            expectFieldError(res, field, message);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each(rows)('editing a Summer University refuses a %s that is %s', async (field, _name, value, message) => {
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await call('PUT', `/single/${event.id}`, { [field]: value });
+
+            expectFieldError(res, field, message);
+            expect(Number((await Event.findByPk(event.id))[field])).toEqual(Number(event[field]));
+        });
+
+        test('a fee takes a number with decimals, also as text', async () => {
+            const res = await call('POST', '/', generator.generateEventBody({ fee: '12.50', optional_fee: 7.25 }));
+
+            expect(res.statusCode).toEqual(201);
+            const event = await Event.findByPk(res.body.data.id);
+            expect(Number(event.fee)).toEqual(12.5);
+            expect(Number(event.optional_fee)).toEqual(7.25);
+        });
+    });
 });
