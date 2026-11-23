@@ -15,13 +15,6 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <!-- <div class="field is-grouped" v-if="duringAgora">
-            <a href="https://aegeeagora-streaming.westeurope.cloudapp.azure.com/" class="button is-danger is-fullwidth">
-              <span>Watch live</span>
-              <span class="icon"><font-awesome-icon icon="circle" /></span>
-            </a>
-          </div> -->
-
           <div class="field is-grouped" v-if="can.see_applications">
             <router-link
               :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }"
@@ -453,7 +446,6 @@ import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
-import moment from 'moment'
 import credentials from '../../credentials'
 import PictureModal from './PictureModal.vue'
 import constants from '../../constants.js'
@@ -512,7 +504,6 @@ export default {
         ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -621,12 +612,6 @@ export default {
       return (
         Object.keys(this.can.see_memberslist).filter((key) => this.can.see_memberslist[key])
           .length > 0
-      )
-    },
-    duringAgora () {
-      return (
-        this.event.type === 'agora'
-        && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
       )
     },
     activeEventApplicationBan () {

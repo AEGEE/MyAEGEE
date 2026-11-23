@@ -39,7 +39,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['event', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['event', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       file: null
