@@ -58,6 +58,12 @@ exports.getDefaultQuery = (req) => {
     return queryObj;
 };
 
+// A 422 in the same shape as a model validation error, for a field the handler checks itself.
+exports.makeFieldError = (res, field, message) => res.status(422).json({
+    success: false,
+    errors: { [field]: [message] }
+});
+
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {
     return Object.keys(obj).reduce((acc, k) => {

@@ -37,6 +37,18 @@ const APPLICATION_FIELDS = [
     'agreed_to_su_terms'
 ];
 
+const APPLICATION_STATUSES = ['pending', 'accepted', 'rejected'];
+
+// The flag routes take one field each. A missing value used to change nothing and still
+// answer 200 (and send the status mail), so it is checked first.
+const requireBoolean = (res, body, field) => {
+    if (typeof body[field] !== 'boolean') {
+        helpers.makeFieldError(res, field, 'The value should be true or false.');
+        return false;
+    }
+    return true;
+};
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -282,6 +294,10 @@ exports.setApplicationConfirmed = async (req, res) => {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
     }
 
+    if (!requireBoolean(res, req.body, 'confirmed')) {
+        return undefined;
+    }
+
     const dbResult = await req.application.update(
         { confirmed: req.body.confirmed },
         { returning: ['*'] }
@@ -298,6 +314,10 @@ exports.setApplicationAttended = async (req, res) => {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
     }
 
+    if (!requireBoolean(res, req.body, 'attended')) {
+        return undefined;
+    }
+
     const dbResult = await req.application.update(
         { attended: req.body.attended },
         { returning: ['*'] }
@@ -312,6 +332,10 @@ exports.setApplicationAttended = async (req, res) => {
 exports.setApplicationCancelled = async (req, res) => {
     if (!req.permissions.set_participants_cancelled && !req.permissions.set_application_cancelled) {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
+    }
+
+    if (!requireBoolean(res, req.body, 'cancelled')) {
+        return undefined;
     }
 
     const dbResult = await req.application.update(
@@ -336,6 +360,10 @@ exports.setApplicationStatus = async (req, res) => {
     // Check user permissions
     if (!req.permissions.approve_participants) {
         return errors.makeForbiddenError(res, 'You are not allowed to accept or reject participants');
+    }
+
+    if (!APPLICATION_STATUSES.includes(req.body.status)) {
+        return helpers.makeFieldError(res, 'status', `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
     await sequelize.transaction(async (t) => {
@@ -374,6 +402,10 @@ exports.setApplicationComment = async (req, res) => {
     // Check user permissions
     if (!req.permissions.set_board_comment[req.application.body_id]) {
         return errors.makeForbiddenError(res, 'You are not allowed to put board comments');
+    }
+
+    if (typeof req.body.board_comment !== 'string' && req.body.board_comment !== null) {
+        return helpers.makeFieldError(res, 'board_comment', 'board_comment should be a text or null.');
     }
 
     // Save changes
