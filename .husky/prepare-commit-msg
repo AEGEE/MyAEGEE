@@ -2,7 +2,7 @@
 if [ -z "$2" ]; then
   echo "# Commit format: <type>(<scope>): <subject>" >> $1
   echo "#" >> $1
-  echo "# Valid scopes: core, events, frontend, discounts, knowledge," >> $1
+  echo "# Valid scopes: core, events, frontend, discounts," >> $1
   echo "#                network, statutory, summeruniversity, mailer," >> $1
   echo "#                e2e, ci, docker, deps, docs" >> $1
   echo "#" >> $1

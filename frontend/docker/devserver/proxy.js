@@ -14,7 +14,6 @@ const internal = {
   '/api/summeruniversity': 'http://summeruniversity:8084',
   '/api/discounts': 'http://discounts:8084',
   '/api/network': 'http://network:8084',
-  '/api/knowledge': 'http://knowledge:8084',
   '/media/core': 'http://core-static:80',
   '/media/events': 'http://events-static:80',
   '/media/statutory': 'http://statutory-static:80',
