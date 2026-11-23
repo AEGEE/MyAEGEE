@@ -174,4 +174,30 @@ describe('Circle memberships creating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
     });
+
+    test.each([
+        ['missing', undefined],
+        ['a text that is not a number', 'abc'],
+        ['an empty text', ''],
+        ['a list', [1]],
+        ['an object', { id: 1 }],
+        ['a fraction', 1.5],
+        ['a boolean', true],
+        ['null', null]
+    ])('should return 400 if the user id is %s', async (name, value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
+        const circle = await generator.createCircle();
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/members',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { user_id: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The user ID is not valid.' });
+    });
 });
