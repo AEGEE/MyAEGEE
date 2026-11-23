@@ -398,7 +398,12 @@ export default {
     }
   },
   watch: {
+    // Another body starts afresh: without the errors and the search of the one before, and
+    // on the places (the boardview falls back to the applications if they can't be edited).
     selectedBody () {
+      this.errors = {}
+      this.query = ''
+      this.scope = 'edit'
       this.fetchBoardview()
     }
   },
