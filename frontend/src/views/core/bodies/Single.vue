@@ -439,7 +439,7 @@ export default {
         })
         .then(() => {
           this.isLoading = false
-          this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored')
+          this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored.')
           this.body.status = newStatus
         })
         .catch((err) => {
