@@ -50,9 +50,11 @@ describe('General endpoints and error handling', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers['content-type']).toContain('text/plain');
             expect(res.body).toContain('summeruniversity_events_total{type="regular",status="second approval",deleted="false"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Alicante",status="pending",event_name="Metrics SU"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Dresden",status="pending",event_name="Metrics SU"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Alicante",status="accepted",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Alicante",status="pending",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Dresden",status="pending",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Alicante",status="accepted",event_name="Metrics SU"} 1');
+            // The events service has its own events_applications_total; this service must not add to it.
+            expect(res.body).not.toMatch(/^events_applications_total/m);
         });
 
         test('should work with an empty database', async () => {
