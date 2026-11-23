@@ -9,6 +9,10 @@
           You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
         </div>
 
+        <div class="notification is-danger" v-if="isNew && event.id && !can.apply && !activeEventApplicationBan">
+          You cannot apply to this event: applications are not open.
+        </div>
+
         <form @submit.prevent="saveApplication()">
           <div class="tile is-parent" v-show="canSubmitApplication">
             <div class="tile is-child">
