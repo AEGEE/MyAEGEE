@@ -13,6 +13,114 @@ MESSAGE = {
 }
 
 
+def test_a_valid_message_is_sent_and_acknowledged(dispatcher, fake_channel, fake_smtp, alerts):
+    deliver(dispatcher, fake_channel, {**MESSAGE, "from": "board@example.org", "reply_to": "help@example.org"})
+
+    assert len(fake_smtp.sent) == 1
+    mail = fake_smtp.sent[0]
+    assert mail["From"] == "board@example.org"
+    assert mail["To"] == "ada@example.org"
+    assert mail["Subject"] == "Confirm your account"
+    assert mail["Reply-To"] == "help@example.org"
+    assert mail["Cc"] is None and mail["Bcc"] is None
+    assert mail.get_content_type() == "text/html"
+    assert "https://my.aegee.eu/confirm_signup?token=abc123" in mail.get_content()
+    assert fake_channel.acks == [1]
+    assert fake_channel.nacks == [] and fake_channel.published == [] and alerts == []
+
+
+def test_the_sender_defaults_to_the_dispatcher_address(dispatcher, fake_channel, fake_smtp, monkeypatch):
+    deliver(dispatcher, fake_channel, MESSAGE)
+    assert fake_smtp.sent[0]["From"] == "mailer@example.org"
+
+    monkeypatch.setattr(dispatcher, "EMAIL_ADDRESS", None)
+    deliver(dispatcher, fake_channel, {**MESSAGE, "from": None, "cc": "a@example.org, b@example.org", "bcc": ["c@example.org", "d@example.org"]})
+    mail = fake_smtp.sent[1]
+    assert mail["From"] == ""
+    assert mail["Cc"] == "a@example.org, b@example.org"
+    assert mail["Bcc"] == "c@example.org, d@example.org"
+
+
+@pytest.mark.parametrize("field", ["to", "subject", "template", "parameters"])
+def test_a_message_without_a_required_field_is_dropped_with_an_alert(dispatcher, fake_channel, fake_smtp, alerts, field):
+    message = {key: value for key, value in MESSAGE.items() if key != field}
+
+    deliver(dispatcher, fake_channel, message)
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    assert fake_channel.published == []
+    assert alerts == [(f"Malformed message dropped: missing fields ['{field}']",
+                       "The producer sent an incomplete payload. Check the sending service.")]
+
+
+@pytest.mark.parametrize("parameters", ["text", 42, None])
+def test_parameters_that_are_not_an_object_are_dropped_with_an_alert(dispatcher, fake_channel, fake_smtp, alerts, parameters):
+    deliver(dispatcher, fake_channel, {**MESSAGE, "parameters": parameters})
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    assert len(alerts) == 1
+
+
+def test_a_missing_parameter_drops_the_message_with_an_alert(dispatcher, fake_channel, fake_smtp, alerts):
+    deliver(dispatcher, fake_channel, {**MESSAGE, "parameters": {"name": "Ada", "surname": "Lovelace"}})
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    assert fake_channel.published == []
+    assert alerts[0][0] == "Malformed message dropped: undefined template parameter"
+
+
+def test_an_unknown_template_waits_in_the_first_retry_queue(dispatcher, fake_channel, fake_smtp, alerts):
+    deliver(dispatcher, fake_channel, {**MESSAGE, "template": "not_there.html"})
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    assert len(fake_channel.published) == 1
+    published = fake_channel.published[0]
+    assert published["exchange"] == ""
+    assert published["routing_key"] == "wait_5min"
+    assert published["headers"] == {"reason": "template_not_found-not_there.html", "x-retry-index": 0}
+    assert published["delivery_mode"] == 2
+    assert alerts[0][0] == "A template is missing! (template_not_found-not_there.html)"
+
+
+def test_a_missing_snippet_waits_in_the_retry_queues(dispatcher, fake_channel, fake_smtp, monkeypatch, tmp_path):
+    (tmp_path / "broken.jinja2").write_text('{% include "snippets/missing.jinja2" %}')
+    monkeypatch.setattr(dispatcher, "tpl_environment", dispatcher.create_template_environment(str(tmp_path)))
+
+    deliver(dispatcher, fake_channel, {**MESSAGE, "template": "broken"})
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    assert fake_channel.published[0]["routing_key"] == "wait_5min"
+    assert fake_channel.published[0]["headers"]["reason"] == "subtemplate_not_found-broken"
+
+
+def test_without_smtp_the_dispatcher_reconnects_before_sending(dispatcher, fake_channel, fake_smtp, monkeypatch):
+    monkeypatch.setattr(dispatcher, "smtpObj", None)
+    monkeypatch.setattr(dispatcher, "connect_to_smtp", lambda: setattr(dispatcher, "smtpObj", fake_smtp))
+
+    deliver(dispatcher, fake_channel, MESSAGE)
+
+    assert len(fake_smtp.sent) == 1
+    assert fake_channel.acks == [1]
+
+
+def test_a_message_waits_in_the_retry_queues_while_smtp_is_unavailable(dispatcher, fake_channel, monkeypatch):
+    attempts = []
+    monkeypatch.setattr(dispatcher, "smtpObj", None)
+    monkeypatch.setattr(dispatcher, "connect_to_smtp", lambda: attempts.append(True))
+
+    deliver(dispatcher, fake_channel, MESSAGE, headers={"x-retry-index": 1})
+
+    assert attempts == [True]
+    assert fake_channel.acks == [1]
+    assert fake_channel.published[0]["routing_key"] == "wait_5h"
+    assert fake_channel.published[0]["headers"] == {"reason": "smtp_unavailable", "x-retry-index": 2}
+
+
 @pytest.mark.parametrize("template", ["confirm_email.html", "confirm_email"])
 def test_template_names_with_and_without_the_html_suffix_are_rendered(dispatcher, fake_channel, fake_smtp, template):
     deliver(dispatcher, fake_channel, {**MESSAGE, "template": template})
