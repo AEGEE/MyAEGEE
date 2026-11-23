@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const AntennaCriterion = sequelize.define('antennaCriterion', {
     agora_id: {
@@ -7,7 +8,8 @@ const AntennaCriterion = sequelize.define('antennaCriterion', {
         type: Sequelize.INTEGER,
         validate: {
             notEmpty: { msg: 'Agora should be set.' },
-            isInt: { msg: 'Agora ID should be a number.' }
+            isInt: { msg: 'Agora ID should be a number.' },
+            ...helpers.idRange('Agora ID')
         }
     },
     body_id: {
@@ -16,7 +18,8 @@ const AntennaCriterion = sequelize.define('antennaCriterion', {
         type: Sequelize.INTEGER,
         validate: {
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInt: { msg: 'Body ID should be a number.' },
+            ...helpers.idRange('Body ID')
         }
     },
     antenna_criterion: {

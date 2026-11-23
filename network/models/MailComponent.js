@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const MailComponent = sequelize.define('mailComponent', {
     agora_id: {
@@ -7,7 +8,8 @@ const MailComponent = sequelize.define('mailComponent', {
         type: Sequelize.INTEGER,
         validate: {
             notEmpty: { msg: 'Agora should be set.' },
-            isInt: { msg: 'Agora ID should be a number.' }
+            isInt: { msg: 'Agora ID should be a number.' },
+            ...helpers.idRange('Agora ID')
         }
     },
     mail_component: {

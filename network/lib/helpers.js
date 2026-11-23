@@ -1,5 +1,8 @@
+const moment = require('moment');
+
 // The largest Postgres INTEGER, which is the type of the IDs.
 const MAX_ID = 2147483647;
+exports.MAX_ID = MAX_ID;
 
 // Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
@@ -12,6 +15,36 @@ exports.isNumber = (value) => {
     }
 
     return false;
+};
+
+// A date (2021-01-10) or a full ISO 8601 timestamp with a time zone, such as
+// 2021-01-10T16:00:00.000Z. The format check leaves out partial forms (2021, 20210110);
+// the strict parse, values that are no real date or time (2021-02-30, T25:00).
+const DATE_OR_TIMESTAMP = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2}))?$/;
+exports.isDateOrTimestamp = (value) => typeof value === 'string'
+    && DATE_OR_TIMESTAMP.test(value)
+    && moment.parseZone(value, moment.ISO_8601, true).isValid();
+
+// Sequelize validators that keep an ID within its INTEGER column. Not a number is left
+// to isInt, so that a field gets one message.
+exports.idRange = (label) => {
+    const msg = `${label} should be between 0 and ${MAX_ID}.`;
+    return { min: { args: [0], msg }, max: { args: [MAX_ID], msg } };
+};
+
+// A setter for a DATEONLY column. Without it, Sequelize turns any input into a date
+// through moment's lenient parse first ("1" becomes 2001-01-01). A date or timestamp is
+// stored as the day it is written with; anything else stays as sent, for the validator.
+exports.dateSetter = (field) => function setDate(value) {
+    this.setDataValue(field, exports.isDateOrTimestamp(value) ? value.slice(0, 10) : value);
+};
+
+// A Sequelize validator for a DATEONLY column. Sequelize runs it for null too, which
+// allowNull decides on.
+exports.dateValidator = (label) => function isDateValue(value) {
+    if (value !== null && value !== undefined && !exports.isDateOrTimestamp(value)) {
+        throw new Error(`${label} should be a date (YYYY-MM-DD).`);
+    }
 };
 
 const SORT_FIELDS = ['id', 'body_id', 'elected_date', 'start_date', 'end_date'];

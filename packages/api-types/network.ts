@@ -137,7 +137,7 @@ export interface paths {
             header?: never;
             path: {
                 body_id: components["parameters"]["BodyId"];
-                board_id: number;
+                board_id: components["schemas"]["Id"];
             };
             cookie?: never;
         };
@@ -325,6 +325,10 @@ export interface components {
                 version: string;
             };
         };
+        /** @description An ID, which fits a Postgres INTEGER. */
+        Id: number;
+        /** @description A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day it is written with. */
+        DateInput: string;
         BoardPosition: {
             function: string;
             user_id: number;
@@ -349,19 +353,19 @@ export interface components {
             image_id: number | null;
         } & components["schemas"]["Timestamps"];
         BoardInput: {
-            elected_date?: string;
-            start_date?: string;
-            end_date?: string | null;
+            elected_date?: components["schemas"]["DateInput"];
+            start_date?: components["schemas"]["DateInput"];
+            end_date?: components["schemas"]["DateInput"] | null;
             name?: string | null;
-            president?: number;
-            secretary?: number;
-            treasurer?: number;
+            president?: components["schemas"]["Id"];
+            secretary?: components["schemas"]["Id"];
+            treasurer?: components["schemas"]["Id"];
             other_members?: {
                 function: string;
                 user_id: number;
             }[] | null;
             message?: string | null;
-            image_id?: number | null;
+            image_id?: components["schemas"]["Id"] | null;
         } & {
             [key: string]: unknown;
         };
@@ -397,8 +401,8 @@ export interface components {
             comment: string | null;
         } & components["schemas"]["Timestamps"];
         AntennaCriterionInput: {
-            agora_id: number;
-            body_id: number;
+            agora_id: components["schemas"]["Id"];
+            body_id: components["schemas"]["Id"];
             antenna_criterion: components["schemas"]["AntennaCriterionName"];
             value?: components["schemas"]["AntennaCriterionValue"];
             comment?: string | null;
@@ -432,8 +436,8 @@ export interface components {
             netcom_id: number;
         } & components["schemas"]["Timestamps"];
         NetcomInput: {
-            body_id: number;
-            netcom_id: number;
+            body_id: components["schemas"]["Id"];
+            netcom_id: components["schemas"]["Id"];
         } & {
             [key: string]: unknown;
         };
@@ -455,7 +459,7 @@ export interface components {
             text: string;
         } & components["schemas"]["Timestamps"];
         MailComponentInput: {
-            agora_id: number;
+            agora_id: components["schemas"]["Id"];
             mail_component: components["schemas"]["MailComponentName"];
             text: string;
         } & {
@@ -523,8 +527,8 @@ export interface components {
         Direction: "asc" | "desc";
         /** @description Sort field; any other value is ignored. */
         BoardSort: "id" | "body_id" | "elected_date" | "start_date" | "end_date";
-        BodyId: number;
-        AgoraId: number;
+        BodyId: components["schemas"]["Id"];
+        AgoraId: components["schemas"]["Id"];
     };
     requestBodies: {
         BoardInput: {
@@ -627,8 +631,8 @@ export interface operations {
     listRecentBoardElections: {
         parameters: {
             query?: {
-                /** @description Count elections up to the end of this day (default today). A timestamp counts by its date part, as the Antenna Criteria page sends an Agora's end. */
-                ends?: string;
+                /** @description Count elections up to the end of this day (default today): a date, or a full ISO 8601 timestamp with a time zone, which counts by its date part, as the Antenna Criteria page sends an Agora's end. Anything else answers 422. */
+                ends?: components["schemas"]["DateInput"];
             };
             header?: never;
             path?: never;
@@ -754,7 +758,7 @@ export interface operations {
             header?: never;
             path: {
                 body_id: components["parameters"]["BodyId"];
-                board_id: number;
+                board_id: components["schemas"]["Id"];
             };
             cookie?: never;
         };
@@ -781,7 +785,7 @@ export interface operations {
             header?: never;
             path: {
                 body_id: components["parameters"]["BodyId"];
-                board_id: number;
+                board_id: components["schemas"]["Id"];
             };
             cookie?: never;
         };
@@ -809,7 +813,7 @@ export interface operations {
             header?: never;
             path: {
                 body_id: components["parameters"]["BodyId"];
-                board_id: number;
+                board_id: components["schemas"]["Id"];
             };
             cookie?: never;
         };

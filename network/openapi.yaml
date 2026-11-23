@@ -86,9 +86,10 @@ paths:
         - name: ends
           in: query
           description: >-
-            Count elections up to the end of this day (default today). A timestamp counts
-            by its date part, as the Antenna Criteria page sends an Agora's end.
-          schema: {type: string}
+            Count elections up to the end of this day (default today): a date, or a full
+            ISO 8601 timestamp with a time zone, which counts by its date part, as the
+            Antenna Criteria page sends an Agora's end. Anything else answers 422.
+          schema: {$ref: '#/components/schemas/DateInput'}
       responses:
         '200':
           description: One row per body with a board elected up to that day.
@@ -172,7 +173,7 @@ paths:
       - name: board_id
         in: path
         required: true
-        schema: {type: integer}
+        schema: {$ref: '#/components/schemas/Id'}
     get:
       operationId: getBoard
       summary: One board of a body
@@ -392,12 +393,12 @@ components:
       name: body_id
       in: path
       required: true
-      schema: {type: integer}
+      schema: {$ref: '#/components/schemas/Id'}
     AgoraId:
       name: agora_id
       in: path
       required: true
-      schema: {type: integer}
+      schema: {$ref: '#/components/schemas/Id'}
   requestBodies:
     BoardInput:
       required: true
@@ -458,6 +459,18 @@ components:
             version: {type: string}
           additionalProperties: false
       additionalProperties: false
+    Id:
+      description: An ID, which fits a Postgres INTEGER.
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    DateInput:
+      description: >-
+        A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day
+        it is written with.
+      anyOf:
+        - {type: string, format: date}
+        - {type: string, format: date-time}
     BoardPosition:
       type: object
       required: [function, user_id]
@@ -490,13 +503,16 @@ components:
     BoardInput:
       type: object
       properties:
-        elected_date: {type: string}
-        start_date: {type: string}
-        end_date: {type: [string, 'null']}
-        name: {type: [string, 'null']}
-        president: {type: integer}
-        secretary: {type: integer}
-        treasurer: {type: integer}
+        elected_date: {$ref: '#/components/schemas/DateInput'}
+        start_date: {$ref: '#/components/schemas/DateInput'}
+        end_date:
+          anyOf:
+            - {$ref: '#/components/schemas/DateInput'}
+            - {type: 'null'}
+        name: {type: [string, 'null'], maxLength: 255}
+        president: {$ref: '#/components/schemas/Id'}
+        secretary: {$ref: '#/components/schemas/Id'}
+        treasurer: {$ref: '#/components/schemas/Id'}
         other_members:
           type: [array, 'null']
           items:
@@ -504,9 +520,12 @@ components:
             required: [function, user_id]
             properties:
               function: {type: string, minLength: 1}
-              user_id: {type: integer, minimum: 1}
+              user_id: {type: integer, minimum: 1, maximum: 2147483647}
         message: {type: [string, 'null']}
-        image_id: {type: [integer, 'null']}
+        image_id:
+          anyOf:
+            - {$ref: '#/components/schemas/Id'}
+            - {type: 'null'}
       additionalProperties: true
     BoardResponse:
       type: object
@@ -562,8 +581,8 @@ components:
       type: object
       required: [agora_id, body_id, antenna_criterion]
       properties:
-        agora_id: {type: integer}
-        body_id: {type: integer}
+        agora_id: {$ref: '#/components/schemas/Id'}
+        body_id: {$ref: '#/components/schemas/Id'}
         antenna_criterion: {$ref: '#/components/schemas/AntennaCriterionName'}
         value: {$ref: '#/components/schemas/AntennaCriterionValue'}
         comment: {type: [string, 'null']}
@@ -614,8 +633,8 @@ components:
       type: object
       required: [body_id, netcom_id]
       properties:
-        body_id: {type: integer}
-        netcom_id: {type: integer}
+        body_id: {$ref: '#/components/schemas/Id'}
+        netcom_id: {$ref: '#/components/schemas/Id'}
       additionalProperties: true
     NetcomResponse:
       type: object
@@ -650,7 +669,7 @@ components:
       type: object
       required: [agora_id, mail_component, text]
       properties:
-        agora_id: {type: integer}
+        agora_id: {$ref: '#/components/schemas/Id'}
         mail_component: {$ref: '#/components/schemas/MailComponentName'}
         text: {type: string}
       additionalProperties: true

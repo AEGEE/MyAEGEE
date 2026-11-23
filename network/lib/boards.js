@@ -143,18 +143,9 @@ exports.listAllBoards = async (req, res) => {
     });
 };
 
-// A date (2021-01-10) or a full ISO 8601 timestamp with a time zone, such as an Agora's
-// end (2021-01-10T16:00:00.000Z). A timestamp counts by the day it was written with.
-const ENDS_FORMAT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2}))?$/;
-const parseEndsDay = (value) => {
-    // The format check leaves out partial forms (2021, 20210110); the strict parse, values
-    // that are no real date or time (2021-13-45, T25:00).
-    if (typeof value !== 'string' || !ENDS_FORMAT.test(value) || !moment.parseZone(value, moment.ISO_8601, true).isValid()) {
-        return null;
-    }
-
-    return moment(value.slice(0, 10), 'YYYY-MM-DD', true);
-};
+// The day of a date or a timestamp, such as an Agora's end (2021-01-10T16:00:00.000Z),
+// as it is written.
+const parseEndsDay = (value) => (helpers.isDateOrTimestamp(value) ? moment(value.slice(0, 10), 'YYYY-MM-DD', true) : null);
 
 exports.listMostRecentBoardsElected = async (req, res) => {
     if (!req.permissions.view_board) {

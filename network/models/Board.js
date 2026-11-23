@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const Board = sequelize.define('board', {
     body_id: {
@@ -8,16 +9,19 @@ const Board = sequelize.define('board', {
         type: Sequelize.INTEGER,
         validate: {
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInt: { msg: 'Body ID should be a number.' },
+            ...helpers.idRange('Body ID')
         }
     },
     elected_date: {
         type: Sequelize.DATEONLY,
+        set: helpers.dateSetter('elected_date'),
         allowNull: false,
         validate: {
+            isDateValue: helpers.dateValidator('Election date'),
             isPast(value) {
                 // Compared by day: a board may be entered on its election day.
-                if (moment(value).isAfter(moment(), 'day')) {
+                if (moment(value, moment.ISO_8601).isAfter(moment(), 'day')) {
                     throw new Error('Election date should be today or in the past.');
                 }
             },
@@ -26,21 +30,25 @@ const Board = sequelize.define('board', {
     },
     start_date: {
         type: Sequelize.DATEONLY,
+        set: helpers.dateSetter('start_date'),
         allowNull: false,
         validate: {
-            notEmpty: { msg: 'Start date of the mandate should be set.' }
+            notEmpty: { msg: 'Start date of the mandate should be set.' },
+            isDateValue: helpers.dateValidator('Start date of the mandate')
         }
     },
     end_date: {
         type: Sequelize.DATEONLY,
+        set: helpers.dateSetter('end_date'),
         allowNull: true,
         validate: {
+            isDateValue: helpers.dateValidator('End date of the mandate'),
             isFuture(value) {
                 if (!value) {
                     return;
                 }
 
-                if (moment(value).isSameOrBefore(this.start_date)) {
+                if (moment(value, moment.ISO_8601).isSameOrBefore(this.start_date)) {
                     throw new Error('End date of the mandate should be after start date.');
                 }
             }
@@ -48,14 +56,18 @@ const Board = sequelize.define('board', {
     },
     name: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        validate: {
+            len: { args: [0, 255], msg: 'Name should be at most 255 characters.' }
+        }
     },
     president: {
         type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
             notEmpty: { msg: 'President should be selected.' },
-            isInt: { msg: 'President should be a number.' }
+            isInt: { msg: 'President should be a number.' },
+            ...helpers.idRange('President')
         }
     },
     secretary: {
@@ -63,7 +75,8 @@ const Board = sequelize.define('board', {
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Secretary should be selected.' },
-            isInt: { msg: 'Secretary should be a number.' }
+            isInt: { msg: 'Secretary should be a number.' },
+            ...helpers.idRange('Secretary')
         }
     },
     treasurer: {
@@ -71,7 +84,8 @@ const Board = sequelize.define('board', {
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Treasurer should be selected.' },
-            isInt: { msg: 'Treasurer should be a number.' }
+            isInt: { msg: 'Treasurer should be a number.' },
+            ...helpers.idRange('Treasurer')
         }
     },
     other_members: {
@@ -88,7 +102,8 @@ const Board = sequelize.define('board', {
                     && typeof position.function === 'string'
                     && position.function.trim() !== ''
                     && Number.isInteger(position.user_id)
-                    && position.user_id > 0;
+                    && position.user_id > 0
+                    && position.user_id <= helpers.MAX_ID;
 
                 if (!Array.isArray(value) || !value.every(isPosition)) {
                     throw new Error('Other members should be a list of positions, each with a function and a member.');
@@ -108,7 +123,8 @@ const Board = sequelize.define('board', {
         type: Sequelize.INTEGER,
         allowNull: true,
         validate: {
-            isInt: { msg: 'Image ID should be a number.' }
+            isInt: { msg: 'Image ID should be a number.' },
+            ...helpers.idRange('Image ID')
         }
     }
 }, {
