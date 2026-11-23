@@ -508,5 +508,22 @@ describe('Events listing', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
         });
+
+        // Other sites call the lists with empty filters; an empty value is no filter.
+        test.each([
+            '/?type=',
+            '/?starts=&ends=',
+            '/mine/organizing?type=',
+            '/mine/participating?starts=',
+            '/recents?ends='
+        ])('should treat the empty filters of %s as absent', async (path) => {
+            await generator.createEvent({ status: 'published' });
+
+            const res = await get(path);
+            const unfiltered = await get(path.split('?')[0]);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual(unfiltered.body.data);
+        });
     });
 });

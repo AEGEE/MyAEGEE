@@ -422,5 +422,24 @@ describe('Events listing', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
         });
+
+        // Other sites call the lists with empty filters; an empty value is no filter.
+        test.each([
+            '/?type=',
+            '/?season=',
+            '/?starts=&ends=',
+            '/?application_status=',
+            '/mine/organizing?season=',
+            '/mine/participating?type=',
+            '/recents?ends='
+        ])('should treat the empty filters of %s as absent', async (path) => {
+            await generator.createEvent();
+
+            const res = await getPath(path);
+            const unfiltered = await getPath(path.split('?')[0]);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual(unfiltered.body.data);
+        });
     });
 });
