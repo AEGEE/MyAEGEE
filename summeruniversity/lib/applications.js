@@ -462,8 +462,10 @@ exports.exportAll = async (req, res) => {
         }
     ]);
 
+    // res.attachment() quotes the name and adds a UTF-8 version (RFC 5987) for characters
+    // outside latin1, which a raw header value cannot carry.
+    res.attachment('participants_' + req.event.name + '_' + new Date().toISOString() + '.xlsx');
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-disposition', 'attachment; filename=participants_' + req.event.name + '_' + new Date().toISOString() + '.xlsx');
 
     return res.send(resultBuffer);
 };
