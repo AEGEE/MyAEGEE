@@ -378,6 +378,16 @@ describe('Applications creation', () => {
         expect(res.body.message).toContain('Malformed response when fetching members for permission');
     });
 
+    test('should return 500 naming the malformed response if core returns an empty body for the board members', async () => {
+        mockAndCapture({ ...applicantMocks, bodyMembers: { emptyResponse: true } });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.message).toEqual('Malformed response when fetching members for permission: null');
+        expect(await Application.count()).toEqual(0);
+    });
+
     test('should return 500 if the core login fails', async () => {
         mockAndCapture({ ...applicantMocks, login: { netError: true } });
 

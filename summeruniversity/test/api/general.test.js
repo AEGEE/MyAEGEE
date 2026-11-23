@@ -125,6 +125,15 @@ describe('General endpoints and error handling', () => {
             expect(res.body.message).toContain('Malformed response when fetching user');
         });
 
+        test('should return 500 naming the malformed response if core returns an empty body for the user', async () => {
+            mock.mockAll({ core: { emptyResponse: true } });
+
+            const res = await request({ path: '/', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Malformed response when fetching user: null');
+        });
+
         test('should return 500 if core returns an unsuccessful response for the user', async () => {
             mock.mockAll({ core: { unsuccessfulResponse: true } });
 

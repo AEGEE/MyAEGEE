@@ -234,6 +234,16 @@ describe('Applications listing, viewing and exporting', () => {
             expect(res.body.message).toContain('Malformed response when fetching user');
         });
 
+        test('should return 500 naming the malformed response if core returns an empty body for the applicant', async () => {
+            mock.mockAll({ member: { emptyResponse: true } });
+            const application = await generator.createApplication(event, { user_id: 10 });
+
+            const res = await get('/single/' + event.id + '/applications/' + application.id);
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Malformed response when fetching user: null');
+        });
+
         test('should return 500 if the core login fails', async () => {
             mock.mockAll({ login: { badResponse: true } });
             const application = await generator.createApplication(event, { user_id: 10 });

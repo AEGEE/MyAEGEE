@@ -496,6 +496,20 @@ describe('Events creation', () => {
         expect(res.body.message).toContain('Malformed response when fetching auth request');
     });
 
+    test.each([
+        ['the core login', { login: { emptyResponse: true } }, 'Malformed response when fetching auth request: null'],
+        ['an organizer', { member: { emptyResponse: true } }, 'Malformed response when fetching user: null'],
+        ['a body', { body: { emptyResponse: true } }, 'Malformed response when fetching body: null']
+    ])('should return 500 naming the malformed response if core returns an empty body for %s', async (_, options, message) => {
+        mails = mock.captureMails(mock.mockAll(options).omsMailerStub);
+
+        const res = await createEvent(generator.generateEventBody());
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.message).toEqual(message);
+        expect(await Event.count()).toEqual(0);
+    });
+
     test('should return 500 and not create the event if fetching an organizer fails', async () => {
         mock.mockAll({ member: { unsuccessfulResponse: true } });
 
