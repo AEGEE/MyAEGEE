@@ -120,14 +120,51 @@ export default {
         }
       }
     },
+    parseCsv (input) {
+      // Fields are separated by commas or semicolons; a field in double quotes may contain
+      // separators, line breaks and doubled quotes (""). Lines end in \n, \r\n or \r.
+      const rows = []
+      let row = []
+      let field = ''
+      let quoted = false
+
+      for (let index = 0; index < input.length; index++) {
+        const char = input[index]
+
+        if (quoted) {
+          if (char === '"' && input[index + 1] === '"') {
+            field += '"'
+            index++
+          } else if (char === '"') {
+            quoted = false
+          } else {
+            field += char
+          }
+        } else if (char === '"') {
+          quoted = true
+        } else if (char === ',' || char === ';') {
+          row.push(field)
+          field = ''
+        } else if (char === '\n' || char === '\r') {
+          if (char === '\r' && input[index + 1] === '\n') index++
+          rows.push([...row, field])
+          row = []
+          field = ''
+        } else {
+          field += char
+        }
+      }
+      rows.push([...row, field])
+
+      return rows
+        .map((fields) => fields.map((value) => value.trim()))
+        .filter((fields) => fields.some((value) => value.length > 0)) // blank lines
+    },
     processFileContent (input) {
       // CSV content: first_name,last_name,email
-      const csvArray = input
-        .replace(/;/g, ',') // replacing all semicolons with commas
-        .replace(/"/g, '') // removing all quotes
-        .split('\n') // splitting by new lime
-        .filter(line => line.length > 0) // removing empty strings
-        .map(elt => elt.split(','))
+      const csvArray = this.parseCsv(input.replace(/^\uFEFF/, ''))
+        // A header line naming the columns is not a member.
+        .filter((fields, index) => index > 0 || fields.slice(0, 3).join(',').toLowerCase() !== 'first_name,last_name,email')
 
       // Checking if each line has at least 3 columns.
       if (csvArray.some(elt => elt.length < 3)) {
