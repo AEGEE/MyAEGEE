@@ -38,7 +38,7 @@
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Hello <%= @parameters["name"] %> <%= @parameters["surname"] %></strong></div>
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><%= @parameters["requester_name"] %> asked to change the login email of your MyAEGEE account to <%= @parameters["new_email"] %>. The address only changes if you confirm it:</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><%= @parameters["requester_name"] %> (<%= @parameters["requester_email"] %>), who manages the members of <%= @parameters["requester_body"] %>, asked to change the login email of your MyAEGEE account to <%= @parameters["new_email"] %>. The address only changes if you confirm it:</div>
                         </td>
                       </tr>
                       <tr>
@@ -62,7 +62,7 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px; padding-bottom: 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">If you did not expect this, just ignore this email and nothing changes.</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">Only confirm if you asked for this and the new address is yours. If you did not expect this mail, do not confirm and contact the Helpdesk: <a href="http://aegee.org/helpdesk">http://aegee.org/helpdesk</a></div>
                         </td>
                       </tr>
                     </tbody>
