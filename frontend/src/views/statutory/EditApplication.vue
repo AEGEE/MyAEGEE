@@ -632,16 +632,15 @@ export default {
         this.$router.push({ name: 'oms.statutory.view', params: { id: this.$route.params.id } })
       })
     }).catch((err) => {
+      this.isLoading = false
+
       if (err.response && err.response.status === 404) {
-        this.$root.showError('Application is not found')
+        this.$root.showError('Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({
-        name: 'oms.statutory.applications.view',
-        params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
-      })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     })
   }
 }
