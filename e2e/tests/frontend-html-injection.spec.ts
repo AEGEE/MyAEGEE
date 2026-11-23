@@ -102,13 +102,13 @@ test.describe('HTML injection in the frontend', () => {
         });
 
         await replaceInResponse(/\/api\/events\/single\/[^/?]+$/, {
-            // eslint-disable-next-line no-script-url
+            // eslint-disable-next-line no-script-url -- the injected link is what the test checks
             budget: 'javascript:window.__injected=\'budget\'',
             programme: 'www.aegee.org/programme',
             link_info_travel_country: ' data:text/html,<script>window.__injected=\'travel\'</script>'
         });
         await replaceInResponse(new RegExp(`/api/core/bodies/${body.id}$`), {
-            // eslint-disable-next-line no-script-url
+            // eslint-disable-next-line no-script-url -- the injected link is what the test checks
             website: 'JaVaScRiPt:window.__injected=\'website\''
         });
 

@@ -1,0 +1,4 @@
+{
+  "//": "ESLint 8 loads the rules of --rulesdir with require(), so this folder is CommonJS.",
+  "type": "commonjs"
+}
