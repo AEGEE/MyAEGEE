@@ -2,19 +2,19 @@
     "success": true,
     "data": {
         "superadmin": false,
-        "name": "janphilipp.rauprich",
+        "name": "nova.exampleton",
         "member_id": 5,
         "inserted_at": "2018-05-05T09:15:24.373952",
-        "email": "jan.philipp.rauprich@aegee.org",
-        "notification_email": "jan.philipp.rauprich@aegee.org",
+        "email": "nova.exampleton@example.org",
+        "notification_email": "nova.exampleton@example.org",
         "active": true,
         "seo_url": "70941758_",
         "primary_body_id": null,
         "primary_body": null,
         "phone": null,
-        "last_name": "Rauprich",
+        "last_name": "Exampleton",
         "join_requests": [{
-            "motivation": "I love Nico who is the smartest programmer on this planet because he finished an infinite project and solved a task which was impossibile to solve for AEGEE. The Intranet",
+            "motivation": "I would like to join this antenna and help organise its events.",
             "member_id": 5,
             "member": null,
             "id": 2,
@@ -27,7 +27,7 @@
                 "name": "AEGEE-Dresden",
                 "legacy_key": "DRE",
                 "id": 1,
-                "email": "info@aegee-dresden.org",
+                "email": "dresden@example.org",
                 "description": "Very prehistoric antenna",
                 "circles": null,
                 "address": "Dresden"
@@ -36,7 +36,7 @@
         }],
         "id": 5,
         "gender": "Male",
-        "first_name": "Jan Philipp",
+        "first_name": "Nova Pim",
         "date_of_birth": "1970-01-01",
         "circles": [{
             "seo_url": 63,
@@ -171,10 +171,10 @@
                 "name": "Chair Team of the Agora",
                 "legacy_key": "XCH",
                 "id": 9,
-                "email": "chair@aegee.org",
+                "email": "chair@example.org",
                 "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
                 "circles": null,
-                "address": "Notelaarsstraat 55"
+                "address": "Example Street 55"
             }
         }, {
             "member_id": 1,
@@ -186,14 +186,14 @@
                 "shadow_circle_id": 257,
                 "shadow_circle": null,
                 "seo_url": 173,
-                "phone": "+7 9066742361",
+                "phone": "+44 7700 900461",
                 "name": "AEGEE-Voronezh",
                 "legacy_key": "VOR",
                 "id": 173,
-                "email": "voronezh.aegee@gmail.com",
+                "email": "voronezh@example.org",
                 "description": "Local in Voronezh",
                 "circles": null,
-                "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
+                "address": "Example Street 94, 394000 Voronezh, Russia"
             }
         }, {
             "member_id": 1,
@@ -209,7 +209,7 @@
                 "name": "AEGEE-Dresden",
                 "legacy_key": "DRE",
                 "id": 1,
-                "email": "info@aegee-dresden.org",
+                "email": "dresden@example.org",
                 "description": "Very prehistoric antenna",
                 "circles": null,
                 "address": "Dresden"
@@ -223,22 +223,22 @@
             "name": "Chair Team of the Agora",
             "legacy_key": "XCH",
             "id": 9,
-            "email": "chair@aegee.org",
+            "email": "chair@example.org",
             "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
             "circles": null,
-            "address": "Notelaarsstraat 55"
+            "address": "Example Street 55"
         }, {
             "shadow_circle_id": 257,
             "shadow_circle": null,
             "seo_url": 173,
-            "phone": "+7 9066742361",
+            "phone": "+44 7700 900461",
             "name": "AEGEE-Voronezh",
             "legacy_key": "VOR",
             "id": 173,
-            "email": "voronezh.aegee@gmail.com",
+            "email": "voronezh@example.org",
             "description": "Local in Voronezh",
             "circles": null,
-            "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
+            "address": "Example Street 94, 394000 Voronezh, Russia"
         }, {
             "shadow_circle_id": 63,
             "shadow_circle": null,
@@ -247,7 +247,7 @@
             "name": "AEGEE-Dresden",
             "legacy_key": "DRE",
             "id": 1,
-            "email": "info@aegee-dresden.org",
+            "email": "dresden@example.org",
             "description": "Very prehistoric antenna",
             "circles": null,
             "address": "Dresden"
