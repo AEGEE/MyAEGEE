@@ -8,7 +8,7 @@ import { bodyMembership, circle, memberSearchResult, type BodyMembership } from 
 import { bodyDetail, type BodyDetail } from '../support/factories/core-bodies.ts';
 import { board, type Board } from '../support/factories/network.ts';
 import type { ApiMock } from '../support/api-mock.ts';
-import { cellOf, dialog, permissionsFor, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, fillDate, permissionsFor, tableRows, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 interface Answers {
@@ -523,5 +523,101 @@ test.describe('adding to a body from its page', () => {
         await dialog(page, 'Add circle').getByRole('button', { name: 'close' }).click();
         await expect(dialog(page, 'Add circle')).toBeHidden();
         expect(api.callsTo('POST core /bodies/:id/circles')).toHaveLength(1);
+    });
+});
+
+test.describe('adding a board from the body page', () => {
+    const PEOPLE = [membership(41, 'Pia', 'President'), membership(42, 'Sam', 'Secretary'), membership(43, 'Tom', 'Treasurer'), membership(44, 'Val', 'Vice')];
+    const antenna = () => bodyDetail({ id: 1, type: 'antenna', email: 'antenna@example.com', phone: '+32 2 000 00 00', address: 'Main street 1', postal_address: null, website: null });
+
+    // The people of the body whose name starts with what was typed.
+    const searchPeople = (api: ApiMock): void => {
+        api.on('GET core /bodies/:id/members', ({ query }) => ({
+            json: ok(PEOPLE.filter((person) => person.user.first_name.startsWith(query.get('query') ?? '')))
+        }));
+    };
+
+    const pick = async (page: Page, position: string, typed: string, name: string): Promise<void> => {
+        const group = dialog(page, 'Add board').getByRole('group', { name: position });
+        await group.getByRole('textbox').last().fill(typed);
+        await dialog(page, 'Add board').getByRole('button', { name }).click();
+    };
+
+    test('a board member adds the new board with its people and the contact details', async ({ page, api }) => {
+        answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
+        searchPeople(api);
+        api.json('PUT core /bodies/:id', ok({}));
+        api.json('POST network /bodies/:id/boards', ok(board({ body_id: 1 })));
+
+        await page.goto('/bodies/1');
+        await page.getByRole('button', { name: 'Change board' }).click();
+        const modal = dialog(page, 'Add board');
+        await fillDate(modal.getByLabel('Board election date'), '2026-12-01');
+        await fillDate(modal.getByLabel('Term start date'), '2027-01-01');
+        await fillDate(modal.getByLabel('Term end date'), '2027-12-31');
+        await modal.getByLabel('Board name').fill('Board 2027');
+        await pick(page, 'President', 'Pia', 'Pia President');
+        await pick(page, 'Secretary', 'Sam', 'Sam Secretary');
+        await pick(page, 'Treasurer', 'Tom', 'Tom Treasurer');
+        await modal.getByRole('button', { name: 'Add new position' }).click();
+        // The first box of a new position is its function, the second the person.
+        await modal.getByRole('group', { name: 'New position' }).getByRole('textbox').first().fill('Vice-president');
+        await pick(page, 'Vice-president', 'Val', 'Val Vice');
+        await expect(modal.getByLabel('Email')).toHaveValue('antenna@example.com');
+        await modal.getByLabel('Phone').fill('+32 2 111 11 11');
+        await modal.getByRole('textbox', { name: 'Message' }).fill('We are **the** new board');
+        await expect(modal.getByRole('region', { name: 'Preview of the message' }).getByText('the', { exact: true })).toHaveJSProperty('tagName', 'STRONG');
+        await modal.getByRole('button', { name: 'Save changes' }).click();
+
+        // The page is loaded again to show the new board.
+        await expect.poll(() => api.callsTo('GET core /bodies/:id').length).toBe(2);
+        // Picking a person searches once more for the whole name (the box shows it after the pick).
+        expect(api.callsTo('GET core /bodies/:id/members').map((call) => call.query.get('query'))).toEqual(expect.arrayContaining(['Pia', 'Sam', 'Tom', 'Val']));
+        const [details] = api.callsTo('PUT core /bodies/:id');
+        expect(details.params).toEqual({ id: '1' });
+        expect(details.body).toMatchObject({ email: 'antenna@example.com', phone: '+32 2 111 11 11', address: 'Main street 1' });
+        expect(api.callsTo('POST network /bodies/:id/boards').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
+            body_id: 1,
+            elected_date: '2026-12-01',
+            start_date: '2027-01-01',
+            end_date: '2027-12-31',
+            president: 41,
+            secretary: 42,
+            treasurer: 43,
+            other_members: [{ function: 'Vice-president', user_id: 44 }],
+            name: 'Board 2027',
+            message: 'We are **the** new board'
+        }]]);
+    });
+
+    test('a position added by mistake can be removed', async ({ page, api }) => {
+        answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
+        api.json('PUT core /bodies/:id', ok({}));
+        api.on('POST network /bodies/:id/boards', { status: 403, json: forbidden('You are not allowed to manage the boards of this body.') });
+
+        await page.goto('/bodies/1');
+        await page.getByRole('button', { name: 'Change board' }).click();
+        const modal = dialog(page, 'Add board');
+        await modal.getByRole('button', { name: 'Add new position' }).click();
+        await expect(modal.getByRole('group', { name: 'New position' })).toBeVisible();
+        await modal.getByRole('button', { name: 'Remove the position New position' }).click();
+        await expect(modal.getByRole('group', { name: 'New position' })).toHaveCount(0);
+        await modal.getByRole('button', { name: 'Save changes' }).click();
+
+        await expect(toast(page, 'Something went wrong: You are not allowed to manage the boards of this body.')).toBeVisible();
+        expect(api.callsTo('POST network /bodies/:id/boards')[0].body).toMatchObject({ other_members: [] });
+    });
+
+    test('says why the people could not be searched', async ({ page, api }) => {
+        answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
+        api.on('GET core /bodies/:id/members', { status: 500, json: { success: false, message: 'Database is down' } });
+
+        await page.goto('/bodies/1');
+        await page.getByRole('button', { name: 'Change board' }).click();
+        await dialog(page, 'Add board').getByRole('group', { name: 'President' }).getByRole('textbox').fill('Pia');
+
+        await expect(toast(page, 'Could not fetch members: Database is down')).toBeVisible();
+        await dialog(page, 'Add board').getByRole('button', { name: 'Cancel' }).click();
+        await expect(dialog(page, 'Add board')).toBeHidden();
     });
 });
