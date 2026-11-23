@@ -15,6 +15,7 @@ jinja2 = "^3.1.6"
 faker = "^37.0"
 pytest = "^9.0"
 ruff = "^0.11"
+pytest-cov = "^7.0"
 
 [tool.ruff]
 target-version = "py312"
@@ -29,6 +30,14 @@ ignore = ["E501"]
 # send.py is a manual test helper, not production code.
 # E275: missing whitespace after keyword — triggered by the if(CONDITION) style used there.
 "helpers/send.py" = ["E275"]
+
+[tool.pytest.ini_options]
+# Coverage ratchet: the threshold is the coverage reached, floored to one decimal. Raise it
+# when coverage goes up; lowering it needs a reason in the pull request.
+addopts = "--cov=dispatcher --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=100"
+
+[tool.coverage.report]
+exclude_also = ["if __name__ == .__main__.:"]
 
 [build-system]
 requires = ["poetry-core"]

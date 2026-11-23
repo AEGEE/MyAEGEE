@@ -1,0 +1,3 @@
+# Coverage of `poetry run pytest`
+.coverage
+coverage.xml
