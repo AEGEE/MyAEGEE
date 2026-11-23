@@ -300,7 +300,9 @@ paths:
     post:
       operationId: setPaxLimit
       summary: Store the participant limit of a body
-      description: Creates the limit of the body in the request, or replaces the stored one.
+      description: |
+        Creates the limit of the body in the request for this event type, or changes the
+        stored one. `id` and `event_type` in the body are ignored.
       tags: [pax_limits]
       x-permission: 'global:manage_event:<event_type>'
       requestBody:
@@ -2760,7 +2762,9 @@ components:
         - $ref: '#/components/schemas/PaxLimitStored'
         - $ref: '#/components/schemas/PaxLimitDefault'
     PaxLimitInput:
-      description: A type that is left out is stored as null, which is no limit.
+      description: |
+        A participant type that a new limit leaves out is stored as null, which is no limit.
+        One that a change of a stored limit leaves out keeps its value.
       type: object
       required: [body_id]
       properties:

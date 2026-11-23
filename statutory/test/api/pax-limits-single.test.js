@@ -108,4 +108,72 @@ describe('Pax limits single', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    const getLimit = async (type, bodyId = bodies[0].id) => {
+        const res = await request({
+            path: '/limits/' + type + '/' + bodyId,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        return res.body.data;
+    };
+
+    // The core mock answers with the user's antenna for every body id.
+    test.each([
+        ['agora', { delegate: 3, envoy: 0, observer: 0, visitor: 30 }],
+        ['epm', { delegate: 0, envoy: null, observer: 0, visitor: 0 }],
+        ['spm', { delegate: 0, envoy: null, observer: 0, visitor: 0 }]
+    ])('should give an antenna its default limit for %s when nothing is stored', async (type, limit) => {
+        expect(await getLimit(type)).toEqual({
+            ...limit,
+            id: null,
+            body_id: bodies[0].id,
+            event_type: type,
+            default: true
+        });
+    });
+
+    test.each([
+        ['partner', { delegate: 0, envoy: 3, observer: 0, visitor: 0 }],
+        ['contact antenna', { delegate: 0, envoy: 3, observer: 0, visitor: 30 }],
+        ['contact', { delegate: 0, envoy: 0, observer: null, visitor: 0 }],
+        ['working group', { delegate: 0, envoy: 3, observer: 0, visitor: 30 }],
+        ['interest group', { delegate: 0, envoy: 0, observer: 0, visitor: 30 }],
+        ['a type that has no default', { delegate: 0, envoy: 0, observer: 0, visitor: 0 }]
+    ])('should give a body of the type "%s" its default limit for an Agora', async (type, limit) => {
+        mock.mockAll({ body: { type } });
+
+        expect(await getLimit('agora')).toMatchObject({ ...limit, default: true });
+    });
+
+    test('should give the stored limit of the body for this event type', async () => {
+        const stored = await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora', delegate: 1, envoy: null, observer: 2, visitor: 0 });
+        await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'epm', delegate: 7, envoy: 7, observer: 7, visitor: 7 });
+        await generator.createPaxLimit({ body_id: 1337, event_type: 'agora', delegate: 8, envoy: 8, observer: 8, visitor: 8 });
+
+        expect(await getLimit('agora')).toMatchObject({
+            id: stored.id,
+            body_id: bodies[0].id,
+            event_type: 'agora',
+            delegate: 1,
+            envoy: null,
+            observer: 2,
+            visitor: 0,
+            default: false
+        });
+    });
+
+    test('should give the default when the body only has a limit for another event type', async () => {
+        await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'epm', delegate: 7, envoy: 7, observer: 7, visitor: 7 });
+
+        expect(await getLimit('agora')).toMatchObject({ delegate: 3, envoy: 0, observer: 0, visitor: 30, default: true });
+    });
+
+    test('should answer a member without permissions', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        expect((await getLimit('agora')).default).toEqual(true);
+    });
 });
