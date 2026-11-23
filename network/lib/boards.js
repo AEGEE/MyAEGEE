@@ -162,8 +162,11 @@ exports.listCurrentBoardBody = async (req, res) => {
     });
 };
 
+// Loads the board for the single-board routes. Viewers and the board managers of the
+// body in the URL get this far; each route then checks its own permission.
 exports.findBoard = async (req, res, next) => {
-    if (!req.permissions.view_board) {
+    const managesBody = req.permissions.manage_boards.global || req.permissions.manage_boards[req.params.body_id] === true;
+    if (!req.permissions.view_board && !managesBody) {
         return errors.makeForbiddenError(res, 'You are not allowed to find this board.');
     }
 
