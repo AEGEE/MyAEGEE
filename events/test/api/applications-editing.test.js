@@ -6,6 +6,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Application } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events application editing', () => {
     beforeEach(async () => {
@@ -18,6 +19,62 @@ describe('Events application editing', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    const putApplication = (event, id, body) => request({
+        path: '/single/' + event.id + '/applications/' + id,
+        headers: { 'X-Auth-Token': 'foobar' },
+        method: 'PUT',
+        body
+    });
+
+    it('should return 404 for my application if I did not apply', async () => {
+        const event = await generator.createEvent({ status: 'published', questions: [] });
+        await generator.createApplication(event, { user_id: 1337, answers: [] });
+
+        const res = await putApplication(event, 'me', { answers: [] });
+
+        expect(res.statusCode).toEqual(404);
+    });
+
+    it('should return 422 if the answers do not match the questions', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'week').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{ type: 'string', description: 'Why?', required: true }]
+        });
+        const application = await generator.createApplication(event, { user_id: user.id, answers: ['Because'] });
+
+        const res = await putApplication(event, 'me', { answers: [] });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('answers');
+        expect((await Application.findByPk(application.id)).answers).toEqual(['Because']);
+    });
+
+    it('should not let an organizer without permissions edit an application once the event is published', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({ status: 'published', questions: [], organizers: [callers.organizer(callers.member)] });
+        const application = await generator.createApplication(event, { user_id: user.id, answers: [] });
+
+        const res = await putApplication(event, application.id, { agreed_to_privacy_policy: true });
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    it('should mail the applicant, not the editor, when an organizer edits an application', async () => {
+        const mails = mock.captureMails(callers.asMember().omsMailerStub);
+        const event = await generator.createEvent({ status: 'draft', questions: [], organizers: [callers.organizer(callers.member)] });
+        const application = await generator.createApplication(event, { user_id: user.id, answers: [] });
+
+        const res = await putApplication(event, application.id, { agreed_to_privacy_policy: true });
+
+        expect(res.statusCode).toEqual(200);
+        expect(mails).toHaveLength(1);
+        expect(mails[0].template).toEqual('events_edited.html');
+        expect(mails[0].to).toEqual(user.notification_email);
+        expect(mails[0].to).not.toEqual(callers.member.notification_email);
     });
 
     it('should disallow editing your application for events with closed deadline', async () => {

@@ -18,6 +18,34 @@ describe('Events application comments', () => {
         await generator.clearAll();
     });
 
+    const putComment = (event, application, body) => request({
+        path: '/single/' + event.id + '/applications/' + application.id + '/comment',
+        headers: { 'X-Auth-Token': 'foobar' },
+        method: 'PUT',
+        body
+    });
+
+    it('should not let the board of another body comment', async () => {
+        // The mocked board rights are for body 34 (user.bodies[0]); the application is for body 9.
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { body_id: user.bodies[1].id });
+
+        const res = await putComment(event, application, { board_comment: 'Not ours.' });
+
+        expect(res.statusCode).toEqual(403);
+        expect((await Application.findByPk(application.id)).board_comment).toEqual(null);
+    });
+
+    it('should let the board remove its comment', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { body_id: user.bodies[0].id, board_comment: 'Old comment' });
+
+        const res = await putComment(event, application, { board_comment: null });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.board_comment).toEqual(null);
+    });
+
     it('should disallow changing comment if you don\'t have rights for it', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 

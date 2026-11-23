@@ -18,6 +18,17 @@ describe('Events application boardview', () => {
         await generator.clearAll();
     });
 
+    it('should include the event of each application, also of deleted events', async () => {
+        const event = await generator.createEvent({ deleted: true });
+        const application = await generator.createApplication(event, { body_id: user.bodies[0].id });
+
+        const res = await request({ path: '/boardview/' + user.bodies[0].id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((a) => a.id)).toEqual([application.id]);
+        expect(res.body.data[0].event.id).toEqual(event.id);
+    });
+
     it('should return an error if you are not a boardmember of this body', async () => {
         const res = await request({
             path: '/boardview/1337',

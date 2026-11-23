@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events application info', () => {
     beforeEach(async () => {
@@ -15,6 +16,32 @@ describe('Events application info', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    it('should show an application with the applicant\'s email to an organizer without permissions', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({ organizers: [callers.organizer(callers.member)] });
+        const application = await generator.createApplication(event, { user_id: user.id });
+
+        const res = await request({ path: '/single/' + event.id + '/applications/' + application.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.notification_email).toEqual(user.notification_email);
+    });
+
+    test.each([
+        ['an unsuccessful answer', { unsuccessfulResponse: true }],
+        ['an answer that is not JSON', { badResponse: true }],
+    ])('should return 500 if core gives %s for the applicant', async (_, member) => {
+        mock.mockAll({ member });
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { user_id: user.id });
+
+        const res = await request({ path: '/single/' + event.id + '/applications/' + application.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
     });
 
     it('should return 404 if application is not found', async () => {

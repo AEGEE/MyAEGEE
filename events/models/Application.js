@@ -25,7 +25,6 @@ const Application = sequelize.define('application', {
                     user_id: this.user_id
                 } });
 
-                /* istanbul ignore next */
                 if (application) {
                     throw new Error('The application for this event from this user already exists.');
                 }

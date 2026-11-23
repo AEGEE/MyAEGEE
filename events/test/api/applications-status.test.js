@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Application } = require('../../models');
+const callers = require('../scripts/callers');
 
 describe('Events application status', () => {
     beforeEach(async () => {
@@ -15,6 +16,36 @@ describe('Events application status', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    const putStatus = (event, application, body) => request({
+        path: '/single/' + event.id + '/applications/' + application.id + '/status',
+        headers: { 'X-Auth-Token': 'foobar' },
+        method: 'PUT',
+        body
+    });
+
+    it('should return 422 for a status that does not exist', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event);
+
+        const res = await putStatus(event, application, { status: 'maybe' });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('status');
+        expect((await Application.findByPk(application.id)).status).toEqual('pending');
+    });
+
+    it('should let an organizer without permissions accept an application, without a mail', async () => {
+        const mails = mock.captureMails(callers.asMember().omsMailerStub);
+        const event = await generator.createEvent({ organizers: [callers.organizer(callers.member)] });
+        const application = await generator.createApplication(event);
+
+        const res = await putStatus(event, application, { status: 'accepted' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.status).toEqual('accepted');
+        expect(mails).toEqual([]);
     });
 
     it('should disallow changing status if you don\'t have rights for it', async () => {
