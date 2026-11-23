@@ -1,14 +1,19 @@
 const generator = require('./generator');
 
-// The permissions the routes below ask for. A superadmin holds every permission that exists.
+// Every permission the routes ask for. A superadmin holds every permission that exists,
+// so with these the one in the fixtures is allowed everything.
 const PERMISSIONS = [
-    'create:body', 'update:body', 'delete:body', 'add_member:body', 'create_member:body', 'update_member:body',
-    'create:circle', 'update:circle', 'put_parent:circle', 'put_permissions:circle', 'add_member:circle', 'update_members:circle',
-    'create:permission', 'update:permission',
-    'create:campaign', 'update:campaign',
-    'create:payment', 'update:payment',
-    'process:join_request',
-    'update:member', 'update_active:user', 'update_superadmin:member', 'update_application_ban:member', 'confirm:member',
+    'create:body', 'update:body', 'delete:body', 'view_deleted:body',
+    'view_members:body', 'add_member:body', 'create_member:body', 'update_member:body', 'delete_member:body',
+    'create:circle', 'update:circle', 'delete:circle', 'put_parent:circle', 'put_permissions:circle',
+    'view_members:circle', 'add_member:circle', 'update_members:circle', 'delete_members:circle',
+    'create:permission', 'update:permission', 'delete:permission',
+    'view:campaign', 'create:campaign', 'update:campaign', 'delete:campaign',
+    'view:payment', 'create:payment', 'update:payment', 'delete:payment',
+    'view:join_request', 'process:join_request',
+    'view:member', 'view_unconfirmed:member', 'search:member', 'mail:member', 'lookup:member',
+    'update:member', 'delete:member', 'confirm:member',
+    'update_active:user', 'update_superadmin:member', 'update_application_ban:member',
     'subscribe:listserv',
     'manage:resources'
 ];
