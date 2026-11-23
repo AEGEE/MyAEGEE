@@ -108,4 +108,14 @@ describe('new_board_email_sent_at migration', () => {
         expect((await todayBoard.reload()).new_board_email_sent_at).not.toBeNull();
         expect((await futureBoard.reload()).new_board_email_sent_at).toBeNull();
     });
+
+    test('should run the daily job while the server runs', async () => {
+        const { startServer, stopServer } = require('../../lib/server'); // eslint-disable-line global-require
+
+        await startServer();
+        expect(cron.job.isActive).toEqual(true);
+
+        await stopServer();
+        expect(cron.job.isActive).toEqual(false);
+    });
 });
