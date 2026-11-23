@@ -78,9 +78,7 @@ describe('Questions deleting', () => {
         });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
-        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toEqual({ success: true, message: 'Question is deleted.' });
     });
 
     test('should succeed if you have the global permission', async () => {
@@ -99,9 +97,7 @@ describe('Questions deleting', () => {
         });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
-        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toEqual({ success: true, message: 'Question is deleted.' });
     });
 
     test('should return 403 when trying to delete other user\'s question', async () => {
