@@ -2,14 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board view</div>
+        <h1 class="title">Board view</h1>
 
         <div class="field" v-if="boardBodies.length > 0">
-          <label>Select the body to view application from:</label>
+          <label for="boardview-body">Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="boardview-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -35,15 +35,15 @@
         </div>
 
         <div class="tabs is-centered is-boxed">
-          <ul>
-            <li :class="{ 'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
-              <a>
+          <ul role="tablist">
+            <li role="presentation" :class="{ 'is-active': scope === 'edit' }" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
+              <a href="#" role="tab" :aria-selected="scope === 'edit' ? 'true' : 'false'" @click.prevent="scope = 'edit'">
                 <span class="icon is-small"><font-awesome-icon icon="pen" aria-hidden="true" /></span>
                 <span>Edit boardview</span>
               </a>
             </li>
-            <li :class="{ 'is-active': scope === 'view' }" @click="scope = 'view'">
-              <a>
+            <li role="presentation" :class="{ 'is-active': scope === 'view' }">
+              <a href="#" role="tab" :aria-selected="scope === 'view' ? 'true' : 'false'" @click.prevent="scope = 'view'">
                 <span class="icon is-small"><font-awesome-icon icon="users" aria-hidden="true" /></span>
                 <span>View applications</span>
               </a>
@@ -51,7 +51,7 @@
           </ul>
         </div>
 
-        <div v-show="scope === 'edit' && selectedBody">
+        <div v-show="scope === 'edit' && selectedBody" role="tabpanel" aria-label="Edit boardview">
           <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
             <div class="content">
               <strong>This errors occured while trying to update the participant:</strong>
@@ -77,7 +77,7 @@
 
               <b-table-column field="user_id" label="User" v-slot="props">
                 <div class="select">
-                  <select v-model="props.row.user_id">
+                  <select v-model="props.row.user_id" :aria-label="'User for ' + props.row.participant_type + ' ' + props.row.participant_order">
                     <option :value="null">Not set</option>
                     <option v-for="application in applications" v-bind:key="application.user_id" v-bind:value="application.user_id">
                       {{ application.first_name }} {{ application.last_name }}
@@ -87,7 +87,7 @@
               </b-table-column>
 
               <b-table-column field="board_comment" label="Board comment" sortable v-slot="props">
-                <textarea class="textarea" v-model="props.row.board_comment" />
+                <textarea class="textarea" v-model="props.row.board_comment" :aria-label="'Board comment for ' + props.row.participant_type + ' ' + props.row.participant_order" />
               </b-table-column>
             </b-table>
           </div>
@@ -100,12 +100,12 @@
           <button class="button is-fullwidth is-primary" @click="updateParticipants()">Save!</button>
         </div>
 
-        <div v-show="scope === 'view' && selectedBody">
+        <div v-show="scope === 'view' && selectedBody" role="tabpanel" aria-label="View applications">
           <div class="field">
-            <label class="label">Search by name, surname or email</label>
+            <label class="label" for="boardview-search">Search by name, surname or email</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+                <input id="boardview-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
               </div>
               <div class="control">
                 <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
@@ -125,6 +125,7 @@
                 :preserve-search="true"
                 :options="fields"
                 placeholder="Select application fields"
+                aria-label="Application fields"
                 track-by="name"
                 label="name">
                 <template
@@ -141,7 +142,11 @@
             :row-class="row => calculateClassForApplication(row)"
             :loading="isLoading"
             paginated
-            :per-page="limit">
+            :per-page="limit"
+            aria-next-label="Next page"
+            aria-previous-label="Previous page"
+            aria-page-label="Page"
+            aria-current-label="Current page">
             <b-table-column field="statutory_id" label="#" numeric v-slot="props">
               {{ props.row.statutory_id }}
             </b-table-column>
