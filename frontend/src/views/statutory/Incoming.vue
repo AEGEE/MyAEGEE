@@ -211,11 +211,7 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-        this.event = event.data.data
-
-        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject })
-      }).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -229,20 +225,27 @@ export default {
           this.$set(pax, 'isSavingIncoming', false)
           this.$set(pax, 'isSavingAttended', false)
         }
-      }).catch((err) => {
-        this.isLoading = false
-        if (err.response && err.response.status === 404) {
-          this.$root.showError('Event is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
+      }).catch(this.showLoadError)
+    },
+    showLoadError (err) {
+      this.isLoading = false
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-        this.$router.push({ name: 'oms.statutory.list.all' })
-      })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     }
   },
   mounted () {
-    this.loadApplications()
+    this.isLoading = true
+
+    // The event is the same for every search and page, so it's loaded once.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.event = event.data.data
+      this.loadApplications()
+    }).catch(this.showLoadError)
   }
 }
 </script>
