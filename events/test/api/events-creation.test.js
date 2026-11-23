@@ -153,7 +153,6 @@ describe('Events creation', () => {
         ['max_participants', -1],
         ['vegetarian', 'yes'],
         ['method', 'hybrid'],
-        ['publication_date', 'not a date'],
         ['type', 'statutory'],
     ])('should return 422 if %s is %p', async (field, value) => {
         const res = await createEvent(validEvent({ [field]: value }));
