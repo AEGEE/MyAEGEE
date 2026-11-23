@@ -218,6 +218,9 @@ export default {
         this.isSaving = false
         this.showSuccess('Board is deleted.')
         this.router.go(0)
+      }).catch((err) => {
+        this.isSaving = false
+        this.showError('Could not delete board', err)
       })
     },
     saveChangeBoard () {
