@@ -17,6 +17,18 @@ const notFoundRows = withNotFound.flatMap((op) => (table.lookups[op.operationId]
     .map((param) => [`${op.method} ${op.template} with an unknown ${param}`, op, param]));
 const badRequestRows = withBadRequest.flatMap((op) => (table.badIds[op.operationId] || [])
     .map((param) => [`${op.method} ${op.template} with a ${param} that is not a number`, op, param]));
+// The route's own not-found answers; the catch-all for unknown routes says "No such API endpoint".
+const NOT_FOUND = {
+    event_id: (value) => `Event with id ${value} not found`,
+    application_id: (value) => `Application with id ${value} not found`
+};
+const expectOwnNotFound = (res, message) => {
+    expect(res.statusCode).toEqual(404);
+    expect(res.body.success).toEqual(false);
+    expect(res.body.message).toEqual(message);
+    expect(res.body.message).not.toMatch(/^No such API endpoint/);
+};
+
 const childRows = withNotFound.filter((op) => op.pathParams.includes('application_id'))
     .map((op) => [`${op.method} ${op.template}`, op]);
 
@@ -56,9 +68,7 @@ describe('Path parameters', () => {
             body: table.bodies[op.operationId]
         });
 
-        expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expectOwnNotFound(res, NOT_FOUND[param](table.NONEXISTENT_ID));
         if (table.unchanged[op.operationId]) await table.unchanged[op.operationId](fixtures);
     });
 
@@ -89,8 +99,7 @@ describe('Path parameters', () => {
             body: table.bodies[op.operationId]
         });
 
-        expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
+        expectOwnNotFound(res, NOT_FOUND.application_id(fixtures.application.id));
         if (table.unchanged[op.operationId]) await table.unchanged[op.operationId](fixtures);
     });
 
@@ -100,7 +109,6 @@ describe('Path parameters', () => {
             headers: { 'X-Auth-Token': 'foobar' }
         });
 
-        expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
+        expectOwnNotFound(res, NOT_FOUND.event_id('no-such-event'));
     });
 });
