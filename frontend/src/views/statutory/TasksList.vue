@@ -9,19 +9,19 @@
             {{ props.row.id }}
           </b-table-column>
 
-          <b-table-column field="key" label="key" v-slot="props">
+          <b-table-column field="key" label="Key" v-slot="props">
             {{ props.row.key }}
           </b-table-column>
 
-          <b-table-column field="description" label="description" v-slot="props">
+          <b-table-column field="description" label="Description" v-slot="props">
             {{ props.row.description }}
           </b-table-column>
 
-          <b-table-column field="params" label="params" v-slot="props">
+          <b-table-column field="params" label="Params" v-slot="props">
             <span class="has-text-pre-wrap">{{ JSON.stringify(props.row.params) }}</span>
           </b-table-column>
 
-          <b-table-column field="time" label="time" v-slot="props">
+          <b-table-column field="time" label="Time" v-slot="props">
             {{ props.row.time | datetimeseconds }}
           </b-table-column>
 
