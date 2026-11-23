@@ -350,6 +350,15 @@ describe('Applications listing, viewing and exporting', () => {
             expect(sheet.data.length).toEqual(1);
         });
 
+        test('should not log in to core for an export without applications', async () => {
+            const logins = mock.captureRequests(mock.mockAll().omsCoreLoginStub);
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(logins.length).toEqual(0);
+        });
+
         // BUG: the event name is put into the Content-Disposition header unescaped, so
         // a name with characters outside latin1 makes res.setHeader throw.
         test('should export an event whose name has characters outside latin1', async () => {
