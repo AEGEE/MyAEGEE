@@ -77,24 +77,41 @@ const getStringLength = (type) => {
     return type instanceof Sequelize.STRING ? type._length : undefined;
 };
 
-// Every string column refuses a value that is longer than the column, with a validation
-// error on the field. Without it such a value fails in the database.
+// What a whole number column holds.
+const MIN_INTEGER = -2147483648;
+const MAX_INTEGER = 2147483647;
+
+// A validator for a string column: the value is not longer than the column.
+const fitsInStringColumn = (length) => (value) => {
+    const values = Array.isArray(value) ? value : [value];
+    if (values.some((item) => typeof item === 'string' && item.length > length)) {
+        throw new Error(`The value should be at most ${length} characters long.`);
+    }
+};
+
+// A validator for a whole number column: the value is a whole number that the column holds.
+// No value, or an empty text, is left to the validators that say that the value should be set.
+const fitsInIntegerColumn = (value) => {
+    if (value === null || value === undefined || value === '') {
+        return;
+    }
+
+    const number = ['number', 'string'].includes(typeof value) ? Number(value) : NaN;
+    if (!Number.isInteger(number) || number < MIN_INTEGER || number > MAX_INTEGER) {
+        throw new Error(`The value should be a whole number between ${MIN_INTEGER} and ${MAX_INTEGER}.`);
+    }
+};
+
+// Every string and whole number column refuses a value that does not fit it, with a
+// validation error on the field. Without it such a value fails in the database.
 for (const model of models) {
     for (const attribute of Object.values(model.rawAttributes)) {
         const length = getStringLength(attribute.type);
-        if (!length) {
-            continue;
+        if (length) {
+            attribute.validate = { ...attribute.validate, fitsInColumn: fitsInStringColumn(length) };
+        } else if (attribute.type instanceof Sequelize.INTEGER) {
+            attribute.validate = { ...attribute.validate, fitsInColumn: fitsInIntegerColumn };
         }
-
-        attribute.validate = {
-            ...attribute.validate,
-            fitsInColumn(value) {
-                const values = Array.isArray(value) ? value : [value];
-                if (values.some((item) => typeof item === 'string' && item.length > length)) {
-                    throw new Error(`The value should be at most ${length} characters long.`);
-                }
-            }
-        };
     }
 
     model.refreshAttributes();

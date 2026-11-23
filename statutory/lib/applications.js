@@ -88,7 +88,7 @@ function presentApplicationAfterFlag(req, application, key) {
 // Returns the error message, or null if the parameters are fine.
 function getListQueryError(query, fields = Object.keys(Application.rawAttributes)) {
     for (const key of ['limit', 'offset']) {
-        if (helpers.isDefined(query[key]) && !/^\d+$/.test(query[key])) {
+        if (helpers.isDefined(query[key]) && (!/^\d+$/.test(query[key]) || !Number.isSafeInteger(Number(query[key])))) {
             return `The "${key}" parameter should be a whole number, zero or higher.`;
         }
     }
