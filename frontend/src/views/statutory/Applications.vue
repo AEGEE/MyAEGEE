@@ -78,7 +78,7 @@
               </span>
             </b-table-column>
 
-            <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
+            <b-table-column field="is_on_previous_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
               <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
                 {{ props.row.is_on_previous_memberslist | beautify }}
               </span>
