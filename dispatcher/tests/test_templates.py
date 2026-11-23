@@ -88,6 +88,8 @@ COMPLETE_PARAMETERS = {
         {"function": "President", "name": "Ada Lovelace"},
         {"function": "Treasurer", "name": "Grace Hopper"},
     ],
+    "requester_body": "AEGEE-Delft",
+    "requester_email": "grace.hopper@example.org",
     "requester_name": "Grace Hopper",
     "surname": "Lovelace",
     "token": "test-token",
@@ -139,13 +141,19 @@ def test_mail_change_old_confirm_shows_requester_new_address_and_token():
     assert "<title>MyAEGEE: Confirm the change of your email</title>" in rendered
     assert "Hello Ada Lovelace" in rendered
     assert (
-        "Grace Hopper asked to change the login email of your MyAEGEE account"
+        "Grace Hopper (grace.hopper@example.org), who manages the members of AEGEE-Delft,"
+        " asked to change the login email of your MyAEGEE account"
         " to new.address@example.org. The address only changes if you confirm it:"
     ) in rendered
     assert 'href="https://my.aegee.eu/mail-change?token=test-token"' in rendered
     assert "<i>test-token</i>" in rendered
     assert "The new address has to confirm the change as well." in rendered
-    assert "If you did not expect this, just ignore this email and nothing changes." in rendered
+    assert "Only confirm if you asked for this and the new address is yours." in rendered
+    assert (
+        "If you did not expect this mail, do not confirm and contact the Helpdesk:"
+        ' <a href="http://aegee.org/helpdesk">'
+    ) in rendered
+    assert "just ignore this email" not in rendered
 
 
 def test_mail_change_old_confirm_escapes_values():
@@ -154,6 +162,8 @@ def test_mail_change_old_confirm_escapes_values():
         "surname": "<u>Lovelace</u>",
         "new_email": "<script>new</script>@example.org",
         "requester_name": "<b>x</b>",
+        "requester_email": "<em>mail</em>@example.org",
+        "requester_body": "<s>AEGEE</s>",
         "token": '"><b>token</b>',
     }
 
@@ -161,13 +171,19 @@ def test_mail_change_old_confirm_escapes_values():
 
     assert "Hello &lt;i&gt;Ada&lt;/i&gt; &lt;u&gt;Lovelace&lt;/u&gt;" in rendered
     assert "&lt;script&gt;new&lt;/script&gt;@example.org" in rendered
-    assert "&lt;b&gt;x&lt;/b&gt; asked to change" in rendered
+    assert (
+        "&lt;b&gt;x&lt;/b&gt; (&lt;em&gt;mail&lt;/em&gt;@example.org),"
+        " who manages the members of &lt;s&gt;AEGEE&lt;/s&gt;, asked to change"
+    ) in rendered
     assert 'token=&#34;&gt;&lt;b&gt;token&lt;/b&gt;"' in rendered
-    for raw in ("<i>Ada</i>", "<u>Lovelace</u>", "<script>", "<b>x</b>", "<b>token</b>"):
+    for raw in ("<i>Ada</i>", "<u>Lovelace</u>", "<script>", "<b>x</b>", "<em>mail</em>", "<s>AEGEE</s>", "<b>token</b>"):
         assert raw not in rendered
 
 
-@pytest.mark.parametrize("missing", ["name", "surname", "new_email", "requester_name", "token"])
+@pytest.mark.parametrize(
+    "missing",
+    ["name", "surname", "new_email", "requester_name", "requester_email", "requester_body", "token"],
+)
 def test_mail_change_old_confirm_needs_every_parameter(missing):
     parameters = copy.deepcopy(COMPLETE_PARAMETERS)
     del parameters[missing]
