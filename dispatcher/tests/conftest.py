@@ -42,15 +42,19 @@ class FakeChannel:
 
 
 class FakeSmtp:
-    """Records sent mails; set `fail_with` to make every send raise it."""
+    """Records sent mails. Set `fail_with` to make every send raise it, or put an address in
+    `fail_for` to make the mail to that address raise its exception."""
 
     def __init__(self):
         self.sent = []
         self.fail_with = None
+        self.fail_for = {}
 
     def send_message(self, message):
         if self.fail_with is not None:
             raise self.fail_with
+        if message["To"] in self.fail_for:
+            raise self.fail_for[message["To"]]
         self.sent.append(message)
 
 

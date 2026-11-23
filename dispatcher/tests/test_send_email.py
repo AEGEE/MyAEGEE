@@ -1,5 +1,6 @@
 """send_email: what happens to one message from the email queue."""
 
+import json
 import smtplib
 
 import pytest
@@ -235,15 +236,96 @@ def test_a_lost_smtp_connection_reconnects_and_puts_the_message_back(dispatcher,
     assert fake_channel.nacks == [(1, True)]
 
 
+THREE = {
+    "to": ["ada@example.org", "grace@example.org", "linus@example.org"],
+    "subject": "Agora",
+    "template": "custom.html",
+    "parameters": [{"email_body": "<p>Dear Ada</p>"}, {"email_body": "<p>Dear Grace</p>"}, {"email_body": "<p>Dear Linus</p>"}],
+}
+
+
+def published_message(entry):
+    return json.loads(entry["body"])
+
+
 @pytest.mark.parametrize("error", [
     smtplib.SMTPResponseException(550, b"mailbox unavailable"),
     smtplib.SMTPRecipientsRefused({"ada@example.org": (550, b"no")}),
     ValueError("unexpected"),
 ])
-def test_a_failed_send_goes_to_the_dead_letter_queue(dispatcher, fake_channel, fake_smtp, error):
+def test_a_refused_mail_waits_in_the_last_retry_queue(dispatcher, fake_channel, fake_smtp, alerts, error):
     fake_smtp.fail_with = error
 
     deliver(dispatcher, fake_channel, MESSAGE)
 
-    assert fake_channel.acks == []
-    assert fake_channel.nacks == [(1, False)]
+    assert fake_channel.acks == [1]
+    assert fake_channel.nacks == []
+    [parked] = fake_channel.published
+    assert (parked["exchange"], parked["routing_key"]) == ("", "wait_100h")
+    assert parked["headers"] == {"reason": "smtp_refused", "x-retry-index": 4}
+    assert published_message(parked) == {**MESSAGE, "to": ["ada@example.org"]}
+    assert len(alerts) == 1
+
+
+def test_a_mail_refused_again_after_its_last_retry_is_dropped_with_an_alert(dispatcher, fake_channel, fake_smtp, alerts):
+    fake_smtp.fail_with = smtplib.SMTPResponseException(550, b"mailbox unavailable")
+
+    deliver(dispatcher, fake_channel, MESSAGE, headers={"reason": "smtp_refused", "x-retry-index": 4})
+
+    assert fake_channel.acks == [1]
+    assert fake_channel.published == []
+    assert len(alerts) == 1
+    assert "dropped" in alerts[0][0]
+
+
+def test_a_refused_recipient_does_not_stop_the_others_and_only_they_wait(dispatcher, fake_channel, fake_smtp, alerts):
+    fake_smtp.fail_for["grace@example.org"] = smtplib.SMTPRecipientsRefused({"grace@example.org": (550, b"no")})
+
+    deliver(dispatcher, fake_channel, THREE)
+
+    assert [mail["To"] for mail in fake_smtp.sent] == ["ada@example.org", "linus@example.org"]
+    assert fake_channel.acks == [1]
+    assert fake_channel.nacks == []
+    [parked] = fake_channel.published
+    assert parked["routing_key"] == "wait_100h"
+    assert published_message(parked) == {
+        **THREE, "to": ["grace@example.org"], "parameters": [{"email_body": "<p>Dear Grace</p>"}],
+    }
+    assert len(alerts) == 1
+
+
+def test_a_lost_connection_after_some_recipients_puts_back_only_the_others(dispatcher, fake_channel, fake_smtp, monkeypatch):
+    reconnects = []
+    monkeypatch.setattr(dispatcher, "connect_to_smtp", lambda: reconnects.append(True))
+    fake_smtp.fail_for["grace@example.org"] = smtplib.SMTPServerDisconnected("gone")
+    message = {**MESSAGE, "to": THREE["to"]}
+
+    deliver(dispatcher, fake_channel, message, headers={"x-retry-index": 1})
+
+    assert [mail["To"] for mail in fake_smtp.sent] == ["ada@example.org"]
+    assert reconnects == [True]
+    assert fake_channel.acks == [1]
+    assert fake_channel.nacks == []
+    [requeued] = fake_channel.published
+    assert (requeued["exchange"], requeued["routing_key"]) == ("eml", "mail")
+    assert requeued["headers"] == {"x-retry-index": 1}
+    assert requeued["delivery_mode"] == 2
+    assert published_message(requeued) == {**message, "to": ["grace@example.org", "linus@example.org"]}
+
+
+def test_after_a_refusal_and_a_lost_connection_each_part_goes_its_own_way(dispatcher, fake_channel, fake_smtp, monkeypatch, alerts):
+    monkeypatch.setattr(dispatcher, "connect_to_smtp", lambda: None)
+    fake_smtp.fail_for["ada@example.org"] = smtplib.SMTPRecipientsRefused({"ada@example.org": (550, b"no")})
+    fake_smtp.fail_for["grace@example.org"] = smtplib.SMTPServerDisconnected("gone")
+
+    deliver(dispatcher, fake_channel, THREE)
+
+    assert fake_smtp.sent == []
+    assert fake_channel.acks == [1]
+    parked, requeued = fake_channel.published
+    assert parked["routing_key"] == "wait_100h"
+    assert published_message(parked)["to"] == ["ada@example.org"]
+    assert published_message(parked)["parameters"] == [{"email_body": "<p>Dear Ada</p>"}]
+    assert requeued["routing_key"] == "mail"
+    assert published_message(requeued)["to"] == ["grace@example.org", "linus@example.org"]
+    assert published_message(requeued)["parameters"] == THREE["parameters"][1:]
