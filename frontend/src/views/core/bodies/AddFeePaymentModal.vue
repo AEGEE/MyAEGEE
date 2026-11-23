@@ -70,7 +70,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button type="button" class="button is-primary" @click="saveFeePayment()">Add fee payment</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="saveFeePayment()">Add fee payment</button>
       <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -95,6 +95,7 @@ export default {
       // Typed dates, and the same field on a phone.
       dateConfig: { allowInput: true, disableMobile: true },
       errors: {},
+      isLoading: false,
       tmpPayment: {
         starts: '',
         expires: '',
