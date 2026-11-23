@@ -176,7 +176,8 @@ export default {
         { name: 'Gender', column: 'gender', get: (pax) => pax.gender },
         { name: 'Nationality', column: 'nationality', get: (pax) => pax.nationality },
         { name: 'Date of birth', column: 'date_of_birth', get: (pax) => pax.date_of_birth },
-        { name: 'Email', column: 'notification_email', get: (pax) => pax.notification_email },
+        // Core has the address, statutory can't sort by it.
+        { name: 'Email', get: (pax) => pax.notification_email },
         { name: 'Meals', column: 'meals', get: (pax) => pax.meals },
         { name: 'Allergies', column: 'allergies', get: (pax) => pax.allergies },
         { name: 'Number of events visited', column: 'number_of_events_visited', get: (pax) => pax.number_of_events_visited },
