@@ -643,6 +643,9 @@ exports.setApplicationBoard = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.application.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     const toUpdate = {};
     if (helpers.isDefined(req.body.participant_type)) toUpdate.participant_type = req.body.participant_type;
@@ -734,6 +737,9 @@ exports.setBoardForBody = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Same as in above.
     try {
@@ -833,6 +839,9 @@ exports.postApplication = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.body.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Do not allow applying if the limit for a body is not set.
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.event.type);

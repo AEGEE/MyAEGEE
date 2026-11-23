@@ -44,6 +44,9 @@ exports.listAllDefaultLimits = async (req, res) => {
 exports.getSingleLimit = async (req, res) => {
     // Fetching bodies list
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.params.event_type);
 
     return res.json({

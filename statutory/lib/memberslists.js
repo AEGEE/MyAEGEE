@@ -125,6 +125,9 @@ exports.uploadMembersList = async (req, res) => {
 
     // Fetching body. We'll need that for calculating votes per antenna.
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Only the currency and the members are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.MEMBERSLIST_FORM_FIELDS);

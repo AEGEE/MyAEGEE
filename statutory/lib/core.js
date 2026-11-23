@@ -43,14 +43,21 @@ const getMails = async (req, ids) => {
     return mails.data;
 };
 
+// Returns the body, or null if core does not know it.
 const getBody = async (req, id) => {
-    const body = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/bodies/' + id,
-        token: req.headers['x-auth-token']
+    const response = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + encodeURIComponent(id),
+        token: req.headers['x-auth-token'],
+        fullResponse: true
     });
+    const { body } = response;
 
-    if (typeof body !== 'object') {
+    if (!body || typeof body !== 'object') {
         throw new Error('Malformed response when fetching bodies: ' + body);
+    }
+
+    if (response.statusCode === 404) {
+        return null;
     }
 
     if (!body.success) {
