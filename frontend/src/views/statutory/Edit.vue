@@ -359,7 +359,7 @@
         <div class="notification is-danger" v-if="errors.questions">
           <div class="content">
             Could not create/edit event because of these reasons:
-            <ul v-if="errors.questions">
+            <ul>
               <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
           </div>
@@ -370,8 +370,6 @@
             <button type="button" class="button is-primary" @click="addQuestion()">Add new question</button>
           </div>
         </div>
-
-        <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
         <h2 class="subtitle is-fullwidth has-text-centered">Locations</h2>
         <hr />
