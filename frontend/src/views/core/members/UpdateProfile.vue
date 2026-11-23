@@ -311,6 +311,7 @@ export default {
         this.isLoading = false
       })
       .catch((err) => {
+        this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('User is not found')
         } else {
