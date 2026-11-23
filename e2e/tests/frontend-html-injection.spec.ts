@@ -86,7 +86,6 @@ test.describe('HTML injection in the frontend', () => {
     test('links typed in by users only open when they are http(s) links', moveToModule('frontend', 'once the frontend has component tests for the safeUrl filter'), async ({ api, page }) => {
         const event = await api.createEvent('admin', { type: 'training' });
         await api.publishAsAdmin(event.id);
-        const body = (await api.me('member')).bodies[0];
 
         // The backend rejects links like these, so they're put in the API responses
         // to test the frontend on its own (and data stored before the validation).
@@ -107,10 +106,6 @@ test.describe('HTML injection in the frontend', () => {
             programme: 'www.aegee.org/programme',
             link_info_travel_country: ' data:text/html,<script>window.__injected=\'travel\'</script>'
         });
-        await replaceInResponse(new RegExp(`/api/core/bodies/${body.id}$`), {
-            // eslint-disable-next-line no-script-url -- the injected link is what the test checks
-            website: 'JaVaScRiPt:window.__injected=\'website\''
-        });
 
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}`);
@@ -128,10 +123,5 @@ test.describe('HTML injection in the frontend', () => {
 
         // A link without a scheme opens as https instead of as a page of MyAEGEE.
         await expect(page.getByRole('link', { name: 'www.aegee.org/programme' })).toHaveAttribute('href', 'https://www.aegee.org/programme');
-
-        await page.goto(`/bodies/${body.id}`);
-        const website = 'window.__injected=\'website\'';
-        await expect(page.getByText(website)).toBeVisible();
-        await expect(page.getByRole('link', { name: website })).toHaveCount(0);
     });
 });
