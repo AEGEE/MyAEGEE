@@ -309,6 +309,61 @@ describe('Applications creation', () => {
         expect(res.body.data).not.toHaveProperty('arbitrary_field');
     });
 
+    test('should ignore the fields that are not part of the application form', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        // An EPM, as the server sets the memberslist fields itself for an Agora.
+        const event = await generator.createEvent({ type: 'epm', applications: [] });
+        const otherEvent = await generator.createEvent({ type: 'epm', applications: [] });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        application.id = 123456;
+        application.event_id = otherEvent.id;
+        application.user_id = regularUser.id + 1000;
+        application.body_name = 'Some other body name';
+        application.email = 'someone@example.com';
+        application.is_on_memberslist = true;
+        application.is_on_previous_memberslist = true;
+        application.statutory_id = 'some-id';
+        application.created_at = '2000-01-01T00:00:00.000Z';
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(await Application.count({ where: { event_id: otherEvent.id } })).toEqual(0);
+
+        const applicationFromDb = await Application.findOne({ where: { event_id: event.id } });
+        expect(applicationFromDb).not.toEqual(null);
+        expect(applicationFromDb.id).not.toEqual(application.id);
+        expect(applicationFromDb.user_id).toEqual(regularUser.id);
+        expect(applicationFromDb.body_name).toEqual(regularUser.bodies[0].name);
+        expect(applicationFromDb.email).toEqual(null);
+        expect(applicationFromDb.is_on_memberslist).toEqual(false);
+        expect(applicationFromDb.is_on_previous_memberslist).toEqual(false);
+        expect(applicationFromDb.statutory_id).not.toEqual(application.statutory_id);
+        expect(moment(applicationFromDb.created_at).year()).not.toEqual(2000);
+
+        // The fields of the form are saved.
+        expect(applicationFromDb.body_id).toEqual(application.body_id);
+        expect(applicationFromDb.meals).toEqual(application.meals);
+        expect(applicationFromDb.answers).toEqual(application.answers);
+        expect(applicationFromDb.visa_passport_number).toEqual(application.visa_passport_number);
+    });
+
     test('should return 403 if user is not a member of a body', async () => {
         const event = await generator.createEvent({ applications: [] });
 

@@ -318,10 +318,13 @@ describe('Applications editing', () => {
 
     test('should remove any additional fields', async () => {
         const event = await generator.createEvent();
+        const otherEvent = await generator.createEvent();
         const application = await generator.createApplication({
             participant_type: 'delegate',
             body_id: regularUser.bodies[0].id
         }, event);
+
+        application.event_id = otherEvent.id;
 
         application.status = 'accepted';
         application.participant_type = 'envoy';
@@ -348,6 +351,8 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.user_id).toEqual(application.user_id);
 
+        expect(res.body.data.event_id).toEqual(event.id);
+        expect(await Application.count({ where: { event_id: otherEvent.id } })).toEqual(0);
         expect(res.body.data.status).not.toEqual(application.status);
         expect(res.body.data.participant_type).not.toEqual(application.participant_type);
         expect(res.body.data.board_comment).not.toEqual(application.board_comment);
@@ -677,5 +682,121 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    describe('fields that are not part of the application form', () => {
+        let event;
+        let otherEvent;
+        let application;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            // An EPM, as the server sets the memberslist fields itself for an Agora.
+            event = await generator.createEvent({ type: 'epm' });
+            otherEvent = await generator.createEvent({ type: 'epm' });
+            application = await generator.createApplication({
+                user_id: regularUser.id,
+                body_id: regularUser.bodies[0].id
+            }, event);
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+        });
+
+        afterEach(() => {
+            tk.reset();
+        });
+
+        test('should ignore them when the applicant sends them', async () => {
+            const res = await request({
+                path: '/events/' + event.id + '/applications/me',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: {
+                    id: application.id + 1000,
+                    event_id: otherEvent.id,
+                    user_id: regularUser.id + 1000,
+                    body_name: 'Some other body name',
+                    email: 'someone@example.com',
+                    is_on_memberslist: true,
+                    is_on_previous_memberslist: true,
+                    created_at: '2000-01-01T00:00:00.000Z',
+                    allergies: 'Updated allergies'
+                }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+
+            expect(await Application.count({ where: { event_id: otherEvent.id } })).toEqual(0);
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb).not.toEqual(null);
+            expect(applicationFromDb.event_id).toEqual(event.id);
+            expect(applicationFromDb.user_id).toEqual(regularUser.id);
+            expect(applicationFromDb.body_name).toEqual(application.body_name);
+            expect(applicationFromDb.email).toEqual(null);
+            expect(applicationFromDb.is_on_memberslist).toEqual(false);
+            expect(applicationFromDb.is_on_previous_memberslist).toEqual(false);
+            expect(applicationFromDb.created_at).toEqual(application.created_at);
+
+            // The fields of the form are still saved.
+            expect(applicationFromDb.allergies).toEqual('Updated allergies');
+        });
+
+        test('should ignore the registered flag when the applicant sends it', async () => {
+            // The model accepts registered only on a confirmed application.
+            await application.update({ confirmed: true });
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/me',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { registered: true, allergies: 'Updated allergies' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.registered).toEqual(false);
+            expect(applicationFromDb.allergies).toEqual('Updated allergies');
+        });
+
+        test('should succeed when the whole application is sent back, as the edit form does', async () => {
+            const fetched = await request({
+                path: '/events/' + event.id + '/applications/me',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(fetched.statusCode).toEqual(200);
+            expect(fetched.body.data).toHaveProperty('permissions');
+            expect(fetched.body.data).toHaveProperty('editable_bodies');
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/me',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { ...fetched.body.data, meals: 'Vegan', allergies: 'Updated allergies' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.meals).toEqual('Vegan');
+            expect(applicationFromDb.allergies).toEqual('Updated allergies');
+
+            // Everything else stays as it was, except for the fields taken from the member's profile.
+            const profileFields = ['first_name', 'last_name', 'gender', 'date_of_birth', 'body_name'];
+            const unchangedFields = Object.keys(application.toJSON())
+                .filter((field) => !['meals', 'allergies', 'updated_at', ...profileFields].includes(field));
+            for (const field of unchangedFields) {
+                expect(applicationFromDb[field]).toEqual(application[field]);
+            }
+        });
     });
 });

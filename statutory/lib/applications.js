@@ -394,34 +394,25 @@ exports.updateApplication = async (req, res) => {
         }
     }
 
-    delete req.body.statutory_id;
-    delete req.body.status;
-    delete req.body.board_comment;
-    delete req.body.participant_type;
-    delete req.body.participant_order;
-    delete req.body.attended;
-    delete req.body.departed;
-    delete req.body.cancelled;
-    delete req.body.confirmed;
-    delete req.body.incoming;
-    delete req.body.user_id;
+    // Only the fields of the application form are saved, anything else in the request is ignored.
+    const fields = helpers.whitelistObject(req.body, constants.APPLICATION_FORM_FIELDS);
 
     // Some fields are filled in from the user/body automatically.
-    req.body.first_name = user.first_name;
-    req.body.last_name = user.last_name;
-    req.body.gender = user.gender;
-    req.body.date_of_birth = user.date_of_birth;
-    if (req.body.body_id) {
+    fields.first_name = user.first_name;
+    fields.last_name = user.last_name;
+    fields.gender = user.gender;
+    fields.date_of_birth = user.date_of_birth;
+    if (fields.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
-        req.body.body_name = requestedBody.name;
+        fields.body_name = requestedBody.name;
     }
 
     // If the body was changed, reset the board comment and participant type/order.
-    if (req.body.body_id && req.body.body_id !== req.application.body_id) {
-        req.body.participant_type = null;
-        req.body.participant_order = null;
-        req.body.board_comment = null;
+    if (fields.body_id && fields.body_id !== req.application.body_id) {
+        fields.participant_type = null;
+        fields.participant_order = null;
+        fields.board_comment = null;
     }
 
     // Keeping old body, as apparently next line is changing req.application as well.
@@ -429,7 +420,7 @@ exports.updateApplication = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        await req.application.update(req.body, { transaction: t });
+        await req.application.update(fields, { transaction: t });
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -463,9 +454,9 @@ exports.updateApplication = async (req, res) => {
 
     // Recalculating votes per delegate for this antenna, if user changed the body.
     // Both for new and old body.
-    if (req.body.body_id && req.body.body_id !== oldBody) {
+    if (fields.body_id && fields.body_id !== oldBody) {
         await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.body.body_id);
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, fields.body_id);
     }
 
     return res.json({
@@ -741,7 +732,6 @@ exports.postApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
     }
 
-    req.body.user_id = req.user.id;
     if (!helpers.isMemberOf(req.user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
@@ -755,31 +745,24 @@ exports.postApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot apply as this body cannot send any participants.');
     }
 
-    delete req.body.statutory_id;
-    delete req.body.status;
-    delete req.body.board_comment;
-    delete req.body.participant_type;
-    delete req.body.participant_order;
-    delete req.body.attended;
-    delete req.body.departed;
-    delete req.body.cancelled;
-    delete req.body.confirmed;
-    delete req.body.incoming;
+    // Only the fields of the application form are saved, anything else in the request is ignored.
+    const fields = helpers.whitelistObject(req.body, constants.APPLICATION_FORM_FIELDS);
 
-    req.body.event_id = req.event.id;
+    fields.user_id = req.user.id;
+    fields.event_id = req.event.id;
 
     // Some fields are filled in from the user/body automatically.
-    req.body.first_name = req.user.first_name;
-    req.body.last_name = req.user.last_name;
-    req.body.gender = req.user.gender;
-    req.body.body_name = req.user.bodies.find((b) => req.body.body_id === b.id).name;
-    req.body.date_of_birth = req.user.date_of_birth;
+    fields.first_name = req.user.first_name;
+    fields.last_name = req.user.last_name;
+    fields.gender = req.user.gender;
+    fields.body_name = req.user.bodies.find((b) => fields.body_id === b.id).name;
+    fields.date_of_birth = req.user.date_of_birth;
 
     let newApplication;
 
     // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
     await sequelize.transaction(async (t) => {
-        newApplication = await Application.create(req.body, { transaction: t });
+        newApplication = await Application.create(fields, { transaction: t });
 
         // We don't need to recalculate the votes amount, as the pax type is not set here.
 
