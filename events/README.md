@@ -8,7 +8,7 @@
 
 ## General
 
-The event module shall implement everything related to basic events and their applications. Statutory events and SUs will be implemented in another microservices. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#).
+The event module shall implement everything related to basic events and their applications. Statutory events and SUs will be implemented in another microservices. The API is described in [openapi.yaml](openapi.yaml) (see [docs/testing/backend-openapi.md](../docs/testing/backend-openapi.md)).
 
 Also, any help is appreciated! Just contact Nico (AEGEE-Dresden, blacksph3re) and/or check the instructions in the [wiki](https://myaegee.atlassian.net/wiki/).
 
