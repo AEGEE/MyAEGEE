@@ -195,4 +195,119 @@ describe('Board editing', () => {
         const boardFromDB = await Board.findByPk(board.id);
         expect(boardFromDB.message).toEqual('some text');
     });
+
+    describe('members of the board', () => {
+        test('should fail with 422 if core does not know an officer the request leaves unchanged', async () => {
+            mock.mockAll({ member: { notFound: [404] } });
+            const board = await generator.createBoard({ president: 1, secretary: 404, treasurer: 2, message: 'some text' });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toEqual({ secretary: ['The member is not found.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.message).toEqual('some text');
+        });
+
+        test('should fail with 422 if core does not know the officer the request sets', async () => {
+            mock.mockAll({ member: { notFound: [404] } });
+            const board = await generator.createBoard({ president: 1, secretary: 2, treasurer: 3 });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { president: 404 }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ president: ['The member is not found.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.president).toEqual(1);
+        });
+
+        test('should fail with 422 if core does not know the member of another position', async () => {
+            mock.mockAll({ member: { notFound: [99] } });
+            const board = await generator.createBoard({ president: 1, secretary: 2, treasurer: 3 });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { other_members: [{ function: 'Comms', user_id: 99 }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ other_members: ['The member of the position Comms is not found.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.other_members).toEqual(null);
+        });
+
+        test('should fail with 422 for a stored position without a member the request leaves unchanged', async () => {
+            const board = await generator.createBoard({ other_members: [{ function: 'Comms' }], message: 'some text' }, { validate: false });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ other_members: ['Other members should be a list of positions, each with a function and a member.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.message).toEqual('some text');
+        });
+
+        test('should save the board if core knows every member', async () => {
+            const board = await generator.createBoard({
+                president: 1,
+                secretary: 2,
+                treasurer: 3,
+                other_members: [{ function: 'Comms', user_id: 4 }]
+            });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { president: 5, message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.president).toEqual(5);
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.president).toEqual(5);
+            expect(boardFromDB.message).toEqual('a new text');
+        });
+
+        test('should fail with 500 and keep the board if core fails to answer for a member', async () => {
+            mock.mockAll({ member: { netError: true } });
+            const board = await generator.createBoard({ message: 'some text' });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.message).toEqual('some text');
+        });
+    });
 });

@@ -20,8 +20,8 @@ exports.generateBoard = (options = {}) => {
     return options;
 };
 
-exports.createBoard = (options = {}) => {
-    return Board.create(exports.generateBoard(options));
+exports.createBoard = (options = {}, createOptions = {}) => {
+    return Board.create(exports.generateBoard(options), createOptions);
 };
 
 exports.generateAntennaCriterion = (options = {}) => {
