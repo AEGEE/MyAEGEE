@@ -237,6 +237,10 @@ export default {
     @include mobile() {
       transform: translate3d(-180px, 0, 0);
       padding-top: 160px;
+      /* Pushed off the screen by the account menu: out of reach for the keyboard and screen
+         readers too, once it has slid away. */
+      visibility: hidden;
+      transition: transform .377s ease, opacity .377s ease, visibility 0s linear .377s;
     }
 
     @include tablet-only() {
