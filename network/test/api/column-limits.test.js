@@ -100,9 +100,9 @@ describe('Column limits', () => {
         });
 
         test.each([
-            ['president', TOO_LARGE, 'President should be between 0 and 2147483647.'],
-            ['secretary', -1, 'Secretary should be between 0 and 2147483647.'],
-            ['treasurer', '99999999999999999999', 'Treasurer should be between 0 and 2147483647.'],
+            ['president', TOO_LARGE, 'President should be between 1 and 2147483647.'],
+            ['secretary', -1, 'Secretary should be between 1 and 2147483647.'],
+            ['treasurer', '99999999999999999999', 'Treasurer should be between 1 and 2147483647.'],
             ['image_id', TOO_LARGE, 'Image ID should be between 0 and 2147483647.']
         ])('should refuse %s set to %p on POST', async (field, value, message) => {
             const res = await createBoard({ [field]: value });
@@ -113,7 +113,7 @@ describe('Column limits', () => {
         });
 
         test.each([
-            ['president', TOO_LARGE, 'President should be between 0 and 2147483647.'],
+            ['president', TOO_LARGE, 'President should be between 1 and 2147483647.'],
             ['image_id', TOO_LARGE, 'Image ID should be between 0 and 2147483647.'],
             ['other_members', [{ function: 'Comms', user_id: TOO_LARGE }], 'Other members should be a list of positions, each with a function and a member.']
         ])('should refuse %s set to %p on PUT', async (field, value, message) => {
@@ -122,6 +122,65 @@ describe('Column limits', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toEqual({ [field]: [message] });
             expect((await Board.findByPk(board.id))[field]).toEqual(board[field]);
+        });
+
+        // An officer is a member, whose ID starts at 1, as for the other positions. The
+        // frontend leaves an officer it has no member for out of the request.
+        test.each([
+            ['president', 0, 'President should be between 1 and 2147483647.'],
+            ['secretary', '0', 'Secretary should be between 1 and 2147483647.'],
+            ['treasurer', 0, 'Treasurer should be between 1 and 2147483647.']
+        ])('should refuse %s set to %p on POST and PUT', async (field, value, message) => {
+            const created = await createBoard({ [field]: value });
+
+            expect(created.statusCode).toEqual(422);
+            expect(created.body.errors).toEqual({ [field]: [message] });
+            expect(await Board.count()).toEqual(0);
+
+            const { res, board } = await updateBoard({ [field]: value });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ [field]: [message] });
+            expect((await Board.findByPk(board.id))[field]).toEqual(board[field]);
+        });
+
+        test.each([
+            ['president', [1], 'President should be a number.'],
+            ['president', { id: 1 }, 'President should be a number.'],
+            ['secretary', ['2'], 'Secretary should be a number.'],
+            ['treasurer', [3], 'Treasurer should be a number.'],
+            ['image_id', [1], 'Image ID should be a number.']
+        ])('should refuse %s set to %p on POST and PUT', async (field, value, message) => {
+            const created = await createBoard({ [field]: value });
+
+            expect(created.statusCode).toEqual(422);
+            expect(created.body.errors).toEqual({ [field]: [message] });
+            expect(await Board.count()).toEqual(0);
+
+            const { res, board } = await updateBoard({ [field]: value });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ [field]: [message] });
+            expect((await Board.findByPk(board.id))[field]).toEqual(board[field]);
+        });
+
+        test.each([
+            ['president', 'President should be selected.'],
+            ['secretary', 'Secretary should be selected.'],
+            ['treasurer', 'Treasurer should be selected.']
+        ])('should name the %s if the request leaves it out', async (field, message) => {
+            const fields = generator.generateBoard({ body_id: BODY_ID });
+            delete fields[field];
+
+            const res = await request({
+                path: '/bodies/' + BODY_ID + '/boards',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: fields
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ [field]: [message] });
         });
 
         test('should accept the largest ID', async () => {

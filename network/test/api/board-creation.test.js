@@ -264,7 +264,8 @@ describe('Board creation', () => {
         });
 
         expect(res.statusCode).toEqual(422);
-        expect(res.body.errors).toEqual({ president: ['President should be selected.', 'President should be a number.'] });
+        expect(Object.keys(res.body.errors)).toEqual(['president']);
+        expect(res.body.errors.president.sort()).toEqual(['President should be a number.', 'President should be selected.']);
     });
 
     test('should fail with 422 if the president is not a number', async () => {

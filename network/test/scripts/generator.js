@@ -18,9 +18,9 @@ exports.generateBoard = (options = {}) => {
     // started in the last days and without an end.
     if (notSet(options.elected_date)) options.elected_date = daysFromToday(-faker.number.int({ min: 1, max: 365 }));
     if (notSet(options.start_date)) options.start_date = daysFromToday(-faker.number.int({ min: 0, max: 5 }));
-    if (notSet(options.president)) options.president = faker.number.int(4);
-    if (notSet(options.secretary)) options.secretary = faker.number.int(4);
-    if (notSet(options.treasurer)) options.treasurer = faker.number.int(4);
+    if (notSet(options.president)) options.president = faker.number.int({ min: 1, max: 4 });
+    if (notSet(options.secretary)) options.secretary = faker.number.int({ min: 1, max: 4 });
+    if (notSet(options.treasurer)) options.treasurer = faker.number.int({ min: 1, max: 4 });
 
     return options;
 };
