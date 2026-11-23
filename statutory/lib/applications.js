@@ -53,6 +53,31 @@ function presentApplication(req, application) {
     return presented;
 }
 
+// What the officers who can set one flag of an application see of it in their own listing.
+const INCOMING_OFFICER_FIELDS = [...constants.ALLOWED_INCOMING_FIELDS, 'notification_email'];
+const FLAG_OFFICER_FIELDS = {
+    confirmed: INCOMING_OFFICER_FIELDS,
+    incoming: INCOMING_OFFICER_FIELDS,
+    attended: INCOMING_OFFICER_FIELDS,
+    registered: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+    departed: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+    is_on_memberslist: constants.ALLOWED_NETWORK_LIST_FIELDS
+};
+
+// The application as the caller may see it after setting one of its flags: the whole
+// application for the applicant and for those who manage applications, and the fields
+// of their own listing for the incoming, juridical and network officers.
+function presentApplicationAfterFlag(req, application, key) {
+    const presented = presentApplication(req, application);
+    const officerFields = FLAG_OFFICER_FIELDS[key];
+
+    if (!officerFields || req.permissions.manage_applications || application.user_id === req.user.id) {
+        return presented;
+    }
+
+    return helpers.whitelistObject(presented, officerFields);
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -513,7 +538,7 @@ function setApplicationBoolean(key) {
 
         return res.json({
             success: true,
-            data: presentApplication(req, dbResult)
+            data: presentApplicationAfterFlag(req, dbResult, key)
         });
     };
 }
