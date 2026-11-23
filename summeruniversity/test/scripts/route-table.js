@@ -1,5 +1,7 @@
 // Rows for the table-driven sweeps (authentication-required.test.js, path-parameters.test.js).
 // See docs/testing/backend-openapi.md.
+const path = require('path');
+
 const { Event, Application, Season } = require('../../models');
 const generator = require('./generator');
 const mock = require('./mock-core-registry');
@@ -21,10 +23,11 @@ module.exports = {
     NONEXISTENT_ID,
 
     // A fully published Summer University in second approval that takes applications (the
-    // generator's default), one application to it (not the caller's) and an inactive season.
+    // generator's default), one accepted and confirmed application to it (not the caller's)
+    // and an inactive season.
     createFixtures: async () => {
         const ev = await generator.createEvent();
-        const app = await generator.createApplication(ev, { user_id: 2, body_id: user.bodies[0].id });
+        const app = await generator.createApplication(ev, { user_id: 2, body_id: user.bodies[0].id, status: 'accepted', confirmed: true });
         const s = await generator.createSeason({ year: 2030 });
         return { event: ev, application: app, season: s };
     },
@@ -114,7 +117,8 @@ module.exports = {
         setApplicationComment: ['application_id'],
     },
 
-    // operationId -> a body that would succeed with a session (writes only).
+    // operationId -> a body that would succeed with a session (writes only). Every body changes
+    // what `unchanged` checks, so that the sweep would see a write that went through.
     bodies: {
         createEvent: generator.generateEventBody(),
         createSeason: { year: 2031, name: 'Summer University 2031' },
@@ -126,14 +130,19 @@ module.exports = {
         setEventOpenCall: { open_call: true },
         createApplication: generator.generateApplicationBody(null, { body_id: user.bodies[0].id }),
         updateApplication: { motivation: 'Changed by the sweep' },
-        setApplicationAttended: { attended: false },
+        setApplicationAttended: { attended: true },
         setApplicationCancelled: { cancelled: true },
-        setApplicationConfirmed: { confirmed: true },
-        setApplicationStatus: { status: 'accepted' },
+        setApplicationConfirmed: { confirmed: false },
+        setApplicationStatus: { status: 'rejected' },
         setApplicationComment: { board_comment: 'Changed by the sweep' },
     },
 
-    // operationId -> assertions that the write changed nothing.
+    // operationId -> the files of a multipart write that would succeed with a session.
+    files: {
+        uploadEventImage: { head_image: { path: path.join(__dirname, '..', 'assets', 'valid_image.png') } },
+    },
+
+    // operationId -> assertions that the write changed nothing (every write has one).
     unchanged: {
         createEvent: async () => expect(await Event.count()).toEqual(1),
         updateEvent: async (f) => expect((await reload(Event, f.event.id)).description).toEqual(f.event.description),
@@ -148,9 +157,10 @@ module.exports = {
         activateSeason: async (f) => expect((await reload(Season, f.season.id)).active).toEqual(false),
         createApplication: async () => expect(await Application.count()).toEqual(1),
         updateApplication: async (f) => expect((await reload(Application, f.application.id)).motivation).toEqual(f.application.motivation),
+        setApplicationAttended: async (f) => expect((await reload(Application, f.application.id)).attended).toEqual(false),
         setApplicationCancelled: async (f) => expect((await reload(Application, f.application.id)).cancelled).toEqual(false),
-        setApplicationConfirmed: async (f) => expect((await reload(Application, f.application.id)).confirmed).toEqual(false),
-        setApplicationStatus: async (f) => expect((await reload(Application, f.application.id)).status).toEqual('pending'),
+        setApplicationConfirmed: async (f) => expect((await reload(Application, f.application.id)).confirmed).toEqual(true),
+        setApplicationStatus: async (f) => expect((await reload(Application, f.application.id)).status).toEqual('accepted'),
         setApplicationComment: async (f) => expect((await reload(Application, f.application.id)).board_comment).toEqual(null),
     },
 
