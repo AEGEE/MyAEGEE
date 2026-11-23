@@ -176,4 +176,35 @@ describe('Integrations creation', () => {
 
         expect(await Integration.findByPk(999)).toBeNull();
     });
+
+    // name and code are varchar(255) columns.
+    test.each([
+        ['name', 'Integration name should be at most 255 characters long.'],
+        ['code', 'Integration code should be at most 255 characters long.']
+    ])('should fail with 422 if the %s is longer than 255 characters', async (field, message) => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ [field]: 'a'.repeat(256) })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors[field]).toEqual([message]);
+        expect(await Integration.count()).toEqual(0);
+    });
+
+    test('should accept a name and a code of 255 characters', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ name: 'n'.repeat(255), code: 'c'.repeat(255) })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('n'.repeat(255));
+        expect(res.body.data.code).toEqual('c'.repeat(255));
+    });
 });

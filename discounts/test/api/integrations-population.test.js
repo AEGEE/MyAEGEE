@@ -118,4 +118,37 @@ describe('Integrations codes population', () => {
         const codesFromDb = await Code.count({ where: { integration_id: integration.id } });
         expect(codesFromDb).toEqual(0);
     });
+
+    // Codes are stored in a varchar(255) column.
+    test('should fail with 422 and store no codes if a code is longer than 255 characters', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id + '/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: ['first', 'a'.repeat(256)]
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Every code should be at most 255 characters long.');
+
+        const codesFromDb = await Code.count({ where: { integration_id: integration.id } });
+        expect(codesFromDb).toEqual(0);
+    });
+
+    test('should store a code of 255 characters', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id + '/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: ['a'.repeat(255)]
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const codesFromDb = await Code.findAll({ where: { integration_id: integration.id } });
+        expect(codesFromDb.map((code) => code.value)).toEqual(['a'.repeat(255)]);
+    });
 });

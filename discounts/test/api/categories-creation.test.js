@@ -211,4 +211,30 @@ describe('Categories creation', () => {
 
         expect(await Category.findByPk(999)).toBeNull();
     });
+
+    test('should fail with 422 if the name is longer than 255 characters', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({ name: 'a'.repeat(256) })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.name).toEqual(['Name should be at most 255 characters long.']);
+        expect(await Category.count()).toEqual(0);
+    });
+
+    test('should accept a name of 255 characters', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({ name: 'n'.repeat(255) })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('n'.repeat(255));
+    });
 });

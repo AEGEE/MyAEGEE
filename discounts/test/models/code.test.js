@@ -44,4 +44,10 @@ describe('Code model', () => {
 
         await expect(code.validate()).rejects.toThrow('Claimed by should be valid.');
     });
+
+    test('should fail if value is longer than 255 characters', async () => {
+        const code = Code.build({ value: 'a'.repeat(256), integration_id: 1 });
+
+        await expect(code.validate()).rejects.toThrow('Code should be at most 255 characters long.');
+    });
 });
