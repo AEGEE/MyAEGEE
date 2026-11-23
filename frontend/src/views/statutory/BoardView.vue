@@ -56,10 +56,7 @@
             <div class="content">
               <strong>These errors occurred while trying to update the participant:</strong>
               <ul>
-                <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
-                <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
-                <li v-if="errors.participantTypeShouldBeSetWithOrder">{{ errors.participantTypeShouldBeSetWithOrder.join(', ') }}</li>
-                <li v-if="errors.board_comment">Board comment: {{ errors.board_comment.join(', ') }}</li>
+                <li v-for="(message, index) in errorMessages" v-bind:key="index">{{ message }}</li>
               </ul>
             </div>
           </div>
@@ -212,6 +209,12 @@ import { mapGetters } from 'vuex'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import Multiselect from 'vue-multiselect'
 
+const ERROR_LABELS = {
+  participant_type: 'Participant type',
+  participant_order: 'Participant order',
+  board_comment: 'Board comment'
+}
+
 export default {
   name: 'StatutoryBoardView',
   components: {
@@ -279,6 +282,13 @@ export default {
       const lowercaseQuery = this.query.toLowerCase()
 
       return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => (app[field] || '').toLowerCase().includes(lowercaseQuery)))
+    },
+    // Every reason statutory gave, with the name of the field it is about where it has one.
+    errorMessages () {
+      return Object.keys(this.errors).map((key) => {
+        const messages = this.errors[key].join(', ')
+        return ERROR_LABELS[key] ? `${ERROR_LABELS[key]}: ${messages}` : messages
+      })
     },
     canEditSelectedBody () {
       return this.can.set_board_comment_and_participant_type.global
