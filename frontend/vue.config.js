@@ -49,14 +49,33 @@ module.exports = {
   },
 };
 
-if (process.env.NODE_ENV === 'production') {
-  const CompressionPlugin = require('compression-webpack-plugin');
+// FRONTEND_COVERAGE=1 gives the build that the end-to-end tests measure coverage on: the code of
+// src/ instrumented by build/coverage-loader.js, not minified and not compressed. Nothing of it
+// is loaded without the variable (istanbul-lib-instrument is a devDependency).
+const coverage = process.env.FRONTEND_COVERAGE === '1';
 
+if (coverage) {
+  module.exports.configureWebpack.optimization = { minimize: false };
+  module.exports.configureWebpack.devtool = 'source-map';
+  module.exports.chainWebpack = (config) => {
+    config.module.rule('coverage').test(/\.js$/).include.add(path.resolve(__dirname, 'src')).end()
+      .enforce('post').use('coverage').loader(path.resolve(__dirname, 'build/coverage-loader.js'));
+  };
+}
+
+if (process.env.NODE_ENV === 'production') {
   module.exports.configureWebpack.plugins = [
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
     }),
+  ];
+}
+
+if (process.env.NODE_ENV === 'production' && !coverage) {
+  const CompressionPlugin = require('compression-webpack-plugin');
+
+  module.exports.configureWebpack.plugins.push(
     new CompressionPlugin({
       algorithm: require('@gfx/zopfli').gzip,
       compressionOptions: {
@@ -65,15 +84,12 @@ if (process.env.NODE_ENV === 'production') {
       minRatio: 0.99,
       test: /\.(js|css|json|html|ico|svg)(\?.*)?$/i,
     }),
-  ];
-
-    module.exports.configureWebpack.plugins.push(
-      new CompressionPlugin({
-        filename: '[path][base].br[query]',
-        algorithm: 'brotliCompress',
-        compressionOptions: { level: 11 }, // matches BROTLI_MAX_QUALITY
-        minRatio: 0.99,
-        test: /\.(js|css|json|html|ico|svg)(\?.*)?$/i,
-      })
-    );
+    new CompressionPlugin({
+      filename: '[path][base].br[query]',
+      algorithm: 'brotliCompress',
+      compressionOptions: { level: 11 }, // matches BROTLI_MAX_QUALITY
+      minRatio: 0.99,
+      test: /\.(js|css|json|html|ico|svg)(\?.*)?$/i,
+    })
+  );
 }
