@@ -309,6 +309,7 @@ export default {
       this.board.positions.push({
         function: other.function,
         name: other.user.first_name + ' ' + other.user.last_name,
+        id: other.user_id,
         user_id: other.user_id,
         required: false
       })
