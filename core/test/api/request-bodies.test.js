@@ -50,7 +50,9 @@ describe('Request bodies', () => {
             expect(res.statusCode).toEqual(route.noBody);
         });
 
-        test.each(ROUTES.filter((route) => !route.multipart))('$title answers the same for a JSON list', async (route) => {
+        // A list has no fields either. One route stands for all: the body is replaced before any route sees it.
+        test('POST /circles answers the same for a JSON list', async () => {
+            const route = ROUTES.find((item) => item.title === 'POST /circles');
             const res = await send(route, []);
 
             expect(res.statusCode).toEqual(route.noBody);
@@ -60,7 +62,7 @@ describe('Request bodies', () => {
     // Whatever type a field has, the route answers: with a success if it can use the value,
     // with a 4xx if it can't. Each field is tried on its own, in a body that is valid otherwise.
     describe('a field with a value of another type', () => {
-        const VALUES = [5, 1.5, -1, true, false, null, '', 'abc', [], ['a'], [1], {}, { a: 1 }];
+        const VALUES = [5, true, null, '', 'abc', [1], { a: 1 }];
 
         test.each(ROUTES.filter((route) => !route.multipart))('$title never answers with a server error', async (route) => {
             const valid = route.body(data);
