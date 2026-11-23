@@ -37,6 +37,31 @@ describe('Field types', () => {
         expect(res.body.errors[field]).toContain(message);
     };
 
+    describe('enums', () => {
+        const rows = [
+            ['type', ['pilot'], 'SU type should be one of these: regular, pilot.'],
+            ['course_level', ['beginner'], 'SU course level should be one of these: beginner, intermediate, advanced.'],
+            ['pax_confirmation', ['payment'], 'Pax confirmation should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.'],
+            ['theme_category', ['sports'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.']
+        ];
+
+        test.each(rows)('creating a Summer University refuses a %s that is a list of one of its values', async (field, value, message) => {
+            const res = await call('POST', '/', generator.generateEventBody({ [field]: value }));
+
+            expectFieldError(res, field, message);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each(rows)('editing a Summer University refuses a %s that is a list of one of its values', async (field, value, message) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}`, { [field]: value });
+
+            expectFieldError(res, field, message);
+            expect((await Event.findByPk(event.id))[field]).toEqual(event[field]);
+        });
+    });
+
     describe('integers', () => {
         const values = [['a fraction', 1.5], ['above the integer range', ABOVE_INT4], ['an array', [20]], ['an object', { value: 20 }], ['a boolean', true]];
         const eventRows = [
