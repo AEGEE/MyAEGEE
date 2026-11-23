@@ -125,16 +125,15 @@ function filterBy(query, fields) {
 
 /*
     Given a object like { field1: 'value1', field2: 'value2', field3: 'value3 }
-    and fields like [{field1: 'boolean'}, {field2: 'string'},...],
-    returns an array like following:
+    and fields like { field1: 'string', field2: 'array' },
+    returns an object like following:
 
-    [
-        { field1: value1 },
-        { field2: value2 },
-        ...
-    ]
+    {
+        field1: value1,
+        field2: { [Sequelize.Op.in]: [value2a, value2b] }
+    }
 
-    Also validates the field to be correct.
+    A value that is not a text is refused with a BadRequestError.
     Required for filtering stuff.
 */
 function findBy(query, fields) {
@@ -153,22 +152,12 @@ function findBy(query, fields) {
             continue;
         }
 
-        /* istanbul ignore next */
-        if (type === 'boolean' && !['true', 'false'].includes(queryField)) {
-            throw new Error(`The "${field}" value should be boolean, but received "${queryField}.`);
+        // Both kinds of filters come as a text; a list is a text with commas.
+        if (typeof queryField !== 'string' || queryField.trim().length === 0) {
+            throw new BadRequestError(`The "${field}" filter should be a text.`);
         }
 
-        /* istanbul ignore if */
-        if (type === 'string' && (typeof queryField !== 'string' || queryField.trim().length === 0)) {
-            throw new Error(`The "${field}" value should be string, but received "${queryField}`);
-        }
-
-        /* istanbul ignore next */
         if (type === 'array') {
-            if (typeof queryField !== 'string' || queryField.trim().length === 0) {
-                throw new Error(`The "${field}" value should be string, but received "${queryField}`);
-            }
-
             whereObject[field] = { [Sequelize.Op.in]: queryField.split(',') };
             continue;
         }
