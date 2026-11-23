@@ -203,6 +203,7 @@ exports.generateMailChange = (user, options = {}) => {
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (notSet(options.new_email)) options.new_email = faker.internet.email();
     if (user) options.user_id = user.id;
+    if (notSet(options.old_email)) options.old_email = user ? user.email : faker.internet.email();
 
     return options;
 };

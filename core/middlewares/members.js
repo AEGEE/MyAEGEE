@@ -455,23 +455,38 @@ exports.setPrimaryBody = async (req, res) => {
     });
 };
 
+// Email changes of one member are processed one by one. An advisory lock does that without
+// locking the member's row, which every request of that member writes to (last_active), so
+// the member is not held up while the mails are sent.
+const MAIL_CHANGE_LOCK_NAMESPACE = 1;
+const lockMailChanges = (userId, transaction) => sequelize.query(
+    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
+    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
+);
+
+// Requests a change of the login email. The new address always has to confirm it. If somebody
+// else requests it for the member, the member's current address has to confirm it as well,
+// unless the requester has global:update:member.
 exports.triggerEmailChange = async (req, res) => {
-    if (!req.permissions.hasPermission('update:member') && req.user.id !== req.currentUser.id) {
+    const isOwnChange = req.user.id === req.currentUser.id;
+
+    if (!req.permissions.hasPermission('update:member') && !isOwnChange) {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
     }
 
-    if (!req.body.new_email) {
+    const newEmail = typeof req.body.new_email === 'string' ? req.body.new_email.trim() : '';
+    if (!newEmail) {
         return errors.makeBadRequestError(res, 'No new email is provided.');
     }
 
-    if (helpers.isRestrictedEmail(req.body.new_email)) {
+    if (helpers.isRestrictedEmail(newEmail)) {
         return errors.makeValidationError(res, 'New email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
     }
 
     const existingMail = await User.findOne({
         where: {
             email: {
-                [Sequelize.Op.iLike]: req.body.new_email.trim()
+                [Sequelize.Op.iLike]: newEmail
             }
         }
     });
@@ -480,47 +495,193 @@ exports.triggerEmailChange = async (req, res) => {
         return errors.makeValidationError(res, 'User with this email already exists.');
     }
 
+    const needsOldConfirmation = !isOwnChange && !req.permissions.hasPermission('global:update:member');
+    const requestedBy = isOwnChange ? null : req.user.id;
+    const names = {
+        name: req.currentUser.first_name,
+        surname: req.currentUser.last_name
+    };
+
+    // The mail to the current address tells who asks and through which of the member's bodies.
+    let requesterBodies = [];
+    if (needsOldConfirmation) {
+        const bodyIds = await req.permissions.fetchUserPermissionBodyIds(req.currentUser, 'update:member');
+        requesterBodies = await Body.findAll({
+            where: { id: { [Sequelize.Op.in]: bodyIds } },
+            attributes: ['name'],
+            order: [['name', 'ASC']]
+        });
+    }
+
     await sequelize.transaction(async (t) => {
-        const mailChange = await MailChange.createForUser(req.currentUser, req.body.new_email, t);
+        // Requests for one member at the same time are processed one by one.
+        await lockMailChanges(req.currentUser.id, t);
+
+        // There's at most one pending change per member and requester: a new request replaces the earlier one.
+        await MailChange.destroy({
+            where: { user_id: req.currentUser.id, requested_by: requestedBy },
+            transaction: t
+        });
+
+        const mailChange = await MailChange.createForUser(req.currentUser, newEmail, {
+            requestedBy,
+            needsOldConfirmation,
+            transaction: t
+        });
 
         await mailer.sendMail({
-            to: req.body.new_email,
+            to: mailChange.new_email,
             subject: constants.MAIL_SUBJECTS.MAIL_CHANGE,
             template: 'mail_change.html',
             parameters: {
+                ...names,
                 token: mailChange.value
             }
         });
+
+        if (needsOldConfirmation) {
+            await mailer.sendMail({
+                to: req.currentUser.email,
+                subject: constants.MAIL_SUBJECTS.MAIL_CHANGE_OLD_CONFIRM,
+                template: 'mail_change_old_confirm.html',
+                parameters: {
+                    ...names,
+                    new_email: mailChange.new_email,
+                    requester_name: `${req.user.first_name} ${req.user.last_name}`,
+                    requester_email: req.user.email,
+                    requester_body: requesterBodies.map((body) => body.name).join(', '),
+                    token: mailChange.old_value
+                }
+            });
+        }
     });
 
     return res.json({
         success: true,
-        message: 'The mail change was triggered. Check your email.'
+        message: needsOldConfirmation
+            ? 'The email change was requested. The member has to confirm it from both their current address '
+                + 'and the new address; a mail was sent to each. If the member can no longer read their current address, '
+                + 'ask the MyAEGEE Helpdesk (http://aegee.org/helpdesk) to change the email: it can do that without this confirmation.'
+            : 'The email change was requested. It takes effect after it is confirmed from the new address.',
+        data: { needs_old_address_confirmation: needsOldConfirmation }
     });
 };
 
+// Confirms a change of the login email with the token that was sent to the new address or the
+// one that was sent to the current address. The email changes once every address that has
+// to confirm has done so, and the old address is told about it.
 exports.confirmEmailChange = async (req, res) => {
-    const mailChange = await MailChange.findOne({
-        where: { value: (req.body.token || '').trim() },
-        include: [User]
-    });
-
-    if (!mailChange) {
+    const token = typeof req.body.token === 'string' ? req.body.token.trim() : '';
+    if (!token) {
         return errors.makeNotFoundError(res, 'Token is invalid.');
     }
 
-    if (moment(mailChange.expires_at).isBefore(moment())) {
-        return errors.makeNotFoundError(res, 'Token is expired.');
+    const tokenMatches = { [Sequelize.Op.or]: [{ value: token }, { old_value: token }] };
+
+    // The transaction locks the member first and the change after that, so it needs to know the member.
+    const found = await MailChange.findOne({ where: tokenMatches, attributes: ['id', 'user_id'] });
+    if (!found) {
+        return errors.makeNotFoundError(res, 'Token is invalid.');
     }
 
-    await sequelize.transaction(async (t) => {
-        await mailChange.user.update({ email: mailChange.new_email }, { transaction: t });
-        await mailChange.destroy({ transaction: t });
+    const result = await sequelize.transaction(async (t) => {
+        // Confirmations at the same time (from both addresses, or of several changes
+        // of one member) are processed one by one.
+        await lockMailChanges(found.user_id, t);
+        const user = await User.findByPk(found.user_id, { transaction: t });
+        const mailChange = await MailChange.findOne({
+            where: { id: found.id, ...tokenMatches },
+            lock: t.LOCK.UPDATE,
+            transaction: t
+        });
+
+        // It can be gone by now, if another change of the member just took effect.
+        if (!user || !mailChange) {
+            return { notFound: 'Token is invalid.' };
+        }
+
+        if (moment(mailChange.expires_at).isBefore(moment())) {
+            return { notFound: 'Token is expired.' };
+        }
+
+        // A change only counts for the login address it was requested for.
+        if (user.email.toLowerCase() !== mailChange.old_email.toLowerCase()) {
+            return { notFound: 'Token is invalid.' };
+        }
+
+        const confirmedField = mailChange.value === token ? 'new_confirmed_at' : 'old_confirmed_at';
+        if (!mailChange[confirmedField]) {
+            await mailChange.update({ [confirmedField]: new Date() }, { transaction: t });
+        }
+
+        const waitingFor = mailChange.waitingFor();
+        if (waitingFor) {
+            return { waitingFor };
+        }
+
+        const existingMail = await User.findOne({
+            where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), mailChange.new_email.toLowerCase()),
+            transaction: t
+        });
+
+        if (existingMail) {
+            return { emailTaken: true };
+        }
+
+        const requester = mailChange.requested_by
+            ? await User.findByPk(mailChange.requested_by, { transaction: t })
+            : null;
+
+        // The notice goes to the address which is replaced, and to the one notifications go to, if that's another one.
+        const recipients = [user.email];
+        if (user.notification_email && user.notification_email.toLowerCase() !== user.email.toLowerCase()) {
+            recipients.push(user.notification_email);
+        }
+
+        // Including the other pending changes of the member: they were requested for the previous address.
+        await MailChange.destroy({ where: { user_id: user.id }, transaction: t });
+
+        // The notice is sent before the member's row is written, so that row is not locked
+        // while the mailer answers. If the mail fails, nothing is changed.
+        await mailer.sendMail({
+            to: recipients.length === 1 ? recipients[0] : recipients,
+            subject: constants.MAIL_SUBJECTS.MAIL_CHANGE_NOTICE,
+            template: 'mail_change_notice.html',
+            parameters: {
+                name: user.first_name,
+                surname: user.last_name,
+                new_email: mailChange.new_email,
+                changed_by: requester ? `${requester.first_name} ${requester.last_name}` : 'yourself'
+            }
+        });
+
+        await user.update({ email: mailChange.new_email }, { transaction: t });
+
+        return { changed: true };
     });
+
+    if (result.notFound) {
+        return errors.makeNotFoundError(res, result.notFound);
+    }
+
+    if (result.emailTaken) {
+        return errors.makeValidationError(res, { email: ['User with this email already exists.'] });
+    }
+
+    if (result.waitingFor) {
+        return res.json({
+            success: true,
+            message: result.waitingFor === 'old_email'
+                ? 'Confirmed. The email changes after the current address of the member confirms it too.'
+                : 'Confirmed. The email changes after the new address confirms it too.',
+            data: { changed: false, waiting_for: result.waitingFor }
+        });
+    }
 
     return res.json({
         success: true,
-        message: 'Mail was changed successfully.'
+        message: 'Mail was changed successfully.',
+        data: { changed: true }
     });
 };
 

@@ -32,6 +32,23 @@ exports.mockMailer = (options) => {
         .reply(200, { success: true });
 };
 
+// Replaces every mock with a mailer that accepts everything,
+// and returns the array the bodies of the sent mails are collected in.
+exports.captureMails = () => {
+    nock.cleanAll();
+
+    const mails = [];
+    nock(`${config.mailer.url}:${config.mailer.port}`)
+        .persist()
+        .post('/')
+        .reply(200, (uri, body) => {
+            mails.push(body);
+            return { success: true };
+        });
+
+    return mails;
+};
+
 exports.mockAtlassian = (options) => {
     if (options.netError) {
         return nock(config.bug_report.url)

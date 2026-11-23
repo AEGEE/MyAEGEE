@@ -212,6 +212,42 @@ class PermissionsManager {
         this.addPermissions(joinRequestPermissions);
     }
 
+    // The ids of the bodies through which the current user holds a permission (like `update:member`)
+    // on the given member: with the local scope in a body of the member, or with the
+    // join request scope in a body the member asked to join.
+    async fetchUserPermissionBodyIds(user, permission) {
+        const [action, object] = permission.split(':');
+        const scopes = {
+            local: user.bodies.map((body) => body.id),
+            join_request: user.join_requests.map((request) => request.body_id)
+        };
+        const bodyIds = new Set();
+
+        for (const [scope, scopeBodyIds] of Object.entries(scopes)) {
+            const circlePermissions = await CirclePermission.findAll({
+                include: [{ model: Permission, where: { scope, action, object }, attributes: [], required: true }]
+            });
+            const circlesWithPermission = circlePermissions.map((circlePermission) => circlePermission.circle_id);
+
+            const circlesIds = this.circles
+                .filter((circle) => scopeBodyIds.includes(circle.body_id))
+                .map((circle) => circle.id);
+            const circleMemberships = await CircleMembership.findAll({
+                where: { user_id: this.user.id, circle_id: { [Sequelize.Op.in]: circlesIds } }
+            });
+
+            // Each membership gives the permissions of its circle and of the parent circles of that one.
+            for (const membership of circleMemberships) {
+                const circles = this.getIndirectParentCircles(membership.circle_id);
+                if (circles.some((circleId) => circlesWithPermission.includes(circleId))) {
+                    bodyIds.add(this.circlesMap[membership.circle_id].body_id);
+                }
+            }
+        }
+
+        return [...bodyIds];
+    }
+
     async fetchCirclePermissions(circle) {
         // Do nothing if circle is free and not bound to a body.
         if (!circle.body_id) {

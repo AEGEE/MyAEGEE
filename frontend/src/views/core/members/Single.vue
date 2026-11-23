@@ -139,6 +139,10 @@
     </div>
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
+        <div class="notification is-info" v-if="emailChangeNotice">
+          <button class="delete" aria-label="Close" @click="emailChangeNotice = ''" />
+          {{ emailChangeNotice }}
+        </div>
         <div class="content">
           <p class="title">{{ user.first_name }}</p>
           <p class="subtitle">{{ user.last_name }}</p>
@@ -309,6 +313,7 @@ export default {
         image: null
       },
       isOwnProfile: false,
+      emailChangeNotice: '',
       isLoading: false,
       isSwitchingStatus: false,
       isSwitchingEventApplicationBan: false,
@@ -535,12 +540,22 @@ export default {
       })
     },
     changeEmail (newEmail) {
+      this.emailChangeNotice = ''
+
       this.axios
         .put(this.services['core'] + '/members/' + this.user.id + '/email', { new_email: newEmail })
-        .then(() => {
-          this.$root.showSuccess(
-            'An email change is triggered. Check your new inbox for a confirmation.'
-          )
+        .then((response) => {
+          const message = response.data.message || 'An email change is triggered. Check your new inbox for a confirmation.'
+
+          // If the member's current address has to confirm too, the server says what happens next
+          // and what to do if that address can't be reached. That stays on the page until it's closed.
+          if (response.data.data && response.data.data.needs_old_address_confirmation) {
+            this.emailChangeNotice = message
+            return
+          }
+
+          // The server tells which address has to confirm the change, so showing its message a bit longer.
+          this.$root.showNotification({ message, duration: 10000 })
         })
         .catch((err) => {
           this.$root.showError('Error changing user email', err)
@@ -604,6 +619,8 @@ export default {
   },
   watch: {
     '$route.params.id': function () {
+      // The notice is about the member that was shown before.
+      this.emailChangeNotice = ''
       this.fetchUser()
     }
   },
