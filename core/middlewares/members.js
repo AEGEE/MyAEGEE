@@ -237,7 +237,9 @@ exports.getUsersEmail = async (req, res) => {
 
     const userIds = req.query.query.split(',');
 
-    if (!req.permissions.hasPermission('global:mail:member') && Number(userIds[0]) !== req.user.id) {
+    // Without the permission, a member can only look up their own id.
+    const onlyOwnId = userIds.every((id) => Number(id) === req.user.id);
+    if (!req.permissions.hasPermission('global:mail:member') && !onlyOwnId) {
         return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
     }
 
