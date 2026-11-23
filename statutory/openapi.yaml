@@ -1951,7 +1951,9 @@ paths:
       summary: Mark a delegate or envoy as entering or leaving a plenary
       description: |
         Closes the open attendance of the application at this plenary, or starts one when
-        none is open. 403 is also the answer when the plenary is over, and when the
+        none is open. Attendance can be marked from before the plenary starts until the
+        moment it ends, that moment included; an attendance that is still open then is
+        closed by the service. 403 is also the answer when the plenary is over, and when the
         applicant is not a delegate or an envoy. 404 is also the answer when the event has
         no such application. 422 is the answer when the attendance would end at the moment
         it started.
