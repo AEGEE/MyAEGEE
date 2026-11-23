@@ -114,6 +114,94 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
+  # Mail change, asked by somebody else: the current address has to confirm
+  test "POST / mail_change_old_confirm", %{conn: conn} do
+    conn = post conn, "/", %{template: "mail_change_old_confirm.html", parameters: %{name: "Franz", surname: "Ferdinant", new_email: "new.address@example.org", requester_name: "Board Member", token: "astdefern1234"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates", html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_old_confirm.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "requester_name" => "Board Member", "token" => "astdefern1234"}))
+  end
+
+  test "POST / mail_change_old_confirm requires the token", %{conn: conn} do
+    conn = post conn, "/", %{template: "mail_change_old_confirm.html", parameters: %{name: "Franz", surname: "Ferdinant", new_email: "new.address@example.org", requester_name: "Board Member"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 422)
+    assert_no_emails_delivered()
+  end
+
+  test "mail_change_old_confirm shows the member, the requester, the new address and the token" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_old_confirm.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "requester_name" => "Board Member", "token" => "astdefern1234"})
+    assert String.contains?(res, "<title>MyAEGEE: Confirm the change of your email</title>")
+    assert String.contains?(res, "Hello Franz Ferdinant")
+    assert String.contains?(res, "Board Member asked to change the login email of your MyAEGEE account to new.address@example.org.")
+    assert String.contains?(res, "href=\"https://my.aegee.eu/mail-change?token=astdefern1234\"")
+    assert String.contains?(res, "<i>astdefern1234</i>")
+    assert String.contains?(res, "The new address has to confirm the change as well.")
+    assert String.contains?(res, "just ignore this email and nothing changes.")
+  end
+
+  test "mail_change_old_confirm escapes html in the parameters" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_old_confirm.html", parameters: %{"name" => "<i>Franz</i>", "surname" => "<u>Ferdinant</u>", "new_email" => "<script>new</script>@example.org", "requester_name" => "<b>x</b>", "token" => "\"><b>token</b>"})
+    assert String.contains?(res, "&lt;i&gt;Franz&lt;/i&gt; &lt;u&gt;Ferdinant&lt;/u&gt;")
+    assert String.contains?(res, "&lt;script&gt;new&lt;/script&gt;@example.org")
+    assert String.contains?(res, "&lt;b&gt;x&lt;/b&gt; asked to change")
+    assert String.contains?(res, "token=&quot;&gt;&lt;b&gt;token&lt;/b&gt;\"")
+    refute String.contains?(res, "<i>Franz</i>")
+    refute String.contains?(res, "<u>Ferdinant</u>")
+    refute String.contains?(res, "<script>")
+    refute String.contains?(res, "<b>x</b>")
+    refute String.contains?(res, "<b>token</b>")
+  end
+
+  test "mail_change_old_confirm renders with only the token" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_old_confirm.html", parameters: %{"token" => "astdefern1234"})
+    assert String.contains?(res, "https://my.aegee.eu/mail-change?token=astdefern1234")
+    assert String.contains?(res, "asked to change the login email of your MyAEGEE account")
+  end
+
+  # Mail change took effect: the old address gets a notice
+  test "POST / mail_change_notice", %{conn: conn} do
+    conn = post conn, "/", %{template: "mail_change_notice.html", parameters: %{name: "Franz", surname: "Ferdinant", new_email: "new.address@example.org", changed_by: "Board Member"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates", html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "Board Member"}))
+  end
+
+  test "POST / mail_change_notice works without parameters", %{conn: conn} do
+    conn = post conn, "/", %{template: "mail_change_notice.html", parameters: %{}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
+  test "mail_change_notice shows the member, the new address and who asked for the change" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "Board Member"})
+    assert String.contains?(res, "<title>MyAEGEE: Your email was changed</title>")
+    assert String.contains?(res, "Hello Franz Ferdinant")
+    assert String.contains?(res, "The login email of your MyAEGEE account was changed to new.address@example.org. The change was requested by Board Member.")
+    assert String.contains?(res, "From now on you log in with the new address.")
+    assert String.contains?(res, "contact the Helpdesk as soon as possible: <a href=\"http://aegee.org/helpdesk\">")
+    refute String.contains?(res, "mail-change")
+    refute String.contains?(res, "token")
+  end
+
+  test "mail_change_notice says so when the member changed the address themselves" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "yourself"})
+    assert String.contains?(res, "The change was requested by yourself.")
+  end
+
+  test "mail_change_notice escapes html in the parameters" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "<i>Franz</i>", "surname" => "<u>Ferdinant</u>", "new_email" => "<script>new</script>@example.org", "changed_by" => "<b>x</b>"})
+    assert String.contains?(res, "&lt;i&gt;Franz&lt;/i&gt; &lt;u&gt;Ferdinant&lt;/u&gt;")
+    assert String.contains?(res, "&lt;script&gt;new&lt;/script&gt;@example.org")
+    assert String.contains?(res, "requested by &lt;b&gt;x&lt;/b&gt;.")
+    refute String.contains?(res, "<i>Franz</i>")
+    refute String.contains?(res, "<u>Ferdinant</u>")
+    refute String.contains?(res, "<script>")
+    refute String.contains?(res, "<b>x</b>")
+  end
+
+  test "mail_change_notice renders without parameters" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{})
+    assert String.contains?(res, "The login email of your MyAEGEE account was changed")
+  end
+
   test "POST / allows for several recipients", %{conn: conn} do
     conn = post conn, "/", %{template: "custom.html", parameters: %{email_body: "huhu"}, from: "mailer@aegee.org", to: ["test1@aegee.org", "test2@aegee.org", "test3@aegee.org"], subject: "pirates"}
     assert json_response(conn, 200)
