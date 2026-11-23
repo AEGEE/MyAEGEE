@@ -864,7 +864,7 @@ describe('Applications creation', () => {
         expect(res.body.errors).toHaveProperty('meals');
     });
 
-    test('should return 500 if meat-eater is given but not allowed', async () => {
+    test('should return 422 if meat-eater is given but not allowed', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
@@ -889,10 +889,40 @@ describe('Applications creation', () => {
 
         tk.reset();
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toContain('Meat-eater is not allowed');
+        expect(res.body.errors.meals).toEqual(['Meat-eater is not allowed for this event.']);
         expect(res.body).not.toHaveProperty('data');
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should return 422 when changing the meals to meat-eater if it is not allowed', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ vegetarian: true, applications: [] });
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            meals: 'Vegetarian'
+        }, event);
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/me',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { meals: 'Meat-eater' }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.meals).toEqual(['Meat-eater is not allowed for this event.']);
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.meals).toEqual('Vegetarian');
     });
 
     const visaFields = [
