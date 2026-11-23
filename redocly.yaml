@@ -16,6 +16,10 @@ apis:
     root: ./discounts/openapi.yaml
     x-openapi-ts:
       output: ./packages/api-types/discounts.ts
+  network:
+    root: ./network/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/api-types/network.ts
 extends:
   - recommended
 rules:
