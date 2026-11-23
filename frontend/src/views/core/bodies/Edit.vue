@@ -317,6 +317,10 @@ export default {
   },
   name: 'EditBody',
   data () {
+    // Creating a body needs the global right to create bodies, which also gives every field.
+    // When editing, the fields that need the global right to update bodies stay locked until
+    // the permissions say otherwise.
+    const creating = !this.$route.params.id
     return {
       body: {
         name: '',
@@ -338,12 +342,12 @@ export default {
       foundationDate: null,
       permissions: [],
       can: {
-        editName: true,
-        editAbbreviation: true,
-        editCode: true,
-        editShadowCircle: true,
-        editType: true,
-        editGsuite: true
+        editName: creating,
+        editAbbreviation: creating,
+        editCode: creating,
+        editShadowCircle: creating,
+        editType: creating,
+        editGsuite: creating
       },
       countries,
       autocompleteBody: '',
