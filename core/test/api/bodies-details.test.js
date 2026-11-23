@@ -170,4 +170,36 @@ describe('Body details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.id).toEqual(body.id);
     });
+
+    // The events, statutory, summer university and network services read these fields of a body.
+    test.each([
+        ['by id', (body) => body.id],
+        ['by code', (body) => body.code]
+    ])('should return the fields that other services read, %s', async (name, getKey) => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody({
+            name: 'AEGEE-Somewhere',
+            code: 'smw',
+            type: 'contact antenna',
+            email: 'Board@Somewhere.example.com'
+        });
+
+        const res = await request({
+            path: '/bodies/' + getKey(body),
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toMatchObject({
+            id: body.id,
+            name: 'AEGEE-Somewhere',
+            code: 'SMW',
+            type: 'contact antenna',
+            status: 'active',
+            email: 'board@somewhere.example.com'
+        });
+    });
 });
