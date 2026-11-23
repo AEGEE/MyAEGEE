@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
+const { Integration } = require('../../models');
 
 describe('Integrations edition', () => {
     beforeEach(async () => {
@@ -93,5 +94,28 @@ describe('Integrations edition', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(res.body.data.code).toEqual('test');
+    });
+
+    test('should not let the body change the id or the timestamps', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                id: 999,
+                name: 'New name',
+                created_at: '2000-01-01T00:00:00.000Z'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(integration.id);
+        expect(res.body.data.name).toEqual('New name');
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.name).toEqual('New name');
+        expect(integrationFromDb.created_at.toISOString()).toEqual(integration.created_at.toISOString());
+        expect(await Integration.findByPk(999)).toBeNull();
     });
 });

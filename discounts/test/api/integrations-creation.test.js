@@ -156,4 +156,24 @@ describe('Integrations creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('quota_period');
     });
+
+    test('should not let the body set the id or the timestamps', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({
+                id: 999,
+                created_at: '2000-01-01T00:00:00.000Z',
+                updated_at: '2000-01-01T00:00:00.000Z'
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).not.toEqual(999);
+        expect(res.body.data.created_at).not.toEqual('2000-01-01T00:00:00.000Z');
+        expect(res.body.data.updated_at).not.toEqual('2000-01-01T00:00:00.000Z');
+
+        expect(await Integration.findByPk(999)).toBeNull();
+    });
 });
