@@ -57,6 +57,11 @@ module.exports.login = async (req, res) => {
         return errors.makeForbiddenError(res, INVALID_CREDENTIALS);
     }
 
+    // Only told to somebody who knows the password.
+    if (!user.active) {
+        return errors.makeForbiddenError(res, 'This account is suspended.');
+    }
+
     if (!user.mail_confirmed_at) {
         return errors.makeForbiddenError(res, 'Please confirm your mail first.');
     }
@@ -147,6 +152,12 @@ module.exports.renew = async (req, res) => {
         });
 
         if (!token) {
+            return null;
+        }
+
+        // The tokens of a suspended member are answered like tokens that don't exist.
+        const user = await User.findByPk(token.user_id, { attributes: ['id', 'active'], transaction: t });
+        if (!user || !user.active) {
             return null;
         }
 

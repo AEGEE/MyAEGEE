@@ -120,8 +120,6 @@ const PERMISSIONS = [
     { scope: 'global', action: 'search', object: 'member', description: 'Searching members to add them to a body' },
     { scope: 'global', action: 'update', object: 'member', description: 'Update any member in the system. Don\'t assign this as any member can update his own profile anyways.' },
     { scope: 'local', action: 'update', object: 'member', description: 'Update any member in the body you got this permission from. Notice that member information is global and several bodies might have the permission to access the same member. Also don\'t assign it when not necessary, the member can update his own profile anyways.' },
-    { scope: 'global', action: 'update_active', object: 'member', description: 'Allows to suspend or activate any user in the system' },
-    { scope: 'local', action: 'update_active', object: 'member', description: 'Allows to suspend or activate users that are member in the body that you got this permission from' },
     { scope: 'global', action: 'update_application_ban', object: 'member', description: 'Set or lift temporary bans from applying to events.' },
     { scope: 'global', action: 'update_superadmin', object: 'member', description: 'Allows to add or remove superadmin powers to any user in the system' },
     { scope: 'global', action: 'view', object: 'member', description: 'View all members in the system. Assign this role to trusted persons only to avoid disclosure. For local scope, use view_members:body' },
