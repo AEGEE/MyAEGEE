@@ -5,7 +5,7 @@ const generator = require('../scripts/generator');
 const cron = require('../../lib/cron');
 const logger = require('../../lib/logger');
 const config = require('../../config');
-const { User, RefreshToken } = require('../../models');
+const { User, RefreshToken, MailChange } = require('../../models');
 
 describe('Cron testing', () => {
     beforeAll(async () => {
@@ -63,7 +63,7 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(0);
 
         cron.registerAllTasks();
-        expect(Object.keys(cron.jobs).length).toEqual(2);
+        expect(Object.keys(cron.jobs).length).toEqual(3);
     });
 
     describe('DELETE_NOT_CONFIRMED_USERS', () => {
@@ -130,6 +130,47 @@ describe('Cron testing', () => {
 
             const tokensFromDb = await RefreshToken.findAll();
             expect(tokensFromDb.map((t) => t.id).sort()).toEqual([notRotated.id, withinGrace.id].sort());
+        });
+    });
+
+    describe('DELETE_EXPIRED_MAIL_CHANGES', () => {
+        test('should only delete the email changes that are expired', async () => {
+            const user = await generator.createUser();
+            const otherUser = await generator.createUser();
+            const pending = await generator.createMailChange(user, { expires_at: moment().add(1, 'hour').toDate() });
+            await generator.createMailChange(user, { expires_at: moment().subtract(1, 'minute').toDate() });
+            await generator.createMailChange(otherUser, {
+                expires_at: moment().subtract(3, 'days').toDate(),
+                old_value: 'old-token',
+                requested_by: user.id
+            });
+
+            const jobId = cron.addJob(cron.JOB_TYPES.DELETE_EXPIRED_MAIL_CHANGES);
+            await cron.executeJob(jobId);
+
+            const changesFromDb = await MailChange.findAll();
+            expect(changesFromDb.map((change) => change.id)).toEqual([pending.id]);
+        });
+
+        test('should log how many it deleted, and nothing about them', async () => {
+            const user = await generator.createUser();
+            await generator.createMailChange(user, {
+                new_email: 'expired-change-marker@example.com',
+                expires_at: moment().subtract(1, 'minute').toDate()
+            });
+
+            const written = [];
+            jest.spyOn(logger, 'info').mockImplementation((...args) => {
+                written.push(args);
+            });
+
+            try {
+                await cron.JOB_TYPES.DELETE_EXPIRED_MAIL_CHANGES.callback();
+            } finally {
+                jest.restoreAllMocks();
+            }
+
+            expect(written).toEqual([[{ deleted: 1 }, 'Deleted expired email changes']]);
         });
     });
 });
