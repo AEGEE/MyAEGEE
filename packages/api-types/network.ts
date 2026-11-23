@@ -145,7 +145,7 @@ export interface paths {
         get: operations["getBoard"];
         /**
          * Edit a board of a body
-         * @description The body stays the one in the URL; `id` and `new_board_email_sent_at` in the request are ignored. A body that is not an object answers 400.
+         * @description The body stays the one in the URL; `id` and `new_board_email_sent_at` in the request are ignored. Checks the board as it would be stored, then asks core for the members the request adds or changes (an officer by position, another member by member; a changed function text alone is no change): a member core does not know, or does not let the caller see, answers 422 on that field. The members the request leaves in place are not looked up, so a board keeps former members of the body until someone replaces them. A body that is not an object answers 400.
          */
         put: operations["updateBoard"];
         post?: never;
