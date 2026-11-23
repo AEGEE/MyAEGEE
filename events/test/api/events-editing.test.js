@@ -234,6 +234,57 @@ describe('Events editing', () => {
         expect(response.body.data.is_european_event).toEqual(true);
     });
 
+    describe('dates on partial edits', () => {
+        const DAY = 24 * 60 * 60 * 1000;
+        const inDays = (days) => new Date(Date.now() + days * DAY);
+        let dated;
+
+        beforeEach(async () => {
+            dated = await generator.createEvent({
+                organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }],
+                application_starts: inDays(1),
+                application_ends: inDays(10),
+                starts: inDays(20),
+                ends: inDays(30)
+            });
+        });
+
+        const edit = (body) => request({
+            path: '/single/' + dated.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        test.each([
+            ['starts before the application period ends', { starts: inDays(5) }, 'application_ends'],
+            ['starts after the event ends', { starts: inDays(40) }, 'ends'],
+            ['ends before the event starts', { ends: inDays(15) }, 'ends'],
+            ['application_starts after the application period ends', { application_starts: inDays(12) }, 'application_ends'],
+            ['application_ends after the event starts', { application_ends: inDays(25) }, 'application_ends']
+        ])('should return 422 if only %s is changed', async (name, body, field) => {
+            const res = await edit(body);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty(field);
+
+            const fromDb = await Event.findByPk(dated.id);
+            expect(fromDb.starts).toEqual(dated.starts);
+            expect(fromDb.ends).toEqual(dated.ends);
+            expect(fromDb.application_starts).toEqual(dated.application_starts);
+        });
+
+        test('should accept a partial edit that keeps the dates in order', async () => {
+            const starts = inDays(15);
+            const res = await edit({ starts });
+
+            expect(res.statusCode).toEqual(200);
+            const fromDb = await Event.findByPk(dated.id);
+            expect(fromDb.starts.getTime()).toEqual(starts.getTime());
+        });
+    });
+
     describe('organizers outside the organizing bodies', () => {
         let cultural;
 
