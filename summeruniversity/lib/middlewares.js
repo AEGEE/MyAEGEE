@@ -83,7 +83,8 @@ exports.ensureAuthorized = async (req, res, next) => {
 exports.fetchSingleEvent = async (req, res, next) => {
     // A whole number within the range of the id column is an id, anything else a URL
     // (URLs cannot be numbers only). Other numbers such as 1.5 or Infinity match no event.
-    let findObject = { url: req.params.event_id };
+    // URLs are stored in lower case (see the model's beforeValidate hook).
+    let findObject = { url: req.params.event_id.toLowerCase() };
     if (helpers.isNumber(req.params.event_id)) {
         findObject = {
             id: Number(req.params.event_id)
