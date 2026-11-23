@@ -402,10 +402,11 @@ describe('Events creation', () => {
         expect(await Event.count()).toEqual(0);
     });
 
-    test('should currently return 500 if a cooperation body is null', async () => {
+    test('should return 422 if a cooperation body is null', async () => {
         const res = await createEvent(generator.generateEventBody({ cooperation: [null] }));
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.cooperation).toEqual(['Body is malformed.']);
         expect(await Event.count()).toEqual(0);
     });
 

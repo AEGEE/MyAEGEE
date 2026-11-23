@@ -273,4 +273,60 @@ describe('Field types', () => {
             expect(Number(event.optional_fee)).toEqual(7.25);
         });
     });
+
+    describe('lists', () => {
+        const notLists = [['a text', 'garbage'], ['a number', 5], ['a boolean', true], ['an object', { value: 1 }]];
+        const eventRows = [
+            ...[[null], [5], ['Why?'], [{}], [{ description: 5 }]].map((value) => ['questions', JSON.stringify(value), value, 'Every question should have a description.']),
+            ...notLists.map(([name, value]) => ['photos', name, value, 'Photos should be a list.']),
+            ...notLists.map(([name, value]) => ['learning_objectives', name, value, 'Learning objectives should be a list.']),
+            ['organizing_bodies', 'a list with null', [null], 'Body is malformed.'],
+            ['cooperation', 'a list with null', [null], 'Body is malformed.']
+        ];
+
+        test.each(eventRows)('creating a Summer University refuses %s that are %s', async (field, _name, value, message) => {
+            const res = await call('POST', '/', generator.generateEventBody({ [field]: value }));
+
+            expectFieldError(res, field, message);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each(eventRows)('editing a Summer University refuses %s that are %s', async (field, _name, value, message) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}`, { [field]: value });
+
+            expectFieldError(res, field, message);
+            expect((await Event.findByPk(event.id))[field]).toEqual(event[field]);
+        });
+
+        test('creating a Summer University refuses organizers that are not objects', async () => {
+            const res = await call('POST', '/', generator.generateEventBody({ organizers: [null, ...generator.generateOrganizers()] }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+            expect(await Event.count()).toEqual(0);
+        });
+
+        const answers = [[5], [null], [{}], [[]]];
+
+        test.each(answers.map((value) => [JSON.stringify(value), value]))('applying refuses answers that are %s', async (_name, value) => {
+            const event = await generator.createEvent();
+
+            const res = await call('POST', `/single/${event.id}/applications`, generator.generateApplicationBody(event, { body_id: user.bodies[0].id, answers: value }));
+
+            expectFieldError(res, 'answers', 'Answers should be an array of strings.');
+            expect(await Application.count()).toEqual(0);
+        });
+
+        test.each(answers.map((value) => [JSON.stringify(value), value]))('editing an application refuses answers that are %s', async (_name, value) => {
+            const event = await generator.createEvent();
+            const application = await generator.createApplication(event, { user_id: user.id, body_id: user.bodies[0].id });
+
+            const res = await call('PUT', `/single/${event.id}/applications/${application.id}`, { answers: value });
+
+            expectFieldError(res, 'answers', 'Answers should be an array of strings.');
+            expect((await Application.findByPk(application.id)).answers).toEqual(application.answers);
+        });
+    });
 });

@@ -316,11 +316,12 @@ describe('Applications creation', () => {
         expect(await Application.count()).toEqual(0);
     });
 
-    test('should accept answers that are not strings', async () => {
+    test('should return 422 for answers that are not strings', async () => {
         const res = await apply(generator.generateApplicationBody(event, { body_id: 1, answers: [{}] }));
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.data.answers).toEqual([{}]);
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.answers).toEqual(['Answers should be an array of strings.']);
+        expect(await Application.count()).toEqual(0);
     });
 
     test('should accept applications during an open call after the event started', async () => {
