@@ -4,7 +4,12 @@ const events = require('../../lib/events');
 const helpers = require('../../lib/helpers');
 const { Event } = require('../../models');
 
-// TODO: temporary file to get 100% test coverage. We'll need to see how we want to properly tackle these cases later
+// Two branches that no request can reach, called directly so that they stay covered:
+// - helpers.shouldHideApplicationStatus() without an event: its three callers always have one;
+// - the event without applications in listUserAppliedEvents(): the query only returns
+//   events with an application of the user (the include is required).
+// Everything else these tests once covered is covered through the routes (events-mine,
+// events-display). The file can go when the two branches are removed from lib/.
 describe('Events coverage', () => {
     afterEach(() => {
         jest.restoreAllMocks();
@@ -14,7 +19,7 @@ describe('Events coverage', () => {
         expect(helpers.shouldHideApplicationStatus(null, {})).toEqual(false);
     });
 
-    test('should mask statuses on /mine with missing permissions list and skip empty applications', async () => {
+    test('should skip an event without applications on /mine', async () => {
         const findAllSpy = jest.spyOn(Event, 'findAll').mockResolvedValue([
             {
                 id: 1,
