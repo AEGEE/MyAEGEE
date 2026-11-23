@@ -44,14 +44,13 @@
           <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ') }}</p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="can.editGsuite">
           <label class="label">Google Workspace account</label>
           <div class="control">
             <input
               class="input"
               type="email"
               required
-              :disabled="!can.editGsuite"
               v-model="user.gsuite_id"
               placeholder="Type the Google Workspace email of the user"
             />
@@ -182,7 +181,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      const body = pick(this.user, [
+      const fields = [
         'id',
         'first_name',
         'last_name',
@@ -190,10 +189,16 @@ export default {
         'gender',
         'about_me',
         'address',
-        'gsuite_id',
         'phone',
         'date_of_birth'
-      ])
+      ]
+
+      // Only global managers see and set the Google Workspace account.
+      if (this.can.editGsuite) {
+        fields.push('gsuite_id')
+      }
+
+      const body = pick(this.user, fields)
 
       this.axios
         .put(this.services['core'] + '/members/' + this.$route.params.id, body)
@@ -241,7 +246,7 @@ export default {
       .then((response) => {
         this.permissions = response.data.data
 
-        this.can.editGsuite = this.permissions.find((permission) => permission.combined.endsWith('global:update:member'))
+        this.can.editGsuite = this.permissions.some((permission) => permission.combined.endsWith('global:update:member'))
       })
       .catch((err) => {
         if (err.response && err.response.status === 404) {
