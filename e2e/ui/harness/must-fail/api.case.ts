@@ -36,6 +36,28 @@ test('a handler that no request matched', async ({ page, api }) => {
     await expect(page.getByText('No events found.')).toBeVisible();
 });
 
+test('control: a request the page sends after the last assertion counts for its handler', async ({ page, api }) => {
+    api.json('GET events /', ok([]));
+    await page.goto('/about');
+    await expect(page).toHaveTitle('MyAEGEE | About MyAEGEE');
+    // The test ends here, and the page asks 300 ms later: the handler was not unused.
+    await page.evaluate(() => { setTimeout(() => fetch('/api/events/'), 300); });
+});
+
+test('a late request does not hide a handler that no request matched', async ({ page, api }) => {
+    api.json('GET events /', ok([]));
+    api.json('GET events /singel/:id', ok({}));
+    await page.goto('/about');
+    await expect(page).toHaveTitle('MyAEGEE | About MyAEGEE');
+    await page.evaluate(() => { setTimeout(() => fetch('/api/events/'), 300); });
+});
+
+test('a request with a wrong address is not answered with the app', async ({ page }) => {
+    await page.goto('/about');
+    // Neither /api/<service>/…, a file of the build nor a page: the test fails for all three.
+    expect(await page.evaluate(() => Promise.all(['/apii/events/', '/api', '/API/events/'].map(async (address) => (await fetch(address)).status)))).toEqual([404, 404, 404]);
+});
+
 test('a failed assertion comes with the requests nobody mocked', async ({ page }) => {
     await page.goto('/events');
     await expect(page.getByRole('link', { name: 'Spring Training' })).toBeVisible({ timeout: 1000 });

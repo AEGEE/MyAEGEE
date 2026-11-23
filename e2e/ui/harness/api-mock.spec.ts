@@ -144,7 +144,13 @@ test.describe('API mock', () => {
         expect(() => api.callsTo('get events /')).toThrow(/the method "get"/);
         expect(() => api.callsTo('GET url media/**')).toThrow(/a url pattern starts with \//);
         expect(() => api.url('GET', 'api.github.com/**', { json: [] })).toThrow(/a url pattern starts with \//);
-        expect(() => api.json('GET events /mine', ok([]), { optional: 'maybe' })).toThrow(/at least 3 words/);
+        // A handler that nothing has to ask for says why, as a coverage exception does.
+        const optional = (reason: string): (() => unknown) => () => api.json('GET events /mine', ok([]), { optional: reason });
+        expect(optional('maybe')).toThrow(/"maybe" needs at least 4 words and 20 characters/);
+        expect(optional('x y z')).toThrow(/"x y z" needs at least 4 words and 20 characters/);
+        expect(optional('todo: say why this is optional')).toThrow(/is a placeholder \("todo"\)/);
+        expect(optional('the page is too hard to mock here')).toThrow(/is not a reason \("too hard to mock"\)/);
+        expect(optional('really really really really')).toThrow(/needs at least 4 different words/);
 
         // Accepted above, and nothing asks for it here.
         expect(api.unused).toEqual(['GET events /']);
@@ -165,6 +171,51 @@ test.describe('API mock', () => {
         expect([...new Set(api.callsTo('* * *').map((call) => `${call.method} ${call.service} ${call.path}`))].sort()).toEqual(['GET core /members/me', 'GET core /my_permissions', 'GET events /']);
     });
 
+    test('a handler counts as used when its request comes after the test\'s last step', async ({ page, api }) => {
+        api.json('GET events /', ok([]));
+        api.json('GET events /mine/organizing', ok([]));
+        await page.goto('/events');
+        await expect(page.getByText('No events found.')).toBeVisible();
+
+        // Nothing has asked for the second one yet; the page does 300 ms from now.
+        await page.evaluate(() => { setTimeout(() => fetch('/api/events/mine/organizing'), 300); });
+        expect(api.unused).toEqual(['GET events /mine/organizing']);
+        // What every test does when it ends (ui/support/test.ts): it waits for that request…
+        const waited = Date.now();
+        expect(await api.stillUnused(5000)).toEqual([]);
+        expect(Date.now() - waited).toBeLessThan(4000);
+
+        // …and not at all when every handler was used, so only a test that is about to fail waits.
+        const returned = Date.now();
+        expect(await api.stillUnused(5000)).toEqual([]);
+        expect(Date.now() - returned).toBeLessThan(1000);
+
+        // A handler that nothing ever asks for is still reported, after the time it was given.
+        api.json('GET events /mine/participating', ok([]));
+        expect(await api.stillUnused(200)).toEqual(['GET events /mine/participating']);
+        api.json('GET events /mine/participating', ok([]), { optional: 'only registered to show that it is reported' });
+    });
+
+    test('the suite\'s server answers pages and files of the build, and nothing else', async ({ baseURL }) => {
+        // Asked from the test itself, so past the mock: this is what the server alone says.
+        const get = async (address: string, accept: string): Promise<string> => {
+            const response = await fetch(new URL(address, baseURL), { headers: { accept } });
+            return `${response.status} ${(response.headers.get('content-type') ?? '').split(';')[0]}`;
+        };
+
+        // A page of the app, whatever its path: the router of the app decides what it is.
+        expect(await get('/events/spring', 'text/html,application/xhtml+xml')).toBe('200 text/html');
+        expect(await get('/', '*/*')).toBe('200 text/html');
+        expect(await get('/index.html', '*/*')).toBe('200 text/html');
+        // What the app's fetch() gets for an address that is nearly the API's.
+        expect(await get('/apii/events/', 'application/json, text/plain, */*')).toBe('404 application/json');
+        expect(await get('/api', '*/*')).toBe('404 application/json');
+        expect(await get('/API/events/', '*/*')).toBe('404 application/json');
+        expect(await get('/js/no-such-chunk.js', '*/*')).toBe('404 application/json');
+        // Under /api it is a request the mock should have answered.
+        expect(await get('/api/events/', '*/*')).toBe('501 application/json');
+    });
+
     test.describe('strict mode', () => {
         // The check at the end of every test is what this is about, so do it by hand here.
         // eslint-disable-next-line e2e-no-weakened-checks -- the strict check itself is under test here: these tests read api.unhandled by hand
@@ -183,6 +234,18 @@ test.describe('API mock', () => {
             await page.evaluate(() => fetch('/services/jira-cors/wiki/rest/api/content/1').then((response) => response.status));
 
             expect(api.unhandled.map((call) => `${call.method} ${call.service} ${new URL(call.path).pathname}`)).toEqual(['GET url /services/jira-cors/wiki/rest/api/content/1']);
+        });
+
+        test('and a request to this origin that is neither /api, a file of the build nor a page', async ({ page, api }) => {
+            await page.goto('/about');
+
+            // The last two are files of the build, which the page may ask for.
+            const statuses = await page.evaluate(() => Promise.all(['/apii/events/', '/api', '/API/events/', '/status.json', '/healthcheck'].map(async (address) => (await fetch(address)).status)));
+
+            expect(statuses).toEqual([404, 404, 404, 200, 200]);
+            expect(api.unhandled.map((call) => `${call.method} ${call.service} ${new URL(call.path).pathname} ${call.status}`)).toEqual([
+                'GET url /apii/events/ 404', 'GET url /api 404', 'GET url /API/events/ 404'
+            ]);
         });
 
         test('and a request from a second page of the test', async ({ page, context, api }) => {

@@ -5,11 +5,15 @@
 //
 // Paths are written like express routes without the /api prefix: 'GET events /single/:id'.
 // Requests outside /api (calendar and Jira proxies, media files, other hosts) are answered
-// with `url()`. A route that can't match anything (a typo in the method, the service or the
-// path) throws where it is written, and a handler that no request ever matched fails the test
-// unless it says why that is fine (`optional`).
+// with `url()`. What the suite's own server answers are page navigations and the files of the
+// build; any other request to it counts as one nobody mocked. A route that can't match anything
+// (a typo in the method, the service or the path) throws where it is written, and a handler
+// that no request ever matched fails the test unless it says why that is fine (`optional`).
 // How to use all of it: docs/testing/writing-ui-specs.md.
 import type { BrowserContext, Request, Route } from '@playwright/test';
+
+import { reasonProblem } from '../../scripts/reason.ts';
+import { isBuildFile } from '../../support/frontend-routing.ts';
 
 export const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
 export type Method = typeof METHODS[number];
@@ -109,8 +113,6 @@ const compileGlob = (glob: string): RegExp => {
         .join('.*');
     return new RegExp(glob.startsWith('/') ? `^https?://[^/]+${source}(\\?.*)?$` : `^${source}$`);
 };
-
-const MIN_REASON_WORDS = 3;
 
 const routeError = (route: string, problem: string): Error => {
     const error = new Error(`"${route}" is not a route the API mock can match: ${problem}\nWrite 'METHOD service /path/:param', for example 'GET events /single/:id', or 'GET url /services/calendar-cors/**' for a request outside /api.`);
@@ -227,9 +229,9 @@ export class ApiMock {
     private context: BrowserContext | undefined;
 
     private add(route: string, method: Method | '*', service: string, compiled: { pattern: RegExp; keys: string[] }, respond: Responder, options: HandlerOptions): void {
-        if (options.optional !== undefined && String(options.optional).split(/\s+/).filter((word) => /\w/.test(word)).length < MIN_REASON_WORDS) {
-            throw new Error(`"${route}": \`optional\` says why no request may match the handler, in at least ${MIN_REASON_WORDS} words.`);
-        }
+        // The same rule as for a coverage exception (scripts/reason.ts): a sentence, no placeholder.
+        const problem = options.optional === undefined ? undefined : reasonProblem(String(options.optional));
+        if (problem) throw new Error(`"${route}": \`optional\` says why no request may match the handler, and "${String(options.optional)}" ${problem}.`);
         for (const earlier of this.handlers) {
             if (earlier.route === route && earlier.fallback === this.registeringFallbacks) earlier.replaced = true;
         }
@@ -300,6 +302,19 @@ export class ApiMock {
         return this.handlers.filter((handler) => !handler.optional && !handler.replaced && handler.matched === 0).map((handler) => handler.route);
     }
 
+    // Gives the pages up to `timeoutMs` to make the requests that the handlers of `unused` still
+    // wait for, and says which are left. A test ends with its last assertion, and the page may
+    // not have sent a request by then (it follows a render or a timer of the page), so judging
+    // `unused` at that moment fails a correct test now and then. When every handler was used,
+    // which is the usual case, this returns at once: only a test that is about to fail waits.
+    async stillUnused(timeoutMs: number): Promise<string[]> {
+        const deadline = Date.now() + timeoutMs;
+        while (this.unused.length && Date.now() < deadline) {
+            await new Promise((resolve) => { setTimeout(resolve, 25); });
+        }
+        return this.unused;
+    }
+
     // Recorded calls matching 'METHOD service /path/:param', or 'METHOD url <glob>'.
     callsTo(route: string): RecordedCall[] {
         const { method, service, path } = parseRoute(route);
@@ -313,6 +328,9 @@ export class ApiMock {
         // Fonts and map tiles come from the internet; the tests don't need them. A test that
         // needs an answer from another host gives one with `url()`.
         await context.route((requestUrl) => !LOCAL_HOSTS.includes(requestUrl.hostname), (route) => route.abort());
+        // What is left of this origin when the routes below have had their turn (a later route
+        // goes first): the pages and the files of the build.
+        await context.route((requestUrl) => LOCAL_HOSTS.includes(requestUrl.hostname), (route) => this.handleStatic(route));
         await context.route((requestUrl) => LOCAL_HOSTS.includes(requestUrl.hostname) && requestUrl.pathname.startsWith('/api/'), (route) => this.handleApi(route));
         // The gateway's proxies and the services' media files are part of what a page asks for.
         await context.route((requestUrl) => LOCAL_HOSTS.includes(requestUrl.hostname) && /^\/(services|media)\//.test(requestUrl.pathname), (route) => this.handleUrl(route, true));
@@ -356,6 +374,27 @@ export class ApiMock {
         const [, service, rawPath = '/'] = match;
         const path = rawPath.length > 1 ? rawPath.replace(/\/$/, '') : rawPath;
         await this.answer(route, describeRequest(request, service, path, url), `${request.method()} ${url.pathname}`, true);
+    }
+
+    // The suite's server answers a page navigation and a file of the build. Anything else the
+    // page asks this origin for is a request with a wrong address (`/apii/events`, `/api`,
+    // `/API/…`): nobody mocked it, and it must not come back as the app's index.html.
+    private async handleStatic(route: Route): Promise<void> {
+        const request = route.request();
+        const url = new URL(request.url());
+        let pathname: string | undefined;
+        try {
+            pathname = decodeURIComponent(url.pathname);
+        } catch {
+            // Not a path the server can read either.
+        }
+        if (request.isNavigationRequest() || (pathname !== undefined && isBuildFile(pathname))) {
+            await route.fallback();
+            return;
+        }
+        const full = `${url.origin}${url.pathname}${url.search}`;
+        this.calls.push({ ...describeRequest(request, 'url', full, url), params: {}, status: 404, handled: false });
+        await route.fulfill({ status: 404, json: { success: false, message: `Not mocked: ${request.method()} ${full} (neither /api/<service>/…, a file of the frontend build nor a page)` } });
     }
 
     private async handleUrl(route: Route, strict: boolean): Promise<void> {

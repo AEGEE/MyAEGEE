@@ -84,7 +84,8 @@ const caseOf = async (title: string): Promise<CaseResult> => {
 test.describe.configure({ mode: 'default' });
 
 test.describe('the suite\'s own safety nets', () => {
-    // The run inside starts its own browsers and makes seven tests fail on purpose, some twice.
+    // The run inside starts its own browsers and makes its cases fail on purpose, most of them
+    // twice, and two of them wait out the time a page gets to use a handler.
     test.beforeEach(() => test.setTimeout(120_000));
 
     test('the cases run, and a correct test passes among them', async () => {
@@ -93,10 +94,13 @@ test.describe('the suite\'s own safety nets', () => {
         expect([...run.cases.keys()].sort()).toEqual([
             'a failed assertion comes with the requests nobody mocked',
             'a handler that no request matched',
+            'a late request does not hide a handler that no request matched',
+            'a request with a wrong address is not answered with the app',
             'a second page of the test is inside the mock',
             'a test that takes only the page is still logged in and strict',
             'a test that times out comes with the requests nobody mocked',
             'an uncaught error in a second page fails the test',
+            'control: a request the page sends after the last assertion counts for its handler',
             'control: a test that mocks what the page asks for passes',
             'passes only on its retry',
             'skips itself while it runs'
@@ -136,6 +140,35 @@ test.describe('the suite\'s own safety nets', () => {
         expect(result.errors).toContain('handlers that no request matched');
         expect(result.errors).toContain('GET events /singel/:id');
         expect(result.errors).not.toContain('"GET events /"');
+    });
+
+    // The list of unused handlers is not judged at the moment the test ends: the page gets
+    // the time of an assertion to send what it has not sent yet (UNUSED_GRACE_MS in
+    // ui/support/test.ts). Judged at once, this case fails.
+    test('a request the page sends after the test\'s last assertion still counts', async () => {
+        const result = await caseOf('control: a request the page sends after the last assertion counts for its handler');
+        expect(result.errors).toBe('');
+        expect(result.attempts).toEqual(['passed']);
+    });
+
+    test('a late request does not hide a handler that no request matched', async () => {
+        const result = await caseOf('a late request does not hide a handler that no request matched');
+        expect(result.attempts).toEqual(['failed', 'failed']);
+        expect(result.errors).toContain('handlers that no request matched');
+        expect(result.errors).toContain('GET events /singel/:id');
+        // The handler that got its request late is not on the list.
+        expect(result.errors).not.toContain('"GET events /"');
+    });
+
+    test('a request to this origin that is neither /api, a file of the build nor a page fails the test', async () => {
+        const result = await caseOf('a request with a wrong address is not answered with the app');
+        expect(result.attempts).toEqual(['failed', 'failed']);
+        expect(result.errors).toContain('requests nobody mocked');
+        for (const address of ['/apii/events/', '/api', '/API/events/']) {
+            expect(result.errors).toMatch(new RegExp(`"GET http://127\\.0\\.0\\.1:\\d+${address}"`));
+        }
+        // The only failure: the page got a 404 for each, as the test itself asserts.
+        expect(result.errors).not.toContain('404');
     });
 
     test('a failed assertion lists the requests nobody mocked next to it', async () => {

@@ -83,6 +83,18 @@ const PERMISSIONS: Record<Session, () => Permission[]> = {
     superadmin: () => allSeedPermissions()
 };
 
+// How long a test that reached its end waits for the requests of handlers that nothing has
+// asked for yet, before it fails for them. A request can leave the page after the last
+// assertion of the test: the page sends it after a render, a debounce or a timer, and under
+// load the browser gets to it late. The wait is the time every assertion of the suite gets
+// (`expect.timeout` of playwright.ui.config.ts): what would have passed as
+// `await expect.poll(() => api.callsTo(route)).not.toEqual([])` passes without writing it.
+// Only a test with a handler nobody used waits; all others end at once.
+const UNUSED_GRACE_MS = 5000;
+// What the rest of the teardown gets of the test's time limit, so a test that ends just before
+// its limit still fails with the list of handlers instead of with a timeout.
+const TEARDOWN_MARGIN_MS = 1000;
+
 // Whether the coverage gate of an area is enforced (ui/support/coverage/<area>.json). An
 // enforced area is finished: its pages may not log errors any more.
 const isEnforced = (area: Area | undefined): boolean => {
@@ -154,11 +166,17 @@ export const test = base.extend<Options & Fixtures & CoverageFixtures, CoverageW
         api.json('POST core /logout', { success: true }, optional);
 
         await api.install(context);
+        const startedAt = Date.now();
         await use(api);
 
         const passed = testInfo.status === testInfo.expectedStatus;
+        // Only for a test that got to its end: one that stopped half-way didn't make all its
+        // requests. The pages are still open here, and a request they have not sent yet counts
+        // (see UNUSED_GRACE_MS), so this comes before the list of unanswered requests is read.
+        const left = testInfo.timeout === 0 ? UNUSED_GRACE_MS : testInfo.timeout - (Date.now() - startedAt) - TEARDOWN_MARGIN_MS;
+        const grace = Math.max(0, Math.min(UNUSED_GRACE_MS, left));
+        const unused = passed ? await api.stillUnused(grace) : api.unused;
         const unhandled = api.unhandled.map((call) => (call.service === 'url' ? `${call.method} ${call.path}` : `${call.method} /api/${call.service}${call.path}`));
-        const { unused } = api;
         if (!passed) {
             // Shown with the failure in the report, whatever the test's settings are.
             if (unhandled.length) await testInfo.attach('requests nobody mocked', { body: unhandled.join('\n'), contentType: 'text/plain' });
@@ -169,7 +187,6 @@ export const test = base.extend<Options & Fixtures & CoverageFixtures, CoverageW
         if (strictApi) {
             expect(unhandled, passed ? 'requests nobody mocked' : 'requests nobody mocked (a likely reason for the failure above)').toEqual([]);
         }
-        // Only for a test that got to its end: one that stopped half-way didn't make all its requests.
         if (passed) {
             expect(unused, 'handlers that no request matched: a typo in the route, or the page no longer asks. If that is expected, say why: api.on(route, answer, { optional: \'<reason>\' })').toEqual([]);
         }
