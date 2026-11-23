@@ -24,6 +24,7 @@ describe('Statistics testing', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -404,5 +405,71 @@ describe('Statistics testing', () => {
         expect(res.body.data.numbers.rejected).toEqual(1);
         expect(res.body.data.numbers.pending).toEqual(1);
         expect(res.body.data.numbers.accepted).toEqual(2);
+    });
+
+    // The statistics are for every member: there is no permission behind them.
+    test('should answer a member without permissions, with numbers only', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
+
+        await generator.createApplication({
+            user_id: 2,
+            body_id: 1337,
+            gender: 'female',
+            meals: 'Vegan',
+            participant_type: 'visitor',
+            number_of_events_visited: 3,
+            first_name: 'Anna',
+            last_name: 'Applicant'
+        }, event);
+        await generator.createApplication({ user_id: 3, body_id: 1337, cancelled: true }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(Object.keys(res.body.data).sort()).toEqual([
+            'by_body',
+            'by_date',
+            'by_date_cumulative',
+            'by_gender',
+            'by_meal',
+            'by_number_of_events_visited',
+            'by_type',
+            'numbers',
+            'quorum'
+        ]);
+
+        expect(res.body.data.numbers).toMatchObject({ total: 2, pending: 1, cancelled: 1 });
+        expect(res.body.data.by_body).toEqual([{ type: 1337, value: 1 }]);
+        expect(res.body.data.by_gender).toEqual([{ type: 'female', value: 1 }]);
+        expect(res.body.data.by_meal).toEqual([{ type: 'Vegan', value: 1 }]);
+        expect(res.body.data.by_type).toEqual([{ type: 'visitor', value: 1 }]);
+        expect(res.body.data.by_number_of_events_visited).toEqual([{ type: 3, value: 1 }]);
+        expect(res.body.data.quorum.body_ids).toEqual([1337]);
+
+        // No names of the applicants.
+        expect(JSON.stringify(res.body)).not.toContain('Anna');
+        expect(JSON.stringify(res.body)).not.toContain('Applicant');
+    });
+
+    test.each([
+        'global:manage_incoming:agora',
+        'global:manage_juridical:agora',
+        'global:manage_applications:epm'
+    ])('should answer a holder of %s alone', async (permission) => {
+        mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.numbers.total).toEqual(0);
     });
 });
