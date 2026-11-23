@@ -533,9 +533,11 @@ exports.exportAll = async (req, res) => {
 
     const headers = Object.keys(headersNames).map((field) => headersNames[field]);
 
+    // One admin login for the whole export.
+    const adminToken = await core.getAdminToken();
     applications = await Promise.all(applications
         .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+            const user = await core.fetchApplicationUser(application.user_id, adminToken);
 
             application.dataValues.gender = user.gender;
             application.dataValues.date_of_birth = user.date_of_birth;

@@ -25,6 +25,28 @@ const makeRequest = (options) => {
     return request(requestOptions);
 };
 
+const getAdminToken = async () => {
+    // Getting access and refresh token using admin credentials.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (authRequest === null || typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    return authRequest.access_token;
+};
+
 const fetchUser = async (user, token) => {
     const userRequest = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user.user_id,
@@ -50,29 +72,15 @@ const fetchUser = async (user, token) => {
     };
 };
 
-const fetchApplicationUser = async (user) => {
-    // Getting access and refresh token.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (authRequest === null || typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
+// Fetches an applicant with the admin token. Pass `token` to reuse one (exports fetch
+// many applicants); without it, the function logs in itself.
+const fetchApplicationUser = async (user, token) => {
+    const adminToken = token || await getAdminToken();
 
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: authRequest.access_token,
+        token: adminToken,
     });
 
     if (userResponse === null || typeof userResponse !== 'object') {
@@ -158,28 +166,6 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
     }
 
     return membersResponse.data;
-};
-
-const getAdminToken = async () => {
-    // Getting access and refresh token using admin credentials.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (authRequest === null || typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
-
-    return authRequest.access_token;
 };
 
 module.exports = {
