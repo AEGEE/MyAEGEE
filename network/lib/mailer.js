@@ -2,10 +2,23 @@ const { request } = require('./http');
 
 const config = require('../config');
 
+const post = async (options) => {
+    try {
+        return await request(options);
+    } catch (err) {
+        if (err.name === 'TimeoutError') {
+            throw new Error(`The mailer did not answer within ${options.timeout} ms`);
+        }
+
+        throw err;
+    }
+};
+
 module.exports.sendMail = async (options) => {
-    const response = await request({
+    const response = await post({
         url: config.mailer.url + ':' + config.mailer.port + '/',
         method: 'POST',
+        timeout: config.mailer.timeout,
         body: {
             from: options.from,
             to: options.to,
