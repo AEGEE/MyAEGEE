@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { PaxLimit } = require('../../models');
 
 describe('Pax limits creation/editing', () => {
     beforeAll(async () => {
@@ -152,5 +153,29 @@ describe('Pax limits creation/editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.envoy).toEqual(null);
+    });
+
+    test.each([
+        ['is missing', undefined],
+        ['is null', null],
+        ['is not a number', 'abc'],
+        ['is not a whole number', 1.5],
+        ['is an object', { id: 1 }]
+    ])('should return 422 if body_id %s', async (description, bodyId) => {
+        const limit = generator.generatePaxLimit({ event_type: 'agora' });
+        limit.body_id = bodyId;
+
+        const res = await request({
+            path: '/limits/agora',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: limit
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('body_id');
+        expect(await PaxLimit.count()).toEqual(0);
     });
 });
