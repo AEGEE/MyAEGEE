@@ -127,12 +127,7 @@ MembersListsRouter.get('/missing', memberslists.getMissingMemberslists);
 MembersListsRouter.get('/without_fee', memberslists.getMemberslistsWithoutFee);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
-
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
-MembersListsRouter.get('/', memberslists.getAllMemberslists);
-MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.put('/:body_id/fee_paid', memberslists.setMemberslistFeePaid);
-MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
 MassMailerRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 MassMailerRouter.post('/', massmailer.sendAll);
