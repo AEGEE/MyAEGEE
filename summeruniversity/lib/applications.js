@@ -298,6 +298,11 @@ exports.setApplicationConfirmed = async (req, res) => {
         return undefined;
     }
 
+    // Only participants who were accepted and did not cancel can confirm their participation.
+    if (req.body.confirmed && (req.application.status !== 'accepted' || req.application.cancelled)) {
+        return helpers.makeFieldError(res, 'confirmed', 'Only accepted applications that are not cancelled can be confirmed.');
+    }
+
     const dbResult = await req.application.update(
         { confirmed: req.body.confirmed },
         { returning: ['*'] }
