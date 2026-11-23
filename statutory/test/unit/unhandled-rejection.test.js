@@ -1,4 +1,5 @@
 const log = require('../../lib/logger');
+const Bugsnag = require('../../lib/bugsnag');
 
 describe('Unhandled rejection log', () => {
     let handler;
@@ -23,5 +24,23 @@ describe('Unhandled rejection log', () => {
 
         expect(errorLog).toHaveBeenCalledWith({ err }, 'Unhandled rejection');
         errorLog.mockRestore();
+    });
+
+    test('should report the error to Bugsnag outside tests', () => {
+        const originalEnv = process.env.NODE_ENV;
+        const errorLog = jest.spyOn(log, 'error').mockImplementation(() => {});
+        const notify = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+        const err = new Error('Query failed');
+
+        try {
+            process.env.NODE_ENV = 'production';
+            handler(err);
+        } finally {
+            process.env.NODE_ENV = originalEnv;
+        }
+
+        expect(notify).toHaveBeenCalledWith(err);
+        errorLog.mockRestore();
+        notify.mockRestore();
     });
 });

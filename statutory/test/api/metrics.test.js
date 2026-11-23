@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock-core-registry');
+const packageInfo = require('../../package.json');
 
 describe('Metrics requests', () => {
     beforeEach(async () => {
@@ -67,5 +68,22 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+    });
+
+    test('should return the name and the version on /healthcheck without a token', async () => {
+        const res = await request({
+            path: '/healthcheck',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual({
+            success: true,
+            data: {
+                name: packageInfo.name,
+                description: packageInfo.description,
+                version: packageInfo.version
+            }
+        });
     });
 });

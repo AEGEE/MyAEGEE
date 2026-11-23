@@ -92,6 +92,35 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(1);
     });
 
+    test('should not list the tasks without the permission to see them', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+
+        const res = await request({
+            path: '/tasks',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'You cannot see background tasks.' });
+    });
+
+    test('should list the tasks with the permission to see them alone', async () => {
+        mock.mockAll({ mainPermissions: { permissions: ['global:see_background_tasks:statutory'] } });
+        const id = cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+
+        const res = await request({
+            path: '/tasks',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(Object.keys(res.body.data)).toEqual([String(id)]);
+        expect(res.body.data[id]).toMatchObject({ key: 'OPEN_POSITION_APPLICATIONS', params: { id: 1337 }, id });
+    });
+
     test('should get tasks properly', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({
