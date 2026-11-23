@@ -5,7 +5,14 @@ import type { Envelope } from '../support/api.ts';
 import { test, expectStatus } from '../support/api.ts';
 import { expectShape } from '../support/contract.ts';
 import { body } from '../ui/support/factories/core.ts';
-import { applicationPermissions, singleStatutoryApplication, statutoryApplication } from '../ui/support/factories/statutory-applications.ts';
+import {
+    applicationPermissions,
+    incomingApplication,
+    listedApplication,
+    paxLimit,
+    singleStatutoryApplication,
+    statutoryApplication
+} from '../ui/support/factories/statutory-applications.ts';
 
 const perBody = {
     ignore: {
@@ -60,5 +67,38 @@ test.describe('statutory application factories match the real API', () => {
             gaps: unfilled
         });
         expectShape('applicationPermissions', applicationPermissions(), mine.body.data.permissions);
+    });
+
+    test('the lists of applications and the pax limit of a body', async ({ api }) => {
+        const event = await api.createStatutoryEvent();
+        expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/status`, { status: 'published' }), 200);
+        const applied = await api.applyToStatutory('member', event);
+        const bodyId = (await api.me('member')).bodies[0].id;
+        expectStatus(await api.call('member', 'PUT', `/api/statutory/events/${event.id}/applications/me`, { allergies: 'Nuts' }), 200);
+        // Accepted and with a place, so it is on the incoming list and its fields have values.
+        expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/applications/${applied.id}/board`, {
+            board_comment: 'Active member', participant_type: 'delegate', participant_order: 1
+        }), 200);
+        expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/applications/${applied.id}/status`, { status: 'accepted' }), 200);
+        const withPlace = { board_comment: 'x', participant_type: 'delegate' as const, participant_order: 1 };
+
+        const all = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/all`);
+        expectStatus(all, 200);
+        expectShape('listedApplication', listedApplication(withPlace), all.body.data[0], { gaps: unfilled });
+
+        const boardview = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/boardview/${bodyId}`);
+        expectStatus(boardview, 200);
+        expectShape('listedApplication', listedApplication(withPlace), boardview.body.data[0], { gaps: unfilled });
+
+        const incoming = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/incoming`);
+        expectStatus(incoming, 200);
+        expectShape('incomingApplication', incomingApplication(), incoming.body.data[0], {
+            gaps: Object.fromEntries(Object.entries(unfilled).filter(([path]) => path !== '$.email'))
+        });
+
+        // The member's antenna has no limit of its own: the default of an antenna.
+        const limit = await api.call<Envelope<unknown>>('member', 'GET', `/api/statutory/limits/agora/${bodyId}`);
+        expectStatus(limit, 200);
+        expectShape('paxLimit', paxLimit(), limit.body.data);
     });
 });

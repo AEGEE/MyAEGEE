@@ -151,3 +151,59 @@ export const singleStatutoryApplication = (
         permissions: { ...statutoryEventPermissions(), ...applicationPermissions(), ...permissions }
     };
 };
+
+// An application as the lists of all applications (GET /events/:id/applications/all) and of
+// the board view (GET /events/:id/applications/boardview/:body_id) have it: every field, and the
+// address core has for the applicant.
+export interface ListedApplication extends StatutoryApplication {
+    notification_email: string;
+}
+
+export const listedApplication = (overrides: Partial<ListedApplication> = {}): ListedApplication => {
+    const application = statutoryApplication({ board_comment: null, ...overrides });
+    return { ...application, notification_email: overrides.notification_email ?? `member${application.user_id}@example.com` };
+};
+
+// The fields the incoming team gets (constants.ALLOWED_INCOMING_FIELDS).
+const INCOMING_FIELDS = [
+    'id', 'statutory_id', 'user_id', 'body_id', 'body_name', 'participant_type', 'participant_order',
+    'confirmed', 'incoming', 'attended', 'registered', 'departed', 'first_name', 'last_name', 'meals',
+    'allergies', 'date_of_birth', 'visa_place_of_birth', 'visa_passport_number', 'visa_passport_issue_date',
+    'visa_passport_expiration_date', 'visa_passport_issue_authority', 'visa_embassy', 'visa_street_and_house',
+    'visa_postal_code', 'visa_city', 'visa_country', 'created_at', 'updated_at'
+] as const;
+
+// An accepted application as the incoming list (GET /events/:id/applications/incoming) has it:
+// what the incoming team needs, and the applicant's address from core.
+export type IncomingApplication = Pick<StatutoryApplication, typeof INCOMING_FIELDS[number]> & { notification_email: string };
+
+export const incomingApplication = (overrides: Partial<IncomingApplication> = {}): IncomingApplication => {
+    const full = statutoryApplication({ status: 'accepted', participant_type: 'delegate', participant_order: 1, ...overrides });
+    const picked = Object.fromEntries(INCOMING_FIELDS.map((field) => [field, full[field]])) as Pick<StatutoryApplication, typeof INCOMING_FIELDS[number]>;
+    return { ...picked, notification_email: overrides.notification_email ?? `member${full.user_id}@example.com` };
+};
+
+// How many participants of each type a body may send to an event of a type
+// (GET /limits/:event_type/:body_id). `null` is "unlimited". A body without a limit of its own
+// gets the default of its body type (models/PaxLimit.js), which is not stored: `default` is
+// true. By default an antenna's for an Agora.
+export interface PaxLimit {
+    body_id: number;
+    event_type: 'agora' | 'epm' | 'spm';
+    delegate: number | null;
+    envoy: number | null;
+    observer: number | null;
+    visitor: number | null;
+    default: boolean;
+}
+
+export const paxLimit = (overrides: Partial<PaxLimit> = {}): PaxLimit => ({
+    body_id: 1,
+    event_type: 'agora',
+    delegate: 3,
+    envoy: 0,
+    observer: 0,
+    visitor: 30,
+    default: true,
+    ...overrides
+});
