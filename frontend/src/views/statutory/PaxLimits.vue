@@ -25,7 +25,7 @@
         <p><strong>Total bodies listed:</strong> {{ limits.length }}</p>
         <p><strong>Bodies with custom limits: </strong>{{ limits.filter(l => !l.default).length }}</p>
 
-        <div class="table-responsive">
+        <div class="table-container">
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
