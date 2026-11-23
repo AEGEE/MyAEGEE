@@ -51,6 +51,11 @@ export const USERS = {
     member: 'member',
     board: 'board',
     netcom: 'netcom',
+    nd: 'nd',
+    fd: 'fd',
+    suct: 'suct',
+    eqac: 'eqac',
+    chair: 'chair',
     notMember: 'not-member'
 } as const;
 

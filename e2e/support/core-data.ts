@@ -6,7 +6,7 @@
 import { expect } from '@playwright/test';
 
 import type { Api, Body, Envelope, Member } from './api.ts';
-import { PASSWORD, type TestUsername } from './constants.ts';
+import { PASSWORD, type TestUsername, type Username } from './constants.ts';
 
 export type Cleanup = () => Promise<void>;
 
@@ -19,10 +19,20 @@ export interface TestAntenna {
     member: TestMember;
 }
 
-interface Circle {
+export interface Circle {
     id: number;
     name: string;
+    description: string;
     body_id: number | null;
+    parent_circle_id: number | null;
+}
+
+export interface Campaign {
+    id: number;
+    name: string;
+    url: string;
+    active: boolean;
+    autojoin_body_id: number | null;
 }
 
 const randomLetters = (length: number): string => Array.from(
@@ -31,7 +41,8 @@ const randomLetters = (length: number): string => Array.from(
 ).join('');
 
 // Calls core as admin and returns `data`, failing the test with the response if the call failed.
-async function asAdmin<T>(api: Api, method: string, path: string, data?: unknown): Promise<T> {
+// `path` is core's own path (`/bodies/1`), without `/api/core`.
+export async function asAdmin<T>(api: Api, method: string, path: string, data?: unknown): Promise<T> {
     const res = await api.call<Envelope<T>>('admin', method, `/api/core${path}`, data);
     expect(res.status, `admin ${method} /api/core${path}: ${JSON.stringify(res.body)}`).toBe(200);
     return res.body.data;
@@ -116,4 +127,69 @@ export async function createAntenna(api: Api): Promise<[TestAntenna, Cleanup]> {
         await undo.run();
         throw err;
     }
+}
+
+// Creates a circle without members or permissions: a free one, or one bound to a body when
+// `bodyId` is given (only members of that body can join it).
+export async function createCircle(api: Api, { bodyId }: { bodyId?: number } = {}): Promise<[Circle, Cleanup]> {
+    const suffix = randomLetters(8);
+    const circle = await asAdmin<Circle>(api, 'POST', bodyId === undefined ? '/circles' : `/bodies/${bodyId}/circles`, {
+        name: `E2E circle ${suffix}`,
+        description: 'Circle created by an e2e test'
+    });
+    // Deleting a circle also removes its memberships and permissions.
+    return [circle, async () => { await asAdmin(api, 'DELETE', `/circles/${circle.id}`); }];
+}
+
+// Creates an active signup campaign at `/signup/<url>`. With `autojoinBody`, those who sign up
+// through it become members of that body. The cleanup also deletes whoever signed up through
+// it, so a signup test leaves no users behind.
+export async function createCampaign(api: Api, { autojoinBody }: { autojoinBody?: number } = {}): Promise<[Campaign, Cleanup]> {
+    const suffix = randomLetters(8);
+    const campaign = await asAdmin<Campaign>(api, 'POST', '/campaigns', {
+        name: `E2E campaign ${suffix}`,
+        url: `e2e-${suffix}`,
+        active: true,
+        description_short: 'Campaign created by an e2e test',
+        description_long: 'Campaign created by an e2e test',
+        ...(autojoinBody === undefined ? {} : { autojoin_body_id: autojoinBody })
+    });
+
+    return [campaign, async () => {
+        // Core would keep them, without their campaign.
+        const members = await asAdmin<{ id: number }[]>(api, 'GET', `/campaigns/${campaign.id}/members`);
+        for (const member of members) {
+            await asAdmin(api, 'DELETE', `/members/${member.id}`);
+        }
+        await asAdmin(api, 'DELETE', `/campaigns/${campaign.id}`);
+    }];
+}
+
+// Gives `username` one permission (`scope:action:object`, as in core/scripts/seed-permissions.js)
+// the way it happens in production: through a new circle that has the permission and the user
+// as a member. A `local:` permission only counts inside a body, so it needs `bodyId`: the circle
+// is bound to that body, and the user has to be a member of it. The cleanup deletes the circle,
+// and with it the membership and the permission link.
+export async function grantPermission(api: Api, username: Username, combined: string, { bodyId }: { bodyId?: number } = {}): Promise<[Circle, Cleanup]> {
+    if (combined.startsWith('local:') && bodyId === undefined) {
+        throw new Error(`grantPermission: ${combined} is local, so it needs the bodyId it applies to.`);
+    }
+
+    const found = await asAdmin<{ id: number; combined: string }[]>(api, 'GET', `/permissions?query=${encodeURIComponent(combined)}`);
+    const permission = found.find((item) => item.combined === combined);
+    if (!permission) {
+        throw new Error(`grantPermission: core has no permission ${combined}.`);
+    }
+
+    const user = await api.me(username);
+    const [circle, cleanup] = await createCircle(api, { bodyId });
+    try {
+        await asAdmin(api, 'POST', `/circles/${circle.id}/permissions`, { permission_id: permission.id });
+        await asAdmin(api, 'POST', `/circles/${circle.id}/members`, { user_id: user.id });
+    } catch (err) {
+        await cleanup();
+        throw err;
+    }
+
+    return [circle, cleanup];
 }

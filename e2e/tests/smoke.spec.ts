@@ -1,5 +1,5 @@
 import { test, expect, loginInBrowser, type Envelope } from '../support/api.ts';
-import type { Username } from '../support/constants.ts';
+import { USERS, type Username } from '../support/constants.ts';
 import { loadSeedPermissions } from '../support/core.ts';
 
 test.describe('e2e stack', () => {
@@ -51,6 +51,26 @@ test.describe('e2e stack', () => {
         ]));
         expect(combined).not.toContain('global:lookup:member');
     });
+
+    // The other seeded office holders: each logs in and has the global permissions of the
+    // circle the seed puts them in.
+    const officeHolders: [Username, string][] = [
+        [USERS.nd, 'networkDirectorCircle'],
+        [USERS.fd, 'financialDirectorCircle'],
+        [USERS.suct, 'suctCircle'],
+        [USERS.eqac, 'eqacCircle'],
+        [USERS.chair, 'chairsCircle']
+    ];
+    for (const [username, circle] of officeHolders) {
+        test(`${username} has the permissions of the seed's ${circle}`, async ({ api }) => {
+            const { status, body } = await api.call<Envelope<{ combined: string }[]>>(username, 'GET', '/api/core/my_permissions');
+            expect(status).toBe(200);
+
+            const expected = loadSeedPermissions().CIRCLE_PERMISSIONS[circle].filter((permission) => permission.startsWith('global:'));
+            expect(expected.length).toBeGreaterThan(0);
+            expect(body.data.map((permission) => permission.combined)).toEqual(expect.arrayContaining(expected));
+        });
+    }
 
     test('a member can open a published event in the frontend', async ({ api, page }) => {
         const event = await api.createEvent('admin', { type: 'training' });

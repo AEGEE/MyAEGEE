@@ -70,11 +70,17 @@ export interface StatutoryApplication {
     body_name: string;
 }
 
+// A mail as the services send it to the mailer (and the fake mailer records it): the mailer
+// renders `template` with `parameters`.
 export interface Mail {
     subject: string;
+    template: string;
+    parameters: Record<string, unknown>;
     to?: string | string[];
     cc?: string | string[];
-    [key: string]: unknown;
+    from?: string;
+    reply_to?: string;
+    received_at: string;
 }
 
 export interface EventOptions {
@@ -265,7 +271,48 @@ export class Api {
     async clearMails(): Promise<void> {
         await this.request.delete(`${url('mailer')}/__mails`);
     }
+
+    // Waits for a mail to `to` rendered from `template` (`confirm_email.html`) and returns the
+    // newest one. Services may send after they answered, so this polls. Pass an address only
+    // your test uses: other tests' mails stay in the list (never clear it in a test).
+    async waitForMail({ to, template }: { to: string; template: string }): Promise<Mail> {
+        let found: Mail | undefined;
+        await expect.poll(async () => {
+            found = (await this.mails()).findLast((mail) => mail.template === template && [mail.to ?? []].flat().includes(to));
+            return found;
+        }, { message: `a ${template} mail to ${to}`, timeout: 10 * 1000 }).toBeTruthy();
+        return found as Mail;
+    }
 }
+
+// What a link in the rendered mail points to, as a path in the frontend. The mailer's templates
+// (mailer/lib/omsmailer_web/templates/page/) build these from the parameters; the fake mailer
+// doesn't render, so the paths are repeated here for the templates that link somewhere specific.
+const MAIL_LINKS: [RegExp, (parameters: Record<string, unknown>) => unknown][] = [
+    [/^confirm_email\.html$/, (parameters) => `/confirm_signup?token=${parameters.token}`],
+    [/^password_reset\.html$/, (parameters) => `/password_confirm?token=${parameters.token}`],
+    [/^mail_change\.html$/, (parameters) => `/mail-change?token=${parameters.token}`],
+    [/^member_joined\.html$/, (parameters) => `/bodies/${parameters.body_id}`],
+    [/^workspace_(new|deleted)_member\.html$/, (parameters) => `/members/${parameters.user_id}`],
+    [/^candidate_applied\.html$/, (parameters) => `/statutory/${(parameters.position as { event_id: number }).event_id}`],
+    [/^events_(event_created|event_updated|status_changed|european_status_changed|submitted|spc_info)\.html$/, (parameters) => `/events/${(parameters.event as { url: string }).url}`],
+    [/^summeruniversity_(event_created|event_updated|status_changed|submitted|organizer_applied|organizer_edited)\.html$/, (parameters) => `/summeruniversity/${(parameters.event as { url: string }).url}`],
+    [/^statutory_board_(applied|edited)\.html$/, (parameters) => `/statutory/${(parameters.event as { url: string }).url}`]
+];
+
+export const mailLink = (mail: Mail): string => {
+    const link = MAIL_LINKS.find(([template]) => template.test(mail.template));
+    if (!link) {
+        throw new Error(`mailLink: the ${mail.template} mail has no link to a page of its own.`);
+    }
+
+    const path = String(link[1](mail.parameters));
+    if (path.includes('undefined')) {
+        throw new Error(`mailLink: the ${mail.template} mail lacks the parameter its link needs: ${JSON.stringify(mail.parameters)}`);
+    }
+
+    return path;
+};
 
 // Logs the browser in as `username` by storing the tokens the way the frontend does.
 export async function loginInBrowser(page: Page, api: Api, username: Username): Promise<void> {
