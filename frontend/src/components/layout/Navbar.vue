@@ -1,36 +1,51 @@
 <template>
-  <nav class="navbar is-fixed-top" :class="{ slideInDown: show, slideOutDown: !show }">
+  <nav class="navbar is-fixed-top" :class="{ slideInDown: show, slideOutDown: !show }" aria-label="Account">
     <div class="navbar-brand">
-      <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({ opened: !sidebar.opened })">
+      <button
+        type="button"
+        class="navbar-item navbar-control is-hidden-tablet"
+        aria-label="Menu"
+        :aria-expanded="sidebar.opened ? 'true' : 'false'"
+        @click="toggleSidebar({ opened: !sidebar.opened })"
+      >
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
+      </button>
+      <a href="/" class="logo" aria-label="MyAEGEE home">
+        <img src="../../images/AEGEE_logo.png" class="image" alt="" />
       </a>
-      <a href="/" class="logo">
-        <img src="../../images/AEGEE_logo.png" class="image" />
-      </a>
-      <a
-        role="button"
+      <button
+        type="button"
         class="navbar-burger burger"
+        aria-label="Account menu"
+        :aria-expanded="navbar.menuOpened ? 'true' : 'false'"
         @click="toggleNavbarMenu({ opened: !navbar.menuOpened })"
       >
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
         </span>
-      </a>
+      </button>
     </div>
     <div class="navbar-menu" :class="{ 'is-active': navbar.menuOpened }">
       <div class="navbar-end">
         <div
           class="navbar-item has-dropdown is-hoverable"
+          :class="{ 'is-active': userMenuOpened }"
           v-if="loggedIn && user && user.first_name"
         >
-          <a class="navbar-link">
+          <!-- Opens on hover as before; the button also opens it by keyboard and by touch. -->
+          <button
+            type="button"
+            class="navbar-link navbar-control"
+            :aria-expanded="userMenuOpened ? 'true' : 'false'"
+            @click="userMenuOpened = !userMenuOpened"
+          >
             {{ user.first_name + ' ' + user.last_name }}
-          </a>
+          </button>
 
           <div class="navbar-dropdown is-right">
             <router-link to="/members/me" class="navbar-item">See my account</router-link>
             <hr class="navbar-divider" />
-            <a class="navbar-item" @click="logout">Logout</a>
+            <button type="button" class="navbar-item navbar-control" @click="logout">Logout</button>
           </div>
         </div>
 
@@ -47,6 +62,11 @@ export default {
   props: {
     show: Boolean
   },
+  data () {
+    return {
+      userMenuOpened: false
+    }
+  },
   computed: mapGetters({
     pkginfo: 'pkg',
     sidebar: 'sidebar',
@@ -58,7 +78,13 @@ export default {
   methods: {
     ...mapActions(['toggleSidebar', 'toggleNavbarMenu']),
     logout () {
+      this.userMenuOpened = false
       this.$auth.logout().then(() => this.$router.push('/login'))
+    }
+  },
+  watch: {
+    $route () {
+      this.userMenuOpened = false
     }
   }
 }
@@ -77,6 +103,19 @@ export default {
 
   .container {
     margin: auto 10px;
+  }
+
+  /* Buttons that look like the links next to them. */
+  button.navbar-control {
+    background: none;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .navbar-dropdown button.navbar-control {
+    width: 100%;
+    text-align: left;
   }
 
   /* for the logo in the navbar */
