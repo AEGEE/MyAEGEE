@@ -6,6 +6,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
+const { INTEGRATION_FIELDS } = require('./constants');
 const logger = require('./logger');
 
 exports.createIntegration = async (req, res) => {
@@ -13,7 +14,7 @@ exports.createIntegration = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
     }
 
-    const integration = await Integration.create(req.body);
+    const integration = await Integration.create(req.body, { fields: INTEGRATION_FIELDS });
 
     return res.json({
         success: true,
@@ -59,7 +60,7 @@ exports.updateIntegration = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update integration.');
     }
 
-    await req.integration.update(req.body);
+    await req.integration.update(req.body, { fields: INTEGRATION_FIELDS });
 
     return res.json({
         success: true,

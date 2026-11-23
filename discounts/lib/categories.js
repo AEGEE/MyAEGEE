@@ -1,13 +1,14 @@
 const { Category } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
+const { CATEGORY_FIELDS } = require('./constants');
 
 exports.createCategory = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
     }
 
-    const category = await Category.create(req.body);
+    const category = await Category.create(req.body, { fields: CATEGORY_FIELDS });
 
     return res.json({
         success: true,
@@ -53,7 +54,7 @@ exports.updateCategory = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update category.');
     }
 
-    await req.category.update(req.body);
+    await req.category.update(req.body, { fields: CATEGORY_FIELDS });
 
     return res.json({
         success: true,
