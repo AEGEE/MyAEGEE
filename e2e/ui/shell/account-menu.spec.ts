@@ -108,5 +108,14 @@ test.describe('account menu', () => {
         await toggle.click();
         await page.getByText('No events found.').hover();
         await expect(account.getByRole('link', { name: 'See my account' })).toBeVisible();
+
+        // A second click closes it, also under the pointer.
+        await toggle.click();
+        await expect(account.getByRole('link', { name: 'See my account' })).toBeHidden();
+        // A double-click is one decision, not two: it doesn't open the menu and close it again.
+        await page.getByText('No events found.').hover();
+        await toggle.dblclick();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        await expect(account.getByRole('link', { name: 'See my account' })).toBeVisible();
     });
 });
