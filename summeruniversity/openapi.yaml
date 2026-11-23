@@ -1564,11 +1564,16 @@ components:
         caller manages the type.
       type: object
       properties:
-        name: {type: string}
-        url: {type: [string, 'null']}
+        name: {type: string, maxLength: 255}
+        url: {type: [string, 'null'], maxLength: 255}
         season: {type: [integer, 'null']}
         description: {type: string}
-        email: {type: string}
+        email: {type: string, maxLength: 255}
+        video: {type: [string, 'null'], maxLength: 255}
+        website: {type: [string, 'null'], maxLength: 255}
+        budget: {type: [string, 'null'], maxLength: 255}
+        programme_suct: {type: string, maxLength: 255}
+        accommodation_type: {type: string, maxLength: 255}
         starts: {type: string}
         ends: {type: string}
         fee: {type: [number, string]}
@@ -1584,14 +1589,24 @@ components:
       type: object
       properties:
         body_id: {type: [integer, string]}
-        nationality: {type: string}
-        travelling_from: {type: string}
+        nationality: {type: string, maxLength: 255}
+        travelling_from: {type: string, maxLength: 255}
         visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null'], maxLength: 255}
+        visa_passport_number: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_expiration_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_authority: {type: [string, 'null'], maxLength: 255}
+        visa_embassy: {type: [string, 'null'], maxLength: 255}
+        visa_street_and_house: {type: [string, 'null'], maxLength: 255}
+        visa_postal_code: {type: [string, 'null'], maxLength: 255}
+        visa_city: {type: [string, 'null'], maxLength: 255}
+        visa_country: {type: [string, 'null'], maxLength: 255}
         aegee_experience: {type: string}
         ideal_su: {type: string}
         motivation: {type: string}
         answers: {type: array}
-        meals: {type: string}
+        meals: {type: string, maxLength: 255}
         allergies: {type: [string, 'null']}
         agreed_to_privacy_policy: {type: boolean}
         agreed_to_su_terms: {type: boolean}
@@ -1600,7 +1615,7 @@ components:
       type: object
       properties:
         year: {type: integer}
-        name: {type: string}
+        name: {type: string, maxLength: 255}
         event_submission_deadline: {type: [string, 'null']}
         application_period_starts: {type: [string, 'null']}
         application_period_ends: {type: [string, 'null']}
@@ -1609,7 +1624,7 @@ components:
       description: The year and the active flag are ignored.
       type: object
       properties:
-        name: {type: string}
+        name: {type: string, maxLength: 255}
         event_submission_deadline: {type: [string, 'null']}
         application_period_starts: {type: [string, 'null']}
         application_period_ends: {type: [string, 'null']}

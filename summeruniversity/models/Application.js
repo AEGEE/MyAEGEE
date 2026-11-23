@@ -2,6 +2,11 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
 const { isOneOf } = require('../lib/validators');
 
+// Every STRING column is a varchar(255): longer values are a validation error, not a database error.
+const STRING_LENGTH = {
+    len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
+};
+
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
         throw new Error('The value should be true or false.');
@@ -37,6 +42,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'First name should be set.' }
         }
     },
@@ -45,6 +51,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'Last name should be set.' }
         }
     },
@@ -53,6 +60,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'Nationality should be set.' }
         }
     },
@@ -61,6 +69,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'Travelling from should be set.' }
         }
     },
@@ -74,43 +83,73 @@ const Application = sequelize.define('application', {
     },
     visa_place_of_birth: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_passport_number: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_passport_issue_date: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_passport_expiration_date: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_passport_issue_authority: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_embassy: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_street_and_house: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_postal_code: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_city: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     visa_country: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            ...STRING_LENGTH
+        }
     },
     body_id: {
         allowNull: false,
@@ -126,6 +165,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'Body name should be set.' }
         }
     },
@@ -212,6 +252,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            ...STRING_LENGTH,
             notEmpty: { msg: 'Meals should be set.' }
         }
     },

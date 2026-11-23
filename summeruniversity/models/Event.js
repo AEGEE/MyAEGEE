@@ -5,6 +5,11 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const { isOneOf } = require('../lib/validators');
 
+// Every STRING column is a varchar(255): longer values are a validation error, not a database error.
+const STRING_LENGTH = {
+    len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
+};
+
 // TODO: require body_id if role is main_coordinator
 // TODO: validate that role is in enum ['main_coordinator', 'content_manager', 'treasurer', 'incoming_responsible', 'general_organizer']
 const organizersSchema = Joi.array().min(4).items(Joi.object().keys({
@@ -32,6 +37,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Event name should be set.' },
             }
         },
@@ -39,6 +45,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                ...STRING_LENGTH,
                 isValid(value) {
                     if (!value) {
                         return;
@@ -72,7 +79,10 @@ const Event = sequelize.define(
         },
         video: {
             type: Sequelize.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                ...STRING_LENGTH
+            }
         },
         description: {
             type: Sequelize.TEXT,
@@ -87,6 +97,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Email should be given.' },
                 isEmail: { msg: 'Given email is not valid.' }
             }
@@ -95,6 +106,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                ...STRING_LENGTH,
                 isWebLink
             }
         },
@@ -439,6 +451,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                ...STRING_LENGTH,
                 isWebLink
             }
         },
@@ -446,6 +459,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: false,
             validate: {
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'The programme for SUCT should be set.' },
                 isWebLink
             }
@@ -479,6 +493,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'The type of accommodation should be set.' },
             }
         },

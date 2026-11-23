@@ -1344,6 +1344,11 @@ export interface components {
             season?: number | null;
             description?: string;
             email?: string;
+            video?: string | null;
+            website?: string | null;
+            budget?: string | null;
+            programme_suct?: string;
+            accommodation_type?: string;
             starts?: string;
             ends?: string;
             fee?: number | string;
@@ -1362,6 +1367,16 @@ export interface components {
             nationality?: string;
             travelling_from?: string;
             visa_required?: boolean;
+            visa_place_of_birth?: string | null;
+            visa_passport_number?: string | null;
+            visa_passport_issue_date?: string | null;
+            visa_passport_expiration_date?: string | null;
+            visa_passport_issue_authority?: string | null;
+            visa_embassy?: string | null;
+            visa_street_and_house?: string | null;
+            visa_postal_code?: string | null;
+            visa_city?: string | null;
+            visa_country?: string | null;
             aegee_experience?: string;
             ideal_su?: string;
             motivation?: string;

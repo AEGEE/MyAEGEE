@@ -2,6 +2,11 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
+// Every STRING column is a varchar(255): longer values are a validation error, not a database error.
+const STRING_LENGTH = {
+    len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
+};
+
 const Season = sequelize.define(
     'season',
     {
@@ -19,6 +24,7 @@ const Season = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Season name should be set.' }
             }
         },
