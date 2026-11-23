@@ -2,6 +2,15 @@ const { AntennaCriterion } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
+const constants = require('./constants');
+
+// One address, local part and domain, no display name.
+const EMAIL_REGEX = /^[^\s@<>()",;:]+@([^\s@<>()",;:]+)$/;
+
+const isAegeeAddress = (value) => {
+    const match = typeof value === 'string' ? EMAIL_REGEX.exec(value) : null;
+    return Boolean(match) && constants.AEGEE_MAIL_DOMAINS.includes(match[1].toLowerCase());
+};
 
 exports.listCriteria = async (req, res) => {
     if (!req.permissions.manage_antenna_criteria) {
@@ -52,8 +61,20 @@ exports.sendFulfilmentMail = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to send Antenna Criteria fulfilment mails.');
     }
 
+    let from = constants.FULFILMENT_MAIL_DEFAULT_FROM;
+    if (![undefined, null, ''].includes(req.body.from)) {
+        if (!isAegeeAddress(req.body.from)) {
+            return res.status(422).json({
+                success: false,
+                errors: { from: ['The sender must be an address on one of these domains: ' + constants.AEGEE_MAIL_DOMAINS.join(', ') + '.'] }
+            });
+        }
+
+        from = req.body.from;
+    }
+
     await mailer.sendMail({
-        from: req.body.from,
+        from,
         to: req.body.to,
         cc: req.body.cc,
         subject: req.body.subject,
