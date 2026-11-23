@@ -14,6 +14,8 @@ const { sequelize, Sequelize } = require('./sequelize');
 // or through their own endpoints (status, board comment, confirmed, attended).
 const APPLICATION_FIELDS = ['body_id', 'answers', 'agreed_to_privacy_policy'];
 
+const APPLICATION_STATUSES = ['pending', 'accepted', 'rejected'];
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -228,6 +230,11 @@ exports.setApplicationStatus = async (req, res) => {
     // Check user permissions
     if (!req.permissions.approve_participants) {
         return errors.makeForbiddenError(res, 'You are not allowed to accept or reject participants');
+    }
+
+    // Without this, a missing status changed nothing and a null one failed in Postgres.
+    if (!APPLICATION_STATUSES.includes(req.body.status)) {
+        return errors.makeValidationError(res, `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
     await req.application.update({ status: req.body.status });
