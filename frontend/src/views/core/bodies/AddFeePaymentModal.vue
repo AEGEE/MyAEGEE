@@ -125,6 +125,8 @@ export default {
         body_id: this.body.id
       }).then((response) => {
         this.showSuccess('Payment is added.')
+        // Those who may add payments but not see them have no list of payments yet.
+        if (!this.member.payments) this.$set(this.member, 'payments', [])
         this.member.payments.push(response.data.data)
         this.isLoading = false
         this.$parent.close()
