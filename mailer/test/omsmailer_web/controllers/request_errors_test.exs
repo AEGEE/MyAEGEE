@@ -69,4 +69,14 @@ defmodule OmsmailerWeb.RequestErrorsTest do
     assert json_response(conn, 200) == %{"success" => true}
     assert_email_delivered_with(subject: "pirates")
   end
+
+  test "an empty or null address among the cc or bcc addresses answers 422 and sends nothing", %{conn: conn} do
+    for field <- [:cc, :bcc], blank <- [nil, ""] do
+      conn = post_json(conn, Map.put(@valid, field, ["copy@aegee.org", blank]))
+
+      assert json_response(conn, 422)["error"] == "Sender and recipient addresses must not be empty"
+    end
+
+    assert_no_emails_delivered()
+  end
 end
