@@ -41,7 +41,7 @@ describe('Export all', () => {
         expect(sheet.length).toEqual(1); // 1 string in sheet
     });
 
-    test('should return fields if only cancelled applications', async () => {
+    test('should return a header row and one row per application', async () => {
         const event = await generator.createEvent({
             questions: [
                 { type: 'checkbox', description: 'test', required: true },
@@ -51,7 +51,6 @@ describe('Export all', () => {
         });
 
         await generator.createApplication(event, {
-            cancelled: true,
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
             answers: [true, false, 'string']

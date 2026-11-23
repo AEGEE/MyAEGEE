@@ -86,7 +86,7 @@ describe('Events editing', () => {
     });
 
     it('should ignore superflous fields on overly detailed /single/<eventid> PUT', async () => {
-        await request({
+        const putRes = await request({
             path: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
@@ -94,6 +94,10 @@ describe('Events editing', () => {
                 status: 'published',
             }
         });
+
+        // Nothing but ignored fields is left, so there is nothing to change.
+        expect(putRes.statusCode).toEqual(422);
+        expect(putRes.body.message).toEqual('No valid field changes requested');
 
         const res = await request({
             path: '/single/' + event.id,
@@ -115,6 +119,7 @@ describe('Events editing', () => {
             }
         });
 
+        expect(res.statusCode).toEqual(422);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('ends');
     });
@@ -150,6 +155,7 @@ describe('Events editing', () => {
             }
         });
 
+        expect(res.statusCode).toEqual(422);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('organizers');
     });

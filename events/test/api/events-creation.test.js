@@ -271,6 +271,7 @@ describe('Events creation', () => {
             }
         });
 
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('ends');
@@ -1172,25 +1173,15 @@ describe('Events creation', () => {
     });
 
     it('should return an error if body name is not a string', async () => {
-        try {
-            await generator.createEvent({
-                organizing_bodies: [{ body_id: 3, body_name: false }]
-            });
-            expect(1).toEqual(0);
-        } catch (err) {
-            expect(1).toEqual(1);
-        }
+        await expect(generator.createEvent({
+            organizing_bodies: [{ body_id: 3, body_name: false }]
+        })).rejects.toThrow('Validation error');
     });
 
     it('should return an error if body name is empty', async () => {
-        try {
-            await generator.createEvent({
-                organizing_bodies: [{ body_id: 3, body_name: '\t\t  \t' }]
-            });
-            expect(1).toEqual(0);
-        } catch (err) {
-            expect(1).toEqual(1);
-        }
+        await expect(generator.createEvent({
+            organizing_bodies: [{ body_id: 3, body_name: '\t\t  \t' }]
+        })).rejects.toThrow('Validation error');
     });
 
     it('should return 403 if the user does not have create:event', async () => {

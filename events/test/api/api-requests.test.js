@@ -12,6 +12,8 @@ describe('API requests', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+
+        await generator.clearAll();
     });
 
     it('should fail if the user is unauthorized for autnorized-only endpoint', async () => {
