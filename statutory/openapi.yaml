@@ -626,8 +626,8 @@ paths:
       description: |
         Counts per day, body, participant type, gender, meal and number of events visited,
         and the bodies that count for the quorum. Until the event reveals the application
-        statuses, every application that is not cancelled counts as pending, unless the
-        caller manages the applications.
+        statuses, every application that is not cancelled counts as pending, also for
+        those who manage the applications.
       tags: [applications]
       x-permission: authenticated
       responses:
@@ -699,7 +699,7 @@ paths:
         - name: select
           in: query
           required: true
-          description: The fields to export, in column order (`select[]=first_name&select[]=last_name`).
+          description: The fields to export, in column order (`select[]=first_name&select[]=last_name`). One field written without the brackets (`select=first_name`) is not read as a list and answers 400.
           schema: {type: array, items: {type: string}}
         - name: filter
           in: query
