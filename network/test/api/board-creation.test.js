@@ -255,6 +255,18 @@ describe('Board creation', () => {
         expect(await Board.count()).toEqual(0);
     });
 
+    test('should list every message of a field that fails two rules', async () => {
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: generator.generateBoard({ president: '' }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ president: ['President should be selected.', 'President should be a number.'] });
+    });
+
     test('should fail with 422 if the president is not a number', async () => {
         const board = generator.generateBoard({ president: 'abc' });
 
