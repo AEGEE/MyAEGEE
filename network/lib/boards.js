@@ -163,11 +163,12 @@ exports.listCurrentBoardBody = async (req, res) => {
 };
 
 // Loads the board for the single-board routes. Viewers and the board managers of the
-// body in the URL get this far; each route then checks its own permission.
+// body in the URL get this far, which is also who may see a single board; editing and
+// deleting check their own permission.
 exports.findBoard = async (req, res, next) => {
     const managesBody = req.permissions.manage_boards.global || req.permissions.manage_boards[req.params.body_id] === true;
     if (!req.permissions.view_board && !managesBody) {
-        return errors.makeForbiddenError(res, 'You are not allowed to find this board.');
+        return errors.makeForbiddenError(res, 'You are not allowed to see this board.');
     }
 
     if (!helpers.isNumber(req.params.body_id)) {
@@ -193,10 +194,6 @@ exports.findBoard = async (req, res, next) => {
 };
 
 exports.getBoard = async (req, res) => {
-    if (!req.permissions.view_board) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see this board.');
-    }
-
     return res.json({
         success: true,
         data: req.board
