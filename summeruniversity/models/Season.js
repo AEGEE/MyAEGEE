@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
-const { isInteger } = require('../lib/validators');
+const { isInteger, isText } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -25,6 +25,7 @@ const Season = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 notEmpty: { msg: 'Season name should be set.' }
             }

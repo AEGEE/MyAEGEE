@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf, isInteger, isBoolean } = require('../lib/validators');
+const { isOneOf, isInteger, isBoolean, isText } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -37,6 +37,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 notEmpty: { msg: 'Event name should be set.' },
             }
@@ -45,9 +46,11 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 isValid(value) {
-                    if (!value) {
+                    // Not a text: isText answers.
+                    if (!value || typeof value !== 'string') {
                         return;
                     }
 
@@ -84,6 +87,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
                 ...STRING_LENGTH
             }
         },
@@ -92,6 +96,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Event description should be set.' },
             }
         },
@@ -100,6 +105,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 notEmpty: { msg: 'Email should be given.' },
                 isEmail: { msg: 'Given email is not valid.' }
@@ -109,6 +115,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 isWebLink
             }
@@ -333,6 +340,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Theme explanation should be set.' },
             }
         },
@@ -341,6 +349,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Explanation of theme implementation should be set.' },
             }
         },
@@ -391,7 +400,10 @@ const Event = sequelize.define(
         },
         trainers: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         questions: {
         // TODO: change this to an array of strings since we do not store anything else than the question itself
@@ -409,7 +421,10 @@ const Event = sequelize.define(
         },
         pax_description: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         pax_confirmation: {
             type: Sequelize.ENUM('no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'),
@@ -457,6 +472,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 isWebLink
             }
@@ -465,6 +481,7 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: false,
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 notEmpty: { msg: 'The programme for SUCT should be set.' },
                 isWebLink
@@ -472,16 +489,25 @@ const Event = sequelize.define(
         },
         programme: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         activities_list: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         optional_programme: {
         // TODO: if optional_fee is given, then optional_programme is required
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         course_level: {
             type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
@@ -492,20 +518,27 @@ const Event = sequelize.define(
         },
         courses: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         accommodation_type: {
             type: Sequelize.STRING,
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 ...STRING_LENGTH,
                 notEmpty: { msg: 'The type of accommodation should be set.' },
             }
         },
         special_equipment: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         university_support: {
             type: Sequelize.BOOLEAN,
@@ -517,11 +550,17 @@ const Event = sequelize.define(
         },
         cancellation_rules: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         additional_regulation: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         agreed_to_su_terms: {
             type: Sequelize.BOOLEAN,

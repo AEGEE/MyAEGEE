@@ -1585,6 +1585,17 @@ components:
         questions: {type: array}
         max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
         university_support: {type: [boolean, 'null']}
+        theme: {type: string}
+        theme_implementation: {type: string}
+        trainers: {type: [string, 'null']}
+        pax_description: {type: [string, 'null']}
+        programme: {type: [string, 'null']}
+        activities_list: {type: [string, 'null']}
+        optional_programme: {type: [string, 'null']}
+        courses: {type: [string, 'null']}
+        special_equipment: {type: [string, 'null']}
+        cancellation_rules: {type: [string, 'null']}
+        additional_regulation: {type: [string, 'null']}
       additionalProperties: true
     ApplicationInput:
       description: The applicant's answers. Other fields (status, board_comment and so on) are ignored.

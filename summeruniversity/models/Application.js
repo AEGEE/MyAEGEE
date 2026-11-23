@@ -1,6 +1,6 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf, isInteger, isBoolean } = require('../lib/validators');
+const { isOneOf, isInteger, isBoolean, isText } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -35,6 +35,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'First name should be set.' }
         }
@@ -44,6 +45,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'Last name should be set.' }
         }
@@ -53,6 +55,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'Nationality should be set.' }
         }
@@ -62,6 +65,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'Travelling from should be set.' }
         }
@@ -78,6 +82,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -85,6 +90,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -92,6 +98,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -99,6 +106,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -106,6 +114,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -113,6 +122,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -120,6 +130,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -127,6 +138,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -134,6 +146,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -141,6 +154,7 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.STRING,
         validate: {
+            isText,
             ...STRING_LENGTH
         }
     },
@@ -158,6 +172,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'Body name should be set.' }
         }
@@ -204,19 +219,31 @@ const Application = sequelize.define('application', {
         }
     },
     board_comment: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            isText
+        }
     },
     aegee_experience: {
         allowNull: false,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            isText
+        }
     },
     ideal_su: {
         allowNull: false,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            isText
+        }
     },
     motivation: {
         allowNull: false,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            isText
+        }
     },
     answers: {
         type: Sequelize.JSONB,
@@ -244,13 +271,17 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
+            isText,
             ...STRING_LENGTH,
             notEmpty: { msg: 'Meals should be set.' }
         }
     },
     allergies: {
         allowNull: true,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            isText
+        }
     },
     agreed_to_privacy_policy: {
         allowNull: false,

@@ -41,4 +41,13 @@ function isBoolean(value) {
     }
 }
 
-module.exports = { isOneOf, isInteger, isBoolean };
+// A text. Sequelize turns a number or a boolean into text on the way to the database
+// (5 was stored as "5"); arrays and objects it refuses itself. allowNull decides on a missing
+// value.
+function isText(value) {
+    if (value !== null && value !== undefined && typeof value !== 'string') {
+        throw new Error('The value should be a text.');
+    }
+}
+
+module.exports = { isOneOf, isInteger, isBoolean, isText };
