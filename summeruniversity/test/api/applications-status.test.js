@@ -111,6 +111,8 @@ describe('Applications status changes', () => {
 
     describe('PUT /confirmed', () => {
         test('should allow an organizer to confirm an application', async () => {
+            await application.update({ status: 'accepted' });
+
             const res = await put('/confirmed', { confirmed: true });
 
             expect(res.statusCode).toEqual(200);
@@ -349,6 +351,31 @@ describe('Applications status changes', () => {
             await event.reload();
             expect(event.available_spots).toBeLessThan(0);
             expect(event.open_call).toEqual(false);
+        });
+
+        test.each([
+            ['pending', 'pending', false],
+            ['rejected', 'rejected', false],
+            ['cancelled', 'accepted', true]
+        ])('should not confirm a %s application', async (name, status, cancelled) => {
+            await application.update({ status, cancelled });
+
+            const res = await put('/confirmed', { confirmed: true });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('confirmed');
+            await application.reload();
+            expect(application.confirmed).toEqual(false);
+        });
+
+        test('should confirm an accepted application', async () => {
+            await application.update({ status: 'accepted' });
+
+            const res = await put('/confirmed', { confirmed: true });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.confirmed).toEqual(true);
         });
     });
 });
