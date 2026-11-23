@@ -270,6 +270,128 @@ describe('Authorization', () => {
         expect(tokenFromDb.user_id).toEqual(user.id);
     });
 
+    describe('answers and exact lookups', () => {
+        const login = (username, password) => request({
+            path: '/login/',
+            method: 'POST',
+            body: { username, password }
+        });
+
+        test('should answer the same for an unknown account and a wrong password', async () => {
+            const user = await generator.createUser({ password: 'testtest' });
+
+            const unknown = await login('nobody@example.com', 'testtest');
+            const wrongPassword = await login(user.email, 'wrong-password');
+
+            expect(unknown.statusCode).toEqual(403);
+            expect(wrongPassword.statusCode).toEqual(403);
+            expect(unknown.body.success).toEqual(false);
+            expect(unknown.body).toHaveProperty('message');
+            expect(unknown.body).toEqual(wrongPassword.body);
+
+            expect(await AccessToken.count()).toEqual(0);
+        });
+
+        test('should answer the same if no password is sent', async () => {
+            const user = await generator.createUser({ password: 'testtest' });
+
+            const wrongPassword = await login(user.email, 'wrong-password');
+            const noPasswordForAccount = await request({ path: '/login/', method: 'POST', body: { username: user.email } });
+            const noPasswordForUnknown = await request({ path: '/login/', method: 'POST', body: { username: 'nobody@example.com' } });
+
+            expect(noPasswordForAccount.statusCode).toEqual(403);
+            expect(noPasswordForAccount.body).toEqual(wrongPassword.body);
+            expect(noPasswordForUnknown.statusCode).toEqual(403);
+            expect(noPasswordForUnknown.body).toEqual(wrongPassword.body);
+        });
+
+        test('should answer the same for a wrong password on an account that is not confirmed', async () => {
+            const user = await generator.createUser({ password: 'testtest', mail_confirmed_at: null });
+
+            const unknown = await login('nobody@example.com', 'testtest');
+            const wrongPassword = await login(user.email, 'wrong-password');
+
+            expect(wrongPassword.statusCode).toEqual(403);
+            expect(wrongPassword.body).toEqual(unknown.body);
+        });
+
+        test('should not treat % as a wildcard', async () => {
+            await generator.createUser({ password: 'testtest' });
+
+            const unknown = await login('nobody@example.com', 'testtest');
+            for (const username of ['%', '%@%', '%%']) {
+                const res = await login(username, 'testtest');
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual(unknown.body);
+            }
+
+            expect(await AccessToken.count()).toEqual(0);
+        });
+
+        test('should treat quotes and backslashes as plain characters', async () => {
+            await generator.createUser({ password: 'testtest' });
+
+            const unknown = await login('nobody@example.com', 'testtest');
+            for (const username of ['\' OR \'\'=\'', '\\\' OR 1=1 --', '\\', '"']) {
+                const res = await login(username, 'testtest');
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual(unknown.body);
+            }
+
+            expect(await AccessToken.count()).toEqual(0);
+        });
+
+        test('should not treat _ as a wildcard in an email', async () => {
+            await generator.createUser({ password: 'testtest', email: 'axb@example.com' });
+
+            const res = await login('a_b@example.com', 'testtest');
+
+            expect(res.statusCode).toEqual(403);
+            expect(await AccessToken.count()).toEqual(0);
+        });
+
+        test('should find the exact username if another one only differs where it has an underscore', async () => {
+            await generator.createUser({ password: 'firstfirst', username: 'somexone' });
+            const user = await generator.createUser({ password: 'testtest', username: 'some_one' });
+
+            const res = await login('some_one', 'testtest');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+
+            const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+            expect(tokenFromDb.user_id).toEqual(user.id);
+        });
+
+        test('should find an email with a dollar sign', async () => {
+            const user = await generator.createUser({ password: 'testtest', email: 'some$one@example.com' });
+
+            const res = await login('some$one@example.com', 'testtest');
+
+            expect(res.statusCode).toEqual(200);
+
+            const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+            expect(tokenFromDb.user_id).toEqual(user.id);
+        });
+
+        test('should find an email that was saved with uppercase letters', async () => {
+            // An address from before emails were saved in lowercase.
+            const user = await User.create(
+                generator.generateUser({ password: 'testtest', email: 'Mixed.Case@Example.com' }),
+                { validate: false }
+            );
+
+            const res = await login('mixed.case@example.com', 'testtest');
+
+            expect(res.statusCode).toEqual(200);
+
+            const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+            expect(tokenFromDb.user_id).toEqual(user.id);
+        });
+    });
+
     test('should not revoke the other sessions of the user', async () => {
         const user = await generator.createUser({ password: 'testtest' });
         const otherSession = await generator.createRefreshToken(user);

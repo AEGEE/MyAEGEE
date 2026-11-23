@@ -71,6 +71,42 @@ describe('User details', () => {
         expect(res.body.data.id).toEqual(user.id);
     });
 
+    test('should not treat % and _ in the username as wildcards', async () => {
+        const user = await generator.createUser({ superadmin: true, username: 'test' });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+
+        for (const username of ['te%25', '%25', 'tes_', '____']) {
+            const res = await request({
+                path: '/members/' + username,
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+        }
+    });
+
+    test('should find the exact username if another one only differs where it has an underscore', async () => {
+        const viewer = await generator.createUser({ superadmin: true, username: 'somexone' });
+        const user = await generator.createUser({ username: 'some_one' });
+        const token = await generator.createAccessToken(viewer);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+
+        const res = await request({
+            path: '/members/some_one',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(user.id);
+    });
+
     test('should find the user by id', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);

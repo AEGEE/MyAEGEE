@@ -131,6 +131,62 @@ describe('User mail change', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if the email is not unique, whatever the case', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createUser({ email: 'test@example.com' });
+
+        const res = await request({
+            path: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: ' Test@Example.COM ' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if the email is not unique and has a dollar sign', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createUser({ email: 'some$one@example.com' });
+
+        const res = await request({
+            path: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'some$one@example.com' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should not treat _ in the new email as a wildcard', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createUser({ email: 'axb@example.com' });
+
+        const res = await request({
+            path: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'a_b@example.com' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const changeFromDb = await MailChange.findOne({ where: { user_id: user.id } });
+        expect(changeFromDb.new_email).toEqual('a_b@example.com');
+    });
+
     test('should fail if new mail in in @aegee.eu', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);

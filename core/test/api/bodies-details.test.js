@@ -69,6 +69,21 @@ describe('Body details', () => {
         expect(res.body.data.id).toEqual(body.id);
     });
 
+    test('should not treat % and _ in the code as wildcards', async () => {
+        await generator.createBody({ code: 'xxx' });
+
+        for (const code of ['%25', 'x%25', 'xx_', '___']) {
+            const res = await request({
+                path: '/bodies/' + code,
+                method: 'GET'
+            });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+        }
+    });
+
     test('should find the body by id', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
