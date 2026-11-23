@@ -7,14 +7,17 @@ const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
+const Bugsnag = require('../lib/bugsnag');
+const metrics = require('./metrics');
 const constants = require('../lib/constants');
 const config = require('../config');
 
 const INVALID_CREDENTIALS = 'Username or password is not valid.';
 const PASSWORD_RESET_REQUESTED = 'If this email belongs to an account, a password reset was sent to it.';
 
-// The hash that the password is compared with when there's no account,
-// so that answering takes as long as for an account with another password.
+// The hash that the password is compared with when there's no account, so that answering takes
+// as long as for an account with another password. It is made with the cost that the stored
+// password hashes have (`config.salt_rounds`), so both comparisons do the same amount of work.
 let placeholderHash;
 const checkPlaceholderPassword = async (password) => {
     if (!placeholderHash) {
@@ -26,16 +29,19 @@ const checkPlaceholderPassword = async (password) => {
 };
 
 module.exports.login = async (req, res) => {
-    const username = (req.body.username || '').trim();
+    // Anything that is not a string is answered like a name or a password that doesn't match.
+    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
     const password = typeof req.body.password === 'string' ? req.body.password : '';
 
     // The login email identifies an account before the username and the Google Workspace account.
+    // All three lookups run for every request, whichever of them finds the account.
     const findBy = (field) => User.scope('withPassword').findOne({
         where: helpers.equalsIgnoreCase(field, username)
     });
-    const user = username
-        ? await findBy('email') || await findBy('username') || await findBy('gsuite_id')
-        : null;
+    const byEmail = await findBy('email');
+    const byUsername = await findBy('username');
+    const byWorkspaceAccount = await findBy('gsuite_id');
+    const user = byEmail || byUsername || byWorkspaceAccount;
 
     // One answer for an account that doesn't exist and for a password that is not the right one.
     const isPasswordValid = user
@@ -196,8 +202,11 @@ const sendPasswordReset = async (email) => {
             });
         });
     } catch (err) {
-        // Nobody is waiting for the result anymore, so this is the only place where a failure shows up.
+        // Nobody is waiting for the result anymore, so a failure only shows up here:
+        // in the log, in the error tracker and in the counter on /metrics.
         logger.error({ err, user_id: user ? user.id : null }, 'Could not send a password reset');
+        metrics.passwordResetFailures.inc();
+        Bugsnag.notify(err);
     }
 };
 
@@ -209,6 +218,11 @@ module.exports.waitForPasswordResets = () => Promise.all(pendingPasswordResets);
 // Answers right away and always the same. The reset is created and mailed after that, so neither
 // the answer nor the time it takes tell whether the address belongs to an account.
 module.exports.passwordReset = async (req, res) => {
+    // No email is answered like an address without an account; a value that can't be an address is refused.
+    if (req.body.email !== undefined && req.body.email !== null && typeof req.body.email !== 'string') {
+        return errors.makeBadRequestError(res, 'Email should be a string.');
+    }
+
     const email = (req.body.email || '').trim();
 
     const job = sendPasswordReset(email).finally(() => pendingPasswordResets.delete(job));
