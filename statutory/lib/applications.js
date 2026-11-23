@@ -83,6 +83,31 @@ function presentApplicationAfterFlag(req, application, key) {
     return helpers.whitelistObject(presented, officerFields);
 }
 
+// Checks the sorting and paging parameters of a list of applications.
+// A list can be sorted by the fields it returns: all of them, unless a list of fields is given.
+// Returns the error message, or null if the parameters are fine.
+function getListQueryError(query, fields = Object.keys(Application.rawAttributes)) {
+    for (const key of ['limit', 'offset']) {
+        if (helpers.isDefined(query[key]) && !/^\d+$/.test(query[key])) {
+            return `The "${key}" parameter should be a whole number, zero or higher.`;
+        }
+    }
+
+    if (!helpers.isObject(query.sort)) {
+        return null;
+    }
+
+    if (helpers.isDefined(query.sort.field) && !fields.includes(query.sort.field)) {
+        return `Sorting by "${query.sort.field}" is not supported. The supported fields are: ${fields.join(', ')}.`;
+    }
+
+    if (helpers.isDefined(query.sort.order) && !['asc', 'desc'].includes(String(query.sort.order).toLowerCase())) {
+        return 'The sorting order should be "asc" or "desc".';
+    }
+
+    return null;
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -132,6 +157,11 @@ exports.listAllApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
+    const queryError = getListQueryError(req.query);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
+    }
+
     const applications = await Application.findWithParams({
         where: { event_id: req.event.id },
         query: req.query
@@ -165,6 +195,11 @@ exports.listAllApplications = async (req, res) => {
 exports.listIncomingApplications = async (req, res) => {
     if (!req.permissions.see_applications_incoming) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const queryError = getListQueryError(req.query, constants.ALLOWED_INCOMING_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
     }
 
     const applications = await Application.findWithParams({
@@ -224,6 +259,11 @@ exports.listJCApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
+    const queryError = getListQueryError(req.query, constants.ALLOWED_JURIDICAL_LIST_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
+    }
+
     const applications = await Application.findWithParams({
         where: { event_id: req.event.id, cancelled: false, status: 'accepted', confirmed: true },
         attributes: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
@@ -242,6 +282,11 @@ exports.listJCApplications = async (req, res) => {
 exports.listNetworkApplications = async (req, res) => {
     if (!req.permissions.see_applications_network) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const queryError = getListQueryError(req.query, constants.ALLOWED_NETWORK_LIST_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
     }
 
     const applications = await Application.findWithParams({
