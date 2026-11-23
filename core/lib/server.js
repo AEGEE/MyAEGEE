@@ -186,7 +186,6 @@ CampaignsRouter.use(middlewares.maybeAuthorize, fetch.fetchCampaign);
 CampaignsRouter.get('/', campaigns.getCampaign);
 CampaignsRouter.use(middlewares.ensureAuthorized);
 CampaignsRouter.get('/members', campaigns.listCampaignMembers);
-CampaignsRouter.get('/', campaigns.getCampaign);
 CampaignsRouter.put('/', campaigns.updateCampaign);
 CampaignsRouter.delete('/', campaigns.deleteCampaign);
 
