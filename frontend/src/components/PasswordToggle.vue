@@ -1,24 +1,31 @@
 <template>
   <div class="field is-fullwidth">
-    <label class="label">{{ label }}</label>
+    <label class="label" :for="inputId">{{ label }}</label>
     <div class="control">
       <div class="field has-addons">
         <div class="control is-expanded">
           <input
             class="input"
+            :id="inputId"
             :type="displayPassword ? 'text' : 'password'"
             minlength="8"
             :placeholder="placeholder"
             :required="required"
-            v-model="value"
+            :value="value"
+            @input="$emit('input', $event.target.value)"
           />
         </div>
         <div class="control">
-          <a class="button is-primary" @click="displayPassword = !displayPassword">
+          <button
+            type="button"
+            class="button is-primary"
+            :aria-label="displayPassword ? 'Hide password' : 'Show password'"
+            @click="displayPassword = !displayPassword"
+          >
             <span class="icon is-small">
               <font-awesome-icon icon="eye" />
             </span>
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -35,11 +42,10 @@ export default {
       displayPassword: false
     }
   },
-  watch: {
-    value () {
-      this.$emit('input', this.value)
+  computed: {
+    inputId () {
+      return `password-toggle-${this._uid}`
     }
-  },
-  mounted () {}
+  }
 }
 </script>
