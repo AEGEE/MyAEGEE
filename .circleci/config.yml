@@ -63,6 +63,10 @@ jobs:
             pip install poetry
             poetry install --with dev
             poetry run pytest
+      # pytest writes coverage.xml and fails below the threshold in pyproject.toml.
+      - codecov/upload:
+          files: dispatcher/coverage.xml
+          flags: dispatcher
   hadolint:
     docker:
       - image: hadolint/hadolint:latest-alpine
@@ -1041,18 +1045,34 @@ jobs:
     steps:
       - checkout
       - run:
-          # Run in the same Elixir/OTP image the mailer is deployed with.
+          # Run in the image the mailer is deployed with (mailer/docker/mailer/Dockerfile).
+          # coveralls.multiple writes cover/lcov.info and fails below the minimum in
+          # mailer/coveralls.json.
           name: Run mailer tests in elixir:1.20-alpine
           working_directory: ~/project/mailer
           command: |
             docker run --rm -v "$PWD":/app -w /app \
               -e MIX_ENV -e SMTP_USER -e SMTP_NAME -e SMTP_PASSWORD -e SMTP_HOST \
-              elixir:1.20-alpine sh -c '
+              elixir:1.20-alpine@sha256:a2f0fe1bfd8a2f9cc91d913f4a12e6430e27e618720f753a514e2fff3d35f5a7 sh -c '
                 apk add --no-cache git make gcc g++ &&
                 mix local.hex --force &&
                 mix local.rebar --force &&
                 mix deps.get --locked &&
-                mix coveralls'
+                mix coveralls.multiple --type lcov --type local'
+      - codecov/upload:
+          files: mailer/cover/lcov.info
+          flags: mailer
+  mail-contract:
+    # The mail contract (mailer/contract/README.md): the manifest, its examples, the template
+    # sets of the mailer and the dispatcher, and the template names the services send.
+    # No dependencies, so no install.
+    docker:
+      - image: cimg/node:26.13.1
+    steps:
+      - checkout
+      - run:
+          name: Check the mail contract
+          command: node --test mailer/contract/
   mailer-smoke-test:
     machine:
       image: ubuntu-2404:2026.10.1
@@ -2372,6 +2392,9 @@ workflows:
   mailer-smoke-test:
     jobs:
       - mailer-smoke-test
+  mail-contract:
+    jobs:
+      - mail-contract
   mailer-docker-build-and-push:
     jobs:
       - mailer-docker-build-and-push:
