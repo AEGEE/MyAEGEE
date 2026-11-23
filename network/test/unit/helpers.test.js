@@ -45,4 +45,10 @@ describe('getPermissions', () => {
         expect(permissions.view_board).toEqual(true);
         expect(permissions.manage_boards.global).toEqual(false);
     });
+
+    test('should grant viewing boards only for the global view permission', () => {
+        expect(helpers.getPermissions({ bodies: [] }, [{ combined: 'global:view:board' }], []).view_board).toEqual(true);
+        expect(helpers.getPermissions({ bodies: [] }, [{ combined: 'local:view:board' }], []).view_board).toEqual(false);
+        expect(helpers.getPermissions({ bodies: [] }, [{ combined: 'join_request:view:board' }], []).view_board).toEqual(false);
+    });
 });
