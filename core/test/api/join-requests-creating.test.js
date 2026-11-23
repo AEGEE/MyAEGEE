@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
+const { JoinRequest } = require('../../models');
 
 describe('Join request creating', () => {
     beforeAll(async () => {
@@ -215,5 +216,73 @@ describe('Join request creating', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(requestMock.mailer.isDone()).toEqual(true);
+    });
+
+    test('should fail for somebody who is a member of the body already', async () => {
+        const mails = mock.captureMails();
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        await generator.createBodyMembership(body, user);
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('You are already a member of this body.');
+        expect(res.body).not.toHaveProperty('data');
+
+        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
+    test('should fail for a deleted body', async () => {
+        const mails = mock.captureMails();
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('This body is deleted and does not take join requests.');
+        expect(res.body).not.toHaveProperty('data');
+
+        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
+    test('should work for a member of another body', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        await generator.createBodyMembership(otherBody, user);
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(await JoinRequest.count({ where: { body_id: body.id, user_id: user.id } })).toEqual(1);
     });
 });
