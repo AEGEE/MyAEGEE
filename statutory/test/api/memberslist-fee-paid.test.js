@@ -42,7 +42,7 @@ describe('Memberslist fee_paid editing', () => {
 
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toEqual('You are not allowed to set the paid fee of this memberslist.');
         expect(res.body).not.toHaveProperty('data');
     });
 
