@@ -16,7 +16,9 @@ const application = (f, o) => `${event(f, o)}/applications/${pick(o, 'applicatio
 module.exports = {
     NONEXISTENT_ID,
 
-    // A published event that takes applications, and one application to it (not the caller's).
+    // A published event that takes applications, with one question, and one confirmed
+    // application to it (not the caller's). The bodies below differ from what is stored, so the
+    // 401 sweep can see that nothing changed.
     createFixtures: async () => {
         const ev = await generator.createEvent({
             status: 'published',
@@ -24,9 +26,11 @@ module.exports = {
             application_ends: new Date(Date.now() + 24 * 60 * 60 * 1000),
             starts: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
             ends: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-            questions: []
+            questions: [{ description: 'Why?', type: 'string', required: false }]
         });
-        const app = await generator.createApplication(ev, { user_id: 2, body_id: user.bodies[0].id, answers: [] });
+        const app = await generator.createApplication(ev, {
+            user_id: 2, body_id: user.bodies[0].id, answers: ['Stored answer'], status: 'accepted', confirmed: true
+        });
         return { event: ev, application: app };
     },
 
@@ -97,11 +101,11 @@ module.exports = {
         updateEvent: { description: 'Changed by the sweep' },
         setEventStatus: { status: 'submitted' },
         setEventEuropeanStatus: { is_european_event: false },
-        createApplication: { body_id: user.bodies[0].id, answers: [], agreed_to_privacy_policy: true },
-        updateApplication: { answers: [] },
-        setApplicationAttended: { attended: false },
-        setApplicationConfirmed: { confirmed: true },
-        setApplicationStatus: { status: 'accepted' },
+        createApplication: { body_id: user.bodies[0].id, answers: ['Because'], agreed_to_privacy_policy: true },
+        updateApplication: { answers: ['Changed by the sweep'] },
+        setApplicationAttended: { attended: true },
+        setApplicationConfirmed: { confirmed: false },
+        setApplicationStatus: { status: 'rejected' },
         setApplicationBoardComment: { board_comment: 'Changed by the sweep' },
     },
 
@@ -114,8 +118,10 @@ module.exports = {
         uploadEventImage: async (f) => expect((await Event.findByPk(f.event.id)).image).toEqual(f.event.image),
         setEventEuropeanStatus: async (f) => expect((await Event.findByPk(f.event.id)).is_european_event).toEqual(true),
         createApplication: async () => expect(await Application.count()).toEqual(1),
-        setApplicationConfirmed: async (f) => expect((await Application.findByPk(f.application.id)).confirmed).toEqual(false),
-        setApplicationStatus: async (f) => expect((await Application.findByPk(f.application.id)).status).toEqual('pending'),
+        updateApplication: async (f) => expect((await Application.findByPk(f.application.id)).answers).toEqual(['Stored answer']),
+        setApplicationAttended: async (f) => expect((await Application.findByPk(f.application.id)).attended).toEqual(false),
+        setApplicationConfirmed: async (f) => expect((await Application.findByPk(f.application.id)).confirmed).toEqual(true),
+        setApplicationStatus: async (f) => expect((await Application.findByPk(f.application.id)).status).toEqual('accepted'),
         setApplicationBoardComment: async (f) => expect((await Application.findByPk(f.application.id)).board_comment).toEqual(null),
     },
 
