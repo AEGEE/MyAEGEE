@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
+const { AntennaCriterion } = require('../../models');
 
 describe('Antenna Criteria', () => {
     beforeAll(async () => {
@@ -83,37 +84,116 @@ describe('Antenna Criteria', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    // test('should fail creating new Antenna Criterion if the wrong permission', async () => {
-    //     // TODO: Make incorrect permission
+    test('should fail setting a criterion with the permission for another criterion', async () => {
+        mock.mockAll({ mainPermissions: { combined: ['global:manage_network:communication'] } });
 
-    //     const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'fulfilment report' });
+        const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'fulfilment report', value: 'true' });
 
-    //     const res = await request({
-    //         path: '/antennaCriteria',
-    //         method: 'PUT',
-    //         body: criterion,
-    //         headers: { 'X-Auth-Token': 'blablabla' }
-    //     });
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
 
-    //     expect(res.statusCode).toEqual(403);
-    //     expect(res.body.success).toEqual(false);
-    // });
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(await AntennaCriterion.count()).toEqual(0);
+    });
 
-    // test('should fail giving `communication` exception if the wrong permission', async () => {
-    //     // TODO: Make regular communication permission
+    test('should succeed setting a criterion with the permission for that criterion', async () => {
+        mock.mockAll({ mainPermissions: { combined: ['global:manage_network:communication'] } });
 
-    //     const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'communication' });
+        const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'communication', value: 'true' });
 
-    //     const res = await request({
-    //         path: '/antennaCriteria',
-    //         method: 'PUT',
-    //         body: criterion,
-    //         headers: { 'X-Auth-Token': 'blablabla' }
-    //     });
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
 
-    //     expect(res.statusCode).toEqual(403);
-    //     expect(res.body.success).toEqual(false);
-    // });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.value).toEqual('true');
+    });
+
+    test('should fail giving a `communication` exception without the exception permission', async () => {
+        mock.mockAll({ mainPermissions: { combined: ['global:manage_network:communication'] } });
+
+        const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'communication', value: 'exception' });
+
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(await AntennaCriterion.count()).toEqual(0);
+    });
+
+    test('should succeed giving a `communication` exception with the exception permission', async () => {
+        mock.mockAll({ mainPermissions: { combined: ['global:manage_network:communication', 'global:manage_network:communication_exception'] } });
+
+        const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'communication', value: 'exception' });
+
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.value).toEqual('exception');
+    });
+
+    test('should check the criterion before the permission (documented order)', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const criterion = generator.generateAntennaCriterion({ antenna_criterion: 'not a criterion' });
+
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail creating new Antenna Criterion if agora_id is not a number', async () => {
+        const criterion = generator.generateAntennaCriterion({ agora_id: 'x' });
+
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('agora_id');
+    });
+
+    test('should accept a criterion without a value', async () => {
+        const criterion = generator.generateAntennaCriterion({ value: null, comment: 'not checked yet' });
+
+        const res = await request({
+            path: '/antennaCriteria',
+            method: 'PUT',
+            body: criterion,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.value).toEqual(null);
+        expect(res.body.data.comment).toEqual('not checked yet');
+    });
 
     test('should fail creating new Antenna Criterion if agora_id is not set', async () => {
         const criterion = generator.generateAntennaCriterion({ agora_id: null });
