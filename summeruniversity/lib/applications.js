@@ -414,9 +414,17 @@ exports.setApplicationStatus = async (req, res) => {
         return helpers.makeFieldError(res, 'status', NO_SPOTS_LEFT);
     }
 
+    // Only accepted applications can be confirmed, so the confirmation goes when it stops being
+    // accepted. Attendance needs the confirmation, so it has to be taken back first.
+    const stopsBeingAccepted = req.application.status === 'accepted' && req.body.status !== 'accepted';
+    if (stopsBeingAccepted && req.application.attended) {
+        return helpers.makeFieldError(res, 'status', 'This application is marked as attended: mark it as not attended before changing its status.');
+    }
+    const changes = stopsBeingAccepted ? { status: req.body.status, confirmed: false } : { status: req.body.status };
+
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        await req.application.update({ status: req.body.status }, { transaction: t });
+        await req.application.update(changes, { transaction: t });
 
         const adminToken = await core.getAdminToken();
         const notificationEmail = (await core.fetchUser(req.application, adminToken)).notification_email;
