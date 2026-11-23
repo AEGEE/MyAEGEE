@@ -477,7 +477,11 @@ Application.beforeValidate(async (application) => {
         return;
     }
     if (application.meals === 'Meat-eater') {
-        throw new Error('Meat-eater is not allowed for this event.');
+        // A validation error on the meals field, so the client gets it like the other ones.
+        const message = 'Meat-eater is not allowed for this event.';
+        throw new Sequelize.ValidationError(message, [
+            new Sequelize.ValidationErrorItem(message, 'Validation error', 'meals', application.meals)
+        ]);
     }
 });
 
