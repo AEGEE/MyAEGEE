@@ -5,8 +5,11 @@ export default {
   showNotification (options) {
     // Buefy renders toast messages as HTML. None of ours need markup, and they often
     // contain names or server messages, so they're always shown as plain text.
+    // Long enough to read: three seconds for a short message, more for a long one (an error
+    // that lists several validation messages), up to ten seconds. Measured on the text as
+    // written, before escaping.
+    options.duration = options.duration || Math.min(10000, Math.max(3000, 1000 + String(options.message).length * 60))
     options.message = escapeHtml(options.message)
-    options.duration = options.duration || 3000
     options.type = options.type || 'is-success'
 
     this.$buefy.toast.open(options)
