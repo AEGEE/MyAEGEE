@@ -68,6 +68,21 @@ test.describe('API mock', () => {
         expect(api.callsTo('GET url /services/calendar-cors/**')[0].path).toMatch(/\/services\/calendar-cors\/calendar\/ical\/.+\/public\/basic\.ics$/);
     });
 
+    test('a request outside /api that the frontend\'s own server answers needs no handler', async ({ page, api }) => {
+        // The status page asks every service how it is, and the frontend itself at /healthcheck,
+        // which its web server answers with a file of the build (support/frontend-routing.ts).
+        api.on('GET * /healthcheck', { json: ok({ version: '1.2.3' }) });
+        api.url('GET', '/media/**', { status: 404, json: { success: false, message: 'Not found' } });
+        api.url('GET', '/services/dockerhub/**', { json: { results: [] } });
+
+        await page.goto('/status');
+
+        await expect(page.getByRole('row', { name: /^core 1\.2\.3 .* Yes$/ })).toBeVisible();
+        await expect(page.getByRole('row', { name: /^frontend .* Yes$/ })).toBeVisible();
+        await expect(page.getByRole('row', { name: /^core-static .* No$/ })).toBeVisible();
+        expect(api.callsTo('GET * /healthcheck')).toHaveLength(7);
+    });
+
     test('a request to another host is blocked unless the test answers it', async ({ page, api }) => {
         api.url('GET', 'https://api.github.com/**', { json: [{ name: 'answered by the test' }] });
         await page.goto('/about');
