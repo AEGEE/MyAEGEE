@@ -29,7 +29,7 @@
               <thead>
                 <tr>
                   <th scope="col">Question</th>
-                  <th scope="col">Your answer</th>
+                  <th scope="col">Answer</th>
                 </tr>
               </thead>
               <tbody>
