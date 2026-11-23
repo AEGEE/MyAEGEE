@@ -114,6 +114,16 @@ describe('Events application creating', () => {
         expect(res.statusCode).toEqual(200);
     });
 
+    it('should return 422 if core gives a first name longer than its column', async () => {
+        callers.asSuperadminWith({ first_name: 'a'.repeat(256) });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('first_name');
+    });
+
     it('should return 422 if core has no first name for the applicant', async () => {
         callers.asSuperadminWith({ first_name: '' });
         const event = await openEvent();

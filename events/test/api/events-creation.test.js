@@ -108,6 +108,19 @@ describe('Events creation', () => {
         expect(res.body.data.meals_per_day).toEqual(0);
     });
 
+    test.each(['name', 'url', 'accommodation_type'])('should return 422 if %s is longer than its column', async (field) => {
+        const res = await createEvent(validEvent({ [field]: 'a'.repeat(256) }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty(field);
+    });
+
+    it('should accept a name of 255 characters', async () => {
+        const res = await createEvent(validEvent({ name: 'a'.repeat(255) }));
+
+        expect(res.statusCode).toEqual(201);
+    });
+
     it('should store the URL in lower case without spaces', async () => {
         const res = await createEvent(validEvent({ url: ' My-Event ' }));
 
