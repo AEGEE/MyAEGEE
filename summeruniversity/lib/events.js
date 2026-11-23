@@ -520,6 +520,9 @@ exports.editEvent = async (req, res) => {
         }
     });
 
+    // Answer with what was stored: a value sent as a string ("25") is an integer in the database.
+    await event.reload();
+
     return res.json({
         success: true,
         data: event.toJSON()

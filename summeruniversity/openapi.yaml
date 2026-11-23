@@ -1324,7 +1324,7 @@ components:
         visa_postal_code: {type: [string, 'null']}
         visa_city: {type: [string, 'null']}
         visa_country: {type: [string, 'null']}
-        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_id: {type: integer}
         body_name: {type: string}
         status: {type: string, enum: [pending, accepted, rejected]}
         confirmed: {type: boolean}
@@ -1365,7 +1365,7 @@ components:
         visa_postal_code: {type: [string, 'null']}
         visa_city: {type: [string, 'null']}
         visa_country: {type: [string, 'null']}
-        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_id: {type: integer}
         body_name: {type: string}
         status: {type: string, enum: [pending, accepted, rejected]}
         confirmed: {type: boolean}
@@ -1409,7 +1409,7 @@ components:
         visa_postal_code: {type: [string, 'null']}
         visa_city: {type: [string, 'null']}
         visa_country: {type: [string, 'null']}
-        body_id: {type: [integer, string], description: 'An integer; right after an edit that sent the same body id as a string, that string.'}
+        body_id: {type: integer}
         body_name: {type: string}
         status: {type: string, enum: [pending, accepted, rejected]}
         confirmed: {type: boolean}

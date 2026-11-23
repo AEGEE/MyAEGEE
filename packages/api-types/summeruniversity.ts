@@ -1110,8 +1110,7 @@ export interface components {
             visa_postal_code: string | null;
             visa_city: string | null;
             visa_country: string | null;
-            /** @description An integer; right after an edit that sent the same body id as a string, that string. */
-            body_id: number | string;
+            body_id: number;
             body_name: string;
             /** @enum {string} */
             status: "pending" | "accepted" | "rejected";
@@ -1153,8 +1152,7 @@ export interface components {
             visa_postal_code: string | null;
             visa_city: string | null;
             visa_country: string | null;
-            /** @description An integer; right after an edit that sent the same body id as a string, that string. */
-            body_id: number | string;
+            body_id: number;
             body_name: string;
             /** @enum {string} */
             status: "pending" | "accepted" | "rejected";
@@ -1205,8 +1203,7 @@ export interface components {
             visa_postal_code: string | null;
             visa_city: string | null;
             visa_country: string | null;
-            /** @description An integer; right after an edit that sent the same body id as a string, that string. */
-            body_id: number | string;
+            body_id: number;
             body_name: string;
             /** @enum {string} */
             status: "pending" | "accepted" | "rejected";
