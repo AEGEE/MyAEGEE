@@ -10,7 +10,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" name="image" accept=".png,.jpg,.jpeg" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
