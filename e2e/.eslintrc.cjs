@@ -113,6 +113,14 @@ module.exports = {
             }
         },
         {
+            // The specs, and the tests that have to fail (ui/harness/must-fail/): all of them
+            // run inside the harness of ui/support/test.ts.
+            files: ['ui/**/*.spec.ts', 'ui/**/*.case.ts'],
+            rules: {
+                'e2e-no-harness-bypass': 'error'
+            }
+        },
+        {
             // The generated tests use generic answers, so they can't list every request.
             files: ['ui/smoke/**/*.spec.ts', 'ui/a11y/**/*.spec.ts'],
             rules: {
