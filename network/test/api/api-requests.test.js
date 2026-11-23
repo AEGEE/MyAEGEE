@@ -113,6 +113,58 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test('should not ask core for the board permissions if core rejects the user', async () => {
+        const { omsManagePermissionsStub } = mock.mockAll({ core: { unauthorized: true } });
+        const manageRequests = [];
+        omsManagePermissionsStub.on('request', (req) => manageRequests.push(req));
+
+        const res = await request({
+            path: '/boards',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(manageRequests).toEqual([]);
+    });
+
+    test('should name the service when it asks core for the board permissions', async () => {
+        const { omsManagePermissionsStub } = mock.mockAll();
+        const manageRequests = [];
+        omsManagePermissionsStub.on('request', (req) => manageRequests.push(req));
+
+        const res = await request({
+            path: '/boards',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(manageRequests.length).toEqual(1);
+        expect(manageRequests[0].headers['x-service']).toEqual('network');
+        expect(manageRequests[0].headers['x-auth-token']).toEqual('blablabla');
+    });
+
+    test('should go on without local board permissions if core fails to list them', async () => {
+        mock.mockAll({ mainPermissions: { viewOnly: true }, managePermissions: { netError: true } });
+
+        const listRes = await request({
+            path: '/boards',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+        expect(listRes.statusCode).toEqual(200);
+
+        // The user is a member of body 34, but without the list holds no local permission.
+        const createRes = await request({
+            path: '/bodies/34/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { elected_date: '2026-01-01', start_date: '2026-01-02', president: 1, secretary: 2, treasurer: 3 }
+        });
+        expect(createRes.statusCode).toEqual(403);
+    });
+
     test('should fail if body is not JSON', async () => {
         const res = await request({
             path: '/bodies/34/boards',
