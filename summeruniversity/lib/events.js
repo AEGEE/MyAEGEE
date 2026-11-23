@@ -32,6 +32,11 @@ const removeBlockedFields = (data) => {
 };
 
 exports.listEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
 
@@ -47,7 +52,7 @@ exports.listEvents = async (req, res) => {
     const whitelistEvents = [];
 
     for (let event of events) {
-        if (!req.query.application_status || req.query.application_status.includes(event.application_status)) {
+        if (!req.query.application_status || [].concat(req.query.application_status).includes(event.application_status)) {
             if (event.published === 'full') {
                 event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
             } else {
@@ -68,6 +73,11 @@ exports.listEvents = async (req, res) => {
 };
 
 exports.listMostRecentEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const queryObj = {
         where: {
             deleted: false,
@@ -123,6 +133,11 @@ exports.listBodyApplications = async (req, res) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -141,6 +156,11 @@ exports.listUserOrganizedEvents = async (req, res) => {
 
 // List all the event where the user is participant at.
 exports.listUserAppliedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {

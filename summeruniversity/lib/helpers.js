@@ -4,6 +4,39 @@ const constants = require('./constants');
 const { Application, Event } = require('../models');
 const { Sequelize } = require('./sequelize');
 
+// Dates are read as YYYY-MM-DD; a longer ISO string (the frontend sends one to /recents) is
+// read by its date part, as the list queries do.
+const isValidDay = (value) => typeof value === 'string' && moment(value, 'YYYY-MM-DD').isValid();
+
+const APPLICATION_STATUSES = ['open', 'closed'];
+
+const asList = (value) => (Array.isArray(value) ? value : [value]);
+
+// Checks the filters of the event lists. Returns a message for the user, or null if the
+// filters are fine. Without this, an unknown type or date reaches Postgres and fails there.
+exports.validateListQuery = (query) => {
+    if (typeof query.type !== 'undefined' && !asList(query.type).every((type) => constants.EVENT_TYPES.includes(type))) {
+        return `The type filter should be one or more of: ${constants.EVENT_TYPES.join(', ')}.`;
+    }
+
+    if (typeof query.season !== 'undefined' && !exports.isNumber(query.season)) {
+        return 'The season filter should be a year.';
+    }
+
+    for (const field of ['starts', 'ends']) {
+        if (typeof query[field] !== 'undefined' && !isValidDay(query[field])) {
+            return `The ${field} filter should be a date (YYYY-MM-DD).`;
+        }
+    }
+
+    if (typeof query.application_status !== 'undefined'
+        && !asList(query.application_status).every((status) => APPLICATION_STATUSES.includes(status))) {
+        return `The application_status filter should be one or more of: ${APPLICATION_STATUSES.join(', ')}.`;
+    }
+
+    return null;
+};
+
 // A helper to get default search/query/pagination filter for events listings.
 exports.getDefaultQuery = (req) => {
     // Default filter is empty.
