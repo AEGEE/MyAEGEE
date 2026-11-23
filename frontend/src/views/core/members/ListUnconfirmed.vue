@@ -2,11 +2,12 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Unconfirmed user list</h4>
+        <h1 class="title">Unconfirmed user list</h1>
         <div class="field">
-          <label class="label">Search by name or surname</label>
+          <label class="label" for="unconfirmed-members-search">Search by name or surname</label>
           <div class="control">
             <input
+              id="unconfirmed-members-search"
               class="input"
               type="text"
               v-model="query"
@@ -19,6 +20,10 @@
         <b-table
           :data="users"
           :loading="isLoading"
+          ariaNextLabel="Next page"
+          ariaPreviousLabel="Previous page"
+          ariaPageLabel="Page"
+          ariaCurrentLabel="Current page"
           paginated
           backend-pagination
           backend-sorting
@@ -55,10 +60,10 @@
           </b-table-column>
 
           <b-table-column label="Confirm" v-slot="props">
-            <a class="button is-small is-info" @click="askConfirm(props.row, props.index)">
+            <button type="button" class="button is-small is-info" @click="askConfirm(props.row, props.index)">
               <span class="icon"><font-awesome-icon icon="plus" /></span>
               <span>Confirm</span>
-            </a>
+            </button>
           </b-table-column>
 
           <template slot="empty">
