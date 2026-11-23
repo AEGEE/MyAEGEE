@@ -202,6 +202,75 @@ describe('Antenna Criteria fulfilment mail', () => {
         });
     });
 
+    describe('lists of addresses separated by commas', () => {
+        test.each([
+            ['to', 'board@example.org, president@example.org', ['board@example.org', 'president@example.org']],
+            ['to', ' board@example.org ,president@example.org ', ['board@example.org', 'president@example.org']],
+            ['cc', 'netcom@aegee.eu,network@aegee.eu', ['netcom@aegee.eu', 'network@aegee.eu']]
+        ])('should accept %s set to %p and send it as a list', async (field, value, list) => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ [field]: value })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(sendMailSpy).toHaveBeenCalledTimes(1);
+            expect(sendMailSpy.mock.calls[0][0][field]).toEqual(list);
+        });
+
+        test.each([
+            ['to', 'board@example.org,'],
+            ['to', 'board@example.org,,president@example.org'],
+            ['to', 'board@example.org, not an address'],
+            ['to', 'board@example.org; president@example.org'],
+            ['to', 'board@example.org,\r\nBcc: x@example.org'],
+            ['to', 'board@example.org,\r\npresident@example.org'],
+            ['cc', 'netcom@aegee.eu, '],
+            ['cc', 'netcom@aegee.eu, netcom']
+        ])('should reject %s set to %p', async (field, value) => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ [field]: value })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(Object.keys(res.body.errors)).toEqual([field]);
+            expect(sendMailSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('subject length', () => {
+        test('should accept a subject of 255 characters', async () => {
+            const subject = 'S'.repeat(255);
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ subject })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(sendMailSpy.mock.calls[0][0].subject).toEqual(subject);
+        });
+
+        test('should reject a subject longer than 255 characters', async () => {
+            const res = await request({
+                path: '/antennaCriteria/sendFulfilmentMail',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: validMail({ subject: 'S'.repeat(256) })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ subject: ['The subject must be at most 255 characters.'] });
+            expect(sendMailSpy).not.toHaveBeenCalled();
+        });
+    });
+
     describe('addresses and header lines', () => {
         test.each([
             ['to', 'a@b.org\r\nBcc: x@example.org'],
@@ -269,8 +338,8 @@ describe('Antenna Criteria fulfilment mail', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toEqual({
-                to: ['The recipient must be an address or a list of addresses.'],
-                cc: ['Cc must be an address or a list of addresses.'],
+                to: ['The recipient must be an address, or several addresses separated by commas.'],
+                cc: ['Cc must be an address, or several addresses separated by commas.'],
                 reply_to: ['Reply-to must be an address.'],
                 subject: ['The subject must be one line.']
             });
