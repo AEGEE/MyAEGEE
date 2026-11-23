@@ -129,4 +129,50 @@ describe('Request bodies', () => {
             expect(res.statusCode).toEqual(200);
         });
     });
+
+    // A text that is longer than its column.
+    describe('a text of 300 characters', () => {
+        const LONG = 'a'.repeat(300);
+        const variants = (field) => [LONG, `${LONG}@example.com`, `https://example.com/${LONG}`]
+            .map((value) => ({ field, value }));
+
+        test.each(ROUTES.filter((route) => !route.multipart))('$title never answers with a server error', async (route) => {
+            const valid = route.body(data);
+            const failures = [];
+
+            for (const { field, value } of Object.keys(valid).flatMap(variants)) {
+                const res = await send(route, { ...route.body(data), [field]: value });
+
+                if (res.statusCode >= 500) {
+                    failures.push({ field, value: value.slice(0, 20), status: res.statusCode, message: res.body.message });
+                }
+            }
+
+            expect(failures).toEqual([]);
+        });
+
+        // One column per model.
+        test.each([
+            ['PUT /members/:user_id', 'first_name', 'First name should be at most 255 characters long.'],
+            ['POST /bodies', 'name', 'Name should be at most 255 characters long.'],
+            ['POST /circles', 'name', 'Name should be at most 255 characters long.'],
+            ['POST /permissions', 'action', 'Action should be at most 255 characters long.'],
+            ['POST /campaigns', 'url', 'Url should be at most 255 characters long.'],
+            ['POST /bodies/:body_id/payments', 'currency', 'Currency should be at most 255 characters long.'],
+            ['POST /resources/links', 'title', 'Title should be at most 100 characters long.']
+        ])('%s answers 422 for a %s that is too long', async (title, field, message) => {
+            const route = ROUTES.find((item) => item.title === title);
+            const res = await send(route, { ...route.body(data), [field]: LONG });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { [field]: [message] } });
+        });
+
+        test('PUT /members/:user_id accepts a text of exactly the length of its column', async () => {
+            const route = ROUTES.find((item) => item.title === 'PUT /members/:user_id');
+            const res = await send(route, { ...route.body(data), phone: '1'.repeat(255) });
+
+            expect(res.statusCode).toEqual(200);
+        });
+    });
 });
