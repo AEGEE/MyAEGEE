@@ -591,8 +591,8 @@ export interface paths {
         get?: never;
         /**
          * Set or unset the primary body of a member
-         * @description The answer is the member as loaded before the change: `primary_body_id` is the new
-         *     value, the included `primary_body` is still the old one.
+         * @description The member has to be in the body. Without `primary_body_id`, or with null, the
+         *     primary body is unset.
          */
         put: operations["setPrimaryBody"];
         post?: never;
@@ -1248,8 +1248,8 @@ export interface paths {
         /**
          * One signup campaign
          * @description The signup page reads this without a login. Holders of `global:create:campaign` get
-         *     the whole campaign with its autojoin body; everybody else gets the public fields,
-         *     with a short version of the autojoin body.
+         *     all fields of the campaign; everybody else gets the public fields. Both get the same
+         *     six fields of the autojoin body.
          */
         get: operations["getCampaign"];
         /** Update a signup campaign */
@@ -1518,7 +1518,8 @@ export interface components {
             [key: string]: unknown;
         };
         UserIdInput: {
-            user_id: number;
+            /** @description As a number or as a text of digits. */
+            user_id: number | string;
         } & {
             [key: string]: unknown;
         };
@@ -1630,41 +1631,6 @@ export interface components {
         UserWithCircleMemberships: {
             circle_memberships: components["schemas"]["CircleMembershipWithCircle"][];
         } & components["schemas"]["UserFields"];
-        /**
-         * @description A member right after registering. Unlike `User` it has no `notification_email`, and
-         *     it has `password`.
-         */
-        UserSignup: {
-            id: number;
-            username: string;
-            email: string;
-            /** @description The stored hash, not the password that was sent. */
-            password: string;
-            mail_confirmed_at: null;
-            active: boolean;
-            superadmin: boolean;
-            /** Format: date-time */
-            privacy_consent: string | null;
-            first_name: string;
-            last_name: string;
-            /** Format: date */
-            date_of_birth: string | null;
-            gender: string | null;
-            phone: string | null;
-            address: string | null;
-            image: null;
-            about_me: string | null;
-            primary_email: components["schemas"]["UserPrimaryEmail"];
-            last_logged_in: null;
-            last_active: null;
-            gsuite_id: null;
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
-            campaign_id: number;
-            primary_body_id: null;
-        };
         /** @description What holders of `view_members:body` see of a member they may not view in full. */
         UserLimited: {
             id: number;
@@ -1746,7 +1712,7 @@ export interface components {
         UserSignupResponse: {
             /** @constant */
             success: true;
-            data: components["schemas"]["UserSignup"];
+            data: components["schemas"]["User"];
         };
         UserWithMembershipsResponse: {
             /** @constant */
@@ -2018,8 +1984,8 @@ export interface components {
             [key: string]: unknown;
         };
         PaymentCreateInput: {
-            /** @description A member of the body. */
-            user_id: number;
+            /** @description A member of the body, as a number or as a text of digits. */
+            user_id: number | string;
         } & WithRequired<components["schemas"]["PaymentInput"], "starts" | "expires" | "amount" | "currency">;
         PaymentResponse: {
             /** @constant */
@@ -2256,6 +2222,10 @@ export interface components {
         CampaignWithAutojoinBody: {
             autojoin_body: components["schemas"]["Body"] | null;
         } & components["schemas"]["CampaignFields"];
+        /** @description All fields of a signup campaign, with what everybody may see of its autojoin body. */
+        CampaignWithPublicAutojoinBody: {
+            autojoin_body: components["schemas"]["CampaignAutojoinBody"] | null;
+        } & components["schemas"]["CampaignFields"];
         /** @description What everybody may see of a signup campaign. */
         CampaignPublic: {
             id: number;
@@ -2284,8 +2254,8 @@ export interface components {
             description_short?: string | null;
             description_long?: string;
             activate_user?: boolean;
-            /** @description An existing body. On the routes under `/bodies/{body_id}` it is always that body. */
-            autojoin_body_id?: number | null;
+            /** @description An existing body, as a number or as a text of digits. On the routes under `/bodies/{body_id}` it is always that body. */
+            autojoin_body_id?: number | string | null;
         } & {
             [key: string]: unknown;
         };
@@ -3480,7 +3450,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    active: boolean;
+                    active?: boolean;
                 } & {
                     [key: string]: unknown;
                 };
@@ -3585,7 +3555,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    superadmin: boolean;
+                    superadmin?: boolean;
                 } & {
                     [key: string]: unknown;
                 };
@@ -3646,8 +3616,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description A body the member belongs to. Null or 0 unsets the primary body. */
-                    primary_body_id?: number | null;
+                    /** @description A body the member belongs to, as a number or as a text of digits. Null unsets the primary body. */
+                    primary_body_id?: number | string | null;
                 } & {
                     [key: string]: unknown;
                 };
@@ -4585,7 +4555,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    status: components["schemas"]["BodyStatus"];
+                    status?: components["schemas"]["BodyStatus"];
                 } & {
                     [key: string]: unknown;
                 };
@@ -4827,7 +4797,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    permission_id: number;
+                    /** @description As a number or as a text of digits. */
+                    permission_id: number | string;
                 } & {
                     [key: string]: unknown;
                 };
@@ -5003,8 +4974,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description Null unsets the parent circle. */
-                    parent_circle_id: number | null;
+                    /** @description As a number or as a text of digits. Null unsets the parent circle. */
+                    parent_circle_id: number | string | null;
                 } & {
                     [key: string]: unknown;
                 };
@@ -5422,7 +5393,7 @@ export interface operations {
                     "application/json": {
                         /** @constant */
                         success: true;
-                        data: components["schemas"]["CampaignPublic"] | components["schemas"]["CampaignWithAutojoinBody"];
+                        data: components["schemas"]["CampaignPublic"] | components["schemas"]["CampaignWithPublicAutojoinBody"];
                     };
                 };
             };

@@ -792,7 +792,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [active]
+              description: Without `active` nothing changes.
               properties:
                 active: {type: boolean}
               additionalProperties: true
@@ -867,7 +867,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [superadmin]
+              description: Without `superadmin` nothing changes.
               properties:
                 superadmin: {type: boolean}
               additionalProperties: true
@@ -905,8 +905,8 @@ paths:
       operationId: setPrimaryBody
       summary: Set or unset the primary body of a member
       description: |
-        The answer is the member as loaded before the change: `primary_body_id` is the new
-        value, the included `primary_body` is still the old one.
+        The member has to be in the body. Without `primary_body_id`, or with null, the
+        primary body is unset.
       tags: [members]
       x-permission: update:member, or the member themselves
       requestBody:
@@ -916,7 +916,7 @@ paths:
             schema:
               type: object
               properties:
-                primary_body_id: {type: [integer, 'null'], description: A body the member belongs to. Null or 0 unsets the primary body.}
+                primary_body_id: {type: [integer, string, 'null'], description: 'A body the member belongs to, as a number or as a text of digits. Null unsets the primary body.'}
               additionalProperties: true
       responses:
         '200':
@@ -1588,7 +1588,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
+              description: Without `status` nothing changes.
               properties:
                 status: {$ref: '#/components/schemas/BodyStatus'}
               additionalProperties: true
@@ -1760,7 +1760,7 @@ paths:
               type: object
               required: [permission_id]
               properties:
-                permission_id: {type: integer}
+                permission_id: {type: [integer, string], description: 'As a number or as a text of digits.'}
               additionalProperties: true
       responses:
         '200':
@@ -1878,7 +1878,7 @@ paths:
               type: object
               required: [parent_circle_id]
               properties:
-                parent_circle_id: {type: [integer, 'null'], description: Null unsets the parent circle.}
+                parent_circle_id: {type: [integer, string, 'null'], description: 'As a number or as a text of digits. Null unsets the parent circle.'}
               additionalProperties: true
       responses:
         '200':
@@ -2134,8 +2134,8 @@ paths:
       summary: One signup campaign
       description: |
         The signup page reads this without a login. Holders of `global:create:campaign` get
-        the whole campaign with its autojoin body; everybody else gets the public fields,
-        with a short version of the autojoin body.
+        all fields of the campaign; everybody else gets the public fields. Both get the same
+        six fields of the autojoin body.
       tags: [campaigns]
       x-permission: none; global:create:campaign gives all fields
       security: [{}, {XAuthToken: []}]
@@ -2152,7 +2152,7 @@ paths:
                   data:
                     oneOf:
                       - $ref: '#/components/schemas/CampaignPublic'
-                      - $ref: '#/components/schemas/CampaignWithAutojoinBody'
+                      - $ref: '#/components/schemas/CampaignWithPublicAutojoinBody'
                 additionalProperties: false
         '404': {$ref: '#/components/responses/NotFound'}
     put:
@@ -2679,7 +2679,7 @@ components:
       type: object
       required: [user_id]
       properties:
-        user_id: {type: integer}
+        user_id: {type: [integer, string], description: 'As a number or as a text of digits.'}
       additionalProperties: true
     OrderInput:
       type: object
@@ -2825,38 +2825,6 @@ components:
           type: array
           items: {$ref: '#/components/schemas/CircleMembershipWithCircle'}
       unevaluatedProperties: false
-    UserSignup:
-      description: |
-        A member right after registering. Unlike `User` it has no `notification_email`, and
-        it has `password`.
-      type: object
-      required: [id, username, email, password, mail_confirmed_at, active, superadmin, privacy_consent, first_name, last_name, date_of_birth, gender, phone, address, image, about_me, primary_email, last_logged_in, last_active, gsuite_id, created_at, updated_at, campaign_id, primary_body_id]
-      properties:
-        id: {type: integer}
-        username: {type: string}
-        email: {type: string}
-        password: {type: string, description: 'The stored hash, not the password that was sent.'}
-        mail_confirmed_at: {type: 'null'}
-        active: {type: boolean}
-        superadmin: {type: boolean}
-        privacy_consent: {type: [string, 'null'], format: date-time}
-        first_name: {type: string}
-        last_name: {type: string}
-        date_of_birth: {type: [string, 'null'], format: date}
-        gender: {type: [string, 'null']}
-        phone: {type: [string, 'null']}
-        address: {type: [string, 'null']}
-        image: {type: 'null'}
-        about_me: {type: [string, 'null']}
-        primary_email: {$ref: '#/components/schemas/UserPrimaryEmail'}
-        last_logged_in: {type: 'null'}
-        last_active: {type: 'null'}
-        gsuite_id: {type: 'null'}
-        created_at: {type: string, format: date-time}
-        updated_at: {type: string, format: date-time}
-        campaign_id: {type: integer}
-        primary_body_id: {type: 'null'}
-      additionalProperties: false
     UserLimited:
       description: What holders of `view_members:body` see of a member they may not view in full.
       type: object
@@ -2952,7 +2920,7 @@ components:
       required: [success, data]
       properties:
         success: {const: true}
-        data: {$ref: '#/components/schemas/UserSignup'}
+        data: {$ref: '#/components/schemas/User'}
       additionalProperties: false
     UserWithMembershipsResponse:
       type: object
@@ -3280,7 +3248,7 @@ components:
         - $ref: '#/components/schemas/PaymentInput'
       required: [user_id, starts, expires, amount, currency]
       properties:
-        user_id: {type: integer, description: A member of the body.}
+        user_id: {type: [integer, string], description: 'A member of the body, as a number or as a text of digits.'}
     PaymentResponse:
       type: object
       required: [success, data]
@@ -3618,6 +3586,18 @@ components:
             - $ref: '#/components/schemas/Body'
             - type: 'null'
       unevaluatedProperties: false
+    CampaignWithPublicAutojoinBody:
+      description: All fields of a signup campaign, with what everybody may see of its autojoin body.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CampaignFields'
+      required: [autojoin_body]
+      properties:
+        autojoin_body:
+          oneOf:
+            - $ref: '#/components/schemas/CampaignAutojoinBody'
+            - type: 'null'
+      unevaluatedProperties: false
     CampaignPublic:
       description: What everybody may see of a signup campaign.
       type: object
@@ -3656,7 +3636,7 @@ components:
         description_short: {type: [string, 'null']}
         description_long: {type: string}
         activate_user: {type: boolean}
-        autojoin_body_id: {type: [integer, 'null'], description: 'An existing body. On the routes under `/bodies/{body_id}` it is always that body.'}
+        autojoin_body_id: {type: [integer, string, 'null'], description: 'An existing body, as a number or as a text of digits. On the routes under `/bodies/{body_id}` it is always that body.'}
       additionalProperties: true
     CampaignCreateInput:
       type: object

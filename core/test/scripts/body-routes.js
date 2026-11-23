@@ -114,6 +114,7 @@ const paymentFields = () => ({
 // Every route that reads a JSON request body, with a body it accepts.
 // `noBody` is the status it answers when the request has no body at all.
 // `multipart`: the route takes a form with files, so there are no JSON fields to vary.
+// `noFields`: the route reads nothing from the body.
 exports.ROUTES = [
     { method: 'POST', name: '/signup/:campaign_id', path: (d) => `/signup/${d.campaign.url}`, body: () => userFields(), noBody: 422 },
     { method: 'POST', name: '/confirm-email', path: () => '/confirm-email', body: (d) => ({ token: d.mailConfirmation.value }), noBody: 400 },
@@ -153,7 +154,7 @@ exports.ROUTES = [
         noBody: 422
     },
     { method: 'PUT', name: '/members/:user_id/superadmin', path: (d) => `/members/${d.member.id}/superadmin`, body: () => ({ superadmin: true }), noBody: 200 },
-    { method: 'POST', name: '/members/:user_id/confirm', path: (d) => `/members/${d.unconfirmed.id}/confirm`, body: () => ({}), noBody: 200 },
+    { method: 'POST', name: '/members/:user_id/confirm', path: (d) => `/members/${d.unconfirmed.id}/confirm`, body: () => ({}), noFields: true, noBody: 200 },
     { method: 'PUT', name: '/members/:user_id/primary-body', path: (d) => `/members/${d.member.id}/primary-body`, body: (d) => ({ primary_body_id: d.body.id }), noBody: 200 },
     { method: 'PUT', name: '/members/:user_id/email', path: (d) => `/members/${d.member.id}/email`, body: () => ({ new_email: 'new@example.com' }), noBody: 400 },
     {

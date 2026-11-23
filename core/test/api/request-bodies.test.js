@@ -19,7 +19,9 @@ describe('Request bodies', () => {
         body
     });
 
-    // For values that a client should not send: straight to the server.
+    // For the sweeps that send whatever a client should not send. The server takes some of it
+    // (a number where a text belongs is stored as a text), which the request check of the
+    // OpenAPI file would report: that file says what a client should send.
     const sendUnchecked = async (route, body) => {
         const res = await fetch(`http://localhost:${config.port}${route.path(data)}`, {
             method: route.method,
@@ -58,7 +60,8 @@ describe('Request bodies', () => {
             expect(res.body.success).toEqual(route.noBody === 200);
         });
 
-        test.each(ROUTES.filter((route) => !route.multipart))('$title answers the same for an empty JSON object', async (route) => {
+        // Not the routes that take no fields: a body is not for them.
+        test.each(ROUTES.filter((route) => !route.multipart && !route.noFields))('$title answers the same for an empty JSON object', async (route) => {
             const res = await send(route, {});
 
             expect(res.statusCode).toEqual(route.noBody);
@@ -89,7 +92,7 @@ describe('Request bodies', () => {
 
             for (const field of Object.keys(valid)) {
                 for (const value of VALUES) {
-                    const res = await send(route, { ...route.body(data), [field]: value });
+                    const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
 
                     if (res.statusCode >= 500) {
                         failures.push({ field, value, status: res.statusCode, message: res.body.message });
@@ -196,7 +199,7 @@ describe('Request bodies', () => {
             const failures = [];
 
             for (const { field, value } of Object.keys(valid).flatMap(variants)) {
-                const res = await send(route, { ...route.body(data), [field]: value });
+                const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
 
                 if (res.statusCode >= 500) {
                     failures.push({ field, value: value.slice(0, 20), status: res.statusCode, message: res.body.message });
