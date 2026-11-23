@@ -19,6 +19,9 @@ const strangerMocks = { core: { notSuperadmin: true }, mainPermissions: { noPerm
 // User #5 who can apply.
 const applicantMocks = { ...strangerMocks, mainPermissions: { permissions: ['global:apply:summeruniversity'] } };
 
+// User #5, not an organizer, who manages Summer Universities of the type regular.
+const managerMocks = { ...strangerMocks, mainPermissions: { permissions: ['global:manage_summeruniversity:regular'] } };
+
 describe('Applications status changes', () => {
     let event;
     let application;
@@ -340,8 +343,8 @@ describe('Applications status changes', () => {
             expect(res.statusCode).toEqual(200);
         });
 
-        test('should close the open call when the event is over capacity', async () => {
-            await event.update({ max_participants: 5, open_call: true });
+        test('should not open the call when the event is over capacity', async () => {
+            await event.update({ max_participants: 5, open_call: false });
             await generator.createApplication(event, { user_id: 10, status: 'accepted' });
             await generator.createApplication(event, { user_id: 11, status: 'accepted' });
 
@@ -352,10 +355,95 @@ describe('Applications status changes', () => {
                 body: { open_call: true, max_participants: 1 }
             });
 
-            expect(res.statusCode).toEqual(200);
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The open call needs a free spot: max_participants should be more than the 2 accepted participants.']);
+            expect(res.body.message).toEqual(res.body.errors.open_call[0]);
             await event.reload();
-            expect(event.available_spots).toBeLessThan(0);
+            expect(event.max_participants).toEqual(5);
             expect(event.open_call).toEqual(false);
+        });
+
+        test('should not accept an application again that was accepted before when the event is full', async () => {
+            await event.update({ max_participants: 1 });
+            await application.update({ status: 'accepted' });
+            await application.update({ status: 'rejected' });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.status).toEqual(['There are no spots left: the event already has max_participants accepted participants.']);
+            await application.reload();
+            expect(application.status).toEqual('rejected');
+        });
+
+        // A cancelled application does not count, so accepting it takes no spot.
+        test('should accept a cancelled application when the event is full', async () => {
+            await event.update({ max_participants: 1 });
+            await application.update({ cancelled: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.status).toEqual('accepted');
+            await event.reload();
+            expect(event.accepted_participants).toEqual(1);
+        });
+
+        test('should let a manager of the type accept when the event is full', async () => {
+            mockAndCapture(managerMocks);
+            await event.update({ max_participants: 1 });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.status).toEqual('accepted');
+            await event.reload();
+            expect(event.accepted_participants).toEqual(2);
+        });
+
+        // The applicant cannot take it back at all: once accepted, they may not apply to it.
+        test('should not let an organizer take back the cancellation of an accepted application when the event is full', async () => {
+            await event.update({ max_participants: 1 });
+            await application.update({ status: 'accepted', cancelled: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/cancelled', { cancelled: false });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.cancelled).toEqual(['There are no spots left: the event already has max_participants accepted participants.']);
+            expect(res.body.message).toEqual(res.body.errors.cancelled[0]);
+            await application.reload();
+            expect(application.cancelled).toEqual(true);
+        });
+
+        test('should let a manager of the type take back the cancellation of an accepted application when the event is full', async () => {
+            mockAndCapture(managerMocks);
+            await event.update({ max_participants: 1 });
+            await application.update({ status: 'accepted', cancelled: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/cancelled', { cancelled: false });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.cancelled).toEqual(false);
+        });
+
+        test('should take back the cancellation of a pending application when the event is full', async () => {
+            await event.update({ max_participants: 1 });
+            await application.update({ cancelled: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/cancelled', { cancelled: false });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.cancelled).toEqual(false);
         });
 
         test.each([

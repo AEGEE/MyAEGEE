@@ -471,15 +471,51 @@ describe('Events status, publication, periods and deletion', () => {
             expect(event.open_call).toEqual(true);
         });
 
-        test('should close the open call in the database if no spots are left', async () => {
-            const event = await generator.createEvent({ max_participants: 1 });
+        test('should not open the call if no spots would be left', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: false });
             await generator.createApplication(event, { user_id: 10, status: 'accepted' });
 
             const res = await put(event, '/open_call', { open_call: true, max_participants: 1 });
 
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The open call needs a free spot: max_participants should be more than the 1 accepted participants.']);
+            await event.reload();
+            expect(event.max_participants).toEqual(5);
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should not open the call with the stored maximum if no spots are left', async () => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: true });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('open_call');
+            await event.reload();
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should leave a negative max_participants to the model validation', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: false });
+
+            const res = await put(event, '/open_call', { open_call: true, max_participants: -1 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('max_participants');
+            expect(res.body.errors).not.toHaveProperty('open_call');
+        });
+
+        test('should lower max_participants under the accepted count when closing the call', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+            await generator.createApplication(event, { user_id: 11, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: false, max_participants: 1 });
+
             expect(res.statusCode).toEqual(200);
             await event.reload();
-            expect(event.available_spots).toEqual(0);
+            expect(event.max_participants).toEqual(1);
             expect(event.open_call).toEqual(false);
         });
 
