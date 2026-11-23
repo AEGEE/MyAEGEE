@@ -56,10 +56,18 @@ exports.createMailConfirmation = (user = null, options = {}) => {
     return MailConfirmation.create(exports.generateMailConfirmation(user, options));
 };
 
+// Body codes are three letters and unique whatever the case, so random ones collide now and
+// then (1 in 17576 for two bodies). These count up from a random start instead.
+let bodyCodeNumber = faker.number.int({ min: 0, max: (26 ** 3) - 1 });
+const nextBodyCode = () => {
+    bodyCodeNumber = (bodyCodeNumber + 1) % (26 ** 3);
+    return [676, 26, 1].map((unit) => String.fromCharCode(97 + (Math.floor(bodyCodeNumber / unit) % 26))).join('');
+};
+
 exports.generateBody = (options = {}) => {
     if (notSet(options.name)) options.name = faker.person.firstName();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    if (notSet(options.code)) options.code = faker.string.alpha(3);
+    if (notSet(options.code)) options.code = nextBodyCode();
     if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.phone)) options.phone = faker.phone.number();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
