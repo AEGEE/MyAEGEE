@@ -164,6 +164,7 @@ export default {
       return this.$options.filters.markdown(this.text)
     },
     filledTemplate () {
+      /* istanbul ignore next -- the sample application always has a participant type */
       const typeAndOrder = this.stabApplication.participant_type
         ? (this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')')
         : 'not set'

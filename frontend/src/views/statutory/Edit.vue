@@ -607,6 +607,7 @@ export default {
     deleteLocation (index) {
       this.event.locations.splice(index, 1)
     },
+    /* istanbul ignore next -- called when a marker is dragged on the map's canvas; markers have no role or name a spec could find them by */
     setMarkerPosition (event, index) {
       const newCoords = event.marker.getLngLat()
 

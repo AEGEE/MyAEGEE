@@ -545,6 +545,7 @@ export default {
     centerMap () {
       // we don't know, what'll happen first, the map will load or the event will load.
       // and we need both to be loaded.
+      /* istanbul ignore if -- the map is only shown for an event with locations */
       if (this.event.locations.length === 0) {
         return
       }
