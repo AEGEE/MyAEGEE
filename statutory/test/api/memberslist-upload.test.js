@@ -1136,7 +1136,7 @@ describe('Memberslist uploading', () => {
             expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
         });
 
-        test('should return 500 if the currency is not in a list', async () => {
+        test('should return 422 if the currency is not in a list', async () => {
             const event = await generator.createEvent({
                 type: 'agora',
                 application_period_starts: moment().subtract(1, 'week').toDate(),
@@ -1151,10 +1151,33 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'TEST' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
-            expect(res.body).toHaveProperty('message');
+            expect(res.body.errors.currency).toEqual(['The currency "TEST" is not known.']);
+            expect(await MembersList.count()).toEqual(0);
+        });
+
+        test('should return 422 when changing the currency of a memberslist to one that is not in a list', async () => {
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+            await generator.createMembersList({ body_id: regularUser.bodies[0].id, currency: 'EU' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'TEST' }, event)
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.currency).toEqual(['The currency "TEST" is not known.']);
+
+            const memberslistFromDb = await MembersList.findOne({ where: { event_id: event.id } });
+            expect(memberslistFromDb.currency).toEqual('EU');
         });
 
         test('should return 500 on conversion rate API\'s net error ', async () => {
