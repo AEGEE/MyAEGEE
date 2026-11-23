@@ -139,7 +139,8 @@ exports.createPosition = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
-    delete req.body.status;
+    // Only the fields of the position form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.POSITION_FORM_FIELDS);
     req.body.event_id = req.event.id;
 
     const newPosition = await Position.create(req.body);
@@ -155,9 +156,8 @@ exports.editPosition = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
-    delete req.body.status;
-    delete req.body.id;
-    delete req.body.event_id;
+    // Only the fields of the position form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.POSITION_FORM_FIELDS);
     await req.position.update(req.body);
 
     return res.json({

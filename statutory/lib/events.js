@@ -11,9 +11,8 @@ exports.addEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to create events of this type.');
     }
 
-    delete req.body.status;
-    delete req.body.id;
-    delete req.body.image_id;
+    // Only the fields of the event form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, [...constants.EVENT_FORM_FIELDS, 'type']);
 
     if (req.body.type === 'agora') {
         const previousAgora = await Event.findOne({
@@ -113,10 +112,8 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update events of this type.');
     }
 
-    delete req.body.type;
-    delete req.body.status;
-    delete req.body.image_id;
-    delete req.body.application_status_revealed_at;
+    // Only the fields of the event form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.EVENT_FORM_FIELDS);
 
     if (!req.event.application_status_revealed_at
         && req.event.participants_list_publish_deadline

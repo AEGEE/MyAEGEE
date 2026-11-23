@@ -1,6 +1,7 @@
 const errors = require('./errors');
 const { Question, Application } = require('../models');
 const constants = require('./constants');
+const helpers = require('./helpers');
 
 exports.findQuestion = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.question_id))) {
@@ -35,7 +36,8 @@ exports.submitQuestion = async (req, res) => {
         return errors.makeForbiddenError(res, 'The question line is closed, you cannot ask questions now.');
     }
 
-    delete req.body.status;
+    // Only the text is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_FORM_FIELDS);
 
     req.body.application_id = req.myApplication.id;
     req.body.question_line_id = req.questionLine.id;
@@ -69,9 +71,8 @@ exports.editQuestion = async (req, res) => {
         return errors.makeForbiddenError(res, 'The question line is closed, you cannot edit questions now.');
     }
 
-    delete req.body.status;
-    delete req.body.application_id;
-    delete req.body.question_line_id;
+    // Only the text is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_FORM_FIELDS);
 
     await req.question.update(req.body);
 

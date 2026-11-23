@@ -47,6 +47,8 @@ exports.createPlenary = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage plenaries.');
     }
 
+    // Only the fields of the plenary form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
     req.body.event_id = req.event.id;
 
     const newPlenary = await Plenary.create(req.body);
@@ -62,6 +64,8 @@ exports.editPlenary = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage plenaries.');
     }
 
+    // Only the fields of the plenary form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
     await req.plenary.update(req.body);
 
     return res.json({

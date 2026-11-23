@@ -149,6 +149,37 @@ module.exports = {
         'allergies',
         'answers'
     ],
+    // The fields of the other forms. As for applications, a request saves these and nothing
+    // else: the ID, the timestamps, the parent and the status of a record are set by the service.
+    EVENT_FORM_FIELDS: [
+        'name',
+        'url',
+        'description',
+        'body_id',
+        'starts',
+        'ends',
+        'application_period_starts',
+        'application_period_ends',
+        'board_approve_deadline',
+        'participants_list_publish_deadline',
+        'memberslist_submission_deadline',
+        'draft_proposal_deadline',
+        'final_proposal_deadline',
+        'candidature_deadline',
+        'booklet_publication_deadline',
+        'updated_booklet_publication_deadline',
+        'booklet_folder',
+        'locations',
+        'questions',
+        'fee',
+        'vegetarian'
+    ],
+    POSITION_FORM_FIELDS: ['name', 'places', 'starts', 'ends', 'start_term', 'end_term', 'body_id', 'requirements'],
+    PLENARY_FORM_FIELDS: ['name', 'starts', 'ends'],
+    QUESTION_LINE_FORM_FIELDS: ['name'],
+    QUESTION_FORM_FIELDS: ['text'],
+    MEMBERSLIST_FORM_FIELDS: ['currency', 'members'],
+    PAX_LIMIT_FORM_FIELDS: ['body_id', 'delegate', 'envoy', 'observer', 'visitor'],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',
