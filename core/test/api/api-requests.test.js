@@ -24,7 +24,8 @@ describe('API requests', () => {
         const res = await request({
             path: '/not-existant',
             method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            headers: { 'X-Auth-Token': 'blablabla' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);

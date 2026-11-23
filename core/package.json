@@ -40,6 +40,7 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
     "verbose": true,
     "collectCoverage": true,
     "collectCoverageFrom": [

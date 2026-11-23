@@ -2,6 +2,18 @@ const fs = require('fs');
 const path = require('path');
 
 const config = require('../../config');
+// Root-level shared helper; becomes a workspace package after the pnpm restructure.
+const { createRequestHook } = require('../../../packages/backend-test-utils/openapi');
+
+// Checks every response (and every accepted JSON request body) against openapi.yaml.
+const checkContract = createRequestHook({ serviceRoot: path.join(__dirname, '..', '..') });
+
+// The body is checked as the server gets it: as JSON, in which a Date is a string.
+const checkResponse = (options, fetchOptions, result) => {
+    const isJson = options.body !== undefined && !options.files;
+    const sent = isJson ? { ...options, body: JSON.parse(JSON.stringify(options.body)) } : options;
+    checkContract(sent, fetchOptions, result);
+};
 
 const baseUrl = 'http://localhost:' + config.port;
 
@@ -63,12 +75,14 @@ const request = async (options) => {
 
     const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
     if (responseType === 'buffer') {
-        return {
+        const bufferResult = {
             statusCode: response.status,
             statusMessage: response.statusText,
             headers: Object.fromEntries(response.headers.entries()),
             body: Buffer.from(await response.arrayBuffer())
         };
+        checkResponse(options, fetchOptions, bufferResult);
+        return bufferResult;
     }
 
     const text = await response.text();
@@ -82,12 +96,14 @@ const request = async (options) => {
         }
     }
 
-    return {
+    const result = {
         statusCode: response.status,
         statusMessage: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
         body
     };
+    checkResponse(options, fetchOptions, result);
+    return result;
 };
 
 exports.request = request;

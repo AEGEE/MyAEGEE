@@ -52,12 +52,13 @@ services:
     #   URLS:     {url: './specs/<service>.yaml', name: '<service>'}
     # For reading only: "Try it out" cannot reach the APIs from this host.
     volumes:
+      - ./core/openapi.yaml:/usr/share/nginx/html/specs/core.yaml:ro
       - ./discounts/openapi.yaml:/usr/share/nginx/html/specs/discounts.yaml:ro
       - ./network/openapi.yaml:/usr/share/nginx/html/specs/network.yaml:ro
       - ./events/openapi.yaml:/usr/share/nginx/html/specs/events.yaml:ro
       - ./summeruniversity/openapi.yaml:/usr/share/nginx/html/specs/summeruniversity.yaml:ro
     environment:
-      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}, {url: './specs/events.yaml', name: 'events'}, {url: './specs/summeruniversity.yaml', name: 'summeruniversity'}]"
+      URLS: "[{url: './specs/core.yaml', name: 'core'}, {url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}, {url: './specs/events.yaml', name: 'events'}, {url: './specs/summeruniversity.yaml', name: 'summeruniversity'}]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger
