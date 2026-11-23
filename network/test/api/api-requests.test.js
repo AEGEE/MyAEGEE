@@ -13,6 +13,18 @@ describe('API requests', () => {
         mock.cleanAll();
     });
 
+    test('should answer the health check without a token', async () => {
+        const res = await request({
+            path: '/healthcheck',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual('network');
+        expect(res.body.data).toHaveProperty('version');
+    });
+
     test('should fail if X-Auth-Token is not specified', async () => {
         const res = await request({
             path: '/boards',
