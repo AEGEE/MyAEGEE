@@ -2,6 +2,9 @@
 Continuously polls the email queue and renders + sends a template on every
 acknowledged message. The process blocks waiting for RabbitMQ to push messages
 (push-based, not polling).
+
+Logs and operator alerts name the template and the names of fields, never a message's
+addresses, parameters or body: they hold names, addresses and tokens.
 """
 
 import json
@@ -195,7 +198,9 @@ def send_email(ch, method, properties, body):
 
     missing = validate_message(msg)
     if missing:
-        logging.error(f"Dropping malformed message: missing fields {missing}. Body: {body}")
+        # Field names only: the body holds addresses, names and tokens.
+        template = msg.get('template') if isinstance(msg.get('template'), str) else None
+        logging.error(f"Dropping malformed message (template {template}): missing fields {missing}")
         operator_alert(f"Malformed message dropped: missing fields {missing}",
                     submessage="The producer sent an incomplete payload. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -211,7 +216,7 @@ def send_email(ch, method, properties, body):
     # One mail per recipient, as the mailer sends them: the recipients don't see each other.
     recipients = msg['to'] if isinstance(msg['to'], list) else [msg['to']]
     if not recipients or not all(isinstance(r, str) and r for r in recipients):
-        logging.error("Dropping a message without a valid recipient")
+        logging.error(f"Dropping a message without a valid recipient (template {msg['template']})")
         operator_alert("Malformed message dropped: no valid recipient",
                     submessage="The producer sent an empty or invalid `to`. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -226,7 +231,7 @@ def send_email(ch, method, properties, body):
     else:
         valid = isinstance(parameters, dict)
     if not valid:
-        logging.error("Dropping a message whose parameters don't match its recipients")
+        logging.error(f"Dropping a message whose parameters don't match its recipients (template {msg['template']})")
         operator_alert("Malformed message dropped: parameters don't match the recipients",
                     submessage="`parameters` must be an object, or a list with one object per address in `to`.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -248,7 +253,8 @@ def send_email(ch, method, properties, body):
         else:
             texts = [template.render(parameters)] * len(recipients)
     except exceptions.UndefinedError as e:
-        logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
+        # Jinja's message names the missing field; the message itself is not logged.
+        logging.error(f"Error in rendering {msg['template']}: some parameter is undefined ({e.message})")
         # NON-requeuable: the payload is malformed and retrying will never fix it.
         # Drop immediately — with native TTL+DLX there is no filter step that would
         # intercept a re-delivered copy, so requeueing would cause an infinite loop.
