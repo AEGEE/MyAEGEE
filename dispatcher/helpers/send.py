@@ -31,6 +31,8 @@ MAIL_SUBJECTS = {
     "CORE": {
         "MAIL_CONFIRMATION": 'MyAEGEE: Please confirm your account',
         "MAIL_CHANGE": 'MyAEGEE: Email change',
+        "MAIL_CHANGE_OLD_CONFIRM": 'MyAEGEE: Confirm the change of your email',
+        "MAIL_CHANGE_NOTICE": 'MyAEGEE: Your email was changed',
         "PASSWORD_RESET": 'MyAEGEE: Password reset request',
         "NEW_JOIN_REQUEST": 'MyAEGEE: New join request for your body',
         "NEW_MEMBER": 'MyAEGEE: Welcome to AEGEE'
@@ -88,6 +90,8 @@ MAIL_TEMPLATES = {
     "CORE": {
         "MAIL_CONFIRMATION": 'confirm_email',
         "MAIL_CHANGE": 'mail_change',
+        "MAIL_CHANGE_OLD_CONFIRM": 'mail_change_old_confirm',
+        "MAIL_CHANGE_NOTICE": 'mail_change_notice',
         "PASSWORD_RESET": 'password_reset',
         "NEW_JOIN_REQUEST": 'member_joined',
         "NEW_MEMBER": 'new_member'
@@ -171,6 +175,8 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
         "subject": subj or faker.sentence(),
         "template": template or "new_member_dynamic", #TODO remove the or/make it fail
         "parameters": { # Not all will be used at the same time but this is not important, it's a test
+            "name": faker.first_name(),
+            "surname": faker.last_name(),
             "member_firstname": faker.first_name(),
             "member_lastname": faker.last_name(),
             "member_email": faker.email(),
@@ -195,6 +201,9 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
             "body_id": random.choice(range(random.randrange(10,70))),
             "place": faker.city(),
             "token": faker.md5(),
+            "new_email": faker.email(),
+            "requester_name": faker.name(),
+            "changed_by": random.choice(["yourself", faker.name()]),
             "old_status": "snafu",
             "event_name": agora_sentence(),
             "membership_fee": "15⎊",
