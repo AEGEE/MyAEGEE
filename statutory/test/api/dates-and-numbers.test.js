@@ -217,4 +217,65 @@ describe('Dates and numbers that do not fit their column', () => {
             expectInvalid(res, 'fee_paid');
         });
     });
+
+    // A date is written as a day (2031-07-01) or as a full timestamp (2031-07-01T10:00:00.000Z).
+    describe('values that only look like a date', () => {
+        const loose = ['1', 'tomorrow', '2031', '07/01/2031', '1 July 2031', 1900000000000, true, ['2031-07-01'], '2031-13-45', '2031-07-01T25:00:00.000Z'];
+
+        test.each(loose)('should refuse %p as the start of a new event', async (value) => {
+            const res = await send('POST', '/', { ...generator.generateEvent({ type: 'agora' }), starts: value });
+
+            expectInvalid(res, 'starts');
+        });
+
+        test.each(loose)('should refuse changing the participants list deadline of an event to %p', async (value) => {
+            const res = await send('PUT', '/events/' + event.id, { participants_list_publish_deadline: value });
+
+            expectInvalid(res, 'participants_list_publish_deadline');
+        });
+
+        test.each(loose)('should refuse %p as the start of a position', async (value) => {
+            const res = await send('POST', '/events/' + event.id + '/positions', { ...generator.generatePosition(), starts: value });
+
+            expectInvalid(res, 'starts');
+        });
+
+        test.each(loose)('should refuse %p as the start of the term of a position', async (value) => {
+            const res = await send('POST', '/events/' + event.id + '/positions', { ...generator.generatePosition(), start_term: value });
+
+            expectInvalid(res, 'start_term');
+        });
+
+        test.each(loose)('should refuse %p as the end of a plenary', async (value) => {
+            const res = await send('POST', '/events/' + event.id + '/plenaries', { ...generator.generatePlenary(), ends: value });
+
+            expectInvalid(res, 'ends');
+        });
+
+        test.each([
+            ['a day', '2031-07-01', '2031-07-01'],
+            ['a timestamp in UTC', '2031-07-01T10:00:00.000Z', '2031-07-01T10:00:00.000Z'],
+            ['a timestamp without milliseconds', '2031-07-01T10:00:00Z', '2031-07-01T10:00:00.000Z'],
+            ['a timestamp with an offset', '2031-07-01T12:00:00+02:00', '2031-07-01T10:00:00.000Z']
+        ])('should take %s as the end of a plenary', async (description, value, stored) => {
+            const res = await send('POST', '/events/' + event.id + '/plenaries', {
+                name: 'Opening plenary',
+                starts: '2031-06-30T10:00:00.000Z',
+                ends: value
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(new Date(res.body.data.ends).toISOString().startsWith(stored.slice(0, 10))).toEqual(true);
+            if (stored.length > 10) {
+                expect(res.body.data.ends).toEqual(stored);
+            }
+        });
+
+        test.each(['2031-07-01', '2031-07-01T10:00:00.000Z'])('should take %s as the start of the term of a position', async (value) => {
+            const res = await send('POST', '/events/' + event.id + '/positions', { ...generator.generatePosition(), start_term: value });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.start_term).toEqual('2031-07-01');
+        });
+    });
 });
