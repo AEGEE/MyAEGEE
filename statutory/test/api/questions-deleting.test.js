@@ -164,4 +164,80 @@ describe('Questions deleting', () => {
             expect(await Question.count({ where: { id: question.id } })).toEqual(0);
         });
     });
+
+    describe('who may delete a question in an open question line', () => {
+        let event;
+        let questionLine;
+        let myApplication;
+        let theirApplication;
+        let myQuestion;
+        let theirQuestion;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            questionLine = await generator.createQuestionLine({ status: 'open' }, event);
+            myApplication = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
+            theirApplication = await generator.createApplication({ status: 'accepted', confirmed: true }, event);
+            myQuestion = await generator.createQuestion({ application_id: myApplication.id, text: 'My question' }, questionLine);
+            theirQuestion = await generator.createQuestion({ application_id: theirApplication.id, text: 'Their question' }, questionLine);
+        });
+
+        const remove = (question) => request({
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        const questionIds = async () => (await Question.findAll({ order: [['id', 'ASC']] })).map((question) => question.id);
+
+        test('lets the member who asked it delete it, and leaves the other questions', async () => {
+            const res = await remove(myQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, message: 'Question is deleted.' });
+            expect(await questionIds()).toEqual([theirQuestion.id]);
+        });
+
+        test('lets a holder of global:manage_question_lines:agora alone delete the question of somebody else', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_question_lines:agora'] } });
+
+            const res = await remove(theirQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect(await questionIds()).toEqual([myQuestion.id]);
+        });
+
+        test.each([
+            ['another member with a confirmed application', []],
+            ['the permission to see question lines', ['global:see_question_lines:agora']],
+            ['the permissions for another event type', ['global:manage_question_lines:epm', 'global:see_question_lines:epm', 'global:manage_question_lines:spm', 'global:see_question_lines:spm']]
+        ])('refuses %s for the question of somebody else, and deletes nothing', async (description, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+
+            const res = await remove(theirQuestion);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You cannot delete this question.' });
+            expect(await questionIds()).toEqual([myQuestion.id, theirQuestion.id]);
+        });
+
+        test('lets the member who asked it delete it when their application is not confirmed any more', async () => {
+            await myApplication.update({ confirmed: false });
+
+            const res = await remove(myQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect(await questionIds()).toEqual([theirQuestion.id]);
+        });
+
+        test('answers 404 when the question is deleted already', async () => {
+            expect((await remove(myQuestion)).statusCode).toEqual(200);
+
+            const res = await remove(myQuestion);
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body).toEqual({ success: false, message: 'Question is not found.' });
+        });
+    });
 });

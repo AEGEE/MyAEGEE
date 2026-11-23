@@ -227,4 +227,152 @@ describe('Questions editing', () => {
             expect(questionFromDb.text).toEqual('Original');
         });
     });
+
+    describe('who may edit a question in an open question line', () => {
+        let event;
+        let questionLine;
+        let myApplication;
+        let theirApplication;
+        let myQuestion;
+        let theirQuestion;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            questionLine = await generator.createQuestionLine({ status: 'open' }, event);
+            myApplication = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
+            theirApplication = await generator.createApplication({ status: 'accepted', confirmed: true }, event);
+            myQuestion = await generator.createQuestion({ application_id: myApplication.id, text: 'My question' }, questionLine);
+            theirQuestion = await generator.createQuestion({ application_id: theirApplication.id, text: 'Their question' }, questionLine);
+        });
+
+        const edit = (question, body = { text: 'Changed' }) => request({
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id,
+            method: 'PUT',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('lets the member who asked it edit it, and answers with the stored question and their application', async () => {
+            const res = await edit(myQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({
+                id: myQuestion.id,
+                question_line_id: questionLine.id,
+                application_id: myApplication.id,
+                text: 'Changed'
+            });
+            expect(res.body.data.application.id).toEqual(myApplication.id);
+            expect(res.body.data.application.user_id).toEqual(regularUser.id);
+
+            expect((await Question.findByPk(myQuestion.id)).text).toEqual('Changed');
+            expect((await Question.findByPk(theirQuestion.id)).text).toEqual('Their question');
+        });
+
+        test('lets a holder of global:manage_question_lines:agora alone edit the question of somebody else', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_question_lines:agora'] } });
+
+            const res = await edit(theirQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.text).toEqual('Changed');
+            // The question stays the question of the member who asked it.
+            expect(res.body.data.application_id).toEqual(theirApplication.id);
+            expect((await Question.findByPk(theirQuestion.id)).text).toEqual('Changed');
+        });
+
+        test.each([
+            ['another member with a confirmed application', []],
+            ['the permission to see question lines', ['global:see_question_lines:agora']],
+            ['the permissions for another event type', ['global:manage_question_lines:epm', 'global:see_question_lines:epm', 'global:manage_question_lines:spm', 'global:see_question_lines:spm']]
+        ])('refuses %s for the question of somebody else, and changes nothing', async (description, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+
+            const res = await edit(theirQuestion);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You cannot edit this question.' });
+            expect((await Question.findByPk(theirQuestion.id)).text).toEqual('Their question');
+        });
+
+        test('lets the member who asked it edit it when their application is not confirmed any more', async () => {
+            await myApplication.update({ confirmed: false });
+
+            const res = await edit(myQuestion);
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Question.findByPk(myQuestion.id)).text).toEqual('Changed');
+        });
+    });
+
+    describe('what can be changed', () => {
+        let event;
+        let questionLine;
+        let myApplication;
+        let theirApplication;
+        let myQuestion;
+        let theirQuestion;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            questionLine = await generator.createQuestionLine({ status: 'open' }, event);
+            myApplication = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
+            theirApplication = await generator.createApplication({ status: 'accepted', confirmed: true }, event);
+            myQuestion = await generator.createQuestion({ application_id: myApplication.id, text: 'My question' }, questionLine);
+            theirQuestion = await generator.createQuestion({ application_id: theirApplication.id, text: 'Their question' }, questionLine);
+        });
+
+        const edit = (body) => request({
+            path: '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + myQuestion.id,
+            method: 'PUT',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('changes the text only: the application, the question line, the id and the creation time in the body are ignored', async () => {
+            const otherQuestionLine = await generator.createQuestionLine({ status: 'open' }, event);
+            const createdAt = (await Question.findByPk(myQuestion.id)).created_at;
+
+            const res = await edit({
+                text: 'Changed',
+                application_id: theirApplication.id,
+                question_line_id: otherQuestionLine.id,
+                id: 4242,
+                created_at: '2001-01-01T00:00:00.000Z',
+                status: 'closed'
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({
+                id: myQuestion.id,
+                question_line_id: questionLine.id,
+                application_id: myApplication.id,
+                text: 'Changed',
+                created_at: createdAt.toISOString()
+            });
+
+            expect(await Question.count()).toEqual(2);
+            const questionFromDb = await Question.findByPk(myQuestion.id);
+            expect(questionFromDb.text).toEqual('Changed');
+            expect(questionFromDb.application_id).toEqual(myApplication.id);
+            expect(questionFromDb.question_line_id).toEqual(questionLine.id);
+            expect(questionFromDb.created_at).toEqual(createdAt);
+            expect((await Question.findByPk(theirQuestion.id)).text).toEqual('Their question');
+        });
+
+        test.each([
+            ['an empty text', '', 'Question text should be set.'],
+            ['a text of spaces only', '   ', 'Question text should be set.'],
+            ['no text (null)', null, 'question.text cannot be null'],
+            ['a list as text', ['Changed'], 'text cannot be an array or an object']
+        ])('answers 422 for %s and changes nothing', async (description, text, message) => {
+            const res = await edit({ text });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { text: [message] } });
+            expect((await Question.findByPk(myQuestion.id)).text).toEqual('My question');
+        });
+    });
 });
