@@ -495,6 +495,13 @@ export default {
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
     escapeHtml,
+    fetchCurrentBoards () {
+      // Boards are for logged-in members only: the network service would answer a visitor
+      // with 401, which sends them to the login page.
+      if (!this.loginUser) return Promise.resolve({ data: { data: [] } })
+
+      return this.axios.get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current')
+    },
     askLeaveBody () {
       this.$buefy.dialog.confirm({
         title: 'Leaving a body',
@@ -528,11 +535,12 @@ export default {
         this.body = response.data.data
 
         // Get current board(s) for this body
-        this.axios
-          .get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current')
+        this.fetchCurrentBoards()
           .then((boardResponse) => {
             this.boards = boardResponse.data.data
 
+            // The members are only needed to put names to the board.
+            if (!this.boards.length) return { data: { data: [] } }
             return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
           })
           .then((memberResponse) => {

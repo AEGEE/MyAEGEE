@@ -13,10 +13,9 @@ const field = (page: Page, name: string | RegExp) => page.getByLabel(name);
 const save = (page: Page) => page.getByRole('button', { name: 'Save body' });
 
 // What the body page asks for besides the body and the permissions (which the form asked for
-// already) once a body is saved and the form sends the member there.
+// already) once a body is saved and the form sends the member there: a body without a board.
 const answerBodyPage = (api: ApiMock): void => {
     api.json('GET network /bodies/:id/boards/current', ok([]));
-    api.json('GET core /bodies/:id/members', ok([]));
 };
 
 const editing = (api: ApiMock, data: BodyDetail, permissions: string[] = ['global:update:body']): void => {
