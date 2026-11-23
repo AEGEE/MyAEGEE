@@ -217,8 +217,8 @@ exports.updateBoard = async (req, res) => {
 };
 
 exports.deleteBoard = async (req, res) => {
-    if (!req.permissions.manage_boards[req.board.body_id] && !req.permissions.manage_boards.global) {
-        return errors.makeForbiddenError(res, 'You are not allowed to delete boards.');
+    if (!req.permissions.manage_boards.global) {
+        return errors.makeForbiddenError(res, 'Deleting a board needs the global:manage_network:boards permission.');
     }
 
     await req.board.destroy();
