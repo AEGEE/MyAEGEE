@@ -39,7 +39,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['event', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['event', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       file: null
@@ -57,9 +57,11 @@ export default {
       const data = new FormData()
       data.append('image', this.file)
 
-      this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/image', data).then(() => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/image', data).then((response) => {
         this.showSuccess('Event image is updated.')
-        this.router.go(0)
+        // The service answers with the event and its new picture.
+        this.$emit('updated', response.data.data.image)
+        this.$parent.close()
       }).catch((err) => {
         this.showError('Could not update image', err)
       })

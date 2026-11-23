@@ -506,8 +506,10 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          updated: (image) => { this.event.image = image }
         }
       })
     },
