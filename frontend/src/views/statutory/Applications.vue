@@ -51,6 +51,7 @@
             backend-pagination
             :total="total"
             :per-page="limit"
+            :current-page.sync="page"
             @page-change="onPageChange"
             backend-sorting
             default-sort="statutory_id"
@@ -191,6 +192,7 @@ export default {
       query: '',
       limit: 50,
       offset: 0,
+      page: 1,
       total: 0,
       sort: {
         field: 'id',
@@ -232,10 +234,15 @@ export default {
     }
   },
   watch: {
+    // Another search or filter starts from the first page.
     query () {
+      this.offset = 0
+      this.page = 1
       this.loadApplications()
     },
     displayCancelled () {
+      this.offset = 0
+      this.page = 1
       this.loadApplications()
     }
   },
@@ -281,11 +288,7 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-        this.event = event.data.data
-
-        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject })
-      }).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -294,20 +297,27 @@ export default {
           this.$set(pax, 'newStatus', pax.status)
           this.$set(pax, 'isSaving', false)
         }
-      }).catch((err) => {
-        this.isLoading = false
-        if (err.response && err.response.status === 404) {
-          this.$root.showError('Event is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
+      }).catch(this.showLoadError)
+    },
+    showLoadError (err) {
+      this.isLoading = false
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-        this.$router.push({ name: 'oms.statutory.list.all' })
-      })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     }
   },
   mounted () {
-    this.loadApplications()
+    this.isLoading = true
+
+    // The event is the same for every search and page, so it's loaded once.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.event = event.data.data
+      this.loadApplications()
+    }).catch(this.showLoadError)
   }
 }
 </script>
