@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Payment } = require('../../models');
 
 describe('Body payments editing', () => {
     beforeAll(async () => {
@@ -191,5 +192,45 @@ describe('Body payments editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.body_id).not.toEqual(1337);
         expect(res.body.data.user_id).not.toEqual(1337);
+    });
+
+    test.each([
+        ['an end before the start that is stored', { expires: '2026-02-28' }, { expires: ['Expiration date should be after the start date.'] }],
+        ['a start after the end that is stored', { starts: '2027-03-02' }, { expires: ['Expiration date should be after the start date.'] }],
+        ['a start that is not a date', { starts: 'abc' }, { starts: ['Starts date should be valid.'] }],
+        ['an amount that is not a number', { amount: 'abc' }, { amount: ['Amount should be valid.'] }],
+        ['an empty currency', { currency: '' }, { currency: ['Currency should be set.'] }]
+    ])('should fail for %s, and keep the payment as it was', async (name, fields, errors) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'payment' });
+
+        const body = await generator.createBody();
+        const otherUser = await generator.createUser();
+        await generator.createBodyMembership(body, otherUser);
+
+        const payment = await generator.createPayment(body, otherUser, {
+            starts: '2026-03-01',
+            expires: '2027-03-01',
+            amount: 30,
+            currency: 'EUR'
+        });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/payments/' + payment.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: fields
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors });
+
+        const paymentFromDb = await Payment.findByPk(payment.id);
+        expect(paymentFromDb.starts).toEqual('2026-03-01');
+        expect(paymentFromDb.expires).toEqual('2027-03-01');
+        expect(Number(paymentFromDb.amount)).toEqual(30);
+        expect(paymentFromDb.currency).toEqual('EUR');
     });
 });

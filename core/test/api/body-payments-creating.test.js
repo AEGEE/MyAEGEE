@@ -225,4 +225,64 @@ describe('Body payments creating', () => {
         expect(res.body).toEqual({ success: false, message: 'The user ID is not valid.' });
         expect(await Payment.count()).toEqual(0);
     });
+
+    describe('with a date, an amount or a currency that is not one', () => {
+        const valid = { starts: '2026-03-01', expires: '2027-03-01', amount: 30, currency: 'EUR' };
+
+        test.each([
+            ['an end before the start', { expires: '2026-02-28' }, { expires: ['Expiration date should be after the start date.'] }],
+            ['an end on the day of the start', { expires: '2026-03-01' }, { expires: ['Expiration date should be after the start date.'] }],
+            ['an end that is not a date', { expires: 'abc' }, { expires: ['Expiration date should be valid.'] }],
+            ['a start that is not a date', { starts: 'abc' }, { starts: ['Starts date should be valid.'] }],
+            ['no start', { starts: undefined }, { starts: ['Starts date should be set.', 'Starts date should be valid.'] }],
+            ['an amount that is not a number', { amount: 'abc' }, { amount: ['Amount should be valid.'] }],
+            ['an amount with a comma', { amount: '12,50' }, { amount: ['Amount should be valid.'] }],
+            ['an amount below zero', { amount: -1 }, { amount: ['Amount cannot be negative.'] }],
+            ['no amount', { amount: undefined }, { amount: ['Amount should be set.', 'Amount should be valid.'] }],
+            ['an empty currency', { currency: '   ' }, { currency: ['Currency should be set.'] }]
+        ])('should fail for %s, and store no payment', async (name, fields, errors) => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
+
+            const body = await generator.createBody();
+            const member = await generator.createUser();
+            await generator.createBodyMembership(body, member);
+
+            const res = await request({
+                path: '/bodies/' + body.id + '/payments',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: { ...valid, ...fields, user_id: member.id }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors });
+            expect(await Payment.count()).toEqual(0);
+        });
+
+        test('should store an amount with cents', async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
+
+            const body = await generator.createBody();
+            const member = await generator.createUser();
+            await generator.createBodyMembership(body, member);
+
+            const res = await request({
+                path: '/bodies/' + body.id + '/payments',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: { ...valid, amount: '12.50', user_id: member.id }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const paymentFromDb = await Payment.findByPk(res.body.data.id);
+            expect(Number(paymentFromDb.amount)).toEqual(12.5);
+            expect(paymentFromDb.starts).toEqual('2026-03-01');
+            expect(paymentFromDb.expires).toEqual('2027-03-01');
+        });
+    });
 });
