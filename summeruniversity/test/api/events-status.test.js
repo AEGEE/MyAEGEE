@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Event } = require('../../models');
+const { Event, Season } = require('../../models');
 const { sequelize } = require('../../lib/sequelize');
 const config = require('../../config');
 
@@ -227,6 +227,78 @@ describe('Events status, publication, periods and deletion', () => {
             await event.reload();
             expect(event.status).toEqual('first submission');
         });
+
+        test('should return 403 for an approver of another type', async () => {
+            mockAndCapture({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:approve_summeruniversity:pilot'] } });
+            const event = await generator.createEvent({ type: 'regular', status: 'first submission', published: 'none' });
+
+            const res = await put(event, '/status', { status: 'first approval' });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('You are not allowed to change status.');
+            await event.reload();
+            expect(event.status).toEqual('first submission');
+        });
+
+        test('should not allow an organizer to reject their own first submission', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none' });
+
+            const res = await put(event, '/status', { status: 'first draft' });
+
+            expect(res.statusCode).toEqual(403);
+            await event.reload();
+            expect(event.status).toEqual('first submission');
+        });
+
+        test('should allow an organizer to submit a first approval for the second round and notify SUCT', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first approval', published: 'minimal' });
+
+            const res = await put(event, '/status', { status: 'second submission' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual('second submission');
+            expect(event.published).toEqual('minimal');
+            expect(mails.map((mail) => mail.template)).toEqual([
+                'summeruniversity_status_changed.html',
+                'summeruniversity_submitted.html'
+            ]);
+        });
+
+        test('should allow an organizer to submit a second draft', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'second draft', published: 'minimal' });
+
+            const res = await put(event, '/status', { status: 'second submission' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual('second submission');
+        });
+
+        test('should allow an approver who is not an organizer to submit a first draft', async () => {
+            mockAndCapture(approverMocks);
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await put(event, '/status', { status: 'first submission' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual('first submission');
+        });
+
+        test('should return 403 for a stranger submitting a first draft', async () => {
+            mockAndCapture(strangerMocks);
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await put(event, '/status', { status: 'first submission' });
+
+            expect(res.statusCode).toEqual(403);
+            await event.reload();
+            expect(event.status).toEqual('first draft');
+        });
     });
 
     describe('PUT /single/:id/published', () => {
@@ -315,6 +387,27 @@ describe('Events status, publication, periods and deletion', () => {
             await event.reload();
             expect(event.published).toEqual('none');
         });
+
+        test.each(['second draft', 'second submission'])('should allow a minimal publication for %s', async (status) => {
+            const event = await generator.createEvent({ status, published: 'none' });
+
+            const res = await put(event, '/published', { published: 'minimal' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.published).toEqual('minimal');
+        });
+
+        test('should allow publishing a deleted event (the deleted flag is not checked)', async () => {
+            const event = await generator.createEvent({ status: 'second approval', published: 'none', deleted: true });
+
+            const res = await put(event, '/published', { published: 'full' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.published).toEqual('full');
+            expect(event.deleted).toEqual(true);
+        });
     });
 
     describe('PUT /single/:id/application_period', () => {
@@ -400,6 +493,49 @@ describe('Events status, publication, periods and deletion', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('application_starts');
+        });
+
+        test('should keep the application end if only the start is given', async () => {
+            const applicationEnds = generator.daysFromNow(30);
+            const event = await generator.createEvent({ application_starts: generator.daysFromNow(-1), application_ends: applicationEnds });
+
+            const res = await put(event, '/application_period', { application_starts: generator.daysFromNow(1) });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.application_ends.toISOString()).toEqual(applicationEnds.toISOString());
+        });
+
+        test('should return 422 if the application end is not a date', async () => {
+            const event = await generator.createEvent();
+
+            const res = await put(event, '/application_period', { application_ends: 'not-a-date' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('application_ends');
+        });
+
+        test('should return 403 if the user can only manage other types', async () => {
+            mockAndCapture({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:manage_summeruniversity:pilot'] } });
+            const event = await generator.createEvent({ type: 'regular' });
+
+            const res = await put(event, '/application_period', { application_ends: generator.daysFromNow(10) });
+
+            expect(res.statusCode).toEqual(403);
+        });
+
+        test('should not check the application period against the season', async () => {
+            const event = await generator.createEvent({ season: 2026 });
+            await Season.update(
+                { application_period_starts: generator.daysFromNow(-10), application_period_ends: generator.daysFromNow(1) },
+                { where: { year: 2026 } }
+            );
+
+            const res = await put(event, '/application_period', { application_ends: generator.daysFromNow(20) });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.application_ends.getTime()).toBeGreaterThan(generator.daysFromNow(19).getTime());
         });
     });
 
@@ -596,6 +732,29 @@ describe('Events status, publication, periods and deletion', () => {
             expect(event.open_call).toEqual(false);
         });
 
+        test('should return 422 if max_participants is negative', async () => {
+            const event = await generator.createEvent({ max_participants: 20 });
+
+            const res = await put(event, '/open_call', { open_call: true, max_participants: -1 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.max_participants).toEqual(['Max amount of participants cannot be negative']);
+            await event.reload();
+            expect(event.max_participants).toEqual(20);
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should ignore max_participants 0 and only change open_call', async () => {
+            const event = await generator.createEvent({ max_participants: 20 });
+
+            const res = await put(event, '/open_call', { open_call: true, max_participants: 0 });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.max_participants).toEqual(20);
+            expect(event.open_call).toEqual(true);
+        });
+
         test('should return 422 and change nothing without open_call', async () => {
             const event = await generator.createEvent({ max_participants: 1, open_call: false });
 
@@ -605,6 +764,34 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.body.errors.open_call).toEqual(['The value should be true or false.']);
             await event.reload();
             expect(event.max_participants).toEqual(1);
+        });
+
+        test('should let an organizer open the call after the event started', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({
+                starts: generator.daysFromNow(-2),
+                ends: generator.daysFromNow(5),
+                application_starts: generator.daysFromNow(-20),
+                application_ends: generator.daysFromNow(-10)
+            });
+
+            const res = await put(event, '/open_call', { open_call: true });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.open_call).toEqual(true);
+            expect(event.application_status).toEqual('open');
+        });
+
+        test('should allow a manager who is not an organizer', async () => {
+            mockAndCapture({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:manage_summeruniversity:regular'] } });
+            const event = await generator.createEvent();
+
+            const res = await put(event, '/open_call', { open_call: true });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.open_call).toEqual(true);
         });
     });
 
