@@ -96,7 +96,7 @@ COMPLETE_PARAMETERS = {
 def render_template(template_name, parameters=None):
     env = create_template_environment(str(TEMPLATE_DIR))
     template = env.get_template(template_name)
-    return template.render(parameters or copy.deepcopy(COMPLETE_PARAMETERS), altro="Test subject")
+    return template.render(parameters or copy.deepcopy(COMPLETE_PARAMETERS))
 
 
 def test_default_template_variables_are_escaped():

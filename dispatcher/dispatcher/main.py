@@ -244,9 +244,9 @@ def send_email(ch, method, properties, body):
     try:
         # All texts are rendered before anything is sent: one that fails drops the whole message.
         if isinstance(parameters, list):
-            texts = [template.render(p, altro=msg['subject']) for p in parameters]
+            texts = [template.render(p) for p in parameters]
         else:
-            texts = [template.render(parameters, altro=msg['subject'])] * len(recipients)
+            texts = [template.render(parameters)] * len(recipients)
     except exceptions.UndefinedError as e:
         logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
         # NON-requeuable: the payload is malformed and retrying will never fix it.
