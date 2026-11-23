@@ -312,7 +312,11 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || permissions.list_applications || permissions.see_boardview[application.body_id] || permissions.edit_summeruniversity;
+    permissions.view_application = isMine
+        || permissions.list_applications
+        || permissions.see_boardview.global
+        || permissions.see_boardview[application.body_id]
+        || permissions.edit_summeruniversity;
     permissions.edit_application = (isMine && permissions.apply) || permissions.edit_summeruniversity;
     permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_summeruniversity;
 

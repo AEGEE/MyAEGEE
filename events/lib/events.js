@@ -72,9 +72,10 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
 
+    // A board needs to know which event an application is for, not its internal fields.
     const applications = await Application.findAll({
         where: { body_id: bodyId },
-        include: [Event]
+        include: [{ model: Event, attributes: constants.EVENT_PUBLIC_FIELDS }]
     });
 
     return res.json({

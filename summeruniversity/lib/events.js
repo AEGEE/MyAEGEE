@@ -90,6 +90,11 @@ exports.listMostRecentEvents = async (req, res) => {
     });
 };
 
+const BOARDVIEW_EVENT_FIELDS = [
+    ...constants.EVENT_MINIMAL_FIELDS.filter((field) => field !== 'application_status'),
+    'questions'
+];
+
 // All applications for bodies, including events.
 exports.listBodyApplications = async (req, res) => {
     const bodyId = Number(req.params.body_id);
@@ -102,9 +107,12 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
 
+    // A board needs to know which event an application is for and its questions (to read
+    // the answers), not its internal fields. application_status is left out: it is
+    // computed from the application period, which this list does not load.
     const applications = await Application.findAll({
         where: { body_id: bodyId },
-        include: [Event]
+        include: [{ model: Event, attributes: BOARDVIEW_EVENT_FIELDS }]
     });
 
     return res.json({
