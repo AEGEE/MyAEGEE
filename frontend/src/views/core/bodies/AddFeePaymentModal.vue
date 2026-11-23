@@ -56,7 +56,7 @@
       <div class="field">
         <label class="label" for="fee-payment-invoice-address">Invoice address</label>
         <div class="control">
-          <input id="fee-payment-invoice-address" type="text" class="input" v-model.number="tmpPayment.invoice_address" />
+          <input id="fee-payment-invoice-address" type="text" class="input" v-model="tmpPayment.invoice_address" />
         </div>
         <p class="help is-danger" v-if="errors.invoice_address">{{ errors.invoice_address.join(', ') }}</p>
       </div>
@@ -64,7 +64,7 @@
       <div class="field">
         <label class="label" for="fee-payment-invoice-name">Invoice name</label>
         <div class="control">
-          <input id="fee-payment-invoice-name" type="text" class="input" v-model.number="tmpPayment.invoice_name" />
+          <input id="fee-payment-invoice-name" type="text" class="input" v-model="tmpPayment.invoice_name" />
         </div>
         <p class="help is-danger" v-if="errors.invoice_name">{{ errors.invoice_name.join(', ') }}</p>
       </div>
