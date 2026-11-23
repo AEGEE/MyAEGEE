@@ -270,25 +270,80 @@ def send_email(ch, method, properties, body):
         requeue_wait(ch, method, properties, body, reason="smtp_unavailable")
         return
 
-    try:
-        for recipient, text in zip(recipients, texts):
+    # Each recipient's mail is sent on its own, so a failure partway must not send the mail
+    # again to the recipients before it: only the recipients not yet sent to are retried.
+    refused = []
+    for index, (recipient, text) in enumerate(zip(recipients, texts)):
+        try:
             smtpObj.send_message(build_email(msg, recipient, text))
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-    except smtplib.SMTPServerDisconnected:
-        # The message goes back to the queue. If reconnecting fails, smtpObj stays None and
-        # the next delivery parks the message in the retry queues (smtp_unavailable).
-        logging.error("Server unexpectedly disconnected. Attempting to reconnect")
-        smtpObj = None
-        connect_to_smtp()
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
-    except smtplib.SMTPResponseException as e:
-        # Rejected by the server: dead-letter it, process_dead_letter_messages parks it
-        # in the last retry queue and alerts.
-        logging.error(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        except smtplib.SMTPServerDisconnected:
+            # If reconnecting fails, smtpObj stays None and the next delivery parks the
+            # message in the retry queues (smtp_unavailable).
+            logging.error("Server unexpectedly disconnected. Attempting to reconnect")
+            smtpObj = None
+            connect_to_smtp()
+            if index == 0:
+                # Nothing was sent: the message goes back to the queue as it is.
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                return
+            if refused:
+                park_refused(msg, recipients, refused, properties)
+            # The recipients from this one on go back to the email queue.
+            channel.basic_publish(
+                exchange="eml",
+                routing_key="mail",
+                body=message_for(msg, recipients, range(index, len(recipients))),
+                properties=pika.BasicProperties(
+                    headers=dict(properties.headers or {}),
+                    delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+                ),
+            )
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return
+        except Exception as e:
+            # Refused by the server (this recipient, or this mail), or an unexpected error:
+            # the other recipients still get their mail. The error's text can name the
+            # address, so only its kind and code are logged.
+            code = f" {e.smtp_code}" if isinstance(e, smtplib.SMTPResponseException) else ""
+            logging.error(f"Mail {index + 1}/{len(recipients)} of {msg['template']} was not sent: "
+                          f"{type(e).__name__}{code}")
+            refused.append(index)
+
+    if refused:
+        park_refused(msg, recipients, refused, properties)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+def message_for(msg: dict, recipients: list[str], indexes) -> bytes:
+    """The message addressed to the recipients at `indexes` only, with their parameters."""
+    indexes = list(indexes)
+    part = {**msg, "to": [recipients[i] for i in indexes]}
+    if isinstance(msg["parameters"], list):
+        part["parameters"] = [msg["parameters"][i] for i in indexes]
+    return json.dumps(part).encode()
+
+
+def park_refused(msg: dict, recipients: list[str], indexes: list[int], properties):
+    """Puts the refused recipients' part of the message in the last retry queue, for one
+    more try; a part that was refused on that try is dropped. Alerts either way."""
+    last_index = len(RETRY_QUEUE_NAMES) - 1
+    count = f"{len(indexes)} of {len(recipients)}"
+    if int((properties.headers or {}).get("x-retry-index", -1)) >= last_index:
+        operator_alert(f"Refused mails dropped after the last retry ({msg['template']})",
+                    submessage=f"The SMTP server refused {count} mails again; they are not sent.")
+        return
+    _, wait_ms = RETRY_QUEUES[last_index]
+    operator_alert(f"Mails refused by the SMTP server ({msg['template']})",
+                submessage=f"{count} mails will be tried again in {int(wait_ms / 1000)} sec; the others were sent.")
+    channel.basic_publish(
+        exchange="",
+        routing_key=RETRY_QUEUE_NAMES[last_index],
+        body=message_for(msg, recipients, indexes),
+        properties=pika.BasicProperties(
+            headers={"reason": "smtp_refused", "x-retry-index": last_index},
+            delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+        ),
+    )
 
 
 def process_dead_letter_messages(ch, method, properties, body):
