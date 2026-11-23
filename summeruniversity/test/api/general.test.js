@@ -79,6 +79,38 @@ describe('General endpoints and error handling', () => {
         });
     });
 
+    describe('requests without a token', () => {
+        // Core is down: a request that asks it anything fails with 500.
+        const coreDownMocks = { core: { netError: true }, mainPermissions: { netError: true }, approvePermissions: { netError: true } };
+
+        test.each(['/', '/seasons', '/seasons/active'])('should answer GET %s without asking core', async (path) => {
+            mock.mockAll(coreDownMocks);
+
+            const res = await request({ path, method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        test('should show a published event without asking core', async () => {
+            mock.mockAll(coreDownMocks);
+            const event = await generator.createEvent();
+
+            const res = await request({ path: '/single/' + event.id, method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.permissions).not.toHaveProperty('apply');
+        });
+
+        test('should answer 401 on an authenticated route without asking core', async () => {
+            mock.mockAll(coreDownMocks);
+
+            const res = await request({ path: '/mine/organizing', method: 'GET' });
+
+            expect(res.statusCode).toEqual(401);
+            expect(res.body.message).toEqual('Error fetching data: user is not authenticated.');
+        });
+    });
+
     describe('error handling', () => {
         test('should return 404 on an unknown route', async () => {
             const res = await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, skipOpenApi: 'the not-found handler' });
