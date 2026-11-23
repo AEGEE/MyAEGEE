@@ -2,20 +2,20 @@ import path from 'node:path';
 
 import { defineConfig, devices } from '@playwright/test';
 
-import { url, type Service } from './support/constants.ts';
+import { serviceEnv, url, type Service } from './support/constants.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
-const serviceEnv = {
-    NODE_ENV: 'e2e',
-    LOGLEVEL: process.env.LOGLEVEL || 'warn'
-};
+// A busy port stops the run ("already used"): something else, most likely another checkout,
+// runs a stack on this slot, and its services would answer instead of this checkout's.
+// Pick another E2E_SLOT, or set E2E_REUSE=1 to use servers you started yourself.
+const reuseExistingServer = !!process.env.E2E_REUSE;
 
 const service = (name: Service) => ({
     command: 'node lib/run.js',
     cwd: path.join(root, name),
-    env: serviceEnv,
+    env: serviceEnv(name),
     url: `${url(name)}/healthcheck`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer,
     stdout: 'pipe' as const,
     stderr: 'pipe' as const,
     timeout: 60 * 1000
@@ -44,7 +44,7 @@ export default defineConfig({
         {
             command: 'node support/fake-mailer.ts',
             url: `${url('mailer')}/healthcheck`,
-            reuseExistingServer: !process.env.CI
+            reuseExistingServer
         },
         service('core'),
         service('events'),
@@ -53,7 +53,7 @@ export default defineConfig({
         {
             command: 'node support/gateway.ts',
             url: url('gateway'),
-            reuseExistingServer: !process.env.CI
+            reuseExistingServer
         }
     ]
 });

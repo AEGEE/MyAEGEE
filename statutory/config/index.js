@@ -41,25 +41,25 @@ const config = {
     },
     // End-to-end tests: services run as plain Node processes on localhost (see e2e/README.md).
     e2e: {
-        port: 18087,
+        port: Number(process.env.E2E_PORT) || 18087,
         postgres: {
             host: process.env.DB_HOST || 'localhost',
             username: process.env.DB_USERNAME || 'postgres',
-            database: 'statutory-e2e'
+            database: process.env.E2E_DB_NAME || 'statutory-e2e'
         },
         core: {
             url: 'http://localhost',
-            port: 18084
+            port: Number(process.env.E2E_CORE_PORT) || 18084
         },
         mailer: {
             url: 'http://localhost',
-            port: 18090
+            port: Number(process.env.E2E_MAILER_PORT) || 18090
         },
         logger: {
             level: process.env.LOGLEVEL || 'warn'
         },
         bugsnagKey: '00000000000000000000000000000000', // valid format; reporting is disabled in e2e
-        images_dir: '/tmp/myaegee-e2e/statutory-media'
+        images_dir: `${process.env.E2E_MEDIA_ROOT || '/tmp/myaegee-e2e'}/statutory-media`
     },
     test: {
         port: parseInt(process.env.TEST_PORT, 10) || 8085,

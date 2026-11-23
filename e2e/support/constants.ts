@@ -1,15 +1,47 @@
-// Shared settings for the e2e stack. Service ports must match the `e2e` block
-// in core/events/summeruniversity/statutory config/index.js.
-export const PORTS = {
+// Shared settings for the e2e stack: the ports, and what each service is started with.
+//
+// E2E_SLOT=n (0 to 9, default 0) moves every port by n * 1000 and gives the databases and
+// media folders a suffix, so several checkouts can run their stacks on one machine at the
+// same time. The services read the values below in the `e2e` block of their config/index.js,
+// with slot 0's values as fallback.
+const slot = process.env.E2E_SLOT || '0';
+if (!/^[0-9]$/.test(slot)) {
+    throw new Error(`E2E_SLOT must be an integer from 0 to 9, got "${slot}".`);
+}
+
+export const SLOT = Number(slot);
+
+const BASE_PORTS = {
     gateway: 18080,
     core: 18084,
     events: 18085,
     summeruniversity: 18086,
     statutory: 18087,
-    mailer: 18090
+    network: 18088,
+    discounts: 18089,
+    mailer: 18090,
+    // The static server of the mocked-API suite.
+    mocked: 18180
 } as const;
 
-export type Service = keyof typeof PORTS;
+export type Service = keyof typeof BASE_PORTS;
+
+export const PORTS = Object.fromEntries(
+    Object.entries(BASE_PORTS).map(([name, port]) => [name, port + SLOT * 1000])
+) as Record<Service, number>;
+
+const suffix = SLOT ? `-s${SLOT}` : '';
+
+// The environment a service runs with, also for its `sequelize db:*` commands and the seed.
+export const serviceEnv = (service: Service): Record<string, string> => ({
+    NODE_ENV: 'e2e',
+    LOGLEVEL: process.env.LOGLEVEL || 'warn',
+    E2E_PORT: String(PORTS[service]),
+    E2E_DB_NAME: `${service}-e2e${suffix}`,
+    E2E_CORE_PORT: String(PORTS.core),
+    E2E_MAILER_PORT: String(PORTS.mailer),
+    E2E_MEDIA_ROOT: `/tmp/myaegee-e2e${suffix}`
+});
 
 export const PASSWORD = '5ecr3t5ecr3t';
 
