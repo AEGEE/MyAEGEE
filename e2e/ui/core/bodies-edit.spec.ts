@@ -307,8 +307,16 @@ test.describe('editing a body', () => {
     });
 
     test('shows the service\'s objections under the fields', async ({ page, api }) => {
-        editing(api, bodyDetail({ id: 1, code: 'ANT' }));
-        api.on('PUT core /bodies/:id', { status: 422, json: validationError({ name: ['Name must be set.'], code: ['Code must be 3 letters long.', 'Code must contain only letters.'] }) });
+        editing(api, bodyDetail({ id: 1, code: 'ANT', type: 'working group' }));
+        const others = ['type', 'abbreviation', 'description', 'task_description', 'country', 'founded_at', 'email', 'gsuite_id', 'google_group', 'phone', 'address', 'postal_address', 'website'];
+        api.on('PUT core /bodies/:id', {
+            status: 422,
+            json: validationError({
+                name: ['Name must be set.'],
+                code: ['Code must be 3 letters long.', 'Code must contain only letters.'],
+                ...Object.fromEntries(others.map((key) => [key, [`The ${key} is wrong.`]]))
+            })
+        });
 
         await page.goto('/bodies/1/edit');
         await save(page).click();
@@ -316,6 +324,9 @@ test.describe('editing a body', () => {
         await expect(toast(page, 'Some of the body data is invalid.')).toBeVisible();
         await expect(page.getByText('Name must be set.')).toBeVisible();
         await expect(page.getByText('Code must be 3 letters long., Code must contain only letters.')).toBeVisible();
+        for (const key of others) {
+            await expect(page.getByText(`The ${key} is wrong.`), key).toBeVisible();
+        }
         await expect(save(page)).toBeEnabled();
 
         api.json('PUT core /bodies/:id', ok(body({ id: 1 })));

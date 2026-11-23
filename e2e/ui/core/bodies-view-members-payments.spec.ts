@@ -261,7 +261,17 @@ test.describe('adding a fee payment', () => {
 
     test('shows what the service objects to', async ({ page, api }) => {
         answer(api);
-        api.on('POST core /bodies/:id/payments', { status: 422, json: validationError({ currency: ['Currency should be set.'], amount: ['Amount cannot be negative.'] }) });
+        api.on('POST core /bodies/:id/payments', {
+            status: 422,
+            json: validationError({
+                starts: ['Starts date should be set.'],
+                expires: ['Expiration date should be set.'],
+                currency: ['Currency should be set.'],
+                amount: ['Amount cannot be negative.'],
+                invoice_address: ['Invoice address is too long.'],
+                invoice_name: ['Invoice name is too long.']
+            })
+        });
 
         await page.goto('/bodies/1/members');
         await rowOf(page, 'Ann Able').getByRole('button', { name: 'Add fee payment' }).click();
@@ -271,6 +281,9 @@ test.describe('adding a fee payment', () => {
         await expect(toast(page, 'Some fields were not set')).toBeVisible();
         await expect(modal.getByText('Currency should be set.')).toBeVisible();
         await expect(modal.getByText('Amount cannot be negative.')).toBeVisible();
+        for (const message of ['Starts date should be set.', 'Expiration date should be set.', 'Invoice address is too long.', 'Invoice name is too long.']) {
+            await expect(modal.getByText(message), message).toBeVisible();
+        }
         await expect(modal.getByRole('button', { name: 'Add fee payment' })).toBeEnabled();
     });
 

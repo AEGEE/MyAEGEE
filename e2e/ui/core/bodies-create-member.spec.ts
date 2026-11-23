@@ -72,6 +72,11 @@ test.describe('creating a member for a body', () => {
 
         await page.goto('/bodies/1/new_member');
         await fillRequired(page);
+        // A birthday typed and removed again counts as none.
+        await page.getByLabel('Birthday').fill('1990-05-14');
+        await page.getByLabel('Birthday').blur();
+        await page.getByLabel('Birthday').fill('');
+        await page.getByLabel('Birthday').blur();
         await save(page).click();
 
         await expect(toast(page, 'Could not create user: Database is down')).toBeVisible();
@@ -95,6 +100,12 @@ test.describe('creating a member for a body', () => {
         api.on('POST core /bodies/:id/create-member', {
             status: 422,
             json: validationError({
+                first_name: ['First name should be set.'],
+                last_name: ['Last name should be set.'],
+                phone: ['Phone is too long.'],
+                gender: ['Gender is too long.'],
+                address: ['Address is too long.'],
+                about_me: ['About me is too long.'],
                 email: ['Email should be valid.'],
                 username: ['Username should only contain letters, numbers, dots, underscores and dashes.'],
                 date_of_birth: ['Date of birth should be in the past.']
@@ -109,6 +120,9 @@ test.describe('creating a member for a body', () => {
         await expect(page.getByText('Email should be valid.')).toBeVisible();
         await expect(page.getByText('Username should only contain letters, numbers, dots, underscores and dashes.')).toBeVisible();
         await expect(page.getByText('Date of birth should be in the past.')).toBeVisible();
+        for (const message of ['First name should be set.', 'Last name should be set.', 'Phone is too long.', 'Gender is too long.', 'Address is too long.', 'About me is too long.']) {
+            await expect(page.getByText(message), message).toBeVisible();
+        }
     });
 });
 

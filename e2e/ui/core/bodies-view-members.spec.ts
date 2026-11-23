@@ -302,8 +302,9 @@ test.describe('adding an existing member to a body', () => {
 
         await page.goto('/bodies/1/members');
         await page.getByRole('button', { name: 'Add member' }).click();
-        await dialog(page, 'Add member').getByRole('textbox', { name: 'Search by name or email' }).fill('jan');
+        // Each letter searches again and cancels the search before it, without an error.
+        await dialog(page, 'Add member').getByRole('textbox', { name: 'Search by name or email' }).pressSequentially('jan');
 
-        await expect(toast(page, 'Could not fetch members: Permission global:search:member is required to search without body_id.')).toBeVisible();
+        await expect(toast(page, 'Could not fetch members: Permission global:search:member is required to search without body_id.').first()).toBeVisible();
     });
 });

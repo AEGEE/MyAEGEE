@@ -188,11 +188,15 @@ test.describe('editing a board', () => {
     });
 
     test('says why a board could not be deleted', async ({ page, api }) => {
-        answer(api, { permissions: ['global:manage_network:boards'] });
+        answer(api, { boards: [board({ ...current(), name: null, end_date: null })], permissions: ['global:manage_network:boards'] });
         api.on('DELETE network /bodies/:id/boards/:board_id', { status: 403, json: forbidden('You are not allowed to delete this board.') });
 
-        await openEdit(page);
+        await page.goto('/bodies/1/boards');
+        await boardCard(page, /^2027-01-01 -\s*$/).click();
+        await page.getByRole('button', { name: 'Edit board' }).click();
         await dialog(page, 'Edit board').getByRole('button', { name: 'Delete board' }).click();
+        // A board without a name or end is named by the start of its term.
+        await expect(dialog(page, 'Deleting a board')).toContainText('Are you sure you want to delete the board 2027-01-01 - ? This action cannot be undone.');
         await dialog(page, 'Deleting a board').getByRole('button', { name: 'Delete board' }).click();
 
         await expect(toast(page, 'Could not delete board: You are not allowed to delete this board.')).toBeVisible();
