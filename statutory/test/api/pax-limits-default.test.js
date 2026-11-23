@@ -43,7 +43,8 @@ describe('Pax limits defaults', () => {
         const res = await request({
             path: '/limits/agora/defaults/' + bodies[0].id,
             method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            headers: { 'X-Auth-Token': 'blablabla' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);

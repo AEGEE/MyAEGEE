@@ -262,7 +262,8 @@ describe('API requests', () => {
     test('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
             path: '/nonexistant',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            headers: { 'X-Auth-Token': 'blablabla' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);

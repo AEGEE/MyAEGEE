@@ -32,6 +32,10 @@ apis:
     root: ./summeruniversity/openapi.yaml
     x-openapi-ts:
       output: ./packages/api-types/summeruniversity.ts
+  statutory:
+    root: ./statutory/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/api-types/statutory.ts
 extends:
   - recommended
 rules:

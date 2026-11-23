@@ -1,0 +1,4301 @@
+openapi: 3.1.1
+info:
+  title: MyAEGEE statutory
+  version: '1'
+  description: |
+    Statutory events of AEGEE-Europe (Agora, EPM, SPM): the events themselves, the
+    applications of members and what boards, the Chair Team, the Juridical Commission and
+    the local organisers do with them, members lists and the votes that follow from them,
+    positions and candidatures, plenaries and their attendance, and question lines.
+
+    Callers send a core access token in `X-Auth-Token`. The service checks it against core
+    (`GET /members/me` and `GET /my_permissions`, and for every route under
+    `/events/{event_id}` two `POST /my_permissions` calls) on every request. The health
+    check and the metrics need no token, and the list of events, one event and the field
+    names also answer anonymous callers.
+
+    A draft event answers like an event that does not exist (404), unless the caller
+    manages events of its type. A request with a rejected token for an event that does not
+    exist answers 404 on the routes of the event itself, the votes, the plenaries, the
+    positions and the candidatures, and 401 on the others: they check the token first.
+  license: {name: ISC, identifier: ISC}
+servers:
+  - url: /api/statutory
+security:
+  - XAuthToken: []
+tags:
+  - name: general
+  - name: events
+  - name: applications
+  - name: pax_limits
+  - name: memberslists
+  - name: massmailer
+  - name: votes_amounts
+  - name: positions
+  - name: candidates
+  - name: question_lines
+  - name: questions
+  - name: plenaries
+paths:
+  /healthcheck:
+    get:
+      operationId: getHealthcheck
+      summary: Health check
+      tags: [general]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: The service is up.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthcheckResponse'}
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics of the stored data
+      description: Open in the service; the gateway puts basic authentication in front of it.
+      tags: [general]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /metrics/requests:
+    get:
+      operationId: getRequestMetrics
+      summary: Prometheus metrics of the requests per endpoint
+      description: Open in the service; the gateway puts basic authentication in front of it.
+      tags: [general]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /:
+    get:
+      operationId: listEvents
+      summary: List the published events
+      description: The latest event first. Drafts are never listed here.
+      tags: [events]
+      x-permission: none; anonymous callers get the same list
+      security: [{}, {XAuthToken: []}]
+      parameters:
+        - name: search
+          in: query
+          description: Part of the name or the description, case-insensitive.
+          schema: {type: string}
+        - name: type
+          in: query
+          description: One event type, or several (`type[]=agora&type[]=epm`).
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/EventType'
+              - type: array
+                items: {$ref: '#/components/schemas/EventType'}
+        - name: starts
+          in: query
+          description: Only events that start on or after this day (`YYYY-MM-DD`).
+          schema: {type: string, format: date}
+        - name: ends
+          in: query
+          description: Only events that end on or before this day (`YYYY-MM-DD`).
+          schema: {type: string, format: date}
+      responses:
+        '200':
+          description: The published events with their images.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithImageListResponse'}
+        '400':
+          description: '`starts` or `ends` is not a date.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      operationId: createEvent
+      summary: Create an event
+      description: |
+        The event starts as a draft: `status`, `id` and `image_id` in the body are ignored.
+        A new Agora gets the latest published Agora as `previous_agora_id`.
+      tags: [events]
+      x-permission: 'global:manage_event:<type>, for the type in the body'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventCreateInput'}
+      responses:
+        '200':
+          description: The created event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /tasks:
+    get:
+      operationId: listTasks
+      summary: List the scheduled background tasks
+      description: The tasks that open and close positions and close the attendances of a plenary.
+      tags: [general]
+      x-permission: global:see_background_tasks:statutory
+      responses:
+        '200':
+          description: The scheduled tasks, keyed by task id.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TaskMapResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /mine:
+    get:
+      operationId: listMyEvents
+      summary: List the events the caller applied to
+      description: |
+        The earliest event first, each with the caller's application. Drafts are only listed
+        for those who manage events of their type. The status of the application reads
+        `pending` until the event reveals the statuses, unless the caller manages the
+        applications of that event type.
+      tags: [events]
+      x-permission: authenticated (own applications only)
+      responses:
+        '200':
+          description: The events with the caller's application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithApplicationsListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /applications/future/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: The id of a member. Anything but digits within the Postgres integer range answers 400.
+        schema: {type: integer, minimum: 0, maximum: 2147483647}
+    get:
+      operationId: listFutureApplications
+      summary: List a member's applications to events that have not started
+      description: |
+        Used by core before it bans a member from applying. Only applications that are not
+        cancelled or rejected, to published events that start in the future.
+      tags: [applications]
+      x-permission: 'global:update_application_ban:member, or global:manage_applications for any event type'
+      responses:
+        '200':
+          description: The member's open applications, the earliest event first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FutureApplicationListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /recents:
+    get:
+      operationId: listRecentEvents
+      summary: The end of the latest published event per organising body
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - name: ends
+          in: query
+          description: Only events that end on or before this day (`YYYY-MM-DD`).
+          schema: {type: string, format: date}
+      responses:
+        '200':
+          description: One entry per organising body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RecentEventListResponse'}
+        '400':
+          description: '`ends` is not a date.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /limits/{event_type}/defaults:
+    parameters:
+      - $ref: '#/components/parameters/EventTypePath'
+    get:
+      operationId: listDefaultPaxLimits
+      summary: List the default participant limits of every body
+      description: What each body may send by its type, without the limits stored for single bodies.
+      tags: [pax_limits]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The default limit of every body in core.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaxLimitDefaultListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /limits/{event_type}/{body_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventTypePath'
+      - $ref: '#/components/parameters/BodyIdPath'
+    get:
+      operationId: getPaxLimit
+      summary: The participant limit of one body
+      description: The limit stored for the body, or the default for its type.
+      tags: [pax_limits]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The limit.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaxLimitResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404':
+          description: Core does not know the body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    delete:
+      operationId: deletePaxLimit
+      summary: Remove the stored participant limit of a body
+      description: The body falls back to the default for its type.
+      tags: [pax_limits]
+      x-permission: 'global:manage_event:<event_type>'
+      responses:
+        '200':
+          description: The stored limit is removed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: The event type is not one of the three, or the body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No limit is stored for this body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /limits/{event_type}:
+    parameters:
+      - $ref: '#/components/parameters/EventTypePath'
+    post:
+      operationId: setPaxLimit
+      summary: Store the participant limit of a body
+      description: Creates the limit of the body in the request, or replaces the stored one.
+      tags: [pax_limits]
+      x-permission: 'global:manage_event:<event_type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PaxLimitInput'}
+      responses:
+        '200':
+          description: The stored limit.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaxLimitStoredResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    get:
+      operationId: listPaxLimits
+      summary: List the participant limits of every body
+      description: For each body in core its stored limit, or the default for its type.
+      tags: [pax_limits]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: One limit per body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaxLimitListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /events/{event_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getEvent
+      summary: One event
+      description: The event with its image and what the caller may do with it (`permissions`).
+      tags: [events]
+      x-permission: none; anonymous callers get the event with every permission false. A draft needs global:manage_event:<type>
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithPermissionsResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateEvent
+      summary: Edit an event
+      description: |
+        `type`, `status`, `image_id` and `application_status_revealed_at` in the body are
+        ignored. Once the participants list deadline has passed, the edit records the moment
+        the application statuses were revealed.
+      tags: [events]
+      x-permission: 'global:manage_event:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventUpdateInput'}
+      responses:
+        '200':
+          description: The edited event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithImageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/fields/applications/all:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getApplicationFields
+      summary: The names of the application fields
+      description: |
+        The column titles for the export of all applications, with one entry `answers.<n>`
+        per question of the event.
+      tags: [events]
+      x-permission: none; anonymous callers get the same names
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: Field to title.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/fields/applications/incoming:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getIncomingApplicationFields
+      summary: The names of the application fields for the local organisers
+      tags: [events]
+      x-permission: none; anonymous callers get the same names
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: Field to title.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/fields/candidates:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getCandidateFields
+      summary: The names of the candidature fields
+      tags: [events]
+      x-permission: none; anonymous callers get the same names
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: Field to title.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventStatus
+      summary: Publish an event, or make it a draft again
+      description: Publishing sets `publication_date`. A request without `status` answers 400 before the permission is checked.
+      tags: [events]
+      x-permission: 'global:manage_event:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventStatusInput'}
+      responses:
+        '200':
+          description: The status is changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: The body has no `status`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/image:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      operationId: uploadEventImage
+      summary: Upload the image of an event
+      description: Replaces the image the event had and removes the old file.
+      tags: [events]
+      x-permission: 'global:manage_event:<type>'
+      requestBody:
+        $ref: '#/components/requestBodies/ImageUpload'
+      responses:
+        '200':
+          description: The event with its new image.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithImageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422':
+          description: No image, a file over 5 MB, another extension than .png, .jpg or .jpeg, or content that is not such an image.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /events/{event_id}/applications:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      operationId: submitApplication
+      summary: Apply to an event
+      description: |
+        Only the fields of the application form are stored; the name, gender and date of
+        birth come from the caller's core profile. The applicant and the board of the body
+        get a mail; when a mail fails, the application is not stored.
+
+        403 has several causes, each with its own message: the event is a draft, the
+        application period is closed, the caller is banned from applying, the caller is not
+        a member of `body_id`, or the body may not send any participants.
+
+        The answer has no `board_comment`, unless the caller is one of those who select the
+        participants of the body.
+      tags: [applications]
+      x-permission: authenticated, a member of the body, within the application period (or global:apply:<type> or global:manage_applications:<type>), and not banned from applying
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationCreateInput'}
+      responses:
+        '200':
+          description: The application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/all:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listApplications
+      summary: List the applications of an event
+      description: Whole applications, with the mail address of the applicant when core knows it.
+      tags: [applications]
+      x-permission: 'global:manage_applications:<type>'
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSort'
+        - $ref: '#/components/parameters/ApplicationQuery'
+        - $ref: '#/components/parameters/DisplayCancelled'
+      responses:
+        '200':
+          description: The applications, the newest first unless sorted otherwise.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationListResponse'}
+        '400': {$ref: '#/components/responses/InvalidListQuery'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/accepted:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listAcceptedApplications
+      summary: The participants list
+      description: The accepted applications that are not cancelled, by body, participant type and order.
+      tags: [applications]
+      x-permission: 'authenticated once the participants list deadline has passed; before that global:manage_applications:<type>'
+      responses:
+        '200':
+          description: The participants.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationParticipantListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/juridical:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listJuridicalApplications
+      summary: List the confirmed participants for the Juridical Commission
+      description: The accepted and confirmed applications that are not cancelled.
+      tags: [applications]
+      x-permission: 'global:manage_juridical:<type> or global:manage_applications:<type>'
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSort'
+        - $ref: '#/components/parameters/ApplicationQuery'
+      responses:
+        '200':
+          description: The applications, the newest first unless sorted otherwise.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationJuridicalListResponse'}
+        '400': {$ref: '#/components/responses/InvalidListQuery'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/incoming:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listIncomingApplications
+      summary: List the participants for the local organisers
+      description: The accepted applications that are not cancelled, with the mail address of the applicant when core knows it.
+      tags: [applications]
+      x-permission: 'global:manage_incoming:<type> or global:manage_applications:<type>'
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSort'
+        - $ref: '#/components/parameters/ApplicationQuery'
+      responses:
+        '200':
+          description: The applications, the newest first unless sorted otherwise.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationIncomingListResponse'}
+        '400': {$ref: '#/components/responses/InvalidListQuery'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/network:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listNetworkApplications
+      summary: List the applications for the Network Director
+      description: The applications that are not cancelled, with whether the applicant is on the members list of the body.
+      tags: [applications]
+      x-permission: 'global:update_memberslist_status:<type> or global:manage_applications:<type>'
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSort'
+        - $ref: '#/components/parameters/ApplicationQuery'
+      responses:
+        '200':
+          description: The applications, the newest first unless sorted otherwise.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationNetworkListResponse'}
+        '400': {$ref: '#/components/responses/InvalidListQuery'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/stats:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getApplicationStats
+      summary: Statistics of the applications of an event
+      description: |
+        Counts per day, body, participant type, gender, meal and number of events visited,
+        and the bodies that count for the quorum. Until the event reveals the application
+        statuses, every application that is not cancelled counts as pending, unless the
+        caller manages the applications.
+      tags: [applications]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The statistics.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationStatsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/export/openslides:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportOpenslides
+      summary: Export the participants for OpenSlides
+      description: A CSV file of the accepted applications that are not cancelled, with a new random password per participant on every request.
+      tags: [applications]
+      x-permission: 'global:manage_incoming:<type> or global:manage_applications:<type>'
+      responses:
+        '200':
+          description: The file `openslides.csv`.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            text/csv: {}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/export/delegates_jc:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportDelegatesJc
+      summary: Export the delegates for the Juridical Commission
+      description: A semicolon-separated file of the accepted delegates that are not cancelled.
+      tags: [applications]
+      x-permission: 'global:manage_juridical:<type>'
+      responses:
+        '200':
+          description: The file `delegates_jc_<time>.csv`.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            text/csv: {}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/export/{prefix}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - name: prefix
+        in: path
+        required: true
+        description: '`all` for every field and filter, `incoming` for the fields of the local organisers and accepted applications only.'
+        schema: {type: string, enum: [all, incoming]}
+    get:
+      operationId: exportApplications
+      summary: Export the applications as a spreadsheet
+      description: |
+        One row per application that is not cancelled, with the selected fields as columns.
+        400 has three causes: another prefix than `all` or `incoming` (checked before the
+        permission), no `select`, and a filter on a field or value that is not supported.
+      tags: [applications]
+      x-permission: 'all: global:manage_applications:<type>; incoming: global:manage_incoming:<type> or global:manage_applications:<type>'
+      parameters:
+        - name: select
+          in: query
+          required: true
+          description: The fields to export, in column order (`select[]=first_name&select[]=last_name`).
+          schema: {type: array, items: {type: string}}
+        - name: filter
+          in: query
+          style: deepObject
+          explode: true
+          description: Only applications with these values (`filter[status]=accepted`). Ignored for `incoming`.
+          schema: {$ref: '#/components/schemas/ApplicationFilter'}
+      responses:
+        '200':
+          description: The file `participants_<time>.xlsx`.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/applications/boardview/{body_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/BodyIdPath'
+    get:
+      operationId: listBoardviewApplications
+      summary: List the applications of a body for its board
+      description: Whole applications by participant type and order, those without a type last, with the mail address of the applicant when core knows it.
+      tags: [applications]
+      x-permission: 'global:approve_members:<type>, or approve_members:<type> in that body'
+      responses:
+        '200':
+          description: The applications of the body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationBoardviewListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: setBoardviewApplications
+      summary: Set the participant types of all applications of a body
+      description: |
+        Clears the participant type, order and board comment of every application of the
+        body, then sets them for the applications in the request. Nothing is changed when
+        one entry fails.
+
+        403 is also the answer when an entry names a member who did not apply from this
+        body, or when the result exceeds the participant limit of the body.
+      tags: [applications]
+      x-permission: 'global:approve_members:<type>, or approve_members:<type> in that body until the board approve deadline'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BoardviewInput'}
+      responses:
+        '200':
+          description: The applications are updated.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: The body id is not a number, the request is not an array, or an entry lacks a field.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationCancelled
+      summary: Cancel an application, or undo that
+      description: |
+        Without `cancelled` in the body nothing changes. The answer has no `board_comment`,
+        unless the caller is one of those who select the participants of the body.
+      tags: [applications]
+      x-permission: 'the applicant within the application period, or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationCancelledInput'}
+      responses:
+        '200':
+          description: The application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/attended:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationAttended
+      summary: Mark an application as attended, or undo that
+      description: |
+        Not through `me`. Without `attended` in the body nothing changes. Those who manage
+        applications and the applicant get the whole application (the applicant without
+        `board_comment`); the local organisers get the fields of their own list.
+      tags: [applications]
+      x-permission: 'global:manage_incoming:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationAttendedInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/registered:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationRegistered
+      summary: Mark an application as registered by the Juridical Commission, or undo that
+      description: |
+        Not through `me`. Without `registered` in the body nothing changes. Those who manage
+        applications and the applicant get the whole application (the applicant without
+        `board_comment`); the Juridical Commission gets the fields of its own list.
+      tags: [applications]
+      x-permission: 'global:manage_juridical:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationRegisteredInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationJuridicalFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/departed:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationDeparted
+      summary: Mark an application as departed, or undo that
+      description: |
+        Not through `me`. Without `departed` in the body nothing changes. Those who manage
+        applications and the applicant get the whole application (the applicant without
+        `board_comment`); the Juridical Commission gets the fields of its own list.
+      tags: [applications]
+      x-permission: 'global:manage_juridical:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationDepartedInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationJuridicalFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/confirmed:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationConfirmed
+      summary: Mark an application as confirmed, or undo that
+      description: |
+        Not through `me`. Without `confirmed` in the body nothing changes. Those who manage
+        applications and the applicant get the whole application (the applicant without
+        `board_comment`); the local organisers get the fields of their own list.
+      tags: [applications]
+      x-permission: 'global:manage_incoming:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationConfirmedInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/incoming:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationIncoming
+      summary: Mark the incoming form of an application as filled in, or undo that
+      description: |
+        Not through `me`. Without `incoming` in the body nothing changes. Those who manage
+        applications and the applicant get the whole application (the applicant without
+        `board_comment`); the local organisers get the fields of their own list.
+      tags: [applications]
+      x-permission: 'global:manage_incoming:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationIncomingInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/is_on_memberslist:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationIsOnMemberslist
+      summary: Set whether an applicant is on the members list of the body
+      description: |
+        Not through `me`. Without `is_on_memberslist` in the body nothing changes. Those who
+        manage applications and the applicant get the whole application (the applicant
+        without `board_comment`); the Network Director gets the fields of their own list.
+      tags: [applications]
+      x-permission: 'global:update_memberslist_status:<type> or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationIsOnMemberslistInput'}
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationNetworkFlagResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationStatus
+      summary: Accept or reject an application, or put it on the waiting list
+      description: Not through `me`. Without `status` in the body nothing changes.
+      tags: [applications]
+      x-permission: 'global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationStatusInput'}
+      responses:
+        '200':
+          description: The whole application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}/board:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationBoard
+      summary: Set the participant type, order and board comment of an application
+      description: |
+        Not through `me`. Only the fields in the body change. 403 is also the answer when
+        the result exceeds the participant limit of the body.
+      tags: [applications]
+      x-permission: 'global:approve_members:<type>, or approve_members:<type> in the applicant''s body until the board approve deadline'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationBoardInput'}
+      responses:
+        '200':
+          description: The whole application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/applications/{application_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: getApplication
+      summary: One application
+      description: |
+        The application with what the caller may do with it (`permissions`) and the bodies
+        the applicant could apply from (`editable_bodies`, empty unless the caller may edit
+        the application). Three shapes:
+
+        - the whole application, for those who manage applications and the board of the
+          applicant's body;
+        - the whole application without `board_comment`, for the applicant;
+        - the fields of the local organisers' list, for those who only hold
+          `manage_incoming`, and only for accepted applications that are not cancelled
+          (others answer 404).
+
+        `status` reads `pending` until the event reveals the statuses, unless the caller
+        manages the applications.
+      tags: [applications]
+      x-permission: 'the applicant, global:manage_applications:<type>, approve_members:<type> in the applicant''s body, or global:manage_incoming:<type>'
+      responses:
+        '200':
+          description: The application as the caller may see it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithPermissionsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateApplication
+      summary: Edit an application
+      description: |
+        Only the fields of the application form are stored; the name, gender and date of
+        birth are refreshed from the applicant's core profile. A new body clears the
+        participant type, order and board comment. The applicant and the board of the body
+        get a mail; when a mail fails, nothing is changed.
+
+        403 is also the answer when the applicant is not a member of the new `body_id`, or
+        when that body may not send any participants.
+      tags: [applications]
+      x-permission: 'the applicant while the application is not accepted and the application period is open (or with global:apply:<type>), or global:manage_applications:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApplicationUpdateInput'}
+      responses:
+        '200':
+          description: The application, without `board_comment` unless the caller selects the participants of the body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/memberslists:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listMemberslists
+      summary: List the members lists of an Agora
+      tags: [memberslists]
+      x-permission: 'global:manage_memberslist:<type> or global:see_memberslists:<type>'
+      responses:
+        '200':
+          description: Every members list of the event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MembersListListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/memberslists/missing:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listMissingMemberslists
+      summary: List the locals without a members list
+      description: The antennae, contact antennae and contacts in core that did not upload a members list for this Agora.
+      tags: [memberslists]
+      x-permission: 'global:see_missing_memberslists:<type>'
+      responses:
+        '200':
+          description: The bodies without a members list.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodySummaryListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/memberslists/without_fee:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listMemberslistsWithoutFee
+      summary: List the bodies whose members pay no fee
+      description: The bodies whose members list has a fee of 0 for every member.
+      tags: [memberslists]
+      x-permission: 'global:see_memberslists_without_fee:<type>'
+      responses:
+        '200':
+          description: The bodies with a members list without fees.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodySummaryListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/memberslists/{body_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/BodyIdPath'
+    get:
+      operationId: getMemberslist
+      summary: The members list of a body
+      tags: [memberslists]
+      x-permission: 'global:manage_memberslist:<type>, global:see_memberslists:<type>, or manage_memberslist:<type> in that local'
+      responses:
+        '200':
+          description: The members list.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MembersListResponse'}
+        '400':
+          description: The event is not an Agora, or the body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: The event does not exist, or the body has no members list for it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      operationId: uploadMemberslist
+      summary: Upload or replace the members list of a body
+      description: |
+        Stores the list with the conversion rate of its currency to euro, mails the
+        notification address and recalculates the votes of the body and whether its
+        applicants are on the list. `fee_paid` in the body is ignored.
+      tags: [memberslists]
+      x-permission: 'global:manage_memberslist:<type>, or manage_memberslist:<type> in that local before the deadline (after it with memberslist_late:<type>); between the submission and the edit deadline also global:edit_memberslist_between_deadlines:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MembersListInput'}
+      responses:
+        '200':
+          description: The stored members list.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MembersListUploadedResponse'}
+        '400':
+          description: The event is not an Agora, or the body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/memberslists/{body_id}/fee_paid:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/BodyIdPath'
+    put:
+      operationId: setMemberslistFeePaid
+      summary: Record the fee a body paid for its members list
+      tags: [memberslists]
+      x-permission: 'global:set_memberslists_fee_paid:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MembersListFeePaidInput'}
+      responses:
+        '200':
+          description: The members list.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MembersListResponse'}
+        '400':
+          description: The event is not an Agora, or the body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: The event does not exist, or the body has no members list for it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/massmailer:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      operationId: sendMassMail
+      summary: Mail the applicants of an event
+      description: |
+        One mail per application that is not cancelled and matches the filter. In the text
+        `{first_name}`, `{last_name}`, `{participant_type_order}`, `{body_name}` and
+        `{statutory_id}` are replaced per applicant.
+
+        400 has several causes: no text, no subject, a filter on a field or value that is
+        not supported, and no application that matches.
+      tags: [massmailer]
+      x-permission: 'global:use_massmailer:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MassMailInput'}
+      responses:
+        '200':
+          description: The mails are handed to the mailer.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MassMailResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/votes-amounts/antenna:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listVotesPerAntenna
+      summary: The votes of every antenna at an Agora
+      tags: [votes_amounts]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The votes per antenna.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VotesPerAntennaListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/votes-amounts/delegate:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listVotesPerDelegate
+      summary: The votes of every delegate at an Agora
+      description: |
+        Two distributions per body: `off-event` over the confirmed delegates, `on-event`
+        over those who are registered and did not depart.
+      tags: [votes_amounts]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The votes per delegate.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VotesPerDelegateListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/votes-amounts/{body_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/BodyIdPath'
+    get:
+      operationId: getVotesForBody
+      summary: The votes of one body and its delegates at an Agora
+      description: 'A body without votes answers 200 with `antenna: null` and no delegates.'
+      tags: [votes_amounts]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The votes of the body and of its delegates.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VotesForBodyResponse'}
+        '400':
+          description: The event is not an Agora, or the body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/positions:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listPositions
+      summary: List the positions of an Agora
+      description: The positions that are not deleted, the oldest first, without candidates.
+      tags: [positions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The positions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createPosition
+      summary: Add a position
+      description: |
+        `status` in the body is ignored: the position is open when now is between `starts`
+        and `ends`, and it is opened and closed at those moments.
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PositionCreateInput'}
+      responses:
+        '200':
+          description: The created position.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/positions/export:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportCandidates
+      summary: Export the candidatures as a spreadsheet
+      description: One row per candidature for a position of this Agora that is not deleted.
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      parameters:
+        - name: select
+          in: query
+          description: The fields to export, in column order (`select[]=first_name`). Every field when left out.
+          schema: {type: array, items: {type: string}}
+        - name: filter
+          in: query
+          style: deepObject
+          explode: true
+          description: Only candidatures with these values (`filter[status]=approved`).
+          schema: {$ref: '#/components/schemas/CandidateFilter'}
+      responses:
+        '200':
+          description: The file `stats.xlsx`.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400':
+          description: The event is not an Agora, or the filter names a field or value that is not supported.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/positions/all:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listPositionsWithCandidates
+      summary: List the positions with all their candidatures
+      description: Every candidature whatever its status, with the mail address of the candidate from core.
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      responses:
+        '200':
+          description: The positions with their candidatures.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionWithCandidatesListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/positions/approved:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listPositionsWithApprovedCandidates
+      summary: List the positions with their approved candidatures
+      description: |
+        Approved candidatures come whole but without mail addresses. Pending candidatures
+        come with the name, body and status only. Rejected candidatures are left out.
+      tags: [positions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The positions with their candidatures.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionWithPublicCandidatesListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/positions/{position_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+    put:
+      operationId: setPositionStatus
+      summary: Open or close a position
+      description: Without `status` in the body nothing changes.
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PositionStatusInput'}
+      responses:
+        '200':
+          description: The position.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/positions/{position_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+    delete:
+      operationId: deletePosition
+      summary: Delete a position
+      description: The position is kept in the database and marked as deleted.
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      responses:
+        '200':
+          description: The position is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updatePosition
+      summary: Edit a position
+      description: '`status`, `id` and `event_id` in the body are ignored.'
+      tags: [positions]
+      x-permission: global:manage_candidates:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PositionUpdateInput'}
+      responses:
+        '200':
+          description: The edited position.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PositionResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/positions/candidates/mine:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listMyCandidatures
+      summary: List the caller's candidatures
+      description: The candidatures of the caller for the positions of this event, each with its position and image.
+      tags: [candidates]
+      x-permission: authenticated (own candidatures only)
+      responses:
+        '200':
+          description: The caller's candidatures.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateWithPositionListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/question-lines:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listQuestionLines
+      summary: List the question lines of an event with their questions
+      description: The oldest question line first, each question with a few fields of the application of the member who asked it.
+      tags: [question_lines]
+      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, or a confirmed application to the event'
+      responses:
+        '200':
+          description: The question lines.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionLineWithQuestionsListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createQuestionLine
+      summary: Add a question line
+      description: '`status` in the body is ignored: a new question line is open.'
+      tags: [question_lines]
+      x-permission: 'global:manage_question_lines:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionLineCreateInput'}
+      responses:
+        '200':
+          description: The created question line.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionLineResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/question-lines/{question_line_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/QuestionLineId'
+    put:
+      operationId: setQuestionLineStatus
+      summary: Open or close a question line
+      description: Without `status` in the body nothing changes.
+      tags: [question_lines]
+      x-permission: 'global:manage_question_lines:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionLineStatusInput'}
+      responses:
+        '200':
+          description: The question line.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionLineResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/question-lines/{question_line_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/QuestionLineId'
+    put:
+      operationId: updateQuestionLine
+      summary: Rename a question line
+      description: '`status`, `id` and `event_id` in the body are ignored.'
+      tags: [question_lines]
+      x-permission: 'global:manage_question_lines:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionLineUpdateInput'}
+      responses:
+        '200':
+          description: The edited question line.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionLineResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteQuestionLine
+      summary: Delete a question line and its questions
+      tags: [question_lines]
+      x-permission: 'global:manage_question_lines:<type>'
+      responses:
+        '200':
+          description: The question line is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/question-lines/{question_line_id}/questions:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/QuestionLineId'
+    post:
+      operationId: submitQuestion
+      summary: Ask a question in a question line
+      description: The question is stored for the caller's application. 403 is also the answer when the question line is closed.
+      tags: [questions]
+      x-permission: a confirmed application to the event, while the question line is open
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionInput'}
+      responses:
+        '200':
+          description: The question.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/question-lines/{question_line_id}/questions/{question_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/QuestionLineId'
+      - $ref: '#/components/parameters/QuestionId'
+    get:
+      operationId: getQuestion
+      summary: One question
+      tags: [questions]
+      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, or a confirmed application to the event'
+      responses:
+        '200':
+          description: The question with a few fields of the application of the member who asked it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionWithApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateQuestion
+      summary: Edit a question
+      description: |
+        `status`, `application_id` and `question_line_id` in the body are ignored. Once the
+        question line is closed, only those who manage question lines can edit.
+      tags: [questions]
+      x-permission: 'the member who asked it while the question line is open, or global:manage_question_lines:<type>'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionInput'}
+      responses:
+        '200':
+          description: The edited question.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuestionWithApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteQuestion
+      summary: Delete a question
+      description: Once the question line is closed, only those who manage question lines can delete.
+      tags: [questions]
+      x-permission: 'the member who asked it while the question line is open, or global:manage_question_lines:<type>'
+      responses:
+        '200':
+          description: The question is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/positions/{position_id}/candidates:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+    post:
+      operationId: submitCandidature
+      summary: Submit a candidature for a position
+      description: |
+        Only the fields a candidate fills in are stored. The notification address gets a
+        mail. 403 is also the answer when the caller is not a member of `body_id`.
+      tags: [candidates]
+      x-permission: 'a member of the body, while the position is open (or global:manage_candidates:agora)'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CandidateCreateInput'}
+      responses:
+        '200':
+          description: The candidature.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/positions/{position_id}/candidates/{candidate_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+      - $ref: '#/components/parameters/CandidateId'
+    get:
+      operationId: getCandidature
+      summary: One candidature
+      tags: [candidates]
+      x-permission: 'the candidate, or global:manage_candidates:agora'
+      responses:
+        '200':
+          description: The candidature with its image.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateWithImageResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateCandidature
+      summary: Edit a candidature
+      description: |
+        Only the fields a candidate fills in are stored. 403 is also the answer when the
+        candidate is not a member of a new `body_id`.
+      tags: [candidates]
+      x-permission: 'the candidate while the candidature is pending, or global:manage_candidates:agora'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CandidateUpdateInput'}
+      responses:
+        '200':
+          description: The edited candidature.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateUpdatedResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/positions/{position_id}/candidates/{candidate_id}/{image}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+      - $ref: '#/components/parameters/CandidateId'
+      - name: image
+        in: path
+        required: true
+        description: Any value; the frontend sends `image`. The route takes this segment as a parameter and does not look at it.
+        schema: {type: string}
+    post:
+      operationId: uploadCandidateImage
+      summary: Upload the image of a candidature
+      description: Replaces the image the candidature had and removes the old file.
+      tags: [candidates]
+      x-permission: 'the candidate while the candidature is pending, or global:manage_candidates:agora'
+      requestBody:
+        $ref: '#/components/requestBodies/ImageUpload'
+      responses:
+        '200':
+          description: The candidature with its new image.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateWithImageResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422':
+          description: No image, a file over 5 MB, another extension than .png, .jpg or .jpeg, or content that is not such an image.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /events/{event_id}/positions/{position_id}/candidates/{candidate_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PositionId'
+      - $ref: '#/components/parameters/CandidateId'
+    put:
+      operationId: setCandidatureStatus
+      summary: Approve or reject a candidature
+      description: Without `status` in the body nothing changes.
+      tags: [candidates]
+      x-permission: global:manage_candidates:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CandidateStatusInput'}
+      responses:
+        '200':
+          description: The candidature.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CandidateWithImageResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/plenaries:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listPlenaries
+      summary: List the plenaries of an Agora
+      tags: [plenaries]
+      x-permission: global:see_plenaries:agora or global:manage_plenaries:agora
+      responses:
+        '200':
+          description: The plenaries, the oldest first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlenaryListResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createPlenary
+      summary: Add a plenary
+      description: The attendances that are still open are closed when the plenary ends.
+      tags: [plenaries]
+      x-permission: global:manage_plenaries:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PlenaryCreateInput'}
+      responses:
+        '200':
+          description: The created plenary.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlenaryResponse'}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /events/{event_id}/plenaries/stats:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportPlenaryStats
+      summary: Export the attendance of the plenaries as a spreadsheet
+      description: One sheet for the delegates, one for the bodies and one per plenary.
+      tags: [plenaries]
+      x-permission: global:see_plenaries:agora or global:manage_plenaries:agora
+      responses:
+        '200':
+          description: The file `plenary.xlsx`.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400': {$ref: '#/components/responses/NotAgora'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/plenaries/{plenary_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PlenaryId'
+    put:
+      operationId: updatePlenary
+      summary: Edit a plenary
+      tags: [plenaries]
+      x-permission: global:manage_plenaries:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PlenaryUpdateInput'}
+      responses:
+        '200':
+          description: The edited plenary.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlenaryResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    get:
+      operationId: getPlenary
+      summary: One plenary with its attendances
+      description: The latest attendance first, each with a few fields of the application. The permission is checked before the id.
+      tags: [plenaries]
+      x-permission: global:see_plenaries:agora or global:manage_plenaries:agora
+      responses:
+        '200':
+          description: The plenary.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlenaryWithAttendancesResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /events/{event_id}/plenaries/{plenary_id}/attendance/mark:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/PlenaryId'
+    post:
+      operationId: markPlenaryAttendance
+      summary: Mark a delegate or envoy as entering or leaving a plenary
+      description: |
+        Closes the open attendance of the application at this plenary, or starts one when
+        none is open. 403 is also the answer when the plenary is over, and when the
+        applicant is not a delegate or an envoy. 404 is also the answer when the event has
+        no such application. 422 is the answer when the attendance would end at the moment
+        it started.
+      tags: [plenaries]
+      x-permission: global:mark_attendance:agora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AttendanceMarkInput'}
+      responses:
+        '200':
+          description: The attendance that was started or closed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AttendanceWithApplicationResponse'}
+        '400': {$ref: '#/components/responses/NotAgoraOrBadId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+components:
+  securitySchemes:
+    XAuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: Access token issued by core. Other services check it against core on every request.
+  parameters:
+    Limit: {name: limit, in: query, schema: {type: integer, minimum: 1}}
+    Offset: {name: offset, in: query, schema: {type: integer, minimum: 0}}
+    ApplicationSort:
+      name: sort
+      in: query
+      style: deepObject
+      explode: true
+      description: '`sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`).'
+      schema:
+        type: object
+        properties:
+          field: {type: string}
+          order: {type: string, enum: [asc, desc]}
+    ApplicationQuery:
+      name: query
+      in: query
+      description: Part of the first name, the last name or the statutory id, case-insensitive.
+      schema: {type: string}
+    DisplayCancelled:
+      name: displayCancelled
+      in: query
+      description: '`true` also lists the cancelled applications.'
+      schema: {type: boolean}
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: |
+        The id of the event when the value is a number, otherwise its `url`
+        (case-insensitive). Four values pick the latest published event by start date:
+        `latest`, `latest-agora`, `latest-epm` and `latest-spm`.
+      schema: {type: [integer, string]}
+    EventTypePath:
+      name: event_type
+      in: path
+      required: true
+      description: Any other value answers 400.
+      schema: {$ref: '#/components/schemas/EventType'}
+    BodyIdPath:
+      name: body_id
+      in: path
+      required: true
+      description: The id of a body in core.
+      schema: {type: integer}
+    ApplicationId:
+      name: application_id
+      in: path
+      required: true
+      description: |
+        The id of the application when the value is all digits, `me` for the caller's own
+        application to the event, otherwise the statutory id (`012-0034`).
+      schema: {type: [integer, string]}
+    PositionId:
+      name: position_id
+      in: path
+      required: true
+      description: The id of a position of the event that is not deleted. Anything but a number answers 400.
+      schema: {type: integer}
+    CandidateId:
+      name: candidate_id
+      in: path
+      required: true
+      description: The id of a candidature for the position. Anything but a number answers 400.
+      schema: {type: integer}
+    PlenaryId:
+      name: plenary_id
+      in: path
+      required: true
+      description: The id of a plenary of the event. Anything but a number answers 400.
+      schema: {type: integer}
+    QuestionLineId:
+      name: question_line_id
+      in: path
+      required: true
+      description: The id of a question line of the event. Anything but a number answers 400.
+      schema: {type: integer}
+    QuestionId:
+      name: question_id
+      in: path
+      required: true
+      description: The id of a question in the question line. Anything but a number answers 400.
+      schema: {type: integer}
+  requestBodies:
+    ImageUpload:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required: [image]
+            properties:
+              image:
+                description: A .png, .jpg or .jpeg file of at most 5 MB.
+                type: string
+                contentMediaType: application/octet-stream
+  responses:
+    BadRequest: {description: 'Malformed request, for example a non-numeric ID.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    InvalidListQuery: {description: 'The list cannot be sorted by this field or in this order, or `limit` or `offset` is not a whole number.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotAgora: {description: 'The event is not an Agora.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotAgoraOrBadId: {description: 'The event is not an Agora, or an ID in the path is not a number.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  schemas:
+    ErrorResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ErrorWithMessage'
+        - $ref: '#/components/schemas/ErrorWithFields'
+    ErrorWithMessage:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: false}
+        message: {type: string}
+      additionalProperties: false
+    ErrorWithFields:
+      type: object
+      required: [success, errors]
+      properties:
+        success: {const: false}
+        errors:
+          description: Keyed by field, or by the name of the rule for a rule that spans fields (`visaFieldsFilledIn`).
+          type: object
+          additionalProperties: {type: array, items: {type: string}}
+      additionalProperties: false
+    MessageResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: true}
+        message: {type: string}
+      additionalProperties: false
+    ListMeta:
+      type: object
+      required: [count]
+      properties:
+        count:
+          description: The number of matches, whatever `limit` and `offset` are.
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    Timestamps:
+      type: object
+      required: [created_at, updated_at]
+      properties:
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    Decimal:
+      description: Sequelize DECIMAL. A string when read from Postgres, the input value right after create or update.
+      type: [string, number]
+      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+    HealthcheckResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [name, description, version]
+          properties:
+            name: {type: string}
+            description: {type: string}
+            version: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+    CoreBody:
+      description: A body as core returns it with a member. Passed on unchanged, so core defines the other keys.
+      type: object
+      required: [id, name, type]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        type: {type: string}
+      x-free-form: a body from core's member profile, passed on as core sent it; core's contract describes its keys
+    BodySummary:
+      type: object
+      required: [id, name, type]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        type: {type: string}
+      additionalProperties: false
+    BodySummaryListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/BodySummary'}}
+      additionalProperties: false
+    FieldNamesResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          description: Field name to column title.
+          type: object
+          additionalProperties: {type: string}
+      additionalProperties: false
+    Task:
+      type: object
+      required: [key, description, time, params, id]
+      properties:
+        key: {type: string, enum: [CLOSE_ATTENDANCES, OPEN_POSITION_APPLICATIONS, CLOSE_POSITION_APPLICATIONS]}
+        description: {type: string}
+        time:
+          description: When the task runs.
+          type: string
+          format: date-time
+        params:
+          type: object
+          required: [id]
+          properties:
+            id:
+              description: The id of the plenary or the position.
+              type: integer
+          additionalProperties: false
+        id: {type: integer}
+      additionalProperties: false
+    TaskMapResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          description: Keyed by task id.
+          type: object
+          additionalProperties: {$ref: '#/components/schemas/Task'}
+      additionalProperties: false
+    Image:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, file_name, frontend_path]
+      properties:
+        id: {type: integer}
+        file_name: {type: string}
+        frontend_path:
+          description: '`/` and `file_name`; the frontend loads it from the images path of the gateway.'
+          type: string
+      unevaluatedProperties: false
+    EventType:
+      type: string
+      enum: [agora, epm, spm]
+    EventStatus:
+      type: string
+      enum: [draft, published]
+    EventQuestion:
+      description: One question of the application form.
+      type: object
+      required: [type, description, required]
+      properties:
+        type: {type: string, enum: [string, text, number, checkbox, select]}
+        description: {type: string}
+        required: {type: boolean}
+        values:
+          description: The options of a `select` question.
+          type: array
+          items: {type: string}
+      additionalProperties: false
+    EventLocation:
+      type: object
+      required: [name, position]
+      properties:
+        name: {type: string}
+        position:
+          type: object
+          required: [lat, lng]
+          properties:
+            lat: {type: number}
+            lng: {type: number}
+          additionalProperties: false
+      additionalProperties: false
+    EventFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - name
+        - url
+        - description
+        - type
+        - status
+        - body_id
+        - starts
+        - ends
+        - application_period_starts
+        - application_period_ends
+        - board_approve_deadline
+        - participants_list_publish_deadline
+        - application_status_revealed_at
+        - memberslist_submission_deadline
+        - draft_proposal_deadline
+        - final_proposal_deadline
+        - candidature_deadline
+        - booklet_publication_deadline
+        - updated_booklet_publication_deadline
+        - publication_date
+        - booklet_folder
+        - locations
+        - questions
+        - fee
+        - previous_agora_id
+        - vegetarian
+        - image_id
+        - memberslist_edit_deadline
+        - can_apply
+        - can_approve_members
+        - can_see_participants_list
+        - can_upload_memberslist
+        - can_edit_memberslist
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url:
+          description: Lower case letters, digits and dashes, not digits only. Unique.
+          type: string
+        description: {type: string}
+        type: {$ref: '#/components/schemas/EventType'}
+        status: {$ref: '#/components/schemas/EventStatus'}
+        body_id:
+          description: The organising body.
+          type: integer
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        application_period_starts: {type: string, format: date-time}
+        application_period_ends: {type: string, format: date-time}
+        board_approve_deadline: {type: string, format: date-time}
+        participants_list_publish_deadline: {type: string, format: date-time}
+        application_status_revealed_at:
+          description: When the statuses of the applications were shown to the applicants; null before that.
+          type: [string, 'null']
+          format: date-time
+        memberslist_submission_deadline: {type: [string, 'null'], format: date-time}
+        draft_proposal_deadline: {type: [string, 'null'], format: date-time}
+        final_proposal_deadline: {type: [string, 'null'], format: date-time}
+        candidature_deadline: {type: [string, 'null'], format: date-time}
+        booklet_publication_deadline: {type: [string, 'null'], format: date-time}
+        updated_booklet_publication_deadline: {type: [string, 'null'], format: date-time}
+        publication_date: {type: [string, 'null'], format: date-time}
+        booklet_folder: {type: [string, 'null']}
+        locations: {type: array, items: {$ref: '#/components/schemas/EventLocation'}}
+        questions: {type: array, items: {$ref: '#/components/schemas/EventQuestion'}}
+        fee: {$ref: '#/components/schemas/Decimal'}
+        previous_agora_id:
+          description: The latest published Agora when this Agora was created.
+          type: [integer, 'null']
+        vegetarian:
+          description: True refuses applications with the meal `Meat-eater`.
+          type: boolean
+        image_id: {type: [integer, 'null']}
+        memberslist_edit_deadline:
+          description: Fourteen days before `starts`.
+          type: string
+          format: date-time
+        can_apply:
+          description: Now is within the application period.
+          type: boolean
+        can_approve_members:
+          description: Now is between the start of the application period and the board approve deadline.
+          type: boolean
+        can_see_participants_list:
+          description: The participants list deadline has passed.
+          type: boolean
+        can_upload_memberslist:
+          description: Now is between the start of the application period and the members list submission deadline.
+          type: boolean
+        can_edit_memberslist:
+          description: Now is between the start of the application period and `memberslist_edit_deadline`.
+          type: boolean
+    Event:
+      description: An event without its image, as returned right after it is created.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventFields'
+      unevaluatedProperties: false
+    EventWithImage:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventFields'
+      required: [image]
+      properties:
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    EventWithPermissions:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventFields'
+      required: [image, permissions]
+      properties:
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+        permissions: {$ref: '#/components/schemas/EventPermissions'}
+      unevaluatedProperties: false
+    EventApplicationLink:
+      description: The caller's application to the event.
+      type: object
+      required: [user_id, cancelled, status]
+      properties:
+        user_id: {type: integer}
+        cancelled: {type: boolean}
+        status: {$ref: '#/components/schemas/ApplicationStatus'}
+      additionalProperties: false
+    EventWithApplications:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventFields'
+      required: [applications]
+      properties:
+        applications: {type: array, items: {$ref: '#/components/schemas/EventApplicationLink'}}
+      unevaluatedProperties: false
+    RecentEvent:
+      description: A grouped row, not an event.
+      type: object
+      required: [body_id, latest_event]
+      properties:
+        body_id: {type: integer}
+        latest_event:
+          description: The latest `ends` of the published events of the body.
+          type: string
+          format: date-time
+      additionalProperties: false
+    EventTypePermissions:
+      type: object
+      required: [agora, epm, spm]
+      properties:
+        agora: {type: boolean}
+        epm: {type: boolean}
+        spm: {type: boolean}
+      additionalProperties: false
+    GlobalPermission:
+      type: object
+      required: [global]
+      properties:
+        global: {type: boolean}
+      additionalProperties: false
+    BodyPermissions:
+      description: '`global` for every body, and one key per body the caller is a member of, by body id.'
+      type: object
+      required: [global]
+      properties:
+        global: {type: boolean}
+      additionalProperties: {type: boolean}
+    EventPermissionsFields:
+      description: What the caller may do with the event. For an anonymous caller every value is false, except `apply` and `see_participants_list`, which follow the dates of the event.
+      type: object
+      required:
+        - create_event
+        - edit_pax_limits
+        - see_background_tasks
+        - edit_event
+        - change_event_status
+        - delete_event
+        - apply
+        - use_massmailer
+        - manage_applications
+        - manage_incoming
+        - manage_juridical
+        - see_applications
+        - see_applications_juridical
+        - see_applications_incoming
+        - see_applications_network
+        - see_participants_list
+        - export
+        - set_board_comment_and_participant_type
+        - see_boardview
+        - upload_memberslist
+        - edit_memberslist
+        - see_memberslist
+        - see_missing_memberslist
+        - see_memberslist_without_fee
+        - set_memberslists_fee_paid
+        - manage_candidates
+        - manage_plenaries
+        - see_plenaries
+        - mark_attendance
+        - apply_from_body
+        - manage_question_lines
+        - see_question_lines
+        - see_questions
+        - submit_questions
+      properties:
+        create_event: {$ref: '#/components/schemas/EventTypePermissions'}
+        edit_pax_limits: {$ref: '#/components/schemas/EventTypePermissions'}
+        see_background_tasks: {type: boolean}
+        edit_event: {type: boolean}
+        change_event_status: {type: boolean}
+        delete_event: {type: boolean}
+        apply: {type: boolean}
+        use_massmailer: {type: boolean}
+        manage_applications: {type: boolean}
+        manage_incoming: {type: boolean}
+        manage_juridical: {type: boolean}
+        see_applications: {type: boolean}
+        see_applications_juridical: {type: boolean}
+        see_applications_incoming: {type: boolean}
+        see_applications_network: {type: boolean}
+        see_participants_list: {type: boolean}
+        export:
+          type: object
+          required: [openslides, all, incoming, delegates_jc]
+          properties:
+            openslides: {type: boolean}
+            all: {type: boolean}
+            incoming: {type: boolean}
+            delegates_jc: {type: boolean}
+          additionalProperties: false
+        set_board_comment_and_participant_type: {$ref: '#/components/schemas/BodyPermissions'}
+        see_boardview: {$ref: '#/components/schemas/BodyPermissions'}
+        upload_memberslist: {$ref: '#/components/schemas/BodyPermissions'}
+        edit_memberslist: {$ref: '#/components/schemas/BodyPermissions'}
+        see_memberslist: {$ref: '#/components/schemas/BodyPermissions'}
+        see_missing_memberslist: {$ref: '#/components/schemas/GlobalPermission'}
+        see_memberslist_without_fee: {$ref: '#/components/schemas/GlobalPermission'}
+        set_memberslists_fee_paid: {type: boolean}
+        manage_candidates: {type: boolean}
+        manage_plenaries: {type: boolean}
+        see_plenaries: {type: boolean}
+        mark_attendance: {type: boolean}
+        apply_from_body:
+          description: Per body the caller is a member of, by body id, whether it may send any participants.
+          type: object
+          additionalProperties: {type: boolean}
+        manage_question_lines: {type: boolean}
+        see_question_lines: {type: boolean}
+        see_questions: {type: boolean}
+        submit_questions: {type: boolean}
+    EventPermissions:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPermissionsFields'
+      unevaluatedProperties: false
+    ApplicationPermissions:
+      description: What the caller may do with the event and with this application.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPermissionsFields'
+      required:
+        - see_application_incoming
+        - edit_application
+        - set_application_cancelled
+        - set_application_confirmed
+        - set_application_incoming
+        - set_application_attended
+        - set_application_registered
+        - set_application_departed
+        - set_application_is_on_memberslist
+        - change_status
+      properties:
+        see_application:
+          description: Left out when the caller only sees the application as a local organiser.
+          type: boolean
+        see_application_incoming: {type: boolean}
+        edit_application: {type: boolean}
+        set_application_cancelled: {type: boolean}
+        set_application_confirmed: {type: boolean}
+        set_application_incoming: {type: boolean}
+        set_application_attended: {type: boolean}
+        set_application_registered: {type: boolean}
+        set_application_departed: {type: boolean}
+        set_application_is_on_memberslist: {type: boolean}
+        change_status: {type: boolean}
+      unevaluatedProperties: false
+    DateInput:
+      description: A day (`2031-07-01`) or a full timestamp with its time zone (`2031-07-01T10:00:00.000Z`). Anything else is refused.
+      anyOf:
+        - {type: string, format: date}
+        - {type: string, format: date-time}
+    IntegerInput:
+      description: A whole number, or a string of digits, which is stored as a number.
+      type: [integer, string]
+      minimum: 0
+      pattern: '^[0-9]+$'
+    EventCreateInput:
+      description: |
+        The dates are anything JavaScript reads as a date; the frontend sends ISO 8601. An
+        Agora also needs the members list, proposal, candidature and booklet deadlines.
+      type: object
+      required:
+        - name
+        - url
+        - description
+        - type
+        - body_id
+        - starts
+        - ends
+        - application_period_starts
+        - application_period_ends
+        - board_approve_deadline
+        - participants_list_publish_deadline
+        - questions
+        - fee
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        url: {type: string, pattern: '^[a-zA-Z0-9-]+$', maxLength: 255}
+        description: {type: string, minLength: 1}
+        type: {$ref: '#/components/schemas/EventType'}
+        body_id: {$ref: '#/components/schemas/IntegerInput'}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+        application_period_starts: {$ref: '#/components/schemas/DateInput'}
+        application_period_ends: {$ref: '#/components/schemas/DateInput'}
+        board_approve_deadline: {$ref: '#/components/schemas/DateInput'}
+        participants_list_publish_deadline: {$ref: '#/components/schemas/DateInput'}
+        application_status_revealed_at: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        memberslist_submission_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        draft_proposal_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        final_proposal_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        candidature_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        booklet_publication_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        updated_booklet_publication_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        booklet_folder: {type: [string, 'null'], maxLength: 255}
+        locations: {type: array, items: {$ref: '#/components/schemas/EventLocationInput'}}
+        questions: {type: array, minItems: 1, items: {$ref: '#/components/schemas/EventQuestionInput'}}
+        fee: {type: [number, string]}
+        vegetarian: {type: boolean}
+      additionalProperties: true
+    EventUpdateInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        url: {type: string, pattern: '^[a-zA-Z0-9-]+$', maxLength: 255}
+        description: {type: string, minLength: 1}
+        body_id: {$ref: '#/components/schemas/IntegerInput'}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+        application_period_starts: {$ref: '#/components/schemas/DateInput'}
+        application_period_ends: {$ref: '#/components/schemas/DateInput'}
+        board_approve_deadline: {$ref: '#/components/schemas/DateInput'}
+        participants_list_publish_deadline: {$ref: '#/components/schemas/DateInput'}
+        memberslist_submission_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        draft_proposal_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        final_proposal_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        candidature_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        booklet_publication_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        updated_booklet_publication_deadline: {oneOf: [{$ref: '#/components/schemas/DateInput'}, {type: 'null'}]}
+        booklet_folder: {type: [string, 'null'], maxLength: 255}
+        locations: {type: array, items: {$ref: '#/components/schemas/EventLocationInput'}}
+        questions: {type: array, minItems: 1, items: {$ref: '#/components/schemas/EventQuestionInput'}}
+        fee: {type: [number, string]}
+        vegetarian: {type: boolean}
+      additionalProperties: true
+    EventQuestionInput:
+      type: object
+      required: [type, description, required]
+      properties:
+        type: {type: string, enum: [string, text, number, checkbox, select]}
+        description: {type: string, minLength: 1}
+        required: {type: boolean}
+        values:
+          description: Required for a `select` question.
+          type: array
+          items: {type: string, minLength: 1}
+      additionalProperties: true
+    EventLocationInput:
+      type: object
+      required: [name, position]
+      properties:
+        name: {type: string, minLength: 1}
+        position:
+          type: object
+          required: [lat, lng]
+          properties:
+            lat: {type: number}
+            lng: {type: number}
+          additionalProperties: true
+      additionalProperties: true
+    EventStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: {$ref: '#/components/schemas/EventStatus'}
+      additionalProperties: true
+    EventResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventWithImageResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/EventWithImage'}
+      additionalProperties: false
+    EventWithPermissionsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/EventWithPermissions'}
+      additionalProperties: false
+    EventWithImageListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/EventWithImage'}}
+      additionalProperties: false
+    EventWithApplicationsListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/EventWithApplications'}}
+      additionalProperties: false
+    RecentEventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/RecentEvent'}}
+      additionalProperties: false
+    PaxLimitFields:
+      description: How many participants of each type a body may send. Null is no limit, 0 is none.
+      type: object
+      required: [delegate, envoy, observer, visitor, body_id, event_type, default]
+      properties:
+        delegate: {type: [integer, 'null'], minimum: 0}
+        envoy: {type: [integer, 'null'], minimum: 0}
+        observer: {type: [integer, 'null'], minimum: 0}
+        visitor: {type: [integer, 'null'], minimum: 0}
+        body_id: {type: integer}
+        event_type: {$ref: '#/components/schemas/EventType'}
+    PaxLimitStored:
+      description: A limit stored for one body.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaxLimitFields'
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id]
+      properties:
+        id: {type: integer}
+        default: {const: false}
+      unevaluatedProperties: false
+    PaxLimitDefault:
+      description: The limit that follows from the type of the body. It is not stored, so it has no id and no dates.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaxLimitFields'
+      required: [id]
+      properties:
+        id: {type: 'null'}
+        default: {const: true}
+      unevaluatedProperties: false
+    PaxLimit:
+      oneOf:
+        - $ref: '#/components/schemas/PaxLimitStored'
+        - $ref: '#/components/schemas/PaxLimitDefault'
+    PaxLimitInput:
+      description: A type that is left out is stored as null, which is no limit.
+      type: object
+      required: [body_id]
+      properties:
+        body_id: {$ref: '#/components/schemas/IntegerInput'}
+        delegate: {type: [integer, 'null'], minimum: 0}
+        envoy: {type: [integer, 'null'], minimum: 0}
+        observer: {type: [integer, 'null'], minimum: 0}
+        visitor: {type: [integer, 'null'], minimum: 0}
+      additionalProperties: true
+    PaxLimitResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/PaxLimit'}
+      additionalProperties: false
+    PaxLimitStoredResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/PaxLimitStored'}
+      additionalProperties: false
+    PaxLimitListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PaxLimit'}}
+      additionalProperties: false
+    PaxLimitDefaultListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PaxLimitDefault'}}
+      additionalProperties: false
+    ApplicationStatus:
+      type: [string, 'null']
+      enum: [pending, waiting_list, accepted, rejected, null]
+    ApplicationParticipantType:
+      description: Null until the board of the body sets it.
+      type: [string, 'null']
+      enum: [delegate, observer, envoy, visitor, null]
+    ApplicationMeals:
+      type: string
+      enum: [Meat-eater, Vegetarian, Vegan]
+    ApplicationAnswers:
+      description: One answer per question of the event, in the order of the questions. A string for `string`, `text` and `select` questions, a boolean for `checkbox`, a number or a numeric string for `number`.
+      type: array
+      items: {type: [string, number, boolean]}
+    ApplicationFields:
+      description: Every field of an application except the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - statutory_id
+        - event_id
+        - user_id
+        - body_id
+        - body_name
+        - first_name
+        - last_name
+        - email
+        - gender
+        - date_of_birth
+        - nationality
+        - participant_type
+        - participant_order
+        - status
+        - cancelled
+        - confirmed
+        - incoming
+        - attended
+        - registered
+        - departed
+        - is_on_memberslist
+        - is_on_previous_memberslist
+        - visa_required
+        - visa_place_of_birth
+        - visa_passport_number
+        - visa_passport_issue_date
+        - visa_passport_expiration_date
+        - visa_passport_issue_authority
+        - visa_embassy
+        - visa_street_and_house
+        - visa_postal_code
+        - visa_city
+        - visa_country
+        - number_of_events_visited
+        - meals
+        - allergies
+        - answers
+      properties:
+        id: {type: integer}
+        statutory_id:
+          description: The event id and the number of the application within the event (`012-0034`).
+          type: [string, 'null']
+        event_id: {type: integer}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        body_name: {type: string}
+        first_name: {type: string}
+        last_name: {type: string}
+        email:
+          description: Not used; the mail address comes from core as `notification_email`.
+          type: [string, 'null']
+        notification_email:
+          description: The applicant's notification address in core. Left out when core does not return the member.
+          type: string
+        gender: {type: string}
+        date_of_birth: {type: string}
+        nationality: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        status: {$ref: '#/components/schemas/ApplicationStatus'}
+        cancelled: {type: boolean}
+        confirmed: {type: boolean}
+        incoming:
+          description: The applicant filled in the form of the local organisers.
+          type: boolean
+        attended: {type: boolean}
+        registered: {type: boolean}
+        departed: {type: boolean}
+        is_on_memberslist: {type: boolean}
+        is_on_previous_memberslist: {type: boolean}
+        visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null']}
+        visa_passport_number: {type: [string, 'null']}
+        visa_passport_issue_date: {type: [string, 'null']}
+        visa_passport_expiration_date: {type: [string, 'null']}
+        visa_passport_issue_authority: {type: [string, 'null']}
+        visa_embassy: {type: [string, 'null']}
+        visa_street_and_house: {type: [string, 'null']}
+        visa_postal_code: {type: [string, 'null']}
+        visa_city: {type: [string, 'null']}
+        visa_country: {type: [string, 'null']}
+        number_of_events_visited: {type: integer, minimum: 0}
+        meals: {$ref: '#/components/schemas/ApplicationMeals'}
+        allergies: {type: [string, 'null']}
+        answers: {$ref: '#/components/schemas/ApplicationAnswers'}
+    Application:
+      description: The whole application, for those who select the participants.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [board_comment]
+      properties:
+        board_comment:
+          description: What the board of the body wrote about the applicant.
+          type: [string, 'null']
+      unevaluatedProperties: false
+    ApplicationOwn:
+      description: The application as the applicant sees it, without the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      unevaluatedProperties: false
+    ApplicationIncomingFields:
+      description: What the local organisers see of an application.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - statutory_id
+        - user_id
+        - body_id
+        - body_name
+        - participant_type
+        - participant_order
+        - confirmed
+        - incoming
+        - attended
+        - registered
+        - departed
+        - first_name
+        - last_name
+        - meals
+        - allergies
+        - date_of_birth
+        - visa_place_of_birth
+        - visa_passport_number
+        - visa_passport_issue_date
+        - visa_passport_expiration_date
+        - visa_passport_issue_authority
+        - visa_embassy
+        - visa_street_and_house
+        - visa_postal_code
+        - visa_city
+        - visa_country
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        body_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        confirmed: {type: boolean}
+        incoming: {type: boolean}
+        attended: {type: boolean}
+        registered: {type: boolean}
+        departed: {type: boolean}
+        first_name: {type: string}
+        last_name: {type: string}
+        notification_email:
+          description: The applicant's notification address in core. Left out when core does not return the member.
+          type: string
+        meals: {$ref: '#/components/schemas/ApplicationMeals'}
+        allergies: {type: [string, 'null']}
+        date_of_birth: {type: string}
+        visa_place_of_birth: {type: [string, 'null']}
+        visa_passport_number: {type: [string, 'null']}
+        visa_passport_issue_date: {type: [string, 'null']}
+        visa_passport_expiration_date: {type: [string, 'null']}
+        visa_passport_issue_authority: {type: [string, 'null']}
+        visa_embassy: {type: [string, 'null']}
+        visa_street_and_house: {type: [string, 'null']}
+        visa_postal_code: {type: [string, 'null']}
+        visa_city: {type: [string, 'null']}
+        visa_country: {type: [string, 'null']}
+    ApplicationIncoming:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationIncomingFields'
+      unevaluatedProperties: false
+    ApplicationJuridical:
+      description: What the Juridical Commission sees of an application.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - statutory_id
+        - user_id
+        - body_id
+        - body_name
+        - participant_type
+        - participant_order
+        - cancelled
+        - confirmed
+        - attended
+        - registered
+        - departed
+        - first_name
+        - last_name
+        - status
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        body_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        cancelled: {type: boolean}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        registered: {type: boolean}
+        departed: {type: boolean}
+        first_name: {type: string}
+        last_name: {type: string}
+        status: {$ref: '#/components/schemas/ApplicationStatus'}
+      unevaluatedProperties: false
+    ApplicationNetwork:
+      description: What the Network Director sees of an application.
+      type: object
+      required: [id, statutory_id, user_id, body_id, body_name, participant_type, participant_order, first_name, last_name, is_on_memberslist]
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        body_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        first_name: {type: string}
+        last_name: {type: string}
+        is_on_memberslist: {type: boolean}
+      additionalProperties: false
+    ApplicationParticipant:
+      description: An entry of the participants list.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - statutory_id
+        - user_id
+        - body_id
+        - body_name
+        - participant_type
+        - participant_order
+        - cancelled
+        - confirmed
+        - attended
+        - registered
+        - departed
+        - first_name
+        - last_name
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        body_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        cancelled: {type: boolean}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        registered: {type: boolean}
+        departed: {type: boolean}
+        first_name: {type: string}
+        last_name: {type: string}
+      unevaluatedProperties: false
+    ApplicationPlenary:
+      description: What comes with an attendance of a plenary.
+      type: object
+      required: [id, statutory_id, first_name, last_name, participant_type, participant_order, body_id, body_name]
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        first_name: {type: string}
+        last_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        body_id: {type: integer}
+        body_name: {type: string}
+      additionalProperties: false
+    ApplicationQuestionLine:
+      description: What comes with a question in a question line.
+      type: object
+      required: [id, statutory_id, user_id, first_name, last_name, participant_type, participant_order, body_id, body_name]
+      properties:
+        id: {type: integer}
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order: {type: [integer, 'null'], minimum: 1}
+        body_id: {type: integer}
+        body_name: {type: string}
+      additionalProperties: false
+    ApplicationVotes:
+      description: What comes with the votes of a delegate.
+      type: object
+      required: [statutory_id, user_id, body_id]
+      properties:
+        statutory_id: {type: [string, 'null']}
+        user_id: {type: integer}
+        body_id: {type: integer}
+      additionalProperties: false
+    ApplicationDetailFields:
+      type: object
+      required: [editable_bodies, permissions]
+      properties:
+        editable_bodies:
+          description: The applicant's bodies that may send participants to the event. Empty unless the caller may edit the application.
+          type: array
+          items: {$ref: '#/components/schemas/CoreBody'}
+        permissions: {$ref: '#/components/schemas/ApplicationPermissions'}
+    ApplicationWithPermissions:
+      description: The whole application with the caller's permissions.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+        - $ref: '#/components/schemas/ApplicationDetailFields'
+      required: [board_comment]
+      properties:
+        board_comment: {type: [string, 'null']}
+      unevaluatedProperties: false
+    ApplicationOwnWithPermissions:
+      description: The application as the applicant sees it, with the caller's permissions.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+        - $ref: '#/components/schemas/ApplicationDetailFields'
+      unevaluatedProperties: false
+    ApplicationIncomingWithPermissions:
+      description: The application as the local organisers see it, with the caller's permissions.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationIncomingFields'
+        - $ref: '#/components/schemas/ApplicationDetailFields'
+      properties:
+        status:
+          description: Only present, and then `pending`, while the event has not revealed the application statuses.
+          const: pending
+      unevaluatedProperties: false
+    ApplicationCreateInput:
+      description: The application form. Other keys are ignored.
+      type: object
+      required: [body_id, nationality, number_of_events_visited, meals, answers]
+      properties:
+        body_id:
+          description: The body the caller applies from; one of the caller's bodies.
+          type: integer
+        nationality: {type: string, minLength: 1, maxLength: 255}
+        number_of_events_visited: {$ref: '#/components/schemas/IntegerInput'}
+        meals: {$ref: '#/components/schemas/ApplicationMeals'}
+        allergies: {type: [string, 'null']}
+        answers: {$ref: '#/components/schemas/ApplicationAnswers'}
+        visa_required:
+          description: True makes every `visa_` field required.
+          type: boolean
+        visa_place_of_birth: {type: [string, 'null'], maxLength: 255}
+        visa_passport_number: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_expiration_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_authority: {type: [string, 'null'], maxLength: 255}
+        visa_embassy: {type: [string, 'null'], maxLength: 255}
+        visa_street_and_house: {type: [string, 'null'], maxLength: 255}
+        visa_postal_code: {type: [string, 'null'], maxLength: 255}
+        visa_city: {type: [string, 'null'], maxLength: 255}
+        visa_country: {type: [string, 'null'], maxLength: 255}
+      additionalProperties: true
+    ApplicationUpdateInput:
+      description: The application form. Other keys are ignored.
+      type: object
+      properties:
+        body_id:
+          description: One of the applicant's bodies.
+          type: integer
+        nationality: {type: string, minLength: 1, maxLength: 255}
+        number_of_events_visited: {$ref: '#/components/schemas/IntegerInput'}
+        meals: {$ref: '#/components/schemas/ApplicationMeals'}
+        allergies: {type: [string, 'null']}
+        answers: {$ref: '#/components/schemas/ApplicationAnswers'}
+        visa_required: {type: boolean}
+        visa_place_of_birth: {type: [string, 'null'], maxLength: 255}
+        visa_passport_number: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_expiration_date: {type: [string, 'null'], maxLength: 255}
+        visa_passport_issue_authority: {type: [string, 'null'], maxLength: 255}
+        visa_embassy: {type: [string, 'null'], maxLength: 255}
+        visa_street_and_house: {type: [string, 'null'], maxLength: 255}
+        visa_postal_code: {type: [string, 'null'], maxLength: 255}
+        visa_city: {type: [string, 'null'], maxLength: 255}
+        visa_country: {type: [string, 'null'], maxLength: 255}
+      additionalProperties: true
+    ApplicationCancelledInput:
+      type: object
+      properties:
+        cancelled: {type: boolean}
+      additionalProperties: true
+    ApplicationAttendedInput:
+      type: object
+      properties:
+        attended: {type: boolean}
+      additionalProperties: true
+    ApplicationRegisteredInput:
+      type: object
+      properties:
+        registered: {type: boolean}
+      additionalProperties: true
+    ApplicationDepartedInput:
+      type: object
+      properties:
+        departed: {type: boolean}
+      additionalProperties: true
+    ApplicationConfirmedInput:
+      type: object
+      properties:
+        confirmed: {type: boolean}
+      additionalProperties: true
+    ApplicationIncomingInput:
+      type: object
+      properties:
+        incoming: {type: boolean}
+      additionalProperties: true
+    ApplicationIsOnMemberslistInput:
+      type: object
+      properties:
+        is_on_memberslist: {type: boolean}
+      additionalProperties: true
+    ApplicationStatusInput:
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/ApplicationStatus'}
+      additionalProperties: true
+    ApplicationBoardInput:
+      description: The participant type and order go together; both are null or both are set.
+      type: object
+      properties:
+        participant_type: {$ref: '#/components/schemas/ApplicationParticipantType'}
+        participant_order:
+          description: A whole number from 1, or a string of digits, which is stored as a number.
+          type: [integer, string, 'null']
+          minimum: 1
+          pattern: '^[0-9]+$'
+        board_comment: {type: [string, 'null']}
+      additionalProperties: true
+    BoardviewInput:
+      description: The applications of the body that get a participant type. Every other application of the body loses its type, order and board comment.
+      type: array
+      items:
+        type: object
+        required: [user_id, participant_type, participant_order]
+        properties:
+          user_id: {type: integer}
+          participant_type: {type: string, enum: [delegate, observer, envoy, visitor]}
+          participant_order: {type: integer, minimum: 1}
+          board_comment: {type: [string, 'null']}
+        additionalProperties: true
+    ApplicationFilter:
+      description: Each value is one of the listed values, or a list of them. Other fields are refused.
+      type: object
+      properties:
+        status:
+          oneOf:
+            - $ref: '#/components/schemas/ApplicationStatus'
+            - type: array
+              items: {$ref: '#/components/schemas/ApplicationStatus'}
+        cancelled:
+          oneOf:
+            - type: [boolean, 'null']
+            - type: array
+              items: {type: [boolean, 'null']}
+        confirmed:
+          oneOf:
+            - type: [boolean, 'null']
+            - type: array
+              items: {type: [boolean, 'null']}
+        incoming:
+          oneOf:
+            - type: [boolean, 'null']
+            - type: array
+              items: {type: [boolean, 'null']}
+        participant_type:
+          oneOf:
+            - $ref: '#/components/schemas/ApplicationParticipantType'
+            - type: array
+              items: {$ref: '#/components/schemas/ApplicationParticipantType'}
+      additionalProperties: false
+    ApplicationResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Application'}
+      additionalProperties: false
+    ApplicationPresentedResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationOwn'
+      additionalProperties: false
+    ApplicationIncomingFlagResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationOwn'
+            - $ref: '#/components/schemas/ApplicationIncoming'
+      additionalProperties: false
+    ApplicationJuridicalFlagResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationOwn'
+            - $ref: '#/components/schemas/ApplicationJuridical'
+      additionalProperties: false
+    ApplicationNetworkFlagResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationOwn'
+            - $ref: '#/components/schemas/ApplicationNetwork'
+      additionalProperties: false
+    ApplicationWithPermissionsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/ApplicationWithPermissions'
+            - $ref: '#/components/schemas/ApplicationOwnWithPermissions'
+            - $ref: '#/components/schemas/ApplicationIncomingWithPermissions'
+      additionalProperties: false
+    ApplicationListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Application'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    ApplicationBoardviewListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Application'}}
+      additionalProperties: false
+    ApplicationIncomingListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationIncoming'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    ApplicationJuridicalListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationJuridical'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    ApplicationNetworkListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationNetwork'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    ApplicationParticipantListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationParticipant'}}
+      additionalProperties: false
+    FutureApplication:
+      type: object
+      required: [service, application_id, application_status, event_id, event_name, event_type, event_starts]
+      properties:
+        service: {const: statutory}
+        application_id: {type: integer}
+        application_status: {type: string, enum: [pending, waiting_list, accepted]}
+        event_id: {type: integer}
+        event_name: {type: string}
+        event_type: {$ref: '#/components/schemas/EventType'}
+        event_starts: {type: string, format: date-time}
+      additionalProperties: false
+    FutureApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/FutureApplication'}}
+      additionalProperties: false
+    StatsPerDay:
+      type: object
+      required: [date, value]
+      properties:
+        date: {type: string, format: date}
+        value: {type: integer, minimum: 0}
+      additionalProperties: false
+    StatsPerValue:
+      type: object
+      required: [type, value]
+      properties:
+        type:
+          description: The value that is counted, such as a body id, a participant type (null when not set) or a meal.
+          type: [string, integer, 'null']
+        value:
+          description: The number of applications with it.
+          type: integer
+          minimum: 1
+      additionalProperties: false
+    ApplicationStats:
+      description: The lists count applications that are not cancelled.
+      type: object
+      required: [numbers, quorum, by_date, by_date_cumulative, by_body, by_type, by_gender, by_meal, by_number_of_events_visited]
+      properties:
+        numbers:
+          type: object
+          required: [total, accepted, rejected, pending, waiting_list, cancelled, confirmed, registered, attended, departed]
+          properties:
+            total: {type: integer, minimum: 0}
+            accepted: {type: integer, minimum: 0}
+            rejected: {type: integer, minimum: 0}
+            pending: {type: integer, minimum: 0}
+            waiting_list: {type: integer, minimum: 0}
+            cancelled: {type: integer, minimum: 0}
+            confirmed: {type: integer, minimum: 0}
+            registered: {type: integer, minimum: 0}
+            attended: {type: integer, minimum: 0}
+            departed: {type: integer, minimum: 0}
+          additionalProperties: false
+        quorum:
+          type: object
+          required: [accepted_only, body_ids]
+          properties:
+            accepted_only:
+              description: True once the participants list deadline has passed; from then on only accepted delegates count.
+              type: boolean
+            body_ids:
+              description: The bodies that are represented.
+              type: array
+              items: {type: integer}
+          additionalProperties: false
+        by_date:
+          description: Every day from the first to the last application.
+          type: array
+          items: {$ref: '#/components/schemas/StatsPerDay'}
+        by_date_cumulative: {type: array, items: {$ref: '#/components/schemas/StatsPerDay'}}
+        by_body: {type: array, items: {$ref: '#/components/schemas/StatsPerValue'}}
+        by_type: {type: array, items: {$ref: '#/components/schemas/StatsPerValue'}}
+        by_gender: {type: array, items: {$ref: '#/components/schemas/StatsPerValue'}}
+        by_meal: {type: array, items: {$ref: '#/components/schemas/StatsPerValue'}}
+        by_number_of_events_visited: {type: array, items: {$ref: '#/components/schemas/StatsPerValue'}}
+      additionalProperties: false
+    ApplicationStatsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ApplicationStats'}
+      additionalProperties: false
+    MembersListMember:
+      type: object
+      required: [first_name, last_name, fee, fee_to_aegee]
+      properties:
+        first_name: {type: string}
+        last_name: {type: string}
+        user_id:
+          description: The member's id in core, when the member has an account.
+          type: [integer, 'null']
+        fee:
+          description: The member's local annual fee, in the currency of the list.
+          type: number
+          minimum: 0
+        fee_to_aegee:
+          description: The part for AEGEE-Europe in euro, at least 2.
+          type: number
+      additionalProperties: false
+    MembersListFields:
+      description: Every field of a members list except the body.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, user_id, currency, conversion_rate, members, fee_to_aegee, fee_paid, fee_not_paid]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        user_id:
+          description: The member who uploaded the list last.
+          type: integer
+        currency: {type: string}
+        conversion_rate:
+          description: Units of the currency per euro, from the European Commission's monthly rates at the upload.
+          oneOf:
+            - $ref: '#/components/schemas/Decimal'
+            - type: 'null'
+        members: {type: array, items: {$ref: '#/components/schemas/MembersListMember'}}
+        fee_to_aegee:
+          description: The sum of the members' `fee_to_aegee`.
+          type: number
+        fee_paid:
+          oneOf:
+            - $ref: '#/components/schemas/Decimal'
+            - type: 'null'
+        fee_not_paid:
+          description: '`fee_to_aegee` minus `fee_paid`, in euro cents precision.'
+          type: number
+    MembersList:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MembersListFields'
+      required: [body_id]
+      properties:
+        body_id: {type: integer}
+      unevaluatedProperties: false
+    MembersListUploaded:
+      description: A members list in the answer to its upload.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MembersListFields'
+      required: [body_id]
+      properties:
+        body_id: {type: integer}
+      unevaluatedProperties: false
+    MembersListInput:
+      type: object
+      required: [currency, members]
+      properties:
+        currency:
+          description: A two-letter code of the European Commission's monthly rates (`EU` for euro).
+          type: string
+          minLength: 1
+          maxLength: 255
+        members:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [first_name, last_name, fee]
+            properties:
+              first_name:
+                description: Stored without surrounding spaces.
+                type: string
+                minLength: 1
+              last_name:
+                description: Stored without surrounding spaces.
+                type: string
+                minLength: 1
+              user_id:
+                description: The member's user id in core, as a number or a string of digits; stored as a number.
+                type: [integer, string, 'null']
+                pattern: '^[0-9]+$'
+              fee:
+                description: The local membership fee in the list's currency, as a number or a numeric string; stored as a number.
+                type: [number, string]
+                minimum: 0
+                pattern: '^[0-9]+(\.[0-9]+)?$'
+            additionalProperties: false
+      additionalProperties: true
+    MembersListFeePaidInput:
+      description: Without `fee_paid` nothing changes.
+      type: object
+      properties:
+        fee_paid: {type: [number, string, 'null']}
+      additionalProperties: true
+    MembersListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/MembersList'}
+      additionalProperties: false
+    MembersListUploadedResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/MembersListUploaded'}
+      additionalProperties: false
+    MembersListListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/MembersList'}}
+      additionalProperties: false
+    MassMailInput:
+      type: object
+      required: [subject, text]
+      properties:
+        subject: {type: string, minLength: 1}
+        text:
+          description: The mail body as HTML, with the placeholders the operation lists.
+          type: string
+          minLength: 1
+        reply_to: {type: string}
+        filter:
+          description: Anything but an object counts as no filter.
+          oneOf:
+            - $ref: '#/components/schemas/ApplicationFilter'
+            - type: 'null'
+      additionalProperties: true
+    MassMailResponse:
+      type: object
+      required: [success, message, meta]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        meta:
+          type: object
+          required: [sent]
+          properties:
+            sent:
+              description: The number of mails; applicants that core does not return get none.
+              type: integer
+              minimum: 0
+          additionalProperties: false
+      additionalProperties: false
+    VotesPerAntenna:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, body_id, votes]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        body_id: {type: integer}
+        votes:
+          description: By the number of members on the members list of the antenna; 0 for other bodies.
+          type: integer
+          minimum: 0
+      unevaluatedProperties: false
+    VotesPerDelegate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, application_id, body_id, user_id, type, votes, application]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        application_id: {type: integer}
+        body_id: {type: integer}
+        user_id: {type: integer}
+        type: {type: string, enum: [on-event, off-event]}
+        votes: {type: integer, minimum: 0}
+        application: {$ref: '#/components/schemas/ApplicationVotes'}
+      unevaluatedProperties: false
+    VotesPerAntennaListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/VotesPerAntenna'}}
+      additionalProperties: false
+    VotesPerDelegateListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/VotesPerDelegate'}}
+      additionalProperties: false
+    VotesForBodyResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [antenna, delegate]
+          properties:
+            antenna:
+              oneOf:
+                - $ref: '#/components/schemas/VotesPerAntenna'
+                - type: 'null'
+            delegate: {type: array, items: {$ref: '#/components/schemas/VotesPerDelegate'}}
+          additionalProperties: false
+      additionalProperties: false
+    PositionStatus:
+      type: string
+      enum: [open, closed]
+    PositionFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, deleted, name, body_id, start_term, end_term, starts, ends, places, requirements, status, can_apply]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        deleted: {type: boolean}
+        name: {type: string}
+        body_id:
+          description: The body the position belongs to, when it has one.
+          type: [integer, 'null']
+        start_term:
+          description: The first day of the term.
+          type: string
+          format: date
+        end_term:
+          description: The end of the term, as text.
+          type: string
+        starts:
+          description: When candidatures open.
+          type: string
+          format: date-time
+        ends:
+          description: When candidatures close.
+          type: string
+          format: date-time
+        places: {type: integer, minimum: 1}
+        requirements: {type: [string, 'null']}
+        status: {$ref: '#/components/schemas/PositionStatus'}
+        can_apply:
+          description: Now is between `starts` and `ends`.
+          type: boolean
+    Position:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PositionFields'
+      unevaluatedProperties: false
+    PositionWithCandidates:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PositionFields'
+      required: [candidates]
+      properties:
+        candidates: {type: array, items: {$ref: '#/components/schemas/CandidateWithNotificationEmail'}}
+      unevaluatedProperties: false
+    PositionWithPublicCandidates:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PositionFields'
+      required: [candidates]
+      properties:
+        candidates:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/CandidateApproved'
+              - $ref: '#/components/schemas/CandidatePending'
+      unevaluatedProperties: false
+    PositionCreateInput:
+      description: The dates are anything JavaScript reads as a date; the frontend sends ISO 8601.
+      type: object
+      required: [name, places, starts, ends, start_term, end_term]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        places:
+          description: A whole number from 1, or a string of digits, which is stored as a number.
+          type: [integer, string]
+          minimum: 1
+          pattern: '^[0-9]+$'
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+        start_term: {type: string}
+        end_term: {type: string, minLength: 1, maxLength: 255}
+        body_id: {type: [integer, 'null']}
+        requirements: {type: [string, 'null']}
+      additionalProperties: true
+    PositionUpdateInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        places:
+          description: A whole number from 1, or a string of digits, which is stored as a number.
+          type: [integer, string]
+          minimum: 1
+          pattern: '^[0-9]+$'
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+        start_term: {type: string}
+        end_term: {type: string, minLength: 1, maxLength: 255}
+        body_id: {type: [integer, 'null']}
+        requirements: {type: [string, 'null']}
+      additionalProperties: true
+    PositionStatusInput:
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/PositionStatus'}
+      additionalProperties: true
+    PositionResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Position'}
+      additionalProperties: false
+    PositionListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Position'}}
+      additionalProperties: false
+    PositionWithCandidatesListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PositionWithCandidates'}}
+      additionalProperties: false
+    PositionWithPublicCandidatesListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PositionWithPublicCandidates'}}
+      additionalProperties: false
+    CandidateStatus:
+      type: string
+      enum: [approved, rejected, pending]
+    CandidateFields:
+      description: Every field of a candidature except the body id and the mail addresses.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required:
+        - id
+        - user_id
+        - body_name
+        - position_id
+        - first_name
+        - last_name
+        - date_of_birth
+        - nationality
+        - languages
+        - studies
+        - member_since
+        - european_experience
+        - local_experience
+        - attended_agorae
+        - attended_epm
+        - attended_conferences
+        - external_experience
+        - related_experience
+        - motivation
+        - program
+        - agreed_to_privacy_policy
+        - status
+        - image_id
+      properties:
+        id: {type: integer}
+        user_id: {type: integer}
+        body_name: {type: string}
+        position_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        date_of_birth:
+          description: '`YYYY-MM-DD`.'
+          type: string
+        nationality: {type: string}
+        languages: {type: array, items: {type: string}}
+        studies: {type: string}
+        member_since:
+          description: '`YYYY-MM-DD`.'
+          type: string
+        european_experience: {type: string}
+        local_experience: {type: string}
+        attended_agorae: {type: string}
+        attended_epm: {type: string}
+        attended_conferences: {type: string}
+        external_experience: {type: string}
+        related_experience: {type: string}
+        motivation: {type: string}
+        program: {type: string}
+        agreed_to_privacy_policy: {type: boolean}
+        status: {$ref: '#/components/schemas/CandidateStatus'}
+        image_id: {type: [integer, 'null']}
+    CandidateBodyId:
+      type: object
+      required: [body_id]
+      properties:
+        body_id: {type: integer}
+    Candidate:
+      description: A candidature without its image, as returned right after it is submitted.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+        - $ref: '#/components/schemas/CandidateBodyId'
+      required: [email]
+      properties:
+        email:
+          description: Not used; the mail address comes from core.
+          type: [string, 'null']
+      unevaluatedProperties: false
+    CandidateWithImage:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+        - $ref: '#/components/schemas/CandidateBodyId'
+      required: [email, image]
+      properties:
+        email: {type: [string, 'null']}
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    CandidateUpdated:
+      description: A candidature in the answer to an edit.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+      required: [body_id, email, image]
+      properties:
+        body_id: {type: integer}
+        email: {type: [string, 'null']}
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    CandidateWithNotificationEmail:
+      description: A candidature for those who manage candidatures.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+        - $ref: '#/components/schemas/CandidateBodyId'
+      required: [email, image]
+      properties:
+        email: {type: [string, 'null']}
+        notification_email:
+          description: The candidate's notification address in core.
+          type: string
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    CandidateApproved:
+      description: An approved candidature as every member sees it, without mail addresses.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+        - $ref: '#/components/schemas/CandidateBodyId'
+      required: [image]
+      properties:
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    CandidatePending:
+      description: A candidature that is not approved yet, as every member sees it.
+      type: object
+      required: [id, status, first_name, last_name, body_name, created_at]
+      properties:
+        id: {type: integer}
+        status: {const: pending}
+        first_name: {type: string}
+        last_name: {type: string}
+        body_name: {type: string}
+        created_at: {type: string, format: date-time}
+      additionalProperties: false
+    CandidateWithPosition:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CandidateFields'
+        - $ref: '#/components/schemas/CandidateBodyId'
+      required: [email, position, image]
+      properties:
+        email: {type: [string, 'null']}
+        position: {$ref: '#/components/schemas/Position'}
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/Image'
+            - type: 'null'
+      unevaluatedProperties: false
+    CandidateCreateInput:
+      description: The fields a candidate fills in. Other keys are ignored.
+      type: object
+      required:
+        - body_id
+        - first_name
+        - last_name
+        - date_of_birth
+        - nationality
+        - languages
+        - studies
+        - member_since
+        - european_experience
+        - local_experience
+        - attended_agorae
+        - attended_epm
+        - attended_conferences
+        - external_experience
+        - related_experience
+        - motivation
+        - program
+        - agreed_to_privacy_policy
+      properties:
+        body_id:
+          description: One of the caller's bodies.
+          type: [integer, string]
+        first_name: {type: string, minLength: 1, maxLength: 255}
+        last_name: {type: string, minLength: 1, maxLength: 255}
+        date_of_birth: {type: string, format: date}
+        nationality: {type: string, minLength: 1, maxLength: 255}
+        languages: {type: array, minItems: 1, items: {type: string, minLength: 1, maxLength: 255}}
+        studies: {type: string, minLength: 1}
+        member_since: {type: string, format: date}
+        european_experience: {type: string, minLength: 1}
+        local_experience: {type: string, minLength: 1}
+        attended_agorae: {type: string, minLength: 1}
+        attended_epm: {type: string, minLength: 1}
+        attended_conferences: {type: string, minLength: 1}
+        external_experience: {type: string, minLength: 1}
+        related_experience: {type: string, minLength: 1}
+        motivation: {type: string, minLength: 1}
+        program: {type: string, minLength: 1}
+        agreed_to_privacy_policy: {const: true}
+      additionalProperties: true
+    CandidateUpdateInput:
+      description: The fields a candidate fills in. Other keys are ignored.
+      type: object
+      properties:
+        body_id:
+          description: One of the candidate's bodies.
+          type: [integer, string]
+        first_name: {type: string, minLength: 1, maxLength: 255}
+        last_name: {type: string, minLength: 1, maxLength: 255}
+        date_of_birth: {type: string, format: date}
+        nationality: {type: string, minLength: 1, maxLength: 255}
+        languages: {type: array, minItems: 1, items: {type: string, minLength: 1, maxLength: 255}}
+        studies: {type: string, minLength: 1}
+        member_since: {type: string, format: date}
+        european_experience: {type: string, minLength: 1}
+        local_experience: {type: string, minLength: 1}
+        attended_agorae: {type: string, minLength: 1}
+        attended_epm: {type: string, minLength: 1}
+        attended_conferences: {type: string, minLength: 1}
+        external_experience: {type: string, minLength: 1}
+        related_experience: {type: string, minLength: 1}
+        motivation: {type: string, minLength: 1}
+        program: {type: string, minLength: 1}
+        agreed_to_privacy_policy: {const: true}
+      additionalProperties: true
+    CandidateStatusInput:
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/CandidateStatus'}
+      additionalProperties: true
+    CandidateResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Candidate'}
+      additionalProperties: false
+    CandidateWithImageResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/CandidateWithImage'}
+      additionalProperties: false
+    CandidateUpdatedResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/CandidateUpdated'}
+      additionalProperties: false
+    CandidateWithPositionListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/CandidateWithPosition'}}
+      additionalProperties: false
+    CandidateFilter:
+      description: Other fields are refused.
+      type: object
+      properties:
+        status:
+          oneOf:
+            - $ref: '#/components/schemas/CandidateStatus'
+            - type: array
+              items: {$ref: '#/components/schemas/CandidateStatus'}
+      additionalProperties: false
+    QuestionLineStatus:
+      type: string
+      enum: [open, closed]
+    QuestionLineFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, name, status]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        name: {type: string}
+        status: {$ref: '#/components/schemas/QuestionLineStatus'}
+    QuestionLine:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/QuestionLineFields'
+      unevaluatedProperties: false
+    QuestionLineWithQuestions:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/QuestionLineFields'
+      required: [questions]
+      properties:
+        questions:
+          description: The oldest question first.
+          type: array
+          items: {$ref: '#/components/schemas/QuestionWithApplication'}
+      unevaluatedProperties: false
+    QuestionLineCreateInput:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+      additionalProperties: true
+    QuestionLineUpdateInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+      additionalProperties: true
+    QuestionLineStatusInput:
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/QuestionLineStatus'}
+      additionalProperties: true
+    QuestionLineResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/QuestionLine'}
+      additionalProperties: false
+    QuestionLineWithQuestionsListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/QuestionLineWithQuestions'}}
+      additionalProperties: false
+    QuestionFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, question_line_id, application_id, text]
+      properties:
+        id: {type: integer}
+        question_line_id: {type: integer}
+        application_id:
+          description: The application of the member who asked the question.
+          type: integer
+        text: {type: string}
+    Question:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/QuestionFields'
+      unevaluatedProperties: false
+    QuestionWithApplication:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/QuestionFields'
+      required: [application]
+      properties:
+        application: {$ref: '#/components/schemas/ApplicationQuestionLine'}
+      unevaluatedProperties: false
+    QuestionInput:
+      type: object
+      required: [text]
+      properties:
+        text: {type: string, minLength: 1}
+      additionalProperties: true
+    QuestionResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Question'}
+      additionalProperties: false
+    QuestionWithApplicationResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/QuestionWithApplication'}
+      additionalProperties: false
+    PlenaryFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, event_id, name, starts, ends, duration]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        name: {type: [string, 'null']}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        duration:
+          description: Seconds between `starts` and `ends`.
+          type: number
+    Plenary:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PlenaryFields'
+      unevaluatedProperties: false
+    AttendanceFields:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      required: [id, plenary_id, application_id, starts, ends, application]
+      properties:
+        id: {type: integer}
+        plenary_id: {type: integer}
+        application_id: {type: integer}
+        starts:
+          description: When the participant entered.
+          type: string
+          format: date-time
+        ends:
+          description: When the participant left; null while they are in the plenary.
+          type: [string, 'null']
+          format: date-time
+        application: {$ref: '#/components/schemas/ApplicationPlenary'}
+    AttendanceWithApplication:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AttendanceFields'
+      unevaluatedProperties: false
+    PlenaryWithAttendances:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PlenaryFields'
+      required: [attendances]
+      properties:
+        attendances: {type: array, items: {$ref: '#/components/schemas/AttendanceWithApplication'}}
+      unevaluatedProperties: false
+    PlenaryCreateInput:
+      description: The dates are anything JavaScript reads as a date; the frontend sends ISO 8601.
+      type: object
+      required: [name, starts, ends]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+      additionalProperties: true
+    PlenaryUpdateInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+      additionalProperties: true
+    AttendanceMarkInput:
+      type: object
+      required: [application_id]
+      properties:
+        application_id:
+          description: The id of the application when it is all digits, otherwise the statutory id.
+          type: [integer, string]
+      additionalProperties: true
+    PlenaryResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Plenary'}
+      additionalProperties: false
+    PlenaryListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Plenary'}}
+      additionalProperties: false
+    PlenaryWithAttendancesResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/PlenaryWithAttendances'}
+      additionalProperties: false
+    AttendanceWithApplicationResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/AttendanceWithApplication'}
+      additionalProperties: false
