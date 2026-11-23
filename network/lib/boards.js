@@ -107,6 +107,19 @@ exports.listAllBoards = async (req, res) => {
     });
 };
 
+// A date (2021-01-10) or a full ISO 8601 timestamp with a time zone, such as an Agora's
+// end (2021-01-10T16:00:00.000Z). A timestamp counts by the day it was written with.
+const ENDS_FORMAT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2}))?$/;
+const parseEndsDay = (value) => {
+    // The format check leaves out partial forms (2021, 20210110); the strict parse, values
+    // that are no real date or time (2021-13-45, T25:00).
+    if (typeof value !== 'string' || !ENDS_FORMAT.test(value) || !moment.parseZone(value, moment.ISO_8601, true).isValid()) {
+        return null;
+    }
+
+    return moment(value.slice(0, 10), 'YYYY-MM-DD', true);
+};
+
 exports.listMostRecentBoardsElected = async (req, res) => {
     if (!req.permissions.view_board) {
         return errors.makeForbiddenError(res, 'You are not allowed to list recently elected boards.');
@@ -114,10 +127,9 @@ exports.listMostRecentBoardsElected = async (req, res) => {
 
     let endDate = moment().endOf('day').toDate();
     if (req.query.ends) {
-        // The day at the start of the value: a date, or a timestamp such as an Agora's end.
-        const ends = typeof req.query.ends === 'string' ? moment(req.query.ends, 'YYYY-MM-DD') : null;
-        if (!ends || !ends.isValid()) {
-            return res.status(422).json({ success: false, errors: { ends: ['The end date should be a date (YYYY-MM-DD).'] } });
+        const ends = parseEndsDay(req.query.ends);
+        if (!ends) {
+            return res.status(422).json({ success: false, errors: { ends: ['The end date should be a date (YYYY-MM-DD) or an ISO 8601 timestamp.'] } });
         }
 
         endDate = ends.endOf('day').toDate();
