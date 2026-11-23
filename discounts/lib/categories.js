@@ -55,6 +55,8 @@ exports.updateCategory = async (req, res) => {
     }
 
     await req.category.update(req.body, { fields: CATEGORY_FIELDS });
+    // Return what was stored, not what was sent ("7" is stored as 7).
+    await req.category.reload();
 
     return res.json({
         success: true,
