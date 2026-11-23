@@ -16,7 +16,7 @@
               :options="fields"
               placeholder="Select application fields"
               aria-label="Application fields"
-              track-by="name"
+              track-by="key"
               label="name">
               <template
                 slot="selection"
@@ -87,8 +87,8 @@
             <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
             <b-table-column
               v-for="(field, index) in fields"
-              :visible="selectedFields.some(sField => sField.name === field.name)"
-              v-bind:key="index"
+              :visible="selectedFields.some(sField => sField.key === field.key)"
+              v-bind:key="field.key"
               :field="field.column"
               class="has-text-pre-wrap"
               :sortable="!!field.column"
@@ -145,6 +145,38 @@ import { mapGetters } from 'vuex'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import Multiselect from 'vue-multiselect'
 
+// The fields an application can be shown with. `key` tells them apart (a question may be called
+// like a field), `column` is what statutory sorts by.
+const BASE_FIELDS = [
+  { key: 'first_name', name: 'First name', column: 'first_name', get: (pax) => pax.first_name },
+  { key: 'last_name', name: 'Last name', column: 'last_name', get: (pax) => pax.last_name },
+  { key: 'gender', name: 'Gender', column: 'gender', get: (pax) => pax.gender },
+  { key: 'nationality', name: 'Nationality', column: 'nationality', get: (pax) => pax.nationality },
+  { key: 'date_of_birth', name: 'Date of birth', column: 'date_of_birth', get: (pax) => pax.date_of_birth },
+  // Core has the address, statutory can't sort by it.
+  { key: 'notification_email', name: 'Email', get: (pax) => pax.notification_email },
+  { key: 'meals', name: 'Meals', column: 'meals', get: (pax) => pax.meals },
+  { key: 'allergies', name: 'Allergies', column: 'allergies', get: (pax) => pax.allergies },
+  { key: 'number_of_events_visited', name: 'Number of events visited', column: 'number_of_events_visited', get: (pax) => pax.number_of_events_visited },
+  { key: 'visa_required', name: 'Visa required?', column: 'visa_required', get: (pax) => pax.visa_required },
+  { key: 'visa_passport_number', name: 'Visa passport number', column: 'visa_passport_number', get: (pax) => pax.visa_passport_number },
+  { key: 'visa_passport_issue_date', name: 'Visa passport issue date', column: 'visa_passport_issue_date', get: (pax) => pax.visa_passport_issue_date },
+  { key: 'visa_passport_expiration_date', name: 'Visa passport expiration date', column: 'visa_passport_expiration_date', get: (pax) => pax.visa_passport_expiration_date },
+  { key: 'visa_passport_issue_authority', name: 'Visa passport issue authority', column: 'visa_passport_issue_authority', get: (pax) => pax.visa_passport_issue_authority },
+  { key: 'visa_place_of_birth', name: 'Place of birth', column: 'visa_place_of_birth', get: (pax) => pax.visa_place_of_birth },
+  { key: 'visa_embassy', name: 'Embassy', column: 'visa_embassy', get: (pax) => pax.visa_embassy },
+  { key: 'visa_street_and_house', name: 'Street and house number', column: 'visa_street_and_house', get: (pax) => pax.visa_street_and_house },
+  { key: 'visa_postal_code', name: 'Postal code', column: 'visa_postal_code', get: (pax) => pax.visa_postal_code },
+  { key: 'visa_city', name: 'City', column: 'visa_city', get: (pax) => pax.visa_city },
+  { key: 'visa_country', name: 'Country', column: 'visa_country', get: (pax) => pax.visa_country },
+  { key: 'created_at', name: 'Created at', column: 'created_at', get: (pax) => pax.created_at },
+  { key: 'updated_at', name: 'Updated at', column: 'updated_at', get: (pax) => pax.updated_at },
+  { key: 'participant_type', name: 'Participant type', column: 'participant_type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
+  { key: 'board_comment', name: 'Board comment', column: 'board_comment', get: (pax) => pax.board_comment }
+]
+
+const DEFAULT_FIELDS = ['participant_type', 'board_comment', 'first_name', 'last_name']
+
 export default {
   name: 'AcceptParticipantsStatutoryList',
   components: {
@@ -164,39 +196,8 @@ export default {
         field: 'id',
         direction: 'desc'
       },
-      selectedFields: [
-        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
-        { name: 'Board comment', get: (pax) => pax.board_comment },
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name }
-      ],
-      baseFields: [
-        { name: 'First name', column: 'first_name', get: (pax) => pax.first_name },
-        { name: 'Last name', column: 'last_name', get: (pax) => pax.last_name },
-        { name: 'Gender', column: 'gender', get: (pax) => pax.gender },
-        { name: 'Nationality', column: 'nationality', get: (pax) => pax.nationality },
-        { name: 'Date of birth', column: 'date_of_birth', get: (pax) => pax.date_of_birth },
-        // Core has the address, statutory can't sort by it.
-        { name: 'Email', get: (pax) => pax.notification_email },
-        { name: 'Meals', column: 'meals', get: (pax) => pax.meals },
-        { name: 'Allergies', column: 'allergies', get: (pax) => pax.allergies },
-        { name: 'Number of events visited', column: 'number_of_events_visited', get: (pax) => pax.number_of_events_visited },
-        { name: 'Visa required?', column: 'visa_required', get: (pax) => pax.visa_required },
-        { name: 'Visa passport number', column: 'visa_passport_number', get: (pax) => pax.visa_passport_number },
-        { name: 'Visa passport issue date', column: 'visa_passport_issue_date', get: (pax) => pax.visa_passport_issue_date },
-        { name: 'Visa passport expiration date', column: 'visa_passport_expiration_date', get: (pax) => pax.visa_passport_expiration_date },
-        { name: 'Visa passport issue authority', column: 'visa_passport_issue_authority', get: (pax) => pax.visa_passport_issue_authority },
-        { name: 'Place of birth', column: 'visa_place_of_birth', get: (pax) => pax.visa_place_of_birth },
-        { name: 'Embassy', column: 'visa_embassy', get: (pax) => pax.visa_embassy },
-        { name: 'Street and house number', column: 'visa_street_and_house', get: (pax) => pax.visa_street_and_house },
-        { name: 'Postal code', column: 'visa_postal_code', get: (pax) => pax.visa_postal_code },
-        { name: 'City', column: 'visa_city', get: (pax) => pax.visa_city },
-        { name: 'Country', column: 'visa_country', get: (pax) => pax.visa_country },
-        { name: 'Created at', column: 'created_at', get: (pax) => pax.created_at },
-        { name: 'Updated at', column: 'updated_at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', column: 'participant_type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
-        { name: 'Board comment', column: 'board_comment', get: (pax) => pax.board_comment }
-      ],
+      selectedFields: BASE_FIELDS.filter((field) => DEFAULT_FIELDS.includes(field.key)),
+      baseFields: BASE_FIELDS,
       displayCancelled: false,
       isLoading: false,
       isSaving: false
@@ -213,6 +214,7 @@ export default {
     fields () {
       const questions = this.event.questions || []
       return this.baseFields.concat(questions.map((question, index) => ({
+        key: `question:${index}`,
         name: question.description,
         get: (pax) => pax.answers[index]
       })))
