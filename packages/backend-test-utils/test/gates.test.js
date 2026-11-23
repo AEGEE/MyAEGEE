@@ -1,0 +1,285 @@
+// The three CI gates: the coverage ratchet, the never-exercised check and the
+// after_n_builds check.
+const { describe, test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync, spawnSync } = require('node:child_process');
+
+const { checkCoverage, parseArgs } = require('../check-coverage');
+const { findUnexercised, readHits } = require('../unexercised');
+const { checkCoverageLowered, parseArgs: parseLoweredArgs } = require('../check-coverage-lowered');
+const { checkCodecovBuilds } = require('../check-codecov-builds');
+const { createContract } = require('../openapi');
+const { FIXTURES, REQUIRE_FROM, tmpDir } = require('./helpers');
+
+// An istanbul report for one file with four statements, one function and one
+// two-way branch; `hits` says which statements this shard ran.
+function report(file, hits, { fn = 0, branch = [0, 0] } = {}) {
+    const loc = (line) => ({ start: { line, column: 0 }, end: { line, column: 10 } });
+    return {
+        [file]: {
+            path: file,
+            statementMap: { 0: loc(1), 1: loc(2), 2: loc(3), 3: loc(4) },
+            fnMap: { 0: { name: 'f', decl: loc(1), loc: loc(1), line: 1 } },
+            branchMap: { 0: { type: 'if', line: 2, loc: loc(2), locations: [loc(2), loc(3)] } },
+            s: Object.fromEntries([0, 1, 2, 3].map((i) => [i, hits.includes(i) ? 1 : 0])),
+            f: { 0: fn },
+            b: { 0: branch }
+        }
+    };
+}
+
+function service(thresholds) {
+    const dir = tmpDir('coverage');
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ jest: { coverageThreshold: { global: thresholds } } }));
+    return dir;
+}
+
+function writeReports(dir, reports) {
+    return reports.map((r, i) => {
+        const file = path.join(dir, `coverage-${i}.json`);
+        fs.writeFileSync(file, JSON.stringify(r));
+        return file;
+    });
+}
+
+describe('check-coverage (the ratchet)', () => {
+    const full = { statements: 100, branches: 100, functions: 100, lines: 100 };
+    const shards = [report('/src/a.js', [0, 1], { fn: 1, branch: [1, 0] }), report('/src/a.js', [2, 3], { branch: [0, 1] })];
+
+    test('one shard alone is below the thresholds', () => {
+        const dir = service(full);
+        const { failed, lines } = checkCoverage({ serviceRoot: dir, reports: writeReports(dir, shards.slice(0, 1)), requireFrom: REQUIRE_FROM });
+        assert.equal(failed, true);
+        assert.match(lines.join('\n'), /FAIL statements +50\.00% >= 100%/);
+    });
+
+    test('the merged shards pass where each shard alone would fail', () => {
+        const dir = service(full);
+        const { failed, summary } = checkCoverage({ serviceRoot: dir, reports: writeReports(dir, shards), requireFrom: REQUIRE_FROM });
+        assert.equal(failed, false);
+        assert.equal(summary.statements.pct, 100);
+        assert.equal(summary.branches.pct, 100);
+    });
+
+    test('fails when the merged coverage drops below the ratchet', () => {
+        const dir = service(full);
+        const dropped = [shards[0], report('/src/a.js', [2], { branch: [0, 1] })];
+        const { failed, lines } = checkCoverage({ serviceRoot: dir, reports: writeReports(dir, dropped), requireFrom: REQUIRE_FROM });
+        assert.equal(failed, true);
+        assert.match(lines.join('\n'), /FAIL statements +75\.00% >= 100%/);
+        assert.match(lines.join('\n'), /ok {3}branches +100\.00% >= 100%/);
+    });
+
+    test('suggests raising a threshold that is 0.5 points or more below the merged number', () => {
+        const dir = service({ statements: 90, branches: 99.8, functions: 100, lines: 100 });
+        const { lines } = checkCoverage({ serviceRoot: dir, reports: writeReports(dir, shards), requireFrom: REQUIRE_FROM });
+        assert.match(lines[0], /ok {3}statements 100\.00% >= 90% {2}\(raise to 100\)/);
+        assert.doesNotMatch(lines[1], /raise/);
+    });
+
+    test('fails without reports, and when fewer reports than --expect arrive', () => {
+        const dir = service(full);
+        assert.throws(() => checkCoverage({ serviceRoot: dir, reports: [], requireFrom: REQUIRE_FROM }), /No coverage reports/);
+        assert.throws(
+            () => checkCoverage({ serviceRoot: dir, reports: writeReports(dir, shards.slice(0, 1)), expect: 2, requireFrom: REQUIRE_FROM }),
+            /Expected 2 coverage report\(s\), got 1/
+        );
+        assert.deepEqual(parseArgs(['core', '--expect', '4', 'a.json', 'b.json']).expect, 4);
+    });
+
+    test('fails when the service has no ratchet, or an incomplete one', () => {
+        const none = tmpDir('none');
+        fs.writeFileSync(path.join(none, 'package.json'), '{"jest":{}}');
+        assert.throws(
+            () => checkCoverage({ serviceRoot: none, reports: writeReports(none, shards), requireFrom: REQUIRE_FROM }),
+            /has no jest\.coverageThreshold\.global/
+        );
+        const partial = service({ statements: 90 });
+        assert.throws(
+            () => checkCoverage({ serviceRoot: partial, reports: writeReports(partial, shards), requireFrom: REQUIRE_FROM }),
+            /missing: branches, functions, lines/
+        );
+    });
+});
+
+describe('unexercised (documented but never exercised)', () => {
+    const { spec } = createContract({ serviceRoot: FIXTURES, requireFrom: REQUIRE_FROM });
+    const allHits = [
+        'GET /healthcheck 200', 'GET /metrics 200', 'GET /members/me 200', 'GET /members/me 401',
+        'GET /members/{user_id} 200', 'GET /members/{user_id} 404', 'GET /courses 200', 'GET /courses 401',
+        'POST /courses 201', 'POST /courses 401', 'POST /courses 422',
+        'GET /courses/{course_id} 200', 'GET /courses/{course_id} 400', 'GET /courses/{course_id} 404',
+        'DELETE /courses/{course_id} 204', 'DELETE /courses/{course_id} 404', 'GET /courses/{course_id}/export 200'
+    ];
+
+    test('passes when every documented response was hit; x-untested exempts POST /courses 403', () => {
+        assert.deepEqual(findUnexercised(spec, allHits), { missing: [], problems: [] });
+    });
+
+    test('lists a documented response that no test produced', () => {
+        const hits = allHits.filter((h) => h !== 'GET /courses/{course_id} 400');
+        assert.deepEqual(findUnexercised(spec, hits).missing, ['GET /courses/{course_id} 400  (getCourse)']);
+    });
+
+    test('a 4XX range is a spec problem, and one 4xx hit does not exercise it', () => {
+        const withRange = JSON.parse(JSON.stringify(spec));
+        withRange.paths['/courses'].get.responses['4XX'] = withRange.paths['/courses'].get.responses['401'];
+        const result = findUnexercised(withRange, [...allHits, 'GET /courses 404']);
+        assert.deepEqual(result.missing, ['GET /courses 4XX  (listCourses)']);
+        assert.match(result.problems.join('\n'), /GET \/courses 4XX \(listCourses\): .*'4XX' is not allowed/);
+    });
+
+    test('x-untested on a shared response exempts nothing and is a problem; an empty reason is a problem', () => {
+        const withShared = JSON.parse(JSON.stringify(spec));
+        withShared.components.responses.NotFound['x-untested'] = 'reason';
+        withShared.paths['/courses/{course_id}'].get['x-untested'] = { 400: '' };
+        const hits = allHits.filter((h) => h !== 'GET /courses/{course_id}/export 200' && !h.endsWith(' 404'));
+        const result = findUnexercised(withShared, hits);
+        assert.deepEqual(result.missing, [
+            'GET /members/{user_id} 404  (getMember)',
+            'GET /courses/{course_id} 404  (getCourse)',
+            'DELETE /courses/{course_id} 404  (deleteCourse)',
+            'GET /courses/{course_id}/export 200  (exportCourse)'
+        ]);
+        assert.match(result.problems.join('\n'), /#\/components\/responses\/NotFound: x-untested on a shared response would exempt every operation/);
+        assert.match(result.problems.join('\n'), /GET \/courses\/\{course_id\} 400 \(getCourse\): x-untested needs a reason/);
+    });
+
+    test('an exemption for a response that a test produced is stale', () => {
+        assert.deepEqual(findUnexercised(spec, [...allHits, 'POST /courses 403']).problems, [
+            'POST /courses 403: x-untested is stale, a test produced this response; remove the exemption'
+        ]);
+    });
+
+    test('the run header line of a hits file is not a hit', () => {
+        const file = path.join(tmpDir('hits'), 'hits.txt');
+        fs.writeFileSync(file, '# openapi hits, jest run 42\nGET /metrics 200\n');
+        assert.deepEqual(readHits([file]), ['GET /metrics 200']);
+    });
+
+    test('the CLI exits 1 and names the gap', () => {
+        const dir = tmpDir('cli');
+        fs.copyFileSync(path.join(FIXTURES, 'openapi.yaml'), path.join(dir, 'openapi.yaml'));
+        fs.copyFileSync(REQUIRE_FROM, path.join(dir, 'package.json'));
+        fs.symlinkSync(path.join(path.dirname(REQUIRE_FROM), '..', 'node_modules'), path.join(dir, 'node_modules'));
+        const hits = path.join(dir, 'hits.txt');
+        fs.writeFileSync(hits, allHits.filter((h) => h !== 'GET /metrics 200').join('\n'));
+        const run = spawnSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' });
+        assert.equal(run.status, 1);
+        assert.match(run.stdout, /Documented but never exercised[^\n]*\n {2}GET \/metrics 200 {2}\(getMetrics\)/);
+        fs.writeFileSync(hits, [...allHits, 'POST /courses 403'].join('\n'));
+        const stale = spawnSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' });
+        assert.equal(stale.status, 1);
+        assert.match(stale.stdout, /POST \/courses 403: x-untested is stale/);
+        fs.writeFileSync(hits, allHits.join('\n'));
+        assert.match(
+            execFileSync(process.execPath, [path.join(__dirname, '..', 'unexercised.js'), dir, hits], { encoding: 'utf8' }),
+            /Every documented response was exercised/
+        );
+    });
+});
+
+describe('check-codecov-builds (after_n_builds)', () => {
+    const codecov = (n) => ({ codecov: { notify: { after_n_builds: n } }, comment: { after_n_builds: n } });
+    const circle = {
+        jobs: {
+            'a-test': { parallelism: 3, steps: ['checkout', 'codecov/upload'] },
+            'b-test': { steps: ['checkout', { 'codecov/upload': { flags: 'b' } }] },
+            'c-test': { parallelism: 4, steps: ['checkout'] },
+            'nightly-test': { parallelism: 2, steps: ['codecov/upload'] },
+            'stable-test': { parallelism: 2, steps: ['codecov/upload'] }
+        },
+        workflows: {
+            a: { jobs: ['a-test'] },
+            b: { jobs: [{ 'b-test': { filters: { branches: { ignore: 'stable' } } } }, 'c-test'] },
+            nightly: { triggers: [{ schedule: { cron: '0 0 * * 5' } }], jobs: ['nightly-test'] },
+            release: { jobs: [{ 'stable-test': { filters: { branches: { only: 'stable' } } } }] }
+        }
+    };
+
+    test('counts parallelism 3, a job without parallelism as 1, and skips scheduled and stable-only uploads', () => {
+        const result = checkCodecovBuilds(circle, codecov(4));
+        assert.equal(result.ok, true);
+        assert.deepEqual(result.uploads.map((u) => `${u.job}:${u.parallelism}`), ['a-test:3', 'b-test:1']);
+    });
+
+    test('fails on a mismatch, naming each wrong value', () => {
+        const result = checkCodecovBuilds(circle, { codecov: { notify: { after_n_builds: 4 } }, comment: { after_n_builds: 28 } });
+        assert.equal(result.ok, false);
+        assert.equal(result.expected, 4);
+        assert.deepEqual(result.mismatches, [['comment.after_n_builds', 28]]);
+    });
+
+    test('the repository files agree', () => {
+        const run = spawnSync(process.execPath, [path.join(__dirname, '..', 'check-codecov-builds.js')], { encoding: 'utf8' });
+        assert.equal(run.status, 0, run.stdout + run.stderr);
+    });
+});
+
+describe('check-coverage-lowered (lowering the ratchet needs an approved trailer)', () => {
+    // A scratch repository: "stable" has the service's ratchet, the branch changes it.
+    function repo(thresholds) {
+        const dir = tmpDir('git');
+        const git = (...args) => execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: dir, encoding: 'utf8' });
+        const write = (t) => {
+            fs.mkdirSync(path.join(dir, 'svc'), { recursive: true });
+            fs.writeFileSync(path.join(dir, 'svc', 'package.json'), JSON.stringify({ jest: { coverageThreshold: { global: t } } }));
+        };
+        git('init', '-q', '-b', 'stable');
+        write(thresholds);
+        git('add', '.');
+        git('commit', '-q', '-m', 'base');
+        git('switch', '-q', '-c', 'branch');
+        const commit = (t, message) => {
+            if (t) write(t);
+            git('commit', '-q', '--allow-empty', '-am', message);
+        };
+        const check = () => checkCoverageLowered({ repoRoot: dir, service: 'svc', base: 'stable' });
+        return { commit, check };
+    }
+    const base = { statements: 90, branches: 80, functions: 85, lines: 90 };
+
+    test('raising or keeping the numbers passes', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 81 }, 'raise');
+        assert.deepEqual(check(), { failed: false, lines: ['svc: the coverage ratchet was not lowered'] });
+    });
+
+    test('lowering a number fails and names it', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 79.5, lines: 89 }, 'lower');
+        const { failed, lines } = check();
+        assert.equal(failed, true);
+        assert.match(lines.join('\n'), /svc: this branch lowers the coverage ratchet in svc\/package\.json: branches 80 -> 79\.5, lines 90 -> 89\./);
+        assert.match(lines.join('\n'), /Coverage-lowered: svc: <why>/);
+    });
+
+    test('removing the ratchet counts as lowering', () => {
+        const { commit, check } = repo(base);
+        commit({ statements: 90 }, 'remove');
+        assert.match(check().lines[0], /branches 80 -> removed/);
+    });
+
+    test('a Coverage-lowered trailer for the service on the branch approves it; one for another service does not', () => {
+        const { commit, check } = repo(base);
+        commit({ ...base, branches: 79 }, 'lower\n\nCoverage-lowered: other: not this one');
+        assert.equal(check().failed, true);
+        commit(undefined, 'chore: note\n\nCoverage-lowered: svc: the removed export had the best-covered branches');
+        assert.deepEqual(check(), {
+            failed: false,
+            lines: ['svc: coverage ratchet lowered (branches 80 -> 79), approved by a commit trailer: the removed export had the best-covered branches']
+        });
+    });
+
+    test('the CLI takes several services and a base', () => {
+        assert.deepEqual(parseLoweredArgs(['--base', 'origin/main', 'core', 'network']), { services: ['core', 'network'], base: 'origin/main' });
+        assert.throws(() => parseLoweredArgs([]), /Usage/);
+    });
+
+    test('a service without a ratchet on the merge base has nothing to compare', () => {
+        const { check } = repo(undefined);
+        assert.equal(check().failed, false);
+    });
+});

@@ -46,14 +46,18 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
+    "istanbul-lib-coverage": "^3.2.2",
     "jest": "^30.5.2",
     "jest-junit": "^17.0.0",
     "lint-staged": "^16.4.0",
     "nock": "^14.0.14",
-    "rimraf": "^6.1.4"
+    "rimraf": "^6.1.4",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
     "@bugsnag/js": "^9.1.0",

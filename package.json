@@ -23,6 +23,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
+    "@redocly/cli": "2.82.0",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/exec": "^7.1.0",
@@ -32,8 +33,14 @@
     "@semantic-release/release-notes-generator": "^14.1.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
     "husky": "^9.1.7",
+    "openapi-typescript": "7.13.0",
     "semantic-release": "^26.0.1",
     "semantic-release-monorepo": "^8.0.2"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "~6.0.3"
+    }
   },
   "engines": {
     "node": ">=26.0.0",
@@ -43,6 +50,9 @@
     "prepare": "husky || true",
     "postinstall": "echo '✓ Workspace setup complete - all 9 modules ready'",
     "test": "echo 'Run tests in individual modules'",
-    "lint": "echo 'Run linters in individual modules'"
+    "lint": "echo 'Run linters in individual modules'",
+    "openapi:lint": "redocly lint && node packages/backend-test-utils/spec-lint.js",
+    "openapi:types": "openapi-typescript",
+    "openapi:check": "redocly lint && node packages/backend-test-utils/spec-lint.js && openapi-typescript --check && node --test packages/backend-test-utils/test/"
   }
 }

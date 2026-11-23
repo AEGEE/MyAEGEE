@@ -6,7 +6,7 @@ const config = {
         postgres: {
             host: process.env.DB_HOST || 'postgres-events',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
-            username: process.env.USERNAME || 'postgres',
+            username: process.env.DB_USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'events'
         },
@@ -64,7 +64,7 @@ const config = {
         media_dir: '/tmp/myaegee-e2e/events-media'
     },
     test: {
-        port: 8085,
+        port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
             database: 'events-testing'
