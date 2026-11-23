@@ -55,14 +55,11 @@ export default {
           email: this.email
         })
         .then(() => {
+          // The answer is the same whether or not the email belongs to an account.
           this.$root.showSuccess('Password reset triggered. Check your email.')
           this.$router.push({ name: 'oms.password_confirm' })
         })
         .catch((err) => {
-          if (err.response && err.response.status === 404) {
-            return this.$root.showError('Could not find this email.')
-          }
-
           this.$root.showError('Could not reset password', err)
         })
     }
