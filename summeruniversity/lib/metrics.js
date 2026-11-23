@@ -17,8 +17,8 @@ const gaugesList = {
         labelNames: ['type', 'status', 'deleted']
     }),
     applicationsTotal: new Gauge({
-        name: 'events_applications_total',
-        help: 'Total amount of general events applications',
+        name: 'summeruniversity_applications_total',
+        help: 'Total amount of Summer University applications',
         labelNames: ['event_name', 'status', 'body_name']
     }),
 };
