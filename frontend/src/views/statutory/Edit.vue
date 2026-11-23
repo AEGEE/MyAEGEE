@@ -462,6 +462,18 @@ import URLTooltip from '../../components/tooltips/URLTooltip'
 // A date picker that was emptied gives '': that date is not set.
 const toDate = (value) => (value ? new Date(value) : null)
 
+// What the form sends: the fields it edits, not what the event page shows (permissions,
+// the organising body, the computed fields). The type and the meals are set once.
+const EDITABLE_FIELDS = [
+  'name', 'description', 'url', 'body_id', 'fee', 'booklet_folder',
+  'starts', 'ends', 'application_period_starts', 'application_period_ends',
+  'board_approve_deadline', 'participants_list_publish_deadline', 'memberslist_submission_deadline',
+  'draft_proposal_deadline', 'final_proposal_deadline', 'candidature_deadline',
+  'booklet_publication_deadline', 'updated_booklet_publication_deadline',
+  'questions', 'locations'
+]
+const CREATE_ONLY_FIELDS = ['type', 'vegetarian']
+
 export default {
   name: 'EditStatutory',
   components: {
@@ -704,9 +716,12 @@ export default {
       this.isSaving = true
       this.errors = {}
 
+      const fields = this.$route.params.id ? EDITABLE_FIELDS : EDITABLE_FIELDS.concat(CREATE_ONLY_FIELDS)
+      const payload = Object.fromEntries(fields.map((field) => [field, this.event[field]]))
+
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id, this.event)
-        : this.axios.post(this.services['statutory'], this.event)
+        ? this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id, payload)
+        : this.axios.post(this.services['statutory'], payload)
 
       promise.then(() => {
         this.isSaving = false
