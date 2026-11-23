@@ -511,7 +511,8 @@ exports.updateApplication = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        await req.application.update(fields, { transaction: t });
+        // returning: the answer has the values as they were stored, not as they were sent.
+        await req.application.update(fields, { transaction: t, returning: true });
 
         // Sending the mail to a user.
         await mailer.sendMail({

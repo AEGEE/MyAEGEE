@@ -157,7 +157,8 @@ exports.editEvent = async (req, res) => {
         req.body.application_status_revealed_at = new Date();
     }
 
-    const dbResult = await req.event.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    const dbResult = await req.event.update(req.body, { returning: true });
 
     return res.json({
         success: true,

@@ -110,7 +110,7 @@ exports.setMemberslistFeePaid = async (req, res) => {
         return errors.makeNotFoundError(res, 'Members list is not found.');
     }
 
-    await memberslist.update({ fee_paid: req.body.fee_paid }, { hooks: false });
+    await memberslist.update({ fee_paid: req.body.fee_paid }, { hooks: false, returning: true });
 
     return res.json({
         success: true,
@@ -145,7 +145,8 @@ exports.uploadMembersList = async (req, res) => {
             return errors.makeForbiddenError(res, 'You are not allowed to edit memberslist.');
         }
 
-        const result = await existingMembersList.update(req.body);
+        // returning: the answer has the values as they were stored, not as they were sent.
+        const result = await existingMembersList.update(req.body, { returning: true });
 
         // Sending the mail to a user.
         await mailer.sendMail({

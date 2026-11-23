@@ -71,7 +71,8 @@ exports.updateLimit = async (req, res) => {
     if (!limit) {
         limit = await PaxLimit.create(req.body);
     } else {
-        await limit.update(req.body);
+        // returning: the answer has the values as they were stored, not as they were sent.
+        await limit.update(req.body, { returning: true });
     }
 
     return res.json({

@@ -71,7 +71,8 @@ exports.editQuestionLine = async (req, res) => {
     // Only the name is saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.QUESTION_LINE_FORM_FIELDS);
 
-    await req.questionLine.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.questionLine.update(req.body, { returning: true });
 
     return res.json({
         success: true,

@@ -158,7 +158,8 @@ exports.editPosition = async (req, res) => {
 
     // Only the fields of the position form are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.POSITION_FORM_FIELDS);
-    await req.position.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.position.update(req.body, { returning: true });
 
     return res.json({
         success: true,

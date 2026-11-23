@@ -144,7 +144,8 @@ exports.editCandidature = async (req, res) => {
         candidate.body_name = body.name;
     }
 
-    await req.candidate.update(candidate);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.candidate.update(candidate, { returning: true });
 
     return res.json({
         success: true,
