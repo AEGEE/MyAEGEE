@@ -19,6 +19,26 @@ describe('Export all', () => {
         mock.cleanAll();
     });
 
+    test('should log in to core once per export, not once per application', async () => {
+        const { omsCoreLoginStub } = mock.mockAll();
+        let logins = 0;
+        omsCoreLoginStub.on('request', () => { logins += 1; });
+        const event = await generator.createEvent({ questions: [] });
+        for (const userId of [1, 2, 3]) {
+            await generator.createApplication(event, { user_id: userId, answers: [] });
+        }
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/export',
+            responseType: 'buffer',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(xlsx.parse(res.body)[0].data).toHaveLength(4);
+        expect(logins).toEqual(1);
+    });
+
     test('should export one row per application for an organizer without permissions', async () => {
         callers.asMember();
         const event = await generator.createEvent({
