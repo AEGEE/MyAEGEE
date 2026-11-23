@@ -161,13 +161,32 @@ def send_email(ch, method, properties, body):
         OR
     Output: publish to a parking queue (template missing or rendering error)
     """
-    msg = json.loads(body)
+    global smtpObj
+
+    try:
+        msg = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        msg = None
+    if not isinstance(msg, dict):
+        # Retrying will never fix it. The body is not logged: it can hold personal data.
+        logging.error("Dropping a message whose body is not a JSON object")
+        operator_alert("Malformed message dropped: the body is not a JSON object",
+                    submessage="The producer sent a payload that is not a JSON object. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
 
     missing = validate_message(msg)
     if missing:
         logging.error(f"Dropping malformed message: missing fields {missing}. Body: {body}")
         operator_alert(f"Malformed message dropped: missing fields {missing}",
                     submessage="The producer sent an incomplete payload. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    if not isinstance(msg['template'], str) or not msg['template']:
+        logging.error("Dropping a message whose template name is not a text")
+        operator_alert("Malformed message dropped: the template name is not a text",
+                    submessage="The producer sent an invalid template name. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
@@ -222,14 +241,20 @@ def send_email(ch, method, properties, body):
         smtpObj.send_message(email)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except smtplib.SMTPServerDisconnected:
-        # Do not ack/nack: pika will re-deliver the message once the connection
-        # is re-established or the channel is re-opened.
+        # The message goes back to the queue. If reconnecting fails, smtpObj stays None and
+        # the next delivery parks the message in the retry queues (smtp_unavailable).
         logging.error("Server unexpectedly disconnected. Attempting to reconnect")
+        smtpObj = None
         connect_to_smtp()
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
     except smtplib.SMTPResponseException as e:
+        # Rejected by the server: dead-letter it, process_dead_letter_messages parks it
+        # in the last retry queue and alerts.
         logging.error(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
 
 def process_dead_letter_messages(ch, method, properties, body):
