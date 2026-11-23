@@ -165,4 +165,75 @@ describe('Votes amounts listing', () => {
         expect(res.body.data.delegate[1].user_id).toEqual(regularUser.id);
         expect(res.body.data.delegate[1].votes).toEqual(5);
     });
+
+    describe('delegate application fields', () => {
+        const DELEGATE_APPLICATION_FIELDS = ['body_id', 'statutory_id', 'user_id'];
+        let event;
+        let application;
+
+        beforeEach(async () => {
+            // A member without any permissions can see the votes.
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createMembersList({
+                body_id: regularUser.bodies[0].id,
+                members: Array.from(
+                    { length: 175 }, // in theory, 5 votes
+                    (value, index) => generator.generateMembersListMember({ user_id: index + 1 })
+                )
+            }, event);
+            application = await generator.createApplication({
+                user_id: regularUser.id,
+                participant_type: 'delegate',
+                participant_order: 1,
+                body_id: regularUser.bodies[0].id,
+                cancelled: false,
+                confirmed: true,
+                registered: true,
+                visa_required: true,
+                allergies: 'Some allergies',
+                board_comment: 'Some board comment'
+            }, event);
+            await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
+        });
+
+        test('should return only the statutory ID, user and body of the application per delegate', async () => {
+            const res = await request({
+                path: '/events/' + event.id + '/votes-amounts/delegate',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.data.length).toEqual(2); // off-event. on-event
+
+            for (const vote of res.body.data) {
+                expect(Object.keys(vote.application).sort()).toEqual(DELEGATE_APPLICATION_FIELDS);
+                expect(vote.application.statutory_id).toEqual(application.statutory_id);
+                expect(vote.application.user_id).toEqual(regularUser.id);
+                expect(vote.application.body_id).toEqual(regularUser.bodies[0].id);
+            }
+        });
+
+        test('should return only the statutory ID, user and body of the application per delegate for 1 antenna', async () => {
+            const res = await request({
+                path: '/events/' + event.id + '/votes-amounts/' + regularUser.bodies[0].id,
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.data.delegate.length).toEqual(2); // off-event. on-event
+
+            for (const vote of res.body.data.delegate) {
+                expect(Object.keys(vote.application).sort()).toEqual(DELEGATE_APPLICATION_FIELDS);
+                expect(vote.application.statutory_id).toEqual(application.statutory_id);
+                expect(vote.application.user_id).toEqual(regularUser.id);
+                expect(vote.application.body_id).toEqual(regularUser.bodies[0].id);
+            }
+        });
+    });
 });
