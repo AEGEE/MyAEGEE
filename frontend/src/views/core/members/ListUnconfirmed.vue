@@ -145,6 +145,7 @@ export default {
     onSort (field, order) {
       this.sortField = field
       this.sortOrder = order
+      this.page = 0
       this.fetchData()
     },
     fetchData () {
