@@ -115,21 +115,27 @@ class PermissionsManager {
     }
 
     async fetchCurrentUserPermissions() {
-        // for superadmin, just assign all the permissions.
+        // 1) get the list of the circles user's in, and their parent circles.
+        const directCircleMemberships = await CircleMembership.findAll({
+            where: { user_id: this.user.id }
+        });
+        const indirectCirclesArray = helpers.traverseIndirectCircles(this.circlesMap, directCircleMemberships.map((membership) => membership.circle_id));
+
+        // A superadmin has all the permissions. The rows have the same shape as for everybody else:
+        // `circle_permissions` lists the circles of the superadmin that have the permission, often none.
         if (this.user.superadmin) {
-            const permissions = await Permission.findAll();
+            const permissions = await Permission.findAll({
+                include: [{
+                    model: CirclePermission,
+                    where: { circle_id: { [Sequelize.Op.in]: indirectCirclesArray } },
+                    required: false
+                }]
+            });
             this.addPermissions(permissions);
             return;
         }
 
-        // Fetching permissions.
-        // 1) get the list of the circles user's in.
-        const directCircleMemberships = await CircleMembership.findAll({
-            where: { user_id: this.user.id }
-        });
-
         // 2) fetch all the permissions
-        const indirectCirclesArray = helpers.traverseIndirectCircles(this.circlesMap, directCircleMemberships.map((membership) => membership.circle_id));
         const permissions = await Permission.findAll({
             where: {
                 '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectCirclesArray },
