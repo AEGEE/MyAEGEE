@@ -1,5 +1,5 @@
 const { startServer, stopServer } = require('../../lib/server');
-const { MailChange, User } = require('../../models');
+const { MailChange, PasswordReset, User } = require('../../models');
 const constants = require('../../lib/constants');
 
 const { request } = require('../scripts/helpers');
@@ -472,6 +472,100 @@ describe('Mail change confirm', () => {
 
             const userFromDb = await User.findByPk(user.id);
             expect(userFromDb.email).toEqual('current@example.com');
+        });
+    });
+
+    describe('password resets that were requested for the earlier address', () => {
+        const confirmPassword = (token) => request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token, password: 'a-new-password' }
+        });
+
+        test('should stop working once the email is changed', async () => {
+            const user = await generator.createUser({ email: 'current@example.com', password: 'the-old-password' });
+            const reset = await generator.createPasswordReset(user);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual({ changed: true });
+
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
+
+            const passwordRes = await confirmPassword(reset.value);
+            expect(passwordRes.statusCode).toEqual(404);
+
+            const userFromDb = await User.scope('withPassword').findByPk(user.id);
+            expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+        });
+
+        test('should stop working once the current address confirmed a change that somebody else requested', async () => {
+            const requester = await generator.createUser();
+            const user = await generator.createUser({ email: 'current@example.com' });
+            await generator.createPasswordReset(user);
+            await generator.createMailChange(user, {
+                new_email: 'new@example.com',
+                value: 'new-token',
+                old_value: 'old-token',
+                requested_by: requester.id
+            });
+
+            const first = await confirm('new-token');
+            expect(first.body.data).toEqual({ changed: false, waiting_for: 'old_email' });
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(1);
+
+            const second = await confirm('old-token');
+            expect(second.body.data).toEqual({ changed: true });
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
+        });
+
+        test('should keep working for the other members', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const otherUser = await generator.createUser();
+            const otherReset = await generator.createPasswordReset(otherUser);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+
+            const passwordRes = await confirmPassword(otherReset.value);
+            expect(passwordRes.statusCode).toEqual(200);
+        });
+
+        test('should keep working if the email is not changed', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const reset = await generator.createPasswordReset(user);
+            await generator.createUser({ email: 'new@example.com' });
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(422);
+
+            const passwordRes = await confirmPassword(reset.value);
+            expect(passwordRes.statusCode).toEqual(200);
+        });
+
+        test('should keep the sessions of the member', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const accessToken = await generator.createAccessToken(user);
+            const refreshToken = await generator.createRefreshToken(user);
+            await generator.createPasswordReset(user);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+
+            const me = await request({ path: '/members/me', headers: { 'X-Auth-Token': accessToken.value } });
+            expect(me.statusCode).toEqual(200);
+            expect(me.body.data.email).toEqual('new@example.com');
+
+            const renewal = await request({
+                path: '/renew',
+                method: 'POST',
+                body: { refresh_token: refreshToken.value }
+            });
+            expect(renewal.statusCode).toEqual(200);
         });
     });
 });
