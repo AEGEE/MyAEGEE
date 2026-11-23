@@ -145,13 +145,38 @@ jobs:
           name: Run core tests
           working_directory: ~/project/core
           command: |
-            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
-            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+            mkdir -p ~/shard
+            TEST=$(circleci tests glob "test/**/*.test.js" | circleci tests split --split-by=timings)
+            OPENAPI_HITS_FILE=$HOME/shard/openapi-hits-$CIRCLE_NODE_INDEX.txt \
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- \
+              --reporters=default --reporters=jest-junit --coverageThreshold='{}'
+            cp coverage/coverage-final.json ~/shard/coverage-$CIRCLE_NODE_INDEX.json
+      - persist_to_workspace:
+          root: ~/shard
+          paths: [.]
       - codecov/upload
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  core-coverage:
+    # The shards of core-test together: the coverage ratchet of core/package.json, and every
+    # response that core/openapi.yaml documents has a test (docs/testing/backend-openapi.md).
+    docker:
+      - image: cimg/node:26.13.1
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
+      - attach_workspace:
+          at: ~/shard
+      - run: node packages/backend-test-utils/check-coverage.js core --expect 4 ~/shard/coverage-*.json
+      - run: node packages/backend-test-utils/unexercised.js core ~/shard/openapi-hits-*.txt
+      - run:
+          name: Every coverage ignore has a reason
+          command: "! grep -rnE 'istanbul ignore (next|if|else|file) *(\\*/|$)' core/lib core/models core/middlewares"
   core-db-recreate:
     docker:
       - image: cimg/node:26.13.1
@@ -2287,6 +2312,8 @@ workflows:
   core-test:
     jobs:
       - core-test
+      - core-coverage:
+          requires: [core-test]
   core-docker-build-and-push:
     jobs:
       - core-docker-build-and-push:
