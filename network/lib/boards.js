@@ -22,17 +22,38 @@ exports.createBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
     }
 
-    const bodyName = (await core.fetchBody(boardData, req.headers['x-auth-token'])).body_name;
+    // Check the input before asking core about the body and the members.
+    await Board.build(boardData).validate();
+
+    const token = req.headers['x-auth-token'];
+    const coreBody = await core.fetchBody(boardData, token);
+    if (!coreBody) {
+        return errors.makeNotFoundError(res, 'The body is not found.');
+    }
+    const bodyName = coreBody.body_name;
 
     const positions = [];
-    positions.push({ function: 'President', name: (await core.fetchUser(boardData.president, req.headers['x-auth-token'])).name });
-    positions.push({ function: 'Secretary', name: (await core.fetchUser(boardData.secretary, req.headers['x-auth-token'])).name });
-    positions.push({ function: 'Treasurer', name: (await core.fetchUser(boardData.treasurer, req.headers['x-auth-token'])).name });
-
-    if (boardData.other_members) {
-        for (const other of boardData.other_members) {
-            positions.push({ function: other.function, name: (await core.fetchUser(other.user_id, req.headers['x-auth-token'])).name });
+    const fieldErrors = {};
+    for (const [field, position] of [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']]) {
+        const member = await core.fetchUser(boardData[field], token);
+        if (member) {
+            positions.push({ function: position, name: member.name });
+        } else {
+            fieldErrors[field] = ['The member is not found.'];
         }
+    }
+
+    for (const other of boardData.other_members || []) {
+        const member = await core.fetchUser(other.user_id, token);
+        if (member) {
+            positions.push({ function: other.function, name: member.name });
+        } else {
+            fieldErrors.other_members = ['The member of the position ' + other.function + ' is not found.'];
+        }
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+        return res.status(422).json({ success: false, errors: fieldErrors });
     }
 
     const createdBoard = await sequelize.transaction(async (t) => {

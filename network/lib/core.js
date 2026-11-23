@@ -49,11 +49,19 @@ const makeRequest = (options) => {
     return request(requestOptions);
 };
 
+// Returns null if core does not know the body.
 module.exports.fetchBody = async (body, token) => {
-    const bodyRequest = await makeRequest({
+    const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + body.body_id,
-        token
+        token,
+        fullResponse: true
     });
+
+    if (response.statusCode === 404) {
+        return null;
+    }
+
+    const bodyRequest = response.body;
 
     if (typeof bodyRequest !== 'object') {
         throw new Error('Malformed response when fetching body: ' + bodyRequest);
@@ -69,11 +77,19 @@ module.exports.fetchBody = async (body, token) => {
     };
 };
 
+// Returns null if core does not know the member.
 module.exports.fetchUser = async (user, token) => {
-    const userRequest = await makeRequest({
+    const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token
+        token,
+        fullResponse: true
     });
+
+    if (response.statusCode === 404) {
+        return null;
+    }
+
+    const userRequest = response.body;
 
     if (typeof userRequest !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userRequest);

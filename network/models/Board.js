@@ -75,7 +75,25 @@ const Board = sequelize.define('board', {
     },
     other_members: {
         type: Sequelize.JSONB,
-        allowNull: true
+        allowNull: true,
+        validate: {
+            isListOfPositions(value) {
+                if (value === null || value === undefined) {
+                    return;
+                }
+
+                const isPosition = (position) => position !== null
+                    && typeof position === 'object'
+                    && typeof position.function === 'string'
+                    && position.function.trim() !== ''
+                    && Number.isInteger(position.user_id)
+                    && position.user_id > 0;
+
+                if (!Array.isArray(value) || !value.every(isPosition)) {
+                    throw new Error('Other members should be a list of positions, each with a function and a member.');
+                }
+            }
+        }
     },
     message: {
         type: Sequelize.TEXT,
