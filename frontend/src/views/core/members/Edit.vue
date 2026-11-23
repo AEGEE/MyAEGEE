@@ -54,7 +54,6 @@
               id="member-gsuite-id"
               class="input"
               type="email"
-              required
               v-model="user.gsuite_id"
               placeholder="Type the Google Workspace email of the user"
             />
@@ -206,6 +205,10 @@ export default {
       }
 
       const body = pick(this.user, fields)
+      // An empty field means the member has no Workspace account.
+      if (this.can.editGsuite && !body.gsuite_id) {
+        body.gsuite_id = null
+      }
 
       this.axios
         .put(this.services['core'] + '/members/' + this.$route.params.id, body)
