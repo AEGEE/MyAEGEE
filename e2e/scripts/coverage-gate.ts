@@ -3,7 +3,8 @@
 // downgrade:
 //   - an area that was `enforced` is `pending` again, or lost its file;
 //   - a template exception was added to an area that was enforced;
-//   - an istanbul ignore comment was added to a file of an area that was enforced;
+//   - a file of an area that was enforced got another istanbul ignore comment, or its comments
+//     take more lines of code out of the numbers than before (one comment swapped for a wider one);
 //   - a threshold was lowered.
 // A downgrade fails the gate unless ui/support/coverage/downgrades.json accepts it with a
 // reason. Every downgrade is printed with the prefix COVERAGE-DOWNGRADE:, accepted or not.
@@ -17,7 +18,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { countIgnoreMentions } from './check-ignores.ts';
+import { ignoredCode } from './check-ignores.ts';
 import { reasonProblem } from './reason.ts';
 
 export const DEFAULT_BRANCH = 'stable';
@@ -56,8 +57,9 @@ export interface GateState {
     areas: Record<string, { gate: 'pending' | 'enforced'; exceptions: { file: string; condition: string }[] }>;
     // Undefined where the thresholds file doesn't exist (yet).
     thresholds: Partial<Thresholds> | undefined;
-    // Ignore comments per file, by its path from the repository root.
-    ignores: Record<string, number>;
+    // Per file with ignore comments, by its path from the repository root: how many it has, and
+    // how many lines of code they take out of the numbers together.
+    ignores: Record<string, { comments: number; lines: number }>;
     // The text of downgrades.json, if there is one.
     downgrades: string | undefined;
 }
@@ -98,8 +100,8 @@ export const readGateState = (tree: Tree, ignoreFiles: string[]): GateState => {
 
     const ignores: GateState['ignores'] = {};
     for (const file of ignoreFiles) {
-        const count = countIgnoreMentions(tree.read(file) ?? '');
-        if (count > 0) ignores[file] = count;
+        const ignored = ignoredCode(tree.read(file) ?? '', file.endsWith('.vue'));
+        if (ignored.comments > 0) ignores[file] = ignored;
     }
 
     return { areas, thresholds, ignores, downgrades: tree.read(`${AREA_CONFIG_PATH}/${DOWNGRADES_FILE}`) };
@@ -111,7 +113,7 @@ export const readGateState = (tree: Tree, ignoreFiles: string[]): GateState => {
 export type Downgrade =
     | { change: 'pending'; area: string }
     | { change: 'exception'; area: string; file: string; condition: string }
-    | { change: 'ignore'; area: string; file: string; from: number; to: number }
+    | { change: 'ignore'; area: string; file: string; from: { comments: number; lines: number }; to: { comments: number; lines: number } }
     | { change: 'threshold'; metric: GatedMetric; from: number; to: number | undefined };
 
 const CHANGES = ['pending', 'exception', 'ignore', 'threshold'] as const;
@@ -124,10 +126,12 @@ const keyOf = (item: { change: string; area?: string; file?: string; condition?:
     return `threshold ${item.metric}`;
 };
 
+const ignoredText = ({ comments, lines }: { comments: number; lines: number }): string => `${comments} istanbul ignore comment(s) over ${lines} line(s)`;
+
 export const describe = (downgrade: Downgrade): string => {
     if (downgrade.change === 'pending') return `the area ${downgrade.area} was enforced and is pending now`;
     if (downgrade.change === 'exception') return `new template exception in the enforced area ${downgrade.area}: \`${downgrade.condition}\` in ${downgrade.file}`;
-    if (downgrade.change === 'ignore') return `${downgrade.file} (enforced area ${downgrade.area}) has ${downgrade.to} istanbul ignore comment(s), it had ${downgrade.from}`;
+    if (downgrade.change === 'ignore') return `${downgrade.file} (enforced area ${downgrade.area}) has ${ignoredText(downgrade.to)}, it had ${ignoredText(downgrade.from)}`;
     return `the threshold ${downgrade.metric} is ${downgrade.to === undefined ? 'gone' : `${downgrade.to} %`}, it was ${downgrade.from} %`;
 };
 
@@ -165,11 +169,12 @@ export const findDowngrades = (base: GateState, head: GateState): Comparison => 
     }
 
     for (const [file, to] of Object.entries(head.ignores).sort(([a], [b]) => a.localeCompare(b))) {
-        const from = base.ignores[file] ?? 0;
-        if (to <= from) continue;
+        const from = base.ignores[file] ?? { comments: 0, lines: 0 };
+        // More comments, or the same number that covers more code than before.
+        if (to.comments <= from.comments && to.lines <= from.lines) continue;
         const area = areaOfFile(path.posix.relative(SRC_PATH, file));
         if (wasEnforced(area)) downgrades.push({ change: 'ignore', area, file, from, to });
-        else added.push(`istanbul ignore comment in ${area}: ${file} has ${to}, it had ${from}`);
+        else added.push(`istanbul ignore comment in ${area}: ${file} has ${ignoredText(to)}, it had ${ignoredText(from)}`);
     }
 
     for (const metric of GATED_METRICS) {

@@ -12,6 +12,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import ts from 'typescript';
+
 import { reasonProblem } from './reason.ts';
 
 const root = path.resolve(import.meta.dirname, '../..');
@@ -29,9 +31,54 @@ export interface IgnoreComment {
 
 const MENTION = /\b(istanbul|c8|v8)\s+ignore\b/g;
 
-// How many ignore comments a source has, valid or not. The gate compares this number per file
-// with the one at its base (scripts/coverage-gate.ts).
-export const countIgnoreMentions = (source: string): number => [...source.matchAll(MENTION)].length;
+const lineSpan = (file: ts.SourceFile, start: number, end: number): number => file.getLineAndCharacterOfPosition(end).line - file.getLineAndCharacterOfPosition(start).line + 1;
+
+// The code an ignore comment that ends at `commentEnd` takes out of the numbers: the first
+// statement, function or expression that starts after it, as a whole (which is what istanbul
+// attaches the comment to), or the one side of the `if` or `?:` there that `if` and `else` name.
+const ignoredLinesAt = (file: ts.SourceFile, commentEnd: number, what: string): number => {
+    let covered: ts.Node | undefined;
+    const visit = (node: ts.Node): void => {
+        if (node.end <= commentEnd) return;
+        const start = node.getStart(file);
+        // The outermost node that starts first after the comment.
+        if (node.kind !== ts.SyntaxKind.SourceFile && start >= commentEnd && (!covered || start < covered.getStart(file))) covered = node;
+        if (start < commentEnd || node.kind === ts.SyntaxKind.SourceFile) ts.forEachChild(node, visit);
+    };
+    visit(file);
+    if (!covered) return 1;
+
+    let side: ts.Node | undefined = covered;
+    if (what !== 'next' && ts.isIfStatement(covered)) side = what === 'if' ? covered.thenStatement : covered.elseStatement;
+    if (what !== 'next' && ts.isConditionalExpression(covered)) side = what === 'if' ? covered.whenTrue : covered.whenFalse;
+    // An `else` that isn't written is one line that never runs.
+    return side ? lineSpan(file, side.getStart(file), side.end) : 1;
+};
+
+// The ignore comments of a source and how many lines of code they take out of the numbers
+// together, valid or not. The gate compares both per file with the same file at its base
+// (scripts/coverage-gate.ts): a comment that is swapped for one that covers more must not pass
+// because their number stayed the same.
+export const ignoredCode = (source: string, isVue: boolean): { comments: number; lines: number } => {
+    const mentions = [...source.matchAll(MENTION)];
+    if (mentions.length === 0) return { comments: 0, lines: 0 };
+
+    // The <script> of a .vue file, at its own offsets: only spans of lines are asked for.
+    const script = isVue ? { start: source.indexOf('>', source.indexOf('<script')) + 1, end: source.lastIndexOf('</script>') } : { start: 0, end: source.length };
+    const hasScript = !isVue || (source.indexOf('<script') !== -1 && script.end !== -1);
+    const file = ts.createSourceFile('source.js', hasScript ? source.slice(script.start, script.end) : '', ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+
+    let lines = 0;
+    for (const mention of mentions) {
+        const close = source.indexOf('*/', mention.index);
+        const inScript = hasScript && mention.index >= script.start && mention.index < script.end;
+        // A comment outside the script, or one that never ends, is refused by the check below;
+        // it counts as one line here.
+        if (!inScript || close === -1 || close >= script.end) lines += 1;
+        else lines += ignoredLinesAt(file, close + 2 - script.start, source.slice(mention.index).match(/^\w+\s+ignore\s+(\w+)/)?.[1] ?? 'next');
+    }
+    return { comments: mentions.length, lines };
+};
 // From the mention on: what is ignored, the reason, the end of the block comment.
 const ALLOWED = /^istanbul\s+ignore\s+(next|if|else)\s+--\s+([\s\S]*?)\s*\*\//;
 

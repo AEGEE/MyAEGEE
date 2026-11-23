@@ -22,9 +22,12 @@ const thresholds = (scriptLines = 90, scriptBranches = 85, templateBranches = 85
     [`${AREA_CONFIG_PATH}/thresholds.json`]: JSON.stringify({ scriptLines, scriptBranches, templateBranches })
 });
 const accepted = (...entries: object[]): Files => ({ [`${AREA_CONFIG_PATH}/downgrades.json`]: JSON.stringify(entries) });
+const IGNORE = '/* istanbul ignore next -- the browser of the tests has no WebGL */';
+// A component with `comments` ignored one-line methods.
 const source = (file: string, comments: number): Files => ({
-    [file]: `export default {}\n${'/* istanbul ignore next -- the browser of the tests has no WebGL */\n'.repeat(comments)}`
+    [file]: `<template><div /></template>\n<script>\nexport default {\n  methods: {\n${Array.from({ length: comments }, (_, index) => `    ${IGNORE}\n    draw${index} () { return ${index} },\n`).join('')}    last () {}\n  }\n}\n</script>\n`
 });
+const script = (file: string, body: string): Files => ({ [file]: `<template><div /></template>\n<script>\n${body}\n</script>\n` });
 
 const REASON = 'the status page moves to another service next month';
 const CANCELLED: Exception = { file: 'views/events/Single.vue', condition: '_vm.event.status === \'cancelled\'', reason: 'events have no such status in the API' };
@@ -47,7 +50,7 @@ describe('the gate against its base', () => {
         assert.deepEqual(problems, []);
         assert.deepEqual(lines, [
             'COVERAGE-EXCEPTION-ADDED: template exception in events: `_vm.event.status === \'cancelled\'` in views/events/Single.vue',
-            `COVERAGE-EXCEPTION-ADDED: istanbul ignore comment in events: ${SINGLE} has 1, it had 0`
+            `COVERAGE-EXCEPTION-ADDED: istanbul ignore comment in events: ${SINGLE} has 1 istanbul ignore comment(s) over 1 line(s), it had 0 istanbul ignore comment(s) over 0 line(s)`
         ]);
     });
 
@@ -115,7 +118,7 @@ describe('the gate against its base', () => {
         const base = { ...area('events', 'enforced'), ...source(SINGLE, 1) };
         const head = { ...area('events', 'enforced'), ...source(SINGLE, 2) };
         const refused = compare(base, head);
-        assert.deepEqual(refused.lines, [`COVERAGE-DOWNGRADE: ${SINGLE} (enforced area events) has 2 istanbul ignore comment(s), it had 1. NOT ACCEPTED`]);
+        assert.deepEqual(refused.lines, [`COVERAGE-DOWNGRADE: ${SINGLE} (enforced area events) has 2 istanbul ignore comment(s) over 2 line(s), it had 1 istanbul ignore comment(s) over 1 line(s). NOT ACCEPTED`]);
         assert.equal(refused.problems.length, 1);
 
         assert.deepEqual(compare(base, { ...head, ...accepted({ change: 'ignore', file: SINGLE, reason: REASON }) }).problems, []);
@@ -123,14 +126,70 @@ describe('the gate against its base', () => {
         assert.deepEqual(compare(head, base), { lines: [], problems: [] });
     });
 
+    test('an ignore comment that is swapped for one that covers more fails, although their number is the same', () => {
+        const narrow = script(SINGLE, `export default {
+  methods: {
+    draw () {
+      ${IGNORE}
+      if (!window.WebGLRenderingContext) return
+      this.map = new Map(this.$refs.map)
+      this.map.on('load', () => {
+        this.loaded = true
+      })
+    }
+  }
+}`);
+        // The same comment, moved up from the one statement to the whole method.
+        const wide = script(SINGLE, `export default {
+  methods: {
+    ${IGNORE}
+    draw () {
+      if (!window.WebGLRenderingContext) return
+      this.map = new Map(this.$refs.map)
+      this.map.on('load', () => {
+        this.loaded = true
+      })
+    }
+  }
+}`);
+        const enforced = area('events', 'enforced');
+        const refused = compare({ ...enforced, ...narrow }, { ...enforced, ...wide });
+        assert.deepEqual(refused.lines, [`COVERAGE-DOWNGRADE: ${SINGLE} (enforced area events) has 1 istanbul ignore comment(s) over 7 line(s), it had 1 istanbul ignore comment(s) over 1 line(s). NOT ACCEPTED`]);
+        assert.equal(refused.problems.length, 1);
+        assert.deepEqual(compare({ ...enforced, ...narrow }, { ...enforced, ...wide, ...accepted({ change: 'ignore', file: SINGLE, reason: REASON }) }).problems, []);
+
+        // Narrower than before, moved without change, or the code under it edited to as many lines: fine.
+        assert.deepEqual(compare({ ...enforced, ...wide }, { ...enforced, ...narrow }), { lines: [], problems: [] });
+        const moved = script(SINGLE, `import { Map } from 'maplibre-gl'\n\n${narrow[SINGLE].split('<script>\n')[1].split('\n</script>')[0]}`);
+        assert.deepEqual(compare({ ...enforced, ...narrow }, { ...enforced, ...moved }), { lines: [], problems: [] });
+    });
+
+    test('what an ignore comment covers: the next statement, function or side of a condition', () => {
+        const linesOf = (body: string): number => {
+            const refused = compare({ ...area('events', 'enforced') }, { ...area('events', 'enforced'), ...script(SINGLE, body) });
+            return Number(refused.lines[0].match(/over (\d+) line\(s\), it had 0/)![1]);
+        };
+        // A whole component, when the comment stands in front of it.
+        assert.equal(linesOf(`${IGNORE}\nexport default {\n  data () {\n    return {}\n  }\n}`), 5);
+        // One side of an if, and of a ternary.
+        assert.equal(linesOf(`/* istanbul ignore if -- ${REASON} */\nif (a) {\n  b()\n} else {\n  c()\n  d()\n  e()\n}`), 3);
+        assert.equal(linesOf(`/* istanbul ignore else -- ${REASON} */\nif (a) {\n  b()\n} else {\n  c()\n  d()\n  e()\n}`), 5);
+        assert.equal(linesOf(`/* istanbul ignore else -- ${REASON} */\nif (a) {\n  b()\n}`), 1);
+        assert.equal(linesOf(`const x = a ? b : /* istanbul ignore next -- ${REASON} */ {\n  c: 1,\n  d: 2\n}`), 4);
+        // Two comments add up.
+        assert.equal(linesOf(`${IGNORE}\nfunction a () {\n  return 1\n}\n${IGNORE}\nconst b = 2`), 4);
+        // A comment that the check refuses still counts.
+        assert.equal(linesOf('// istanbul ignore next\nfunction a () {\n  return 1\n}'), 1);
+    });
+
     test('a file outside views/ belongs to the shell', () => {
         const navbar = 'frontend/src/components/layout/Navbar.vue';
         const enforced = compare({ ...area('shell', 'enforced') }, { ...area('shell', 'enforced'), ...source(navbar, 1) });
-        assert.deepEqual(enforced.lines, [`COVERAGE-DOWNGRADE: ${navbar} (enforced area shell) has 1 istanbul ignore comment(s), it had 0. NOT ACCEPTED`]);
+        assert.deepEqual(enforced.lines, [`COVERAGE-DOWNGRADE: ${navbar} (enforced area shell) has 1 istanbul ignore comment(s) over 1 line(s), it had 0 istanbul ignore comment(s) over 0 line(s). NOT ACCEPTED`]);
 
         const pending = compare({ ...area('shell', 'pending'), ...area('events', 'enforced') }, { ...area('shell', 'pending'), ...area('events', 'enforced'), ...source(navbar, 1) });
         assert.deepEqual(pending.problems, []);
-        assert.deepEqual(pending.lines, [`COVERAGE-EXCEPTION-ADDED: istanbul ignore comment in shell: ${navbar} has 1, it had 0`]);
+        assert.deepEqual(pending.lines, [`COVERAGE-EXCEPTION-ADDED: istanbul ignore comment in shell: ${navbar} has 1 istanbul ignore comment(s) over 1 line(s), it had 0 istanbul ignore comment(s) over 0 line(s)`]);
     });
 
     test('an entry that matches no downgrade of this change fails', () => {
