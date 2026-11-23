@@ -1,24 +1,17 @@
 const morgan = require('morgan');
-const _ = require('lodash');
 
 const log = require('./logger');
 
+// One line per request: what was called, how it ended and by which user id.
+// Request bodies, headers, query strings and user details stay out of the log,
+// because they can hold personal data, passwords and tokens.
 module.exports = morgan((tokens, req, res) => {
-    const user = req.user
-        ? _.pick(req.user, ['id', 'username', 'first_name', 'last_name', 'email', 'notification_email'])
-        : undefined;
-
-    const body = _.isEmpty(req.body)
-        ? undefined
-        : req.body;
-
     log.info({
         method: tokens.method(req, res),
-        url: tokens.url(req, res),
+        path: req.originalUrl.split('?')[0],
         status: tokens.status(req, res),
         length: tokens.res(req, res, 'content-length'),
         'response-time': tokens['response-time'](req, res),
-        user,
-        body
+        user_id: req.user ? req.user.id : undefined
     }, 'Request processed');
 });
