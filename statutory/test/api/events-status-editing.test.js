@@ -25,14 +25,14 @@ describe('Events status editing', () => {
     test('should disallow changing event status if user has no rights', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ status: 'published' });
 
         const res = await request({
             path: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                status: 'published'
+                status: 'draft'
             }
         });
 
@@ -41,7 +41,7 @@ describe('Events status editing', () => {
         expect(res.body).toHaveProperty('message');
 
         const eventFromDb = await Event.findOne({ where: { id: event.id } });
-        expect(eventFromDb.status).not.toEqual('published');
+        expect(eventFromDb.status).toEqual('published');
     });
 
     test('should return 404 if event is not found', async () => {
@@ -96,7 +96,7 @@ describe('Events status editing', () => {
     });
 
     test('should allow changing event status if everything is okay', async () => {
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ status: 'draft' });
 
         const res = await request({
             path: '/events/' + event.id + '/status',
@@ -114,7 +114,7 @@ describe('Events status editing', () => {
     });
 
     test('should set publication_date if changed to published', async () => {
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ status: 'draft' });
 
         const res = await request({
             path: '/events/' + event.id + '/status',

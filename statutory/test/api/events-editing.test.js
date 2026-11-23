@@ -83,7 +83,7 @@ describe('Events editing', () => {
     });
 
     test('should not update event status', async () => {
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ status: 'draft' });
 
         const res = await request({
             path: '/events/' + event.id,
