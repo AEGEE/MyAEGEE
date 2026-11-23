@@ -428,6 +428,8 @@
           </tbody>
         </table>
 
+        <p class="help is-danger" v-if="errors.locations">{{ errors.locations.join(', ') }}</p>
+
         <div class="field">
           <div class="control">
             <button type="button" class="button is-primary" @click="addLocation()">Add new location</button>
