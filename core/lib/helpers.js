@@ -133,7 +133,6 @@ function filterBy(query, fields) {
     Required for filtering stuff.
 */
 function findBy(query, fields) {
-    /* istanbul ignore if */
     if (typeof query !== 'object' || query === null) {
         return {};
     }
@@ -180,7 +179,6 @@ function whitelistObject(object, allowedFields) {
 function getRandomBytes(length) {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(length / 2, (err, res) => {
-            /* istanbul ignore if */
             if (err) {
                 return reject(err);
             }
