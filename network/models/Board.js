@@ -16,8 +16,9 @@ const Board = sequelize.define('board', {
         allowNull: false,
         validate: {
             isPast(value) {
-                if (moment().isSameOrBefore(value)) {
-                    throw new Error('Election date should be in the past.');
+                // Compared by day: a board may be entered on its election day.
+                if (moment(value).isAfter(moment(), 'day')) {
+                    throw new Error('Election date should be today or in the past.');
                 }
             },
             notEmpty: { msg: 'Election date should be set.' }
