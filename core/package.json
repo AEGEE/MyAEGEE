@@ -47,7 +47,6 @@
       "lib/**/*.js",
       "models/**/*.js",
       "middlewares/**/*.js",
-      "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js"
     ],
