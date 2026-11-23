@@ -123,7 +123,10 @@ paths:
       summary: Create an event
       description: |
         The event starts as a draft: `status`, `id` and `image_id` in the body are ignored.
-        A new Agora gets the latest published Agora as `previous_agora_id`.
+        A new Agora gets the latest published Agora as `previous_agora_id`. The permission
+        for the `type` is checked before the event is validated, so a `type` that is missing
+        or not one of the three answers 403. An event that is created at or after its
+        participants list deadline records that moment as `application_status_revealed_at`.
       tags: [events]
       x-permission: 'global:manage_event:<type>, for the type in the body'
       requestBody:
