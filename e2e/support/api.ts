@@ -249,6 +249,10 @@ export class Api {
 
         const { status, body } = await this.call<Envelope<StatutoryEvent>>('admin', 'POST', '/api/statutory/', payload);
         expect(status, `create statutory event: ${JSON.stringify(body)}`).toBe(200);
+
+        // An event is created as a draft, which only its managers see and nobody can apply to.
+        const published = await this.call('admin', 'PUT', `/api/statutory/events/${body.data.id}/status`, { status: 'published' });
+        expect(published.status, `publish statutory event: ${JSON.stringify(published.body)}`).toBe(200);
         return body.data;
     }
 
