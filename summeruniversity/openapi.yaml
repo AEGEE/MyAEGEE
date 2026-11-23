@@ -933,13 +933,27 @@ components:
         role: {type: string}
       additionalProperties: false
     SocialMedium:
-      description: A link in `description`; the frontend also sends the platform's `name`.
       type: object
-      x-free-form: the model checks only the link in description; other keys (the frontend sends an empty name) are stored as sent
+      required: [description]
+      properties:
+        name: {type: string, description: The platform; the frontend leaves it empty.}
+        description: {type: string, description: 'The link, http:// or https://.'}
+      additionalProperties: false
     Question:
-      x-free-form: 'each Summer University defines its questions; the model only checks that they form a list (the frontend sends {description})'
+      type: object
+      required: [description]
+      properties:
+        name: {type: string, description: The frontend leaves it empty.}
+        description: {type: string, description: The question.}
+        required: {type: boolean, description: Whether the frontend asks for an answer.}
+      additionalProperties: false
     Answer:
-      x-free-form: answers to the questions each Summer University defines; the model only checks how many there are
+      description: The answer to the question at the same place in the Summer University's questions.
+      type: string
+    Photo:
+      x-free-form: no code reads or checks the entries of the photo list; the frontend stores {name, description} with a link in description
+    LearningObjective:
+      x-free-form: no code reads or checks the entries of the list; the frontend sends {name, description}
     Event:
       description: 'Every column of a Summer University, as organizers, managers and approvers of its type see it.'
       type: object
@@ -950,7 +964,7 @@ components:
         url: {type: [string, 'null']}
         season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
         image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
-        photos: {x-free-form: no code reads or checks the photo list; the frontend stores links in it}
+        photos: {type: [array, 'null'], items: {$ref: '#/components/schemas/Photo'}}
         video: {type: [string, 'null']}
         description: {type: string}
         email: {type: string}
@@ -969,7 +983,7 @@ components:
         theme_category: {$ref: '#/components/schemas/EventThemeCategory'}
         theme: {type: string}
         theme_implementation: {type: string}
-        learning_objectives: {x-free-form: the model only checks that the value is not empty; the frontend sends a list of strings}
+        learning_objectives: {type: [array, 'null'], items: {$ref: '#/components/schemas/LearningObjective'}}
         status: {$ref: '#/components/schemas/EventStatus'}
         published: {$ref: '#/components/schemas/EventPublished'}
         deleted: {type: boolean}
@@ -1009,7 +1023,7 @@ components:
         url: {type: [string, 'null']}
         season: {type: [integer, 'null'], description: The year of the season the Summer University belongs to.}
         image: {type: [string, 'null'], description: File name of the head image under /media/summeruniversity/headimages.}
-        photos: {x-free-form: no code reads or checks the photo list; the frontend stores links in it}
+        photos: {type: [array, 'null'], items: {$ref: '#/components/schemas/Photo'}}
         video: {type: [string, 'null']}
         description: {type: string}
         email: {type: string}
@@ -1569,7 +1583,10 @@ components:
         organizing_bodies: {type: array}
         cooperation: {type: [array, 'null']}
         organizers: {type: array}
-        questions: {type: array}
+        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/Question'}}
+        social_media: {type: [array, 'null'], items: {$ref: '#/components/schemas/SocialMedium'}}
+        photos: {type: [array, 'null']}
+        learning_objectives: {type: [array, 'null']}
         max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
         university_support: {type: [boolean, 'null']}
         theme: {type: string}
@@ -1605,7 +1622,7 @@ components:
         aegee_experience: {type: string}
         ideal_su: {type: string}
         motivation: {type: string}
-        answers: {type: array}
+        answers: {type: array, items: {type: string}}
         meals: {type: string, maxLength: 255}
         allergies: {type: [string, 'null']}
         agreed_to_privacy_policy: {type: boolean}
