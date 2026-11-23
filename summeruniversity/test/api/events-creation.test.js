@@ -354,6 +354,14 @@ describe('Events creation', () => {
         expect(mails.length).toEqual(0);
     });
 
+    test.each(['name', 'video', 'accommodation_type'])('should return 422 if %s is longer than its column (255 characters)', async (field) => {
+        const res = await createEvent(generator.generateEventBody({ [field]: 'x'.repeat(256) }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toContain('This text should be at most 255 characters long.');
+        expect(await Event.count()).toEqual(0);
+    });
+
     test('should return 422 with both messages if the email is empty', async () => {
         const res = await createEvent(generator.generateEventBody({ email: '' }));
 

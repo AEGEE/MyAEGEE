@@ -152,6 +152,16 @@ describe('Seasons', () => {
             expect(res.body.errors).toHaveProperty(field);
         });
 
+        test('should return 422 if the name is longer than its column (255 characters)', async () => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('POST', '/seasons', { ...body, name: 'x'.repeat(256) });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.name).toContain('This text should be at most 255 characters long.');
+            expect(await Season.count()).toEqual(6);
+        });
+
         test('should currently return 500 if the year is beyond the database integer range', async () => {
             mock.mockAll(managerMocks);
 

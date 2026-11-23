@@ -288,6 +288,14 @@ describe('Applications creation', () => {
         expect(await Application.count()).toEqual(0);
     });
 
+    test.each(['nationality', 'meals', 'visa_city'])('should return 422 if %s is longer than its column (255 characters)', async (field) => {
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...visaFields, [field]: 'x'.repeat(256) }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toContain('This text should be at most 255 characters long.');
+        expect(await Application.count()).toEqual(0);
+    });
+
     test('should return 422 if core gives the applicant an empty first name', async () => {
         mockAndCapture({ ...applicantMocks, core: { data: { ...applicant, first_name: '' } } });
 
