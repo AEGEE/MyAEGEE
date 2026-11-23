@@ -9,8 +9,12 @@ const { Position, Attendance } = require('../../models');
 const cron = require('../../lib/cron');
 const logger = require('../../lib/logger');
 
-// eslint-disable-next-line no-promise-executor-return
-const sleep = (delay) => new Promise((res) => setTimeout(res, delay));
+// Runs the scheduled job of this type now, through the scheduler's own callback,
+// instead of waiting for its time to come.
+const runScheduledJob = async (type) => {
+    const job = Object.values(cron.jobs).find((scheduled) => scheduled.key === type.key);
+    await scheduler.scheduledJobs[String(job.id)].invoke();
+};
 
 describe('Cron testing', () => {
     beforeAll(async () => {
@@ -239,7 +243,7 @@ describe('Cron testing', () => {
         test('should execute the application opening', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = generator.generatePosition({
-                starts: moment().add(3, 'second').toDate(),
+                starts: moment().add(1, 'hour').toDate(),
                 ends: moment().add(1, 'week').toDate(),
             });
 
@@ -258,7 +262,7 @@ describe('Cron testing', () => {
 
             expect(Object.keys(cron.jobs).length).toEqual(2); // opening, closing
 
-            await sleep(4000);
+            await runScheduledJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS);
 
             const positionFromDb = await Position.findByPk(res.body.data.id);
             expect(positionFromDb.status).toEqual('open');
@@ -269,7 +273,7 @@ describe('Cron testing', () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = generator.generatePosition({
                 starts: moment().subtract(1, 'week').toDate(),
-                ends: moment().add(1, 'second').toDate()
+                ends: moment().add(1, 'hour').toDate()
             });
 
             const res = await request({
@@ -287,7 +291,7 @@ describe('Cron testing', () => {
 
             expect(Object.keys(cron.jobs).length).toEqual(1); // closing
 
-            await sleep(4000);
+            await runScheduledJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS);
 
             const positionFromDb = await Position.findByPk(res.body.data.id);
             expect(positionFromDb.status).toEqual('closed');
@@ -517,18 +521,22 @@ describe('Cron testing', () => {
             const application = await generator.createApplication({}, event);
             const plenary = await generator.createPlenary({
                 starts: moment().subtract(2, 'week').toDate(),
-                ends: moment().add(1, 'second').toDate()
+                ends: moment().add(1, 'hour').toDate()
             }, event);
+            // Marked as present and not as having left.
             const attendance = await generator.createAttendance({
-                application_id: application.id
+                application_id: application.id,
+                starts: moment().subtract(1, 'hour').toDate(),
+                ends: null
             }, plenary);
 
             expect(Object.keys(cron.jobs).length).toEqual(1);
 
-            await sleep(4000);
+            await runScheduledJob(cron.JOB_TYPES.CLOSE_ATTENDANCES);
 
             const attendanceFromDb = await Attendance.findByPk(attendance.id);
             expect(attendanceFromDb.ends).not.toEqual(null);
+            expect(Object.keys(cron.jobs).length).toEqual(0);
         });
     });
 });
