@@ -11,9 +11,11 @@ const config = require('../config');
 
 // Fields that can't be set through the generic event create and edit.
 // The application period and the open call have their own endpoints,
-// and the participant counters are maintained by the system.
+// and the participant counters and the timestamps are maintained by the system.
 const BLOCKED_EVENT_FIELDS = [
     'id',
+    'created_at',
+    'updated_at',
     'image',
     'status',
     'deleted',

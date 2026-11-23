@@ -1560,8 +1560,8 @@ components:
     EventInput:
       description: |
         The fields of a Summer University. id, image, status, deleted, published, the application
-        period, open_call and the participant counters are ignored; season is ignored unless the
-        caller manages the type.
+        period, open_call, the participant counters and the timestamps are ignored; season is
+        ignored unless the caller manages the type.
       type: object
       properties:
         name: {type: string, maxLength: 255}
