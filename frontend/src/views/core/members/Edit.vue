@@ -167,7 +167,6 @@ export default {
     }
   },
   methods: {
-    /* istanbul ignore next */
     parseDate (date) {
       return moment(date, 'YYYY-MM-DD').toDate()
     },
@@ -207,7 +206,6 @@ export default {
 
           this.$root.showSuccess('User is saved.')
 
-          /* istanbul ignore next */
           return this.$router.push({
             name: 'oms.members.view',
             params: { id: this.user.username || this.user.id }
@@ -233,7 +231,6 @@ export default {
       .then((response) => {
         this.user = response.data.data
 
-        /* istanbul ignore next */
         this.birthday = response.data.data.date_of_birth
           ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate()
           : null
