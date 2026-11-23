@@ -1,0 +1,39 @@
+# OpenAPI lint (npx redocly lint) and type generation (npx openapi-typescript) for the
+# services' specs. Each service's audit PR adds its entry, in alphabetical order:
+#   <service>:
+#     root: ./<service>/openapi.yaml
+#     x-openapi-ts:
+#       output: ./packages/api-types/<service>.ts
+# The fixture of the shared test helper is linted and generated like a service, so both
+# commands have something to run on before the first service spec lands.
+# See docs/testing/backend-openapi.md.
+apis:
+  backend-test-utils-fixture:
+    root: ./packages/backend-test-utils/test/fixtures/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/backend-test-utils/test/fixtures/openapi.ts
+extends:
+  - recommended
+rules:
+  operation-summary: error
+  operation-operationId: error
+  operation-operationId-unique: error
+  operation-operationId-url-safe: error
+  operation-4xx-response: off  # healthcheck and metrics have none; 4xx coverage is the route audit's job
+  tag-description: off
+  security-defined: error
+  no-unused-components: error
+  no-invalid-media-type-examples: error
+  rule/x-permission:
+    subject:
+      type: Operation
+      property: x-permission
+    assertions:
+      defined: true
+    message: Every operation states its permission in x-permission (none, authenticated, or the permission).
+  rule/operation-id-camel-case:
+    subject:
+      type: Operation
+      property: operationId
+    assertions:
+      casing: camelCase
