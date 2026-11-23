@@ -725,4 +725,239 @@ describe('Plenaries exports', () => {
             expect(names[2]).toEqual('1 - Q&A- CD-JC -part 1----');
         });
     });
+
+    // The plenaries are for the Agora only: the type of the event is checked before anything else.
+    test.each(['epm', 'spm'])('answers 400 for an %s event', async (type) => {
+        const event = await generator.createEvent({ type, applications: [] });
+
+        const res = await request({
+            path: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.message).toContain('Agora');
+    });
+
+    describe('who may export the statistics', () => {
+        test.each([
+            'global:see_plenaries:agora',
+            'global:manage_plenaries:agora'
+        ])('lets a holder of %s alone download the file plenary.xlsx', async (permission) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await request({
+                path: '/events/' + event.id + '/plenaries/stats',
+                method: 'GET',
+                responseType: 'buffer',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['content-type']).toContain('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            expect(res.headers['content-disposition']).toEqual('attachment; filename=plenary.xlsx');
+            expect(xlsx.parse(res.body).map((sheet) => sheet.name)).toEqual(['Stats (general)', 'Stats (bodies)']);
+        });
+
+        test.each([
+            ['the permission to mark attendance', ['global:mark_attendance:agora']],
+            ['the permissions named after another event type', ['global:see_plenaries:epm', 'global:manage_plenaries:epm', 'global:see_plenaries:spm']],
+            ['the other permissions for an Agora', ['global:manage_event:agora', 'global:manage_applications:agora', 'global:manage_incoming:agora']]
+        ])('refuses %s', async (description, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await request({
+                path: '/events/' + event.id + '/plenaries/stats',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You cannot see stats.' });
+        });
+    });
+
+    describe('what the sheets hold', () => {
+        // A plenary on a fixed day, two hours long.
+        const STARTS = new Date('2030-03-01T10:00:00.000Z');
+        const ENDS = new Date('2030-03-01T12:00:00.000Z');
+        const body = regularUser.bodies[0];
+        let event;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:see_plenaries:agora'] } });
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+        });
+
+        const getSheets = async (targetEvent = event) => {
+            const res = await request({
+                path: '/events/' + targetEvent.id + '/plenaries/stats',
+                method: 'GET',
+                responseType: 'buffer',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return xlsx.parse(res.body);
+        };
+
+        // The file shows the times in the time zone of the server.
+        const shown = (date) => moment(date).format('YYYY-MM-DD HH:mm:ss');
+
+        test('names the columns of the three kinds of sheets and describes the plenary on its own sheet', async () => {
+            await generator.createPlenary({ name: 'Opening', starts: STARTS, ends: ENDS }, event);
+
+            const [general, bodies, plenarySheet] = await getSheets();
+
+            expect(general.data[0]).toEqual([
+                'Application ID', 'First and last name', 'Body name', 'Opening (seconds)', 'Opening (%)', 'Total percent'
+            ]);
+            expect(bodies.data[0]).toEqual([
+                'Body ID', 'Body code', 'Body name', 'Body type', 'Amount of delegates/envoys', 'Average attendance %',
+                'Delegate/envoy 1 %', 'Delegate/envoy 2 %', 'Delegate/envoy 3 %'
+            ]);
+            expect(plenarySheet.name).toEqual('1 - Opening');
+            expect(plenarySheet.data).toEqual([
+                ['Name', 'Opening'],
+                ['Starts at', shown(STARTS)],
+                ['Ends at', shown(ENDS)],
+                ['Duration in seconds', '7200.00'],
+                [],
+                ['Application ID', 'First and last name', 'Body name', 'Starts', 'Ends', 'Time in seconds', 'Time in percent']
+            ]);
+        });
+
+        test('counts an attendance that started before the plenary and ended after it as the whole plenary', async () => {
+            const plenary = await generator.createPlenary({ name: 'Opening', starts: STARTS, ends: ENDS }, event);
+            const delegate = await generator.createApplication({
+                participant_type: 'delegate', participant_order: 1, first_name: 'Dee', last_name: 'Delegate', body_name: 'Example body'
+            }, event);
+            const attendance = await generator.createAttendance({
+                application_id: delegate.id,
+                starts: new Date('2030-03-01T09:30:00.000Z'),
+                ends: new Date('2030-03-01T12:45:00.000Z')
+            }, plenary);
+
+            const [general, , plenarySheet] = await getSheets();
+
+            expect(general.data[1]).toEqual([delegate.id, 'Dee Delegate', 'Example body', '7200.00', '100.00%', '100.00%']);
+            // The sheet of the plenary shows when the member really came and went.
+            expect(plenarySheet.data[6]).toEqual([
+                delegate.id, 'Dee Delegate', 'Example body', shown(attendance.starts), shown(attendance.ends), '7200.00', '100.00%'
+            ]);
+        });
+
+        test('adds up the attendances of one member at a plenary', async () => {
+            const plenary = await generator.createPlenary({ name: 'Opening', starts: STARTS, ends: ENDS }, event);
+            const delegate = await generator.createApplication({
+                participant_type: 'delegate', participant_order: 1, first_name: 'Dee', last_name: 'Delegate', body_name: 'Example body'
+            }, event);
+            // 30 minutes and 15 minutes of the 120.
+            await generator.createAttendance({
+                application_id: delegate.id,
+                starts: new Date('2030-03-01T10:00:00.000Z'),
+                ends: new Date('2030-03-01T10:30:00.000Z')
+            }, plenary);
+            await generator.createAttendance({
+                application_id: delegate.id,
+                starts: new Date('2030-03-01T11:00:00.000Z'),
+                ends: new Date('2030-03-01T11:15:00.000Z')
+            }, plenary);
+
+            const [general, , plenarySheet] = await getSheets();
+
+            expect(general.data[1]).toEqual([delegate.id, 'Dee Delegate', 'Example body', '2700.00', '37.50%', '37.50%']);
+            expect(plenarySheet.data.slice(6).map((row) => [row[5], row[6]])).toEqual([
+                ['1800.00', '25.00%'],
+                ['900.00', '12.50%']
+            ]);
+        });
+
+        test('gives a body the average of its delegates and envoys over all plenaries', async () => {
+            const first = await generator.createPlenary({ name: 'Opening', starts: STARTS, ends: ENDS }, event);
+            const second = await generator.createPlenary({
+                name: 'Closing',
+                starts: new Date('2030-03-02T10:00:00.000Z'),
+                ends: new Date('2030-03-02T12:00:00.000Z')
+            }, event);
+            // The delegate was at both plenaries from start to end, the envoy at half of the first.
+            const delegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1, body_id: body.id }, event);
+            const envoy = await generator.createApplication({ participant_type: 'envoy', participant_order: 1, body_id: body.id }, event);
+            // An observer of the body does not count.
+            await generator.createApplication({ participant_type: 'observer', participant_order: 1, body_id: body.id }, event);
+            await generator.createAttendance({ application_id: delegate.id, starts: first.starts, ends: first.ends }, first);
+            await generator.createAttendance({ application_id: delegate.id, starts: second.starts, ends: second.ends }, second);
+            await generator.createAttendance({
+                application_id: envoy.id,
+                starts: new Date('2030-03-01T10:00:00.000Z'),
+                ends: new Date('2030-03-01T11:00:00.000Z')
+            }, first);
+
+            const [general, bodies] = await getSheets();
+
+            expect(general.data.slice(1).map((row) => [row[0], ...row.slice(3)])).toEqual([
+                [delegate.id, '7200.00', '7200.00', '100.00%', '100.00%', '100.00%'],
+                [envoy.id, '3600.00', '0.00', '50.00%', '0.00%', '25.00%']
+            ]);
+            expect(bodies.data.find((row) => row[0] === body.id)).toEqual([
+                body.id, body.code, body.name, body.type, 2, '62.50%', '100.00%', '25.00%'
+            ]);
+        });
+
+        test('leaves out the plenaries, the applicants and the attendances of another Agora', async () => {
+            const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+            const otherPlenary = await generator.createPlenary({ name: 'Elsewhere', starts: STARTS, ends: ENDS }, otherEvent);
+            const otherDelegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1, body_id: body.id }, otherEvent);
+            await generator.createAttendance({ application_id: otherDelegate.id, starts: STARTS, ends: ENDS }, otherPlenary);
+
+            const sheets = await getSheets();
+
+            expect(sheets.map((sheet) => sheet.name)).toEqual(['Stats (general)', 'Stats (bodies)']);
+            // The header only.
+            expect(sheets[0].data.length).toEqual(1);
+            expect(sheets[1].data.find((row) => row[0] === body.id)[4]).toEqual(0);
+        });
+
+        test('gives two plenaries with the same name a sheet each, the first to take place first', async () => {
+            await generator.createPlenary({
+                name: 'Plenary',
+                starts: new Date('2030-03-02T10:00:00.000Z'),
+                ends: new Date('2030-03-02T11:00:00.000Z')
+            }, event);
+            await generator.createPlenary({ name: 'Plenary', starts: STARTS, ends: ENDS }, event);
+
+            const sheets = await getSheets();
+
+            expect(sheets.map((sheet) => sheet.name)).toEqual(['Stats (general)', 'Stats (bodies)', '1 - Plenary', '2 - Plenary']);
+            expect(sheets[2].data[3]).toEqual(['Duration in seconds', '7200.00']);
+            expect(sheets[3].data[3]).toEqual(['Duration in seconds', '3600.00']);
+        });
+
+        // BUG: every application with the participant type delegate or envoy counts, also one that
+        // is rejected and cancelled: it is listed with 0% and pulls the average of its body down.
+        // Expected: only the applications that take part (accepted and not cancelled).
+        test('counts a delegate whose application is rejected and cancelled', async () => {
+            const plenary = await generator.createPlenary({ name: 'Opening', starts: STARTS, ends: ENDS }, event);
+            const delegate = await generator.createApplication({
+                participant_type: 'delegate', participant_order: 1, body_id: body.id, status: 'accepted'
+            }, event);
+            const cancelled = await generator.createApplication({
+                participant_type: 'delegate', participant_order: 2, body_id: body.id, status: 'rejected', cancelled: true
+            }, event);
+            await generator.createAttendance({ application_id: delegate.id, starts: STARTS, ends: ENDS }, plenary);
+
+            const [general, bodies] = await getSheets();
+
+            expect(general.data.slice(1).map((row) => [row[0], row[5]])).toEqual([
+                [delegate.id, '100.00%'],
+                [cancelled.id, '0.00%']
+            ]);
+            expect(bodies.data.find((row) => row[0] === body.id).slice(4)).toEqual([2, '50.00%', '100.00%', '0.00%']);
+        });
+    });
 });
