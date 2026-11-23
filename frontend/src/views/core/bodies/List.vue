@@ -131,7 +131,6 @@ export default {
       type: null,
       canLoadMore: true,
       source: null,
-      permissions: [],
       includeDeleted: false,
       can: {
         create: false,
@@ -187,16 +186,6 @@ export default {
         this.bodies = this.bodies.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
-
-        if (this.loginUser) {
-          return this.axios.get(this.services['core'] + '/my_permissions').then((permissionsResponse) => {
-            this.permissions = permissionsResponse.data.data
-
-            this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
-            this.can.viewDeleted = this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
-            this.isLoading = false
-          })
-        }
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -206,10 +195,21 @@ export default {
         this.isLoading = false
         this.$root.showError('Could not fetch bodies list', err)
       })
+    },
+    fetchPermissions () {
+      this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
+        const permissions = response.data.data
+
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:body'))
+        this.can.viewDeleted = permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
+      }).catch((err) => {
+        this.$root.showError('Could not fetch bodies list', err)
+      })
     }
   },
   mounted () {
     this.fetchData()
+    if (this.loginUser) this.fetchPermissions()
   }
 }
 </script>
