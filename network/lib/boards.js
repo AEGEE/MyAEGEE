@@ -1,3 +1,4 @@
+const lodash = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
 
@@ -10,6 +11,11 @@ const mailer = require('./mailer');
 const config = require('../config');
 const constants = require('./constants');
 const logger = require('./logger');
+
+// The fields a board manager sets; the rest (id, the body, the welcome mail mark,
+// timestamps) belongs to the service.
+const BOARD_FIELDS = ['elected_date', 'start_date', 'end_date', 'name', 'president', 'secretary', 'treasurer', 'other_members', 'message', 'image_id'];
+const pickBoardFields = (input) => lodash.pick(input || {}, BOARD_FIELDS);
 
 const OFFICERS = [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']];
 
@@ -65,7 +71,7 @@ exports.createBoard = async (req, res) => {
         return errors.makeBadRequestError(res, 'Body ID is invalid.');
     }
 
-    const boardData = { ...req.body, body_id: Number(req.params.body_id) };
+    const boardData = { ...pickBoardFields(req.body), body_id: Number(req.params.body_id) };
 
     if (!req.permissions.manage_boards[boardData.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
@@ -280,7 +286,7 @@ exports.updateBoard = async (req, res) => {
     // The board as it would be stored is checked as a whole; then the members the edit
     // adds or changes are looked up in core, as on creation.
     const stored = req.board.get({ clone: true });
-    req.board.set({ ...req.body, body_id: req.board.body_id });
+    req.board.set(pickBoardFields(req.body));
     await req.board.validate();
 
     const { fieldErrors } = await lookUpMembers(changedMembers(stored, req.board.get()), req.headers['x-auth-token']);
