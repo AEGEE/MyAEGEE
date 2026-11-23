@@ -1,17 +1,14 @@
+"""Escaping and the texts of single templates. Every template is rendered with the
+contract's examples in test_contract_templates.py."""
+
 import copy
-import sys
 from pathlib import Path
 
 import pytest
 from jinja2 import UndefinedError
-
-SRC_DIR = Path(__file__).resolve().parents[1] / "dispatcher"
-sys.path.insert(0, str(SRC_DIR))
-
-from main import create_template_environment  # noqa: E402
+from main import create_template_environment
 
 TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "templates"
-TOP_LEVEL_TEMPLATES = sorted(path.name for path in TEMPLATE_DIR.glob("*.jinja2"))
 
 COMPLETE_PARAMETERS = {
     "application": {
@@ -100,13 +97,6 @@ def render_template(template_name, parameters=None):
     env = create_template_environment(str(TEMPLATE_DIR))
     template = env.get_template(template_name)
     return template.render(parameters or copy.deepcopy(COMPLETE_PARAMETERS), altro="Test subject")
-
-
-@pytest.mark.parametrize("template_name", TOP_LEVEL_TEMPLATES)
-def test_top_level_templates_render_with_complete_fixture(template_name):
-    rendered = render_template(template_name)
-
-    assert rendered.strip()
 
 
 def test_default_template_variables_are_escaped():
