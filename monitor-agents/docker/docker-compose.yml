@@ -22,7 +22,7 @@ services:
       - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
 
   node-exporter:
-    image: prom/node-exporter:v0.18.1
+    image: prom/node-exporter:v1.13.1
     # TODO use 'new' volumes (this is kinda how an old version was set up).
     # NOTE there are different examples:
     # https://github.com/prometheus/node_exporter
