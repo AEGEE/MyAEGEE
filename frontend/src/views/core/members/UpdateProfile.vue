@@ -15,6 +15,13 @@
         </div>
       </template>
 
+      <div class="notification is-info" role="status" v-if="pendingJoinRequests.length">
+        <p v-for="request in pendingJoinRequests" :key="request.body_id">
+          Your request to join {{ bodyName(request.body_id) }} is waiting for its board.
+          You can use MyAEGEE once a board member has accepted it.
+        </p>
+      </div>
+
       <form
         @submit.prevent="saveUser()"
         v-if="validationErrors.privacy || validationErrors.username"
@@ -162,8 +169,11 @@ export default {
         address: null,
         about_me: null,
         user: {},
-        bodies: []
+        bodies: [],
+        join_requests: []
       },
+      // Every body, for the names of the join requests; `bodies` are the ones a member may join.
+      allBodies: [],
       bodies: [],
       tmpBodyId: null,
       tmpEmail: '',
@@ -244,7 +254,8 @@ export default {
             'Join request is sent. Please wait until a board members accepts it.'
           )
           this.isLoading = false
-          this.isRequestingMembership = true
+          // The member stays here until the board accepts; the page says so.
+          this.user.join_requests.push({ body_id: bodyId, status: 'pending' })
         })
         .catch((err) => {
           this.isLoading = false
@@ -265,6 +276,10 @@ export default {
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
     escapeHtml,
+    bodyName (bodyId) {
+      const body = this.allBodies.find((b) => b.id === bodyId)
+      return body ? body.name : 'a body'
+    },
     changeEmail (newEmail) {
       if (isRestrictedEmail(newEmail)) {
         return this.$root.showError(
@@ -286,13 +301,18 @@ export default {
         })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loggedIn: 'loggedIn',
-    loginUser: 'user',
-    isValid: 'isValid',
-    validationErrors: 'validationErrors'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loggedIn: 'loggedIn',
+      loginUser: 'user',
+      isValid: 'isValid',
+      validationErrors: 'validationErrors'
+    }),
+    pendingJoinRequests () {
+      return this.user.join_requests.filter((request) => request.status === 'pending')
+    }
+  },
   mounted () {
     if (this.isValid) {
       console.debug('User is valid, redirecting.')
@@ -307,6 +327,7 @@ export default {
         return this.axios.get(this.services['core'] + '/bodies')
       })
       .then((response) => {
+        this.allBodies = response.data.data
         this.bodies = response.data.data.filter((b) => ALLOWED_BODY_TYPES.includes(b.type))
         this.isLoading = false
       })
