@@ -2,8 +2,8 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew">Edit application on {{ event.name }}</div>
+        <h1 class="title" v-show="isNew">Apply to {{ event.name }}</h1>
+        <h1 class="title" v-show="!isNew">Edit application on {{ event.name }}</h1>
 
         <div class="notification is-warning" v-if="isNew && activeEventApplicationBan">
           You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
@@ -13,9 +13,9 @@
           <div class="tile is-parent" v-show="canSubmitApplication">
             <div class="tile is-child">
               <div class="field">
-                <label class="label">Body <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-body">Body <span class="has-text-danger">*</span></label>
                 <div class="select" v-if="bodies.length > 0">
-                  <select v-model="application.body_id">
+                  <select id="application-body" v-model="application.body_id">
                     <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                   </select>
                 </div>
@@ -42,10 +42,10 @@
               </div>
 
               <div class="field">
-                <label class="label">Nationality <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-nationality">Nationality <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
-                    <select v-model="application.nationality">
+                    <select id="application-nationality" v-model="application.nationality">
                       <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
                     </select>
                   </div>
@@ -54,10 +54,10 @@
               </div>
 
               <div class="field">
-                <label class="label">Meals type <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-meals">Meals type <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
-                    <select v-model="application.meals">
+                    <select id="application-meals" v-model="application.meals">
                       <option>Vegetarian</option>
                       <option>Vegan</option>
                       <option v-if="event.vegetarian !== true">Meat-eater</option>
@@ -72,18 +72,20 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Allergies</label>
+                <label class="label" for="application-allergies">Allergies</label>
                 <div class="control">
                   <textarea
+                    id="application-allergies"
                     class="textarea"
                     v-model="application.allergies" />
                 </div>
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-events-visited">Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <input
+                    id="application-events-visited"
                     class="input"
                     type="number"
                     required
@@ -103,11 +105,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-number">
                   Passport number <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-number"
                     class="input"
                     type="text"
                     required
@@ -116,11 +119,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-issue-date">
                   Passport issue date <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-issue-date"
                     class="input"
                     type="text"
                     required
@@ -129,11 +133,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-expiration-date">
                   Passport expiration date <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-expiration-date"
                     class="input"
                     type="text"
                     required
@@ -142,11 +147,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-issue-authority">
                   Passport issue authority <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-issue-authority"
                     class="input"
                     type="text"
                     required
@@ -155,11 +161,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-place-of-birth">
                   Place of birth <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-place-of-birth"
                     class="input"
                     type="text"
                     required
@@ -168,11 +175,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-embassy">
                   Embassy <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-embassy"
                     class="input"
                     type="text"
                     required
@@ -181,11 +189,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-street-and-house">
                   Street and house number <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-street-and-house"
                     class="input"
                     type="text"
                     required
@@ -194,11 +203,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-postal-code">
                   Postal code <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-postal-code"
                     class="input"
                     type="text"
                     required
@@ -207,11 +217,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-city">
                   City <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-city"
                     class="input"
                     type="text"
                     required
@@ -220,11 +231,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-country">
                   Country <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-country"
                     class="input"
                     type="text"
                     required
@@ -234,18 +246,20 @@
 
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
-                  <label class="has-text-weight-bold">
+                  <label class="has-text-weight-bold" :for="'question-' + index">
                     {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
                   </label>
                 </div>
                 <div class="control" v-if="question.type === 'text'">
                   <textarea
+                    :id="'question-' + index"
                     class="textarea"
                     :required="question.required"
                     v-model="application.answers[index]" />
                 </div>
                 <div class="control" v-if="question.type === 'string'">
                   <input
+                    :id="'question-' + index"
                     class="input"
                     type="text"
                     :required="question.required"
@@ -253,12 +267,14 @@
                 </div>
                 <div class="control" v-if="question.type === 'number'">
                   <input
+                    :id="'question-' + index"
                     class="input"
                     type="number"
                     v-model.number="application.answers[index]" />
                 </div>
                 <div class="control" v-if="question.type === 'checkbox'">
                   <input
+                    :id="'question-' + index"
                     class="checkbox"
                     type="checkbox"
                     :required="question.required"
@@ -266,7 +282,7 @@
                 </div>
                 <div class="control" v-if="question.type === 'select'">
                   <div class="select">
-                    <select v-model="application.answers[index]" required>
+                    <select :id="'question-' + index" v-model="application.answers[index]" required>
                       <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
                     </select>
                   </div>
@@ -279,11 +295,11 @@
               <div v-show="isOwn">
                 <div class="field is-fullwidth" v-for="(mailinglist, index) in mailinglists" v-bind:key="index">
                   <div class="control">
-                    <input
-                      class="checkbox"
-                      type="checkbox"
-                      v-model="subscription[mailinglist.name]" />
                     <label>
+                      <input
+                        class="checkbox"
+                        type="checkbox"
+                        v-model="subscription[mailinglist.name]" />
                       Subscribe to <b>{{ mailinglist.name }}</b>; {{ mailinglist.description }}
                     </label>
                   </div>
@@ -317,10 +333,11 @@
           <div class="tile is-child">
             <div class="field is-fullwidth">
               <div class="control">
-                <label class="has-text-weight-bold">Board comment</label>
+                <label class="has-text-weight-bold" for="application-board-comment">Board comment</label>
               </div>
               <div class="control">
                 <textarea
+                  id="application-board-comment"
                   class="textarea"
                   required
                   v-model="application.board_comment" />
@@ -329,11 +346,11 @@
 
             <div class="field is-fullwidth">
               <div class="control">
-                <label class="has-text-weight-bold">Application type</label>
+                <label class="has-text-weight-bold" for="application-participant-type">Application type</label>
               </div>
               <div class="control">
                 <div class="select">
-                  <select v-model="application.participant_type">
+                  <select id="application-participant-type" v-model="application.participant_type">
                     <option value="delegate">Delegate</option>
                     <option value="visitor">Visitor</option>
                     <option value="envoy">Envoy</option>
@@ -345,10 +362,11 @@
 
             <div class="field is-fullwidth">
               <div class="control">
-                <label class="has-text-weight-bold">Participant order</label>
+                <label class="has-text-weight-bold" for="application-participant-order">Participant order</label>
               </div>
               <div class="control">
                 <input
+                  id="application-participant-order"
                   class="input"
                   type="number"
                   min="1"
