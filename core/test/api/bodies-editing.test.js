@@ -332,4 +332,193 @@ describe('Bodies editing', () => {
         const bodyFromDb = await Body.findByPk(body.id);
         expect(bodyFromDb.shadow_circle_id).toEqual(circle.id);
     });
+
+    test('should allow unsetting the shadow circle', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        await body.update({ shadow_circle_id: circle.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { shadow_circle_id: null }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const bodyFromDb = await Body.findByPk(body.id);
+        expect(bodyFromDb.shadow_circle_id).toEqual(null);
+    });
+
+    test('should keep the shadow circle when other fields are edited', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        await body.update({ shadow_circle_id: circle.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { email: 'test@test.io', shadow_circle_id: circle.id }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const bodyFromDb = await Body.findByPk(body.id);
+        expect(bodyFromDb.email).toEqual('test@test.io');
+        expect(bodyFromDb.shadow_circle_id).toEqual(circle.id);
+    });
+
+    describe('shadow circle of the body itself', () => {
+        const setShadowCircle = async (shadowCircleId) => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody();
+            const ownCircle = await generator.createCircle({ body_id: body.id });
+            await body.update({ shadow_circle_id: ownCircle.id });
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { email: 'test@test.io', shadow_circle_id: await shadowCircleId() }
+            });
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            return { res, bodyFromDb, ownCircle };
+        };
+
+        const expectRefused = ({ res, bodyFromDb, ownCircle }) => {
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toEqual({
+                shadow_circle_id: ['The shadow circle should be a circle of this body.']
+            });
+
+            // Nothing of the request is saved.
+            expect(bodyFromDb.shadow_circle_id).toEqual(ownCircle.id);
+            expect(bodyFromDb.email).not.toEqual('test@test.io');
+        };
+
+        test('should refuse a circle of another body', async () => {
+            expectRefused(await setShadowCircle(async () => {
+                const otherBody = await generator.createBody();
+                const circle = await generator.createCircle({ body_id: otherBody.id });
+                return circle.id;
+            }));
+        });
+
+        test('should refuse a circle that belongs to no body', async () => {
+            expectRefused(await setShadowCircle(async () => {
+                const circle = await generator.createCircle();
+                return circle.id;
+            }));
+        });
+
+        test('should refuse a circle that does not exist', async () => {
+            expectRefused(await setShadowCircle(async () => 2147483647));
+        });
+
+        test.each([
+            ['a string', 'abc'],
+            ['a list', [1]],
+            ['an object', { id: 1 }],
+            ['a boolean', true],
+            ['a fraction', 1.5]
+        ])('should refuse %s', async (name, value) => {
+            expectRefused(await setShadowCircle(async () => value));
+        });
+
+        test('should accept the id of a circle of the body as a string', async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody();
+            const circle = await generator.createCircle({ body_id: body.id });
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { shadow_circle_id: String(circle.id) }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb.shadow_circle_id).toEqual(circle.id);
+        });
+
+        test('should not block other edits when the stored shadow circle is sent back unchanged', async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            // Stored before the rule existed: clients send the whole body back on every edit.
+            const freeCircle = await generator.createCircle();
+            const body = await generator.createBody({ shadow_circle_id: freeCircle.id });
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { email: 'test@test.io', shadow_circle_id: freeCircle.id }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb.email).toEqual('test@test.io');
+            expect(bodyFromDb.shadow_circle_id).toEqual(freeCircle.id);
+        });
+
+        test('should ignore the field for a permission that does not cover it', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const body = await generator.createBody();
+            const permission = await generator.createPermission({
+                scope: 'local',
+                action: 'update',
+                object: 'body',
+                filters: ['name']
+            });
+            const boardCircle = await generator.createCircle({ body_id: body.id });
+            await generator.createCircleMembership(boardCircle, user);
+            await generator.createCirclePermission(boardCircle, permission);
+
+            const freeCircle = await generator.createCircle();
+
+            const res = await request({
+                path: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { name: 'Renamed', shadow_circle_id: freeCircle.id }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb.name).toEqual('Renamed');
+            expect(bodyFromDb.shadow_circle_id).toEqual(null);
+        });
+    });
 });
