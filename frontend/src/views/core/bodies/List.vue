@@ -35,7 +35,7 @@
               <template
                 slot="selection"
                 slot-scope="{ values, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} {{ values.length === 1 ? 'type' : 'types' }} selected</span>
               </template>
             </multiselect>
           </div>
