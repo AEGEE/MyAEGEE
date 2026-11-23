@@ -129,8 +129,21 @@ describe('implicit responses', () => {
         violation({ path: '/courses/1', statusCode: 500, body: 'Internal error' }, /body is not an ErrorResponse/);
     });
 
-    test('400 is accepted on an operation with a request body (invalid JSON)', () => {
-        ok({ method: 'POST', path: '/courses', statusCode: 400, body: { success: false, message: 'Unexpected token' } });
+    test('400 is accepted on an operation with a request body when the request sent text that is not JSON', () => {
+        ok({
+            method: 'POST', path: '/courses', requestBody: '{"name": ', statusCode: 400, body: { success: false, message: 'Unexpected token' }
+        });
+    });
+
+    test('400 is not implicit when the request body was valid JSON: the route lists its own 400', () => {
+        const body = { success: false, message: 'name is required' };
+        violation({
+            method: 'POST', path: '/courses', requestBody: { title: 'x' }, statusCode: 400, body
+        }, /status 400 is not documented for POST \/courses/);
+        violation({
+            method: 'POST', path: '/courses', requestBody: '{"title": "x"}', statusCode: 400, body
+        }, /status 400 is not documented for POST \/courses/);
+        violation({ method: 'POST', path: '/courses', statusCode: 400, body }, /status 400 is not documented for POST \/courses/);
     });
 
     test('400 is not implicit on an operation without a request body', () => {

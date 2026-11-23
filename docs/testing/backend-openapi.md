@@ -58,7 +58,7 @@ wires it up ("Wiring up a service", below). Until then its tests run as before.
 | `x-permission` | Required (lint error). `none`, `authenticated`, the permission string (`manage:discounts`), or a short sentence for compound rules. |
 | `security` | Global `security: [{XAuthToken: []}]`. Public routes: `security: []`. Optional login (core's `maybeAuthorize`): `security: [{}, {XAuthToken: []}]`. |
 | Responses | Every status the route itself can return, one by one: the 2xx, and 400, 401, 403, 404, 409 and 422 where they occur. Never `500`. Ranges (`4XX`) and `default` fail the spec conventions check, because one test of any status in the range would count for all of them. |
-| Implicit responses | Accepted on any operation without being listed, as long as the body is an `ErrorResponse`: **500**, and **400 on operations with a JSON request body** (the invalid-JSON handler). An operation with a 400 of its own (a non-numeric id check) lists it. |
+| Implicit responses | Accepted without being listed, as long as the body is an `ErrorResponse`: **500** on any operation, and **400 on an operation with a JSON request body when the test sent text that is not valid JSON** (the invalid-JSON handler). Every other 400 is the route's own (a non-numeric id, a missing field checked by hand) and is listed and tested like any status. Every spec defines the `ErrorResponse` schema; a spec without it fails the convention check. |
 | 422 | Always `$ref: '#/components/responses/ValidationFailed'`, which allows both error shapes. |
 | JSON bodies | `application/json` and any `application/*+json` (such as `application/problem+json`) are JSON: they need a schema, and bodies are validated against it. |
 | Non-JSON bodies | Document only the media type: `text/plain: {schema: {type: string}}` for Prometheus metrics, `text/csv: {}`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}`. Media type parameters (`; charset=utf-8`) are ignored. Document `Content-Disposition` under the response's `headers`, and assert the file name in the test. |
@@ -108,6 +108,8 @@ Rules:
   Nothing inside it is checked, by the conventions check or by the response check. The reason is
   required, and the marker is easy to find with `grep -rn x-free-form */openapi.yaml`. Use it
   only where the code defines no structure; an open `{type: object}` without it fails.
+  The conventions check prints how many `x-free-form` and `x-untested` markers each spec uses
+  (`core/openapi.yaml: ok (x-free-form: 2, x-untested: 1)`), so a growing number shows in the CI log.
 - **Responses that depend on the caller**: a key that only some callers get is optional. A
   different field set is a `oneOf` of closed variants (`User` and `UserLimited`), where the
   larger variant requires a key the smaller lacks. Say in the operation's `description` who
@@ -144,13 +146,15 @@ Every response schema is walked, through `$ref`s, `properties`, `items`, map val
 | An object is closed: `additionalProperties` or `unevaluatedProperties` is `false` or a schema | `object schema is not closed`, or `object schema is explicitly open` for `true` and `{}` |
 | An array has `items` (or `prefixItems`), which are checked like any schema | `array schema has no items` |
 | `allOf` does not extend a closed schema with more properties: the closed schema's own `unevaluatedProperties: false` rejects them | `allOf extends #/components/schemas/Code, which is closed and so rejects integration` |
-| `x-free-form` has a reason | `x-free-form needs a reason` |
+| `x-free-form` and `x-untested` have a real reason: at least ten characters, and not a placeholder such as `todo` or `tbd` | `x-free-form needs a reason`, `… needs a real reason, not 'todo': say why in a few words` |
+| The spec defines `components/schemas/ErrorResponse` | `every spec defines the ErrorResponse schema` |
 
 How the closing rule treats composition:
 
 - **`allOf` fragments**: a schema that applies to the same value as a closed parent (an item of
   the parent's `allOf`, `oneOf` or `anyOf`, followed through `$ref`) is a fragment. It may stay
-  open and needs no `type`, because the parent closes the value: `Course` is
+  open, because the parent closes the value (like every schema with `properties`, it still
+  says `type: object`, as it is checked on its own when it is a `$ref`): `Course` is
   `allOf: [Timestamps]` plus its own fields, with `unevaluatedProperties: false`, and
   `Timestamps` stays open. The same `Timestamps` used on its own, or by a parent that is not
   closed, fails. To share fields between two closed schemas (`Code` and `CodeWithIntegration`),
@@ -274,7 +278,8 @@ wired up, `request()` passes each response to the check, which:
    operation's JSON `requestBody` (`application/json` or `application/*+json`). A body sent
    to an operation that documents none fails. Bodies of rejected requests are not checked:
    those tests send invalid input on purpose. Multipart bodies are not checked.
-3. Looks up the response by its exact status, then the implicit 500 and 400. Not found: it
+3. Looks up the response by its exact status, then the implicit 500, and the implicit 400
+   only for a request whose body was text that is not valid JSON. Not found: it
    fails and lists the documented statuses.
 4. Without `content`, the body must be empty. Otherwise the `content-type` must be documented,
    and a JSON body is validated with Ajv, showing up to 10 errors.

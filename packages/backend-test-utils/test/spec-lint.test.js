@@ -268,13 +268,37 @@ describe('x-untested: one exemption, one operation, one reason', () => {
     });
 });
 
+describe('reasons and the required error schema', () => {
+    const errorSchemas = { Error: closed({ success: { const: false } }) };
+    const errorResponse = () => ({ description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } });
+
+    test('a placeholder or one-word reason is not a reason', () => {
+        for (const reason of ['TODO', 'tbd', 'fixme later', 'x', 'unknown', 'n/a', '???']) {
+            rejects(
+                minimalSpec({ schema: closed({ answers: { type: 'object', 'x-free-form': reason } }) }),
+                /x-free-form needs a real reason, not/
+            );
+            rejects(
+                minimalSpec({ schemas: errorSchemas, responses: { 403: errorResponse() }, operation: { 'x-untested': { 403: reason } } }),
+                /GET \/x 403 \(getX\): x-untested needs a real reason, not/
+            );
+        }
+    });
+
+    test('a spec without the ErrorResponse schema fails', () => {
+        const spec = minimalSpec({ schema: closed({ id: { type: 'integer' } }) });
+        delete spec.components.schemas.ErrorResponse;
+        rejects(spec, /#\/components\/schemas\/ErrorResponse: every spec defines the ErrorResponse schema/);
+    });
+});
+
 describe('spec-lint.js CLI', () => {
     const cli = path.join(__dirname, '..', 'spec-lint.js');
 
     test('lints the specs in redocly.yaml (the fixture)', () => {
         const run = spawnSync(process.execPath, [cli], { encoding: 'utf8' });
         assert.equal(run.status, 0, run.stdout + run.stderr);
-        assert.match(run.stdout, /fixtures\/openapi\.yaml: ok/);
+        assert.match(run.stdout, /fixtures\/openapi\.yaml: ok \(x-free-form: \d+, x-untested: \d+\)/);
     });
 
     test('fails on an open schema, and on Todo even with OPENAPI_ALLOW_TODO=1', () => {

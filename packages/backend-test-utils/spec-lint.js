@@ -115,6 +115,15 @@ function propertyNames(spec, schema, seen = new Set()) {
     ];
 }
 
+// A reason has to say why: not empty, not a placeholder, and more than a word.
+const PLACEHOLDER_REASON = /^(todo|tbd|fixme|wip|xxx+|temp|later|reason|none|n\/?a|\?+|-+|\.+)\b/i;
+function reasonProblem(reason) {
+    if (typeof reason !== 'string' || reason.trim() === '') return 'needs a reason';
+    const text = reason.trim();
+    if (text.length < 10 || PLACEHOLDER_REASON.test(text)) return `needs a real reason, not '${text}': say why in a few words`;
+    return undefined;
+}
+
 // x-untested is a map on the operation: x-untested: {'403': 'reason'}. Returns the
 // exemptions ("GET /x 403" -> reason) and the misplaced or invalid uses.
 function untestedExemptions(spec) {
@@ -136,8 +145,8 @@ function untestedExemptions(spec) {
         for (const [status, reason] of Object.entries(map)) {
             if (!(op.responses && Object.prototype.hasOwnProperty.call(op.responses, status))) {
                 problems.push(`${label()}: x-untested names ${status}, which the operation does not document (${pointer})`);
-            } else if (typeof reason !== 'string' || reason.trim() === '') {
-                problems.push(`${label(status)}: x-untested needs a reason`);
+            } else if (reasonProblem(reason)) {
+                problems.push(`${label(status)}: x-untested ${reasonProblem(reason)}`);
             } else {
                 exemptions.set(`${method.toUpperCase()} ${template} ${status}`, reason);
             }
@@ -165,8 +174,8 @@ function createSchemaWalker(spec, { allowTodo, report }) {
         }
         const reason = freeFormReason(schema);
         if (reason !== undefined) {
-            if (typeof reason !== 'string' || reason.trim() === '') {
-                report(where, pointer, "x-free-form needs a reason, for example x-free-form: 'answers to questions each event defines'");
+            if (reasonProblem(reason)) {
+                report(where, pointer, `x-free-form ${reasonProblem(reason)}, for example x-free-form: 'answers to questions each event defines'`);
             }
             return;
         }
@@ -332,8 +341,29 @@ function lintSpec(spec, { allowTodo = false } = {}) {
         }
     }
 
+    // The body of the implicit 500 and 400 responses, which the response check compiles.
+    if (!(spec.components && spec.components.schemas && isPlainObject(spec.components.schemas.ErrorResponse))) {
+        problems.push('#/components/schemas/ErrorResponse: every spec defines the ErrorResponse schema, '
+            + 'the body of the implicit 500 and invalid-JSON 400 responses');
+    }
+
     problems.push(...untestedExemptions(spec).problems);
     return problems;
+}
+
+// How many escape hatches a spec uses, printed by the CLI so that they show up in review.
+function countMarkers(spec) {
+    let freeForm = 0;
+    const scan = (node) => {
+        if (Array.isArray(node)) {
+            node.forEach(scan);
+        } else if (isPlainObject(node)) {
+            if (node['x-free-form'] !== undefined) freeForm += 1;
+            Object.values(node).forEach(scan);
+        }
+    };
+    scan(spec);
+    return { freeForm, untested: untestedExemptions(spec).exemptions.size };
 }
 
 function formatProblems(file, problems) {
@@ -353,16 +383,19 @@ if (require.main === module) {
     const files = process.argv.length > 2 ? process.argv.slice(2).map((f) => path.resolve(f)) : redoclySpecs(repoRoot, YAML);
     let failed = false;
     for (const file of files) {
-        const problems = lintSpec(YAML.parse(fs.readFileSync(file, 'utf8')));
+        const spec = YAML.parse(fs.readFileSync(file, 'utf8'));
+        const problems = lintSpec(spec);
         const shown = path.relative(process.cwd(), file);
+        const { freeForm, untested } = countMarkers(spec);
+        const markers = `x-free-form: ${freeForm}, x-untested: ${untested}`;
         if (problems.length) {
             failed = true;
-            console.log(formatProblems(shown, problems));
+            console.log(`${formatProblems(shown, problems)}\n  (${markers})`);
         } else {
-            console.log(`${shown}: ok`);
+            console.log(`${shown}: ok (${markers})`);
         }
     }
     process.exit(failed ? 1 : 0);
 }
 
-module.exports = { lintSpec, formatProblems, untestedExemptions, isJsonMediaType, operations, redoclySpecs, HTTP_METHODS, TODO_REF };
+module.exports = { lintSpec, countMarkers, formatProblems, untestedExemptions, isJsonMediaType, operations, redoclySpecs, HTTP_METHODS, TODO_REF };

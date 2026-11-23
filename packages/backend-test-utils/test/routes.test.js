@@ -84,6 +84,21 @@ describe('listExpressRoutes', () => {
         assert.deepEqual(listExpressRoutes(app), ['GET /a/{a_id}/b/{b_id}/items/{item_id}', 'PUT /a/{a_id}/b/{b_id}/items/{item_id}']);
     });
 
+    test('a route registered with a regular expression or an array of paths throws', () => {
+        const regexp = record(() => {
+            const server = express();
+            server.get(/ab+c/, noop);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(regexp), /registered with a regular expression .*register each path as a string/);
+        const paths = record(() => {
+            const server = express();
+            server.get(['/a', '/b'], noop);
+            return server;
+        });
+        assert.throws(() => listExpressRoutes(paths), /registered with an array of paths .*register each path as a string/);
+    });
+
     test('all() throws: every method must be registered and documented explicitly', () => {
         const appAll = record(() => {
             const server = express();

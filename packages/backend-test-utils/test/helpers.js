@@ -15,6 +15,14 @@ function tmpDir(prefix) {
     return fs.mkdtempSync(path.join(os.tmpdir(), `backend-test-utils-${prefix}-`));
 }
 
+// The schema every spec defines: the body of the implicit 500 and invalid-JSON 400 responses.
+const ERROR_RESPONSE = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['success', 'message'],
+    properties: { success: { const: false }, message: { type: 'string' } }
+};
+
 // A minimal OpenAPI 3.1 document with one operation, GET /x, whose 200 response has
 // the given JSON schema (or the given content), for specs that break one rule each.
 function minimalSpec({ schema, content, responses, schemas = {}, operation = {}, extra = {} } = {}) {
@@ -32,7 +40,7 @@ function minimalSpec({ schema, content, responses, schemas = {}, operation = {},
                 }
             }
         },
-        components: { schemas: { ...schemas } },
+        components: { schemas: { ErrorResponse: ERROR_RESPONSE, ...schemas } },
         ...extra
     };
 }
@@ -44,4 +52,4 @@ function writeSpec(spec) {
     return dir;
 }
 
-module.exports = { REPO_ROOT, REQUIRE_FROM, FIXTURES, requireFromService, tmpDir, minimalSpec, writeSpec };
+module.exports = { ERROR_RESPONSE, REPO_ROOT, REQUIRE_FROM, FIXTURES, requireFromService, tmpDir, minimalSpec, writeSpec };

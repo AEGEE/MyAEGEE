@@ -223,6 +223,17 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, a
         fs.appendFileSync(file, `${method.toUpperCase()} ${template} ${status}\n`);
     }
 
+    // A request body sent as text that does not parse as JSON (the invalid-JSON tests).
+    function isInvalidJsonText(sent) {
+        if (typeof sent !== 'string') return false;
+        try {
+            JSON.parse(sent);
+            return false;
+        } catch (err) {
+            return true;
+        }
+    }
+
     // Called by test/scripts/helpers.js after every request. Throws on a violation.
     function check({ method = 'GET', path: urlPath, requestBody, statusCode, headers = {}, body }) {
         const upper = method.toUpperCase();
@@ -259,9 +270,11 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, a
         // Statuses are listed one by one: the spec lint refuses 4XX ranges and default.
         const key = String(statusCode);
         // Implicit responses, never listed per operation: 500 (unhandled error) everywhere,
-        // and 400 (body is not valid JSON) on operations that take a JSON body. They are
-        // not recorded as hits: there is nothing documented to exercise.
-        if (!responses[key] && (statusCode === 500 || (statusCode === 400 && operation.requestBody))) {
+        // and 400 on operations that take a JSON body, but only when the test really sent
+        // a body that is not valid JSON. Every other 400 is the route's own and is listed.
+        // Implicit responses are not recorded as hits: there is nothing documented to exercise.
+        const implicit400 = statusCode === 400 && operation.requestBody && isInvalidJsonText(requestBody);
+        if (!responses[key] && (statusCode === 500 || implicit400)) {
             const validate = compile('/components/schemas/ErrorResponse');
             const { json, error } = parseJson(body);
             if (error || !validate(json)) {

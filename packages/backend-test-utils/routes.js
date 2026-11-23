@@ -63,6 +63,10 @@ function isRouter(handler) {
 
 function collect(router, prefix, out) {
     for (const { routePath, route } of router.recordedRoutes || []) {
+        if (typeof routePath !== 'string') {
+            throw new Error(`A route under ${prefix || '/'} is registered with ${Array.isArray(routePath) ? 'an array of paths' : 'a regular expression'} `
+                + `(${String(routePath)}): routes.js cannot list it; register each path as a string`);
+        }
         for (const [method, enabled] of Object.entries(route.methods)) {
             // route.all() sets _all; app.all() enables every method Node knows (acl, bind, ...).
             if (method === '_all' || !KNOWN_METHODS.has(method)) {
