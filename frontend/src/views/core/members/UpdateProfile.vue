@@ -105,7 +105,7 @@
       <div class="field" v-if="validationErrors.bodies">
         <label class="label" for="profile-body">
           Body <span class="has-text-danger">*</span>
-          <tooltip text="You can change your notification email in your profile" />
+          <tooltip text="Choose the local you want to join. Its board accepts you as a member." />
         </label>
         <div class="field has-addons">
           <div class="control is-expanded">
