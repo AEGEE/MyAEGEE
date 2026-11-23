@@ -67,6 +67,81 @@ describe('Users list', () => {
         expect(res.body.data[0].id).toEqual(user.id);
     });
 
+    test('should refuse ids other than the own one without permission', async () => {
+        const user = await generator.createUser();
+        const secondUser = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members_email?query=' + user.id + ',' + secondUser.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should refuse ids other than the own one without permission, whatever the order', async () => {
+        const user = await generator.createUser();
+        const secondUser = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members_email?query=' + secondUser.id + ',' + user.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should find own by id without permission if the id is repeated', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members_email?query=' + user.id + ',' + user.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(user.id);
+    });
+
+    test('should find own and other ids with the permission', async () => {
+        const user = await generator.createUser();
+        const secondUser = await generator.createUser();
+        const thirdUser = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const permission = await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
+        const circle = await generator.createCircle();
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            path: '/members_email?query=' + [secondUser.id, user.id, thirdUser.id].join(','),
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.map((row) => row.id).sort()).toEqual([user.id, secondUser.id, thirdUser.id].sort());
+    });
+
     test('should find one by id', async () => {
         const user = await generator.createUser({ superadmin: true });
         const secondUser = await generator.createUser();
