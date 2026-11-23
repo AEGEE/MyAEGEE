@@ -837,10 +837,14 @@ export default {
       this.dates.booklet_publication_deadline = this.event.booklet_publication_deadline = new Date(this.event.booklet_publication_deadline)
       this.dates.updated_booklet_publication_deadline = this.event.updated_booklet_publication_deadline = new Date(this.event.updated_booklet_publication_deadline)
 
-      return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
-    }).then((response) => {
-      this.$set(this.event, 'body', response.data.data)
-
+      // An event whose body can't be loaded can still be edited.
+      return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id).then((response) => {
+        this.$set(this.event, 'body', response.data.data)
+      }, (err) => {
+        this.$set(this.event, 'body', { id: this.event.body_id, name: 'Unknown body' })
+        this.$root.showError('Could not fetch the organising body', err)
+      })
+    }).then(() => {
       if (this.map.actions) {
         this.centerMap()
       }
