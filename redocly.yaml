@@ -20,6 +20,10 @@ apis:
     root: ./network/openapi.yaml
     x-openapi-ts:
       output: ./packages/api-types/network.ts
+  events:
+    root: ./events/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/api-types/events.ts
 extends:
   - recommended
 rules:

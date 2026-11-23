@@ -167,7 +167,8 @@ describe('API requests', () => {
         const res = await request({
             path: '/nonexistant',
             method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            headers: { 'X-Auth-Token': 'blablabla' },
+            skipOpenApi: 'tests the handler for unknown routes'
         });
 
         expect(res.statusCode).toEqual(404);

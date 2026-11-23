@@ -176,13 +176,11 @@ describe('Events creation', () => {
                 max_participants: 22,
                 questions: [
                     {
-                        name: 'What is the greatest local',
                         description: 'Really',
                         type: 'string',
                         required: false
                     },
                     {
-                        name: 'What is the meaning of life',
                         description: '42?',
                         type: 'string',
                         required: false
