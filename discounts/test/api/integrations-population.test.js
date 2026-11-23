@@ -95,4 +95,27 @@ describe('Integrations codes population', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+    test.each([
+        ['an empty string', ['first', '']],
+        ['only spaces', ['first', '   ']],
+        ['a number', ['first', 123]],
+        ['an object', ['first', {}]],
+        ['null', ['first', null]],
+        ['an array', ['first', ['second']]]
+    ])('should fail with 422 and store no codes if a code is %s', async (_, body) => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id + '/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Every code should be a non-empty string.');
+
+        const codesFromDb = await Code.count({ where: { integration_id: integration.id } });
+        expect(codesFromDb).toEqual(0);
+    });
 });
