@@ -81,9 +81,12 @@ exports.createBoard = async (req, res) => {
         logger.error({ err, board_id: createdBoard.id }, 'Could not send new board email');
     }
 
+    // The welcome mail may have marked the board.
+    await createdBoard.reload();
+
     return res.json({
         success: true,
-        data: boardData
+        data: createdBoard
     });
 };
 
