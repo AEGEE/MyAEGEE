@@ -133,9 +133,18 @@ export default {
       this.axios.get(this.services['network'] + '/bodies/' + this.$route.params.id + '/boards?sort=start_date&direction=desc').then((response) => {
         this.boards = response.data.data
 
+        // A body without boards gets an empty list: no members to match.
+        if (this.boards.length === 0) {
+          return null
+        }
+
         // Get members of the body
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/members')
       }).then((memberResponse) => {
+        if (!memberResponse) {
+          return
+        }
+
         const members = memberResponse.data.data
         const users = []
         for (const member of members) {
@@ -153,9 +162,6 @@ export default {
           }
         }
       }).catch((err) => {
-        if (err.response && err.response.status === 404) {
-          return
-        }
         this.$root.showError('Could not fetch boards', err)
       })
     }
