@@ -209,7 +209,7 @@
                 <tr>
                   <th scope="row">Notification email</th>
                   <td>
-                    <a :href="'mailto:' + user.email">{{ user.notification_email }}</a>
+                    <a :href="'mailto:' + user.notification_email">{{ user.notification_email }}</a>
                   </td>
                 </tr>
                 <tr>
