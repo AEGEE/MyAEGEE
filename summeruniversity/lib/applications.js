@@ -334,6 +334,27 @@ exports.setApplicationAttended = async (req, res) => {
     });
 };
 
+const NO_SPOTS_LEFT = 'There are no spots left: the event already has max_participants accepted participants.';
+
+// Whether the accepted, not cancelled applications other than this one fill max_participants.
+// Without max_participants there is no limit.
+const isFull = async (req) => {
+    if (req.event.max_participants === null) {
+        return false;
+    }
+
+    const acceptedOthers = await Application.count({ where: {
+        event_id: req.event.id,
+        status: 'accepted',
+        cancelled: false,
+        id: { [Sequelize.Op.ne]: req.application.id }
+    } });
+    return acceptedOthers >= req.event.max_participants;
+};
+
+// Managers of the Summer University's type are not limited by max_participants.
+const mayExceedLimit = (req) => Boolean(req.permissions.manage_summeruniversity[req.event.type]);
+
 exports.setApplicationCancelled = async (req, res) => {
     if (!req.permissions.set_participants_cancelled && !req.permissions.set_application_cancelled) {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
@@ -350,6 +371,12 @@ exports.setApplicationCancelled = async (req, res) => {
         && !req.permissions.set_participants_cancelled;
     if (isOwnUncancel && isApplicationBanActive(req.user)) {
         return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
+    }
+
+    // An accepted application that comes back from cancelled takes a spot again.
+    const takesSpotBack = req.body.cancelled === false && req.application.cancelled && req.application.status === 'accepted';
+    if (takesSpotBack && !mayExceedLimit(req) && await isFull(req)) {
+        return helpers.makeFieldError(res, 'cancelled', NO_SPOTS_LEFT);
     }
 
     const dbResult = await req.application.update(
@@ -380,19 +407,11 @@ exports.setApplicationStatus = async (req, res) => {
         return helpers.makeFieldError(res, 'status', `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
-    // Accepting needs a free spot when the event has a maximum. Cancelled applications and
-    // the application itself (if it is already accepted) do not count.
-    if (req.body.status === 'accepted' && req.event.max_participants !== null) {
-        const acceptedOthers = await Application.count({ where: {
-            event_id: req.event.id,
-            status: 'accepted',
-            cancelled: false,
-            id: { [Sequelize.Op.ne]: req.application.id }
-        } });
-
-        if (acceptedOthers >= req.event.max_participants) {
-            return helpers.makeFieldError(res, 'status', 'There are no spots left: the event already has max_participants accepted participants.');
-        }
+    // Accepting needs a free spot. A cancelled application does not count, so accepting it
+    // takes none.
+    const takesSpot = req.body.status === 'accepted' && !req.application.cancelled;
+    if (takesSpot && !mayExceedLimit(req) && await isFull(req)) {
+        return helpers.makeFieldError(res, 'status', NO_SPOTS_LEFT);
     }
 
     await sequelize.transaction(async (t) => {
