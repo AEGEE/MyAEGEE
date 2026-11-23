@@ -9,19 +9,19 @@
         </div>
 
         <div class="field">
-          <label class="label">Title <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-name">Title <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" required v-model="event.name" />
+            <input id="statutory-event-name" class="input" type="text" required v-model="event.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-description">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
+            <textarea id="statutory-event-description" class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)" />
           </div>
@@ -29,14 +29,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Event URL <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-url">Event URL <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">/statutory/</a>
               </div>
               <div class="control">
-                <input class="input" type="text" v-model="event.url" />
+                <input id="statutory-event-url" class="input" type="text" v-model="event.url" />
               </div>
             </div>
           </div>
@@ -44,10 +44,10 @@
         </div>
 
         <div class="field" v-if="!$route.params.id">
-          <label class="label">Event type <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-type">Event type <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="select">
-              <select v-model="event.type">
+              <select id="statutory-event-type" v-model="event.type">
                 <option value="agora">Agora</option>
                 <option value="epm">EPM</option>
                 <option value="spm">SPM</option>
@@ -62,10 +62,12 @@
         </div>
 
         <div class="field" v-if="!$route.params.id">
-          <label class="label">Is the event going to be fully vegetarian?</label>
+          <p class="label">Is the event going to be fully vegetarian?</p>
           <div class="control">
-            <input type="checkbox" v-model="event.vegetarian" />
-            <label class="checkbox"> Yes, the event will be without any meat</label>
+            <label class="checkbox">
+              <input type="checkbox" v-model="event.vegetarian" />
+              Yes, the event will be without any meat
+            </label>
           </div>
         </div>
 
@@ -74,9 +76,9 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to KMS page <URLTooltip /></label>
+          <label class="label" for="statutory-event-booklet-folder">Link to KMS page <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.booklet_folder" />
+            <input id="statutory-event-booklet-folder" class="input" type="url" v-model="event.booklet_folder" />
           </div>
           <p class="help is-danger" v-if="errors.booklet_folder">{{ errors.booklet_folder.join(', ') }}</p>
         </div>
@@ -84,12 +86,13 @@
         <timezone-notification />
 
         <div class="field">
-          <label class="label">Event start date <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-starts">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-starts"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.starts" />
           </div>
@@ -97,11 +100,13 @@
         </div>
 
         <div class="field">
-          <label class="label">Event end date <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-ends">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-ends"
               placeholder="Select date"
               class="input"
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.ends" />
           </div>
@@ -109,12 +114,13 @@
         </div>
 
         <div class="field">
-          <label class="label">Application period starts <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-application-period-starts">Application period starts <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-application-period-starts"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.application_period_starts" />
           </div>
@@ -122,12 +128,13 @@
         </div>
 
         <div class="field">
-          <label class="label">Application period ends <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-application-period-ends">Application period ends <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-application-period-ends"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.application_period_ends" />
           </div>
@@ -135,12 +142,13 @@
         </div>
 
         <div class="field">
-          <label class="label">Board approve deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-board-approve-deadline">Board approve deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-board-approve-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.board_approve_deadline" />
           </div>
@@ -148,12 +156,13 @@
         </div>
 
         <div class="field">
-          <label class="label">Participants list publish deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-participants-list-publish-deadline">Participants list publish deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-participants-list-publish-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.participants_list_publish_deadline" />
           </div>
@@ -162,12 +171,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Members list submission deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-memberslist-submission-deadline">Members list submission deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-memberslist-submission-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.memberslist_submission_deadline" />
           </div>
@@ -175,12 +185,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Draft proposals deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-draft-proposal-deadline">Draft proposals deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-draft-proposal-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.draft_proposal_deadline" />
           </div>
@@ -188,12 +199,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Final proposals deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-final-proposal-deadline">Final proposals deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-final-proposal-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.final_proposal_deadline" />
           </div>
@@ -201,12 +213,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Candidatures deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-candidature-deadline">Candidatures deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-candidature-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.candidature_deadline" />
           </div>
@@ -214,12 +227,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Documents publication deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-booklet-publication-deadline">Documents publication deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-booklet-publication-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.booklet_publication_deadline" />
           </div>
@@ -227,12 +241,13 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Updated documents publication deadline <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-updated-booklet-publication-deadline">Updated documents publication deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="statutory-event-updated-booklet-publication-deadline"
               placeholder="Select date"
               class="input"
-              required
+              aria-required="true"
               :config="dateConfig"
               v-model="dates.updated_booklet_publication_deadline" />
           </div>
@@ -241,10 +256,11 @@
 
         <div class="tile is-child">
           <div class="field">
-            <label class="label">Organising body <span class="has-text-danger">*</span></label>
+            <label class="label" for="statutory-event-body">Organising body <span class="has-text-danger">*</span></label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
+                  id="statutory-event-body"
                   v-model="autoComplete.bodies.name"
                   :data="autoComplete.bodies.values"
                   open-on-focus="true"
@@ -262,10 +278,11 @@
                   </template>
                 </b-autocomplete>
                 <p class="control">
-                  <a
+                  <button
+                    type="button"
                     class="button is-danger"
                     @click="body => { $set(event, 'body_id', null); $delete(event, 'body') }"
-                    v-if="event.body">{{ event.body.name }} (Click to unset)</a>
+                    v-if="event.body">{{ event.body.name }} (Click to unset)</button>
                   <a class="button is-static" v-if="!event.body">Not set.</a>
                 </p>
               </div>
@@ -275,14 +292,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Fee <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-event-fee">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model.number="event.fee" required min="0" />
+                <input id="statutory-event-fee" class="input" type="number" v-model.number="event.fee" required min="0" />
               </div>
             </div>
           </div>
@@ -291,7 +308,7 @@
 
         <hr />
 
-        <div class="subtitle is-fullwidth has-text-centered">Questions <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Questions <span class="has-text-danger">*</span></h2>
 
         <table class="table is-fullwidth is-narrowed">
           <thead>
@@ -306,11 +323,11 @@
           <tbody>
             <tr v-for="(question, index) in event.questions" v-bind:key="index">
               <td>
-                <input class="input" type="text" required v-model="event.questions[index].description" />
+                <input class="input" type="text" required v-model="event.questions[index].description" :aria-label="'Question ' + (index + 1) + ' description'" />
               </td>
               <td>
                 <div class="select">
-                  <select v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
+                  <select v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)" :aria-label="'Question ' + (index + 1) + ' type'">
                     <option value="string">String</option>
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -320,20 +337,21 @@
                 </div>
               </td>
               <td>
-                <input type="checkbox" v-model="event.questions[index].required" />
+                <input type="checkbox" v-model="event.questions[index].required" :aria-label="'Question ' + (index + 1) + ' required'" />
               </td>
               <td>
                 <input-tag
                   v-if="event.questions[index].type === 'select'"
                   v-model="event.questions[index].values"
+                  :placeholder="'Question ' + (index + 1) + ' values'"
                   :before-adding="value => value.trim()" />
               </td>
               <td>
-                <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
+                <button type="button" class="button is-danger" @click="deleteQuestion(index)" :aria-label="'Delete question ' + (index + 1)">Delete question</button>
               </td>
             </tr>
-            <tr colspan="5" v-if="event.questions.length === 0">
-              <td>No questions are set.</td>
+            <tr v-if="event.questions.length === 0">
+              <td colspan="5">No questions are set.</td>
             </tr>
           </tbody>
         </table>
@@ -349,13 +367,13 @@
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addQuestion()">Add new question</a>
+            <button type="button" class="button is-primary" @click="addQuestion()">Add new question</button>
           </div>
         </div>
 
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
-        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Locations</h2>
         <hr />
 
         <div class="notification is-info">
@@ -398,21 +416,21 @@
               <td>{{ marker.position.lat }}</td>
               <td>{{ marker.position.lng }}</td>
               <td>
-                <input type="text" class="input" required v-model="marker.name" />
+                <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
               </td>
               <td>
-                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
+                <button class="button is-danger" @click="deleteLocation(index)" :aria-label="'Delete location ' + (index + 1)">Delete location</button>
               </td>
             </tr>
-            <tr colspan="4" v-if="event.locations.length === 0">
-              <td>No locations added.</td>
+            <tr v-if="event.locations.length === 0">
+              <td colspan="4">No locations added.</td>
             </tr>
           </tbody>
         </table>
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addLocation()">Add new location</a>
+            <button type="button" class="button is-primary" @click="addLocation()">Add new location</button>
           </div>
         </div>
 
@@ -505,7 +523,10 @@ export default {
       },
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        // Typed dates are accepted, and phones get the same picker.
+        allowInput: true,
+        disableMobile: true
       },
       can: {
         edit_application_status: false
