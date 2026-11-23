@@ -2,29 +2,63 @@
 // This checks the builders for core (factories/core.ts) and the shared envelopes
 // (factories/base.ts) against what core really answers: every field a factory builds has to
 // exist in the real response with the same type, so the mocks can't drift away from the API
-// unnoticed. The real responses may have more fields. Where a field can be null, the test
-// fills it on both sides, as null isn't compared.
+// unnoticed. The real responses may have more fields.
+// A field that is null or an empty list on one side can't be compared. The tests therefore
+// fill every such field on both sides (`fillAntenna`, overrides of the factories); a field
+// that stays uncompared fails its test unless it is listed in `gaps` with the reason.
 import type { Envelope } from '../support/api.ts';
 import { test, expect, expectStatus } from '../support/api.ts';
 import { expectShape } from '../support/contract.ts';
-import { asAdmin, createCampaign, createCircle } from '../support/core-data.ts';
+import { asAdmin, createCampaign, createCircle, fillAntenna } from '../support/core-data.ts';
 import { badRequest, forbidden, notFound, okList, validationError } from '../ui/support/factories/base.ts';
 import { body, bodyMembership, circle, member, memberSearchResult, payment, permission, publicCampaign } from '../ui/support/factories/core.ts';
 
 type Row = Record<string, unknown>;
 
 test.describe('core factories match the real API', () => {
-    test('the logged-in member, their permissions and their body', async ({ api }) => {
-        const me = await api.call<Envelope<unknown>>('member', 'GET', '/api/core/members/me');
-        // The factory adds a primary body; the seeded member has none, so it's null there.
-        expectShape('member', member({ event_application_ban: null }), me.body.data);
+    test('the logged-in member, their permissions and their body', async ({ api, otherAntenna }) => {
+        const seeded = (await api.me('member')).bodies[0];
+        await fillAntenna(api, otherAntenna, { otherBodyId: seeded.id });
+        const { username } = otherAntenna.member;
 
-        const permissions = await api.call<Envelope<unknown[]>>('member', 'GET', '/api/core/my_permissions');
-        expectShape('permission', [permission('global:create:event')], permissions.body.data);
+        // Every optional field of a body filled, as null isn't compared.
+        const filledBody = body({
+            task_description: 'x', abbreviation: 'x', phone: 'x', fee_currency: 'EUR', country: 'x', website: 'https://www.example.org', shadow_circle_id: 1
+        });
+        const me = await api.call<Envelope<unknown>>(username, 'GET', '/api/core/members/me');
+        expectStatus(me, 200);
+        expectShape('member', member({
+            about_me: 'x',
+            image: 'picture.png',
+            bodies: [filledBody],
+            circles: [circle({ body_id: 1 })],
+            // A join request has no factory yet: the fields the profile pages read.
+            join_requests: [{ id: 1, user_id: 1, body_id: 1, status: 'pending', motivation: 'x' }],
+            // Members see until when they are banned, not why.
+            event_application_ban: { ban_until: '2027-06-01T10:00:00.000Z' }
+        }), me.body.data, {
+            gaps: {
+                '$.circles[0].gsuite_id': 'the circle of an antenna\'s members has no mailing list; circle() is compared with one in the next test',
+                '$.circles[0].parent_circle_id': 'a member\'s own circles come without their parent; circle() is compared with one in the next test'
+            }
+        });
 
-        const ownBody = (await api.me('member')).bodies[0];
-        const real = await api.call<Envelope<unknown>>('member', 'GET', `/api/core/bodies/${ownBody.id}`);
-        expectShape('body', body(), real.body.data);
+        // What a board member may do in their body: among it a permission that limits the
+        // fields it gives (`filters`), so that list has an element to compare.
+        const permissions = await api.call<Envelope<{ combined: string }[]>>('board', 'GET', `/api/core/bodies/${seeded.id}/my_permissions`);
+        expectStatus(permissions, 200);
+        const filtered = permissions.body.data.find((item) => item.combined === 'local:update:body');
+        expectShape('permission', { ...permission('local:update:body'), filters: ['description'] }, filtered);
+        // The global ones, as the fixture `myPermissions` gives them.
+        const global = await api.call<Envelope<unknown[]>>('member', 'GET', '/api/core/my_permissions');
+        expectStatus(global, 200);
+        expectShape('permission', [{ ...permission('global:create:event'), filters: ['description'] }], global.body.data, {
+            gaps: { '$[0].filters[0]': 'no global permission of the seed limits its fields; the local one above does' }
+        });
+
+        const real = await api.call<Envelope<unknown>>(username, 'GET', `/api/core/bodies/${otherAntenna.body.id}`);
+        expectStatus(real, 200);
+        expectShape('body', filledBody, real.body.data);
     });
 
     test('circles, in the list and as the holders of a local permission', async ({ api, otherAntenna }) => {
@@ -66,26 +100,37 @@ test.describe('core factories match the real API', () => {
         const full = await api.call<Envelope<Row[]>>('admin', 'GET', '/api/core/members_search?query=member');
         expectStatus(full, 200);
         expect(full.body.data.length).toBeGreaterThan(0);
-        expectShape('memberSearchResult', memberSearchResult({ username: 'member', email: 'member@example.com', gsuite_id: null }), full.body.data[0]);
+        expectShape('memberSearchResult', memberSearchResult({ username: 'member', email: 'member@example.com', gsuite_id: null }), full.body.data[0], {
+            gaps: { '$.gsuite_id': 'the seeded member has no Workspace address; the next comparison has one' }
+        });
+    });
+
+    test('a member search result with a Workspace address', async ({ api, otherAntenna }) => {
+        const { member: antennaMember } = otherAntenna;
+        await asAdmin(api, 'PUT', `/members/${antennaMember.id}`, { gsuite_id: `${antennaMember.username}@aegee.eu` });
+
+        const found = await api.call<Envelope<Row[]>>('admin', 'GET', `/api/core/members_search?query=${antennaMember.username}`);
+        expectStatus(found, 200);
+        expect(found.body.data).toHaveLength(1);
+        expectShape('memberSearchResult', memberSearchResult({ username: 'x', email: 'x@example.com', gsuite_id: 'x@aegee.eu' }), found.body.data[0]);
     });
 
     test('a body\'s memberships and payments', async ({ api, otherAntenna }) => {
         const { body: antenna, member: antennaMember } = otherAntenna;
         const membersPath = `/bodies/${antenna.id}/members`;
 
-        await asAdmin(api, 'PUT', `/members/${antennaMember.id}`, {
-            date_of_birth: '1999-05-01',
-            gender: 'neutral',
-            phone: '+32 2 123 45 67',
-            address: 'Somewhere in Europe',
-            about_me: 'Member of an antenna made for a test'
-        });
+        await fillAntenna(api, otherAntenna, { otherBodyId: (await api.me('member')).bodies[0].id });
         const [membership] = await asAdmin<{ id: number }[]>(api, 'GET', membersPath);
         await asAdmin(api, 'PUT', `${membersPath}/${membership.id}`, { comment: 'Joined at the fair' });
 
         const memberships = await asAdmin<Row[]>(api, 'GET', membersPath);
         expect(memberships).toHaveLength(1);
-        expectShape('bodyMembership', bodyMembership({ comment: 'Joined at the fair' }), memberships[0]);
+        // The user of a membership with every optional field filled.
+        const { user } = bodyMembership();
+        expectShape('bodyMembership', bodyMembership({
+            comment: 'Joined at the fair',
+            user: { ...user, about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 }
+        }), memberships[0]);
 
         const filled = payment({ comment: 'Paid in cash', invoice_name: 'A. Member', invoice_address: 'Somewhere in Europe' });
         const created = await asAdmin<Row>(api, 'POST', `/bodies/${antenna.id}/payments`, {

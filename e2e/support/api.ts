@@ -1,6 +1,7 @@
 // Helpers for talking to the e2e stack through the gateway, the same way the frontend does.
 import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 
+import { contractProblems, startContractCheck } from './contract.ts';
 import { createAntenna, type TestAntenna } from './core-data.ts';
 import { coverageFixtures, type CoverageFixtures, type CoverageWorkerFixtures } from './coverage.ts';
 import { PASSWORD, url, type Username } from './constants.ts';
@@ -332,7 +333,7 @@ const knownBugErrors = new Map<string, RegExp>();
 
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
-export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void } & CoverageFixtures, CoverageWorkerFixtures>({
+export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void; contractCheck: void } & CoverageFixtures, CoverageWorkerFixtures>({
     // Frontend coverage of the tests that open a browser, and the routes they visit
     // (only with E2E_COVERAGE=1, see support/coverage.ts).
     ...coverageFixtures('real'),
@@ -352,6 +353,16 @@ export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugG
         await use(antenna);
         await cleanup();
     },
+    // A test that compares factories with real answers (support/contract.ts) has to compare
+    // every field of them, or say why it can't: a field that was null or an empty list on one
+    // side in every comparison of the test fails it here.
+    contractCheck: [async ({}, use, testInfo) => { // eslint-disable-line no-empty-pattern
+        startContractCheck();
+        await use();
+        if (testInfo.status === testInfo.expectedStatus) {
+            expect(contractProblems(), 'fields of the factories that this test left unchecked').toEqual([]);
+        }
+    }, { auto: true }],
     // Reports a known-bug test as a real failure when it fails with a different error
     // than the documented one. Every error of the test has to match, so a soft
     // assertion failing for another reason isn't hidden either.

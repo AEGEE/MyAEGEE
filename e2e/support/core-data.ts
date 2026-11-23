@@ -129,6 +129,53 @@ export async function createAntenna(api: Api): Promise<[TestAntenna, Cleanup]> {
     }
 }
 
+// A picture small enough to write here and real enough for the services, which look at the
+// content of an upload and not only at its name: a PNG of one pixel.
+export const ONE_PIXEL_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+
+// Uploads a picture the way the frontend does (multipart, field `head_image`) to a service's
+// upload endpoint: `/api/core/members/<id>/upload`, `/api/events/single/<id>/upload`.
+export async function uploadPicture(api: Api, username: Username, path: string): Promise<void> {
+    const { access } = await api.login(username);
+    const res = await api.request.post(path, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Auth-Token': access },
+        multipart: { head_image: { name: 'picture.png', mimeType: 'image/png', buffer: ONE_PIXEL_PNG } }
+    });
+    expect(res.status(), `upload to ${path}: ${await res.text()}`).toBe(200);
+}
+
+// Gives the antenna of `createAntenna` and its member a value for every field that is empty
+// after signing up, so a contract check has something to compare: the optional details of the
+// body and of the member, a picture, a primary body, a Workspace address, a pending request to
+// join `otherBodyId` and a ban on applying to events. Everything goes with the antenna and its
+// member when their cleanup runs.
+export async function fillAntenna(api: Api, { body, member }: TestAntenna, { otherBodyId }: { otherBodyId: number }): Promise<void> {
+    await asAdmin(api, 'PUT', `/bodies/${body.id}`, {
+        task_description: 'Organises the test events',
+        abbreviation: `E2E-${body.id}`,
+        fee_currency: 'EUR',
+        country: 'Belgium',
+        website: 'https://www.example.org'
+    });
+    await asAdmin(api, 'PUT', `/members/${member.id}`, {
+        date_of_birth: '1999-05-01',
+        gender: 'neutral',
+        phone: '+32 2 123 45 67',
+        address: 'Somewhere in Europe',
+        about_me: 'Member of an antenna made for a test',
+        gsuite_id: `${member.username}@aegee.eu`
+    });
+    await uploadPicture(api, 'admin', `/api/core/members/${member.id}/upload`);
+    await asAdmin(api, 'PUT', `/members/${member.id}/primary-body`, { primary_body_id: body.id });
+    await asAdmin(api, 'PUT', `/members/${member.id}/event-application-ban`, {
+        ban_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        reason: 'Did not show up at an event'
+    });
+
+    const request = await api.call(member.username, 'POST', `/api/core/bodies/${otherBodyId}/join-requests`, { motivation: 'To compare a join request' });
+    expect(request.status, `join request of ${member.username}: ${JSON.stringify(request.body)}`).toBe(200);
+}
+
 // Creates a circle without members or permissions: a free one, or one bound to a body when
 // `bodyId` is given (only members of that body can join it).
 export async function createCircle(api: Api, { bodyId }: { bodyId?: number } = {}): Promise<[Circle, Cleanup]> {
