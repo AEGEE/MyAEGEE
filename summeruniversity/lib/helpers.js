@@ -51,8 +51,7 @@ exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
         where: {},
-        order: [['starts', 'ASC']],
-        select: constants.EVENT_PUBLIC_FIELDS
+        order: [['starts', 'ASC']]
     };
 
     // If search is set, searching for event by name or description case-insensitive.
@@ -261,9 +260,6 @@ function hasPermission(permissionsList, permission) {
     const combined = 'global:' + permission;
     return permissionsList.some((held) => held.combined === combined);
 }
-
-// A helpers to determine if the user is member of a body.
-exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includes(bodyId);
 
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions
