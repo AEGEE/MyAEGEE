@@ -718,7 +718,7 @@ exports.subscribeListserv = async (req, res) => {
         return errors.makeValidationError(res, 'Mailinglists must not be empty.');
     }
 
-    const mailinglists = req.body.mailinglists.map((list) => list.toUpperCase());
+    const mailinglists = req.body.mailinglists.map((list) => helpers.stringOrEmpty(list).toUpperCase());
 
     if (mailinglists.some((list) => !constants.LISTSERV_LISTS.includes(list))) {
         return errors.makeValidationError(res, `Mailinglists must be one of the following: ${constants.LISTSERV_LISTS.join(', ')}.`);
