@@ -34,7 +34,7 @@ exports.listAllUsers = async (req, res) => {
     const result = await User.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({
@@ -128,7 +128,7 @@ exports.searchAllUsers = async (req, res) => {
 
     // Only sort by returned fields: sorting by anything else (like email) would leak its order.
     const fields = canViewMembers ? constants.MEMBERS_SEARCH.FIELDS_WITH_VIEW_MEMBER : constants.MEMBERS_SEARCH.FIELDS;
-    const order = helpers.getSorting(req.query);
+    const order = helpers.getSorting(req.query, User);
     if (!fields.includes(order[0][0])) {
         order[0][0] = 'id';
     }
@@ -172,7 +172,7 @@ exports.listAllUnconfirmedUsers = async (req, res) => {
             mail_confirmed_at: null
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({

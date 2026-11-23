@@ -38,7 +38,7 @@ exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Body)
     });
 
     return res.json({

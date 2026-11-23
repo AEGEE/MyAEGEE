@@ -14,7 +14,7 @@ exports.listCircleMembers = async (req, res) => {
             circle_id: req.currentCircle.id
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, CircleMembership),
         include: [User]
     });
 

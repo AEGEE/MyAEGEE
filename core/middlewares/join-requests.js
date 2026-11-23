@@ -19,7 +19,7 @@ exports.listAllJoinRequests = async (req, res) => {
             body_id: req.currentBody.id,
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, JoinRequest),
         include: [User]
     });
 

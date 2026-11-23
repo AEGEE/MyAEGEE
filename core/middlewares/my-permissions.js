@@ -42,7 +42,7 @@ exports.getMyCirclesWithPermission = async (req, res) => {
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE)
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, Circle),
         include: [CircleMembership]
     });
 

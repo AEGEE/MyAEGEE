@@ -1,3 +1,13 @@
+// For input that can't be processed. The error handler answers 400 with the message.
+class BadRequestError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'BadRequestError';
+    }
+}
+
+exports.BadRequestError = BadRequestError;
+
 exports.makeError = (res, statusCode, err) => {
     // 4 cases:
     // 1) 'err' is a string

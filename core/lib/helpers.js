@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { sequelize, Sequelize } = require('./sequelize');
 const constants = require('./constants');
+const { BadRequestError } = require('./errors');
 
 // A helper to traverse indirect circles (so if a person is a member
 // of a circle which is a child circle, it should return both of the circles.)
@@ -58,10 +59,26 @@ function getPagination(query) {
     return result;
 }
 
-function getSorting(query) {
+// The fields a list of this model can be sorted by: the columns that its rows have.
+// That leaves out what the model never returns (the password of a member), so the order
+// of a list tells nothing about it, and what is computed and not stored.
+function getSortableFields(model) {
+    const { defaultScope } = model.options;
+    const hidden = (defaultScope && defaultScope.attributes && defaultScope.attributes.exclude) || [];
+
+    return Object.keys(model.rawAttributes).filter((field) => {
+        return !hidden.includes(field) && !(model.rawAttributes[field].type instanceof Sequelize.VIRTUAL);
+    });
+}
+
+function getSorting(query, model) {
     const result = [['id', 'ASC']];
 
     if (typeof query.sort === 'string') {
+        if (!getSortableFields(model).includes(query.sort)) {
+            throw new BadRequestError('The list cannot be sorted by this field.');
+        }
+
         result[0][0] = query.sort;
     }
 

@@ -69,7 +69,7 @@ exports.listAllCampaigns = async (req, res) => {
     const result = await Campaign.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CAMPAIGN),
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Campaign)
     });
 
     return res.json({
@@ -141,7 +141,7 @@ exports.listCampaignMembers = async (req, res) => {
             campaign_id: req.currentCampaign.id
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({

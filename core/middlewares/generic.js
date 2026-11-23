@@ -97,6 +97,11 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // Handling input that a helper refused (like a field that a list can't be sorted by)
+    if (err instanceof errors.BadRequestError) {
+        return errors.makeBadRequestError(res, err.message);
+    }
+
     // Handling validation errors
     /* istanbul ignore else */
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {

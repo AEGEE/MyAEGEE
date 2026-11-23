@@ -11,7 +11,7 @@ exports.listAllPayments = async (req, res) => {
     const result = await Payment.findAndCountAll({
         where: { body_id: req.currentBody.id },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Payment)
     });
 
     return res.json({

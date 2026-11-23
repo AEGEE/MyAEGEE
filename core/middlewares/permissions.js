@@ -8,7 +8,7 @@ exports.listAllPermissions = async (req, res) => {
     const result = await Permission.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.PERMISSION),
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Permission)
     });
 
     return res.json({
@@ -85,7 +85,7 @@ exports.getPermissionMembers = async (req, res) => {
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER)
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, User),
         include: [
             CircleMembership,
             { model: Circle, as: 'circles' }

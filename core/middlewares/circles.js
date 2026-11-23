@@ -15,7 +15,7 @@ exports.listAllCircles = async (req, res) => {
     const result = await Circle.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Circle)
     });
 
     return res.json({

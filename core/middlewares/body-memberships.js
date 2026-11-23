@@ -33,7 +33,7 @@ exports.listAllMemberships = async (req, res) => {
             ),
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, BodyMembership),
         include: [User],
     });
 
@@ -88,7 +88,7 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
             ),
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, BodyMembership),
         include: [
             {
                 model: User,
