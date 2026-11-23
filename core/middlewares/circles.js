@@ -36,7 +36,9 @@ exports.getCirclePermissions = async (req, res) => {
     const indirectChildCircles = req.permissions.getIndirectParentCircles(req.currentCircle.id);
     const result = await Permission.findAndCountAll({
         where: { '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectChildCircles } },
-        include: [CirclePermission]
+        include: [CirclePermission],
+        // Counts the permissions, not the circles through which the circle has them.
+        distinct: true
     });
 
     return res.json({

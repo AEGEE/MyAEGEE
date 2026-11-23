@@ -35,15 +35,26 @@ exports.getMyCirclesWithPermission = async (req, res) => {
     const circles = await req.permissions.fetchPermissionCircles(permission);
     const circleIds = circles.map((circle) => circle.id);
 
+    // The member's own memberships in those circles are looked up first, so the list itself
+    // can be counted and cut into pages by circle.
+    const memberships = await CircleMembership.findAll({
+        where: { user_id: req.user.id, circle_id: { [Sequelize.Op.in]: circleIds } },
+        attributes: ['circle_id']
+    });
+
     const result = await Circle.findAndCountAll({
         where: {
-            '$circle_memberships.user_id$': req.user.id,
-            '$circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
+            id: { [Sequelize.Op.in]: memberships.map((membership) => membership.circle_id) },
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE)
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query, Circle),
-        include: [CircleMembership]
+        include: [{
+            model: CircleMembership,
+            where: { user_id: req.user.id },
+            required: false,
+            separate: true
+        }]
     });
 
     return res.json({

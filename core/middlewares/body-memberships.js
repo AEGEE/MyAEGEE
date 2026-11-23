@@ -74,14 +74,24 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
         return errors.makeNotFoundError(res, 'Permission is not found.');
     }
 
+    // The circles of this body that have the permission, directly or through a parent circle.
     const circles = await req.permissions.fetchPermissionCircles(permission);
-    const circleIds = circles.map((circle) => circle.id);
+    const circleIds = circles
+        .filter((circle) => circle.body_id === req.currentBody.id)
+        .map((circle) => circle.id);
+
+    // The members of those circles are looked up first, so the list itself can be counted and
+    // cut into pages by membership, and not by the rows of the tables that are joined to it.
+    const holders = await CircleMembership.findAll({
+        where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+        attributes: ['user_id'],
+    });
+    const holderIds = [...new Set(holders.map((membership) => membership.user_id))];
 
     const result = await BodyMembership.findAndCountAll({
         where: {
             body_id: req.currentBody.id,
-            '$user.circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
-            '$user.circle_memberships.circle.body_id$': req.currentBody.id,
+            user_id: { [Sequelize.Op.in]: holderIds },
             ...helpers.filterBy(
                 req.query.query,
                 constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP
@@ -93,8 +103,12 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
             {
                 model: User,
                 include: [
+                    // Only the memberships that give the permission.
                     {
                         model: CircleMembership,
+                        where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+                        required: false,
+                        separate: true,
                         include: [Circle],
                     },
                 ],

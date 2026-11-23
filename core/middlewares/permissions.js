@@ -67,27 +67,38 @@ exports.getPermissionMembers = async (req, res) => {
     }
 
     const permissionCircles = await req.permissions.fetchPermissionCircles(req.currentPermission);
+    const circleIds = permissionCircles.map((circle) => circle.id);
 
-    // oh boy.
-    // 2 cases: when a person is member of one of the circles
-    // that has this permission directly or indirectly,
-    // and superadmins.
+    // Two kinds of members have the permission: the members of a circle that has it,
+    // directly or through a parent circle, and the superadmins.
+    // The members are looked up first, so the list itself can be counted and cut into pages
+    // by member, and not by the rows of the tables that are joined to it.
+    const holders = await CircleMembership.findAll({
+        where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+        attributes: ['user_id']
+    });
+    const holderIds = [...new Set(holders.map((membership) => membership.user_id))];
+
     const result = await User.findAndCountAll({
         where: {
             [Sequelize.Op.or]: [
-                {
-                    '$circle_memberships.circle_id$': {
-                        [Sequelize.Op.in]: permissionCircles.map((circle) => circle.id)
-                    }
-                },
+                { id: { [Sequelize.Op.in]: holderIds } },
                 { superadmin: true }
             ],
-            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER)
+            // The circles have a `gsuite_id` too, so the fields are named with their table.
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER.map((field) => 'user.' + field))
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query, User),
+        distinct: true,
         include: [
-            CircleMembership,
+            // Only the memberships that give the permission.
+            {
+                model: CircleMembership,
+                where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+                required: false,
+                separate: true
+            },
             { model: Circle, as: 'circles' }
         ]
     });
