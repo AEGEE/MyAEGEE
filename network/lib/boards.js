@@ -82,6 +82,10 @@ exports.createBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
     }
 
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
     // Check the input before asking core about the body and the members.
     await Board.build(boardData).validate();
 
@@ -277,6 +281,10 @@ exports.getBoard = async (req, res) => {
 exports.updateBoard = async (req, res) => {
     if (!req.permissions.manage_boards[req.board.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
+    }
+
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
     }
 
     // The board as it would be stored is checked as a whole; then the members the edit

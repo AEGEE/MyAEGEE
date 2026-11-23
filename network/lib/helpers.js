@@ -58,6 +58,10 @@ exports.oneOf = (values, message) => function isOneOf(value) {
 // A JSON object, not a list.
 exports.isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
+// The body of a write request: a JSON object, or none (Express leaves req.body unset),
+// which reads as an empty one.
+exports.isBodyObject = (body) => body === undefined || exports.isObject(body);
+
 // A setter for a DATEONLY column. Without it, Sequelize turns any input into a date
 // through moment's lenient parse first ("1" becomes 2001-01-01). A date or timestamp is
 // stored as the day it is written with; anything else stays as sent, for the validator.

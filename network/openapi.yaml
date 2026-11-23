@@ -128,7 +128,7 @@ paths:
         know, or does not let the caller see, answers 422 on that field. Then stores the
         board and sends the "new board" mail to NetCom, and the welcome mail to the board
         if its term has started. Both mails are best effort: a failure is logged and the
-        board stays created.
+        board stays created. A body that is not an object answers 400.
       tags: [boards]
       x-permission: local manage_network:boards for the body in the URL, or global:manage_network:boards
       requestBody:
@@ -195,7 +195,9 @@ paths:
     put:
       operationId: updateBoard
       summary: Edit a board of a body
-      description: The body stays the one in the URL; `id` and `new_board_email_sent_at` in the request are ignored.
+      description: >-
+        The body stays the one in the URL; `id` and `new_board_email_sent_at` in the
+        request are ignored. A body that is not an object answers 400.
       tags: [boards]
       x-permission: local manage_network:boards for the body in the URL, or global:manage_network:boards
       requestBody:
@@ -280,7 +282,7 @@ paths:
         labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). `to`
         and `cc` also take several addresses, as a list or as one string separated by
         commas. The addresses and the subject are one line each; the subject is at most
-        255 characters.
+        255 characters. A body that is not an object answers 400.
       tags: [antenna_criteria]
       x-permission: global:manage_network:fulfilment_email
       requestBody:
@@ -294,6 +296,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
@@ -424,7 +427,7 @@ components:
         application/json:
           schema: {$ref: '#/components/schemas/BoardInput'}
   responses:
-    BadRequest: {description: 'Malformed request, for example a non-numeric ID.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadRequest: {description: 'Malformed request, for example a non-numeric ID, or a body that is not an object.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}

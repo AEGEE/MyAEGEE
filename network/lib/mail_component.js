@@ -28,17 +28,18 @@ exports.setMailComponent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to set mail components.');
     }
 
-    if (!helpers.isObject(req.body)) {
+    if (!helpers.isBodyObject(req.body)) {
         return errors.makeBadRequestError(res, 'The body should be an object.');
     }
 
-    if (!['introduction', 'communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report', 'closing'].includes(req.body.mail_component)) {
+    const input = req.body || {};
+    if (!['introduction', 'communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report', 'closing'].includes(input.mail_component)) {
         return errors.makeValidationError(res, 'This is not a valid mail component.');
     }
 
     // Only the text's fields; the timestamps belong to the service. upsert checks only
     // the fields it gets, so the whole row is checked first.
-    const component = lodash.pick(req.body, ['agora_id', 'mail_component', 'text']);
+    const component = lodash.pick(input, ['agora_id', 'mail_component', 'text']);
     await MailComponent.build(component).validate();
 
     const result = await MailComponent.upsert(component);

@@ -103,7 +103,7 @@ export interface paths {
         put?: never;
         /**
          * Add a board to a body
-         * @description Checks the board, then asks core (with the caller's token) for the body and every member on the board: an unknown body answers 404; a member core does not know, or does not let the caller see, answers 422 on that field. Then stores the board and sends the "new board" mail to NetCom, and the welcome mail to the board if its term has started. Both mails are best effort: a failure is logged and the board stays created.
+         * @description Checks the board, then asks core (with the caller's token) for the body and every member on the board: an unknown body answers 404; a member core does not know, or does not let the caller see, answers 422 on that field. Then stores the board and sends the "new board" mail to NetCom, and the welcome mail to the board if its term has started. Both mails are best effort: a failure is logged and the board stays created. A body that is not an object answers 400.
          */
         post: operations["createBoard"];
         delete?: never;
@@ -145,7 +145,7 @@ export interface paths {
         get: operations["getBoard"];
         /**
          * Edit a board of a body
-         * @description The body stays the one in the URL; `id` and `new_board_email_sent_at` in the request are ignored.
+         * @description The body stays the one in the URL; `id` and `new_board_email_sent_at` in the request are ignored. A body that is not an object answers 400.
          */
         put: operations["updateBoard"];
         post?: never;
@@ -206,7 +206,7 @@ export interface paths {
         put?: never;
         /**
          * Send the Antenna Criteria fulfilment mail to a body
-         * @description Sends the text through the mailer's `custom.html` template. Every address is one address without a display name (a dot-atom local part and a domain of at least two labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). `to` and `cc` also take several addresses, as a list or as one string separated by commas. The addresses and the subject are one line each; the subject is at most 255 characters.
+         * @description Sends the text through the mailer's `custom.html` template. Every address is one address without a display name (a dot-atom local part and a domain of at least two labels); `from` must be on aegee.org or aegee.eu (default network@aegee.eu). `to` and `cc` also take several addresses, as a list or as one string separated by commas. The addresses and the subject are one line each; the subject is at most 255 characters. A body that is not an object answers 400.
          */
         post: operations["sendFulfilmentMail"];
         delete?: never;
@@ -491,7 +491,7 @@ export interface components {
         };
     };
     responses: {
-        /** @description Malformed request, for example a non-numeric ID. */
+        /** @description Malformed request, for example a non-numeric ID, or a body that is not an object. */
         BadRequest: {
             headers: {
                 [name: string]: unknown;
@@ -923,6 +923,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationFailed"];

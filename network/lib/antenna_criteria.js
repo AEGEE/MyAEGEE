@@ -83,27 +83,28 @@ exports.listCriteria = async (req, res) => {
 };
 
 exports.setCriterion = async (req, res) => {
-    if (!helpers.isObject(req.body)) {
+    if (!helpers.isBodyObject(req.body)) {
         return errors.makeBadRequestError(res, 'The body should be an object.');
     }
 
-    if (!['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report'].includes(req.body.antenna_criterion)) {
+    const input = req.body || {};
+    if (!['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report'].includes(input.antenna_criterion)) {
         return errors.makeValidationError(res, 'This is not a valid criterion.');
     }
 
-    const criterion = req.body.antenna_criterion.replace(/ /g, '_');
+    const criterion = input.antenna_criterion.replace(/ /g, '_');
 
     if (!req.permissions.antenna_criteria[criterion]) {
         return errors.makeForbiddenError(res, 'You are not allowed to set fulfilment of the criterion ' + criterion + '.');
     }
 
-    if (req.body.antenna_criterion === 'communication' && req.body.value === 'exception' && !req.permissions.antenna_criteria.communication_exception) {
+    if (input.antenna_criterion === 'communication' && input.value === 'exception' && !req.permissions.antenna_criteria.communication_exception) {
         return errors.makeForbiddenError(res, 'You are not allowed to give exceptions to the Antenna Criterion `communication`.');
     }
 
     // Only the criterion's fields; the timestamps belong to the service. upsert checks
     // only the fields it gets, so the whole row is checked first.
-    const criterionData = lodash.pick(req.body, ['agora_id', 'body_id', 'antenna_criterion', 'value', 'comment']);
+    const criterionData = lodash.pick(input, ['agora_id', 'body_id', 'antenna_criterion', 'value', 'comment']);
     await AntennaCriterion.build(criterionData).validate();
 
     // The `.upsert()` method returns an object [result, created],
@@ -158,6 +159,10 @@ const validateFulfilmentMail = (input) => {
 exports.sendFulfilmentMail = async (req, res) => {
     if (!req.permissions.send_mails) {
         return errors.makeForbiddenError(res, 'You are not allowed to send Antenna Criteria fulfilment mails.');
+    }
+
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
     }
 
     const input = req.body || {};
