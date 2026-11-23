@@ -30,6 +30,7 @@ test.describe('core factories match the real API', () => {
         expectShape('member', member({
             about_me: 'x',
             image: 'picture.png',
+            gsuite_id: 'x@aegee.eu',
             bodies: [filledBody],
             circles: [circle({ body_id: 1 })],
             // A join request has no factory yet: the fields the profile pages read.
