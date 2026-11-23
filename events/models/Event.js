@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
+const { isOneOf } = require('../lib/validators');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -199,10 +200,7 @@ const Event = sequelize.define(
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event type should be set.' },
-                isIn: {
-                    args: [['training', 'nwm', 'conference', 'cultural', 'thematic']],
-                    msg: 'Event type should be one of these: training, nwm, conference, cultural, thematic.'
-                }
+                isOneOf: isOneOf(['training', 'nwm', 'conference', 'cultural', 'thematic'], 'Event type should be one of these: training, nwm, conference, cultural, thematic.')
             }
         },
         status: {
@@ -210,10 +208,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: 'draft',
             validate: {
-                isIn: {
-                    args: [['draft', 'submitted', 'published']],
-                    msg: 'Event status should be one of these: "draft", "submitted", "published".'
-                }
+                isOneOf: isOneOf(['draft', 'submitted', 'published'], 'Event status should be one of these: "draft", "submitted", "published".')
             }
         },
         publication_date: {
@@ -396,10 +391,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: 'in person',
             validate: {
-                isIn: {
-                    args: [['in person', 'online']],
-                    msg: 'Event method should be one of these: "in person", "online".'
-                }
+                isOneOf: isOneOf(['in person', 'online'], 'Event method should be one of these: "in person", "online".')
             }
         },
         is_european_event: {

@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
+const { isOneOf } = require('../lib/validators');
 
 // TODO: require body_id if role is main_coordinator
 // TODO: validate that role is in enum ['main_coordinator', 'content_manager', 'treasurer', 'incoming_responsible', 'general_organizer']
@@ -300,10 +301,7 @@ const Event = sequelize.define(
             defaultValue: 'regular',
             validate: {
                 notEmpty: { msg: 'SU type should be set.' },
-                isIn: {
-                    args: [['regular', 'pilot']],
-                    msg: 'SU type should be one of these: normal, pilot.'
-                }
+                isOneOf: isOneOf(['regular', 'pilot'], 'SU type should be one of these: normal, pilot.')
             }
         },
         theme_category: {
@@ -312,10 +310,7 @@ const Event = sequelize.define(
             defaultValue: 'leisure',
             validate: {
                 notEmpty: { msg: 'Theme should be set.' },
-                isIn: {
-                    args: [['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering']],
-                    msg: 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.'
-                }
+                isOneOf: isOneOf(['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.')
             }
         },
         theme: {
@@ -347,10 +342,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: 'first draft',
             validate: {
-                isIn: {
-                    args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval']],
-                    msg: 'Event status is not valid.'
-                }
+                isOneOf: isOneOf(['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval'], 'Event status is not valid.')
             }
         },
         published: {
@@ -358,10 +350,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: 'none',
             validate: {
-                isIn: {
-                    args: [['none', 'minimal', 'full']],
-                    msg: 'Event publication must be none, minimal, or full.'
-                }
+                isOneOf: isOneOf(['none', 'minimal', 'full'], 'Event publication must be none, minimal, or full.')
             }
         },
         deleted: {
@@ -410,10 +399,7 @@ const Event = sequelize.define(
         pax_confirmation: {
             type: Sequelize.ENUM('no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'),
             validate: {
-                isIn: {
-                    args: [['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket']],
-                    msg: 'Theme should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.'
-                }
+                isOneOf: isOneOf(['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'], 'Theme should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.')
             }
         },
         max_participants: {
@@ -481,10 +467,7 @@ const Event = sequelize.define(
             type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
             allowNull: true,
             validate: {
-                isIn: {
-                    args: [['beginner', 'intermediate', 'advanced']],
-                    msg: 'SU course level should be one of these: beginner, intermediate, advanced.'
-                }
+                isOneOf: isOneOf(['beginner', 'intermediate', 'advanced'], 'SU course level should be one of these: beginner, intermediate, advanced.')
             }
         },
         courses: {

@@ -1,5 +1,6 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
+const { isOneOf } = require('../lib/validators');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -72,10 +73,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.ENUM('pending', 'accepted', 'rejected'),
         defaultValue: 'pending',
         validate: {
-            isIn: {
-                args: [['pending', 'accepted', 'rejected']],
-                msg: 'Participant status should be one of these: "pending", "accepted", "rejected".'
-            }
+            isOneOf: isOneOf(['pending', 'accepted', 'rejected'], 'Participant status should be one of these: "pending", "accepted", "rejected".')
         }
     },
     confirmed: {
