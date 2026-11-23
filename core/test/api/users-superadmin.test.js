@@ -23,7 +23,7 @@ describe('User superadmin', () => {
         await generator.createPermission({ scope: 'global', action: 'update_superadmin', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/superadmin',
+            path: '/members/2147483647/superadmin',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { superadmin: false }

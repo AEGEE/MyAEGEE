@@ -86,7 +86,7 @@ describe('Campaigns creating', () => {
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
 
-        const campaign = generator.generateCampaign({ id: 1337, autojoin_body_id: body.id });
+        const campaign = generator.generateCampaign({ id: 2147483647, autojoin_body_id: body.id });
 
         const res = await request({
             path: '/campaigns',
@@ -97,7 +97,7 @@ describe('Campaigns creating', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data.id).not.toEqual(1337);
+        expect(res.body.data.id).not.toEqual(2147483647);
 
         const campaignFromDb = await Campaign.findByPk(res.body.data.id);
         expect(campaignFromDb.name).toEqual(campaign.name);

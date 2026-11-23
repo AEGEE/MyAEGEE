@@ -24,7 +24,7 @@ describe('User primary body setting', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/primary-body',
+            path: '/members/2147483647/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -67,7 +67,7 @@ describe('User primary body setting', () => {
             path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { primary_body_id: 1337 }
+            body: { primary_body_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(404);

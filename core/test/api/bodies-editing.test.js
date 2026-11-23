@@ -23,7 +23,7 @@ describe('Bodies editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
         const res = await request({
-            path: '/bodies/1337',
+            path: '/bodies/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }

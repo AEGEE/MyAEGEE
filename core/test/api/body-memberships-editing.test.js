@@ -44,7 +44,7 @@ describe('Body membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }

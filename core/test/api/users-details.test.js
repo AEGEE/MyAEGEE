@@ -23,7 +23,7 @@ describe('User details', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
-            path: '/members/1337',
+            path: '/members/2147483647',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

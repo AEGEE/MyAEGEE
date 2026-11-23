@@ -24,7 +24,7 @@ describe('Body campaign editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/campaigns/1337',
+            path: '/bodies/' + body.id + '/campaigns/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

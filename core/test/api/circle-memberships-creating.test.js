@@ -49,7 +49,7 @@ describe('Circle memberships creating', () => {
             path: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: { user_id: 1337 }
+            body: { user_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(404);

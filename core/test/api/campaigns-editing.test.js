@@ -23,7 +23,7 @@ describe('Campaign editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
-            path: '/campaigns/1337',
+            path: '/campaigns/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

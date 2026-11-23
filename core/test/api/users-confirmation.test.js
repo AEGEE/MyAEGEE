@@ -23,7 +23,7 @@ describe('User confirmation', () => {
         await generator.createPermission({ scope: 'global', action: 'confirm', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/confirm',
+            path: '/members/2147483647/confirm',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value }
         });

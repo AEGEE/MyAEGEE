@@ -23,7 +23,7 @@ describe('Bodies status', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
         const res = await request({
-            path: '/bodies/1337/status',
+            path: '/bodies/2147483647/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }

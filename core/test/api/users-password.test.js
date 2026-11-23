@@ -23,7 +23,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/password',
+            path: '/members/2147483647/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }

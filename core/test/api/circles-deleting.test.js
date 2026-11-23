@@ -23,7 +23,7 @@ describe('Circles deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'circle' });
 
         const res = await request({
-            path: '/circles/1337',
+            path: '/circles/2147483647',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

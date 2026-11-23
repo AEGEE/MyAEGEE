@@ -23,7 +23,7 @@ describe('Circle editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
 
         const res = await request({
-            path: '/circles/1337',
+            path: '/circles/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

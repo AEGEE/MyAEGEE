@@ -20,7 +20,7 @@ describe('Body details', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            path: '/bodies/1337',
+            path: '/bodies/2147483647',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

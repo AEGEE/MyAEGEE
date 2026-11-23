@@ -23,7 +23,7 @@ describe('Permissions details', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
 
         const res = await request({
-            path: '/permissions/1337',
+            path: '/permissions/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }

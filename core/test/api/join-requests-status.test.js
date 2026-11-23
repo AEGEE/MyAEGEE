@@ -52,7 +52,7 @@ describe('Join request status', () => {
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/join-requests/1337/status',
+            path: '/bodies/' + body.id + '/join-requests/2147483647/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { status: 'approved' }

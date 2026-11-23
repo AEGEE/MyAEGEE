@@ -31,7 +31,7 @@ describe('User subscribe listserv', () => {
         await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
 
         const res = await request({
-            path: '/members/1337/listserv',
+            path: '/members/2147483647/listserv',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
             body: { mailinglists: ['ANNOUNCE-L'] }

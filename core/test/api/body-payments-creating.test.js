@@ -26,7 +26,7 @@ describe('Body payments creating', () => {
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
 
-        const payment = generator.generatePayment({}, {}, { user_id: 1337 });
+        const payment = generator.generatePayment({}, {}, { user_id: 2147483647 });
 
         const res = await request({
             path: '/bodies/' + body.id + '/payments',
@@ -152,7 +152,7 @@ describe('Body payments creating', () => {
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
-        await generator.createBodyMembership(body, otherUser, { body_id: 1337 });
+        await generator.createBodyMembership(body, otherUser, { body_id: 2147483647 });
 
         const payment = generator.generatePayment(body, otherUser);
 
@@ -167,7 +167,7 @@ describe('Body payments creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.body_id).not.toEqual(2147483647);
     });
 
     test('should ignore fields that are not allowed', async () => {
@@ -180,7 +180,7 @@ describe('Body payments creating', () => {
         const otherUser = await generator.createUser();
         await generator.createBodyMembership(body, otherUser);
 
-        const payment = generator.generatePayment(body, otherUser, { id: 1337, comment: 'Some comment' });
+        const payment = generator.generatePayment(body, otherUser, { id: 2147483647, comment: 'Some comment' });
 
         const res = await request({
             path: '/bodies/' + body.id + '/payments',
@@ -191,7 +191,7 @@ describe('Body payments creating', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data.id).not.toEqual(1337);
+        expect(res.body.data.id).not.toEqual(2147483647);
 
         const paymentFromDb = await Payment.findByPk(res.body.data.id);
         expect(paymentFromDb.comment).toEqual('Some comment');

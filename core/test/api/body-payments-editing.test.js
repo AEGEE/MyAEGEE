@@ -27,7 +27,7 @@ describe('Body payments editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'payment' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/payments/1337',
+            path: '/bodies/' + body.id + '/payments/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { amount: 1 }
@@ -183,15 +183,15 @@ describe('Body payments editing', () => {
             path: '/bodies/' + body.id + '/payments/' + payment.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { body_id: 1337, user_id: 1337 }
+            body: { body_id: 2147483647, user_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
-        expect(res.body.data.user_id).not.toEqual(1337);
+        expect(res.body.data.body_id).not.toEqual(2147483647);
+        expect(res.body.data.user_id).not.toEqual(2147483647);
     });
 
     test.each([

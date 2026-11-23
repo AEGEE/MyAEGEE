@@ -20,7 +20,7 @@ describe('Permission members', () => {
         const token = await generator.createAccessToken(user);
 
         const res = await request({
-            path: '/permissions/1337/members',
+            path: '/permissions/2147483647/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

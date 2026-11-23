@@ -23,7 +23,7 @@ describe('User deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'member' });
 
         const res = await request({
-            path: '/members/1337',
+            path: '/members/2147483647',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

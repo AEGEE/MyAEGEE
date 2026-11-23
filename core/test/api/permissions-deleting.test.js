@@ -23,7 +23,7 @@ describe('Permissions deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'permission' });
 
         const res = await request({
-            path: '/permissions/1337',
+            path: '/permissions/2147483647',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

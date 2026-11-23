@@ -23,7 +23,7 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337',
+            path: '/members/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { username: 'test2' }

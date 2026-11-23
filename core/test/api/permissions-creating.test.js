@@ -85,7 +85,7 @@ describe('Permissions creating', () => {
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
 
-        const permission = generator.generatePermission({ id: 1337, filters: ['name'] });
+        const permission = generator.generatePermission({ id: 2147483647, filters: ['name'] });
 
         const res = await request({
             path: '/permissions',
@@ -96,7 +96,7 @@ describe('Permissions creating', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data.id).not.toEqual(1337);
+        expect(res.body.data.id).not.toEqual(2147483647);
 
         const permissionFromDb = await Permission.findByPk(res.body.data.id);
         expect(permissionFromDb.filters).toEqual(['name']);

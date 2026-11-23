@@ -38,7 +38,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/email',
+            path: '/members/2147483647/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
