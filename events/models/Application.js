@@ -45,7 +45,8 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'First name should be set.' }
+            notEmpty: { msg: 'First name should be set.' },
+            len: { args: [0, 255], msg: 'First name should be at most 255 characters long.' }
         }
     },
     last_name: {
@@ -53,19 +54,24 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Last name should be set.' }
+            notEmpty: { msg: 'Last name should be set.' },
+            len: { args: [0, 255], msg: 'Last name should be at most 255 characters long.' }
         }
     },
     email: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            len: { args: [0, 255], msg: 'Email should be at most 255 characters long.' }
+        }
     },
     body_name: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Body name should be set.' }
+            notEmpty: { msg: 'Body name should be set.' },
+            len: { args: [0, 255], msg: 'Body name should be at most 255 characters long.' }
         }
     },
     status: {

@@ -1050,8 +1050,8 @@ components:
     EventInputFields:
       type: object
       properties:
-        name: {type: string}
-        url: {type: [string, 'null'], description: 'Letters, digits and dashes, not only digits; stored in lower case.'}
+        name: {type: string, maxLength: 255}
+        url: {type: [string, 'null'], maxLength: 255, description: 'Letters, digits and dashes, not only digits; stored in lower case.'}
         description: {type: string}
         application_starts: {type: string}
         application_ends: {type: string}
@@ -1090,7 +1090,7 @@ components:
         link_info_travel_country: {type: [string, 'null']}
         meals_per_day: {type: [integer, string, 'null']}
         vegetarian: {type: boolean}
-        accommodation_type: {type: [string, 'null'], description: 'Required for in-person events; "none" if there is none.'}
+        accommodation_type: {type: [string, 'null'], maxLength: 255, description: 'Required for in-person events; "none" if there is none.'}
         method: {$ref: '#/components/schemas/EventMethod'}
         has_applications: {type: boolean, description: 'Always true for in-person events.'}
     EventCreateInput:

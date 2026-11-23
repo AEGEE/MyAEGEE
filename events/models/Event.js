@@ -19,12 +19,14 @@ const Event = sequelize.define(
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event name should be set.' },
+                len: { args: [0, 255], msg: 'Event name should be at most 255 characters long.' }
             }
         },
         url: {
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                len: { args: [0, 255], msg: 'Event URL should be at most 255 characters long.' },
                 isValid(value) {
                     if (!value) {
                         return;
@@ -43,7 +45,10 @@ const Event = sequelize.define(
         },
         image: {
             type: Sequelize.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: { args: [0, 255], msg: 'Image file name should be at most 255 characters long.' }
+            }
         },
         description: {
             type: Sequelize.TEXT,
@@ -396,7 +401,10 @@ const Event = sequelize.define(
         accommodation_type: {
             type: Sequelize.STRING,
             allowNull: true,
-            defaultValue: ''
+            defaultValue: '',
+            validate: {
+                len: { args: [0, 255], msg: 'Accommodation type should be at most 255 characters long.' }
+            }
         },
         method: {
             type: Sequelize.ENUM('in person', 'online'),
