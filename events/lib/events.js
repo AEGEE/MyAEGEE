@@ -524,10 +524,13 @@ exports.setEuropeanEventStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change the European Event status.');
     }
 
+    const wasEuropean = req.event.is_european_event;
+
     await sequelize.transaction(async (t) => {
         await req.event.update({ is_european_event: req.body.is_european_event }, { transaction: t });
 
-        if (req.body.is_european_event === false) {
+        // The organizers hear about it only when the event becomes European.
+        if (req.body.is_european_event !== true || wasEuropean) {
             return;
         }
 
