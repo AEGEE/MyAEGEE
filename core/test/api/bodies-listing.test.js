@@ -355,4 +355,59 @@ describe('Bodies list', () => {
         expect(res.body.message).toEqual('The "type" filter should be a text.');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    describe('the types of bodies that are listed', () => {
+        const TYPES = [
+            'antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission',
+            'committee', 'project', 'partner', 'external', 'other'
+        ];
+        const TYPES_WITHOUT_LOGIN = ['antenna', 'contact', 'contact antenna'];
+
+        const listedTypes = (res) => res.body.data.map((body) => body.type).sort();
+
+        // One body of every type.
+        beforeEach(async () => {
+            for (const type of TYPES) {
+                await generator.createBody({ type, name: 'Body ' + type });
+            }
+        });
+
+        test('should be only antennae, contact antennae and contacts without a login', async () => {
+            const res = await request({ path: '/bodies', method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(listedTypes(res)).toEqual(TYPES_WITHOUT_LOGIN);
+            expect(res.body.meta).toEqual({ count: 3 });
+        });
+
+        test('should be all types for a member', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const res = await request({
+                path: '/bodies',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(listedTypes(res)).toEqual([...TYPES].sort());
+            expect(res.body.meta).toEqual({ count: TYPES.length });
+        });
+
+        test('should not find a body of another type by its name without a login', async () => {
+            const res = await request({ path: '/bodies?query=Body%20partner', method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+            expect(res.body.meta).toEqual({ count: 0 });
+        });
+
+        test('should not list another type that is asked for without a login', async () => {
+            const res = await request({ path: '/bodies?type=partner,working%20group', method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.filter((body) => !TYPES_WITHOUT_LOGIN.includes(body.type))).toEqual([]);
+        });
+    });
 });
