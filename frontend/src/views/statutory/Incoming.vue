@@ -2,98 +2,104 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Incoming</div>
+        <h1 class="title">Incoming</h1>
 
         <div class="field">
-          <label class="label">Search by name or statutory ID (search by email is currently broken but will return)</label>
+          <label class="label" for="incoming-search">Search by name, surname or statutory ID</label>
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
+            <input id="incoming-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
           </div>
         </div>
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            aria-next-label="Next page"
+            aria-previous-label="Previous page"
+            aria-page-label="Page"
+            aria-current-label="Current page"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
-            {{ props.row.first_name | beautify }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
-            {{ props.row.last_name | beautify }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+              {{ props.row.last_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="email" label="Email" centered sortable v-slot="props">
-            {{ props.row.notification_email }}
-          </b-table-column>
+            <b-table-column field="email" label="Email" centered sortable v-slot="props">
+              {{ props.row.notification_email }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="meals" label="Meals" centered sortable v-slot="props">
-            {{ props.row.meals }}
-          </b-table-column>
+            <b-table-column field="meals" label="Meals" centered sortable v-slot="props">
+              {{ props.row.meals }}
+            </b-table-column>
 
-          <b-table-column field="allergies" label="Allergies" centered sortable v-slot="props">
-            {{ props.row.allergies }}
-          </b-table-column>
+            <b-table-column field="allergies" label="Allergies" centered sortable v-slot="props">
+              {{ props.row.allergies }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
-              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
+                <select v-model="props.row.newConfirmed" :aria-label="'Confirmed of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="incoming" label="Incoming form filled?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
-              <select v-model="props.row.newIncoming" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="incoming" label="Incoming form filled?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
+                <select v-model="props.row.newIncoming" :aria-label="'Incoming form filled of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
+                <select v-model="props.row.newAttended" :aria-label="'Attended of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column label="View" centered v-slot="props">
-            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-              View
-            </router-link>
-          </b-table-column>
+            <b-table-column label="View" centered v-slot="props">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
