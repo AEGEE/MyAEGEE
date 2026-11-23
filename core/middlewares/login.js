@@ -21,7 +21,12 @@ const PASSWORD_RESET_REQUESTED = 'If this email belongs to an account, a passwor
 let placeholderHash;
 const checkPlaceholderPassword = async (password) => {
     if (!placeholderHash) {
-        placeholderHash = bcrypt.hash(await helpers.getRandomBytes(constants.TOKEN_LENGTH.PASSWORD_RESET), config.salt_rounds);
+        placeholderHash = helpers.getRandomBytes(constants.TOKEN_LENGTH.PASSWORD_RESET)
+            .then((random) => bcrypt.hash(random, config.salt_rounds));
+        // A hash that could not be made is made again at the next login.
+        placeholderHash.catch(() => {
+            placeholderHash = undefined;
+        });
     }
 
     await bcrypt.compare(password, await placeholderHash);
