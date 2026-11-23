@@ -85,7 +85,8 @@ export default {
       isLoading: false,
       permissions: [],
       can: {
-        manageBoards: false
+        manageBoards: false,
+        deleteBoards: false
       }
     }
   },
@@ -117,6 +118,7 @@ export default {
         hasModalCard: true,
         props: {
           edit: true,
+          canDelete: this.can.deleteBoards,
           oldBoard: this.boards[index],
           body: this.$route.params,
           services: this.services,
@@ -165,6 +167,8 @@ export default {
     this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionResponse) => {
       this.permissions = permissionResponse.data.data
       this.can.manageBoards = this.permissions.some(permission => permission.combined.endsWith('manage_network:boards'))
+      // Board managers of a body edit its boards; deleting one needs the global permission.
+      this.can.deleteBoards = this.permissions.some(permission => permission.combined === 'global:manage_network:boards')
     })
 
     this.isLoading = false
