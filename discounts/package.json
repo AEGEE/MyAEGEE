@@ -43,7 +43,15 @@
       "default",
       "jest-junit"
     ],
-    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js"
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
+    "coverageThreshold": {
+      "global": {
+        "statements": 99.7,
+        "branches": 100,
+        "functions": 98.3,
+        "lines": 100
+      }
+    }
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",

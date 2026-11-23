@@ -362,7 +362,7 @@ jobs:
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4
+    parallelism: 1  # the suite takes seconds; unsharded (docs/testing/backend-openapi.md)
     resource_class: large
     steps:
       - checkout
@@ -375,13 +375,35 @@ jobs:
           name: Run discounts tests
           working_directory: ~/project/discounts
           command: |
-            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
-            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+            mkdir -p ~/shard
+            OPENAPI_HITS_FILE=$HOME/shard/openapi-hits-$CIRCLE_NODE_INDEX.txt \
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci -- \
+              --reporters=default --reporters=jest-junit --coverageThreshold='{}'
+            cp coverage/coverage-final.json ~/shard/coverage-$CIRCLE_NODE_INDEX.json
+      - persist_to_workspace:
+          root: ~/shard
+          paths: [.]
       - codecov/upload
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  discounts-coverage:
+    docker:
+      - image: cimg/node:26.13.1
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/discounts
+          override-ci-command: npm ci --legacy-peer-deps
+      - attach_workspace:
+          at: ~/shard
+      - run: node packages/backend-test-utils/check-coverage.js discounts --expect 1 ~/shard/coverage-*.json
+      - run: node packages/backend-test-utils/unexercised.js discounts ~/shard/openapi-hits-*.txt
+      - run:
+          name: Every coverage ignore has a reason
+          command: "! grep -rnE 'istanbul ignore (next|if|else|file) *(\\*/|$)' discounts/lib discounts/models"
   discounts-build:
     docker:
       - image: cimg/base:2026.11
@@ -2205,6 +2227,8 @@ workflows:
   discounts-test:
     jobs:
       - discounts-test
+      - discounts-coverage:
+          requires: [discounts-test]
   discounts-docker-build-and-push:
     jobs:
       - discounts-docker-build-and-push:
