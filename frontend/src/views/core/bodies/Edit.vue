@@ -240,6 +240,7 @@
           <div class="field has-addons">
             <b-autocomplete
               id="body-shadow-circle"
+              field="name"
               v-model="autocompleteBody"
               :data="filteredShadowCircles"
               :disabled="!can.editShadowCircle"
@@ -354,7 +355,7 @@ export default {
   computed: {
     ...mapGetters(['services']),
     filteredShadowCircles () {
-      return this.body.circles.filter((circle) => circle.name.toLowerCase().includes(this.autocompleteBody.toLowerCase()))
+      return this.body.circles.filter((circle) => circle.name.toLowerCase().includes((this.autocompleteBody || '').toLowerCase()))
     }
   },
   methods: {
