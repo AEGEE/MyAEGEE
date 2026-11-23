@@ -433,13 +433,15 @@ exports.confirmUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:confirm:member is required, but not present.');
     }
 
-    await req.currentUser.update({ mail_confirmed_at: new Date() });
+    await sequelize.transaction(async (t) => {
+        // A member who is confirmed already keeps the date.
+        if (!req.currentUser.mail_confirmed_at) {
+            await req.currentUser.update({ mail_confirmed_at: new Date() }, { transaction: t });
+        }
 
-    const confirmation = await MailConfirmation.findOne({
-        where: { user_id: req.currentUser.id }
+        // There's none for a member who was created by a board, or who is confirmed already.
+        await MailConfirmation.destroy({ where: { user_id: req.currentUser.id }, transaction: t });
     });
-
-    await confirmation.destroy();
 
     return res.json({
         success: true,
