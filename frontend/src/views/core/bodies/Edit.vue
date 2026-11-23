@@ -372,6 +372,25 @@ export default {
     transformFoundedAt () {
       this.body.founded_at = this.foundationDate ? moment(this.foundationDate).format('YYYY-MM-DD') : null
     },
+    fetchPermissions () {
+      this.axios
+        .get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+        .then((response) => {
+          this.permissions = response.data.data
+
+          const editGlobalPermission = this.permissions.find((permission) => permission.combined.endsWith('global:update:body'))
+          this.can.editName = editGlobalPermission
+          this.can.editAbbreviation = editGlobalPermission
+          this.can.editCode = editGlobalPermission
+          this.can.editShadowCircle = editGlobalPermission
+          this.can.editType = editGlobalPermission
+          this.can.editGsuite = editGlobalPermission
+        })
+        .catch((err) => {
+          // The fields that need the global right stay locked.
+          this.$root.showError('Could not fetch your permissions for this body', err)
+        })
+    },
     saveBody () {
       if (
         ['antenna', 'contact antenna', 'contact'].includes(this.body.type)
@@ -426,21 +445,7 @@ export default {
           : null
 
         this.isLoading = false
-
-        return this.axios.get(
-          this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions'
-        )
-      })
-      .then((response) => {
-        this.permissions = response.data.data
-
-        const editGlobalPermission = this.permissions.find((permission) => permission.combined.endsWith('global:update:body'))
-        this.can.editName = editGlobalPermission
-        this.can.editAbbreviation = editGlobalPermission
-        this.can.editCode = editGlobalPermission
-        this.can.editShadowCircle = editGlobalPermission
-        this.can.editType = editGlobalPermission
-        this.can.editGsuite = editGlobalPermission
+        this.fetchPermissions()
       })
       .catch((err) => {
         if (err.response && err.response.status === 404) {
