@@ -12,7 +12,9 @@ const config = {
         },
         mailer: {
             url: 'http://mailer',
-            port: 4000
+            port: 4000,
+            // How long a mail may take; after that the request fails like any mailer error.
+            timeout: 10 * 1000 // 10 seconds
         },
         listserv_email: process.env.LISTSERV_EMAIL || 'listserv@example.com',
         listserv_endpoint: process.env.LISTSERV_ENDPOINT || 'https://lists.example.com/subscribe',

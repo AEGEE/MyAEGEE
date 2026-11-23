@@ -11,19 +11,32 @@ const config = require('../config');
  * @param {object} options.parameters
  */
 module.exports.sendMail = async (options) => {
-    const response = await request({
-        url: config.mailer.url + ':' + config.mailer.port + '/',
-        method: 'POST',
-        body: {
-            from: options.from,
-            to: options.to,
-            subject: options.subject,
-            template: options.template,
-            parameters: options.parameters,
-            reply_to: options.reply_to
-        },
-        fullResponse: true
-    });
+    const { timeout } = config.mailer;
+    let response;
+
+    try {
+        response = await request({
+            url: config.mailer.url + ':' + config.mailer.port + '/',
+            method: 'POST',
+            body: {
+                from: options.from,
+                to: options.to,
+                subject: options.subject,
+                template: options.template,
+                parameters: options.parameters,
+                reply_to: options.reply_to
+            },
+            fullResponse: true,
+            timeout
+        });
+    } catch (err) {
+        // A mailer that hangs must not hold the request, and the database transaction around it, for longer.
+        if (err.name === 'TimeoutError') {
+            throw new Error(`No response from mailer within ${timeout} ms`);
+        }
+
+        throw err;
+    }
 
     const mailerBody = response.body;
 

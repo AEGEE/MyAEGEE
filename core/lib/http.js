@@ -54,6 +54,11 @@ module.exports.request = async (options) => {
         fetchOptions.body = options.formData;
     }
 
+    // The request is given up after `timeout` milliseconds; fetch then rejects with a TimeoutError.
+    if (options.timeout) {
+        fetchOptions.signal = AbortSignal.timeout(options.timeout);
+    }
+
     const response = await fetch(appendQuery(options.url, options.qs), fetchOptions);
     const body = await parseBody(response);
 
