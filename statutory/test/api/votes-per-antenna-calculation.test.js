@@ -182,4 +182,52 @@ describe('Votes per antenna calculation', () => {
         expect(votesInDbAfterUpdate[0].event_id).toEqual(event.id);
         expect(votesInDbAfterUpdate[0].votes).toEqual(2);
     });
+
+    describe('at the edges of each number of members', () => {
+        // The first and the last number of members of every row of the table of votes. From 951
+        // members on there is one more vote for every 250 members, counted here from 950: the
+        // fifteenth vote comes with member 1200.
+        test.each([
+            [1, 1], [20, 1],
+            [21, 2], [50, 2],
+            [51, 3], [100, 3],
+            [101, 4], [150, 4],
+            [151, 5], [200, 5],
+            [201, 6], [250, 6],
+            [251, 7], [350, 7],
+            [351, 8], [450, 8],
+            [451, 9], [550, 9],
+            [551, 10], [650, 10],
+            [651, 11], [750, 11],
+            [751, 12], [850, 12],
+            [851, 13], [950, 13],
+            [951, 14], [1199, 14],
+            [1200, 15], [1449, 15],
+            [1450, 16]
+        ])('gives an antenna with %i members %i votes', async (members, votes) => {
+            const body = { id: regularUser.bodies[0].id, type: 'antenna' };
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createMembersList({
+                body_id: body.id,
+                members: Array.from({ length: members }, () => ({ first_name: 'First', last_name: 'Last', fee: 10 }))
+            }, event);
+
+            await VotesPerAntenna.recalculateVotesForAntenna(body, event);
+
+            const votesInDatabase = await VotesPerAntenna.findAll();
+            expect(votesInDatabase.map((row) => [row.event_id, row.body_id, row.votes])).toEqual([[event.id, body.id, votes]]);
+        });
+
+        test('gives an antenna without a members list for this Agora no votes', async () => {
+            const body = { id: regularUser.bodies[0].id, type: 'antenna' };
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createMembersList({ body_id: body.id }, otherEvent);
+
+            await VotesPerAntenna.recalculateVotesForAntenna(body, event);
+
+            const votesInDatabase = await VotesPerAntenna.findAll();
+            expect(votesInDatabase.map((row) => [row.event_id, row.body_id, row.votes])).toEqual([[event.id, body.id, 0]]);
+        });
+    });
 });
