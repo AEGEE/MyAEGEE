@@ -36,8 +36,9 @@ const Permission = sequelize.define('permission', {
         type: Sequelize.STRING,
         allowNull: true
     },
+    // A text without a limit, as the column is: some descriptions are longer than 255 characters.
     description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Description should be set.' },
