@@ -256,6 +256,8 @@ export default {
   .menu-label {
     padding-left: 10px;
     margin-top: 1em;
+    /* Bulma's light grey is too faint for text this small (4.5:1 is the minimum). */
+    color: #666;
   }
 
   .menu-list {
