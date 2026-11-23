@@ -1,10 +1,16 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
+// Names and codes are stored without the spaces around them, so " foo" and "foo" are one code.
+const trimmed = (field) => function setTrimmed(value) {
+    this.setDataValue(field, typeof value === 'string' ? value.trim() : value);
+};
+
 const Integration = sequelize.define('integration', {
     name: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
+        set: trimmed('name'),
         validate: {
             notEmpty: { msg: 'Integration name should be set.' },
             len: { args: [0, 255], msg: 'Integration name should be at most 255 characters long.' }
@@ -14,6 +20,7 @@ const Integration = sequelize.define('integration', {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
+        set: trimmed('code'),
         validate: {
             notEmpty: { msg: 'Integration code should be set.' },
             len: { args: [0, 255], msg: 'Integration code should be at most 255 characters long.' }
