@@ -28,7 +28,7 @@
       </div> -->
     </section>
     <footer class="modal-card-foot">
-      <button type="button" class="button is-primary" @click="saveBoundCircle()">Save changes</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="saveBoundCircle()">Save changes</button>
       <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -41,6 +41,7 @@ export default {
   data () {
     return {
       circleErrors: {},
+      isLoading: false,
       tmpCircle: {
         name: '',
         description: '',
