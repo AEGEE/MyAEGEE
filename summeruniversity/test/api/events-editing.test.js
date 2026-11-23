@@ -579,6 +579,7 @@ describe('Events editing', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.errors).toHaveProperty(field);
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         const before = event[field];
         await event.reload();
         expect(event[field]).toEqual(before);

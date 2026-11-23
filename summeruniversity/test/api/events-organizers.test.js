@@ -57,6 +57,7 @@ describe('Events organizers', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors.organizers[0]).toEqual(`Organizers should be members of one of the organizing or cooperation bodies (user ID ${OUTSIDER}).`);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             expect(await Event.count()).toEqual(0);
         });
 
@@ -145,6 +146,7 @@ describe('Events organizers', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors.organizers[0]).toContain(`user ID ${newOrganizer}`);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         });
 
         test('should accept new organizers from a cooperation body added in the same request', async () => {

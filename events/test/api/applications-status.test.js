@@ -91,6 +91,7 @@ describe('Events application status', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
 
         await application.reload();
         expect(application.status).toEqual('pending');
@@ -117,6 +118,7 @@ describe('Events application status', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             await application.reload();
             expect(application.toJSON()).toEqual(before);
         });

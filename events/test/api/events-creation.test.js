@@ -1153,6 +1153,7 @@ describe('Events creation', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body.errors).toHaveProperty('organizing_bodies');
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         expect(await Event.count()).toEqual(0);
     });
 

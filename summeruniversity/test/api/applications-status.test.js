@@ -102,6 +102,7 @@ describe('Applications status changes', () => {
             const res = await put(subpath, body);
 
             expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             expect(res.body.success).toEqual(false);
             expect(mails).toHaveLength(0);
             await application.reload();
@@ -127,6 +128,7 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors.confirmed).toContain('The value should be true or false.');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         });
 
         test('should not allow unconfirming an attended application', async () => {
@@ -212,6 +214,7 @@ describe('Applications status changes', () => {
             const res = await put('/cancelled', { cancelled: 'yes' });
 
             expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         });
     });
 
@@ -247,6 +250,7 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('status');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             await application.reload();
             expect(application.status).toEqual('pending');
             expect(mails.length).toEqual(0);
@@ -310,6 +314,7 @@ describe('Applications status changes', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors).toHaveProperty('status');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             await application.reload();
             expect(application.status).toEqual('pending');
             expect(mails).toHaveLength(0);
@@ -364,6 +369,7 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('confirmed');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
             await application.reload();
             expect(application.confirmed).toEqual(false);
         });

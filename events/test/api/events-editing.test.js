@@ -252,6 +252,7 @@ describe('Events editing', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.errors).toHaveProperty('organizing_bodies');
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         const fromDb = await Event.findByPk(event.id);
         expect(fromDb.organizing_bodies).toEqual(event.organizing_bodies);
     });
@@ -344,6 +345,7 @@ describe('Events editing', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('organizers');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         });
 
         it('should not let managers of another type bypass the rule by changing the type', async () => {
@@ -361,6 +363,7 @@ describe('Events editing', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('organizers');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
         });
 
         it('should let managers of both types add anyone when changing the type', async () => {
@@ -414,6 +417,7 @@ describe('Events editing', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors).toHaveProperty('organizers');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
 
             await cultural.reload();
             expect(cultural.organizing_bodies.map((body) => body.body_id)).toEqual([555]);
@@ -429,6 +433,7 @@ describe('Events editing', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('organizers');
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
 
             await cultural.reload();
             expect(cultural.organizing_bodies.map((body) => body.body_id)).toEqual([555]);
