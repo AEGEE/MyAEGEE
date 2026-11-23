@@ -27,6 +27,26 @@ describe('File upload', () => {
         await rimraf(config.media_dir);
     });
 
+    it('should save the new image even if the old image file cannot be removed', async () => {
+        const unlink = jest.spyOn(fs.promises, 'unlink').mockRejectedValue(new Error('EACCES: permission denied'));
+        await event.update({ image: 'old-image.png' });
+
+        try {
+            const res = await request({
+                path: '/single/' + event.id + '/upload',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                files: { head_image: { path: path.join(__dirname, '..', 'assets', 'valid_image.png') } }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(unlink).toHaveBeenCalledWith(path.join(config.media_dir, 'headimages', 'old-image.png'));
+            expect((await Event.findByPk(event.id)).image).toEqual(res.body.data);
+        } finally {
+            unlink.mockRestore();
+        }
+    });
+
     it('should create an upload folder if it doesn\'t exist', async () => {
         await rimraf(config.media_dir);
 

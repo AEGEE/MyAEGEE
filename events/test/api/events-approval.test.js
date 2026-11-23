@@ -4,6 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events status change', () => {
     beforeEach(async () => {
@@ -16,6 +17,90 @@ describe('Events status change', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    const putStatus = (id, status) => request({ path: '/single/' + id + '/status', headers: { 'X-Auth-Token': 'foobar' }, method: 'PUT', body: { status } });
+
+    it('should not include deleted or published events in approvable events', async () => {
+        await generator.createEvent({ status: 'draft', deleted: true });
+        await generator.createEvent({ status: 'published' });
+
+        const res = await request({ path: '/mine/approvable', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([]);
+    });
+
+    it('should include only the types the user may approve in approvable events', async () => {
+        callers.asMember(['global:approve_event:nwm']);
+        const nwm = await generator.createEvent({ status: 'submitted', type: 'nwm' });
+        await generator.createEvent({ status: 'submitted', type: 'training' });
+
+        const res = await request({ path: '/mine/approvable', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((e) => e.id)).toEqual([nwm.id]);
+    });
+
+    it('should not let an approver of another type publish an event', async () => {
+        callers.asMember(['global:approve_event:training']);
+        const event = await generator.createEvent({ status: 'submitted', type: 'nwm' });
+
+        const res = await putStatus(event.id, 'published');
+
+        expect(res.statusCode).toEqual(403);
+        expect((await Event.findByPk(event.id)).status).toEqual('submitted');
+    });
+
+    it('should let an approver of the type publish an event', async () => {
+        callers.asMember(['global:approve_event:nwm']);
+        const event = await generator.createEvent({ status: 'submitted', type: 'nwm' });
+
+        const res = await putStatus(event.id, 'published');
+
+        expect(res.statusCode).toEqual(200);
+        expect((await Event.findByPk(event.id)).status).toEqual('published');
+    });
+
+    it('should not allow a change to the same status', async () => {
+        const event = await generator.createEvent({ status: 'submitted' });
+
+        const res = await putStatus(event.id, 'submitted');
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    it('should set a new publication date when an event is published again', async () => {
+        const firstPublication = new Date('2020-01-01T00:00:00Z');
+        const event = await generator.createEvent({ status: 'published', publication_date: firstPublication });
+
+        expect((await putStatus(event.id, 'submitted')).statusCode).toEqual(200);
+        expect((await Event.findByPk(event.id)).publication_date).toEqual(firstPublication);
+        expect((await putStatus(event.id, 'published')).statusCode).toEqual(200);
+
+        expect((await Event.findByPk(event.id)).publication_date.getTime()).toBeGreaterThan(firstPublication.getTime());
+    });
+
+    it('should mail the organizers the old status on every change', async () => {
+        const mails = mock.captureMails(mock.mockAll().omsMailerStub);
+        const event = await generator.createEvent({ status: 'submitted' });
+
+        const res = await putStatus(event.id, 'draft');
+
+        expect(res.statusCode).toEqual(200);
+        expect(mails).toHaveLength(1);
+        expect(mails[0].template).toEqual('events_status_changed.html');
+        expect(mails[0].to).toEqual([user.notification_email]);
+        expect(mails[0].parameters.old_status).toEqual('submitted');
+        expect(mails[0].parameters.event.status).toEqual('draft');
+    });
+
+    it('should let an online event without a budget be submitted', async () => {
+        const event = await generator.createEvent({ status: 'draft', method: 'online', budget: null });
+
+        const res = await putStatus(event.id, 'submitted');
+
+        expect(res.statusCode).toEqual(200);
     });
 
     it('should include the event that can be changed in approvable events', async () => {

@@ -6,6 +6,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events creation', () => {
     beforeEach(async () => {
@@ -18,6 +19,116 @@ describe('Events creation', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    // A valid in-person event created by the superadmin of mockAll().
+    const validEvent = (fields = {}) => ({
+        name: 'Develop Yourself 4',
+        description: 'Test',
+        application_starts: '2017-12-03 15:00',
+        application_ends: '2017-12-05 15:00',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+        type: 'cultural',
+        organizing_bodies: [{ body_id: user.bodies[0].id }],
+        organizers: [{ user_id: user.id }],
+        accommodation_type: 'ritz hotel',
+        ...fields
+    });
+    const createEvent = (body) => request({ path: '/', headers: { 'X-Auth-Token': 'foobar' }, method: 'POST', body });
+
+    it('should return 422 if the creator is the only organizer and not a member of an organizing body', async () => {
+        callers.asMember(['global:create:event'], { member: { bodies: [{ id: 9, name: 'Another body' }] } });
+        const before = await Event.count();
+
+        const res = await createEvent(validEvent({ organizers: [{ user_id: callers.member.id }] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('organizers');
+        expect(await Event.count()).toEqual(before);
+    });
+
+    it('should let a member with create:event create an event of a body they belong to', async () => {
+        callers.asMember(['global:create:event'], { member: { bodies: [{ id: user.bodies[0].id, name: 'Organizing body' }] } });
+
+        const res = await createEvent(validEvent({ organizers: [{ user_id: callers.member.id }] }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.organizers.map((o) => o.user_id)).toEqual([callers.member.id]);
+    });
+
+    it('should ignore id, image, status, deleted and is_european_event on / POST', async () => {
+        const res = await createEvent(validEvent({ id: 999, image: 'image.png', status: 'published', deleted: true, is_european_event: false }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.id).not.toEqual(999);
+        expect(res.body.data.image).toEqual(null);
+        expect(res.body.data.status).toEqual('draft');
+        expect(res.body.data.deleted).toEqual(false);
+        expect(res.body.data.is_european_event).toEqual(true);
+    });
+
+    it('should not keep the event if a mail cannot be sent', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+        const before = await Event.count();
+
+        const res = await createEvent(validEvent());
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(await Event.count()).toEqual(before);
+    });
+
+    it('should mail the organizers the creation notice and the safe space information', async () => {
+        const mails = mock.captureMails(mock.mockAll().omsMailerStub);
+
+        const res = await createEvent(validEvent());
+
+        expect(res.statusCode).toEqual(201);
+        expect(mails.map((mail) => mail.template)).toEqual(['events_event_created.html', 'events_spc_info.html']);
+        expect(mails[0].to).toEqual([user.notification_email]);
+        expect(mails[0].parameters.event.id).toEqual(res.body.data.id);
+        expect(mails[1].to).toEqual([user.notification_email]);
+        expect(mails[1].cc).toEqual('safe.person@aegee.eu');
+        expect(mails[1].reply_to).toEqual('safe.person@aegee.eu');
+    });
+
+    it('should never make an online event European', async () => {
+        const res = await createEvent(validEvent({ method: 'online', accommodation_type: undefined }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.is_european_event).toEqual(false);
+    });
+
+    it('should store 0 for an unset fee and meals per day of an in-person event', async () => {
+        const res = await createEvent(validEvent({ fee: null, meals_per_day: null }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(Number(res.body.data.fee)).toEqual(0);
+        expect(res.body.data.meals_per_day).toEqual(0);
+    });
+
+    it('should store the URL in lower case without spaces', async () => {
+        const res = await createEvent(validEvent({ url: ' My-Event ' }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.url).toEqual('my-event');
+    });
+
+    test.each([
+        ['starts', 'not a date'],
+        ['optional_fee', -1],
+        ['max_participants', -1],
+        ['vegetarian', 'yes'],
+        ['method', 'hybrid'],
+        ['publication_date', 'not a date'],
+        ['type', 'statutory'],
+    ])('should return 422 if %s is %p', async (field, value) => {
+        const res = await createEvent(validEvent({ [field]: value }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty(field);
     });
 
     it('should create a new event on minimal sane / POST', async () => {
