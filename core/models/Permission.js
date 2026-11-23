@@ -3,7 +3,7 @@ const validators = require('../lib/validators');
 
 const Permission = sequelize.define('permission', {
     scope: {
-        type: Sequelize.ENUM('global', 'global'),
+        type: Sequelize.ENUM('global', 'local', 'join_request'),
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Scope should be set.' },
