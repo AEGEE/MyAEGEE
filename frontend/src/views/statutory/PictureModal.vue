@@ -1,8 +1,8 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Change picture</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">Change picture</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
@@ -27,7 +27,7 @@
         </div>
 
         <div class="control">
-          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+          <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
         </div>
       </div>
     </section>
