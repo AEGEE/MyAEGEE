@@ -328,6 +328,19 @@ describe('Events creation', () => {
         ['course_level', { course_level: 'expert' }, 'SU course level should be one of these: beginner, intermediate, advanced.'],
         ['locations', { locations: [] }, null],
         ['organizers', { organizers: [{ user_id: user.id, role: 'main_coordinator' }] }, null],
+        ['organizers', { organizers: 'abc' }, null],
+        ['organizers', { organizers: [...generator.generateOrganizers().slice(0, 3), { user_id: 1004 }] }, null],
+        ['email', { email: '' }, 'Email should be given.'],
+        ['starts', { starts: 'garbage' }, 'Event start date should be valid.'],
+        ['fee', { fee: 'abc' }, 'Event fee should be valid.'],
+        ['optional_fee', { optional_fee: -1 }, 'Optional fee cannot be negative'],
+        ['organizing_bodies', { organizing_bodies: 'abc' }, 'Organizing bodies should be an array.'],
+        ['organizing_bodies', { organizing_bodies: [{ body_id: 'x' }] }, 'body_id should be an integer.'],
+        ['cooperation', { cooperation: 'abc' }, 'Cooperation should be an array.'],
+        ['cooperation', { cooperation: [5] }, 'Body is malformed.'],
+        ['locations', { locations: [{ name: 'Alicante', position: { lat: 1 } }] }, null],
+        ['learning_objectives', { learning_objectives: [] }, 'Learning objectives should be set.'],
+        ['pax_confirmation', { pax_confirmation: 'x' }, null],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {
         const res = await createEvent(generator.generateEventBody(overrides));
 
@@ -339,6 +352,68 @@ describe('Events creation', () => {
         }
         expect(await Event.count()).toEqual(0);
         expect(mails.length).toEqual(0);
+    });
+
+    test('should return 422 with both messages if the email is empty', async () => {
+        const res = await createEvent(generator.generateEventBody({ email: '' }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.email).toEqual(['Email should be given.', 'Given email is not valid.']);
+    });
+
+    test('should return 422 if the programme for SUCT is missing', async () => {
+        const body = generator.generateEventBody();
+        delete body.programme_suct;
+
+        const res = await createEvent(body);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('programme_suct');
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test.each([
+        ['organizing_bodies', 'body_name should be a string.', 123],
+        ['organizing_bodies', 'body_name should not be empty.', ' '],
+        ['cooperation', 'body_name should be a string.', 123],
+        ['cooperation', 'body_name should not be empty.', ' ']
+    ])('should return 422 on %s if core gives a body name that is not usable (%s)', async (field, message, name) => {
+        mails = mock.captureMails(mock.mockAll({ body: { data: { id: 34, name } } }).omsMailerStub);
+        // Every body is fetched from core, so the organizing body gets the same name.
+        const res = await createEvent(generator.generateEventBody({ cooperation: [{ body_id: 34 }] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toEqual([message]);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should currently return 500 if a cooperation body is null', async () => {
+        const res = await createEvent(generator.generateEventBody({ cooperation: [null] }));
+
+        expect(res.statusCode).toEqual(500);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should currently return 500 if a manager gives a season that is not a number', async () => {
+        const res = await createEvent(generator.generateEventBody({ season: 'abc' }));
+
+        expect(res.statusCode).toEqual(500);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should let a manager choose a season that has no season record', async () => {
+        const res = await createEvent(generator.generateEventBody({ season: 1999 }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.season).toEqual(1999);
+    });
+
+    test('should store a created_at given in the body', async () => {
+        const res = await createEvent(generator.generateEventBody({ created_at: '2000-01-01T00:00:00.000Z' }));
+
+        expect(res.statusCode).toEqual(201);
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.created_at.toISOString()).toEqual('2000-01-01T00:00:00.000Z');
     });
 
     test('should accept social media links', async () => {

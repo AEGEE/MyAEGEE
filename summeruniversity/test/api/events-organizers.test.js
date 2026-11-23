@@ -117,6 +117,20 @@ describe('Events organizers', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors.organizers[0]).toEqual('A Summer University can have at most 50 organizers.');
         });
+
+        test('should return 422 if core gives an organizer without bodies', async () => {
+            mock.mockAll({
+                mainPermissions: { permissions: ['global:create:summeruniversity'] },
+                member: { data: { ...user, bodies: undefined } },
+                body: { echoId: true }
+            });
+
+            const res = await createEvent(generator.generateEventBody());
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.organizers[0]).toContain('Organizers should be members of one of the organizing or cooperation bodies');
+            expect(await Event.count()).toEqual(0);
+        });
     });
 
     describe('editing', () => {
