@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 const constants = require('./constants');
 
 exports.findQuestionLine = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.question_line_id))) {
+    if (!helpers.isNumber(req.params.question_line_id)) {
         return errors.makeBadRequestError(res, 'The question line ID is invalid.');
     }
 

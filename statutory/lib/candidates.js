@@ -31,7 +31,7 @@ const CANDIDATE_FIELDS = [
 ];
 
 exports.findCandidate = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.candidate_id))) {
+    if (!helpers.isNumber(req.params.candidate_id)) {
         return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
     }
 

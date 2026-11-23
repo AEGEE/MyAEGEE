@@ -29,7 +29,7 @@ exports.getAllMemberslists = async (req, res) => {
 };
 
 exports.getMemberslist = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
@@ -39,7 +39,7 @@ exports.getMemberslist = async (req, res) => {
 
     const memberslist = await MembersList.findOne({ where: {
         event_id: req.event.id,
-        body_id: parseInt(req.params.body_id, 10)
+        body_id: Number(req.params.body_id)
     } });
 
     if (!memberslist) {
@@ -93,7 +93,7 @@ exports.getMemberslistsWithoutFee = async (req, res) => {
 };
 
 exports.setMemberslistFeePaid = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
@@ -103,7 +103,7 @@ exports.setMemberslistFeePaid = async (req, res) => {
 
     const memberslist = await MembersList.findOne({ where: {
         event_id: req.event.id,
-        body_id: parseInt(req.params.body_id, 10)
+        body_id: Number(req.params.body_id)
     } });
 
     if (!memberslist) {
@@ -119,7 +119,7 @@ exports.setMemberslistFeePaid = async (req, res) => {
 };
 
 exports.uploadMembersList = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
@@ -131,7 +131,7 @@ exports.uploadMembersList = async (req, res) => {
 
     // Only the currency and the members are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.MEMBERSLIST_FORM_FIELDS);
-    req.body.body_id = req.params.body_id;
+    req.body.body_id = Number(req.params.body_id);
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
 

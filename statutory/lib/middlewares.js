@@ -4,7 +4,6 @@ const helpers = require('./helpers');
 const logger = require('./logger');
 const constants = require('./constants');
 const { Event, Application, Image, PaxLimit } = require('../models');
-const { Sequelize } = require('./sequelize');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
 const cron = require('./cron');
@@ -64,9 +63,10 @@ exports.ensureAuthorized = async (req, res, next) => {
 };
 
 exports.fetchEvent = async (req, res, next) => {
+    // The URL as it is written, in any case: URLs are stored in lower case.
     let query = {
         where: {
-            url: { [Sequelize.Op.iLike]: req.params.event_id },
+            url: req.params.event_id.toLowerCase(),
         }
     };
 
@@ -104,7 +104,7 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (!Number.isNaN(Number(req.params.event_id))) {
+    } else if (helpers.isNumber(req.params.event_id)) {
         query = {
             where: { id: Number(req.params.event_id) }
         };

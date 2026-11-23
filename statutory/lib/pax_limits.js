@@ -86,10 +86,11 @@ exports.deleteSingleLimit = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change limits.');
     }
 
-    const bodyId = Number(req.params.body_id);
-    if (Number.isNaN(bodyId)) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
+
+    const bodyId = Number(req.params.body_id);
 
     const affectedRows = await PaxLimit.destroy({ where: { body_id: bodyId, event_type: req.params.event_type } });
     if (affectedRows > 0) {

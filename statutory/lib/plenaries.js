@@ -18,7 +18,7 @@ const toSheetName = (name) => name.replace(/[\\/?*[\]:]/g, '-').slice(0, 31).tri
 const average = (numbers) => (numbers.length > 0 ? numbers.reduce((acc, val) => acc + val, 0) / numbers.length : 0);
 
 exports.findPlenary = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.plenary_id))) {
+    if (!helpers.isNumber(req.params.plenary_id)) {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
@@ -87,7 +87,7 @@ exports.findPlenaryWithAttendances = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot see this plenary.');
     }
 
-    if (Number.isNaN(Number(req.params.plenary_id))) {
+    if (!helpers.isNumber(req.params.plenary_id)) {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 

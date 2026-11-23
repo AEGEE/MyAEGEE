@@ -8,7 +8,7 @@ const constants = require('./constants');
 const logger = require('./logger');
 
 exports.findPosition = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.position_id))) {
+    if (!helpers.isNumber(req.params.position_id)) {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }
 

@@ -391,7 +391,7 @@ exports.getStats = async (req, res) => {
 };
 
 exports.listBoardView = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
 
@@ -401,7 +401,7 @@ exports.listBoardView = async (req, res) => {
 
     // 'zzzzz' is used to be last, 'unset' won't do
     const applications = await Application.findAll({
-        where: { event_id: req.event.id, body_id: parseInt(req.params.body_id, 10) },
+        where: { event_id: req.event.id, body_id: Number(req.params.body_id) },
     });
 
     if (applications.length > 0) {
@@ -698,7 +698,7 @@ exports.setApplicationBoard = async (req, res) => {
 // WARNING: This will reset all of the pax types and orders and board comments
 // and will set it only for those specified in the input.
 exports.setBoardForBody = async (req, res) => {
-    if (Number.isNaN(Number(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body ID is invalid.');
     }
 
