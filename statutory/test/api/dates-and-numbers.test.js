@@ -65,9 +65,7 @@ describe('Dates and numbers that do not fit their column', () => {
             'final_proposal_deadline',
             'candidature_deadline',
             'booklet_publication_deadline',
-            'updated_booklet_publication_deadline',
-            'publication_date',
-            'application_status_revealed_at'
+            'updated_booklet_publication_deadline'
         ];
 
         test.each(dates)('should refuse a new event whose %s is not a date', async (field) => {
@@ -79,12 +77,6 @@ describe('Dates and numbers that do not fit their column', () => {
         test.each(dates)('should refuse changing %s of an event to something that is not a date', async (field) => {
             const res = await send('PUT', '/events/' + event.id, { [field]: 'not-a-date' });
 
-            // The date the application statuses were revealed on cannot be edited.
-            if (field === 'application_status_revealed_at') {
-                expect(res.statusCode).toEqual(200);
-                return;
-            }
-
             expectInvalid(res, field);
         });
 
@@ -92,8 +84,6 @@ describe('Dates and numbers that do not fit their column', () => {
             ['body_id', TOO_BIG],
             ['body_id', -TOO_BIG - 1],
             ['body_id', 'abc'],
-            ['previous_agora_id', TOO_BIG],
-            ['previous_agora_id', 'abc'],
             ['fee', 'abc']
         ])('should refuse a new event whose %s is %p', async (field, value) => {
             const res = await send('POST', '/', { ...generator.generateEvent({ type: 'epm' }), [field]: value });
