@@ -21,4 +21,14 @@ defmodule OmsmailerWeb.PageViewTest do
       assert res =~ ~r{<strong>Secretary </strong>\s*Grace Hopper}
       assert res =~ ~r{<strong>Public relations </strong>\s*Alan Turing}
     end
+
+    test "the signup confirmation greets the member with first name and surname" do
+      res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "confirm_email.html", parameters: %{"name" => "Ada", "surname" => "Lovelace", "token" => "abc"})
+      assert res =~ "Hello Ada Lovelace</strong>"
+    end
+
+    test "the mail change confirmation greets the member with first name and surname" do
+      res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change.html", parameters: %{"name" => "Ada", "surname" => "Lovelace", "token" => "abc"})
+      assert res =~ "Hello Ada Lovelace</strong>"
+    end
 end

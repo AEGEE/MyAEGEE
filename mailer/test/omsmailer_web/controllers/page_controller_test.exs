@@ -107,9 +107,9 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
-  # Password reset works
+  # Mail change works, with the parameters core sends
   test "POST / mail change", %{conn: conn} do
-    conn = post conn, "/", %{template: "mail_change.html", parameters: %{token: "astdefern1234", first_name: "Name"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "mail_change.html", parameters: %{token: "astdefern1234", name: "Name", surname: "Surname"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
