@@ -171,4 +171,48 @@ describe('Export candidates', () => {
         expect(sheet.length).toEqual(2); // headers + 1 application
         expect(sheet[1][0]).toEqual(candidate.id);
     });
+
+    test('should return 400 if the filter has a field other than the supported ones', async () => {
+        const position = await generator.createPosition({}, event);
+        await generator.createCandidate({ status: 'approved' }, position);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/export',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: constants.CANDIDATE_FIELDS,
+                filter: { first_name: 'test' }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+        expect(body.message).toMatch(/first_name/);
+    });
+
+    test('should return 400 if the filter has a field of the position', async () => {
+        const anotherEvent = await generator.createEvent({ type: 'agora' });
+        const anotherPosition = await generator.createPosition({}, anotherEvent);
+        await generator.createCandidate({ status: 'approved' }, anotherPosition);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/export',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            query: {
+                select: constants.CANDIDATE_FIELDS,
+                filter: { '$position.event_id$': anotherEvent.id }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        const body = JSON.parse(res.body.toString());
+        expect(body.success).toEqual(false);
+    });
 });
