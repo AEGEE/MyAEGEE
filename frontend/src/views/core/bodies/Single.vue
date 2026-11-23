@@ -482,7 +482,7 @@ export default {
           if (err.response && err.response.status === 422) {
             this.$root.showError("You've already requested to join this body.")
           } else {
-            this.$root.showError('Could not sent join request', err)
+            this.$root.showError('Could not send join request', err)
           }
         })
     },
