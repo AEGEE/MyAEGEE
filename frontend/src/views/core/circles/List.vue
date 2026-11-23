@@ -2,17 +2,17 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Circles list</h4>
+        <h1 class="title">Circles list</h1>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="circles-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+              <input id="circles-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
             </div>
             <div class="control">
-              <a class="button is-info" v-if="includeBoundCircles" @click="toggleBoundCircles()">Show only free circles</a>
-              <a class="button is-info" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</a>
+              <button type="button" class="button is-info" v-if="includeBoundCircles" @click="toggleBoundCircles()">Show only free circles</button>
+              <button type="button" class="button is-info" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</button>
             </div>
           </div>
         </div>
