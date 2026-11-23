@@ -151,20 +151,26 @@ exports.blacklistObject = (object, filteredFields) => {
 };
 
 // A helper to check a filter passed by a client before using it in a query.
-// The filter can only contain the allowed fields, and each of them should be
-// a plain value (or a list of plain values).
+// allowedFields maps each supported field to the values it accepts: a list
+// of values, or 'boolean' (query strings pass booleans as 'true' and 'false').
+// A filter value is one of these values, null, or a list of them.
 // Returns the error message, or null if the filter is fine.
 exports.getFilterError = (filter, allowedFields) => {
-    const isPlainValue = (value) => value === null || ['string', 'number', 'boolean'].includes(typeof value);
+    const fieldNames = Object.keys(allowedFields);
+    const booleanValues = [true, false, 'true', 'false'];
 
     for (const [field, value] of Object.entries(filter)) {
-        if (!allowedFields.includes(field)) {
-            return `Filtering by "${field}" is not supported. The supported filter fields are: ${allowedFields.join(', ')}.`;
+        if (!Object.prototype.hasOwnProperty.call(allowedFields, field)) {
+            return `Filtering by "${field}" is not supported. The supported filter fields are: ${fieldNames.join(', ')}.`;
         }
 
+        const isBoolean = allowedFields[field] === 'boolean';
+        const allowedValues = isBoolean ? booleanValues : allowedFields[field];
+
         const values = Array.isArray(value) ? value : [value];
-        if (!values.every(isPlainValue)) {
-            return `The filter value for "${field}" should be a single value or a list of values.`;
+        if (!values.every((item) => item === null || allowedValues.includes(item))) {
+            const supported = isBoolean ? 'true, false' : allowedValues.join(', ');
+            return `The filter value for "${field}" is not supported. The supported values are: ${supported}.`;
         }
     }
 
