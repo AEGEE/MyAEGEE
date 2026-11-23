@@ -41,6 +41,15 @@ function hasPermission(permissionsList, combinedPermission) {
         && permission.combined.endsWith(combinedPermission));
 }
 
+// Viewing boards is granted by the global permission only.
+function hasGlobalPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
+    return permissionsList.some((permission) => permission && permission.combined === combinedPermission);
+}
+
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
@@ -56,7 +65,7 @@ function getBodiesListFromPermissions(result) {
 
 exports.getPermissions = (user, corePermissions, managePermissions) => {
     const permissions = {
-        view_board: hasPermission(corePermissions, 'view:board'),
+        view_board: hasGlobalPermission(corePermissions, 'global:view:board'),
         manage_antenna_criteria: hasPermission(corePermissions, 'global:manage_network:antenna_criteria'),
         manage_netcom_assignment: hasPermission(corePermissions, 'global:manage_network:netcom_assignment'),
         send_mails: hasPermission(corePermissions, 'global:manage_network:fulfilment_email'),
