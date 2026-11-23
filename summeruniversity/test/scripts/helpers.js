@@ -26,7 +26,9 @@ const appendQuery = (url, query) => {
 
 const request = async (options) => {
     const responseType = options.responseType || 'json';
-    const headers = { ...(options.headers || {}) };
+    // Connection: close, so that no keep-alive socket outlives the server that a test file
+    // stops: fetch would otherwise reuse a socket of a closed server (ECONNRESET).
+    const headers = { Connection: 'close', ...(options.headers || {}) };
     const fetchOptions = { method: options.method || 'GET', headers };
 
     if (options.body !== undefined) {
