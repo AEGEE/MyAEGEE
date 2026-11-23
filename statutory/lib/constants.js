@@ -1,5 +1,6 @@
 module.exports = {
     CURRENT_USER_PREFIX: 'me',
+    EVENT_TYPES: ['agora', 'epm', 'spm'],
     ALLOWED_NETWORK_LIST_FIELDS: [
         'id',
         'statutory_id',

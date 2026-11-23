@@ -724,6 +724,10 @@ exports.setBoardForBody = async (req, res) => {
 };
 
 exports.postApplication = async (req, res) => {
+    if (req.event.status !== 'published') {
+        return errors.makeForbiddenError(res, 'You cannot apply to this event, as it is not published yet.');
+    }
+
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.');
     }

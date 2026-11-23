@@ -1,5 +1,4 @@
 const moment = require('moment');
-const lodash = require('lodash');
 
 const errors = require('./errors');
 const constants = require('./constants');
@@ -216,23 +215,24 @@ exports.getCandidatesFields = async (req, res) => {
 };
 
 exports.listUserAppliedEvents = async (req, res) => {
-    const defaultQueryObj = {
-        where: {},
-        order: [['starts', 'ASC']],
-        select: constants.EVENT_PUBLIC_FIELDS
-    };
-
-    const queryObj = lodash.merge(defaultQueryObj, {
+    // Drafts are only listed for those who manage events of their type.
+    const queryObj = {
         where: {
-            '$applications.user_id$': req.user.id
+            '$applications.user_id$': req.user.id,
+            [Sequelize.Op.or]: [
+                { status: 'published' },
+                { type: { [Sequelize.Op.in]: helpers.getManagedEventTypes(req.corePermissions) } }
+            ]
         },
+        order: [['starts', 'ASC']],
+        select: constants.EVENT_PUBLIC_FIELDS,
         subQuery: false,
         include: [{
             model: Application,
             attributes: ['user_id', 'cancelled', 'status'], // pass along user_id, as well as the status of the application
             required: true
         }]
-    });
+    };
 
     const events = await Event.findAll(queryObj);
 

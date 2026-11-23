@@ -113,7 +113,8 @@ exports.fetchEvent = async (req, res, next) => {
     query.include = [Image];
     const event = await Event.findOne(query);
 
-    if (!event) {
+    // A draft answers like an event that does not exist, unless the user manages events of its type.
+    if (!event || !helpers.canSeeEvent(event, req.corePermissions)) {
         return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
     }
 

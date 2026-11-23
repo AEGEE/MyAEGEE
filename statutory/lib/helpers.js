@@ -319,6 +319,16 @@ function getBodiesListFromPermissions(result) {
         .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
+// The event types whose events the user manages.
+exports.getManagedEventTypes = (corePermissions) => {
+    return constants.EVENT_TYPES.filter((type) => hasPermission(corePermissions, 'global:manage_event:' + type));
+};
+
+// A draft event is only visible to those who manage events of its type.
+exports.canSeeEvent = (event, corePermissions) => {
+    return event.status === 'published' || exports.getManagedEventTypes(corePermissions).includes(event.type);
+};
+
 exports.getPermissions = (user, corePermissions) => {
     return {
         create_event: {
@@ -356,9 +366,12 @@ exports.getEventPermissions = (data) => {
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.delete_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.apply = event.can_apply
+    // Nobody can apply to a draft event.
+    permissions.apply = event.status === 'published' && (
+        event.can_apply
         || hasPermission(corePermissions, 'global:manage_applications:' + event.type)
-        || hasPermission(corePermissions, 'global:apply:' + event.type);
+        || hasPermission(corePermissions, 'global:apply:' + event.type)
+    );
 
     permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
 
