@@ -388,7 +388,8 @@ export default {
           body: this.body,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
