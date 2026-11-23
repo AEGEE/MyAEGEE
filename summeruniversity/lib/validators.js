@@ -60,6 +60,11 @@ function isList(msg) {
     };
 }
 
+// Whether every key of the object is one of `types` and has that type ('string', 'boolean').
+const hasOnly = (object, types) => Object.entries(object)
+    // eslint-disable-next-line valid-typeof -- the types are typeof names
+    .every(([key, value]) => Object.prototype.hasOwnProperty.call(types, key) && typeof value === types[key]);
+
 // The most digits after the decimal point that a Postgres NUMERIC without a precision keeps.
 const DECIMAL_SCALE_MAX = 16383;
 
@@ -111,5 +116,5 @@ function isDate(msg) {
 }
 
 module.exports = {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
 };

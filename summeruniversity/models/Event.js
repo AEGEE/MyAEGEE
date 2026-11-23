@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -146,6 +146,11 @@ const Event = sequelize.define(
                     for (const medium of socialMedia) {
                         if (!medium || typeof medium.description !== 'string' || medium.description.trim() === '') {
                             throw new Error('Every social media entry should have a link.');
+                        }
+
+                        // The frontend sends a name (left empty) next to the link.
+                        if (!hasOnly(medium, { name: 'string', description: 'string' })) {
+                            throw new Error('A social media entry can only have a name (text) and a description (the link).');
                         }
 
                         isWebLink(medium.description);
@@ -438,6 +443,11 @@ const Event = sequelize.define(
                     // The applications export reads the description of every question.
                     if (!value.every((question) => typeof question === 'object' && question !== null && typeof question.description === 'string')) {
                         throw new Error('Every question should have a description.');
+                    }
+
+                    // The frontend sends a name (left empty) and whether an answer is required.
+                    if (!value.every((question) => hasOnly(question, { name: 'string', description: 'string', required: 'boolean' }))) {
+                        throw new Error('A question can only have a name (text), a description (text) and required (true or false).');
                     }
                 }
             }
