@@ -6,7 +6,7 @@ const config = {
         postgres: {
             host: process.env.DB_HOST || 'postgres-core',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
-            username: process.env.USERNAME || 'postgres',
+            username: process.env.DB_USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'core'
         },
@@ -80,7 +80,7 @@ const config = {
         bugsnag_key: '00000000000000000000000000000000' // valid format; reporting is disabled in e2e
     },
     test: {
-        port: 8085,
+        port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
             database: 'core-testing'

@@ -62,7 +62,7 @@ const config = {
         images_dir: '/tmp/myaegee-e2e/statutory-media'
     },
     test: {
-        port: 8085,
+        port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
             database: 'statutory-testing'

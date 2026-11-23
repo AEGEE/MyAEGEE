@@ -6,7 +6,7 @@ const config = {
         postgres: {
             host: process.env.DB_HOST || 'postgres-discounts',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
-            username: process.env.USERNAME || 'postgres',
+            username: process.env.DB_USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || 'postgres',
             database: process.env.DB_DATABASE || 'discounts'
         },
@@ -29,7 +29,7 @@ const config = {
 
     },
     test: {
-        port: 8085,
+        port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
             database: 'discounts-testing',
