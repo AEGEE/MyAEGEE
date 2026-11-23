@@ -151,4 +151,34 @@ describe('Integrations codes population', () => {
         const codesFromDb = await Code.findAll({ where: { integration_id: integration.id } });
         expect(codesFromDb.map((code) => code.value)).toEqual(['a'.repeat(255)]);
     });
+
+    test('should store codes without their surrounding spaces', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id + '/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: ['  first  ', '\tsecond\r', 'third code']
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const codesFromDb = await Code.findAll({ where: { integration_id: integration.id }, order: [['id', 'ASC']] });
+        expect(codesFromDb.map((code) => code.value)).toEqual(['first', 'second', 'third code']);
+    });
+
+    test('should check the length of a code without its surrounding spaces', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id + '/codes',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: [' ' + 'a'.repeat(255) + ' ']
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const codesFromDb = await Code.findAll({ where: { integration_id: integration.id } });
+        expect(codesFromDb.map((code) => code.value)).toEqual(['a'.repeat(255)]);
+    });
 });
