@@ -15,21 +15,8 @@ MANIFEST = load_manifest()
 ENVIRONMENT = create_template_environment()
 PATHS = TemplatePaths(ENVIRONMENT)
 
-# network sends the board as it was posted, so its end date and message can be missing (D7).
-BOARD_WITHOUT_OPTIONAL_FIELDS = pytest.mark.xfail(
-    raises=UndefinedError, strict=True,
-    reason="board_info reads board.end_date and board.message without a default",
-)
-
-
-def case_marks(name, index, variant):
-    if name == "network_new_board" and (index == 1 or variant == "minimal"):
-        return [BOARD_WITHOUT_OPTIONAL_FIELDS]
-    return []
-
-
 CASES = [
-    pytest.param(name, index, variant, id=f"{name}-{index}-{variant}", marks=case_marks(name, index, variant))
+    pytest.param(name, index, variant, id=f"{name}-{index}-{variant}")
     for name, entry in sorted(MANIFEST["templates"].items())
     for index in range(len(entry["examples"]))
     for variant in ("full", "minimal", "nulls")
@@ -88,11 +75,7 @@ def test_templates_read_only_declared_parameters(name):
     assert sorted(read - declared_paths(schema, MANIFEST)) == []
 
 
-@pytest.mark.parametrize("name", [
-    pytest.param(name, marks=[pytest.mark.xfail(strict=True, reason="board_info reads board.end_date and board.message without a default")]
-                 if name == "network_new_board" else [])
-    for name in sorted(MANIFEST["templates"])
-])
+@pytest.mark.parametrize("name", sorted(MANIFEST["templates"]))
 def test_optional_parameters_are_read_with_a_default(name):
     # Templates render with StrictUndefined: a parameter that senders may leave out must be
     # read through `default` or tested with `is defined`, or the mail is dropped.
@@ -113,8 +96,9 @@ def test_the_path_extractor_finds_what_the_templates_read():
     }
     assert guarded == set()
 
-    read, _ = PATHS.read("network_new_board.jinja2")
+    read, guarded = PATHS.read("network_new_board.jinja2")
     assert {"positions", "positions.[].function", "positions.[].name", "board.message", "body_name"} <= read
+    assert guarded == {"board.end_date", "board.message"}
 
     read, guarded = PATHS.read("mail_change_notice.jinja2")
     assert read == {"name", "surname", "new_email", "changed_by", "changed_by_email"}

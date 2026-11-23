@@ -2,11 +2,11 @@
   <li><strong>Body name: </strong>{{ body_name }}</li>
   <li><strong>Elected date: </strong>{{ board["elected_date"] }}</li>
   <li><strong>Start date: </strong>{{ board["start_date"] }}</li>
-  <li><strong>End date: </strong>{{ board["end_date"] }}</li>
+  <li><strong>End date: </strong>{{ board["end_date"] | default(None) }}</li>
 
   {% for position in positions %}
     <li><strong>{{ position["function"] }} </strong> {{ position["name"] }}</li>
   {% endfor %}
 
-  <li><strong>Message: </strong>{{ board["message"] }}</li>
+  <li><strong>Message: </strong>{{ board["message"] | default(None) }}</li>
 </ul>
