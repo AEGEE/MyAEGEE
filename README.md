@@ -110,7 +110,7 @@ These ports are bound to `127.0.0.1` and can be changed in `.env` (`FRONTEND_POR
 
 How it works:
 - Traefik and the portal are not started. Instead, the `frontend` container runs the webpack dev server, which serves the app and proxies `/api/<service>`, `/media/<service>` and `/services/*` the way Traefik does (see `frontend/docker/devserver/proxy.js`).
-- Changes in `frontend/src` reload the page. The Express services (core, events, statutory, summeruniversity, discounts, network, knowledge) restart with `nodemon` when you change `config`, `lib`, `middlewares`, `migrations` or `models`. A change to `package.json` or `package-lock.json` needs a rebuild of that service (`make rebuild_core` etc.); the frontend reinstalls by itself on the next restart.
+- Changes in `frontend/src` reload the page. The Express services (core, events, statutory, summeruniversity, discounts, network) restart with `nodemon` when you change `config`, `lib`, `middlewares`, `migrations` or `models`. A change to `package.json` or `package-lock.json` needs a rebuild of that service (`make rebuild_core` etc.); the frontend reinstalls by itself on the next restart.
 - If edits don't trigger a reload (this can happen with some Docker Desktop file sharing setups), set `FRONTEND_POLLING=true` in `.env` and run `make start`.
 
 Run `make` targets (`make start`, `make monitor`, ...) and `./helper.sh` from the repository root on your machine, there is no _GUEST_. Services that only have a Traefik subdomain (`dev-tools`, `monitor`) aren't reachable in this mode.
