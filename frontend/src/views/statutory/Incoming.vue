@@ -26,10 +26,7 @@
             backend-sorting
             default-sort="statutory_id"
             default-sort-direction="desc"
-            aria-next-label="Next page"
-            aria-previous-label="Previous page"
-            aria-page-label="Page"
-            aria-current-label="Current page"
+            v-bind="paginationLabels"
             @sort="onSort">
             <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
               {{ props.row.statutory_id }}
@@ -113,6 +110,13 @@ export default {
   name: 'StatutoryIncoming',
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
         questions: []

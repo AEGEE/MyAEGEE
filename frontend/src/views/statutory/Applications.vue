@@ -56,10 +56,7 @@
             backend-sorting
             default-sort="statutory_id"
             default-sort-direction="desc"
-            aria-next-label="Next page"
-            aria-previous-label="Previous page"
-            aria-page-label="Page"
-            aria-current-label="Current page"
+            v-bind="paginationLabels"
             @sort="onSort">
             <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
               {{ props.row.statutory_id }}
@@ -87,7 +84,7 @@
 
             <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
             <b-table-column
-              v-for="(field, index) in fields"
+              v-for="field in fields"
               :visible="selectedFields.some(sField => sField.key === field.key)"
               v-bind:key="field.key"
               :field="field.column"
@@ -185,6 +182,13 @@ export default {
   },
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
         questions: []
