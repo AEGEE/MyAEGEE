@@ -457,8 +457,9 @@ export interface paths {
         /**
          * Open or close the open call of a Summer University
          * @description Only for a fully published Summer University. With max_participants, the maximum changes
-         *     too and the accepted participants are counted again. The open call closes by itself when
-         *     no spot is left.
+         *     too and the accepted participants are counted again. Opening the call needs a free spot.
+         *     The open call closes by itself when no spot is left. Runs while it holds the Summer
+         *     University, like the application changes that take a spot.
          */
         put: operations["setEventOpenCall"];
         post?: never;
@@ -484,7 +485,8 @@ export interface paths {
         /**
          * Apply to a Summer University
          * @description The caller applies with one of their bodies. The applicant, the organizers and the board of
-         *     the body get a mail. Answers 200, not 201.
+         *     the body get a mail. Answers 200, not 201. The applicant gets the application without the
+         *     board comment, unless they may see it.
          */
         post: operations["createApplication"];
         delete?: never;
@@ -528,11 +530,14 @@ export interface paths {
             };
             cookie?: never;
         };
-        /** One application */
+        /**
+         * One application
+         * @description The applicant gets their application without the board comment, unless they may list the applications of the Summer University or set board comments for the body.
+         */
         get: operations["getApplication"];
         /**
          * Edit an application
-         * @description A new body must be one of the applicant's bodies. The applicant, the organizers and the board of the body get a mail.
+         * @description A new body must be one of the applicant's bodies. The applicant, the organizers and the board of the body get a mail. The applicant gets the application without the board comment, unless they may see it.
          */
         put: operations["updateApplication"];
         post?: never;
@@ -582,7 +587,7 @@ export interface paths {
         get?: never;
         /**
          * Cancel an application, or take the cancellation back
-         * @description The accepted participants of the Summer University are counted again.
+         * @description The accepted participants of the Summer University are counted again, while the change holds the Summer University (see 503). Taking back the cancellation of an accepted application needs a free spot, except for managers of the type. The applicant gets the application without the board comment, unless they may see it.
          */
         put: operations["setApplicationCancelled"];
         post?: never;
@@ -607,7 +612,7 @@ export interface paths {
         get?: never;
         /**
          * Mark an applicant as confirmed or not
-         * @description An application marked as attended cannot be unconfirmed.
+         * @description An application marked as attended cannot be unconfirmed. Runs while it holds the Summer University, like the status changes (see 503).
          */
         put: operations["setApplicationConfirmed"];
         post?: never;
@@ -632,7 +637,7 @@ export interface paths {
         get?: never;
         /**
          * Accept or reject an application
-         * @description The applicant gets a mail, and the accepted participants are counted again.
+         * @description The applicant gets a mail, and the accepted participants are counted again, while the change holds the Summer University (see 503). Accepting an application that is not cancelled needs a free spot, except for managers of the type.
          */
         put: operations["setApplicationStatus"];
         post?: never;
@@ -677,6 +682,8 @@ export interface components {
         ErrorWithFields: {
             /** @constant */
             success: false;
+            /** @description The field messages joined. Sent by the checks of the handlers, not by model validation. */
+            message?: string;
             errors: {
                 [key: string]: string[];
             };
@@ -717,18 +724,49 @@ export interface components {
                 lng: number;
             };
             description?: string;
-            start?: boolean;
-            end?: boolean;
+            /** @description Whether the Summer University starts here: true or false, or the text "true" or "false", which the edit forms used to send. */
+            start?: boolean | string;
+            /** @description Whether the Summer University ends here: true or false, or the text "true" or "false", which the edit forms used to send. */
+            end?: boolean | string;
         };
         Organizer: {
             user_id: number;
             body_id?: number;
             role: string;
         };
-        /** @description A link in `description`; the frontend also sends the platform's `name`. */
-        SocialMedium: Record<string, never>;
-        Question: unknown;
-        Answer: unknown;
+        SocialMedium: {
+            /** @description The platform; the frontend leaves it empty. */
+            name?: string;
+            /** @description The link, http:// or https://. */
+            description: string;
+        };
+        Question: {
+            /** @description The frontend leaves it empty. */
+            name?: string;
+            /** @description The question. */
+            description: string;
+            /** @description Whether the frontend asks for an answer. */
+            required?: boolean;
+        };
+        /** @description A social media entry as sent. Keys other than name and description are dropped. */
+        SocialMediumInput: {
+            name?: string;
+            description: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description A question as sent. Keys other than name, description and required are dropped. */
+        QuestionInput: {
+            name?: string;
+            description: string;
+            required?: boolean;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description The answer to the question at the same place in the Summer University's questions. */
+        Answer: string;
+        Photo: unknown;
+        LearningObjective: unknown;
         /** @description Every column of a Summer University, as organizers, managers and approvers of its type see it. */
         Event: {
             id: number;
@@ -738,7 +776,7 @@ export interface components {
             season: number | null;
             /** @description File name of the head image under /media/summeruniversity/headimages. */
             image: string | null;
-            photos: unknown;
+            photos: components["schemas"]["Photo"][] | null;
             video: string | null;
             description: string;
             email: string;
@@ -761,7 +799,7 @@ export interface components {
             theme_category: components["schemas"]["EventThemeCategory"];
             theme: string;
             theme_implementation: string;
-            learning_objectives: unknown;
+            learning_objectives: components["schemas"]["LearningObjective"][] | null;
             status: components["schemas"]["EventStatus"];
             published: components["schemas"]["EventPublished"];
             deleted: boolean;
@@ -809,7 +847,7 @@ export interface components {
             season: number | null;
             /** @description File name of the head image under /media/summeruniversity/headimages. */
             image: string | null;
-            photos: unknown;
+            photos: components["schemas"]["Photo"][] | null;
             video: string | null;
             description: string;
             email: string;
@@ -1091,7 +1129,8 @@ export interface components {
             edit_application: boolean;
             set_application_cancelled: boolean;
         } & WithRequired<components["schemas"]["EventPermissionFields"], "approve_summeruniversity" | "manage_summeruniversity" | "apply_general" | "create_summeruniversity" | "manage_seasons" | "edit_su_type" | "edit_su_fee" | "set_board_comment" | "see_boardview" | "see_summeruniversity" | "edit_summeruniversity" | "delete_summeruniversity" | "apply" | "see_own_application" | "list_applications" | "approve_participants" | "set_participants_cancelled" | "set_participants_attended" | "set_participants_confirmed" | "edit_summeruniversity_open_call" | "export_pax" | "change_status">;
-        Application: {
+        /** @description The columns of an application but the board comment, shared by the variants below. */
+        ApplicationFields: {
             id: number;
             user_id: number;
             event_id: number;
@@ -1117,8 +1156,6 @@ export interface components {
             confirmed: boolean;
             attended: boolean;
             cancelled: boolean;
-            /** @description Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body. */
-            board_comment?: string | null;
             aegee_experience: string;
             ideal_su: string;
             motivation: string;
@@ -1132,47 +1169,8 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
-        /** @description An application with the applicant's gender, date of birth and notification email from core. */
-        ApplicationWithUser: {
-            id: number;
-            user_id: number;
-            event_id: number;
-            first_name: string;
-            last_name: string;
-            nationality: string;
-            travelling_from: string;
-            visa_required: boolean;
-            visa_place_of_birth: string | null;
-            visa_passport_number: string | null;
-            visa_passport_issue_date: string | null;
-            visa_passport_expiration_date: string | null;
-            visa_passport_issue_authority: string | null;
-            visa_embassy: string | null;
-            visa_street_and_house: string | null;
-            visa_postal_code: string | null;
-            visa_city: string | null;
-            visa_country: string | null;
-            body_id: number;
-            body_name: string;
-            /** @enum {string} */
-            status: "pending" | "accepted" | "rejected";
-            confirmed: boolean;
-            attended: boolean;
-            cancelled: boolean;
-            /** @description Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body. */
-            board_comment?: string | null;
-            aegee_experience: string;
-            ideal_su: string;
-            motivation: string;
-            answers: components["schemas"]["Answer"][];
-            meals: string;
-            allergies: string | null;
-            agreed_to_privacy_policy: boolean;
-            agreed_to_su_terms: boolean;
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
+        /** @description The applicant's details from core, which most application responses add. */
+        ApplicantFields: {
             /** @description From the applicant's core profile. */
             gender: string | null;
             /**
@@ -1183,49 +1181,29 @@ export interface components {
             /** @description From the applicant's core profile. */
             notification_email: string | null;
         };
+        /**
+         * @description The board's comment on the applicant. Left out of the answers the applicant gets about
+         *     their own application (the ForApplicant variants), unless they may also list the
+         *     applications of the Summer University or set board comments for the application's body.
+         */
+        BoardComment: string | null;
+        /** @description An application as organizers, managers and boards get it. */
+        Application: {
+            board_comment: components["schemas"]["BoardComment"];
+        } & components["schemas"]["ApplicationFields"];
+        /** @description An application as its applicant gets it, without the board comment. */
+        ApplicationForApplicant: components["schemas"]["ApplicationFields"];
+        /** @description An application with the applicant's gender, date of birth and notification email from core, as organizers, managers and boards get it. */
+        ApplicationWithUser: {
+            board_comment: components["schemas"]["BoardComment"];
+        } & (components["schemas"]["ApplicationFields"] & components["schemas"]["ApplicantFields"]);
+        /** @description An application with the applicant's gender, date of birth and notification email from core, as its applicant gets it, without the board comment. */
+        ApplicationWithUserForApplicant: components["schemas"]["ApplicationFields"] & components["schemas"]["ApplicantFields"];
         /** @description An application with what a board needs of the Summer University it belongs to. */
         ApplicationWithEvent: {
-            id: number;
-            user_id: number;
-            event_id: number;
-            first_name: string;
-            last_name: string;
-            nationality: string;
-            travelling_from: string;
-            visa_required: boolean;
-            visa_place_of_birth: string | null;
-            visa_passport_number: string | null;
-            visa_passport_issue_date: string | null;
-            visa_passport_expiration_date: string | null;
-            visa_passport_issue_authority: string | null;
-            visa_embassy: string | null;
-            visa_street_and_house: string | null;
-            visa_postal_code: string | null;
-            visa_city: string | null;
-            visa_country: string | null;
-            body_id: number;
-            body_name: string;
-            /** @enum {string} */
-            status: "pending" | "accepted" | "rejected";
-            confirmed: boolean;
-            attended: boolean;
-            cancelled: boolean;
-            /** @description Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body. */
-            board_comment: string | null;
-            aegee_experience: string;
-            ideal_su: string;
-            motivation: string;
-            answers: components["schemas"]["Answer"][];
-            meals: string;
-            allergies: string | null;
-            agreed_to_privacy_policy: boolean;
-            agreed_to_su_terms: boolean;
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
+            board_comment: components["schemas"]["BoardComment"];
             event: components["schemas"]["BoardviewEvent"];
-        };
+        } & components["schemas"]["ApplicationFields"];
         ApplicationListResponse: {
             /** @constant */
             success: true;
@@ -1240,23 +1218,31 @@ export interface components {
             /** @constant */
             success: true;
             message: string;
-            data: components["schemas"]["Application"];
+            /** @description The applicant gets ApplicationForApplicant, unless they may see the board comment. */
+            data: components["schemas"]["Application"] | components["schemas"]["ApplicationForApplicant"];
         };
         ApplicationWithUserMessageResponse: {
             /** @constant */
             success: true;
             message: string;
-            data: components["schemas"]["ApplicationWithUser"];
+            data: components["schemas"]["ApplicationWithUserForCaller"];
         };
         ApplicationWithUserResponse: {
             /** @constant */
             success: true;
             data: components["schemas"]["ApplicationWithUser"];
         };
+        ApplicationForCallerResponse: {
+            /** @constant */
+            success: true;
+            data: components["schemas"]["ApplicationWithUserForCaller"];
+        };
+        /** @description The applicant gets ApplicationWithUserForApplicant, unless they may see the board comment; everyone else ApplicationWithUser. */
+        ApplicationWithUserForCaller: components["schemas"]["ApplicationWithUser"] | components["schemas"]["ApplicationWithUserForApplicant"];
         ApplicationDetailsResponse: {
             /** @constant */
             success: true;
-            data: components["schemas"]["ApplicationWithUser"];
+            data: components["schemas"]["ApplicationWithUserForCaller"];
             permissions: components["schemas"]["ApplicationPermissions"];
         };
         FutureApplication: {
@@ -1332,13 +1318,13 @@ export interface components {
         };
         /**
          * @description The fields of a Summer University. id, image, status, deleted, published, the application
-         *     period, open_call and the participant counters are ignored; season is ignored unless the
-         *     caller manages the type.
+         *     period, open_call, the participant counters and the timestamps are ignored; season is
+         *     ignored unless the caller manages the type.
          */
         EventInput: {
             name?: string;
             url?: string | null;
-            season?: number | null;
+            season?: number | string | null;
             description?: string;
             email?: string;
             video?: string | null;
@@ -1346,15 +1332,31 @@ export interface components {
             budget?: string | null;
             programme_suct?: string;
             accommodation_type?: string;
-            starts?: string;
-            ends?: string;
-            fee?: number | string;
-            optional_fee?: number | string | null;
+            starts?: components["schemas"]["DateInput"];
+            ends?: components["schemas"]["DateInput"];
+            fee?: components["schemas"]["DecimalInput"];
+            optional_fee?: components["schemas"]["DecimalInput"] | null;
             type?: string;
             organizing_bodies?: unknown[];
             cooperation?: unknown[] | null;
             organizers?: unknown[];
-            questions?: unknown[];
+            questions?: components["schemas"]["QuestionInput"][] | null;
+            social_media?: components["schemas"]["SocialMediumInput"][] | null;
+            photos?: unknown[] | null;
+            learning_objectives?: unknown[] | null;
+            max_participants?: number | string | null;
+            university_support?: boolean | null;
+            theme?: string;
+            theme_implementation?: string;
+            trainers?: string | null;
+            pax_description?: string | null;
+            programme?: string | null;
+            activities_list?: string | null;
+            optional_programme?: string | null;
+            courses?: string | null;
+            special_equipment?: string | null;
+            cancellation_rules?: string | null;
+            additional_regulation?: string | null;
         } & {
             [key: string]: unknown;
         };
@@ -1377,7 +1379,7 @@ export interface components {
             aegee_experience?: string;
             ideal_su?: string;
             motivation?: string;
-            answers?: unknown[];
+            answers?: string[];
             meals?: string;
             allergies?: string | null;
             agreed_to_privacy_policy?: boolean;
@@ -1386,20 +1388,20 @@ export interface components {
             [key: string]: unknown;
         };
         SeasonCreateInput: {
-            year?: number;
+            year?: number | string;
             name?: string;
-            event_submission_deadline?: string | null;
-            application_period_starts?: string | null;
-            application_period_ends?: string | null;
+            event_submission_deadline?: components["schemas"]["NullableDateInput"];
+            application_period_starts?: components["schemas"]["NullableDateInput"];
+            application_period_ends?: components["schemas"]["NullableDateInput"];
         } & {
             [key: string]: unknown;
         };
         /** @description The year and the active flag are ignored. */
         SeasonUpdateInput: {
             name?: string;
-            event_submission_deadline?: string | null;
-            application_period_starts?: string | null;
-            application_period_ends?: string | null;
+            event_submission_deadline?: components["schemas"]["NullableDateInput"];
+            application_period_starts?: components["schemas"]["NullableDateInput"];
+            application_period_ends?: components["schemas"]["NullableDateInput"];
         } & {
             [key: string]: unknown;
         };
@@ -1415,14 +1417,14 @@ export interface components {
         };
         ApplicationPeriodInput: {
             /** @description Defaults to now. */
-            application_starts?: string;
-            application_ends?: string;
+            application_starts?: components["schemas"]["DateInput"];
+            application_ends?: components["schemas"]["NullableDateInput"];
         } & {
             [key: string]: unknown;
         };
         OpenCallInput: {
-            open_call?: boolean;
-            max_participants?: number | null;
+            open_call: boolean;
+            max_participants?: number | string | null;
         } & {
             [key: string]: unknown;
         };
@@ -1447,6 +1449,16 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /**
+         * @description A number, or its text: digits with an optional sign, decimal point and exponent (.5, +5,
+         *     2.50, 1e2, 1E-2), as an <input type="number"> may submit it. At most 308 digits before
+         *     the decimal point (so that it reads back as a number) and 16383 after it (what a Postgres
+         *     NUMERIC keeps), counting the exponent.
+         */
+        DecimalInput: number | string;
+        /** @description A day (2027-07-01), an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without seconds, decimals and an offset such as +02:00 or +0200, as the events service takes them), or whole milliseconds since 1970-01-01T00:00:00.000Z, within the years 0001-9999. */
+        DateInput: string | number;
+        NullableDateInput: components["schemas"]["DateInput"] | null;
         BoardCommentInput: {
             board_comment: string | null;
         } & {
@@ -1454,8 +1466,26 @@ export interface components {
         };
     };
     responses: {
-        /** @description Malformed request, for example a non-numeric ID. */
+        /** @description Malformed request, for example a non-numeric ID, or a JSON body that is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read."). */
         BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is larger than 1 MB ("The request body could not be read."). */
+        BodyTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is in another charset than UTF-8 or in an unknown encoding ("The request body could not be read."). */
+        BodyUnsupported: {
             headers: {
                 [name: string]: unknown;
             };
@@ -1499,9 +1529,20 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
+        /** @description Another change of the Summer University held it for longer than config.lock_timeout ms ("Another change to this event is in progress. Please try again."). Nothing changed. */
+        EventBusy: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
     };
     parameters: {
+        /** @description Ignored when it is not a whole number from 1 to 2147483647. */
         Limit: number;
+        /** @description Ignored when it is not a whole number from 0 to 2147483647. */
         Offset: number;
         /** @description Part of the name or description (case-insensitive). */
         Search: string;
@@ -1509,9 +1550,9 @@ export interface components {
         TypeFilter: components["schemas"]["EventType"] | components["schemas"]["EventType"][];
         /** @description The year of the season. */
         SeasonFilter: number;
-        /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD). */
+        /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
         StartsFilter: string;
-        /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD). */
+        /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
         EndsFilter: string;
         /** @description The id of the Summer University, or its url (Express routes both through this path). */
         EventId: number | string;
@@ -1606,11 +1647,13 @@ export interface operations {
                 type?: components["parameters"]["TypeFilter"];
                 /** @description The year of the season. */
                 season?: components["parameters"]["SeasonFilter"];
-                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
+                /** @description Ignored when it is not a whole number from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
+                /** @description Ignored when it is not a whole number from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
                 /** @description open or closed, or both as an array. Applied after offset and limit. */
                 application_status?: ("open" | "closed") | ("open" | "closed")[];
@@ -1651,8 +1694,11 @@ export interface operations {
                     "application/json": components["schemas"]["EventCreatedResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1665,11 +1711,13 @@ export interface operations {
                 type?: components["parameters"]["TypeFilter"];
                 /** @description The year of the season. */
                 season?: components["parameters"]["SeasonFilter"];
-                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
+                /** @description Ignored when it is not a whole number from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
+                /** @description Ignored when it is not a whole number from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
             };
             header?: never;
@@ -1700,11 +1748,13 @@ export interface operations {
                 type?: components["parameters"]["TypeFilter"];
                 /** @description The year of the season. */
                 season?: components["parameters"]["SeasonFilter"];
-                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 starts?: components["parameters"]["StartsFilter"];
-                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: components["parameters"]["EndsFilter"];
+                /** @description Ignored when it is not a whole number from 0 to 2147483647. */
                 offset?: components["parameters"]["Offset"];
+                /** @description Ignored when it is not a whole number from 1 to 2147483647. */
                 limit?: components["parameters"]["Limit"];
             };
             header?: never;
@@ -1854,7 +1904,7 @@ export interface operations {
     listRecentEvents: {
         parameters: {
             query?: {
-                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD). */
+                /** @description Only Summer Universities that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000). */
                 ends?: string;
             };
             header?: never;
@@ -1918,8 +1968,11 @@ export interface operations {
                     "application/json": components["schemas"]["SeasonMessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -1969,9 +2022,12 @@ export interface operations {
                     "application/json": components["schemas"]["SeasonMessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2047,9 +2103,12 @@ export interface operations {
                     "application/json": components["schemas"]["EventResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2104,9 +2163,12 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2172,6 +2234,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
         };
     };
     setEventApplicationPeriod: {
@@ -2199,9 +2263,12 @@ export interface operations {
                     "application/json": components["schemas"]["EventMessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2230,10 +2297,14 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["EventBusy"];
         };
     };
     listEventApplications: {
@@ -2287,6 +2358,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2374,6 +2447,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2408,7 +2483,10 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["EventBusy"];
         };
     };
     setApplicationCancelled: {
@@ -2435,14 +2513,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApplicationWithUserResponse"];
+                    "application/json": components["schemas"]["ApplicationForCallerResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["EventBusy"];
         };
     };
     setApplicationConfirmed: {
@@ -2476,7 +2557,10 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["EventBusy"];
         };
     };
     setApplicationStatus: {
@@ -2510,7 +2594,10 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["EventBusy"];
         };
     };
     setApplicationComment: {
@@ -2544,6 +2631,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
