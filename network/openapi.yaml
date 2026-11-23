@@ -248,9 +248,11 @@ paths:
       operationId: setAntennaCriterion
       summary: Create or update one Antenna Criterion of a body for an Agora
       description: >-
-        An unknown criterion answers 422 before the permission check. The value
-        `exception` for `communication` also needs
-        global:manage_network:communication_exception.
+        A body that is not an object answers 400, and an unknown criterion 422, both
+        before the permission check. The value `exception` for `communication` also needs
+        global:manage_network:communication_exception. Only `agora_id`, `body_id`,
+        `antenna_criterion`, `value` and `comment` are read; the whole row is checked
+        before it is stored.
       tags: [antenna_criteria]
       x-permission: global:manage_network:<criterion>, the criterion's name with underscores
       requestBody:
@@ -264,6 +266,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/AntennaCriterionResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
@@ -309,6 +312,9 @@ paths:
     put:
       operationId: setNetcomAssignment
       summary: Assign a Network Commissioner to a body
+      description: >-
+        Only `body_id` and `netcom_id` are read; both are checked before the assignment is
+        stored. A body that is not an object answers 400.
       tags: [netcom]
       x-permission: global:manage_network:netcom_assignment
       requestBody:
@@ -322,6 +328,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/NetcomResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
@@ -364,6 +371,9 @@ paths:
     put:
       operationId: setMailComponent
       summary: Create or update one fulfilment mail text of an Agora
+      description: >-
+        Only `agora_id`, `mail_component` and `text` are read; all three are checked before
+        the text is stored. A body that is not an object answers 400.
       tags: [mail_component]
       x-permission: global:manage_network:fulfilment_email
       requestBody:
@@ -377,6 +387,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MailComponentResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}

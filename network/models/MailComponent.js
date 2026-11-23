@@ -7,9 +7,9 @@ const MailComponent = sequelize.define('mailComponent', {
         primaryKey: true,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Agora should be set.' },
             notEmpty: { msg: 'Agora should be set.' },
-            isInt: { msg: 'Agora ID should be a number.' },
-            ...helpers.idRange('Agora ID')
+            ...helpers.idValidators('Agora ID')
         }
     },
     mail_component: {
@@ -17,15 +17,16 @@ const MailComponent = sequelize.define('mailComponent', {
         primaryKey: true,
         type: Sequelize.ENUM('introduction', 'communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report', 'closing'),
         validate: {
-            isIn: {
-                args: [['introduction', 'communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report', 'closing']],
-                msg: 'Message component must be one of these: "introduction", "communication", "board election", "members list", "membership fee", "events", "agora attendance", "development plan", "fulfilment report", "closing".'
-            }
+            notNull: { msg: 'Mail component should be set.' },
+            isOneOf: helpers.oneOf(['introduction', 'communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report', 'closing'], 'Message component must be one of these: "introduction", "communication", "board election", "members list", "membership fee", "events", "agora attendance", "development plan", "fulfilment report", "closing".')
         }
     },
     text: {
         allowNull: false,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        validate: {
+            notNull: { msg: 'Text should be set.' }
+        }
     }
 }, {
     underscored: true,

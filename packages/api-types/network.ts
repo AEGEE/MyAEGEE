@@ -185,7 +185,7 @@ export interface paths {
         get?: never;
         /**
          * Create or update one Antenna Criterion of a body for an Agora
-         * @description An unknown criterion answers 422 before the permission check. The value `exception` for `communication` also needs global:manage_network:communication_exception.
+         * @description A body that is not an object answers 400, and an unknown criterion 422, both before the permission check. The value `exception` for `communication` also needs global:manage_network:communication_exception. Only `agora_id`, `body_id`, `antenna_criterion`, `value` and `comment` are read; the whole row is checked before it is stored.
          */
         put: operations["setAntennaCriterion"];
         post?: never;
@@ -224,7 +224,10 @@ export interface paths {
         };
         /** The Network Commissioner of each body */
         get: operations["listNetcomAssignments"];
-        /** Assign a Network Commissioner to a body */
+        /**
+         * Assign a Network Commissioner to a body
+         * @description Only `body_id` and `netcom_id` are read; both are checked before the assignment is stored. A body that is not an object answers 400.
+         */
         put: operations["setNetcomAssignment"];
         post?: never;
         delete?: never;
@@ -279,7 +282,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Create or update one fulfilment mail text of an Agora */
+        /**
+         * Create or update one fulfilment mail text of an Agora
+         * @description Only `agora_id`, `mail_component` and `text` are read; all three are checked before the text is stored. A body that is not an object answers 400.
+         */
         put: operations["setMailComponent"];
         post?: never;
         delete?: never;
@@ -885,6 +891,7 @@ export interface operations {
                     "application/json": components["schemas"]["AntennaCriterionResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationFailed"];
@@ -961,6 +968,7 @@ export interface operations {
                     "application/json": components["schemas"]["NetcomResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationFailed"];
@@ -1039,6 +1047,7 @@ export interface operations {
                     "application/json": components["schemas"]["MailComponentResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationFailed"];

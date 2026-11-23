@@ -7,17 +7,17 @@ const Netcom = sequelize.define('netcom', {
         primaryKey: true,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Body should be set.' },
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' },
-            ...helpers.idRange('Body ID')
+            ...helpers.idValidators('Body ID')
         }
     },
     netcom_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         validate: {
-            isInt: { msg: 'Netcom ID should be a number.' },
-            ...helpers.idRange('NetCom ID')
+            notNull: { msg: 'NetCom should be set.' },
+            ...helpers.idValidators('NetCom ID')
         }
     }
 }, {

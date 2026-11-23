@@ -1,3 +1,5 @@
+const lodash = require('lodash');
+
 const { AntennaCriterion } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
@@ -81,6 +83,10 @@ exports.listCriteria = async (req, res) => {
 };
 
 exports.setCriterion = async (req, res) => {
+    if (!helpers.isObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
     if (!['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report'].includes(req.body.antenna_criterion)) {
         return errors.makeValidationError(res, 'This is not a valid criterion.');
     }
@@ -95,9 +101,14 @@ exports.setCriterion = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to give exceptions to the Antenna Criterion `communication`.');
     }
 
+    // Only the criterion's fields; the timestamps belong to the service. upsert checks
+    // only the fields it gets, so the whole row is checked first.
+    const criterionData = lodash.pick(req.body, ['agora_id', 'body_id', 'antenna_criterion', 'value', 'comment']);
+    await AntennaCriterion.build(criterionData).validate();
+
     // The `.upsert()` method returns an object [result, created],
     // where `created` is a boolen whether the result was created or updated
-    const result = await AntennaCriterion.upsert(req.body);
+    const result = await AntennaCriterion.upsert(criterionData);
 
     return res.json({
         success: true,

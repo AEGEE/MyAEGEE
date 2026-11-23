@@ -32,6 +32,39 @@ exports.idRange = (label) => {
     return { min: { args: [0], msg }, max: { args: [MAX_ID], msg } };
 };
 
+// The Sequelize validator of an ID column: a whole number, sent as a number or as a
+// string of digits, within the column's range. A list or an object is no ID, even one
+// that reads as a number ([7] would be stored as 7). One message per value. Sequelize
+// runs it for null too, which allowNull decides on.
+const WHOLE_NUMBER = /^[-+]?[0-9]+$/;
+exports.idValidators = (label, min = 0) => ({
+    isId(value) {
+        if (value === null || value === undefined) {
+            return;
+        }
+
+        if (!['number', 'string'].includes(typeof value) || !WHOLE_NUMBER.test(String(value))) {
+            throw new Error(`${label} should be a number.`);
+        }
+
+        if (Number(value) < min || Number(value) > MAX_ID) {
+            throw new Error(`${label} should be between ${min} and ${MAX_ID}.`);
+        }
+    }
+});
+
+// The Sequelize validator of an ENUM column. Unlike isIn, which compares the value as a
+// string, it refuses a list (["true"] reads as "true", and Postgres refuses it). Null is
+// left to allowNull.
+exports.oneOf = (values, message) => function isOneOf(value) {
+    if (value !== null && value !== undefined && !values.includes(value)) {
+        throw new Error(message);
+    }
+};
+
+// A JSON object, not a list.
+exports.isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
 // A setter for a DATEONLY column. Without it, Sequelize turns any input into a date
 // through moment's lenient parse first ("1" becomes 2001-01-01). A date or timestamp is
 // stored as the day it is written with; anything else stays as sent, for the validator.
