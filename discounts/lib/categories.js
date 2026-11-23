@@ -5,7 +5,7 @@ const { CATEGORY_FIELDS } = require('./constants');
 
 exports.createCategory = async (req, res) => {
     if (!req.permissions.manage_discounts) {
-        return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
+        return errors.makeForbiddenError(res, 'You are not allowed to create categories.');
     }
 
     const category = await Category.create(req.body, { fields: CATEGORY_FIELDS });
