@@ -32,7 +32,6 @@ server.use(queryBoolean());
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
-    /* istanbul ignore next -- Bugsnag reports outside tests only */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
@@ -124,7 +123,6 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
-    /* istanbul ignore next -- outside tests only; test/setup.js closes the database per file */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }
