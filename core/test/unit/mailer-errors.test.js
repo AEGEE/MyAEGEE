@@ -61,4 +61,15 @@ describe('Mailer client errors', () => {
         expect(err.message).toEqual('Could not reach the mailer');
         expect(err.template).toEqual('custom.html');
     });
+
+    test('should fail with the error of the request if the mailer cannot be reached', async () => {
+        nock(`${config.mailer.url}:${config.mailer.port}`)
+            .post('/')
+            .replyWithError(new Error('getaddrinfo ENOTFOUND mailer'));
+
+        const err = await mailer.sendMail(mail).catch((e) => e);
+
+        expect(err.message).toEqual('getaddrinfo ENOTFOUND mailer');
+        expect(err.name).not.toEqual('TimeoutError');
+    });
 });
