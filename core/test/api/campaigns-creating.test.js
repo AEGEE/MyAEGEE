@@ -103,4 +103,43 @@ describe('Campaigns creating', () => {
         expect(campaignFromDb.name).toEqual(campaign.name);
         expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
+
+    test.each([
+        ['does not exist', 2147483647],
+        ['is a text that is not a number', 'abc'],
+        ['is a list', [1]],
+        ['is an object', { id: 1 }],
+        ['is a fraction', 1.5]
+    ])('should fail if the body that new members join %s', async (name, value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
+
+        const res = await request({
+            path: '/campaigns',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: generator.generateCampaign({ autojoin_body_id: value })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors: { autojoin_body_id: ['The body does not exist.'] } });
+        expect(await Campaign.count()).toEqual(0);
+    });
+
+    test('should create a campaign without a body that new members join', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
+
+        const res = await request({
+            path: '/campaigns',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: generator.generateCampaign({ autojoin_body_id: null })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.autojoin_body_id).toEqual(null);
+    });
 });
