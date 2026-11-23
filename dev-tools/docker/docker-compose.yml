@@ -51,9 +51,10 @@ services:
     #   volumes:  - ./<service>/openapi.yaml:/usr/share/nginx/html/specs/<service>.yaml:ro
     #   URLS:     {url: './specs/<service>.yaml', name: '<service>'}
     # For reading only: "Try it out" cannot reach the APIs from this host.
-    volumes: []
+    volumes:
+      - ./discounts/openapi.yaml:/usr/share/nginx/html/specs/discounts.yaml:ro
     environment:
-      URLS: "[]"
+      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger

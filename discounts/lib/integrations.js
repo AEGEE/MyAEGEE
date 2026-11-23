@@ -61,6 +61,8 @@ exports.updateIntegration = async (req, res) => {
     }
 
     await req.integration.update(req.body, { fields: INTEGRATION_FIELDS });
+    // Return what was stored, not what was sent ("7" is stored as 7).
+    await req.integration.reload();
 
     return res.json({
         success: true,
@@ -175,7 +177,6 @@ exports.claimCode = async (req, res) => {
             transaction
         });
 
-        /* istanbul ignore if -- only when the integration is deleted while the claim waits for the lock */
         if (!integration) {
             return { status: 404, message: 'The integration is not found.' };
         }

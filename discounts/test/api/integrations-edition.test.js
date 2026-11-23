@@ -176,4 +176,36 @@ describe('Integrations edition', () => {
         const integrationFromDb = await Integration.findByPk(integration.id);
         expect(integrationFromDb.code).toEqual('first');
     });
+
+    test('should return the integration as stored, with a numeric quota amount sent as a string', async () => {
+        const integration = await generator.createIntegration({ code: 'first', quota_amount: 1 });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { quota_amount: '7' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.quota_amount).toEqual(7);
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(res.body.data).toEqual(JSON.parse(JSON.stringify(integrationFromDb)));
+    });
+
+    test('should list every failing check of a field', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { quota_amount: '' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.quota_amount).toEqual([
+            'Integration quota amount should be set.',
+            'Integration quota amount should be valid.'
+        ]);
+    });
 });

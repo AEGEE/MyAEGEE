@@ -5,7 +5,7 @@ const { CATEGORY_FIELDS } = require('./constants');
 
 exports.createCategory = async (req, res) => {
     if (!req.permissions.manage_discounts) {
-        return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
+        return errors.makeForbiddenError(res, 'You are not allowed to create categories.');
     }
 
     const category = await Category.create(req.body, { fields: CATEGORY_FIELDS });
@@ -55,6 +55,8 @@ exports.updateCategory = async (req, res) => {
     }
 
     await req.category.update(req.body, { fields: CATEGORY_FIELDS });
+    // Return what was stored, not what was sent ("7" is stored as 7).
+    await req.category.reload();
 
     return res.json({
         success: true,

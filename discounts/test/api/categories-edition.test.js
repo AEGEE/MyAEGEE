@@ -65,7 +65,7 @@ describe('Categories edition', () => {
         expect(res.body.errors).toHaveProperty('name');
     });
 
-    test('should return 404 if the integration is not found', async () => {
+    test('should return 404 if the category is not found', async () => {
         const res = await request({
             path: '/categories/1337',
             method: 'PUT',
@@ -79,7 +79,7 @@ describe('Categories edition', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 400 if the integration ID is NaN', async () => {
+    test('should return 400 if the category ID is NaN', async () => {
         const res = await request({
             path: '/categories/false',
             method: 'PUT',
@@ -131,5 +131,20 @@ describe('Categories edition', () => {
 
         const categoryFromDb = await Category.findByPk(category.id);
         expect(categoryFromDb.name).toEqual(category.name);
+    });
+
+    test('should return the category as stored', async () => {
+        const category = await generator.createCategory();
+        const res = await request({
+            path: '/categories/' + category.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { name: 'test', discounts: [generator.generateDiscount()] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const categoryFromDb = await Category.findByPk(category.id);
+        expect(res.body.data).toEqual(JSON.parse(JSON.stringify(categoryFromDb)));
     });
 });

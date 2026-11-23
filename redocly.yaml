@@ -12,6 +12,10 @@ apis:
     root: ./packages/backend-test-utils/test/fixtures/openapi.yaml
     x-openapi-ts:
       output: ./packages/backend-test-utils/test/fixtures/openapi.ts
+  discounts:
+    root: ./discounts/openapi.yaml
+    x-openapi-ts:
+      output: ./packages/api-types/discounts.ts
 extends:
   - recommended
 rules:
