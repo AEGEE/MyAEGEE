@@ -18,7 +18,8 @@
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "coverage": "node scripts/coverage.ts merge && node scripts/coverage.ts report",
-    "coverage:gate": "node scripts/coverage.ts gate"
+    "coverage:gate": "node scripts/coverage.ts gate",
+    "a11y:lower": "node scripts/a11y-baseline.ts lower"
   },
   "license": "ISC",
   "devDependencies": {

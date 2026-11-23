@@ -1,0 +1,13 @@
+{
+  "oms.network.ac_check": {
+    "color-contrast": 3,
+    "scrollable-region-focusable": 1,
+    "select-name": 1
+  },
+  "oms.network.boards.list": {
+    "aria-input-field-name": 1,
+    "aria-required-attr": 1,
+    "color-contrast": 4,
+    "label": 1
+  }
+}
