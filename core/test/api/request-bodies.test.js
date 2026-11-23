@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const login = require('../../middlewares/login');
 const { rateLimitStore } = require('../../middlewares/bug-report');
+const config = require('../../config');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
@@ -15,6 +16,17 @@ describe('Request bodies', () => {
         headers: { 'X-Auth-Token': data.token.value },
         body
     });
+
+    // For values that a client should not send: straight to the server.
+    const sendUnchecked = async (route, body) => {
+        const res = await fetch(`http://localhost:${config.port}${route.path(data)}`, {
+            method: route.method,
+            headers: { 'X-Auth-Token': data.token.value, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        return { statusCode: res.status, body: await res.json() };
+    };
 
     beforeAll(async () => {
         await startServer();
@@ -211,5 +223,45 @@ describe('Request bodies', () => {
             }));
             expect(res.body.data.user).not.toHaveProperty('password');
         });
+    });
+
+    // A date comes as a date (2020-01-31) or as a full ISO timestamp. Nothing else is read
+    // as one: not a number, and not a text that only looks like a date to a lenient parser.
+    describe('a date in another notation', () => {
+        const DATE_FIELDS = [
+            ['POST /signup/:campaign_id', 'date_of_birth'],
+            ['POST /signup/:campaign_id', 'privacy_consent'],
+            ['PUT /members/:user_id', 'date_of_birth'],
+            ['PUT /members/:user_id', 'privacy_consent'],
+            ['POST /bodies/:body_id/create-member', 'date_of_birth'],
+            ['POST /bodies', 'founded_at'],
+            ['PUT /bodies/:body_id', 'founded_at'],
+            ['POST /bodies/:body_id/payments', 'starts'],
+            ['PUT /bodies/:body_id/payments/:payment_id', 'starts']
+        ];
+
+        test.each(DATE_FIELDS)('%s refuses a %s that is not an ISO date', async (title, field) => {
+            const route = ROUTES.find((item) => item.title === title);
+
+            for (const value of [1, '1', '2001', '12/31/2001', '31-12-2001', 'January 1, 2001', '2001-13-45', '2001-01-01 10:00', true]) {
+                const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
+
+                expect({ value, status: res.statusCode, fields: Object.keys(res.body.errors || {}) })
+                    .toEqual({ value, status: 422, fields: [field] });
+            }
+        });
+
+        const ISO_VALUES = ['2001-01-31', '2001-01-31T10:00:00.000Z', '2001-01-31T10:00:00+01:00'];
+
+        test.each(DATE_FIELDS.flatMap(([title, field]) => ISO_VALUES.map((value) => [title, field, value])))(
+            '%s takes a %s like %s',
+            async (title, field, value) => {
+                const route = ROUTES.find((item) => item.title === title);
+
+                const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
+
+                expect(res.statusCode).toEqual(200);
+            }
+        );
     });
 });
