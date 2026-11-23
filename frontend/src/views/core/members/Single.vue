@@ -333,6 +333,7 @@ export default {
       isLoading: false,
       isSwitchingStatus: false,
       isSwitchingEventApplicationBan: false,
+      isSwitchingSuperadmin: false,
       permissions: [],
       can: {
         edit: false,
