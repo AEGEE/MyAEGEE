@@ -9,9 +9,8 @@
     "link-name": 2
   },
   "oms.statutory.applications.edit": {
-    "color-contrast": 2,
-    "label": 8,
-    "select-name": 4
+    "label": 6,
+    "select-name": 5
   },
   "oms.statutory.applications.export": {
     "color-contrast": 1,
@@ -26,7 +25,13 @@
     "color-contrast": 1
   },
   "oms.statutory.applications.view": {
-    "link-name": 1
+    "link-in-text-block": 2
+  },
+  "oms.statutory.boardview": {
+    "aria-input-field-name": 1,
+    "aria-required-attr": 1,
+    "color-contrast": 2,
+    "link-name": 2
   },
   "oms.statutory.candidates.edit": {
     "color-contrast": 3,
