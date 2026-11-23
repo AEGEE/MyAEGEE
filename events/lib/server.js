@@ -28,10 +28,10 @@ server.use(bodyParser.json());
 server.use(morgan);
 server.use(queryBoolean());
 
-/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
+    /* istanbul ignore if -- Bugsnag is off in tests */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
@@ -103,7 +103,7 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-        /* istanbul ignore next */
+        /* istanbul ignore next -- only for a server error after listen() succeeded */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -111,7 +111,7 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
-    /* istanbul ignore next */
+    /* istanbul ignore if -- outside tests only; in tests, test/setup.js closes the pool after each file */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }
