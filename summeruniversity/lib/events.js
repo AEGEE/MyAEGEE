@@ -238,6 +238,24 @@ async function checkOrganizers({ organizers, bodies, existingOrganizers = [], ca
     return `Organizers should be members of one of the organizing or cooperation bodies (user ID ${ids}).`;
 }
 
+// The type can only be chosen by holders of edit:su_type: on create, anything but the
+// default type, and on edit, any value other than the stored type.
+const DEFAULT_TYPE = 'regular';
+const changesType = (newType, currentType) => typeof newType !== 'undefined' && newType !== currentType;
+
+// The fee is free for the organizers until the Summer University is submitted. After that,
+// changing it needs edit:su_fee. The stored fee is a DECIMAL string, so compare as numbers.
+const changesFee = (newFee, currentFee) => typeof newFee !== 'undefined' && Number(newFee) !== Number(currentFee);
+
+// The type and the fee are validated before their permissions are checked, so a value that
+// is not valid answers 422 (as the model would) whoever sends it.
+const validateTypeAndFee = async (data) => {
+    const fields = ['type', 'fee'].filter((field) => typeof data[field] !== 'undefined');
+    if (fields.length > 0) {
+        await Event.build(Object.fromEntries(fields.map((field) => [field, data[field]]))).validate({ fields });
+    }
+};
+
 const makeOrganizersError = (res, message) => res.status(422).json({
     success: false,
     errors: { organizers: [message] }
@@ -253,6 +271,11 @@ exports.addEvent = async (req, res) => {
     removeBlockedFields(data);
 
     data.status = 'first submission';
+
+    await validateTypeAndFee(data);
+    if (changesType(data.type, DEFAULT_TYPE) && !req.permissions.edit_su_type) {
+        return errors.makeForbiddenError(res, 'You are not allowed to set the type of this Summer University.');
+    }
 
     const event = new Event(data);
 
@@ -368,6 +391,15 @@ exports.editEvent = async (req, res) => {
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
+    }
+
+    await validateTypeAndFee(data);
+    if (changesType(data.type, event.type) && !req.permissions.edit_su_type) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the type of this Summer University.');
+    }
+
+    if (event.status !== 'first draft' && changesFee(data.fee, event.fee) && !req.permissions.edit_su_fee) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the fee of this Summer University.');
     }
 
     if (Array.isArray(data.organizing_bodies)) {

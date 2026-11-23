@@ -204,6 +204,8 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
     permissions.create_summeruniversity = hasPermission(corePermissions, 'create:summeruniversity');
     permissions.apply_general = hasPermission(corePermissions, 'apply:summeruniversity');
     permissions.manage_seasons = hasPermission(corePermissions, 'global:manage_seasons:summeruniversity');
+    permissions.edit_su_type = hasPermission(corePermissions, 'edit:su_type');
+    permissions.edit_su_fee = hasPermission(corePermissions, 'edit:su_fee');
 
     permissions.set_board_comment = {};
     permissions.see_boardview = {
