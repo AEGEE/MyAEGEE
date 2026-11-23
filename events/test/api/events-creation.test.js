@@ -37,6 +37,23 @@ describe('Events creation', () => {
     });
     const createEvent = (body) => request({ path: '/', headers: { 'X-Auth-Token': 'foobar' }, method: 'POST', body });
 
+    // Without a list of organizing bodies the organizers are not rebuilt from core, so the
+    // model checks the organizers as sent.
+    test.each([
+        ['an organizer that is not an object', ['someone'], 'Organizer is malformed.'],
+        ['a user_id that is not a number', [{ user_id: 'someone' }], 'user_id is malformed.'],
+        ['a comment that is not a text', [{ user_id: 2, first_name: 'A', last_name: 'B', comment: 5 }], 'comment is malformed.']
+    ])('should return 422 for %s when the organizing bodies are not a list', async (_name, others, message) => {
+        const before = await Event.count();
+        const self = { user_id: user.id, first_name: user.first_name, last_name: user.last_name };
+
+        const res = await createEvent(validEvent({ organizing_bodies: 'garbage', organizers: [self, ...others] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.organizers).toEqual([message]);
+        expect(await Event.count()).toEqual(before);
+    });
+
     it('should return 422 if the creator is the only organizer and not a member of an organizing body', async () => {
         callers.asMember(['global:create:event'], { member: { bodies: [{ id: 9, name: 'Another body' }] } });
         const before = await Event.count();
