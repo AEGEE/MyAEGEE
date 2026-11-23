@@ -385,7 +385,7 @@
 
         <div class="tile" style="position: relative; height: 400px">
           <MglMap
-            :accessToken="accessToken"
+            accessToken=""
             :mapStyle="map.style"
             :zoom="map.zoom"
             :scrollZoom="false"
@@ -496,7 +496,6 @@ export default {
         ends: null,
         booklet_folder: null
       },
-      options: [],
       dates: {
         application_period_starts: null,
         application_period_ends: null,
@@ -517,7 +516,6 @@ export default {
         center: { lat: 50.8503396, lng: 4.3517103 },
         zoom: 3
       },
-      newValue: '',
       autoComplete: {
         bodies: { name: '', values: [], loading: false }
       },
@@ -528,10 +526,6 @@ export default {
         allowInput: true,
         disableMobile: true
       },
-      can: {
-        edit_application_status: false
-      },
-      file: null,
       errors: {},
       isLoading: false,
       savedStarts: null,
@@ -735,8 +729,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     participantsListPublishBeforeBoardApprove () {
       if (!this.dates.participants_list_publish_deadline || !this.dates.board_approve_deadline) {
@@ -820,7 +813,6 @@ export default {
 
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.data.permissions
 
       this.savedStarts = new Date(this.event.starts)
       this.dates.starts = this.event.starts = new Date(this.event.starts)
