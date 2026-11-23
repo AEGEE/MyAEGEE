@@ -221,4 +221,13 @@ describe('File upload', () => {
 
         expect(res.statusCode).toEqual(200);
     });
+
+    test('should allow an organizer to upload an image once the event moved back to second submission', async () => {
+        await event.update({ status: 'second submission' });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await upload({ head_image: { path: asset('valid_image.png') } });
+
+        expect(res.statusCode).toEqual(200);
+    });
 });
