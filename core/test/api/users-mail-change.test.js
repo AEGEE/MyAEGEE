@@ -11,7 +11,7 @@ const config = require('../../config');
 const REQUESTED_NEW_ADDRESS = 'The email change was requested. It takes effect after it is confirmed from the new address.';
 const REQUESTED_BOTH_ADDRESSES = 'The email change was requested. The member has to confirm it from both their current address '
     + 'and the new address; a mail was sent to each. If the member can no longer read their current address, '
-    + 'ask a global member manager to change the email: they can do it without that confirmation.';
+    + 'ask the MyAEGEE Helpdesk (http://aegee.org/helpdesk) to change the email: it can do that without this confirmation.';
 
 describe('User mail change', () => {
     beforeAll(async () => {

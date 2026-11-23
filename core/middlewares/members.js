@@ -455,6 +455,15 @@ exports.setPrimaryBody = async (req, res) => {
     });
 };
 
+// Email changes of one member are processed one by one. An advisory lock does that without
+// locking the member's row, which every request of that member writes to (last_active), so
+// the member is not held up while the mails are sent.
+const MAIL_CHANGE_LOCK_NAMESPACE = 1;
+const lockMailChanges = (userId, transaction) => sequelize.query(
+    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
+    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
+);
+
 // Requests a change of the login email. The new address always has to confirm it. If somebody
 // else requests it for the member, the member's current address has to confirm it as well,
 // unless the requester has global:update:member.
@@ -505,8 +514,8 @@ exports.triggerEmailChange = async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-        // Locking the member, so requests at the same time are processed one by one.
-        await User.findByPk(req.currentUser.id, { lock: t.LOCK.UPDATE, transaction: t });
+        // Requests for one member at the same time are processed one by one.
+        await lockMailChanges(req.currentUser.id, t);
 
         // There's at most one pending change per member and requester: a new request replaces the earlier one.
         await MailChange.destroy({
@@ -552,7 +561,7 @@ exports.triggerEmailChange = async (req, res) => {
         message: needsOldConfirmation
             ? 'The email change was requested. The member has to confirm it from both their current address '
                 + 'and the new address; a mail was sent to each. If the member can no longer read their current address, '
-                + 'ask a global member manager to change the email: they can do it without that confirmation.'
+                + 'ask the MyAEGEE Helpdesk (http://aegee.org/helpdesk) to change the email: it can do that without this confirmation.'
             : 'The email change was requested. It takes effect after it is confirmed from the new address.',
         data: { needs_old_address_confirmation: needsOldConfirmation }
     });
@@ -576,9 +585,10 @@ exports.confirmEmailChange = async (req, res) => {
     }
 
     const result = await sequelize.transaction(async (t) => {
-        // Locking the rows, so confirmations at the same time (from both addresses,
-        // or of several changes of one member) are processed one by one.
-        const user = await User.findByPk(found.user_id, { lock: t.LOCK.UPDATE, transaction: t });
+        // Confirmations at the same time (from both addresses, or of several changes
+        // of one member) are processed one by one.
+        await lockMailChanges(found.user_id, t);
+        const user = await User.findByPk(found.user_id, { transaction: t });
         const mailChange = await MailChange.findOne({
             where: { id: found.id, ...tokenMatches },
             lock: t.LOCK.UPDATE,
@@ -628,11 +638,11 @@ exports.confirmEmailChange = async (req, res) => {
             recipients.push(user.notification_email);
         }
 
-        await user.update({ email: mailChange.new_email }, { transaction: t });
-
         // Including the other pending changes of the member: they were requested for the previous address.
         await MailChange.destroy({ where: { user_id: user.id }, transaction: t });
 
+        // The notice is sent before the member's row is written, so that row is not locked
+        // while the mailer answers. If the mail fails, nothing is changed.
         await mailer.sendMail({
             to: recipients.length === 1 ? recipients[0] : recipients,
             subject: constants.MAIL_SUBJECTS.MAIL_CHANGE_NOTICE,
@@ -644,6 +654,8 @@ exports.confirmEmailChange = async (req, res) => {
                 changed_by: requester ? `${requester.first_name} ${requester.last_name}` : 'yourself'
             }
         });
+
+        await user.update({ email: mailChange.new_email }, { transaction: t });
 
         return { changed: true };
     });
