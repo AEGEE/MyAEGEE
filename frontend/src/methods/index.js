@@ -45,9 +45,19 @@ export default {
       return this.showDanger(message)
     }
 
+    const data = error.response && error.response.data
+
     // If error is Axios error and the body has 'message' field in response, return it.
-    if (error.response && error.response.data && error.response.data.message) {
-      return this.showDanger(`${message}: ${error.response.data.message}`)
+    if (data && data.message) {
+      return this.showDanger(`${message}: ${data.message}`)
+    }
+
+    // Validation errors come as messages per field: { errors: { name: ['Name should be set.'] } }.
+    if (data && data.errors) {
+      const errors = typeof data.errors === 'string' ? data.errors : Object.values(data.errors).flat().join('; ')
+      if (errors) {
+        return this.showDanger(`${message}: ${errors}`)
+      }
     }
 
     // Otherwise, return error message.
