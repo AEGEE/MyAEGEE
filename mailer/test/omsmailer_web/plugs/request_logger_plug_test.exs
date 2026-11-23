@@ -44,6 +44,23 @@ defmodule OmsmailerWeb.RequestLoggerPlugTest do
     end
   end
 
+  test "logs that the sender wrote the subject of a custom mail, not the subject" do
+    log = log_request("POST", %{
+      "template" => "custom.html",
+      "subject" => "SUBJECT-MARKER-7f3a",
+      "parameters" => %{"email_body" => "BODY-MARKER-7f3a"}
+    })
+
+    assert logged_mail(log) == %{
+      "template" => "custom.html",
+      "subject" => "[CUSTOM]",
+      "parameters" => ["email_body"]
+    }
+
+    refute log =~ "SUBJECT-MARKER-7f3a"
+    refute log =~ "BODY-MARKER-7f3a"
+  end
+
   test "masks the recipients" do
     log = log_request("POST", %{
       "template" => "custom.html",
@@ -61,7 +78,7 @@ defmodule OmsmailerWeb.RequestLoggerPlugTest do
       assert mail[key] == "[REDACTED]"
     end
 
-    for value <- ~w(recipient@example.org copy@example.org blind@example.org reply@example.org hello) do
+    for value <- ~w(recipient@example.org copy@example.org blind@example.org reply@example.org hello pirates) do
       refute log =~ value
     end
   end
