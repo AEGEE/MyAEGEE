@@ -101,7 +101,7 @@ describe('Questions creation', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should fail if positions ID is NaN', async () => {
+    test('should fail if question line ID is NaN', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -119,7 +119,7 @@ describe('Questions creation', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should fail if name is not set', async () => {
+    test('should fail if text is not set', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });

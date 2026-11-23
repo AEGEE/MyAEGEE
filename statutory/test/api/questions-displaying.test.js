@@ -22,7 +22,7 @@ describe('Questions displaying', () => {
         mock.cleanAll();
     });
 
-    test('should return 404 if candidate is not found', async () => {
+    test('should return 404 if question is not found', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -40,7 +40,7 @@ describe('Questions displaying', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should fail if candidate ID is NaN', async () => {
+    test('should fail if question ID is NaN', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });

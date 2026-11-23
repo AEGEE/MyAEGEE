@@ -40,7 +40,7 @@ describe('Question line deletion', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 404 if position is not found', async () => {
+    test('should return 404 if question line is not found', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -57,7 +57,7 @@ describe('Question line deletion', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should fail if positions ID is NaN', async () => {
+    test('should fail if question line ID is NaN', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createQuestionLine({}, event);
 
