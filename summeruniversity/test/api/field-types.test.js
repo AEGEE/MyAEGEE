@@ -280,6 +280,10 @@ describe('Field types', () => {
             ...[[null], [5], ['Why?'], [{}], [{ description: 5 }]].map((value) => ['questions', JSON.stringify(value), value, 'Every question should have a description.']),
             ...notLists.map(([name, value]) => ['photos', name, value, 'Photos should be a list.']),
             ...notLists.map(([name, value]) => ['learning_objectives', name, value, 'Learning objectives should be a list.']),
+            ...[[{ description: 'Why?', other: 1 }], [{ description: 'Why?', name: 5 }], [{ description: 'Why?', required: 'yes' }]]
+                .map((value) => ['questions', JSON.stringify(value), value, 'A question can only have a name (text), a description (text) and required (true or false).']),
+            ...[[{ description: 'https://example.org', other: 1 }], [{ description: 'https://example.org', name: 5 }]]
+                .map((value) => ['social_media', JSON.stringify(value), value, 'A social media entry can only have a name (text) and a description (the link).']),
             ['organizing_bodies', 'a list with null', [null], 'Body is malformed.'],
             ['cooperation', 'a list with null', [null], 'Body is malformed.']
         ];
@@ -298,6 +302,18 @@ describe('Field types', () => {
 
             expectFieldError(res, field, message);
             expect((await Event.findByPk(event.id))[field]).toEqual(event[field]);
+        });
+
+        test('questions and social media entries take the fields the frontend sends', async () => {
+            const questions = [{ name: '', description: 'Why?', required: true }, { description: 'And?' }];
+            const socialMedia = [{ name: '', description: 'https://example.org/aegee' }, { description: 'https://example.org' }];
+
+            const res = await call('POST', '/', generator.generateEventBody({ questions, social_media: socialMedia }));
+
+            expect(res.statusCode).toEqual(201);
+            const event = await Event.findByPk(res.body.data.id);
+            expect(event.questions).toEqual(questions);
+            expect(event.social_media).toEqual(socialMedia);
         });
 
         test('creating a Summer University refuses organizers that are not objects', async () => {
