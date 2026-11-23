@@ -96,7 +96,8 @@ export default {
       limits: [],
       bodies: [],
       eventType: 'agora',
-      isLoading: false
+      isLoading: false,
+      request: 0
     }
   },
   computed: mapGetters(['services']),
@@ -121,42 +122,30 @@ export default {
         this.$root.showError('Error deleting limit', err)
       })
     },
-    fetchLimits () {
+    // The limits, the default limits and the bodies of the chosen event type, together. When
+    // another type is chosen before they are there, they are dropped for the newer ones.
+    fetchData () {
+      const request = ++this.request
       this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType).then((response) => {
-        this.limits = response.data.data
+      Promise.all([
+        this.axios.get(this.services['statutory'] + '/limits/' + this.eventType),
+        this.axios.get(this.services['statutory'] + '/limits/' + this.eventType + '/defaults/'),
+        this.axios.get(this.services['core'] + '/bodies/')
+      ]).then(([limits, defaultLimits, bodies]) => {
+        if (request !== this.request) return
 
-        return this.axios.get(this.services['core'] + '/bodies/')
-      }).then((response) => {
-        this.bodies = response.data.data
-
-        for (const limit of this.limits) {
-          this.$set(limit, 'body', this.bodies.find(body => body.id === limit.body_id))
-          this.$set(limit, 'isEditing', false)
+        this.bodies = bodies.data.data
+        for (const limit of limits.data.data) {
+          limit.body = this.bodies.find(body => body.id === limit.body_id)
+          limit.isEditing = false
         }
+        this.limits = limits.data.data
+        this.defaultLimits = defaultLimits.data.data
         this.compareWithDefaults()
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not fetch participants limits', err)
-      })
-    },
-    fetchDefaultLimits () {
-      this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType + '/defaults/').then((response) => {
-        this.defaultLimits = response.data.data
+        if (request !== this.request) return
 
-        return this.axios.get(this.services['core'] + '/bodies/')
-      }).then((response) => {
-        this.bodies = response.data.data
-
-        for (const defaultLimit of this.defaultLimits) {
-          this.$set(defaultLimit, 'body', this.bodies.find(body => body.id === defaultLimit.body_id))
-          this.$set(defaultLimit, 'isEditing', false)
-        }
-        this.compareWithDefaults()
-        this.isLoading = false
-      }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not fetch participants limits', err)
       })
@@ -188,13 +177,11 @@ export default {
   },
   watch: {
     eventType () {
-      this.fetchLimits()
-      this.fetchDefaultLimits()
+      this.fetchData()
     }
   },
   mounted () {
-    this.fetchLimits()
-    this.fetchDefaultLimits()
+    this.fetchData()
   }
 }
 </script>
