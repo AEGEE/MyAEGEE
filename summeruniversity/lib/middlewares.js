@@ -11,7 +11,20 @@ const config = require('../config');
 
 const packageInfo = require('../package.json');
 
+// What a core call answers to a request without a token: nobody is logged in.
+const NOT_AUTHENTICATED = { statusCode: 401, body: null };
+
 exports.authenticateUser = async (req, res, next) => {
+    // Without a token there is nobody to ask core about: the caller is anonymous. Public
+    // routes answer as for any anonymous caller (also while core is down), the others 401.
+    if (!req.headers['x-auth-token']) {
+        req.userRequest = NOT_AUTHENTICATED;
+        req.permissionsRequest = NOT_AUTHENTICATED;
+        req.approveRequest = NOT_AUTHENTICATED;
+        req.permissions = helpers.getPermissions();
+        return next();
+    }
+
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
