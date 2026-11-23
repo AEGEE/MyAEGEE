@@ -1,4 +1,8 @@
 node_modules/
 .frontend-dist/
+.coverage/
+a11y-results/
 playwright-report/
+playwright-report-ui/
 test-results/
+test-results-ui/

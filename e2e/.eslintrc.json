@@ -57,5 +57,51 @@
     "@typescript-eslint/no-shadow": "error",
     "no-use-before-define": "off",
     "no-empty-function": "off"
-  }
+  },
+  "overrides": [
+    {
+      // The mocked-API suite. Its specs must also pass on a phone and survive a rewrite of the
+      // pages they test, so they may only rely on what a user sees. docs/testing/writing-ui-specs.md
+      "files": ["ui/**/*.ts"],
+      "plugins": ["@eslint-community/eslint-comments"],
+      "rules": {
+        // An exception needs its reason: // eslint-disable-next-line <rule> -- <reason>
+        "@eslint-community/eslint-comments/require-description": ["error", { "ignore": [] }],
+        "no-restricted-syntax": [
+          "error",
+          { "selector": "CallExpression[callee.property.name='locator']", "message": "Find elements by role, label or text (getByRole, getByLabel, getByText), not with locator(). If that can't find it, fix the markup." },
+          { "selector": "CallExpression[callee.property.name=/^(getByTestId|getByPlaceholder|getByAltText|\\$|\\$\\$)$/]", "message": "Find elements by role, label or text (getByRole, getByLabel, getByText). If that can't find it, fix the markup." },
+          { "selector": "CallExpression[callee.property.name='waitForTimeout']", "message": "Wait for what the user would see, not for a fixed time." },
+          { "selector": "MemberExpression[property.name=/^(__vue__|\\$store|\\$root|\\$children)$/]", "message": "Don't read the app's internals: a spec may only rely on what a user sees." },
+          { "selector": "MemberExpression[object.name='test'][property.name=/^(skip|fixme|fail|only)$/]", "message": "The suite has no skipped tests, expected failures or focused tests: fix the page or the test." },
+          { "selector": "MemberExpression[object.type='MemberExpression'][object.object.name='test'][object.property.name='describe'][property.name=/^(skip|fixme|fail|only)$/]", "message": "The suite has no skipped tests, expected failures or focused tests: fix the page or the test." },
+          { "selector": "CallExpression[callee.property.name='getByRole'][arguments.0.value='navigation'] Property[key.name='name'][value.value='Main menu']", "message": "The sidebar is closed on a phone: get it with openMenu(page, layout) from ui/support/shell.ts." },
+          { "selector": "CallExpression[callee.property.name='getByRole'][arguments.0.value='columnheader']", "message": "Column headers are hidden on a phone: use tableRows(), cellOf() and sortBy() from ui/support/shell.ts." },
+          { "selector": "MemberExpression[property.name='clock']", "message": "Set the time with freezeTime(page) from ui/support/shell.ts, so every spec agrees on what now is." },
+          { "selector": "ObjectExpression:has(Property[key.name='tag'] Literal[value='@desktop-only']):not(:has(Property[key.name='annotation'] ObjectExpression:has(Property[key.name='type'][value.value='desktop-only']):has(Property[key.name='description'][value.value=/\\S/])))", "message": "A @desktop-only test says why it can't run on a phone: annotation: { type: 'desktop-only', description: '<reason>' }." },
+          { "selector": "Property[key.name='tag'] Literal:not([value=/^@(desktop-only|phone-only)$/])", "message": "Tags are for the projects only: @desktop-only (with a reason) and @phone-only." }
+        ]
+      }
+    },
+    {
+      // The generated tests (one per route) carry the tag their run is selected by.
+      "files": ["ui/smoke/**/*.ts", "ui/a11y/**/*.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          { "selector": "CallExpression[callee.property.name='locator']", "message": "Find elements by role, label or text (getByRole, getByLabel, getByText), not with locator(). If that can't find it, fix the markup." },
+          { "selector": "CallExpression[callee.property.name=/^(getByTestId|getByPlaceholder|getByAltText|\\$|\\$\\$)$/]", "message": "Find elements by role, label or text (getByRole, getByLabel, getByText). If that can't find it, fix the markup." },
+          { "selector": "CallExpression[callee.property.name='waitForTimeout']", "message": "Wait for what the user would see, not for a fixed time." },
+          { "selector": "MemberExpression[property.name=/^(__vue__|\\$store|\\$root|\\$children)$/]", "message": "Don't read the app's internals: a spec may only rely on what a user sees." },
+          { "selector": "MemberExpression[object.name='test'][property.name=/^(skip|fixme|fail|only)$/]", "message": "The suite has no skipped tests, expected failures or focused tests: fix the page or the test." },
+          { "selector": "MemberExpression[object.type='MemberExpression'][object.object.name='test'][object.property.name='describe'][property.name=/^(skip|fixme|fail|only)$/]", "message": "The suite has no skipped tests, expected failures or focused tests: fix the page or the test." },
+          { "selector": "CallExpression[callee.property.name='getByRole'][arguments.0.value='navigation'] Property[key.name='name'][value.value='Main menu']", "message": "The sidebar is closed on a phone: get it with openMenu(page, layout) from ui/support/shell.ts." },
+          { "selector": "CallExpression[callee.property.name='getByRole'][arguments.0.value='columnheader']", "message": "Column headers are hidden on a phone: use tableRows(), cellOf() and sortBy() from ui/support/shell.ts." },
+          { "selector": "MemberExpression[property.name='clock']", "message": "Set the time with freezeTime(page) from ui/support/shell.ts, so every spec agrees on what now is." },
+          { "selector": "ObjectExpression:has(Property[key.name='tag'] Literal[value='@desktop-only']):not(:has(Property[key.name='annotation'] ObjectExpression:has(Property[key.name='type'][value.value='desktop-only']):has(Property[key.name='description'][value.value=/\\S/])))", "message": "A @desktop-only test says why it can't run on a phone: annotation: { type: 'desktop-only', description: '<reason>' }." },
+          { "selector": "Property[key.name='tag'] Literal:not([value=/^@(smoke|a11y)$/])", "message": "The generated tests carry the tag of their run only: @smoke or @a11y." }
+        ]
+      }
+    }
+  ]
 }
