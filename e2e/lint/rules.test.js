@@ -9,9 +9,17 @@
 //
 // Usage: node --test lint/rules.test.js   (part of `npm run lint`)
 const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { describe, it } = require('node:test');
+
+// With CI=true typescript-eslint assumes one run over the files on disk and reads a file of the
+// TypeScript project from there, whatever text it is given. The fixture with types stands in
+// for a file that exists, so its own text would never be linted, and its test would fail in CI
+// only. Decided here, before the parser is used, and for this process only: the last test of
+// this file lints a file on disk the way CI does.
+process.env.TSESTREE_SINGLE_RUN = 'false';
 
 const { ESLint } = require('eslint');
 
@@ -77,6 +85,39 @@ describe('the lint rules that guard the tests', () => {
             assert.deepEqual(actual, expected);
         });
     }
+
+    // The fixture above is linted from its text. `npm run lint` in CI is the other way: one run
+    // over the files on disk (CI=true). A real file with the same mistakes, linted by the
+    // command of the `lint` script in that mode, has to be reported too.
+    it('a promise nobody waits for is also reported in a file on disk, linted as CI does', () => {
+        // Not named .spec.ts: a Playwright run that starts meanwhile must not pick it up.
+        const probe = path.join(e2e, `ui/harness/lint-probe-${process.pid}.ts`);
+        const source = fs.readFileSync(path.join(fixturesDir, 'no-floating-promises.ts'), 'utf8');
+        const env = { ...process.env, CI: 'true' };
+        delete env.TSESTREE_SINGLE_RUN;
+        let results;
+        fs.writeFileSync(probe, source);
+        try {
+            const eslint = path.join(path.dirname(require.resolve('eslint/package.json')), 'bin/eslint.js');
+            const output = execFileSync(process.execPath, [eslint, '--rulesdir', rulesDir, '--format', 'json', '--no-ignore', probe], {
+                cwd: e2e,
+                env,
+                encoding: 'utf8',
+                // ESLint exits 1 when it reports something, which is what this is about.
+                stdio: ['ignore', 'pipe', 'inherit']
+            });
+            results = JSON.parse(output);
+        } catch (error) {
+            assert.equal(error.status, 1, `eslint ran: ${error.message}`);
+            results = JSON.parse(error.stdout);
+        } finally {
+            fs.rmSync(probe, { force: true });
+        }
+        const lines = (rules) => Object.keys(rules).map(Number).sort((a, b) => a - b);
+        const expected = Object.fromEntries(Object.entries(expectedIn(source)).filter(([, rules]) => rules.includes(TYPED)));
+        assert.ok(lines(expected).length > 0, 'the fixture marks a line for the rule');
+        assert.deepEqual(results[0].messages.filter((item) => item.ruleId === TYPED).map((item) => item.line), lines(expected));
+    });
 
     it('every rule of lint/rules/ is proven by a fixture', () => {
         assert.ok(ownRules.length > 0);
