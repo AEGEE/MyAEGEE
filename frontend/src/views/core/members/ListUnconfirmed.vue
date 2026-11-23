@@ -92,7 +92,6 @@ export default {
       total: 0,
       sortField: 'id',
       sortOrder: 'asc',
-      canLoadMore: true,
       source: null
     }
   },
@@ -137,7 +136,6 @@ export default {
       this.users = []
       this.page = 1
       this.total = 0
-      this.canLoadMore = true
       this.fetchData()
     },
     onPageChange (page) {
@@ -163,7 +161,6 @@ export default {
         .then((response) => {
           this.users = response.data.data
           this.total = response.data.meta.count
-          this.canLoadMore = response.data.data.length === this.limit
           this.isLoading = false
         })
         .catch((err) => {

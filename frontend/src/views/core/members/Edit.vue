@@ -86,18 +86,6 @@
           </p>
         </div>
 
-        <!-- <div class="field">
-          <label class="label">Primary body</label>
-          <p class="control">
-            <div class="field has-addons select is-fullwidth">
-              <select v-model="user.primary_body_id">
-                <option :value="null">Not set</option>
-                <option v-for="body in user.bodies" :key="body.id" :value="body.id">{{ body.name }}</option>
-              </select>
-            </div>
-          <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
-        </div> -->
-
         <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
             <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ') }}</p>
@@ -160,7 +148,6 @@ export default {
         phone: null,
         address: null,
         about_me: null,
-        user: {},
         bodies: []
       },
       errors: {},

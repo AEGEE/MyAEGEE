@@ -20,8 +20,6 @@
           </template>
         </password-toggle>
 
-        <b-loading :is-full-page="false" :active.sync="isLoading" />
-
         <div class="field">
           <div class="control">
             <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth" />
@@ -45,7 +43,6 @@ export default {
       errors: {},
       old_password: '',
       password_confirmation: '',
-      isLoading: false,
       isSaving: false
     }
   },
@@ -100,7 +97,6 @@ export default {
     this.axios.get(this.services['core'] + '/members/me').then((response) => {
       this.user = response.data.data
       this.user.password = ''
-      this.isLoading = false
     }).catch((err) => {
       this.$root.showError('Some error happened', err)
       this.$router.push({ name: 'oms.members.list' })

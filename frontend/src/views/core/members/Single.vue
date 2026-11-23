@@ -312,8 +312,6 @@ export default {
   data () {
     return {
       user: {
-        name: '',
-        surname: '',
         id: null,
         primary_body: null,
         bodies: [],
@@ -353,7 +351,6 @@ export default {
         ariaLabel: 'Change picture',
         props: {
           user: this.user,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,

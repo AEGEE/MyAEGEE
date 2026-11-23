@@ -33,28 +33,22 @@
 
 <script>
 export default {
-  name: 'EditPrimaryBodyModal',
+  name: 'EditPrimaryEmailModal',
   props: ['member', 'services', 'showSuccess', 'showError'],
   data () {
     return {
-      userErrors: {},
       primaryEmail: ''
     }
   },
   methods: {
     updatePrimaryEmail () {
-      this.isLoading = true
-
       this.axios.put(this.services['core'] + '/members/' + this.member.id, {
         primary_email: this.primaryEmail
       }).then(() => {
         this.member.primary_email = this.primaryEmail
         this.showSuccess('Primary email is updated')
-        this.isLoading = false
         this.$parent.close()
       }).catch((err) => {
-        this.isLoading = false
-
         this.showError('Error updating primary email', err)
       })
     }

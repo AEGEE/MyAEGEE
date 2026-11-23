@@ -43,7 +43,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['user', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['user', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       file: null
@@ -53,9 +53,8 @@ export default {
     setFile (event) {
       this.file = event.target.files[0]
     },
+    // Both buttons are disabled while there is nothing to upload or delete.
     updateImage () {
-      if (!this.file) return
-
       const data = new FormData()
       data.append('head_image', this.file)
 
@@ -67,8 +66,6 @@ export default {
       })
     },
     removeImage () {
-      if (!this.user.image) return
-
       this.axios.delete(this.services['core'] + '/members/' + this.user.id + '/image').then(() => {
         this.showSuccess('User image is removed.')
         this.router.go(0)

@@ -28,28 +28,6 @@
         aria-label="Your profile"
         :aria-busy="isLoading ? 'true' : 'false'"
       >
-        <!-- <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
-          <template slot="errors-slot">
-            <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
-          </template>
-        </select-or-custom>
-
-        <div class="field">
-          <label class="label">Address</label>
-          <div class="control">
-            <input class="input" type="text" v-model="user.address" />
-          </div>
-          <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">About me</label>
-          <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
-          </div>
-          <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
-        </div> -->
-
         <div class="field" v-if="validationErrors.username">
           <label class="label" for="profile-username">Username <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -168,7 +146,6 @@ export default {
         privacy_consent: null,
         address: null,
         about_me: null,
-        user: {},
         bodies: [],
         join_requests: []
       },
@@ -178,7 +155,6 @@ export default {
       tmpBodyId: null,
       tmpEmail: '',
       errors: {},
-      birthday: null,
       isLoading: true,
       isSaving: false,
       agreedToPrivacyPolicy: false
@@ -304,8 +280,6 @@ export default {
   computed: {
     ...mapGetters({
       services: 'services',
-      loggedIn: 'loggedIn',
-      loginUser: 'user',
       isValid: 'isValid',
       validationErrors: 'validationErrors'
     }),
