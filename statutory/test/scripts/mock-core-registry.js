@@ -552,6 +552,22 @@ exports.mockCoreMails = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    // Core refuses the lookup, as it does when the caller may not read the addresses.
+    if (options.forbidden) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(403, { success: false, message: 'Permission global:mail:member is required, but not present.' });
+    }
+
+    // Core knows none of the users.
+    if (options.empty) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(200, { success: true, data: [] });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/members_email\?query=[0-9,].*/)
