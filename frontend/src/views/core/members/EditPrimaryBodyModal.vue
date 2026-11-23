@@ -2,14 +2,14 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Edit primary body</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Primary body</label>
+        <label class="label" for="primary-body">Primary body</label>
         <div class="control">
           <div class="select">
-            <select v-model="primaryBodyId" class="select">
+            <select id="primary-body" v-model="primaryBodyId" class="select">
               <option :value="null">Not set</option>
               <option v-for="body in sortedBodies" :value="body.id" v-bind:key="body.id">{{ body.name }}</option>
             </select>
