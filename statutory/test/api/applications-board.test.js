@@ -1,4 +1,5 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -39,6 +40,7 @@ describe('Applications pax type/board comment', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -488,5 +490,109 @@ describe('Applications pax type/board comment', () => {
 
         const applicationFromDb = await Application.findByPk(other.id);
         expect(applicationFromDb.participant_order).toEqual(null);
+    });
+
+    // The board of a body sets the participant types from the start of the application period
+    // until the board approve deadline, both ends included.
+    describe('the board approve deadline', () => {
+        const setBoard = () => request({
+            path: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', participant_order: 1 }
+        });
+
+        beforeEach(async () => {
+            application = await application.update({ user_id: 1337 }, { returning: ['*'] });
+        });
+
+        test.each([
+            ['refuses a board member 1 ms before the application period starts', 'application_period_starts', -1, 403],
+            ['lets a board member set the type exactly when the application period starts (inclusive)', 'application_period_starts', 0, 200],
+            ['lets a board member set the type exactly at the board approve deadline (inclusive)', 'board_approve_deadline', 0, 200],
+            ['refuses a board member 1 ms after the board approve deadline', 'board_approve_deadline', 1, 403]
+        ])('%s', async (name, field, offset, status) => {
+            // The core mock makes the user a board member of the applicant's body.
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            tk.freeze(moment(event[field]).add(offset, 'ms').toDate());
+
+            const res = await setBoard();
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.participant_type).toEqual(status === 200 ? 'delegate' : null);
+            expect(applicationFromDb.participant_order).toEqual(status === 200 ? 1 : null);
+        });
+
+        test.each([
+            ['1 ms before the application period starts', 'application_period_starts', -1],
+            ['1 ms after the board approve deadline', 'board_approve_deadline', 1]
+        ])('lets those who approve the members of all bodies set the type %s', async (name, field, offset) => {
+            mock.mockAll({
+                mainPermissions: { permissions: ['global:approve_members:agora'] },
+                approvePermissions: { noPermissions: true }
+            });
+            tk.freeze(moment(event[field]).add(offset, 'ms').toDate());
+
+            const res = await setBoard();
+
+            expect(res.statusCode).toEqual(200);
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.participant_type).toEqual('delegate');
+        });
+    });
+
+    describe('who may set it without being in the board of the body', () => {
+        // Managing the applications does not include choosing the participant types.
+        test.each([
+            ['global:approve_members:agora', 200],
+            ['global:approve_members:epm', 403],
+            ['global:manage_applications:agora', 403],
+            ['global:manage_incoming:agora', 403],
+            ['global:manage_juridical:agora', 403],
+            ['global:update_memberslist_status:agora', 403]
+        ])('%s alone answers %i on an Agora', async (permission, status) => {
+            mock.mockAll({
+                mainPermissions: { permissions: [permission] },
+                approvePermissions: { noPermissions: true }
+            });
+            // Accepted, so that the local organisers reach the application too.
+            application = await application.update({ user_id: 1337, status: 'accepted' }, { returning: ['*'] });
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/' + application.id + '/board',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { participant_type: 'delegate', participant_order: 1, board_comment: 'Changed' }
+            });
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+
+            // Nothing is stored when the request is refused.
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.participant_type).toEqual(status === 200 ? 'delegate' : null);
+            expect(applicationFromDb.board_comment).toEqual(status === 200 ? 'Changed' : application.board_comment);
+        });
+
+        test('should return 403 for a board member of another body', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            application = await application.update({ user_id: 1337, body_id: 1337 }, { returning: ['*'] });
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/' + application.id + '/board',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { participant_type: 'visitor', participant_order: 1 }
+            });
+
+            expect(res.statusCode).toEqual(403);
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.participant_type).toEqual(null);
+        });
     });
 });
