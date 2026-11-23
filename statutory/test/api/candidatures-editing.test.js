@@ -306,4 +306,134 @@ describe('Candidates editing', () => {
         expect(candidate.body_id).toEqual(1337);
         expect(candidate.body_name).toEqual('AEGEE-Elsewhere');
     });
+
+    describe('who may edit a candidature and what it takes', () => {
+        const MANAGE = 'global:manage_candidates:agora';
+        const OTHER_PERMISSIONS = [
+            'global:manage_candidates:epm',
+            'global:manage_event:agora',
+            'global:manage_applications:agora',
+            'global:manage_plenaries:agora',
+            'global:manage_question_lines:agora'
+        ];
+        let event;
+        let position;
+
+        beforeEach(async () => {
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+            position = await generator.createPosition({
+                starts: moment().subtract(1, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate() // status = open
+            }, event);
+        });
+
+        const edit = (candidate, body, targetEvent = event, targetPosition = position) => request({
+            path: '/events/' + targetEvent.id + '/positions/' + targetPosition.id + '/candidates/' + candidate.id,
+            method: 'PUT',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        const storedName = async (candidate) => (await Candidate.findByPk(candidate.id)).first_name;
+
+        test.each([
+            ['lets', 'a candidate without permissions', 'their own pending candidature', [], regularUser.id, 'pending', 200],
+            ['refuses', 'a candidate without permissions', 'their own approved candidature', [], regularUser.id, 'approved', 403],
+            ['refuses', 'a candidate without permissions', 'their own rejected candidature', [], regularUser.id, 'rejected', 403],
+            ['refuses', 'a member without permissions', 'the pending candidature of someone else', [], 1337, 'pending', 403],
+            ['refuses', 'a holder of the permission for another event type', 'the pending candidature of someone else', OTHER_PERMISSIONS, 1337, 'pending', 403],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'the pending candidature of someone else', [MANAGE], 1337, 'pending', 200],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'the approved candidature of someone else', [MANAGE], 1337, 'approved', 200],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'the rejected candidature of someone else', [MANAGE], 1337, 'rejected', 200],
+            ['lets', 'a holder of global:manage_candidates:agora', 'their own approved candidature', [MANAGE], regularUser.id, 'approved', 200]
+        ])('%s %s edit %s', async (verb, who, what, permissions, userId, status, expected) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+            const candidate = await generator.createCandidate({ user_id: userId, status, first_name: 'Before' }, position);
+
+            const res = await edit(candidate, { first_name: 'After' });
+
+            expect(res.statusCode).toEqual(expected);
+            if (expected === 200) {
+                expect(res.body.data.first_name).toEqual('After');
+                expect(res.body.data.status).toEqual(status);
+                expect(await storedName(candidate)).toEqual('After');
+            } else {
+                expect(res.body).toEqual({ success: false, message: 'You cannot edit this candidature.' });
+                expect(await storedName(candidate)).toEqual('Before');
+            }
+        });
+
+        test('lets a candidate edit a pending candidature after the position closed', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const closedPosition = await generator.createPosition({
+                starts: moment().subtract(2, 'weeks').toDate(),
+                ends: moment().subtract(1, 'week').toDate() // status = closed
+            }, event);
+            const candidate = await generator.createCandidate({ user_id: regularUser.id, first_name: 'Before' }, closedPosition);
+
+            const res = await edit(candidate, { first_name: 'After' }, event, closedPosition);
+
+            expect(res.statusCode).toEqual(200);
+            expect(await storedName(candidate)).toEqual('After');
+        });
+
+        test.each([
+            ['no languages', { languages: [] }, 'languages'],
+            ['languages that are not a list', { languages: 'English' }, 'languages'],
+            ['an empty language', { languages: ['English', ' '] }, 'languages'],
+            ['an empty first name', { first_name: '' }, 'first_name'],
+            ['an empty last name', { last_name: '' }, 'last_name'],
+            ['a date of birth that is not a date', { date_of_birth: 'not a date' }, 'date_of_birth'],
+            ['a membership date that is not a date', { member_since: 'not a date' }, 'member_since'],
+            ['an empty motivation', { motivation: '' }, 'motivation'],
+            ['studies set to null', { studies: null }, 'studies'],
+            ['a privacy policy that is not agreed to', { agreed_to_privacy_policy: false }, 'agreed_to_privacy_policy']
+        ])('answers 422 for %s and changes nothing', async (description, change, field) => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const candidate = await generator.createCandidate({ user_id: regularUser.id, first_name: 'Before' }, position);
+            const before = (await Candidate.findByPk(candidate.id)).toJSON();
+
+            const res = await edit(candidate, { first_name: 'After', ...change });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(Object.keys(res.body.errors)).toEqual([field]);
+            expect((await Candidate.findByPk(candidate.id)).toJSON()).toEqual(before);
+        });
+
+        test('ignores the status, the user, the mail address and the image in the body', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const candidate = await generator.createCandidate({ user_id: regularUser.id }, position);
+
+            const res = await edit(candidate, {
+                first_name: 'After',
+                status: 'approved',
+                user_id: 1337,
+                email: 'someone@example.org',
+                image_id: 1337
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(await Candidate.findByPk(candidate.id)).toMatchObject({
+                first_name: 'After',
+                status: 'pending',
+                user_id: regularUser.id,
+                email: null,
+                image_id: null
+            });
+        });
+
+        test.each(['epm', 'spm'])('answers 400 for an %s event and changes nothing', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: [MANAGE, `global:manage_candidates:${type}`] } });
+            const otherEvent = await generator.createEvent({ type, applications: [] });
+            const otherPosition = await generator.createPosition({}, otherEvent);
+            const candidate = await generator.createCandidate({ user_id: regularUser.id, first_name: 'Before' }, otherPosition);
+
+            const res = await edit(candidate, { first_name: 'After' }, otherEvent, otherPosition);
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'You can only access memberslist for Agora.' });
+            expect(await storedName(candidate)).toEqual('Before');
+        });
+    });
 });

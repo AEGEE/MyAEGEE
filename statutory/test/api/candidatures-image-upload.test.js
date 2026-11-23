@@ -321,4 +321,77 @@ describe('Candidates image upload', () => {
             expect(Object.keys(positions.body.data[0].candidates[0].image).sort()).toEqual(IMAGE_FIELDS);
         }
     });
+
+    describe('who may upload the image of a candidature', () => {
+        const MANAGE = 'global:manage_candidates:agora';
+
+        const upload = (candidateId, targetEvent = event, targetPosition = position) => request({
+            path: '/events/' + targetEvent.id + '/positions/' + targetPosition.id + '/candidates/' + candidateId + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { path: './test/assets/valid_image.png' } }
+        });
+
+        // The images table is not emptied between tests, so the tests count from where they start.
+        let imagesBefore;
+
+        beforeEach(async () => {
+            imagesBefore = await Image.count();
+        });
+
+        const nothingStored = async () => {
+            expect(await Image.count()).toEqual(imagesBefore);
+            expect(listUploadedFiles()).toEqual([]);
+        };
+
+        test.each([
+            ['lets', 'a candidate without permissions', 'their own pending candidature', [], regularUser.id, 'pending', 200],
+            ['refuses', 'a candidate without permissions', 'their own approved candidature', [], regularUser.id, 'approved', 403],
+            ['refuses', 'a candidate without permissions', 'their own rejected candidature', [], regularUser.id, 'rejected', 403],
+            ['refuses', 'a holder of the permission for another event type', 'the pending candidature of someone else', ['global:manage_candidates:epm', 'global:manage_event:agora'], 1337, 'pending', 403],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'the approved candidature of someone else', [MANAGE], 1337, 'approved', 200]
+        ])('%s %s upload the image of %s', async (verb, who, what, permissions, userId, status, expected) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+            await candidate.update({ user_id: userId, status });
+
+            const res = await upload(candidate.id);
+
+            expect(res.statusCode).toEqual(expected);
+            if (expected === 200) {
+                const image = await Image.findOne({ order: [['id', 'DESC']] });
+                expect(await Image.count()).toEqual(imagesBefore + 1);
+                expect(res.body.data.image.id).toEqual(image.id);
+                expect((await candidate.reload()).image_id).toEqual(image.id);
+                expect(listUploadedFiles()).toEqual([image.file_name]);
+            } else {
+                expect(res.body).toEqual({ success: false, message: 'You cannot edit this candidature.' });
+                expect((await candidate.reload()).image_id).toEqual(null);
+                await nothingStored();
+            }
+        });
+
+        test.each([
+            ['an unknown candidate', '2147483647', 404, 'Candidate is not found.'],
+            ['a candidate id that is not a number', 'abc', 400, 'The candidate ID is invalid.']
+        ])('stores no file for %s', async (description, candidateId, status, message) => {
+            const res = await upload(candidateId);
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body).toEqual({ success: false, message });
+            await nothingStored();
+        });
+
+        test.each(['epm', 'spm'])('answers 400 for an %s event and stores no file', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: [MANAGE, `global:manage_candidates:${type}`] } });
+            const otherEvent = await generator.createEvent({ type });
+            const otherPosition = await generator.createPosition({}, otherEvent);
+            const otherCandidate = await generator.createCandidate({ user_id: regularUser.id }, otherPosition);
+
+            const res = await upload(otherCandidate.id, otherEvent, otherPosition);
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'You can only access memberslist for Agora.' });
+            await nothingStored();
+        });
+    });
 });
