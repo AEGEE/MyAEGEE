@@ -370,4 +370,25 @@ describe('User subscribe listserv', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.message).toEqual('Permission global:subscribe:listserv is required, but not present.');
     });
+
+    test.each([
+        ['a number', 1],
+        ['an object', { a: 1 }],
+        ['a list', ['ANNOUNCE-L']],
+        ['null', null]
+    ])('should fail if a mailing list is %s', async (name, value) => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L', value] }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toContain('Mailinglists must be one of the following');
+    });
 });
