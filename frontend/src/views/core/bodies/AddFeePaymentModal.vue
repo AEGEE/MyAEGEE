@@ -107,7 +107,10 @@ export default {
   },
   watch: {
     'tmpPayment.starts': function () {
-      this.tmpPayment.expires = moment(this.tmpPayment.starts, 'YYYY-MM-DD').add(1, 'year').format('YYYY-MM-DD')
+      const starts = moment(this.tmpPayment.starts, 'YYYY-MM-DD', true)
+      if (!starts.isValid()) return
+
+      this.tmpPayment.expires = starts.add(1, 'year').format('YYYY-MM-DD')
     }
   },
   methods: {
