@@ -158,7 +158,7 @@
                   <td>{{ application.attended | beautify }}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Registered</th>
+                  <th scope="row">JC registered?</th>
                   <td>{{ application.registered | beautify }}</td>
                 </tr>
               </tbody>
