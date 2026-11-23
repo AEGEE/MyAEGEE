@@ -27,7 +27,12 @@ defmodule Omsmailer.Page do
     rescue
       e in KeyError -> {:error, :unprocessable_entity, "Missing key " <> Kernel.inspect(e.key)}  # Missing key in template, caused by Map.fetch!
       e in Phoenix.Template.UndefinedError -> {:error, :not_found, "Template " <> template <> " not found, available are: " <> Kernel.inspect(e.available)}
-      e -> throw e 
+      # A value the template needs is missing or has the wrong type: nil in the subject
+      # line (ArgumentError), nil where it loops over a list, or an object where it
+      # prints text (Protocol.UndefinedError). The message leaves out the value, which
+      # can hold personal data.
+      e in [ArgumentError, Protocol.UndefinedError] ->
+        {:error, :unprocessable_entity, "Could not render " <> template <> ": a parameter is missing or has the wrong type (" <> Kernel.inspect(e.__struct__) <> ")"}
     end
   end
 
