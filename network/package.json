@@ -11,8 +11,8 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/**/*.test.js --runInBand --forceExit",
-    "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/**/*.test.js --runInBand",
+    "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand",
     "semantic-release": "semantic-release"
   },
   "keywords": [],
@@ -41,6 +41,7 @@
       "jest-junit"
     ],
     "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js",
       "<rootDir>/test/scripts/mail-contract.js"
     ],
     "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js"
