@@ -341,6 +341,43 @@ test.describe('the board view of a statutory event', () => {
         ]);
     });
 
+    test('the picker shows the applicants\' details and their places', async ({ page, api }) => {
+        mockPage(api, { applications: [{ ...ALEX, created_at: '2027-01-10T09:30:00.000Z', updated_at: '2027-01-11T09:30:00.000Z' }, JAN] });
+        await page.goto('/statutory/agora-spring/boardview');
+        await page.getByRole('tab', { name: 'View applications' }).click();
+
+        await fieldsPicker(page).click();
+        for (const name of [/^First name/, /^Last name/, /^Gender/, /^Created at/, /^Updated at/, /^Participant type/]) {
+            await page.getByRole('listbox').getByRole('option', { name }).click();
+        }
+        await fieldsPicker(page).press('Escape');
+
+        const table = applicationsTable(page);
+        const alex = tableRows(table).filter({ hasText: 'Alex Member' });
+        for (const [column, text] of [
+            ['First name', 'Alex'],
+            ['Last name', 'Member'],
+            ['Gender', 'female'],
+            ['Created at', '2027-01-10T09:30:00.000Z'],
+            ['Updated at', '2027-01-11T09:30:00.000Z'],
+            ['Participant type', 'delegate (1)']
+        ] as const) {
+            await expect(await cellOf(table, alex, column)).toHaveText(text);
+        }
+        await expect(await cellOf(table, tableRows(table).filter({ hasText: 'Jansen' }), 'Participant type')).toHaveText('');
+    });
+
+    test('without a statutory ID the links use the application\'s id', async ({ page, api }) => {
+        mockPage(api, { event: agora({ permissions: boardPermissions({ manage_applications: true }) }), applications: [{ ...JAN, statutory_id: null as unknown as string }] });
+        await page.goto('/statutory/agora-spring/boardview');
+        await page.getByRole('tab', { name: 'View applications' }).click();
+
+        const table = applicationsTable(page);
+        const jan = tableRows(table).filter({ hasText: 'Jansen' });
+        await expect((await cellOf(table, jan, 'View')).getByRole('link', { name: 'View' })).toHaveAttribute('href', '/statutory/agora-spring/applications/13');
+        await expect((await cellOf(table, jan, 'Edit')).getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/statutory/agora-spring/applications/13/edit');
+    });
+
     test('who manages applications can edit them from here', async ({ page, api }) => {
         mockPage(api, { event: agora({ permissions: boardPermissions({ manage_applications: true }) }) });
         await page.goto('/statutory/agora-spring/boardview');

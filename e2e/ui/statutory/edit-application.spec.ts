@@ -207,6 +207,19 @@ test.describe('applying to a statutory event', () => {
         }]);
     });
 
+    test('a reason about the answers alone is listed on its own', async ({ page, api }) => {
+        mockEvent(api, agora({ questions: [] }));
+        api.on('POST statutory /events/:id/applications', { status: 422, json: validationError({ answers: ['Answer number 1 ("Why?") is empty.'] }) });
+        await page.goto('/statutory/agora-spring/applications/new');
+
+        await field(page, 'combobox', 'Nationality').selectOption('Belgian');
+        await saveButton(page).click();
+
+        await expect(toast(page, 'Some of the application data is invalid.')).toBeVisible();
+        await expect(page.getByRole('listitem').filter({ hasText: 'Answer number 1 ("Why?") is empty.' })).toHaveCount(1);
+        await expect(page.getByRole('link', { name: 'your profile.' })).toHaveCount(0);
+    });
+
     test('the browser asks for required answers before sending', async ({ page, api }) => {
         mockEvent(api);
         await page.goto('/statutory/agora-spring/applications/new');

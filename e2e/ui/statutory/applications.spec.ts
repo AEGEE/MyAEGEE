@@ -211,6 +211,62 @@ test.describe('managing the applications to a statutory event', () => {
         await expect(await cellOf(table, rowOf(page, 'Jansen'), 'Email')).toHaveText('member7@example.com');
     });
 
+    test('every field of the picker shows the applicants\' details', async ({ page, api }) => {
+        const visa = {
+            visa_required: true,
+            visa_passport_number: 'AB123456',
+            visa_passport_issue_date: '2020-01-01',
+            visa_passport_expiration_date: '2030-01-01',
+            visa_passport_issue_authority: 'City of Brussels',
+            visa_place_of_birth: 'Leuven',
+            visa_embassy: 'Brussels',
+            visa_street_and_house: 'Rue de la Loi 1',
+            visa_postal_code: '1000',
+            visa_city: 'Brussels',
+            visa_country: 'Belgium'
+        };
+        mockPage(api, {
+            list: () => okList([
+                { ...ALEX, ...visa, status: 'rejected', allergies: 'Nuts', number_of_events_visited: 2, created_at: '2027-01-10T09:30:00.000Z', updated_at: '2027-01-11T09:30:00.000Z' },
+                { ...JAN, status: 'waiting_list' }
+            ])
+        });
+        await page.goto('/statutory/agora-spring/applications');
+        const fields: [string, string][] = [
+            ['Gender', 'female'],
+            ['Nationality', 'Belgian'],
+            ['Date of birth', '2000-01-01'],
+            ['Email', 'member2@example.com'],
+            ['Meals', 'Vegetarian'],
+            ['Allergies', 'Nuts'],
+            ['Number of events visited', '2'],
+            ['Visa required?', 'Yes'],
+            ['Visa passport number', 'AB123456'],
+            ['Visa passport issue date', '2020-01-01'],
+            ['Visa passport expiration date', '2030-01-01'],
+            ['Visa passport issue authority', 'City of Brussels'],
+            ['Place of birth', 'Leuven'],
+            ['Embassy', 'Brussels'],
+            ['Street and house number', 'Rue de la Loi 1'],
+            ['Postal code', '1000'],
+            ['City', 'Brussels'],
+            ['Country', 'Belgium'],
+            // As statutory sends them.
+            ['Created at', '2027-01-10T09:30:00.000Z'],
+            ['Updated at', '2027-01-11T09:30:00.000Z']
+        ];
+
+        await pickFields(page, ...fields.map(([name]) => new RegExp(`^${name.replace('?', '\\?')}(\\s|$)`)));
+
+        await expect(page.getByText('24 fields selected')).toBeVisible();
+        const alex = rowOf(page, 'Alex');
+        for (const [column, text] of fields) {
+            await expect(await cellOf(applicationsTable(page), alex, column)).toHaveText(text);
+        }
+        await expect(page.getByRole('combobox', { name: 'Status of Alex Member' })).toHaveValue('rejected');
+        await expect(page.getByRole('combobox', { name: 'Status of Jan Jansen' })).toHaveValue('waiting_list');
+    });
+
     test('a question named like a field adds only its own column', async ({ page, api }) => {
         mockPage(api, { event: agora({ questions: [{ type: 'string', description: 'Gender', required: false }] }) });
         await page.goto('/statutory/agora-spring/applications');

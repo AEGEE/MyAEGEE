@@ -196,6 +196,14 @@ test.describe('the incoming team\'s page', () => {
         await expect(sortControl.getByRole('option', { name: 'Email', exact: true })).toHaveCount(0);
     });
 
+    test('without a statutory ID the link uses the application\'s id', async ({ page, api }) => {
+        mockPage(api, () => okList([{ ...JAN, statutory_id: null as unknown as string }]));
+        await page.goto('/statutory/agora-spring/incoming');
+
+        await expect((await cellOf(participants(page), rowOf(page, 'Jansen'), 'View')).getByRole('link', { name: 'View' }))
+            .toHaveAttribute('href', '/statutory/agora-spring/applications/13');
+    });
+
     test('an event without accepted participants says so', async ({ page, api }) => {
         mockPage(api, () => okList([]));
         await page.goto('/statutory/agora-spring/incoming');

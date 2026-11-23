@@ -178,6 +178,15 @@ test.describe('an application to a statutory event', () => {
         });
     }
 
+    test('a manager sees that someone\'s application is cancelled, without the hints for the applicant', async ({ page, api }) => {
+        mockPage(api, { ...JANS, cancelled: true, permissions: { ...JANS.permissions, set_application_cancelled: false } }, agora({ permissions: statutoryManagerPermissions() }));
+        await page.goto('/statutory/agora-spring/applications/001-0002');
+
+        await expect(page.getByText('This application is cancelled.', { exact: true })).toBeVisible();
+        await expect(page.getByText(/You can uncancel it/)).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Uncancel application' })).toHaveCount(0);
+    });
+
     test('a manager sees someone else\'s application with its answers', async ({ page, api }) => {
         mockPage(api, JANS, agora({ permissions: statutoryManagerPermissions() }));
         await page.goto('/statutory/agora-spring/applications/001-0002');
