@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { MembersList } = require('../../models');
 
 describe('Memberslist fee_paid editing', () => {
     beforeAll(async () => {
@@ -183,5 +184,33 @@ describe('Memberslist fee_paid editing', () => {
             'POST /my_permissions',
             'POST /my_permissions'
         ]);
+    });
+
+    test.each([
+        ['null', null],
+        ['a list', [1]],
+        ['an object', { amount: 1 }],
+        ['true', true]
+    ])('should return 422 if the paid fee is %s', async (description, value) => {
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id, fee_paid: 12 }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { fee_paid: value }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('fee_paid');
+
+        const memberslistFromDb = await MembersList.findOne({ where: { event_id: event.id } });
+        expect(Number(memberslistFromDb.fee_paid)).toEqual(12);
     });
 });

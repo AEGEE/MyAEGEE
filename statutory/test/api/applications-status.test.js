@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const Event = require('../../models/Event');
+const { Application } = require('../../models');
 const regularUser = require('../assets/core-valid.json').data;
 
 describe('Applications status', () => {
@@ -233,5 +234,30 @@ describe('Applications status', () => {
 
         expect(afterRes.statusCode).toEqual(200);
         expect(afterRes.body.data.status).toEqual('accepted');
+    });
+
+    test.each([
+        ['null', null],
+        ['a list', ['accepted']],
+        ['an object', { value: 'accepted' }],
+        ['a number', 1],
+        ['true', true]
+    ])('should return 422 if the status is %s', async (description, status) => {
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: 1337, status: 'pending' }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('status');
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.status).toEqual('pending');
     });
 });
