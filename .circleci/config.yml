@@ -81,6 +81,32 @@ jobs:
           name: Run shellcheck
           command: |
             shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
+  openapi:
+    # Lints the services' OpenAPI files, checks the generated types in packages/api-types,
+    # and tests and lints the shared helpers (docs/testing/backend-openapi.md).
+    docker:
+      - image: cimg/node:26.13.1
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - run:
+          name: Lint the OpenAPI files
+          command: npx redocly lint
+      - run:
+          name: Check that the generated types are up to date
+          command: npx openapi-typescript --check
+      - run:
+          name: Test the shared backend test helpers
+          command: node --test packages/backend-test-utils/test/
+      - run:
+          name: Lint the shared backend test helpers
+          command: npx eslint packages/backend-test-utils
+      - run:
+          name: Check codecov.yml after_n_builds against the uploads
+          command: node packages/backend-test-utils/check-codecov-builds.js
   core-test:
     docker:
       - image: cimg/node:26.13.1
@@ -1974,6 +2000,9 @@ workflows:
   lint-shell:
     jobs:
       - shellcheck
+  openapi:
+    jobs:
+      - openapi
   lint-python:
     jobs:
       - pylint
