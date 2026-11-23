@@ -42,7 +42,8 @@
     "reporters": [
       "default",
       "jest-junit"
-    ]
+    ],
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
