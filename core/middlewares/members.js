@@ -262,7 +262,13 @@ exports.updateUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
     }
 
-    await req.currentUser.update(req.body, { fields: constants.FIELDS_TO_UPDATE.USER.UPDATE });
+    // The Google Workspace account is managed centrally. From anyone else the field is ignored
+    // and not refused, because clients send the whole profile back on every edit.
+    const fields = req.permissions.hasPermission('global:update:member')
+        ? constants.FIELDS_TO_UPDATE.USER.UPDATE
+        : constants.FIELDS_TO_UPDATE.USER.UPDATE.filter((field) => field !== 'gsuite_id');
+
+    await req.currentUser.update(req.body, { fields });
     return res.json({
         success: true,
         data: req.currentUser
