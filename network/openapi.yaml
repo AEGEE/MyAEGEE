@@ -464,6 +464,11 @@ components:
       type: integer
       minimum: 0
       maximum: 2147483647
+    IdInput:
+      description: An ID as a number or as a string of digits; the answer has the number.
+      anyOf:
+        - {$ref: '#/components/schemas/Id'}
+        - {type: string, pattern: '^[0-9]{1,10}$'}
     DateInput:
       description: >-
         A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day
@@ -510,9 +515,9 @@ components:
             - {$ref: '#/components/schemas/DateInput'}
             - {type: 'null'}
         name: {type: [string, 'null'], maxLength: 255}
-        president: {$ref: '#/components/schemas/Id'}
-        secretary: {$ref: '#/components/schemas/Id'}
-        treasurer: {$ref: '#/components/schemas/Id'}
+        president: {$ref: '#/components/schemas/IdInput'}
+        secretary: {$ref: '#/components/schemas/IdInput'}
+        treasurer: {$ref: '#/components/schemas/IdInput'}
         other_members:
           type: [array, 'null']
           items:
@@ -524,7 +529,7 @@ components:
         message: {type: [string, 'null']}
         image_id:
           anyOf:
-            - {$ref: '#/components/schemas/Id'}
+            - {$ref: '#/components/schemas/IdInput'}
             - {type: 'null'}
       additionalProperties: true
     BoardResponse:
@@ -581,8 +586,8 @@ components:
       type: object
       required: [agora_id, body_id, antenna_criterion]
       properties:
-        agora_id: {$ref: '#/components/schemas/Id'}
-        body_id: {$ref: '#/components/schemas/Id'}
+        agora_id: {$ref: '#/components/schemas/IdInput'}
+        body_id: {$ref: '#/components/schemas/IdInput'}
         antenna_criterion: {$ref: '#/components/schemas/AntennaCriterionName'}
         value: {$ref: '#/components/schemas/AntennaCriterionValue'}
         comment: {type: [string, 'null']}
@@ -633,8 +638,8 @@ components:
       type: object
       required: [body_id, netcom_id]
       properties:
-        body_id: {$ref: '#/components/schemas/Id'}
-        netcom_id: {$ref: '#/components/schemas/Id'}
+        body_id: {$ref: '#/components/schemas/IdInput'}
+        netcom_id: {$ref: '#/components/schemas/IdInput'}
       additionalProperties: true
     NetcomResponse:
       type: object
@@ -669,7 +674,7 @@ components:
       type: object
       required: [agora_id, mail_component, text]
       properties:
-        agora_id: {$ref: '#/components/schemas/Id'}
+        agora_id: {$ref: '#/components/schemas/IdInput'}
         mail_component: {$ref: '#/components/schemas/MailComponentName'}
         text: {type: string}
       additionalProperties: true

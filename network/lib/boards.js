@@ -286,6 +286,8 @@ exports.updateBoard = async (req, res) => {
     }
 
     await req.board.save();
+    // Answer with the stored row, not with what was sent ("7" is stored as 7).
+    await req.board.reload();
 
     return res.json({
         success: true,

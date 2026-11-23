@@ -327,6 +327,8 @@ export interface components {
         };
         /** @description An ID, which fits a Postgres INTEGER. */
         Id: number;
+        /** @description An ID as a number or as a string of digits; the answer has the number. */
+        IdInput: components["schemas"]["Id"] | string;
         /** @description A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day it is written with. */
         DateInput: string;
         BoardPosition: {
@@ -357,15 +359,15 @@ export interface components {
             start_date?: components["schemas"]["DateInput"];
             end_date?: components["schemas"]["DateInput"] | null;
             name?: string | null;
-            president?: components["schemas"]["Id"];
-            secretary?: components["schemas"]["Id"];
-            treasurer?: components["schemas"]["Id"];
+            president?: components["schemas"]["IdInput"];
+            secretary?: components["schemas"]["IdInput"];
+            treasurer?: components["schemas"]["IdInput"];
             other_members?: {
                 function: string;
                 user_id: number;
             }[] | null;
             message?: string | null;
-            image_id?: components["schemas"]["Id"] | null;
+            image_id?: components["schemas"]["IdInput"] | null;
         } & {
             [key: string]: unknown;
         };
@@ -401,8 +403,8 @@ export interface components {
             comment: string | null;
         } & components["schemas"]["Timestamps"];
         AntennaCriterionInput: {
-            agora_id: components["schemas"]["Id"];
-            body_id: components["schemas"]["Id"];
+            agora_id: components["schemas"]["IdInput"];
+            body_id: components["schemas"]["IdInput"];
             antenna_criterion: components["schemas"]["AntennaCriterionName"];
             value?: components["schemas"]["AntennaCriterionValue"];
             comment?: string | null;
@@ -436,8 +438,8 @@ export interface components {
             netcom_id: number;
         } & components["schemas"]["Timestamps"];
         NetcomInput: {
-            body_id: components["schemas"]["Id"];
-            netcom_id: components["schemas"]["Id"];
+            body_id: components["schemas"]["IdInput"];
+            netcom_id: components["schemas"]["IdInput"];
         } & {
             [key: string]: unknown;
         };
@@ -459,7 +461,7 @@ export interface components {
             text: string;
         } & components["schemas"]["Timestamps"];
         MailComponentInput: {
-            agora_id: components["schemas"]["Id"];
+            agora_id: components["schemas"]["IdInput"];
             mail_component: components["schemas"]["MailComponentName"];
             text: string;
         } & {
