@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const { Board } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
-const { Sequelize, sequelize } = require('./sequelize');
+const { Sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
@@ -56,9 +56,11 @@ exports.createBoard = async (req, res) => {
         return res.status(422).json({ success: false, errors: fieldErrors });
     }
 
-    const createdBoard = await sequelize.transaction(async (t) => {
-        const board = await Board.create(boardData, { transaction: t });
+    const createdBoard = await Board.create(boardData);
 
+    // Best-effort, after the board is stored: a mailer that is down or slow does not
+    // fail the creation. The log names the board only.
+    try {
         await mailer.sendMail({
             to: config.new_board_notifications,
             subject: `A new board was added for ${bodyName}`,
@@ -69,9 +71,9 @@ exports.createBoard = async (req, res) => {
                 positions
             }
         });
-
-        return board;
-    });
+    } catch (err) {
+        logger.error({ err, board_id: createdBoard.id }, 'Could not send the new board mail to NetCom');
+    }
 
     // Best-effort: a failed welcome mail doesn't fail the creation. The board stays
     // unmarked, so the daily job retries it.
