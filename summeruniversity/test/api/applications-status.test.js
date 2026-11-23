@@ -377,5 +377,47 @@ describe('Applications status changes', () => {
             await application.reload();
             expect(application.confirmed).toEqual(true);
         });
+
+        test('should not let a banned applicant take back their cancellation', async () => {
+            mockAndCapture({
+                core: { eventApplicationBanned: true },
+                mainPermissions: { permissions: ['global:apply:summeruniversity'] },
+                approvePermissions: { noPermissions: true }
+            });
+            const ownEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const own = await generator.createApplication(ownEvent, { user_id: coreUser.id, cancelled: true });
+
+            const res = await request({
+                path: '/single/' + ownEvent.id + '/applications/me/cancelled',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body: { cancelled: false }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            await own.reload();
+            expect(own.cancelled).toEqual(true);
+        });
+
+        test('should let a banned applicant cancel', async () => {
+            mockAndCapture({
+                core: { eventApplicationBanned: true },
+                mainPermissions: { permissions: ['global:apply:summeruniversity'] },
+                approvePermissions: { noPermissions: true }
+            });
+            const ownEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const own = await generator.createApplication(ownEvent, { user_id: coreUser.id });
+
+            const res = await request({
+                path: '/single/' + ownEvent.id + '/applications/me/cancelled',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body: { cancelled: true }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            await own.reload();
+            expect(own.cancelled).toEqual(true);
+        });
     });
 });
