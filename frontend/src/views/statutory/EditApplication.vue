@@ -397,6 +397,26 @@ import nationalities from '../../nationalities'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 import sortBodies from '../../methods/sort-bodies'
 
+const FORM_FIELDS = [
+  'body_id',
+  'nationality',
+  'meals',
+  'allergies',
+  'number_of_events_visited',
+  'visa_required',
+  'visa_passport_number',
+  'visa_passport_issue_date',
+  'visa_passport_expiration_date',
+  'visa_passport_issue_authority',
+  'visa_place_of_birth',
+  'visa_embassy',
+  'visa_street_and_house',
+  'visa_postal_code',
+  'visa_city',
+  'visa_country',
+  'answers'
+]
+
 export default {
   name: 'EditApplication',
   components: {
@@ -458,8 +478,8 @@ export default {
       this.errors = {}
 
       const promise = this.isNew
-        ? this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
-        : this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications', this.formFields)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.formFields)
 
       promise.then((application) => {
         if (this.selectedMailinglists.length > 0) {
@@ -546,6 +566,11 @@ export default {
     },
     isOwn () {
       return this.isNew || this.loginUser.id === this.application.user_id
+    },
+    // Only what the form asks for: the application as loaded has much more (its status, the
+    // permissions, the board's fields), which isn't for the applicant to send back.
+    formFields () {
+      return Object.fromEntries(FORM_FIELDS.map((field) => [field, this.application[field]]))
     },
     selectedMailinglists () {
       return Object.keys(this.subscription).filter(value => this.subscription[value] === true)
