@@ -40,13 +40,16 @@ exports.addEvent = async (req, res) => {
     });
 };
 
-// Parses a date filter of a list (YYYY-MM-DD). Returns null if it is not a date.
+// Parses a date filter of a list: a day (YYYY-MM-DD), or a full timestamp, of which the
+// day is taken (the network pages pass the end of an Agora as they got it).
+// Returns null for anything else.
 function parseDateFilter(value) {
-    if (typeof value !== 'string') {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2}))?$/.test(value)) {
         return null;
     }
 
-    const date = moment(value, 'YYYY-MM-DD');
+    // Strict: the day as it is written, not whatever the value can be read as.
+    const date = moment(value.slice(0, 10), 'YYYY-MM-DD', true);
     return date.isValid() ? date : null;
 }
 
@@ -69,7 +72,12 @@ exports.listEvents = async (req, res) => {
 
     // If event type is set, filter on it.
     if (req.query.type) {
-        query.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
+        const types = helpers.toList(req.query.type);
+        if (!Array.isArray(types) || !types.every((type) => constants.EVENT_TYPES.includes(type))) {
+            return errors.makeBadRequestError(res, `The event type should be one of these: ${constants.EVENT_TYPES.join(', ')}.`);
+        }
+
+        query.where.type = { [Sequelize.Op.in]: types };
     }
 
     // Filtering by event start and end dates.
@@ -158,7 +166,10 @@ exports.editEvent = async (req, res) => {
     }
 
     // returning: the answer has the values as they were stored, not as they were sent.
-    const dbResult = await req.event.update(req.body, { returning: true });
+    const dbResult = await req.event.update(req.body, {
+        returning: true,
+        fields: helpers.withRelatedDates(req.body, constants.EVENT_DATE_FIELDS)
+    });
 
     return res.json({
         success: true,

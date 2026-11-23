@@ -174,6 +174,23 @@ module.exports = {
         'fee',
         'vegetarian'
     ],
+    // The dates whose rules compare them with each other. An edit that changes one of them
+    // is checked against the others as they are stored.
+    EVENT_DATE_FIELDS: [
+        'starts',
+        'ends',
+        'application_period_starts',
+        'application_period_ends',
+        'board_approve_deadline',
+        'participants_list_publish_deadline',
+        'memberslist_submission_deadline',
+        'draft_proposal_deadline',
+        'final_proposal_deadline',
+        'candidature_deadline',
+        'booklet_publication_deadline',
+        'updated_booklet_publication_deadline'
+    ],
+    PERIOD_FIELDS: ['starts', 'ends'],
     POSITION_FORM_FIELDS: ['name', 'places', 'starts', 'ends', 'start_term', 'end_term', 'body_id', 'requirements'],
     PLENARY_FORM_FIELDS: ['name', 'starts', 'ends'],
     QUESTION_LINE_FORM_FIELDS: ['name'],

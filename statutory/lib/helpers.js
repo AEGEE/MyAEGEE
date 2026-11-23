@@ -33,6 +33,13 @@ exports.isObject = (value) => typeof value === 'object' && value !== null;
 // A helper to check if the value is set.
 exports.isDefined = (value) => typeof value !== 'undefined';
 
+// The fields to check and save on an edit: the ones that were sent, and, when one of them
+// is a date whose rules compare it with other dates, those other dates as well.
+exports.withRelatedDates = (fields, dateFields) => {
+    const sent = Object.keys(fields);
+    return sent.some((field) => dateFields.includes(field)) ? [...new Set([...sent, ...dateFields])] : sent;
+};
+
 // A list parameter of the query string: one value comes without brackets and is not a list yet.
 exports.toList = (value) => (typeof value === 'string' ? [value] : value);
 

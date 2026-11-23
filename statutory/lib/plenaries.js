@@ -74,7 +74,10 @@ exports.editPlenary = async (req, res) => {
     // Only the fields of the plenary form are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
     // returning: the answer has the values as they were stored, not as they were sent.
-    await req.plenary.update(req.body, { returning: true });
+    await req.plenary.update(req.body, {
+        returning: true,
+        fields: helpers.withRelatedDates(req.body, constants.PERIOD_FIELDS)
+    });
 
     return res.json({
         success: true,
