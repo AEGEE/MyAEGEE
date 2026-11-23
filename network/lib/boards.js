@@ -111,7 +111,15 @@ exports.listMostRecentBoardsElected = async (req, res) => {
     }
 
     let endDate = moment().endOf('day').toDate();
-    if (req.query.ends) endDate = moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate();
+    if (req.query.ends) {
+        // The day at the start of the value: a date, or a timestamp such as an Agora's end.
+        const ends = typeof req.query.ends === 'string' ? moment(req.query.ends, 'YYYY-MM-DD') : null;
+        if (!ends || !ends.isValid()) {
+            return res.status(422).json({ success: false, errors: { ends: ['The end date should be a date (YYYY-MM-DD).'] } });
+        }
+
+        endDate = ends.endOf('day').toDate();
+    }
 
     const boards = await Board.findAll({
         where: {
