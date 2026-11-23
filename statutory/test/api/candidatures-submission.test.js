@@ -591,4 +591,30 @@ describe('Candidates submission', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('agreed_to_privacy_policy');
     });
+
+    test.each([
+        ['is not reachable', { netError: true }],
+        ['answers with garbage', { badResponse: true }],
+        ['refuses the mail', { unsuccessfulResponse: true }]
+    ])('should not save the candidature if the mailer %s', async (description, mailer) => {
+        mock.mockAll({ mailer });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: generator.generateCandidate({ body_id: regularUser.bodies[0].id }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(await Candidate.count()).toEqual(0);
+    });
 });
