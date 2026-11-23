@@ -8,12 +8,21 @@ const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const login = require('../../middlewares/login');
 const config = require('../../config');
+const Bugsnag = require('../../lib/bugsnag');
 
 // The reset is created and mailed after the answer. The tests look at the result, so they wait for that.
 const request = async (options) => {
     const res = await sendRequest(options);
     await login.waitForPasswordResets();
     return res;
+};
+
+// The value of the counter on /metrics, which is where Prometheus reads it.
+const countFailures = async () => {
+    const res = await sendRequest({ path: '/metrics', method: 'GET', responseType: 'text' });
+    const line = res.body.split('\n').find((metric) => metric.startsWith('core_password_reset_failures_total '));
+
+    return line ? Number(line.split(' ')[1]) : null;
 };
 
 describe('Password reset', () => {
@@ -83,6 +92,26 @@ describe('Password reset', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body).toEqual(unknown.body);
+
+        expect(await PasswordReset.count()).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
+    test('should fail if the email is not a string', async () => {
+        const mails = mock.captureMails();
+        const user = await generator.createUser();
+
+        for (const email of [{ address: user.email }, [user.email], 42, true]) {
+            const res = await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('Email should be a string.');
+        }
 
         expect(await PasswordReset.count()).toEqual(0);
         expect(mails.length).toEqual(0);
@@ -243,6 +272,52 @@ describe('Password reset', () => {
 
         // A reset nobody got a mail for is not kept.
         expect(await PasswordReset.count()).toEqual(0);
+    });
+
+    test('should report and count a reset that cannot be mailed', async () => {
+        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+
+        try {
+            const failuresBefore = await countFailures();
+
+            mock.mockAll({ mailer: { netError: true } });
+            const user = await generator.createUser();
+
+            const res = await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: user.email }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(notifySpy).toHaveBeenCalledTimes(1);
+            expect(notifySpy.mock.calls[0][0]).toBeInstanceOf(Error);
+            expect(await countFailures()).toEqual(failuresBefore + 1);
+        } finally {
+            notifySpy.mockRestore();
+        }
+    });
+
+    test('should not report or count a request for an address without an account', async () => {
+        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+
+        try {
+            const failuresBefore = await countFailures();
+
+            mock.mockAll({ mailer: { netError: true } });
+
+            const res = await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: 'test@test.io' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(notifySpy).not.toHaveBeenCalled();
+            expect(await countFailures()).toEqual(failuresBefore);
+        } finally {
+            notifySpy.mockRestore();
+        }
     });
 
     test('should answer before the mail is sent', async () => {

@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const { AccessToken, RefreshToken, User } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
 
 describe('Authorization', () => {
     beforeAll(async () => {
@@ -313,6 +314,51 @@ describe('Authorization', () => {
 
             expect(wrongPassword.statusCode).toEqual(403);
             expect(wrongPassword.body).toEqual(unknown.body);
+        });
+
+        test('should answer the same for a login name that is not a string', async () => {
+            const user = await generator.createUser({ password: 'testtest' });
+            const wrongPassword = await login(user.email, 'wrong-password');
+
+            for (const username of [{ email: user.email }, [user.email], 42, true, null]) {
+                const res = await login(username, 'testtest');
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual(wrongPassword.body);
+            }
+
+            expect(await AccessToken.count()).toEqual(0);
+        });
+
+        test('should run the same account lookups whichever of them finds an account', async () => {
+            await generator.createUser({
+                username: 'someone',
+                email: 'someone@example.com',
+                gsuite_id: 'someone@aegee.eu',
+                password: 'testtest'
+            });
+
+            const querySpy = jest.spyOn(sequelize, 'query');
+            try {
+                for (const password of ['testtest', 'wrong-password']) {
+                    for (const username of ['someone@example.com', 'someone', 'someone@aegee.eu', 'nobody', 'nobody@example.com', '']) {
+                        querySpy.mockClear();
+                        await login(username, password);
+
+                        // The columns the login name was compared with, in the order of the queries.
+                        const lookups = querySpy.mock.calls
+                            .map(([query]) => (typeof query === 'string' ? query : query.query))
+                            .filter((query) => /FROM "users"/.test(query))
+                            .map((query) => query.match(/WHERE lower\("(\w+)"\) = /))
+                            .filter((match) => match)
+                            .map((match) => match[1]);
+
+                        expect(lookups).toEqual(['email', 'username', 'gsuite_id']);
+                    }
+                }
+            } finally {
+                querySpy.mockRestore();
+            }
         });
 
         test('should not treat % as a wildcard', async () => {
