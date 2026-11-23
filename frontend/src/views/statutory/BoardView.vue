@@ -28,7 +28,7 @@
             <li v-if="limits.envoy !== 0"><strong>{{ limits.envoy | numberOrUnlimited }} envoys</strong></li>
             <li v-if="limits.observer !== 0"><strong>{{ limits.observer | numberOrUnlimited }} observers</strong></li>
             <li v-if="!allowedToSendAnyPax">
-              <strong>Your body cannot send any participants to Agora.</strong>
+              <strong>Your body cannot send any participants to {{ eventTypeNames[event.type] }}.</strong>
             </li>
           </ul>
           <p v-if="allowedToSendAnyPax">The deadline for board approval is: <strong>{{ event.board_approve_deadline | datetime }}</strong> (local time).</p>
@@ -240,6 +240,11 @@ export default {
       can: {
         see_boardview_of: {},
         see_boardview_global: false
+      },
+      eventTypeNames: {
+        agora: 'Agora',
+        epm: 'EPM',
+        spm: 'SPM'
       },
       displayCancelled: false,
       errors: {},
