@@ -79,7 +79,7 @@
                   <td>{{ application.allergies }}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited</th>
+                  <th scope="row">Number of {{ eventTypesPlural[event.type] }} visited</th>
                   <td>{{ application.number_of_events_visited | beautify }}</td>
                 </tr>
                 <tr>
@@ -231,14 +231,14 @@
 
         <div class="buttons" v-show="can.set_application_cancelled || can.edit || can.apply">
           <router-link
-            :to="{ name: 'oms.statutory.applications.new', params: { id: event.url || event.id } }"
+            :to="{ name: 'oms.statutory.applications.new', params: { id: event.url } }"
             class="button is-warning"
             v-if="!application && can.apply">
             Apply!
           </router-link>
 
           <router-link
-            :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
+            :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url, application_id: application.id } }"
             class="button is-warning"
             v-if="application && can.edit_application">
             {{ isOwnApplication ? 'Edit your application' : 'Edit application' }}

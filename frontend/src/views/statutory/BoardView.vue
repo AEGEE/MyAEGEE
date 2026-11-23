@@ -177,13 +177,13 @@
             </b-table-column>
 
             <b-table-column label="View" centered v-slot="props">
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url, application_id: props.row.statutory_id || props.row.id } }">
                 View
               </router-link>
             </b-table-column>
 
             <b-table-column label="Edit" centered v-slot="props" :visible="!!can.manage_applications">
-              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url, application_id: props.row.statutory_id || props.row.id } }">
                 Edit
               </router-link>
             </b-table-column>
