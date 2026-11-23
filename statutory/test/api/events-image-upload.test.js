@@ -356,6 +356,30 @@ describe('Events image upload', () => {
         expect(listUploadedFiles()).toEqual([]);
     });
 
+    it('should refuse a file with malformed content also when it cannot be removed from disk', async () => {
+        const imagesBefore = await Image.count();
+        const unlink = jest.spyOn(fs.promises, 'unlink').mockRejectedValueOnce(new Error('The disk refuses.'));
+        const warnLog = jest.spyOn(log, 'warn').mockImplementation(() => {});
+
+        const res = await request({
+            path: '/events/' + event.id + '/image',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            files: { image: { path: './test/assets/invalid_image.txt', filename: 'image.jpg' } }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('Malformed file content.');
+        expect(await Image.count()).toEqual(imagesBefore);
+        expect(warnLog).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Could not remove rejected image');
+
+        await event.reload();
+        expect(event.image_id).toEqual(null);
+
+        unlink.mockRestore();
+        warnLog.mockRestore();
+    });
+
     it('should return 422 if the form has fields but no file', async () => {
         const res = await request({
             path: '/events/' + event.id + '/image',
