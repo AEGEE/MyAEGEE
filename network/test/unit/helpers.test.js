@@ -51,4 +51,10 @@ describe('getPermissions', () => {
         expect(helpers.getPermissions({ bodies: [] }, [{ combined: 'local:view:board' }], []).view_board).toEqual(false);
         expect(helpers.getPermissions({ bodies: [] }, [{ combined: 'join_request:view:board' }], []).view_board).toEqual(false);
     });
+
+    test('should grant no local board management without the user\'s bodies', () => {
+        const permissions = helpers.getPermissions({}, [], [{ body_id: 34 }]);
+
+        expect(permissions.manage_boards).toEqual({ global: false });
+    });
 });
