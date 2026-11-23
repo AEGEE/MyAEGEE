@@ -140,7 +140,6 @@ exports.fetchSingleApplication = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,

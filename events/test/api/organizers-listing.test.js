@@ -17,6 +17,29 @@ describe('Event organizing listing', () => {
         await generator.clearAll();
     });
 
+    it('should not list deleted events on /mine/organizing GET', async () => {
+        await generator.createEvent({ deleted: true, organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }] });
+
+        const res = await request({ path: '/mine/organizing', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([]);
+    });
+
+    it('should filter by type on /mine/organizing GET', async () => {
+        const organizers = [{ user_id: user.id, first_name: 'test', last_name: 'test' }];
+        const nwm = await generator.createEvent({ type: 'nwm', organizers });
+        await generator.createEvent({ type: 'training', organizers });
+
+        const res = await request({ path: '/mine/organizing', query: { type: 'nwm' }, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((e) => e.id)).toEqual([nwm.id]);
+        // Organizers see every field of their events, drafts included.
+        expect(res.body.data[0]).toHaveProperty('budget');
+        expect(res.body.data[0].status).toEqual('draft');
+    });
+
     it('should list events where the user is organizer on /mine/organizing GET', async () => {
         const event = await generator.createEvent({ organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }] });
         const res = await request({

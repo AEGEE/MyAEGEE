@@ -4,6 +4,8 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const callers = require('../scripts/callers');
+const constants = require('../../lib/constants');
 
 describe('Events listing', () => {
     beforeEach(async () => {
@@ -16,6 +18,68 @@ describe('Events listing', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    it('should not list deleted events on / GET', async () => {
+        await generator.createEvent({ status: 'published', deleted: true });
+        const event = await generator.createEvent({ status: 'published' });
+
+        const res = await request({ path: '/', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
+    });
+
+    it('should list only the public fields of events on / GET', async () => {
+        callers.asMember();
+        await generator.createEvent({ status: 'published' });
+
+        const res = await request({ path: '/', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toHaveLength(1);
+        expect(Object.keys(res.body.data[0]).sort()).toEqual([...constants.EVENT_PUBLIC_FIELDS].sort());
+    });
+
+    it('should not list deleted, unpublished or non-European events as most recent events', async () => {
+        const past = {
+            organizing_bodies: [{ body_id: 1, body_name: 'blabla' }],
+            application_starts: moment().subtract(10, 'days').toDate(),
+            application_ends: moment().subtract(9, 'days').toDate(),
+            starts: moment().subtract(8, 'days').toDate(),
+            ends: moment().subtract(7, 'days').toDate(),
+        };
+        await generator.createEvent({ ...past, status: 'published', is_european_event: true, deleted: true });
+        await generator.createEvent({ ...past, status: 'submitted', is_european_event: true });
+        await generator.createEvent({ ...past, status: 'published', is_european_event: false });
+
+        const res = await request({ path: '/recents', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([]);
+    });
+
+    it('should count co-organized events as their own group of bodies in the most recent events', async () => {
+        const past = {
+            application_starts: moment().subtract(10, 'days').toDate(),
+            application_ends: moment().subtract(9, 'days').toDate(),
+            starts: moment().subtract(8, 'days').toDate(),
+            status: 'published',
+            is_european_event: true
+        };
+        const alone = await generator.createEvent({ ...past, ends: moment().subtract(7, 'days').toDate(), organizing_bodies: [{ body_id: 1, body_name: 'One' }] });
+        const together = await generator.createEvent({
+            ...past,
+            ends: moment().subtract(6, 'days').toDate(),
+            organizing_bodies: [{ body_id: 1, body_name: 'One' }, { body_id: 2, body_name: 'Two' }]
+        });
+
+        const res = await request({ path: '/recents', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toHaveLength(2);
+        const byBodies = Object.fromEntries(res.body.data.map((row) => [row.organizing_bodies.map((b) => b.body_id).join(','), row.latest_event]));
+        expect(byBodies).toEqual({ 1: alone.ends.toISOString(), '1,2': together.ends.toISOString() });
     });
 
     it('should work without authorization on / GET', async () => {

@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const callers = require('../scripts/callers');
 
 describe('API requests', () => {
     beforeEach(async () => {
@@ -13,6 +14,30 @@ describe('API requests', () => {
         await stopServer();
         mock.cleanAll();
 
+        await generator.clearAll();
+    });
+
+    it('should answer the health check without a session', async () => {
+        mock.cleanAll();
+
+        const res = await request({ path: '/healthcheck' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual('events');
+        expect(res.body.data).toHaveProperty('description');
+        expect(res.body.data).toHaveProperty('version');
+    });
+
+    it('should answer 404 before 401 for an unknown event without a valid session', async () => {
+        callers.asAnonymous();
+        const event = await generator.createEvent();
+
+        const unknown = await request({ path: '/single/2147483647', method: 'DELETE', headers: { 'X-Auth-Token': 'foobar' } });
+        const known = await request({ path: '/single/' + event.id, method: 'DELETE', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(unknown.statusCode).toEqual(404);
+        expect(known.statusCode).toEqual(401);
         await generator.clearAll();
     });
 
