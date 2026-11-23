@@ -457,6 +457,7 @@ import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
 import credentials from '../../credentials'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
+import URLTooltip from '../../components/tooltips/URLTooltip'
 
 export default {
   name: 'EditStatutory',
@@ -467,7 +468,8 @@ export default {
     MglMap,
     MglMarker,
     MglNavigationControl,
-    MarkdownTooltip
+    MarkdownTooltip,
+    URLTooltip
   },
   data () {
     return {
