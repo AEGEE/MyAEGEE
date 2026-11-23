@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const coreUser = require('../assets/oms-core-valid.json').data;
+const applicant = require('../assets/oms-core-valid-not-superadmin.json').data;
 
 const unauthorizedMocks = {
     core: { unauthorized: true },
@@ -321,6 +322,72 @@ describe('Applications listing, viewing and exporting', () => {
             const res = await get('/single/' + event.id + '/applications/export');
 
             expect(res.statusCode).toEqual(500);
+        });
+    });
+    describe('board comment', () => {
+        const ownApplicantMocks = { ...applicantMocks, member: { data: applicant } };
+        let ownEvent;
+
+        beforeEach(async () => {
+            ownEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+        });
+
+        const call = (subpath, method, body) => request({
+            path: '/single/' + ownEvent.id + '/applications' + subpath,
+            method,
+            headers: { 'X-Auth-Token': 'foobar' },
+            body
+        });
+
+        test('should not show the board comment to the applicant', async () => {
+            mock.mockAll(ownApplicantMocks);
+            await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
+
+            const res = await call('/me', 'GET');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.user_id).toEqual(applicant.id);
+            expect(res.body.data).not.toHaveProperty('board_comment');
+        });
+
+        test('should show the board comment to someone who may list the applications', async () => {
+            const application = await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
+
+            const res = await call('/' + application.id, 'GET');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.board_comment).toEqual('Board only');
+        });
+
+        test('should not show the board comment in the answer to the applicant\'s edit', async () => {
+            mock.mockAll(ownApplicantMocks);
+            await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
+
+            const res = await call('/me', 'PUT', { motivation: 'Changed' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).not.toHaveProperty('board_comment');
+        });
+
+        test('should not show the board comment in the answer to the applicant\'s cancellation', async () => {
+            mock.mockAll(ownApplicantMocks);
+            await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
+
+            const res = await call('/me/cancelled', 'PUT', { cancelled: true });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.cancelled).toEqual(true);
+            expect(res.body.data).not.toHaveProperty('board_comment');
+        });
+
+        test('should not show the board comment in the answer to the application', async () => {
+            mock.mockAll(ownApplicantMocks);
+
+            const res = await call('', 'POST', generator.generateApplicationBody(ownEvent, { body_id: 1 }));
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.user_id).toEqual(applicant.id);
+            expect(res.body.data).not.toHaveProperty('board_comment');
         });
     });
 });
