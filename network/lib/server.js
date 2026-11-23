@@ -86,6 +86,7 @@ async function startServer() {
 
 async function stopServer() {
     log.info('Stopping server...');
+    job.stop();
     app.close();
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
