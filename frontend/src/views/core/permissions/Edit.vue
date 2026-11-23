@@ -1,12 +1,14 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <h1 class="title">{{ $route.params.id ? 'Edit permission' : 'Create permission' }}</h1>
+
       <form @submit.prevent="savePermission()">
         <div class="field">
-          <label class="label">Scope</label>
+          <label class="label" for="permission-scope">Scope</label>
           <div class="control">
             <div class="select">
-              <select v-model="permission.scope">
+              <select id="permission-scope" v-model="permission.scope">
                 <option value="global">Global</option>
                 <option value="local">Local</option>
                 <option value="join_request">Join request</option>
@@ -17,25 +19,25 @@
         </div>
 
         <div class="field">
-          <label class="label">Action</label>
+          <label class="label" for="permission-action">Action</label>
           <div class="control">
-            <input class="input" type="text" required v-model="permission.action" />
+            <input id="permission-action" class="input" type="text" required v-model="permission.action" />
           </div>
           <p class="help is-danger" v-if="errors.action">{{ errors.action.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Object</label>
+          <label class="label" for="permission-object">Object</label>
           <div class="control">
-            <input class="input" type="text" required v-model="permission.object" />
+            <input id="permission-object" class="input" type="text" required v-model="permission.object" />
           </div>
           <p class="help is-danger" v-if="errors.object">{{ errors.object.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="permission-description">Description</label>
           <div class="control">
-            <input class="input" type="text" v-model="permission.description" />
+            <input id="permission-description" class="input" type="text" v-model="permission.description" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
         </div>
@@ -52,7 +54,7 @@
           <div class="control" v-if="permission.filters.length > 0">
             <span v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
               {{ filter }}
-              <button class="delete is-small" @click="deleteFilter(index)" />
+              <button type="button" class="delete is-small" :aria-label="'Remove filter ' + filter" @click="deleteFilter(index)" />
             </span>
             <span v-if="permission.filters.length === 0" class="tag is-light">No filters set.</span>
           </div>
@@ -60,7 +62,7 @@
 
         <div class="field has-addons">
           <div class="control">
-            <input class="input" type="text" v-model="tmpFilter" />
+            <input class="input" type="text" aria-label="New filter" v-model="tmpFilter" />
           </div>
           <div class="control">
             <a class="button is-primary" @click.prevent="addFilter()" :disabled="tmpFilter.length === 0">Add filter</a>
