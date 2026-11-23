@@ -5,6 +5,11 @@ const mock = require('../scripts/mock');
 const { MailChange, User } = require('../../models');
 const constants = require('../../lib/constants');
 
+const REQUESTED_NEW_ADDRESS = 'The email change was requested. It takes effect after it is confirmed from the new address.';
+const REQUESTED_BOTH_ADDRESSES = 'The email change was requested. The member has to confirm it from both their current address '
+    + 'and the new address; a mail was sent to each. If the member can no longer read their current address, '
+    + 'ask a global member manager to change the email: they can do it without that confirmation.';
+
 describe('User mail change', () => {
     beforeAll(async () => {
         await startServer();
@@ -59,6 +64,27 @@ describe('User mail change', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if new_email is not a string', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        for (const newEmail of [{ address: 'test@test.io' }, ['test@test.io'], 42, true]) {
+            const res = await request({
+                path: '/members/' + user.id + '/email',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { new_email: newEmail }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.message).toEqual('No new email is provided.');
+        }
+
+        expect(await MailChange.count()).toEqual(0);
     });
 
     test('should fail if there are validation errors', async () => {
@@ -283,8 +309,8 @@ describe('User mail change', () => {
         test('should need the current and the new address for a holder of the local permission', async () => {
             const mails = mock.captureMails();
 
-            const body = await generator.createBody();
-            const manager = await createLocalManager(body, { first_name: 'Board', last_name: 'Member' });
+            const body = await generator.createBody({ name: 'AEGEE-Somewhere' });
+            const manager = await createLocalManager(body, { first_name: 'Board', last_name: 'Member', email: 'board@example.com' });
             const token = await generator.createAccessToken(manager);
 
             const member = await generator.createUser({ first_name: 'Some', last_name: 'One', email: 'current@example.com' });
@@ -300,7 +326,7 @@ describe('User mail change', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).not.toHaveProperty('errors');
-            expect(res.body).toHaveProperty('message');
+            expect(res.body.message).toEqual(REQUESTED_BOTH_ADDRESSES);
             expect(res.body.data).toEqual({ needs_old_address_confirmation: true });
 
             const memberFromDb = await User.findByPk(member.id);
@@ -332,9 +358,75 @@ describe('User mail change', () => {
                     surname: 'One',
                     new_email: 'new@example.com',
                     requester_name: 'Board Member',
+                    requester_email: 'board@example.com',
+                    requester_body: 'AEGEE-Somewhere',
                     token: changes[0].old_value
                 }
             }));
+        });
+
+        test('should name the bodies of the member in which the requester holds the permission', async () => {
+            const mails = mock.captureMails();
+
+            const firstBody = await generator.createBody({ name: 'AEGEE-First' });
+            const secondBody = await generator.createBody({ name: 'AEGEE-Second' });
+            const otherBodyOfMember = await generator.createBody({ name: 'AEGEE-Third' });
+            const otherBodyOfManager = await generator.createBody({ name: 'AEGEE-Fourth' });
+
+            const manager = await generator.createUser();
+            const permission = await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
+            for (const body of [secondBody, firstBody, otherBodyOfManager]) {
+                const circle = await generator.createCircle({ body_id: body.id });
+                await generator.createCircleMembership(circle, manager);
+                await generator.createCirclePermission(circle, permission);
+            }
+            const token = await generator.createAccessToken(manager);
+
+            const member = await generator.createUser();
+            for (const body of [firstBody, secondBody, otherBodyOfMember]) {
+                await generator.createBodyMembership(body, member);
+            }
+
+            const res = await request({
+                path: '/members/' + member.id + '/email',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { new_email: 'new@example.com' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const mail = mails.find((sent) => sent.template === 'mail_change_old_confirm.html');
+            expect(mail.parameters.requester_body).toEqual('AEGEE-First, AEGEE-Second');
+        });
+
+        test('should name the body through a parent circle that holds the permission', async () => {
+            const mails = mock.captureMails();
+
+            const body = await generator.createBody({ name: 'AEGEE-Somewhere' });
+            const manager = await generator.createUser();
+            const permission = await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
+            const parentCircle = await generator.createCircle();
+            const circle = await generator.createCircle({ body_id: body.id, parent_circle_id: parentCircle.id });
+            await generator.createCircleMembership(circle, manager);
+            await generator.createCirclePermission(parentCircle, permission);
+            const token = await generator.createAccessToken(manager);
+
+            const member = await generator.createUser();
+            await generator.createBodyMembership(body, member);
+
+            const res = await request({
+                path: '/members/' + member.id + '/email',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { new_email: 'new@example.com' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual({ needs_old_address_confirmation: true });
+
+            const mail = mails.find((sent) => sent.template === 'mail_change_old_confirm.html');
+            expect(mail.parameters.requester_body).toEqual('AEGEE-Somewhere');
         });
 
         test('should only need the new address for a holder of the global permission', async () => {
@@ -353,7 +445,7 @@ describe('User mail change', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body).toHaveProperty('message');
+            expect(res.body.message).toEqual(REQUESTED_NEW_ADDRESS);
             expect(res.body.data).toEqual({ needs_old_address_confirmation: false });
 
             const changes = await MailChange.findAll({ where: { user_id: member.id } });
@@ -415,7 +507,7 @@ describe('User mail change', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body).toHaveProperty('message');
+            expect(res.body.message).toEqual(REQUESTED_NEW_ADDRESS);
             expect(res.body.data).toEqual({ needs_old_address_confirmation: false });
 
             const changes = await MailChange.findAll({ where: { user_id: user.id } });
@@ -567,7 +659,9 @@ describe('User mail change', () => {
         });
 
         test('should need the current and the new address for a holder of the join request permission', async () => {
-            const body = await generator.createBody();
+            const mails = mock.captureMails();
+
+            const body = await generator.createBody({ name: 'AEGEE-Somewhere' });
             const manager = await generator.createUser();
             const permission = await generator.createPermission({ scope: 'join_request', action: 'update', object: 'member' });
             const circle = await generator.createCircle({ body_id: body.id });
@@ -590,6 +684,144 @@ describe('User mail change', () => {
 
             const change = await MailChange.findOne({ where: { user_id: applicant.id } });
             expect(change.old_value).not.toBeNull();
+
+            const mail = mails.find((sent) => sent.template === 'mail_change_old_confirm.html');
+            expect(mail.parameters.requester_body).toEqual('AEGEE-Somewhere');
+        });
+    });
+
+    describe('repeated requests', () => {
+        const requestChange = (token, member, newEmail) => request({
+            path: '/members/' + member.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: newEmail }
+        });
+
+        const confirm = (token) => request({
+            path: '/confirm-email-change',
+            method: 'POST',
+            body: { token }
+        });
+
+        // Members of a circle of the body which has local:update:member, like board members.
+        const createBoardMembers = async (body, count) => {
+            const permission = await generator.createPermission({ scope: 'local', action: 'update', object: 'member' });
+            const circle = await generator.createCircle({ body_id: body.id });
+            await generator.createCirclePermission(circle, permission);
+
+            const managers = [];
+            for (let i = 0; i < count; i++) {
+                const manager = await generator.createUser();
+                await generator.createCircleMembership(circle, manager);
+                managers.push(manager);
+            }
+
+            return managers;
+        };
+
+        test('should replace the earlier request of the member themselves', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const token = await generator.createAccessToken(user);
+
+            expect((await requestChange(token, user, 'first@example.com')).statusCode).toEqual(200);
+            const first = await MailChange.findOne({ where: { user_id: user.id } });
+
+            expect((await requestChange(token, user, 'second@example.com')).statusCode).toEqual(200);
+
+            const changes = await MailChange.findAll({ where: { user_id: user.id } });
+            expect(changes.length).toEqual(1);
+            expect(changes[0].new_email).toEqual('second@example.com');
+            expect(changes[0].value).not.toEqual(first.value);
+
+            // The token of the earlier request doesn't work anymore.
+            const res = await confirm(first.value);
+            expect(res.statusCode).toEqual(404);
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.email).toEqual('current@example.com');
+        });
+
+        test('should replace the earlier request of the same requester for the member', async () => {
+            const mails = mock.captureMails();
+
+            const body = await generator.createBody();
+            const [manager] = await createBoardMembers(body, 1);
+            const token = await generator.createAccessToken(manager);
+            const member = await generator.createUser({ email: 'current@example.com' });
+            await generator.createBodyMembership(body, member);
+
+            expect((await requestChange(token, member, 'first@example.com')).statusCode).toEqual(200);
+            const first = await MailChange.findOne({ where: { user_id: member.id } });
+
+            expect((await requestChange(token, member, 'second@example.com')).statusCode).toEqual(200);
+
+            const changes = await MailChange.findAll({ where: { user_id: member.id } });
+            expect(changes.length).toEqual(1);
+            expect(changes[0].new_email).toEqual('second@example.com');
+            expect(changes[0].requested_by).toEqual(manager.id);
+
+            // Both requests were mailed, only the tokens of the last one work.
+            expect(mails.length).toEqual(4);
+            expect((await confirm(first.value)).statusCode).toEqual(404);
+            expect((await confirm(first.old_value)).statusCode).toEqual(404);
+
+            const res = await confirm(changes[0].old_value);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual({ changed: false, waiting_for: 'new_email' });
+        });
+
+        test('should accept the same new address again from the same requester', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            expect((await requestChange(token, user, 'new@example.com')).statusCode).toEqual(200);
+
+            const res = await requestChange(token, user, 'new@example.com');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+
+            expect(await MailChange.count({ where: { user_id: user.id } })).toEqual(1);
+        });
+
+        test('should keep one request per requester when requests arrive at the same time', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const responses = await Promise.all(
+                ['first', 'second', 'third', 'fourth'].map((name) => requestChange(token, user, name + '@example.com'))
+            );
+
+            expect(responses.map((res) => res.statusCode)).toEqual([200, 200, 200, 200]);
+            expect(await MailChange.count({ where: { user_id: user.id } })).toEqual(1);
+        });
+
+        test('should keep the requests of other requesters and for other members', async () => {
+            const body = await generator.createBody();
+            const [manager, otherManager] = await createBoardMembers(body, 2);
+            const managerToken = await generator.createAccessToken(manager);
+            const otherManagerToken = await generator.createAccessToken(otherManager);
+
+            const member = await generator.createUser();
+            const memberToken = await generator.createAccessToken(member);
+            await generator.createBodyMembership(body, member);
+            const otherMember = await generator.createUser();
+            await generator.createBodyMembership(body, otherMember);
+
+            expect((await requestChange(memberToken, member, 'own@example.com')).statusCode).toEqual(200);
+            expect((await requestChange(otherManagerToken, member, 'other-manager@example.com')).statusCode).toEqual(200);
+            expect((await requestChange(managerToken, otherMember, 'other-member@example.com')).statusCode).toEqual(200);
+            expect((await requestChange(managerToken, member, 'first@example.com')).statusCode).toEqual(200);
+            expect((await requestChange(managerToken, member, 'second@example.com')).statusCode).toEqual(200);
+
+            const changes = await MailChange.findAll({ where: { user_id: member.id }, order: [['id', 'ASC']] });
+            expect(changes.map((change) => [change.requested_by, change.new_email])).toEqual([
+                [null, 'own@example.com'],
+                [otherManager.id, 'other-manager@example.com'],
+                [manager.id, 'second@example.com']
+            ]);
+
+            expect(await MailChange.count({ where: { user_id: otherMember.id } })).toEqual(1);
         });
     });
 

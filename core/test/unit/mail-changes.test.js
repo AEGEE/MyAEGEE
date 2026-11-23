@@ -206,5 +206,22 @@ describe('Mail changes', () => {
             expect(after.old_email.allowNull).toEqual(false);
             expect(after.old_value.allowNull).toEqual(true);
         });
+
+        test('should change nothing when it runs again', async () => {
+            const queryInterface = sequelize.getQueryInterface();
+
+            const user = await generator.createUser();
+            const mailChange = await generator.createMailChange(user, { old_value: 'test' });
+            const before = await queryInterface.describeTable('mail_changes');
+
+            await migration.up(queryInterface, Sequelize);
+
+            expect(await queryInterface.describeTable('mail_changes')).toEqual(before);
+
+            // These were requested under the current rules, so they stay.
+            const changes = await MailChange.findAll();
+            expect(changes.map((change) => change.id)).toEqual([mailChange.id]);
+            expect(changes[0].old_value).toEqual('test');
+        });
     });
 });

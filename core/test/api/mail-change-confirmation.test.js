@@ -256,6 +256,27 @@ describe('Mail change confirm', () => {
         expect(mails[0].parameters.new_email).toEqual(userFromDb.email);
     });
 
+    test('should return 404 if the token is not a string', async () => {
+        const user = await generator.createUser();
+        await generator.createMailChange(user, { old_value: 'old-token' });
+
+        for (const token of [{ value: 'token' }, ['token'], 42, true]) {
+            const res = await request({
+                path: '/confirm-email-change',
+                method: 'POST',
+                body: { token }
+            });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.message).toEqual('Token is invalid.');
+        }
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.email).toEqual(user.email);
+    });
+
     describe('when the current address has to confirm as well', () => {
         const createPendingChange = async (options = {}) => {
             const requester = await generator.createUser({ first_name: 'Board', last_name: 'Member' });
