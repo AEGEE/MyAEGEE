@@ -417,7 +417,7 @@ export default {
         isDeleting ? 'delete' : 'restore'
       }</b> this body?`
       if (isDeleting) {
-        message += 'This action cannot be undone.'
+        message += ' This action cannot be undone.'
       }
 
       this.$buefy.dialog.confirm({
