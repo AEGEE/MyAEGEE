@@ -441,6 +441,9 @@ exports.editEvent = async (req, res) => {
         });
     });
 
+    // Answer with what was stored, not with the values as they were sent.
+    await event.reload();
+
     return res.json({
         success: true,
         data: event.toJSON()

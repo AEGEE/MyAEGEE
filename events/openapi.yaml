@@ -1164,18 +1164,6 @@ components:
         body_id: {type: integer}
         notification_email: {type: string}
       unevaluatedProperties: false
-    ApplicationEdited:
-      description: An application right after an edit, with the applicant's notification email from core.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ApplicationFields'
-      required: [notification_email]
-      properties:
-        body_id:
-          description: An integer, except when the edit sent the current body id as a string; then the string sent.
-          type: [integer, string]
-        notification_email: {type: string}
-      unevaluatedProperties: false
     ApplicationWithEvent:
       type: object
       allOf:
@@ -1336,5 +1324,5 @@ components:
           description: The created application has no notification email; an edited one has.
           oneOf:
             - $ref: '#/components/schemas/Application'
-            - $ref: '#/components/schemas/ApplicationEdited'
+            - $ref: '#/components/schemas/ApplicationWithEmail'
       additionalProperties: false

@@ -820,12 +820,6 @@ export interface components {
             body_id?: number;
             notification_email: string;
         } & components["schemas"]["ApplicationFields"];
-        /** @description An application right after an edit, with the applicant's notification email from core. */
-        ApplicationEdited: {
-            /** @description An integer, except when the edit sent the current body id as a string; then the string sent. */
-            body_id?: number | string;
-            notification_email: string;
-        } & components["schemas"]["ApplicationFields"];
         ApplicationWithEvent: {
             body_id?: number;
             event: components["schemas"]["EventPublic"];
@@ -935,7 +929,7 @@ export interface components {
             success: true;
             message: string;
             /** @description The created application has no notification email; an edited one has. */
-            data: components["schemas"]["Application"] | components["schemas"]["ApplicationEdited"];
+            data: components["schemas"]["Application"] | components["schemas"]["ApplicationWithEmail"];
         };
     };
     responses: {

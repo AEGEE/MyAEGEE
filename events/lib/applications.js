@@ -35,6 +35,14 @@ function canListFutureApplicationsForBan(corePermissions) {
         && corePermissions.some((permission) => permission.combined === 'global:update_application_ban:member');
 }
 
+// Reloads an application after an update, so that the answer has what was stored and not the
+// values as they were sent, and keeps the applicant's notification email from core.
+async function reloadApplication(application) {
+    const notificationEmail = application.dataValues.notification_email;
+    await application.reload();
+    application.dataValues.notification_email = notificationEmail;
+}
+
 exports.listFutureApplicationsForUser = async (req, res) => {
     // People who manage application bans see everything, people who manage
     // events of some types only see applications for events of those types.
@@ -196,6 +204,8 @@ exports.updateApplication = async (req, res) => {
             }
         });
     });
+
+    await reloadApplication(req.application);
 
     return res.json({
         success: true,
