@@ -15,8 +15,8 @@ defmodule OmsmailerWeb.RequestLoggerPlug do
         stop = System.monotonic_time()
         diff = System.convert_time_unit(stop - start, :native, :microsecond)
         status = Integer.to_string(conn.status)
-        params = if conn.method in ["PUT", "POST"] do
-          [", request params: ", Poison.encode!(redact_params(conn.params), pretty: true)]
+        mail = if conn.method in ["PUT", "POST"] do
+          [", mail: ", Poison.encode!(mail_summary(conn.params))]
         else
           []
         end
@@ -26,33 +26,34 @@ defmodule OmsmailerWeb.RequestLoggerPlug do
             conn.request_path, ?\s,
             status, ?\s,
             formatted_diff(diff),
-        ] ++ params
+        ] ++ mail
       end)
 
       conn
     end)
   end
 
-  @redacted_keys ~w(to cc bcc)
+  @recipient_keys ~w(to cc bcc reply_to)
 
-  # Replaces recipients and token/password-like values, at any depth, with "[REDACTED]"
-  defp redact_params(%_{} = params), do: params
-  defp redact_params(params) when is_map(params) do
-    Map.new(params, fn {key, value} ->
-      if redacted_key?(to_string(key)) do
-        {key, "[REDACTED]"}
-      else
-        {key, redact_params(value)}
-      end
+  # Logs the template, the subject and the names of the template parameters.
+  # Parameter values hold personal data and stay out of the log; recipients
+  # are only shown as "[REDACTED]".
+  defp mail_summary(params) when is_map(params) and not is_struct(params) do
+    summary =
+      params
+      |> Map.take(["template", "subject"])
+      |> Map.put("parameters", parameter_names(params["parameters"]))
+
+    Enum.reduce(@recipient_keys, summary, fn key, summary ->
+      if Map.has_key?(params, key), do: Map.put(summary, key, "[REDACTED]"), else: summary
     end)
   end
-  defp redact_params(params) when is_list(params), do: Enum.map(params, &redact_params/1)
-  defp redact_params(params), do: params
+  defp mail_summary(_params), do: %{}
 
-  defp redacted_key?(key) do
-    key = String.downcase(key)
-    key in @redacted_keys or String.contains?(key, ["token", "password"])
+  defp parameter_names(parameters) when is_map(parameters) and not is_struct(parameters) do
+    parameters |> Map.keys() |> Enum.map(&to_string/1) |> Enum.sort()
   end
+  defp parameter_names(_parameters), do: []
 
   defp formatted_diff(diff) when diff > 1000, do: [diff |> div(1000) |> Integer.to_string(), "ms"]
   defp formatted_diff(diff), do: [Integer.to_string(diff), "µs"]
