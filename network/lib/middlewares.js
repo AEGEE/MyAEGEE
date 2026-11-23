@@ -19,24 +19,6 @@ exports.authenticateUser = async (req, res, next) => {
         core.getMyPermissions(req)
     ]);
 
-    // Fetching permissions for board management, the list of bodies
-    // where do you have the 'manage_network:boards' permission for it.
-    const manageRequest = await request({
-        url: config.core.url + ':' + config.core.port + '/my_permissions',
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        body: {
-            action: 'manage_network',
-            object: 'boards'
-        },
-        fullResponse: true
-    });
-
-    req.manageRequest = manageRequest;
-
     if (typeof userBody !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userBody);
     }
@@ -57,9 +39,26 @@ exports.authenticateUser = async (req, res, next) => {
         return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
     }
 
+    // Fetching permissions for board management, the list of bodies
+    // where do you have the 'manage_network:boards' permission for it.
+    const manageRequest = await request({
+        url: config.core.url + ':' + config.core.port + '/my_permissions',
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+            'X-Service': 'network'
+        },
+        body: {
+            action: 'manage_network',
+            object: 'boards'
+        },
+        fullResponse: true
+    });
+
     req.user = userBody.data;
     req.corePermissions = permissionsBody.data;
-    if (req.manageRequest.body && req.manageRequest.body.success) req.managePermissions = manageRequest.body.data;
+    if (manageRequest.body && manageRequest.body.success) req.managePermissions = manageRequest.body.data;
     req.permissions = helpers.getPermissions(req.user, req.corePermissions, req.managePermissions);
 
     return next();
