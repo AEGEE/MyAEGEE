@@ -6,13 +6,36 @@ codecov:
 
 coverage:
   status:
+    # codecov/project and codecov/patch are about the six services, which have unit tests and a
+    # coverage ratchet of their own. Frontend code is kept out of them: its gate is the one
+    # per area in the frontend-tests workflow (docs/testing/coverage.md), and most areas are
+    # not enforced there yet.
     project:
       default:
         target: auto
         threshold: 0%
+        paths: &services
+          - "core/**"
+          - "discounts/**"
+          - "events/**"
+          - "network/**"
+          - "statutory/**"
+          - "summeruniversity/**"
+      # codecov/project/frontend: reported, never failing, until the last area's gate is enforced.
+      frontend:
+        target: auto
+        informational: true
+        paths: &frontend
+          - "frontend/**"
     patch:
       default:
         target: auto
+        paths: *services
+      # codecov/patch/frontend: as above.
+      frontend:
+        target: auto
+        informational: true
+        paths: *frontend
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
