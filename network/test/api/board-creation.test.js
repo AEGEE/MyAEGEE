@@ -1,3 +1,4 @@
+const http = require('http');
 const { faker } = require('@faker-js/faker');
 const moment = require('moment');
 
@@ -8,6 +9,8 @@ const generator = require('../scripts/generator');
 const { Board } = require('../../models');
 const mailer = require('../../lib/mailer');
 const cron = require('../../lib/cron');
+const config = require('../../config');
+const logger = require('../../lib/logger');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
 
@@ -536,6 +539,86 @@ describe('Board creation', () => {
             expect(welcomeMails()).toHaveLength(0);
             const board = await Board.findOne({ where: { body_id: body.id } });
             expect(board.new_board_email_sent_at).toBeNull();
+        });
+    });
+
+    describe('mail to NetCom', () => {
+        let errorSpy;
+        const netcomMailErrors = () => errorSpy.mock.calls.filter(([, message]) => message === 'Could not send the new board mail to NetCom');
+
+        beforeEach(() => {
+            errorSpy = jest.spyOn(logger, 'error');
+        });
+
+        afterEach(() => {
+            errorSpy.mockRestore();
+        });
+
+        const createBoard = () => request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: generator.generateBoard({ start_date: moment().add(1, 'days').format('YYYY-MM-DD') }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('should send it with the new board', async () => {
+            const sendMailSpy = jest.spyOn(mailer, 'sendMail');
+
+            try {
+                const res = await createBoard();
+
+                expect(res.statusCode).toEqual(200);
+                const netcomMails = sendMailSpy.mock.calls.filter(([options]) => options.template === 'network_new_board.html');
+                expect(netcomMails).toHaveLength(1);
+                expect(netcomMails[0][0].to).toEqual(config.new_board_notifications);
+            } finally {
+                sendMailSpy.mockRestore();
+            }
+        });
+
+        test('should still create the board if the mailer fails, and log the failure without personal data', async () => {
+            mock.cleanAll();
+            mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+
+            const res = await createBoard();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            const board = await Board.findByPk(res.body.data.id);
+            expect(board).not.toBeNull();
+
+            expect(netcomMailErrors()).toHaveLength(1);
+            const [logged] = netcomMailErrors()[0];
+            expect(Object.keys(logged).sort()).toEqual(['board_id', 'err']);
+            expect(logged.board_id).toEqual(board.id);
+            expect(logged.err.message).toEqual('Unsuccessful response from mailer (status 500)');
+        });
+
+        test('should still create the board if the mailer does not answer in time', async () => {
+            // A local mailer that accepts the request and never answers.
+            const server = http.createServer(() => {});
+            await new Promise((resolve) => { server.listen(0, '127.0.0.1', resolve); });
+            const { url, port, timeout } = config.mailer;
+
+            try {
+                config.mailer.url = 'http://127.0.0.1';
+                config.mailer.port = server.address().port;
+                config.mailer.timeout = 50;
+
+                const res = await createBoard();
+
+                expect(res.statusCode).toEqual(200);
+                const board = await Board.findByPk(res.body.data.id);
+                expect(board).not.toBeNull();
+                expect(netcomMailErrors()).toHaveLength(1);
+                expect(netcomMailErrors()[0][0].err.message).toEqual('The mailer did not answer within 50 ms');
+            } finally {
+                config.mailer.url = url;
+                config.mailer.port = port;
+                config.mailer.timeout = timeout;
+                server.closeAllConnections();
+                await new Promise((resolve) => { server.close(resolve); });
+            }
         });
     });
 });
