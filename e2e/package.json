@@ -3,27 +3,46 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "End-to-end tests for MyAEGEE across core, events, summeruniversity, statutory and the frontend",
+  "description": "End-to-end tests for MyAEGEE: the frontend with mocked APIs, and the frontend with core, events, summeruniversity, statutory, network and discounts",
   "engines": {
     "node": ">=26.0.0"
   },
   "scripts": {
-    "lint": "eslint --ext .ts . && tsc --noEmit",
+    "lint": "eslint --rulesdir lint/rules --report-unused-disable-directives --ext .ts,.js . && node --test lint/rules.test.js && tsc --noEmit && node scripts/check-ignores.ts && node scripts/check-factory-contracts.ts && npm run test:tools && node scripts/coverage.ts gate-config",
     "setup": "node scripts/prepare.ts",
     "setup:no-frontend": "node scripts/prepare.ts --skip-frontend",
+    "setup:frontend": "node scripts/prepare.ts --frontend-only",
+    "teardown": "node scripts/drop-databases.ts",
     "test": "playwright test",
+    "test:mocked": "playwright test -c playwright.ui.config.ts",
+    "test:mobile": "playwright test -c playwright.ui.config.ts --project=vue-mobile",
     "test:ui": "playwright test --ui",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "coverage": "node scripts/coverage.ts merge && node scripts/coverage.ts report",
+    "coverage:gate": "node scripts/coverage.ts gate",
+    "coverage:gate-config": "node scripts/coverage.ts gate-config",
+    "test:tools": "node --test scripts/*.test.ts ../frontend/build/*.test.js",
+    "a11y:lower": "node scripts/a11y-baseline.ts lower"
   },
   "license": "ISC",
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
     "@playwright/test": "^1.64.1",
+    "@types/istanbul-lib-coverage": "^2.0.6",
+    "@types/istanbul-lib-report": "^3.0.3",
+    "@types/istanbul-reports": "^3.0.4",
     "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.73.0",
     "@typescript-eslint/parser": "^8.72.1",
+    "axe-core": "4.14.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-lib-source-maps": "^5.0.6",
+    "istanbul-reports": "^3.2.0",
     "typescript": "~6.0.3"
   }
 }

@@ -17,5 +17,6 @@
     "skipLibCheck": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", ".frontend-dist", "playwright-report", "test-results"]
+  // lint/fixtures holds code the lint rules must refuse (lint/rules.test.js).
+  "exclude": ["node_modules", ".frontend-dist", ".coverage", "playwright-report", "test-results", "lint/fixtures"]
 }

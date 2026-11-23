@@ -1,0 +1,33 @@
+{
+  "oms.events.change_status": {
+    "color-contrast": 1
+  },
+  "oms.events.create": {
+    "color-contrast": 61,
+    "label": 14,
+    "select-name": 3
+  },
+  "oms.events.edit": {
+    "color-contrast": 44,
+    "label": 12,
+    "select-name": 1
+  },
+  "oms.events.list.all": {
+    "color-contrast": 6,
+    "image-alt": 3
+  },
+  "oms.events.list.organizing": {
+    "color-contrast": 6,
+    "image-alt": 3
+  },
+  "oms.events.list.participating": {
+    "color-contrast": 6,
+    "image-alt": 3
+  },
+  "oms.events.participants": {
+    "color-contrast": 1
+  },
+  "oms.events.view": {
+    "image-alt": 1
+  }
+}

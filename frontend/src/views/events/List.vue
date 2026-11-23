@@ -4,15 +4,15 @@
       <article class="tile is-child">
         <h4 class="title">Events list</h4>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="events-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+              <input id="events-search" class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
             </div>
             <div class="control">
-              <a class="button is-info" @click="toggleDisplayPast()">
+              <button type="button" class="button is-info" @click="toggleDisplayPast()">
                 {{ this.displayPast ? 'Display only future events' : 'Display past events' }}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@
 
         <!-- Classic list view -->
         <template v-if="displayListView">
-          <div class="card" v-for="event in events" v-bind:key="event.id">
+          <article class="card" v-for="event in events" v-bind:key="event.id" :aria-labelledby="'event-title-' + event.id">
             <div class="card-content">
               <div class="media">
                 <div class="media-left">
@@ -50,7 +50,7 @@
                 </div>
                 <div class="media-content">
                   <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
-                    <p class="title is-4">
+                    <p class="title is-4" :id="'event-title-' + event.id">
                       {{ event.name }}
                       <b-tag type="is-info" v-if="event.method === 'online' && event.has_applications">Online</b-tag>
                       <b-tag type="is-info" v-if="event.method === 'online' && !event.has_applications">Online, no applications</b-tag>
@@ -95,14 +95,14 @@
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </template>
 
         <!-- Card grid view -->
         <template v-else>
           <div class="columns is-multiline">
             <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
-              <div class="card">
+              <article class="card" :aria-labelledby="'event-title-' + event.id">
                 <div class="card-content">
                   <figure class="image is-square">
                     <img v-if="!event.image" src="/images/logo.png">
@@ -112,7 +112,7 @@
                   <div class="content" style="padding-top: 1rem">
                     <ul style="list-style-type: none; padding: 0; margin: 0">
                       <li>
-                        <span class="title is-4">
+                        <span class="title is-4" :id="'event-title-' + event.id">
                           {{ event.name }}
                           <b-tag type="is-info" v-if="event.method === 'online' && event.has_applications">Online</b-tag>
                           <b-tag type="is-info" v-if="event.method === 'online' && !event.has_applications">Online, no applications</b-tag>
@@ -179,7 +179,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
         </template>

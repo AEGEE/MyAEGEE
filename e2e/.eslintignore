@@ -1,4 +1,11 @@
 node_modules/
 .frontend-dist/
+.coverage/
+a11y-results/
 playwright-report/
+playwright-report-ui/
 test-results/
+test-results-ui/
+test-results-selfcheck/
+# Linted by lint/rules.test.js, as the files their first lines name.
+lint/fixtures/

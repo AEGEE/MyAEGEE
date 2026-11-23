@@ -2,21 +2,48 @@ codecov:
   branch: stable
   require_ci_to_pass: true
   notify:
-    after_n_builds: 24  # 6 test jobs x parallelism 4; checked by packages/backend-test-utils/check-codecov-builds.js
+    # 6 test jobs x parallelism 4. The upload of frontend-coverage is one more and is not waited
+    # for: that job only runs when the frontend tests passed, and Codecov must report on the
+    # services also when they did not (docs/testing/coverage.md). Checked by
+    # packages/backend-test-utils/check-codecov-builds.js.
+    after_n_builds: 24
 
 coverage:
   status:
+    # codecov/project and codecov/patch are about the six services, which have unit tests and a
+    # coverage ratchet of their own. Frontend code is kept out of them: its gate is the one
+    # per area in the frontend-tests workflow (docs/testing/coverage.md), and most areas are
+    # not enforced there yet.
     project:
       default:
         target: auto
         threshold: 0%
+        paths: &services
+          - "core/**"
+          - "discounts/**"
+          - "events/**"
+          - "network/**"
+          - "statutory/**"
+          - "summeruniversity/**"
+      # codecov/project/frontend: reported, never failing, until the last area's gate is enforced.
+      frontend:
+        target: auto
+        informational: true
+        paths: &frontend
+          - "frontend/**"
     patch:
       default:
         target: auto
+        paths: *services
+      # codecov/patch/frontend: as above.
+      frontend:
+        target: auto
+        informational: true
+        paths: *frontend
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
-  after_n_builds: 24  # checked by packages/backend-test-utils/check-codecov-builds.js
+  after_n_builds: 24  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
 
 component_management:
   individual_components:
@@ -29,6 +56,9 @@ component_management:
     - component_id: events
       name: events
       paths: ["events/**"]
+    - component_id: frontend
+      name: frontend
+      paths: ["frontend/**"]
     - component_id: network
       name: network
       paths: ["network/**"]

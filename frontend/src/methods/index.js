@@ -5,8 +5,11 @@ export default {
   showNotification (options) {
     // Buefy renders toast messages as HTML. None of ours need markup, and they often
     // contain names or server messages, so they're always shown as plain text.
+    // Long enough to read: three seconds for a short message, more for a long one (an error
+    // that lists several validation messages), up to ten seconds. Measured on the text as
+    // written, before escaping.
+    options.duration = options.duration || Math.min(10000, Math.max(3000, 1000 + String(options.message).length * 60))
     options.message = escapeHtml(options.message)
-    options.duration = options.duration || 3000
     options.type = options.type || 'is-success'
 
     this.$buefy.toast.open(options)
@@ -45,9 +48,19 @@ export default {
       return this.showDanger(message)
     }
 
+    const data = error.response && error.response.data
+
     // If error is Axios error and the body has 'message' field in response, return it.
-    if (error.response && error.response.data && error.response.data.message) {
-      return this.showDanger(`${message}: ${error.response.data.message}`)
+    if (data && data.message) {
+      return this.showDanger(`${message}: ${data.message}`)
+    }
+
+    // Validation errors come as messages per field: { errors: { name: ['Name should be set.'] } }.
+    if (data && data.errors) {
+      const errors = typeof data.errors === 'string' ? data.errors : Object.values(data.errors).flat().join('; ')
+      if (errors) {
+        return this.showDanger(`${message}: ${errors}`)
+      }
     }
 
     // Otherwise, return error message.

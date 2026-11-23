@@ -1,40 +1,39 @@
 <template>
   <aside class="menu app-sidebar" :class="{ 'is-visible': show, 'is-hidden': !show, 'is-menu-opened': navbar.menuOpened }">
-    <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
-      <p class="menu-label">
-        {{ category.categoryName }}
-      </p>
-      <ul class="menu-list">
-        <li v-for="item in category.components" v-bind:key="item.name">
-          <router-link :to="{ name: item.name, params: item.params }" exact v-if="item.name && !item.link" :aria-expanded="isExpanded(item) ? 'true' : 'false'" @click.native="toggle(item.index, category.index, item)">
-            <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
-            {{ item.label }}
-            <span class="icon is-small is-angle" v-if="item.children && item.children.length">
-              <font-awesome-icon :icon="['fa', 'angle-down']" />
-            </span>
-          </router-link>
-          <a :aria-expanded="isExpanded(item)" v-else-if="!item.link" @click="toggle(item.index, category.index, item)">
-            <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
-            {{ item.label }}
-            <span class="icon is-small is-angle" v-if="item.children && item.children.length">
-              <font-awesome-icon :icon="['fa', 'angle-down']" />
-            </span>
-          </a>
-          <a :href="item.link" target="_blank" rel="noopener noreferrer" v-else>
-            <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
-            {{ item.label }}
-          </a>
+    <nav aria-label="Main menu">
+      <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
+        <p class="menu-label">
+          {{ category.categoryName }}
+        </p>
+        <ul class="menu-list">
+          <li v-for="item in category.components" v-bind:key="item.name">
+            <router-link :to="{ name: item.name, params: item.params }" exact v-if="item.name && !item.link">
+              <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
+              {{ item.label }}
+            </router-link>
+            <button type="button" class="menu-toggle" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-else-if="!item.link" @click="toggle(item.index, category.index, item)">
+              <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
+              {{ item.label }}
+              <span class="icon is-small is-angle" v-if="item.children && item.children.length">
+                <font-awesome-icon :icon="['fa', 'angle-down']" />
+              </span>
+            </button>
+            <a :href="item.link" target="_blank" rel="noopener noreferrer" v-else>
+              <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
+              {{ item.label }}
+            </a>
 
-          <ul v-show="isExpanded(item)">
-            <li v-for="subItem in item.children" v-bind:key="subItem.name">
-              <router-link :to="{ name: subItem.name }" exact>
-                {{ subItem.label }}
-              </router-link>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+            <ul v-show="isExpanded(item)">
+              <li v-for="subItem in item.children" v-bind:key="subItem.name">
+                <router-link :to="{ name: subItem.name }" exact>
+                  {{ subItem.label }}
+                </router-link>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
   </aside>
 </template>
 
@@ -238,6 +237,10 @@ export default {
     @include mobile() {
       transform: translate3d(-180px, 0, 0);
       padding-top: 160px;
+      /* Pushed off the screen by the account menu: out of reach for the keyboard and screen
+         readers too, once it has slid away. */
+      visibility: hidden;
+      transition: transform .377s ease, opacity .377s ease, visibility 0s linear .377s;
     }
 
     @include tablet-only() {
@@ -257,10 +260,29 @@ export default {
   .menu-label {
     padding-left: 10px;
     margin-top: 1em;
+    /* Bulma's light grey is too faint for text this small (4.5:1 is the minimum). */
+    color: #666;
   }
 
   .menu-list {
-    li a {
+    /* The toggle of a group looks like the links around it (Bulma's .menu-list a). */
+    li button.menu-toggle {
+      display: block;
+      width: 100%;
+      padding: 0.5em 0.75em;
+      border: 0;
+      border-radius: $radius-small;
+      background: none;
+      color: $text;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $background;
+        color: $text-strong;
+      }
+
       &[aria-expanded="true"] {
         .is-angle {
           transform: rotate(180deg);
@@ -268,7 +290,7 @@ export default {
       }
     }
 
-    li a + ul {
+    li button.menu-toggle + ul {
       margin: 0 10px 0 15px;
     }
   }

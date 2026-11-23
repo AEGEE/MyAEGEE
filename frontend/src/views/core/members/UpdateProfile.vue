@@ -201,7 +201,6 @@ export default {
 
           this.$root.showSuccess('User is saved.')
 
-          /* istanbul ignore next */
           this.$router.go()
         })
         .catch((err) => {

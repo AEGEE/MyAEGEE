@@ -7,4 +7,11 @@ const require = createRequire(import.meta.url);
 // Permissions of each general circle in the seed, as `scope:action:object` keys.
 export type CirclePermissions = Record<string, string[]>;
 
-export const loadSeedPermissions = (): { CIRCLE_PERMISSIONS: CirclePermissions } => require('../../core/scripts/seed-permissions.js');
+export interface SeedPermission {
+    scope: string;
+    action: string;
+    object: string;
+    description: string;
+}
+
+export const loadSeedPermissions = (): { PERMISSIONS: SeedPermission[]; CIRCLE_PERMISSIONS: CirclePermissions } => require('../../core/scripts/seed-permissions.js');

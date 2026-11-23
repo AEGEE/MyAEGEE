@@ -1959,15 +1959,88 @@ jobs:
                 }
               ]
             }
+  frontend-mocked-test:
+    # The frontend in a browser with every API call answered by the test
+    # (e2e/playwright.ui.config.ts): no services needed. Runs on a desktop and on a phone
+    # viewport, split over the containers; each container builds the instrumented frontend
+    # and hands its coverage and axe results to frontend-coverage. See docs/testing/running.md.
+    docker:
+      - image: cimg/node:26.13.1
+    resource_class: large
+    # Enough for the suite as it is. The plan for the complete suite is 8.
+    parallelism: 2
+    environment:
+      E2E_COVERAGE: "1"
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - run:
+          name: Playwright version
+          working_directory: ~/project/e2e
+          command: npx playwright --version > /tmp/playwright-version
+      - restore_cache:
+          keys:
+            - playwright-v1-{{ arch }}-{{ checksum "/tmp/playwright-version" }}
+      - run:
+          name: Install Playwright browser
+          working_directory: ~/project/e2e
+          command: npx playwright install --with-deps chromium
+      - save_cache:
+          key: playwright-v1-{{ arch }}-{{ checksum "/tmp/playwright-version" }}
+          paths:
+            - ~/.cache/ms-playwright
+      - run:
+          name: Build the instrumented frontend
+          working_directory: ~/project/e2e
+          command: npm run setup:frontend
+      - run:
+          name: Run the mocked-API tests (both projects, one shard)
+          working_directory: ~/project/e2e
+          command: npx playwright test -c playwright.ui.config.ts --shard=$((CIRCLE_NODE_INDEX + 1))/$CIRCLE_NODE_TOTAL
+      - run:
+          name: Collect coverage and axe results for frontend-coverage
+          working_directory: ~/project/e2e
+          command: |
+            mkdir -p ws/raw/mocked-$CIRCLE_NODE_INDEX ws/routes/mocked-$CIRCLE_NODE_INDEX ws/a11y/mocked-$CIRCLE_NODE_INDEX
+            cp -r .coverage/raw/. ws/raw/mocked-$CIRCLE_NODE_INDEX/
+            # A shard may hold no behavioural test or no axe test at all.
+            if [ -d .coverage/routes ]; then cp -r .coverage/routes/. ws/routes/mocked-$CIRCLE_NODE_INDEX/; fi
+            if [ -d a11y-results ]; then cp -r a11y-results/. ws/a11y/mocked-$CIRCLE_NODE_INDEX/; fi
+            # Every container builds the same commit; the build's own files are taken from one.
+            if [ "$CIRCLE_NODE_INDEX" = 0 ]; then cp -r .coverage/build ws/build; fi
+      - persist_to_workspace:
+          root: ~/project/e2e/ws
+          paths:
+            - .
+      - store_test_results:
+          path: ~/project/e2e/test-results-ui
+      - store_artifacts:
+          path: ~/project/e2e/playwright-report-ui
+          destination: playwright-report-ui
+      - store_artifacts:
+          path: ~/project/e2e/test-results-ui
+          destination: test-results-ui
+      - store_artifacts:
+          path: ~/project/e2e/a11y-results
+          destination: a11y-results
   e2e-test:
-    # Runs core, events, summeruniversity and statutory as plain Node processes against one
-    # Postgres, with the built frontend and a fake mailer (see e2e/README.md).
+    # Runs core, events, summeruniversity, statutory, network and discounts as plain Node
+    # processes against one Postgres, with the built frontend and a fake mailer (see
+    # e2e/README.md). Each container has its own Postgres and stack, and every test makes its
+    # own data, so the containers can each take a share of the tests.
     docker:
       - image: cimg/node:26.13.1
       - image: cimg/postgres:18.7
         environment:
           POSTGRES_PASSWORD: 5ecr3t
     resource_class: large
+    # Enough for the suite as it is. The plan for the complete suite is 3.
+    parallelism: 1
+    environment:
+      E2E_COVERAGE: "1"
     steps:
       - checkout
       - node/install-packages:
@@ -1977,11 +2050,24 @@ jobs:
       - run:
           name: Lint and type-check e2e tests
           working_directory: ~/project/e2e
-          command: npm run lint
+          command: |
+            # Once is enough.
+            if [ "$CIRCLE_NODE_INDEX" = 0 ]; then npm run lint; fi
+      - run:
+          name: Playwright version
+          working_directory: ~/project/e2e
+          command: npx playwright --version > /tmp/playwright-version
+      - restore_cache:
+          keys:
+            - playwright-v1-{{ arch }}-{{ checksum "/tmp/playwright-version" }}
       - run:
           name: Install Playwright browser
           working_directory: ~/project/e2e
           command: npx playwright install --with-deps chromium
+      - save_cache:
+          key: playwright-v1-{{ arch }}-{{ checksum "/tmp/playwright-version" }}
+          paths:
+            - ~/.cache/ms-playwright
       - run:
           name: Wait for Postgres
           command: |
@@ -1991,13 +2077,25 @@ jobs:
             done
             echo "Postgres did not start" && exit 1
       - run:
-          name: Prepare databases, fixtures and frontend
+          name: Prepare databases, fixtures and the instrumented frontend
           working_directory: ~/project/e2e
           command: npm run setup
       - run:
-          name: Run e2e tests
+          name: Run e2e tests (one shard)
           working_directory: ~/project/e2e
-          command: npx playwright test
+          command: npx playwright test --shard=$((CIRCLE_NODE_INDEX + 1))/$CIRCLE_NODE_TOTAL
+      - run:
+          name: Collect coverage for frontend-coverage
+          working_directory: ~/project/e2e
+          command: |
+            mkdir -p ws/raw/real-$CIRCLE_NODE_INDEX ws/routes/real-$CIRCLE_NODE_INDEX
+            # A shard may hold only tests that never open a page.
+            if [ -d .coverage/raw ]; then cp -r .coverage/raw/. ws/raw/real-$CIRCLE_NODE_INDEX/; fi
+            if [ -d .coverage/routes ]; then cp -r .coverage/routes/. ws/routes/real-$CIRCLE_NODE_INDEX/; fi
+      - persist_to_workspace:
+          root: ~/project/e2e/ws
+          paths:
+            - .
       - store_test_results:
           path: ~/project/e2e/test-results
       - store_artifacts:
@@ -2006,6 +2104,46 @@ jobs:
       - store_artifacts:
           path: ~/project/e2e/test-results
           destination: test-results
+  frontend-coverage:
+    # Puts the coverage of all containers of frontend-mocked-test and e2e-test together,
+    # reports it to Codecov and checks the gate per area and the axe baseline.
+    # See docs/testing/coverage.md and docs/testing/accessibility.md.
+    docker:
+      - image: cimg/node:26.13.1
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project
+          override-ci-command: npm ci --legacy-peer-deps
+      - attach_workspace:
+          at: ~/project/e2e/ws
+      - run:
+          name: Merge and report the frontend coverage
+          working_directory: ~/project/e2e
+          command: |
+            node scripts/coverage.ts merge --raw ws/raw --routes ws/routes --build ws/build
+            node scripts/coverage.ts report
+      # Before the gate, so Codecov has the numbers also when the gate fails.
+      - codecov/upload:
+          files: e2e/.coverage/report/lcov.info
+          flags: frontend
+          disable_search: true
+      - run:
+          name: Check the coverage gate per area
+          working_directory: ~/project/e2e
+          command: node scripts/coverage.ts gate
+      - run:
+          name: Check that the accessibility baseline is up to date
+          working_directory: ~/project/e2e
+          command: node scripts/a11y-baseline.ts check-stale --complete ws/a11y
+      - store_artifacts:
+          path: ~/project/e2e/.coverage/report
+          destination: coverage-report
+      - store_artifacts:
+          path: ~/project/e2e/.coverage/summary.md
+          destination: coverage-summary.md
 workflows:
   lint-yaml:
     jobs:
@@ -2247,6 +2385,11 @@ workflows:
           filters:
             branches:
               only: stable
-  e2e-test:
+  frontend-tests:
     jobs:
+      - frontend-mocked-test
       - e2e-test
+      - frontend-coverage:
+          requires:
+            - frontend-mocked-test
+            - e2e-test

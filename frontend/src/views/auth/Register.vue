@@ -229,7 +229,6 @@ export default {
   },
   computed: mapGetters(['services']),
   methods: {
-    /* istanbul ignore next */
     parseDate (date) {
       return moment(date, 'YYYY-MM-DD').toDate()
     },

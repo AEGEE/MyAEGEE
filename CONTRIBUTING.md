@@ -134,6 +134,9 @@ To ship such a change in a module's Docker image, the module needs a release: me
    npm run lint
    ```
 
+   Which kind of test a change needs, and how the frontend is tested (Playwright suites in
+   `e2e/`), is described in [docs/testing/](docs/testing/README.md).
+
 ### Creating a Pull Request
 
 1. Create feature branch:

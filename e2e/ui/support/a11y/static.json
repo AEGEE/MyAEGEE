@@ -1,0 +1,15 @@
+{
+  "oms.about": {
+    "link-in-text-block": 2
+  },
+  "oms.bug_report": {
+    "color-contrast": 1,
+    "label": 3
+  },
+  "oms.resources": {
+    "color-contrast": 1
+  },
+  "oms.status": {
+    "color-contrast": 8
+  }
+}

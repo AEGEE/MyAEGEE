@@ -2,11 +2,17 @@
 // Usage: node packages/backend-test-utils/check-codecov-builds.js [<.circleci/config.yml> <codecov.yml>]
 //
 // Codecov waits for codecov.yml `after_n_builds` uploads before it reports. That number
-// must equal the uploads one push makes: the sum of `parallelism` (default 1) over the
-// CircleCI jobs with a codecov/upload step, counted once per workflow they run in.
-// Workflows with `triggers` (scheduled) and job entries with a branch `only` filter do not
-// run on every push and are not counted. Exits 1 with the expected value when either
-// after_n_builds differs. yaml is resolved from core/, like the other scripts here.
+// must equal the uploads one push makes whatever else happens in the pipeline: the sum of
+// `parallelism` (default 1) over the CircleCI jobs with a codecov/upload step, counted once
+// per workflow they run in.
+// Not counted, because they don't upload on every push:
+//   - workflows with `triggers` (scheduled) and job entries with a branch `only` filter;
+//   - job entries that `requires` other jobs. Such a job only runs when those passed, so
+//     Codecov must not wait for its upload: with a failed job in front of it the number would
+//     never be reached, and Codecov would report nothing at all for the push. Its upload is
+//     one more than Codecov waits for, and Codecov reports again when it arrives.
+// Exits 1 with the expected value when either after_n_builds differs. yaml is resolved from
+// core/, like the other scripts here.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -19,8 +25,9 @@ function hasCodecovUpload(job) {
         || (step && typeof step === 'object' && Object.prototype.hasOwnProperty.call(step, 'codecov/upload')));
 }
 
-// Returns [{ job, workflow, parallelism }] for every upload that runs on a push.
-function countUploads(circle) {
+// Returns [{ job, workflow, parallelism, waitedFor }] for every upload that runs on a push.
+// `waitedFor` is false for a job that only runs when the jobs it requires passed.
+function listUploads(circle) {
     const jobs = circle.jobs || {};
     const uploads = [];
     for (const [workflowName, workflow] of Object.entries(circle.workflows || {})) {
@@ -36,7 +43,8 @@ function countUploads(circle) {
                     if (!Number.isInteger(parallelism) || parallelism < 1) {
                         throw new Error(`Job ${name}: parallelism ${JSON.stringify(parallelism)} is not a number this check can count`);
                     }
-                    uploads.push({ job: jobName, workflow: workflowName, parallelism });
+                    const requires = Array.isArray(settings.requires) ? settings.requires : [];
+                    uploads.push({ job: jobName, workflow: workflowName, parallelism, waitedFor: requires.length === 0 });
                 }
             }
         }
@@ -44,8 +52,14 @@ function countUploads(circle) {
     return uploads;
 }
 
+// The uploads Codecov waits for: [{ job, workflow, parallelism }].
+function countUploads(circle) {
+    return listUploads(circle).filter((u) => u.waitedFor).map(({ job, workflow, parallelism }) => ({ job, workflow, parallelism }));
+}
+
 function checkCodecovBuilds(circle, codecov) {
     const uploads = countUploads(circle);
+    const extra = listUploads(circle).filter((u) => !u.waitedFor).map(({ job, workflow, parallelism }) => ({ job, workflow, parallelism }));
     const expected = uploads.reduce((sum, u) => sum + u.parallelism, 0);
     const actual = {
         'codecov.notify.after_n_builds': codecov && codecov.codecov && codecov.codecov.notify
@@ -53,7 +67,7 @@ function checkCodecovBuilds(circle, codecov) {
         'comment.after_n_builds': codecov && codecov.comment && codecov.comment.after_n_builds
     };
     const mismatches = Object.entries(actual).filter(([, value]) => value !== expected);
-    return { expected, uploads, actual, ok: mismatches.length === 0, mismatches };
+    return { expected, uploads, extra, actual, ok: mismatches.length === 0, mismatches };
 }
 
 if (require.main === module) {
@@ -64,8 +78,9 @@ if (require.main === module) {
         YAML.parse(fs.readFileSync(codecovPath, 'utf8'))
     );
     for (const u of result.uploads) console.log(`  ${u.job} (workflow ${u.workflow}): ${u.parallelism}`);
+    for (const u of result.extra) console.log(`  ${u.job} (workflow ${u.workflow}): ${u.parallelism}, not waited for: it runs only when the jobs it requires passed`);
     if (result.ok) {
-        console.log(`ok: after_n_builds is ${result.expected}, one per upload above`);
+        console.log(`ok: after_n_builds is ${result.expected}, one per upload above that Codecov waits for`);
         process.exit(0);
     }
     for (const [key, value] of result.mismatches) {
@@ -75,4 +90,4 @@ if (require.main === module) {
     process.exit(1);
 }
 
-module.exports = { checkCodecovBuilds, countUploads };
+module.exports = { checkCodecovBuilds, countUploads, listUploads };

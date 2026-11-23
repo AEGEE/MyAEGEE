@@ -1,5 +1,5 @@
 <template>
-  <section
+  <main
     class="app-main"
     :style="[hiddenSidebarStyle]"
     :class="{ 'is-menu-opened': navbar.menuOpened }"
@@ -12,7 +12,7 @@
         </div>
       </transition>
     </div>
-  </section>
+  </main>
 </template>
 
 <script>

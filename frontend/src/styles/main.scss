@@ -130,6 +130,26 @@ h1, h2, h3, h4, h5, h6 {
 	}
 }
 
+// Bulma highlights the entries of the navbar on hover and focus for `a.navbar-item` only. The
+// entries that are buttons (Logout) get the same, with the same colours.
+.navbar button.navbar-item {
+	&:focus,
+	&:hover {
+		background-color: $navbar-item-hover-background-color;
+		color: $navbar-item-hover-color;
+	}
+}
+
+@include from($navbar-breakpoint) {
+	.navbar .navbar-dropdown button.navbar-item {
+		&:focus,
+		&:hover {
+			background-color: $navbar-dropdown-item-hover-background-color;
+			color: $navbar-dropdown-item-hover-color;
+		}
+	}
+}
+
 @import '~nprogress/nprogress.css';
 
 .has-text-pre-wrap {
