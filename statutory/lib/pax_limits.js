@@ -64,7 +64,10 @@ exports.updateLimit = async (req, res) => {
     req.body = helpers.whitelistObject(req.body, constants.PAX_LIMIT_FORM_FIELDS);
     req.body.event_type = req.params.event_type;
 
-    let limit = await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } });
+    // Without a valid body ID there is nothing to look up; creating the limit then fails its validation.
+    let limit = helpers.isNumber(req.body.body_id)
+        ? await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } })
+        : null;
     if (!limit) {
         limit = await PaxLimit.create(req.body);
     } else {
