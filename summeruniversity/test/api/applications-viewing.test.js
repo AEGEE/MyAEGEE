@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const constants = require('../../lib/constants');
 const coreUser = require('../assets/oms-core-valid.json').data;
 const applicant = require('../assets/oms-core-valid-not-superadmin.json').data;
 
@@ -84,6 +85,15 @@ describe('Applications listing, viewing and exporting', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.length).toEqual(1);
+        });
+
+        test('should return 403 for the applicant', async () => {
+            mock.mockAll(applicantMocks);
+            await generator.createApplication(event, { user_id: applicant.id });
+
+            const res = await get('/single/' + event.id + '/applications');
+
+            expect(res.statusCode).toEqual(403);
         });
     });
 
@@ -243,6 +253,19 @@ describe('Applications listing, viewing and exporting', () => {
             expect(res.statusCode).toEqual(500);
             expect(res.body.message).toContain('Error fetching auth request');
         });
+
+        test('should show an application with the applicant data to a manager who is not an organizer', async () => {
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const application = await generator.createApplication(otherEvent, { user_id: 10 });
+
+            const res = await get('/single/' + otherEvent.id + '/applications/' + application.id);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.gender).toEqual(coreUser.gender);
+            expect(res.body.data.date_of_birth).toEqual(coreUser.date_of_birth);
+            expect(res.body.data.notification_email).toEqual(coreUser.notification_email);
+            expect(res.body.permissions.view_application).toEqual(true);
+        });
     });
 
     describe('GET /single/:id/applications/export', () => {
@@ -332,6 +355,40 @@ describe('Applications listing, viewing and exporting', () => {
             const res = await get('/single/' + event.id + '/applications/export');
 
             expect(res.statusCode).toEqual(500);
+        });
+
+        test('should return 403 for the applicant', async () => {
+            mock.mockAll(applicantMocks);
+            await generator.createApplication(event, { user_id: applicant.id });
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(403);
+        });
+
+        test('should export to a manager who is not an organizer, without rejected and cancelled applications', async () => {
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            await generator.createApplication(otherEvent, { user_id: 10, first_name: 'Pending' });
+            await generator.createApplication(otherEvent, { user_id: 11, first_name: 'Rejected', status: 'rejected' });
+            await generator.createApplication(otherEvent, { user_id: 12, first_name: 'Cancelled', cancelled: true });
+
+            const res = await get('/single/' + otherEvent.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            const [sheet] = xlsx.parse(res.body);
+            const [headers, ...rows] = sheet.data;
+            expect(rows.map((row) => row[headers.indexOf('First name')])).toEqual(['Pending']);
+        });
+
+        test('should export only the fixed columns for an event without questions', async () => {
+            const noQuestions = await generator.createEvent({ questions: [] });
+            await generator.createApplication(noQuestions, { user_id: 10, answers: [] });
+
+            const res = await get('/single/' + noQuestions.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            const [sheet] = xlsx.parse(res.body);
+            expect(sheet.data[0]).toEqual(Object.values(constants.APPLICATION_FIELD_NAMES));
         });
     });
     describe('board comment', () => {
