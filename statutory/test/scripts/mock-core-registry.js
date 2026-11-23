@@ -36,6 +36,22 @@ exports.mockCore = (options) => {
             .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
+    // A member whose application ban ends at the given moment.
+    if (options.eventApplicationBanUntil) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members/me')
+            .reply(200, {
+                success: true,
+                data: {
+                    ...regularUser,
+                    event_application_ban: {
+                        ban_until: options.eventApplicationBanUntil
+                    }
+                }
+            });
+    }
+
     if (options.eventApplicationBanned) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
