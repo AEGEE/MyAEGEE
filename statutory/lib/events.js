@@ -40,6 +40,18 @@ exports.addEvent = async (req, res) => {
     });
 };
 
+// Parses a date filter of a list (YYYY-MM-DD). Returns null if it is not a date.
+function parseDateFilter(value) {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    const date = moment(value, 'YYYY-MM-DD');
+    return date.isValid() ? date : null;
+}
+
+const invalidDateMessage = (field) => `The "${field}" date is invalid, it should be in the YYYY-MM-DD format.`;
+
 exports.listEvents = async (req, res) => {
     const query = {
         where: { status: 'published' },
@@ -64,8 +76,24 @@ exports.listEvents = async (req, res) => {
     // The events are not inclusive, so when the event starts on 2018-01-02 and ends on 2018-01-17, querying
     // from 2018-01-05 to 2018-01-10 won't return it.
     const dateQuery = [];
-    if (req.query.starts) dateQuery.push({ starts: { [Sequelize.Op.gte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
-    if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
+    if (req.query.starts) {
+        const starts = parseDateFilter(req.query.starts);
+        if (!starts) {
+            return errors.makeBadRequestError(res, invalidDateMessage('starts'));
+        }
+
+        dateQuery.push({ starts: { [Sequelize.Op.gte]: starts.startOf('day').toDate() } });
+    }
+
+    if (req.query.ends) {
+        const ends = parseDateFilter(req.query.ends);
+        if (!ends) {
+            return errors.makeBadRequestError(res, invalidDateMessage('ends'));
+        }
+
+        dateQuery.push({ ends: { [Sequelize.Op.lte]: ends.endOf('day').toDate() } });
+    }
+
     query.where[Sequelize.Op.and] = dateQuery;
 
     const events = await Event.findAll(query);
@@ -86,7 +114,14 @@ exports.listMostRecentEvents = async (req, res) => {
         ]
     };
 
-    if (req.query.ends) queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } };
+    if (req.query.ends) {
+        const ends = parseDateFilter(req.query.ends);
+        if (!ends) {
+            return errors.makeBadRequestError(res, invalidDateMessage('ends'));
+        }
+
+        queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: ends.endOf('day').toDate() } };
+    }
 
     const events = await Event.findAll(queryObj);
 
