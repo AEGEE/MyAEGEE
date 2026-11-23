@@ -197,26 +197,22 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.statusCode).toEqual(403);
         });
 
-        test('should return 403 on an unknown status', async () => {
+        test.each([
+            ['an unknown status', { status: 'totally approved' }],
+            ['an inherited property name', { status: 'constructor' }],
+            ['a status that is not a string', { status: 42 }],
+            ['no status', {}]
+        ])('should return 422 for %s', async (name, body) => {
             mockAndCapture(approverMocks);
             const event = await generator.createEvent({ status: 'first submission', published: 'none' });
 
-            const res = await put(event, '/status', { status: 'totally approved' });
+            const res = await put(event, '/status', body);
 
-            expect(res.statusCode).toEqual(403);
-        });
-
-        // BUG: setApprovalStatus calls req.body.status.replace() without checking that
-        // the status is set, so a missing status crashes with a 500 instead of a 4xx.
-        test('should currently return 500 if the status is missing', async () => {
-            mockAndCapture(approverMocks);
-            const event = await generator.createEvent({ status: 'first submission', published: 'none' });
-
-            const res = await put(event, '/status', {});
-
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
             await event.reload();
             expect(event.status).toEqual('first submission');
+            expect(mails).toHaveLength(0);
         });
 
         test('should return 500 and roll back if the mailer fails', async () => {
