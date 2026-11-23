@@ -79,10 +79,10 @@ describe('API requests', () => {
     test('should return 500 if core returned unsuccessful response', async () => {
         mock.mockAll({ core: { unsuccessfulResponse: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -96,10 +96,10 @@ describe('API requests', () => {
     test('should return 500 if core returned unsuccessful response for permissions', async () => {
         mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -113,10 +113,10 @@ describe('API requests', () => {
     test('should return 500 if core returned unsuccessful response for approve permissions', async () => {
         mock.mockAll({ approvePermissions: { unsuccessfulResponse: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -130,10 +130,10 @@ describe('API requests', () => {
     test('should return 401 if the user request returned 401 for auth-only endpoint', async () => {
         mock.mockAll({ core: { unauthorized: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -147,10 +147,10 @@ describe('API requests', () => {
     test('should return 401 if the permission request returned 401 for auth-only endpoint', async () => {
         mock.mockAll({ mainPermissions: { unauthorized: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -164,10 +164,10 @@ describe('API requests', () => {
     test('should return 401 if the approve permissions request returned 401 for auth-only endpoint', async () => {
         mock.mockAll({ approvePermissions: { unauthorized: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -197,10 +197,10 @@ describe('API requests', () => {
     test('should return 500 if core returned unsuccessful response for memberslist permissions', async () => {
         mock.mockAll({ memberslistPermissions: { unsuccessfulResponse: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -214,10 +214,10 @@ describe('API requests', () => {
     test('should return 401 if the memberslist permissions request returned 401 for auth-only endpoint', async () => {
         mock.mockAll({ memberslistPermissions: { unauthorized: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
 
         const res = await request({
-            path: '/events/' + event.id + '/applications',
+            path: '/events/' + event.id + '/positions',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
