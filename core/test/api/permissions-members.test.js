@@ -178,4 +178,85 @@ describe('Permission members', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(otherUser.id);
     });
+
+    describe('counting and paging', () => {
+        let token;
+        let permission;
+        let admin;
+        let member;
+        let circlesWithPermission;
+
+        // An admin who is a superadmin, and a member who holds the permission through two circles
+        // and is in a third circle that has nothing to do with it.
+        beforeEach(async () => {
+            admin = await generator.createUser({ superadmin: true, first_name: 'Aaa' });
+            token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+
+            permission = await generator.createPermission();
+            member = await generator.createUser({ first_name: 'Bbb' });
+            const firstCircle = await generator.createCircle();
+            const secondCircle = await generator.createCircle();
+            const otherCircle = await generator.createCircle();
+            for (const circle of [firstCircle, secondCircle, otherCircle]) {
+                await generator.createCircleMembership(circle, member);
+            }
+            await generator.createCirclePermission(firstCircle, permission);
+            await generator.createCirclePermission(secondCircle, permission);
+            circlesWithPermission = [firstCircle, secondCircle];
+
+            // Somebody without the permission.
+            const stranger = await generator.createUser();
+            await generator.createCircleMembership(otherCircle, stranger);
+        });
+
+        const list = (query) => request({
+            path: '/permissions/' + permission.id + '/members',
+            method: 'GET',
+            query,
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        test('should count each member once', async () => {
+            const res = await list({ sort: 'first_name' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((user) => user.id)).toEqual([admin.id, member.id]);
+            expect(res.body.meta.count).toEqual(2);
+        });
+
+        test('should list all circles of each member, and the memberships that give the permission', async () => {
+            const res = await list({ sort: 'first_name' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data[0].circles).toEqual([]);
+            expect(res.body.data[0].circle_memberships).toEqual([]);
+            expect(res.body.data[1].circles.length).toEqual(3);
+            expect(res.body.data[1].circle_memberships.map((membership) => membership.circle_id).sort())
+                .toEqual(circlesWithPermission.map((circle) => circle.id).sort());
+        });
+
+        test('should respect limit and offset', async () => {
+            const first = await list({ sort: 'first_name', limit: 1 });
+
+            expect(first.statusCode).toEqual(200);
+            expect(first.body.data.map((user) => user.id)).toEqual([admin.id]);
+            expect(first.body.meta.count).toEqual(2);
+
+            const second = await list({ sort: 'first_name', limit: 1, offset: 1 });
+
+            expect(second.statusCode).toEqual(200);
+            expect(second.body.data.map((user) => user.id)).toEqual([member.id]);
+            expect(second.body.data[0].circles.length).toEqual(3);
+            expect(second.body.meta.count).toEqual(2);
+        });
+
+        test('should find by name', async () => {
+            const res = await list({ query: 'bbb' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((user) => user.id)).toEqual([member.id]);
+            expect(res.body.meta.count).toEqual(1);
+        });
+    });
 });
