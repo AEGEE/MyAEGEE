@@ -446,6 +446,42 @@ describe('Applications status changes', () => {
             expect(application.cancelled).toEqual(false);
         });
 
+        test.each(['rejected', 'pending'])('should clear the confirmation when an accepted application becomes %s', async (status) => {
+            await application.update({ status: 'accepted', confirmed: true });
+
+            const res = await put('/status', { status });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.confirmed).toEqual(false);
+            await application.reload();
+            expect(application.status).toEqual(status);
+            expect(application.confirmed).toEqual(false);
+        });
+
+        test('should keep the confirmation when an accepted application is accepted again', async () => {
+            await application.update({ status: 'accepted', confirmed: true });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.confirmed).toEqual(true);
+        });
+
+        test('should not change the status of an application marked as attended', async () => {
+            await application.update({ status: 'accepted', confirmed: true, attended: true });
+
+            const res = await put('/status', { status: 'rejected' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.status).toEqual(['This application is marked as attended: mark it as not attended before changing its status.']);
+            expect(res.body.message).toEqual(res.body.errors.status[0]);
+            await application.reload();
+            expect(application.status).toEqual('accepted');
+            expect(application.confirmed).toEqual(true);
+            expect(mails).toHaveLength(0);
+        });
+
         test.each([
             ['pending', 'pending', false],
             ['rejected', 'rejected', false],
