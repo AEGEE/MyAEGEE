@@ -109,6 +109,8 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
+          // Not one of the services behind /api: the frontend's own web server answers this.
+          healthcheckLink: '/healthcheck',
           releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=frontend'
         },
         'core-static': {
