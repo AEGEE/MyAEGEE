@@ -64,10 +64,16 @@ test.describe('events factories match the real API', () => {
         // The board of the applicant's body leaves a comment, so that field has a value.
         expectStatus(await api.call('board', 'PUT', `/api/events/single/${created.id}/applications/${applied.body.data.id}/comment`, { board_comment: 'Active member' }), 200);
 
-        const mine = await api.call<Envelope<unknown>>('member', 'GET', `/api/events/single/${created.id}/applications/me`);
-        expectShape('application', application({ answers: ['S'], board_comment: 'x' }), mine.body.data, {
-            gaps: { '$.email': 'events keeps the column but nothing fills it: every application made today has null' }
-        });
+        const noEmail = { gaps: { '$.email': 'events keeps the column but nothing fills it: every application made today has null' } };
+        // The applicant doesn't get the board's comment on their application; the organiser does.
+        const mine = await api.call<Envelope<Record<string, unknown>>>('member', 'GET', `/api/events/single/${created.id}/applications/me`);
+        expectStatus(mine, 200);
+        expect(mine.body.data).not.toHaveProperty('board_comment');
+        expectShape('application', application({ answers: ['S'], board_comment: undefined }), mine.body.data, noEmail);
+
+        const organizersView = await api.call<Envelope<unknown>>('admin', 'GET', `/api/events/single/${created.id}/applications/${applied.body.data.id}`);
+        expectStatus(organizersView, 200);
+        expectShape('application', application({ answers: ['S'], board_comment: 'x' }), organizersView.body.data, noEmail);
     });
 
     test('validation errors and unknown items', async ({ api }) => {
