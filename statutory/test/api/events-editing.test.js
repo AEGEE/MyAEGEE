@@ -327,6 +327,56 @@ describe('Events editing', () => {
             expect(eventFromDb[field]).toEqual(event[field]);
         });
 
+        // BUG: an edit only checks the fields it changes, and each rule on the order of two
+        // dates is checked with one of the two only. So the other one can be moved across it:
+        // an event can start after it ends, or before its application period is over.
+        // Expected: 422, as when the same dates are sent for a new event.
+        test.each([
+            ['the start after the end', 'starts', { starts: at('ends', 1) }],
+            ['the start before the end of the application period', 'starts', { starts: at('application_period_ends', -1) }],
+            ['the start of the application period after its end', 'application_period_starts', { application_period_starts: at('application_period_ends', 1) }],
+            ['the end of the application period after the board approve deadline', 'application_period_ends', { application_period_ends: at('board_approve_deadline', 1) }]
+        ])('should accept %s when that is the only date in the edit', async (description, field, body) => {
+            const event = await generator.createEvent({ type: 'epm', ...fixedDates() });
+
+            const res = await request({
+                path: '/events/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Event.findByPk(event.id))[field]).toEqual(body[field]);
+
+            // The same dates are refused for a new event.
+            const created = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(body) })
+            });
+
+            expect(created.statusCode).toEqual(422);
+        });
+
+        // BUG: a value for "vegetarian" that is not true or false fails in the database: 500.
+        // Expected: 422 with an error on "vegetarian".
+        test('should answer 500 for a text as vegetarian', async () => {
+            const event = await generator.createEvent({ type: 'epm', vegetarian: false });
+
+            const res = await request({
+                path: '/events/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { vegetarian: 'maybe' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect((await Event.findByPk(event.id)).vegetarian).toEqual(false);
+        });
+
         test('should refuse the url of another event, whatever its case', async () => {
             await generator.createEvent({ url: 'spring-agora' });
             const event = await generator.createEvent({ url: 'autumn-agora' });

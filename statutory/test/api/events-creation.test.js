@@ -1543,6 +1543,36 @@ describe('Events creation', () => {
             expect(await Event.count()).toEqual(0);
         });
 
+        // BUG: a value for "vegetarian" that is not true or false fails in the database: 500.
+        // Expected: 422 with an error on "vegetarian".
+        test.each(['maybe', 5])('should answer 500 for %p as vegetarian', async (vegetarian) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(), vegetarian })
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        // BUG: the event is refused, but the message is the text of a crash in the validation.
+        // Expected: "Question 1: should be an object.", as for a question that is a text.
+        test('should refuse null as a question, with the message of a crash', async () => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(), questions: [null] })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ questions: ['Cannot read properties of null (reading \'description\')'] });
+            expect(await Event.count()).toEqual(0);
+        });
+
         test('should accept a web link as the booklet folder', async () => {
             const res = await request({
                 path: '/',
