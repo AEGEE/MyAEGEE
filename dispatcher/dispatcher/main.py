@@ -78,6 +78,12 @@ def create_template_environment(templates_dir: str = _TEMPLATES_DIR) -> Environm
     )
 
 
+def template_file_name(template: str) -> str:
+    """The template file for a template name; the services send names like confirm_email.html,
+    the mailer accepts them with or without the suffix."""
+    return f"{template.removesuffix('.html')}.jinja2"
+
+
 def connect_to_smtp():
     global smtpObj
 
@@ -165,10 +171,11 @@ def send_email(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
+    template_name = template_file_name(msg['template'])
     try:
-        template = tpl_environment.get_template(f"{msg['template']}.jinja2")
+        template = tpl_environment.get_template(template_name)
     except exceptions.TemplateNotFound:
-        logging.error(f"Template {msg['template']}.jinja2 not found")
+        logging.error(f"Template {template_name} not found")
         # Requeuable: the template may be deployed while the message is waiting.
         requeue_wait(ch, method, properties, body, reason=f"template_not_found-{msg['template']}")
         return
@@ -185,7 +192,7 @@ def send_email(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
     except exceptions.TemplateNotFound:
-        logging.error(f"A sub-template in {msg['template']}.jinja2 was not found")
+        logging.error(f"A sub-template in {template_name} was not found")
         # Requeuable: a missing snippet template may be deployed while waiting.
         requeue_wait(ch, method, properties, body, reason=f"subtemplate_not_found-{msg['template']}")
         return
