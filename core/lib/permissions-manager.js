@@ -66,20 +66,21 @@ class PermissionsManager {
         }
     }
 
+    // The IDs of all the circles below a circle: its child circles, their child circles and so on.
     getIndirectChildCircles(circleId) {
-        const directChildCirclesIds = this.circles
-            .filter((circle) => circle.parent_circle_id === circleId)
-            .map((circle) => circle.id);
+        const childCircleIds = [];
 
-        if (!directChildCirclesIds.length) {
-            return [];
-        }
+        const addChildCircles = (parentCircleId) => {
+            for (const circle of this.circles) {
+                if (circle.parent_circle_id === parentCircleId && !childCircleIds.includes(circle.id)) {
+                    childCircleIds.push(circle.id);
+                    addChildCircles(circle.id);
+                }
+            }
+        };
 
-        for (const id of directChildCirclesIds) {
-            directChildCirclesIds.push(...this.getIndirectChildCircles(id));
-        }
-
-        return directChildCirclesIds;
+        addChildCircles(circleId);
+        return childCircleIds;
     }
 
     getIndirectParentCircles(circleId) {
