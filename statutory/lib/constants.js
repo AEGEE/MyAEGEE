@@ -127,6 +127,27 @@ module.exports = {
     ALLOWED_CANDIDATE_FILTER_FIELDS: {
         status: ['approved', 'rejected', 'pending']
     },
+    // The fields of the application form, the only ones
+    // that are saved from the request when applying or editing an application.
+    APPLICATION_FORM_FIELDS: [
+        'body_id',
+        'visa_required',
+        'visa_place_of_birth',
+        'visa_passport_number',
+        'visa_passport_issue_date',
+        'visa_passport_expiration_date',
+        'visa_passport_issue_authority',
+        'visa_embassy',
+        'visa_street_and_house',
+        'visa_postal_code',
+        'visa_city',
+        'visa_country',
+        'nationality',
+        'number_of_events_visited',
+        'meals',
+        'allergies',
+        'answers'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',
