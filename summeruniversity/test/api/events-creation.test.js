@@ -302,8 +302,8 @@ describe('Events creation', () => {
         ['ends', { starts: generator.daysFromNow(70), ends: generator.daysFromNow(60) }, 'Event cannot start after or at the same time it ends.'],
         ['fee', { fee: -1 }, 'Event fee cannot be negative'],
         ['optional_fee', { optional_fee: 51 }, 'Optional fee cannot be more than 50 euros.'],
-        ['type', { type: 'nwm' }, 'SU type should be one of these: normal, pilot.'],
-        ['theme_category', { theme_category: 'unknown' }, null],
+        ['type', { type: 'nwm' }, 'SU type should be one of these: regular, pilot.'],
+        ['theme_category', { theme_category: 'unknown' }, 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.'],
         ['theme', { theme: '' }, 'Theme explanation should be set.'],
         ['theme_implementation', { theme_implementation: '' }, 'Explanation of theme implementation should be set.'],
         ['programme_suct', { programme_suct: 'not a url' }, 'The link should be a valid URL starting with http:// or https://.'],
@@ -324,7 +324,7 @@ describe('Events creation', () => {
         ['accommodation_type', { accommodation_type: '' }, 'The type of accommodation should be set.'],
         ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
-        ['questions', { questions: 'not an array' }, 'Event questions should be an array of strings.'],
+        ['questions', { questions: 'not an array' }, 'Event questions should be a list.'],
         ['course_level', { course_level: 'expert' }, 'SU course level should be one of these: beginner, intermediate, advanced.'],
         ['locations', { locations: [] }, null],
         ['organizers', { organizers: [{ user_id: user.id, role: 'main_coordinator' }] }, null],
@@ -340,7 +340,7 @@ describe('Events creation', () => {
         ['cooperation', { cooperation: [5] }, 'Body is malformed.'],
         ['locations', { locations: [{ name: 'Alicante', position: { lat: 1 } }] }, null],
         ['learning_objectives', { learning_objectives: [] }, 'Learning objectives should be set.'],
-        ['pax_confirmation', { pax_confirmation: 'x' }, null],
+        ['pax_confirmation', { pax_confirmation: 'x' }, 'Pax confirmation should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.'],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {
         const res = await createEvent(generator.generateEventBody(overrides));
 

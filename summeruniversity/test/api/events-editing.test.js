@@ -491,7 +491,7 @@ describe('Events editing', () => {
         const res = await editEvent(event, { questions: null });
 
         expect(res.statusCode).toEqual(422);
-        expect(res.body.errors.questions).toEqual(['Event questions should be an array of strings.']);
+        expect(res.body.errors.questions).toEqual(['Event questions should be a list.']);
     });
 
     test('should return 422 on an empty body', async () => {

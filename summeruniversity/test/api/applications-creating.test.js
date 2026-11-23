@@ -252,7 +252,7 @@ describe('Applications creation', () => {
         ['answers', { answers: 'not an array' }, 'Answers should be an array of strings.'],
         ['answers', { answers: ['one', 'two'] }, 'Expected 1 answers, but got 2.'],
         ['agreed_to_privacy_policy', { agreed_to_privacy_policy: false }, 'You should agree to Privacy Policy.'],
-        ['agreed_to_su_terms', { agreed_to_su_terms: false }, null],
+        ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['visa_required', { visa_required: 'yes' }, 'The value should be true or false.'],
         ['motivation', { motivation: null }, null],
         ['aegee_experience', { aegee_experience: null }, null],
