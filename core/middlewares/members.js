@@ -2,7 +2,7 @@ const moment = require('moment');
 const _ = require('lodash');
 const { request } = require('../lib/http');
 
-const { User, Body, BodyMembership, MailChange, MailConfirmation, EventApplicationBan } = require('../models');
+const { User, Body, BodyMembership, MailChange, MailConfirmation, EventApplicationBan, PasswordReset } = require('../models');
 const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
@@ -651,6 +651,10 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         await user.update({ email: mailChange.new_email }, { transaction: t });
+
+        // A password reset goes to the login address, so the ones which were sent to the
+        // previous address end here. The member's sessions stay.
+        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
 
         return { changed: true };
     });
