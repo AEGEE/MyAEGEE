@@ -230,4 +230,39 @@ describe('User primary body setting', () => {
         const userFromDb = await User.findByPk(user.id);
         expect(userFromDb.primary_body_id).toEqual(body.id);
     });
+
+    test.each(['me', 'id'])('should answer with the primary body that is set now (addressed by %s)', async (address) => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        await generator.createBodyMembership(body, user);
+        await generator.createBodyMembership(otherBody, user);
+        await user.update({ primary_body_id: body.id });
+
+        const path = '/members/' + (address === 'me' ? 'me' : user.id) + '/primary-body';
+
+        const changed = await request({
+            path,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { primary_body_id: String(otherBody.id) }
+        });
+
+        expect(changed.statusCode).toEqual(200);
+        expect(changed.body.data.primary_body_id).toEqual(otherBody.id);
+        expect(changed.body.data.primary_body.id).toEqual(otherBody.id);
+        expect(changed.body.data.bodies.length).toEqual(2);
+
+        const unset = await request({
+            path,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { primary_body_id: null }
+        });
+
+        expect(unset.statusCode).toEqual(200);
+        expect(unset.body.data.primary_body_id).toEqual(null);
+        expect(unset.body.data.primary_body).toEqual(null);
+    });
 });
