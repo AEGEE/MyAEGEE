@@ -1,3 +1,4 @@
+const http = require('http');
 const nock = require('nock');
 
 const config = require('../../config');
@@ -50,6 +51,17 @@ describe('Mailer client errors', () => {
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
     });
 
+    test('should pass on a network error', async () => {
+        nock(`${config.mailer.url}:${config.mailer.port}`)
+            .post('/')
+            .replyWithError('connection refused');
+
+        const err = await mailer.sendMail(mail).catch((e) => e);
+
+        expect(err).toBeInstanceOf(Error);
+        expect(err.message).not.toContain('did not answer');
+    });
+
     describe('timeout', () => {
         const defaultTimeout = config.mailer.timeout;
 
@@ -62,16 +74,25 @@ describe('Mailer client errors', () => {
         });
 
         test('should give up when the mailer does not answer in time', async () => {
-            config.mailer.timeout = 50;
-            nock(`${config.mailer.url}:${config.mailer.port}`)
-                .post('/')
-                .delay(1000)
-                .reply(200, { success: true });
+            // A local server that accepts the request and never answers.
+            const server = http.createServer(() => {});
+            await new Promise((resolve) => { server.listen(0, '127.0.0.1', resolve); });
+            const { url, port } = config.mailer;
 
-            const err = await mailer.sendMail(mail).catch((e) => e);
+            try {
+                config.mailer.url = 'http://127.0.0.1';
+                config.mailer.port = server.address().port;
+                config.mailer.timeout = 50;
 
-            expect(err).toBeInstanceOf(Error);
-            expect(err.message).toEqual('The mailer did not answer within 50 ms');
+                const err = await mailer.sendMail(mail).catch((e) => e);
+
+                expect(err.message).toEqual('The mailer did not answer within 50 ms');
+            } finally {
+                config.mailer.url = url;
+                config.mailer.port = port;
+                server.closeAllConnections();
+                await new Promise((resolve) => { server.close(resolve); });
+            }
         });
     });
 });
