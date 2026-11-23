@@ -3,9 +3,10 @@
     <div class="tile is-child">
       <form @submit.prevent="saveUser()">
         <div class="field">
-          <label class="label">First name</label>
+          <label class="label" for="member-first-name">First name</label>
           <div class="control">
             <input
+              id="member-first-name"
               class="input"
               type="text"
               required
@@ -17,9 +18,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Last name</label>
+          <label class="label" for="member-last-name">Last name</label>
           <div class="control">
             <input
+              id="member-last-name"
               class="input"
               type="text"
               required
@@ -31,9 +33,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Username</label>
+          <label class="label" for="member-username">Username</label>
           <div class="control">
             <input
+              id="member-username"
               class="input"
               type="text"
               required
@@ -45,9 +48,10 @@
         </div>
 
         <div class="field" v-if="can.editGsuite">
-          <label class="label">Google Workspace account</label>
+          <label class="label" for="member-gsuite-id">Google Workspace account</label>
           <div class="control">
             <input
+              id="member-gsuite-id"
               class="input"
               type="email"
               required
@@ -59,17 +63,18 @@
         </div>
 
         <div class="field">
-          <label class="label">Phone</label>
+          <label class="label" for="member-phone">Phone</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-            <input class="input" type="text" v-model="user.phone" />
+            <input id="member-phone" class="input" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Birthday</label>
+          <label class="label" for="member-birthday">Birthday</label>
           <b-datepicker
+            id="member-birthday"
             :date-formatter="formatDate"
             :date-parser="parseDate"
             v-model="birthday"
@@ -99,17 +104,17 @@
         </select-or-custom>
 
         <div class="field">
-          <label class="label">Address</label>
+          <label class="label" for="member-address">Address</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.address" />
+            <input id="member-address" class="input" type="text" v-model="user.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">About me</label>
+          <label class="label" for="member-about-me">About me</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
+            <input id="member-about-me" class="input" type="text" v-model="user.about_me" />
           </div>
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ') }}</p>
         </div>
