@@ -140,8 +140,8 @@ const Application = sequelize.define('application', {
         validate: {
             notNull: { msg: 'Participant status should be set.' },
             // One of the values itself, not a list that holds one.
-            isText(value) {
-                if (typeof value !== 'string') {
+            isNoList(value) {
+                if (typeof value === 'object') {
                     throw new Error('Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".');
                 }
             },

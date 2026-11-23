@@ -91,8 +91,8 @@ const MembersList = sequelize.define('memberslist', {
         validate: {
             notNull: { msg: 'Fee paid should be set.' },
             // A number itself, not a list that holds one.
-            isAmount(value) {
-                if (!['number', 'string'].includes(typeof value)) {
+            isNoList(value) {
+                if (typeof value === 'object') {
                     throw new Error('Fee paid should be a number.');
                 }
             },
