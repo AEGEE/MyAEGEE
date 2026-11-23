@@ -579,8 +579,8 @@ export default {
         this.can = response.data.data.permissions
 
         // An event whose body can't be loaded is shown all the same.
-        return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id).then((response) => {
-          this.$set(this.event, 'body', response.data.data)
+        return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id).then((bodyResponse) => {
+          this.$set(this.event, 'body', bodyResponse.data.data)
         }, (err) => {
           this.$set(this.event, 'body', { id: this.event.body_id, name: 'Unknown body' })
           this.$root.showError('Could not fetch the organising body', err)
