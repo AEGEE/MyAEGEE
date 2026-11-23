@@ -1,4 +1,5 @@
 const {
+    Counter,
     Gauge,
     register
 } = require('prom-client');
@@ -42,6 +43,13 @@ const gaugesList = {
         labelNames: ['body_id', 'body_name', 'status']
     })
 };
+
+// Password resets for an account that could not be created or mailed. The caller of
+// /password_reset gets the same answer either way, so this is where an outage shows up.
+exports.passwordResetFailures = new Counter({
+    name: 'core_password_reset_failures_total',
+    help: 'Total amount of password resets that could not be created or mailed'
+});
 
 exports.getMetrics = async (req, res) => {
     const [

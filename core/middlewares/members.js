@@ -484,11 +484,7 @@ exports.triggerEmailChange = async (req, res) => {
     }
 
     const existingMail = await User.findOne({
-        where: {
-            email: {
-                [Sequelize.Op.iLike]: newEmail
-            }
-        }
+        where: helpers.equalsIgnoreCase('email', newEmail)
     });
 
     if (existingMail) {
@@ -620,7 +616,7 @@ exports.confirmEmailChange = async (req, res) => {
         }
 
         const existingMail = await User.findOne({
-            where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), mailChange.new_email.toLowerCase()),
+            where: helpers.equalsIgnoreCase('email', mailChange.new_email),
             transaction: t
         });
 

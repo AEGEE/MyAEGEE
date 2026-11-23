@@ -208,6 +208,14 @@ const addGaugeData = (gauge, array) => {
     }
 };
 
+// A condition for a column being equal to a value, ignoring the case.
+// Unlike with iLike, `%` and `_` in the value are just characters.
+// The value is lowercased here and not by the database: Sequelize would change a `$` in an argument of a function.
+const equalsIgnoreCase = (column, value) => Sequelize.where(
+    Sequelize.fn('lower', Sequelize.col(column)),
+    String(value).toLowerCase()
+);
+
 // Blocks the restricted domains and their subdomains, but not e.g. 'notaegee.org'.
 const isRestrictedEmail = (email) => {
     const normalized = email.trim().toLowerCase();
@@ -225,5 +233,6 @@ module.exports = {
     getRandomBytes,
     getMailText,
     addGaugeData,
+    equalsIgnoreCase,
     isRestrictedEmail
 };
