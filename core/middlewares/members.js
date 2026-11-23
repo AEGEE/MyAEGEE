@@ -357,7 +357,9 @@ exports.setEventApplicationBan = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update_application_ban:member is required, but not present.');
     }
 
-    const banUntil = moment(req.body.ban_until);
+    // A date in ISO notation, with or without a time. Anything else is not read as a date:
+    // not a missing value as now, and not what only JavaScript's own date parsing understands.
+    const banUntil = moment(helpers.stringOrEmpty(req.body.ban_until), moment.ISO_8601, true);
     if (!banUntil.isValid()) {
         return errors.makeValidationError(res, { ban_until: ['Ban end date should be valid.'] });
     }
