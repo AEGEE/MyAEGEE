@@ -50,6 +50,17 @@ describe('Mailer client errors', () => {
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
     });
+    test('should pass on a connection error', async () => {
+        nock(`${config.mailer.url}:${config.mailer.port}`)
+            .post('/')
+            .replyWithError('connection refused');
+
+        const err = await mailer.sendMail(mail).catch((e) => e);
+
+        expect(err).toBeTruthy();
+        expect(String(err.message)).not.toContain('No answer from mailer');
+    });
+
     describe('timeout', () => {
         test('should wait 10 seconds by default', () => {
             expect(config.mailer.timeout).toEqual(10000);

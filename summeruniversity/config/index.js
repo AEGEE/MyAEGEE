@@ -20,7 +20,9 @@ const config = {
         },
         mailer: {
             url: 'http://mailer',
-            port: 4000
+            port: 4000,
+            // Milliseconds to wait for the mailer before the request fails.
+            timeout: 10000
         },
         new_event_notifications: [
             'suct@aegee.eu'

@@ -40,6 +40,11 @@ module.exports.request = async (options) => {
         headers
     };
 
+    // Fails with a TimeoutError if the other side takes longer than options.timeout milliseconds.
+    if (options.timeout) {
+        fetchOptions.signal = AbortSignal.timeout(options.timeout);
+    }
+
     if (options.body !== undefined) {
         headers['Content-Type'] = headers['Content-Type'] || 'application/json';
         fetchOptions.body = JSON.stringify(options.body);

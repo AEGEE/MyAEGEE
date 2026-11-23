@@ -2,20 +2,29 @@ const { request } = require('./http');
 
 const config = require('../config');
 
+const send = (body) => request({
+    url: config.mailer.url + ':' + config.mailer.port + '/',
+    method: 'POST',
+    body,
+    fullResponse: true,
+    timeout: config.mailer.timeout
+}).catch((err) => {
+    if (err && err.name === 'TimeoutError') {
+        throw new Error(`No answer from mailer within ${config.mailer.timeout} ms`);
+    }
+
+    throw err;
+});
+
 module.exports.sendMail = async (options) => {
-    const response = await request({
-        url: config.mailer.url + ':' + config.mailer.port + '/',
-        method: 'POST',
-        body: {
-            from: options.from,
-            to: options.to,
-            cc: options.cc,
-            subject: options.subject,
-            template: options.template,
-            parameters: options.parameters,
-            reply_to: options.reply_to
-        },
-        fullResponse: true
+    const response = await send({
+        from: options.from,
+        to: options.to,
+        cc: options.cc,
+        subject: options.subject,
+        template: options.template,
+        parameters: options.parameters,
+        reply_to: options.reply_to
     });
 
     const mailerBody = response.body;
