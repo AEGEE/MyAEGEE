@@ -610,6 +610,11 @@ export default {
 
               this.isLoading = false
             })
+            .catch((err) => {
+              // The page stays, without the actions that need permissions.
+              this.isLoading = false
+              this.$root.showError('Could not fetch your permissions for this body', err)
+            })
         }
         this.isLoading = false
       })
