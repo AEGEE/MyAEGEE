@@ -33,6 +33,9 @@ exports.isObject = (value) => typeof value === 'object' && value !== null;
 // A helper to check if the value is set.
 exports.isDefined = (value) => typeof value !== 'undefined';
 
+// A list parameter of the query string: one value comes without brackets and is not a list yet.
+exports.toList = (value) => (typeof value === 'string' ? [value] : value);
+
 // A helper to check if the value is truthy.
 exports.isTruthy = (value) => exports.isDefined(value) && value !== null;
 
@@ -77,8 +80,8 @@ expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
         // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
         // then rolling back as well.
         if (application.participant_order > limit[application.participant_type]) {
-            throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
-got participant type ${application.participant_order}`);
+            throw new Error(`Expected a participant order from 1 to ${limit[application.participant_type]}, \
+got ${application.participant_order}.`);
         }
     }
 };

@@ -993,6 +993,7 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to export participants.');
     }
 
+    req.query.select = helpers.toList(req.query.select);
     if (!Array.isArray(req.query.select)) {
         return errors.makeBadRequestError(res, 'Filters are not provided or are invalid.');
     }

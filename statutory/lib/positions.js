@@ -201,6 +201,7 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to export candidates.');
     }
 
+    req.query.select = helpers.toList(req.query.select);
     if (!Array.isArray(req.query.select)) {
         req.query.select = Object.keys(constants.CANDIDATE_FIELDS);
     }
