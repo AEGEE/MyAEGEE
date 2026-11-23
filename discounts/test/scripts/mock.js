@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const nock = require('nock');
 
@@ -32,6 +33,22 @@ exports.mockCore = (options) => {
             .persist()
             .get('/members/me')
             .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    // Fields of the valid user replaced per test: `user` for every request, or
+    // `userByToken(token)` to answer as a different user per X-Auth-Token.
+    if (options.user || options.userByToken) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members/me')
+            .reply(function replyWithUser() {
+                const body = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'oms-core-valid.json'), 'utf8'));
+                const overrides = options.userByToken
+                    ? options.userByToken(this.req.headers['x-auth-token'])
+                    : options.user;
+                body.data = { ...body.data, ...overrides };
+                return [200, body];
+            });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
