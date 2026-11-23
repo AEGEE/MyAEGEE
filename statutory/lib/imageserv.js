@@ -99,6 +99,7 @@ exports.uploadImage = async (req, res, next) => {
         file_folder: uploadFolderName
     });
 
-    req.image = image;
+    // Read back as clients get it, without the folder and the uploader.
+    req.image = await Image.findByPk(image.id);
     return next();
 };

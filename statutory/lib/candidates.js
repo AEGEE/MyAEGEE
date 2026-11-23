@@ -160,7 +160,7 @@ exports.updateCandidateImage = async (req, res) => {
         // doing it the other way around would violate the foreign key constraint.
         const oldImageId = req.candidate.image_id;
         await req.candidate.update({ image_id: req.image.id });
-        await Image.destroy({
+        await Image.unscoped().destroy({
             where: { id: oldImageId },
             limit: 1,
             individualHooks: true

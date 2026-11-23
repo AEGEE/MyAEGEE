@@ -29,12 +29,6 @@ const Image = sequelize.define('image', {
             notEmpty: { msg: 'Folder should be set.' },
         }
     },
-    file_path_absolute: {
-        type: Sequelize.VIRTUAL,
-        get() {
-            return path.join(this.file_folder, this.file_name);
-        }
-    },
     frontend_path: {
         type: Sequelize.VIRTUAL,
         get() {
@@ -45,7 +39,13 @@ const Image = sequelize.define('image', {
     underscored: true,
     tableName: 'images',
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    // Where the server keeps the file and who uploaded it are not for clients, so an image
+    // is read without them, also as part of an event or a candidate. The code that removes
+    // the file reads the image unscoped.
+    defaultScope: {
+        attributes: { exclude: ['file_folder', 'user_id'] }
+    }
 });
 
 Image.afterDestroy(async (image) => {
