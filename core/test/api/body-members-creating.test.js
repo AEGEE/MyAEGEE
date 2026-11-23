@@ -210,4 +210,31 @@ describe('Body members creating', () => {
         expect(userFromDb).not.toEqual(null);
         expect(userFromDb.mail_confirmed_at).not.toEqual(null);
     });
+
+    test.each([
+        ['email', 'Some.One@Example.com', 'email must be unique'],
+        ['username', 'Some.One', 'username must be unique']
+    ])('should fail if somebody has the %s in another case, and create nobody', async (field, value, message) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
+
+        const body = await generator.createBody();
+        const existing = await generator.createUser({ email: 'some.one@example.com', username: 'some.one' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/create-member',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: generator.generateUser({ [field]: value })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors: { [field]: [message] } });
+
+        const users = await User.findAll({ order: [['id', 'ASC']] });
+        expect(users.map((item) => item.id)).toEqual([user.id, existing.id]);
+        expect(await BodyMembership.count()).toEqual(0);
+    });
 });
