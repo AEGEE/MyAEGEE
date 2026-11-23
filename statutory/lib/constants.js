@@ -249,8 +249,8 @@ module.exports = {
         agreed_to_privacy_policy: 'Agreed to privacy policy?',
         status: 'Status'
     },
+    // The host is a configuration value (conversion_rate_api.host).
     CONVERSION_RATE_API: {
-        host: 'https://ec.europa.eu',
         path: '/budg/inforeuro/api/public/monthly-rates',
     },
     CONVERSION_RATE_MAP: {

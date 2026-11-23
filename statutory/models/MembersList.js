@@ -4,6 +4,7 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 const { request } = require('../lib/http');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
+const config = require('../config');
 
 const membersSchema = Joi.array().min(1).items(Joi.object().keys({
     first_name: Joi.string().trim().required(),
@@ -113,7 +114,7 @@ MembersList.beforeSave(async (memberslist, options) => {
         : memberslist.currency;
 
     const conversion = await request({
-        url: constants.CONVERSION_RATE_API.host + constants.CONVERSION_RATE_API.path,
+        url: config.conversion_rate_api.host + constants.CONVERSION_RATE_API.path,
         method: 'GET'
     });
 

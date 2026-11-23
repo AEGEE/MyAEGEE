@@ -440,7 +440,7 @@ exports.mockCoreMailer = (options) => {
 };
 
 // Read on every call: a test can point the configuration at another host.
-const conversionRateApiHost = () => (config.conversion_rate_api ? config.conversion_rate_api.host : constants.CONVERSION_RATE_API.host);
+const conversionRateApiHost = () => config.conversion_rate_api.host;
 
 exports.mockConversionApi = (options) => {
     if (options.netError) {
