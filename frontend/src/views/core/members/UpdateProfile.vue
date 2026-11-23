@@ -18,6 +18,8 @@
       <form
         @submit.prevent="saveUser()"
         v-if="validationErrors.privacy || validationErrors.username"
+        aria-label="Your profile"
+        :aria-busy="isLoading ? 'true' : 'false'"
       >
         <!-- <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
@@ -42,9 +44,10 @@
         </div> -->
 
         <div class="field" v-if="validationErrors.username">
-          <label class="label">Username <span class="has-text-danger">*</span></label>
+          <label class="label" for="profile-username">Username <span class="has-text-danger">*</span></label>
           <div class="control">
             <input
+              id="profile-username"
               v-model="user.username"
               class="input"
               type="text"
@@ -85,13 +88,13 @@
       <hr v-if="validationErrors.email" />
 
       <div class="field" v-if="validationErrors.email">
-        <label class="label">Email <span class="has-text-danger">*</span></label>
+        <label class="label" for="profile-email">Email <span class="has-text-danger">*</span></label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="email" v-model="tmpEmail" />
+            <input id="profile-email" class="input" type="email" v-model="tmpEmail" />
           </div>
           <div class="control">
-            <button class="button is-info" @click="changeEmail(tmpEmail)">Change email</button>
+            <button type="button" class="button is-info" @click="changeEmail(tmpEmail)">Change email</button>
           </div>
         </div>
       </div>
@@ -99,14 +102,14 @@
       <hr v-if="validationErrors.bodies" />
 
       <div class="field" v-if="validationErrors.bodies">
-        <label class="label">
+        <label class="label" for="profile-body">
           Body <span class="has-text-danger">*</span>
           <tooltip text="You can change your notification email in your profile" />
         </label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">
-              <select v-model="tmpBodyId">
+              <select id="profile-body" v-model="tmpBodyId">
                 <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">
                   {{ body.name }}
                 </option>
@@ -114,7 +117,7 @@
             </div>
           </div>
           <div class="control">
-            <button class="button is-info" @click="askToJoinBody(tmpBodyId)">Join body</button>
+            <button type="button" class="button is-info" @click="askToJoinBody(tmpBodyId)">Join body</button>
           </div>
         </div>
         <p class="help">
@@ -222,6 +225,7 @@ export default {
         title: 'Join body',
         message: this.getJoinRequestMessage(selectedBody),
         inputAttrs: {
+          'aria-label': 'Motivation',
           placeholder: 'Motivation',
           required: false
         },
