@@ -1,27 +1,49 @@
 const moment = require('moment');
+const bcrypt = require('bcrypt');
 
 const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
-const { Sequelize, sequelize } = require('../lib/sequelize');
+const { sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
+const helpers = require('../lib/helpers');
+const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
 const config = require('../config');
 
+const INVALID_CREDENTIALS = 'Username or password is not valid.';
+const PASSWORD_RESET_REQUESTED = 'If this email belongs to an account, a password reset was sent to it.';
+
+// The hash that the password is compared with when there's no account,
+// so that answering takes as long as for an account with another password.
+let placeholderHash;
+const checkPlaceholderPassword = async (password) => {
+    if (!placeholderHash) {
+        placeholderHash = bcrypt.hash(await helpers.getRandomBytes(constants.TOKEN_LENGTH.PASSWORD_RESET), config.salt_rounds);
+    }
+
+    await bcrypt.compare(password, await placeholderHash);
+    return false;
+};
+
 module.exports.login = async (req, res) => {
     const username = (req.body.username || '').trim();
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
 
     // The login email identifies an account before the username and the Google Workspace account.
     const findBy = (field) => User.scope('withPassword').findOne({
-        where: { [field]: { [Sequelize.Op.iLike]: username } }
+        where: helpers.equalsIgnoreCase(field, username)
     });
-    const user = await findBy('email') || await findBy('username') || await findBy('gsuite_id');
+    const user = username
+        ? await findBy('email') || await findBy('username') || await findBy('gsuite_id')
+        : null;
 
-    if (!user) {
-        return errors.makeForbiddenError(res, 'User is not found.');
-    }
+    // One answer for an account that doesn't exist and for a password that is not the right one.
+    const isPasswordValid = user
+        ? await user.checkPassword(password)
+        : await checkPlaceholderPassword(password);
 
-    if (!await user.checkPassword(req.body.password)) {
-        return errors.makeForbiddenError(res, 'Password is not valid.');
+    if (!isPasswordValid) {
+        return errors.makeForbiddenError(res, INVALID_CREDENTIALS);
     }
 
     if (!user.mail_confirmed_at) {
@@ -147,32 +169,54 @@ module.exports.renew = async (req, res) => {
     });
 };
 
-module.exports.passwordReset = async (req, res) => {
-    const user = await User.findOne({
-        where: { email: (req.body.email || '').trim().toLowerCase() }
-    });
+// Creates a password reset for the account with this login email, if there is one, and mails it.
+const sendPasswordReset = async (email) => {
+    let user;
 
-    if (!user) {
-        return errors.makeNotFoundError(res, 'User is not found.');
-    }
+    try {
+        user = email
+            ? await User.findOne({ where: helpers.equalsIgnoreCase('email', email) })
+            : null;
 
-    await sequelize.transaction(async (t) => {
-        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
-        const currentReset = await PasswordReset.createForUser(user.id, t);
+        if (!user) {
+            return;
+        }
 
-        await mailer.sendMail({
-            to: user.email,
-            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
-            template: 'password_reset.html',
-            parameters: {
-                token: currentReset.value
-            }
+        await sequelize.transaction(async (t) => {
+            await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+            const currentReset = await PasswordReset.createForUser(user.id, t);
+
+            await mailer.sendMail({
+                to: user.email,
+                subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+                template: 'password_reset.html',
+                parameters: {
+                    token: currentReset.value
+                }
+            });
         });
-    });
+    } catch (err) {
+        // Nobody is waiting for the result anymore, so this is the only place where a failure shows up.
+        logger.error({ err, user_id: user ? user.id : null }, 'Could not send a password reset');
+    }
+};
+
+const pendingPasswordResets = new Set();
+
+// For the tests: resolves when the password resets which were requested so far are processed.
+module.exports.waitForPasswordResets = () => Promise.all(pendingPasswordResets);
+
+// Answers right away and always the same. The reset is created and mailed after that, so neither
+// the answer nor the time it takes tell whether the address belongs to an account.
+module.exports.passwordReset = async (req, res) => {
+    const email = (req.body.email || '').trim();
+
+    const job = sendPasswordReset(email).finally(() => pendingPasswordResets.delete(job));
+    pendingPasswordResets.add(job);
 
     return res.json({
         success: true,
-        message: 'The password reset was triggered.'
+        message: PASSWORD_RESET_REQUESTED
     });
 };
 

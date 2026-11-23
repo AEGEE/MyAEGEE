@@ -14,8 +14,6 @@ const {
     ResourceLink
 } = require('../models');
 
-const { Sequelize } = require('../lib/sequelize');
-
 exports.fetchUser = async (req, res, next) => {
     if (req.params.user_id === 'me') {
         req.currentUser = req.user;
@@ -23,7 +21,7 @@ exports.fetchUser = async (req, res, next) => {
     }
 
     // searching the user by url
-    let where = { username: { [Sequelize.Op.iLike]: req.params.user_id } };
+    let where = helpers.equalsIgnoreCase('username', req.params.user_id);
 
     // searching the user by id if it's numeric
     if (helpers.isNumber(req.params.user_id)) {
@@ -52,7 +50,7 @@ exports.fetchUser = async (req, res, next) => {
 
 exports.fetchBody = async (req, res, next) => {
     // searching the body by code
-    let where = { code: { [Sequelize.Op.iLike]: req.params.body_id } };
+    let where = helpers.equalsIgnoreCase('code', req.params.body_id);
 
     // searching the body by id if it's numeric
     if (helpers.isNumber(req.params.body_id)) {
