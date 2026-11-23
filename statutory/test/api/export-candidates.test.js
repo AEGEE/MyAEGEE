@@ -6,6 +6,7 @@ const helpers = require('../../lib/helpers');
 const constants = require('../../lib/constants');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const mails = require('../assets/core-notification-mails.json').data;
 
 describe('Export candidates', () => {
     let event;
@@ -291,7 +292,7 @@ describe('Export candidates', () => {
             expect(row[field]).toEqual(candidate[field]);
         }
         expect(row['position.name']).toEqual('President');
-        expect(row.notification_email).toEqual('test@example.com');
+        expect(row.notification_email).toEqual(mails.find((mail) => mail.id === 2).notification_email);
     });
 
     test('should take a single selected field as a list of one', async () => {

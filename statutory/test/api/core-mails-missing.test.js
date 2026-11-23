@@ -5,6 +5,12 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const bodies = require('../assets/core-bodies.json').data;
+const knownMails = require('../assets/core-notification-mails.json').data;
+
+// What the fixtures say about the applicant's body and about user 2.
+const bodyCode = bodies.find((body) => body.id === regularUser.bodies[0].id).code;
+const applicantMail = knownMails.find((mail) => mail.id === 2).notification_email;
 
 // The notification emails of applicants and candidates come from core. When core does not
 // give them (it refuses the lookup, or it does not know the user), the lists and the
@@ -134,7 +140,7 @@ describe('Notification emails that core does not give', () => {
             const res = await get('/applications/export/delegates_jc', { responseType: 'text' });
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body).toEqual(`${application.statutory_id};;Anna;Applicant;ALC;delegate`);
+            expect(res.body).toEqual(`${application.statutory_id};;Anna;Applicant;${bodyCode};delegate`);
         });
 
         test('should not send a mass mail and say why', async () => {
@@ -157,6 +163,6 @@ describe('Notification emails that core does not give', () => {
         const res = await get('/applications/export/delegates_jc', { responseType: 'text' });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toEqual(`${application.statutory_id};test@example.com;Anna;Applicant;;delegate`);
+        expect(res.body).toEqual(`${application.statutory_id};${applicantMail};Anna;Applicant;;delegate`);
     });
 });

@@ -3,6 +3,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const bodies = require('../assets/core-bodies.json').data;
+const mails = require('../assets/core-notification-mails.json').data;
 
 describe('Export Delegates JC', () => {
     let event;
@@ -90,7 +92,7 @@ describe('Export Delegates JC', () => {
             user_id: regularUser.id,
             status: 'accepted',
             participant_type: 'delegate',
-            body_id: 34,
+            body_id: regularUser.bodies[0].id,
             first_name: 'Zoë-Añna; [x]',
             last_name: 'O\'Neil_^`\\ Jr'
         }, event);
@@ -109,10 +111,10 @@ describe('Export Delegates JC', () => {
         // Six fields, whatever the name holds.
         expect(lines[0].split(';')).toEqual([
             application.statutory_id,
-            'admin@example.com',
+            mails.find((mail) => mail.id === regularUser.id).notification_email,
             'Zo?-A?na? ?x?',
             'O?Neil???? Jr',
-            'ALC',
+            bodies.find((body) => body.id === regularUser.bodies[0].id).code,
             'delegate'
         ]);
     });
