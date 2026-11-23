@@ -75,7 +75,6 @@ server.use(morgan);
 server.use(queryBoolean());
 server.use(cors());
 
-/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
@@ -265,7 +264,6 @@ async function startServer() {
             log.info('DB connection is successful.');
 
             // no need it in test
-            /* istanbul ignore if */
             if (process.env.NODE_ENV !== 'test') {
                 await cron.registerAllTasks();
                 log.info('All cron tasks are registered.');
@@ -273,7 +271,6 @@ async function startServer() {
 
             return res();
         });
-        /* istanbul ignore next */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -281,7 +278,6 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }
