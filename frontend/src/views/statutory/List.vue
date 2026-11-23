@@ -4,10 +4,10 @@
       <article class="tile is-child">
         <h4 class="title">Statutory events list</h4>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="statutory-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+              <input id="statutory-search" class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
             </div>
           </div>
         </div>
@@ -18,18 +18,18 @@
           </div>
         </div>
 
-        <div class="card" v-for="event in events" v-bind:key="event.id">
+        <article class="card" v-for="event in events" v-bind:key="event.id" :aria-labelledby="'statutory-event-title-' + event.id">
           <div class="card-content">
             <div class="media">
               <div class="media-left">
                 <figure class="image image-96px">
-                  <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path">
+                  <img v-if="!event.image" src="/images/logo.png" alt="">
+                  <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path" :alt="event.name">
                 </figure>
               </div>
               <div class="media-content">
                 <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }">
-                  <p class="title is-4">{{ event.name }}</p>
+                  <p class="title is-4" :id="'statutory-event-title-' + event.id">{{ event.name }}</p>
                 </router-link>
               </div>
             </div>
@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
         <div class="card" v-show="events.length === 0 && !isLoading">
           <div class="card-content">
