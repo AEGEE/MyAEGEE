@@ -257,6 +257,7 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
         // TODO: we've seen duplicate applications and people confirmed for two separate events
         permissions.apply = event.application_status === 'open'
             && event.published === 'full'
+            && !event.deleted
             && permissions.apply_general
             && applicationCount === 0
             && acceptedForEvent === 0;

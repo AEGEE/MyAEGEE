@@ -211,7 +211,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.edit_event = (event.status === 'draft' && exports.isOrganizer(event, user)) || permissions.manage_event[event.type];
     permissions.delete_event = permissions.manage_event[event.type];
 
-    permissions.apply = event.application_status === 'open' && event.status === 'published';
+    permissions.apply = event.application_status === 'open' && event.status === 'published' && !event.deleted;
 
     permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
