@@ -16,16 +16,14 @@ exports.getMyPermissions = async (req, res) => {
 };
 
 exports.getMyCirclesWithPermission = async (req, res) => {
-    if (!req.body.action || !req.body.object) {
+    const action = helpers.stringOrEmpty(req.body.action);
+    const object = helpers.stringOrEmpty(req.body.object);
+    if (!action || !object) {
         return errors.makeBadRequestError(res, 'Action or object is not specified.');
     }
 
     const permission = await Permission.findOne({
-        where: {
-            scope: 'local',
-            action: req.body.action,
-            object: req.body.object
-        }
+        where: { scope: 'local', action, object }
     });
 
     if (!permission) {

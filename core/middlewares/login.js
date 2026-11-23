@@ -143,10 +143,13 @@ module.exports.login = async (req, res) => {
 // };
 
 module.exports.renew = async (req, res) => {
-    const tokens = await sequelize.transaction(async (t) => {
+    // No token, or something that can't be one, is answered like a token that doesn't exist.
+    const value = helpers.stringOrEmpty(req.body.refresh_token);
+
+    const tokens = value && await sequelize.transaction(async (t) => {
         // Locking the row so parallel renews with the same token are processed one by one.
         const token = await RefreshToken.findOne({
-            where: { value: req.body.refresh_token },
+            where: { value },
             lock: t.LOCK.UPDATE,
             transaction: t
         });
@@ -264,7 +267,7 @@ module.exports.passwordReset = async (req, res) => {
 
 module.exports.passwordConfirm = async (req, res) => {
     const token = await PasswordReset.findOne({
-        where: { value: (req.body.token || '').trim() },
+        where: { value: helpers.stringOrEmpty(req.body.token).trim() },
         include: [User]
     });
 
@@ -277,7 +280,7 @@ module.exports.passwordConfirm = async (req, res) => {
         return errors.makeNotFoundError(res, 'Token is expired.');
     }
 
-    await token.user.update({ password: req.body.password || '' });
+    await token.user.update({ password: helpers.stringOrEmpty(req.body.password) });
     await AccessToken.destroy({ where: { user_id: token.user.id } });
     await RefreshToken.destroy({ where: { user_id: token.user.id } });
     await token.destroy();
@@ -291,7 +294,7 @@ module.exports.passwordConfirm = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-    const value = req.body.refresh_token;
+    const value = helpers.stringOrEmpty(req.body.refresh_token);
     if (!value) {
         return errors.makeBadRequestError(res, 'Token is not provided.');
     }

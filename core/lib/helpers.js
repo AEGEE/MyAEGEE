@@ -168,6 +168,9 @@ function findBy(query, fields) {
     return whereObject;
 }
 
+// For a field of a request body that should be a text: anything else counts as not given.
+const stringOrEmpty = (value) => (typeof value === 'string' ? value : '');
+
 // A helper to whilelist object's properties.
 function whitelistObject(object, allowedFields) {
     const newObject = {};
@@ -250,5 +253,6 @@ module.exports = {
     addGaugeData,
     equalsIgnoreCase,
     isRestrictedEmail,
-    lockMailChanges
+    lockMailChanges,
+    stringOrEmpty
 };
