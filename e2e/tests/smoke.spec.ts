@@ -11,6 +11,14 @@ test.describe('e2e stack', () => {
         });
     }
 
+    test('the gateway passes on a query that follows the service name directly', async ({ api }) => {
+        // The frontend asks for the events list as `/api/events?limit=30`, without a slash.
+        const { status, body } = await api.call<Envelope<unknown[]>>('member', 'GET', '/api/events?limit=1');
+        expect(status).toBe(200);
+        expect(body.success, 'an answer from events, not the frontend\'s index.html').toBe(true);
+        expect(body.data.length).toBeLessThanOrEqual(1);
+    });
+
     // Network and discounts ask core who the caller is and what they may do, so an answer for
     // a logged-in user and a refusal for an anonymous one show they reach core.
     const listings: [string, Username, string][] = [
