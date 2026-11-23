@@ -148,6 +148,7 @@ export default {
         this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
       }).catch((err) => {
         pax.isSaving = false
+        pax.newStatus = pax.status
         this.$root.showError('Could not update participant status', err)
       })
     },
@@ -161,6 +162,7 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingCancelled = false
+        pax.newCancelled = pax.cancelled
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -174,6 +176,7 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingAttended = false
+        pax.newAttended = pax.attended
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -187,6 +190,7 @@ export default {
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingConfirmed = false
+        pax.newConfirmed = pax.confirmed
         this.$root.showError('Could not update participant fee info', err)
       })
     },
