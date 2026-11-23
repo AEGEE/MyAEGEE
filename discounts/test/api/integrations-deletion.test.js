@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
-const { Integration } = require('../../models');
+const { Integration, Code } = require('../../models');
 
 describe('Integrations deletion', () => {
     beforeEach(async () => {
@@ -77,5 +77,25 @@ describe('Integrations deletion', () => {
 
         const integrationFromDB = await Integration.findByPk(integration.id);
         expect(integrationFromDB).toBeFalsy();
+    });
+    test.each([
+        ['free', {}],
+        ['claimed', { claimed_by: 1 }]
+    ])('should answer 409 and keep the integration and its codes if it has %s codes', async (_, codeOptions) => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const code = await generator.createCode(codeOptions, integration);
+
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(409);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('The integration has codes, so it cannot be deleted. Codes cannot be deleted either, so the integration stays.');
+
+        expect(await Integration.findByPk(integration.id)).toBeTruthy();
+        expect(await Code.findByPk(code.id)).toBeTruthy();
     });
 });

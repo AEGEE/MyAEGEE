@@ -13,7 +13,8 @@ module.exports.sendMail = async (options) => {
             template: options.template,
             parameters: options.parameters
         },
-        fullResponse: true
+        fullResponse: true,
+        timeout: config.mailer.timeout
     });
 
     const mailerBody = response.body;

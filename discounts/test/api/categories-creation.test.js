@@ -191,4 +191,50 @@ describe('Categories creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('discounts');
     });
+
+    test('should not let the body set the id or the timestamps', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({
+                id: 999,
+                created_at: '2000-01-01T00:00:00.000Z',
+                updated_at: '2000-01-01T00:00:00.000Z'
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).not.toEqual(999);
+        expect(res.body.data.created_at).not.toEqual('2000-01-01T00:00:00.000Z');
+        expect(res.body.data.updated_at).not.toEqual('2000-01-01T00:00:00.000Z');
+
+        expect(await Category.findByPk(999)).toBeNull();
+    });
+
+    test('should fail with 422 if the name is longer than 255 characters', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({ name: 'a'.repeat(256) })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.name).toEqual(['Name should be at most 255 characters long.']);
+        expect(await Category.count()).toEqual(0);
+    });
+
+    test('should accept a name of 255 characters', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({ name: 'n'.repeat(255) })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('n'.repeat(255));
+    });
 });

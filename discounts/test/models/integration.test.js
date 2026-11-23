@@ -47,4 +47,13 @@ describe('Integration model', () => {
 
         await expect(integration.validate()).rejects.toBeInstanceOf(ValidationError);
     });
+
+    test.each([
+        ['name', 'Integration name should be at most 255 characters long.'],
+        ['code', 'Integration code should be at most 255 characters long.']
+    ])('should fail if %s is longer than 255 characters', async (field, message) => {
+        const integration = Integration.build({ name: 'Partner', code: 'partner', quota_period: 'month', quota_amount: 1, [field]: 'a'.repeat(256) });
+
+        await expect(integration.validate()).rejects.toThrow(message);
+    });
 });

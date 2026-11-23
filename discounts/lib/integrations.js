@@ -6,13 +6,15 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
+const { INTEGRATION_FIELDS, MAX_CODE_LENGTH } = require('./constants');
+const logger = require('./logger');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
     }
 
-    const integration = await Integration.create(req.body);
+    const integration = await Integration.create(req.body, { fields: INTEGRATION_FIELDS });
 
     return res.json({
         success: true,
@@ -58,7 +60,7 @@ exports.updateIntegration = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update integration.');
     }
 
-    await req.integration.update(req.body);
+    await req.integration.update(req.body, { fields: INTEGRATION_FIELDS });
 
     return res.json({
         success: true,
@@ -69,6 +71,12 @@ exports.updateIntegration = async (req, res) => {
 exports.deleteIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to delete integration.');
+    }
+
+    // Codes keep their integration: members see their claimed codes with it under "My codes".
+    const codesCount = await Code.count({ where: { integration_id: req.integration.id } });
+    if (codesCount > 0) {
+        return errors.makeError(res, 409, 'The integration has codes, so it cannot be deleted. Codes cannot be deleted either, so the integration stays.');
     }
 
     await req.integration.destroy();
@@ -92,12 +100,55 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeBadRequestError(res, 'No codes are provided.');
     }
 
-    const arrayToCreate = req.body.map((code) => ({
-        integration_id: req.integration.id,
-        value: code
-    }));
+    if (!req.body.every((code) => typeof code === 'string' && code.trim() !== '')) {
+        return errors.makeValidationError(res, 'Every code should be a non-empty string.');
+    }
 
-    await Code.bulkCreate(arrayToCreate);
+    // Codes are stored without the spaces around them, which a pasted list often has.
+    const codes = req.body.map((code) => code.trim());
+
+    if (codes.some((code) => code.length > MAX_CODE_LENGTH)) {
+        return errors.makeValidationError(res, 'Every code should be at most 255 characters long.');
+    }
+
+    // Two members must never be handed the same code, so a code is stored once per integration:
+    // duplicates within the request are dropped, and codes the integration has already refuse
+    // the whole request. The lock on the integration's row makes requests that add codes to it
+    // run one after the other, so two of them cannot both store the same code.
+    const uniqueCodes = [...new Set(codes)];
+
+    const storedCodes = await sequelize.transaction(async (transaction) => {
+        await Integration.findOne({
+            where: { id: req.integration.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction
+        });
+
+        const existing = await Code.findAll({
+            attributes: ['value'],
+            where: {
+                integration_id: req.integration.id,
+                value: uniqueCodes
+            },
+            transaction
+        });
+
+        if (existing.length > 0) {
+            const existingValues = new Set(existing.map((code) => code.value));
+            return uniqueCodes.filter((code) => existingValues.has(code));
+        }
+
+        await Code.bulkCreate(uniqueCodes.map((code) => ({
+            integration_id: req.integration.id,
+            value: code
+        })), { validate: true, transaction });
+
+        return [];
+    });
+
+    if (storedCodes.length > 0) {
+        return errors.makeValidationError(res, `These codes are stored for this integration already: ${storedCodes.join(', ')}.`);
+    }
 
     return res.json({
         success: true,
@@ -179,20 +230,24 @@ exports.claimCode = async (req, res) => {
 
     const codeToClaim = result.code;
 
-    await mailer.sendMail({
-        to: req.user.notification_email,
-        subject: `Your ${req.integration.name} discount code`,
-        template: 'custom.html',
-        parameters: {
-            email_body: helpers.getMailText({
-                user: req.user,
-                integration: req.integration,
-                code: codeToClaim
-            })
-        }
-    });
+    // The mail is best effort: the code is claimed and shown under "My codes" either way.
+    try {
+        await mailer.sendMail({
+            to: req.user.notification_email,
+            subject: `Your ${req.integration.name} discount code`,
+            template: 'custom.html',
+            parameters: {
+                email_body: helpers.getMailText({
+                    user: req.user,
+                    integration: req.integration,
+                    code: codeToClaim
+                })
+            }
+        });
+    } catch (err) {
+        logger.error({ err, code_id: codeToClaim.id, integration_id: req.integration.id }, 'Could not send the claimed code mail');
+    }
 
-    // TODO: Send mail to user.
     return res.json({
         success: true,
         data: codeToClaim

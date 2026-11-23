@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
+const { Integration } = require('../../models');
 
 describe('Integrations edition', () => {
     beforeEach(async () => {
@@ -93,5 +94,86 @@ describe('Integrations edition', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(res.body.data.code).toEqual('test');
+    });
+
+    test('should not let the body change the id or the timestamps', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                id: 999,
+                name: 'New name',
+                created_at: '2000-01-01T00:00:00.000Z'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(integration.id);
+        expect(res.body.data.name).toEqual('New name');
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.name).toEqual('New name');
+        expect(integrationFromDb.created_at.toISOString()).toEqual(integration.created_at.toISOString());
+        expect(await Integration.findByPk(999)).toBeNull();
+    });
+
+    // name, code and quota_period are varchar(255) columns.
+    test.each([
+        ['name', 'Integration name should be at most 255 characters long.'],
+        ['code', 'Integration code should be at most 255 characters long.'],
+        ['quota_period', 'Integration quota period should be one of these: "day", "month", "year".']
+    ])('should fail with 422 and keep the integration if the %s has 300 characters', async (field, message) => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { [field]: 'a'.repeat(300) }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors[field]).toEqual([message]);
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb[field]).toEqual(integration[field]);
+    });
+
+    test('should store the name and the code without their surrounding spaces', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { name: '  Partner\r', code: ' partner\t' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('Partner');
+        expect(res.body.data.code).toEqual('partner');
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.name).toEqual('Partner');
+        expect(integrationFromDb.code).toEqual('partner');
+    });
+
+    test('should fail with 422 and keep the integration if the code is taken already once its spaces are removed', async () => {
+        await generator.createIntegration({ code: 'taken' });
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { code: 'taken ' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.code).toEqual(['Integration code is already taken.']);
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.code).toEqual('first');
     });
 });
