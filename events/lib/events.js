@@ -247,6 +247,35 @@ const sameIds = (a, b) => {
     return left.length === right.length && left.every((id, index) => id === right[index]);
 };
 
+// Fetches the names of the bodies in `bodies` from core. Bodies core does not know or does
+// not show (deleted ones) are listed in `missing` instead of failing the request.
+async function fetchBodies(bodies, token) {
+    const fetched = await Promise.all(bodies.map((body) => core.fetchBody(body, token)));
+    const missing = bodies.filter((body, index) => fetched[index] === null).map((body) => body.body_id);
+    return { bodies: fetched, missing };
+}
+
+const missingBodiesMessage = (ids) => `These bodies do not exist: ${ids.join(', ')}.`;
+
+// Replaces the bodies in the given fields of `target` (the new event or the edit) with the
+// ones fetched from core. Returns the validation errors for bodies that do not exist, or null.
+async function resolveBodies(target, fields, token) {
+    const bodyErrors = {};
+    for (const field of fields) {
+        if (Array.isArray(target[field])) {
+            const { bodies, missing } = await fetchBodies(target[field], token);
+            target[field] = bodies;
+            if (missing.length > 0) {
+                bodyErrors[field] = [missingBodiesMessage(missing)];
+            }
+        }
+    }
+
+    return Object.keys(bodyErrors).length > 0 ? bodyErrors : null;
+}
+
+const BODY_FIELDS = ['organizing_bodies'];
+
 const makeOrganizersError = (res, message) => res.status(422).json({
     success: false,
     errors: { organizers: [message] }
@@ -267,10 +296,10 @@ exports.addEvent = async (req, res) => {
 
     const event = new Event(data);
 
-    // we'll catch these on validation inside the Event model.
-    if (Array.isArray(event.organizing_bodies)) {
-        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(event, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return res.status(422).json({ success: false, errors: bodyErrors });
     }
 
     if (Array.isArray(event.organizers)) {
@@ -368,9 +397,10 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    if (Array.isArray(data.organizing_bodies)) {
-        data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(data, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return res.status(422).json({ success: false, errors: bodyErrors });
     }
 
     const newBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : null;
