@@ -104,6 +104,27 @@ describe('Board creation', () => {
         expect(boardFromDB.body_id).toEqual(body.id);
     });
 
+    test('should store only the board fields of the request', async () => {
+        const board = generator.generateBoard({
+            id: 999999,
+            start_date: moment().add(1, 'week').format('YYYY-MM-DD'),
+            new_board_email_sent_at: '2020-01-01T00:00:00.000Z',
+            created_at: '2020-01-01T00:00:00.000Z'
+        });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).not.toEqual(999999);
+        expect(res.body.data.new_board_email_sent_at).toEqual(null);
+        expect(res.body.data.created_at).not.toEqual('2020-01-01T00:00:00.000Z');
+    });
+
     test('should fail if elected_date is not set', async () => {
         const board = generator.generateBoard({ elected_date: null });
 
