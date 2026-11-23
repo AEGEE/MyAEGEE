@@ -1,19 +1,21 @@
 <template>
   <div class="tile is-ancestor is-vertical">
     <div class="tile is-child">
+      <h1 class="title">{{ $route.params.id ? 'Edit circle' : 'Create circle' }}</h1>
+
       <form @submit.prevent="saveCircle()">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="circle-name">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="circle.name" />
+            <input id="circle-name" class="input" type="text" required v-model="circle.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="circle-description">Description</label>
           <div class="control">
-            <input class="input" type="text" required v-model="circle.description" />
+            <input id="circle-description" class="input" type="text" required v-model="circle.description" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
         </div>
@@ -39,10 +41,11 @@
 
     <div class="tile is-child" v-if="$route.params.id">
       <div class="field">
-        <label class="label">Parent circle</label>
+        <label class="label" for="circle-parent">Parent circle</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-parent"
               v-model="autoComplete.parentCircle.name"
               :data="autoComplete.parentCircle.values"
               open-on-focus="true"
@@ -60,11 +63,12 @@
               </template>
             </b-autocomplete>
             <p class="control">
-              <a
+              <button
+                type="button"
                 class="button is-danger"
                 @click="setParentCircle(null)"
-                v-if="circle.parent_circle">{{ circle.parent_circle.name }} (Click to unset)</a>
-              <a class="button is-static" v-if="!circle.parent_circle">Not set.</a>
+                v-if="circle.parent_circle">{{ circle.parent_circle.name }} (Click to unset)</button>
+              <span class="button is-static" v-if="!circle.parent_circle">Not set.</span>
             </p>
           </div>
         </div>
@@ -75,7 +79,11 @@
         <ul>
           <li v-for="childCircle in circle.child_circles" v-bind:key="childCircle.id">
             <span class="tag is-danger">{{ childCircle.name }}
-              <button class="delete is-small" @click="unsetAsParentCircle(childCircle)" />
+              <button
+                type="button"
+                class="delete is-small"
+                :aria-label="'Remove child circle ' + childCircle.name"
+                @click="unsetAsParentCircle(childCircle)" />
             </span>
           </li>
           <li v-if="circle.child_circles.length === 0">
@@ -85,10 +93,11 @@
       </div>
 
       <div class="field">
-        <label class="label">Add child circle</label>
+        <label class="label" for="circle-add-child">Add child circle</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-add-child"
               v-model="autoComplete.childCircles.name"
               :data="autoComplete.childCircles.values"
               open-on-focus="true"
@@ -114,7 +123,11 @@
         <ul>
           <li v-for="permission in circle.permissions" v-bind:key="permission.id">
             <span class="tag is-danger">{{ permission.combined }}
-              <button class="delete is-small" @click="deletePermission(permission)" />
+              <button
+                type="button"
+                class="delete is-small"
+                :aria-label="'Remove permission ' + permission.combined"
+                @click="deletePermission(permission)" />
             </span>
           </li>
           <li v-if="circle.permissions.length === 0">
@@ -124,10 +137,11 @@
       </div>
 
       <div class="field">
-        <label class="label">Add permission</label>
+        <label class="label" for="circle-add-permission">Add permission</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-add-permission"
               v-model="autoComplete.permissions.name"
               :data="autoComplete.permissions.values"
               open-on-focus="true"
