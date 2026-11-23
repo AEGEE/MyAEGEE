@@ -1,3 +1,4 @@
+const http = require('http');
 const nock = require('nock');
 
 const config = require('../../config');
@@ -48,5 +49,46 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
+    });
+
+    describe('timeout', () => {
+        let server;
+        const originalMailer = { ...config.mailer };
+
+        // A mailer that accepts the connection and never answers.
+        beforeAll(async () => {
+            server = http.createServer(() => {});
+            await new Promise((resolve) => {
+                server.listen(0, '127.0.0.1', resolve);
+            });
+        });
+
+        afterAll(async () => {
+            server.closeAllConnections();
+            await new Promise((resolve) => {
+                server.close(resolve);
+            });
+        });
+
+        afterEach(() => {
+            Object.assign(config.mailer, originalMailer);
+        });
+
+        test('should wait 10 seconds for the mailer by default', () => {
+            expect(config.mailer.timeout).toEqual(10000);
+        });
+
+        test('should fail when the mailer does not answer in time', async () => {
+            config.mailer.url = 'http://127.0.0.1';
+            config.mailer.port = server.address().port;
+            config.mailer.timeout = 200;
+
+            const started = Date.now();
+            const err = await mailer.sendMail(mail).catch((e) => e);
+
+            // fetch rejects with a DOMException, which is not an Error of this realm.
+            expect(err.name).toEqual('TimeoutError');
+            expect(Date.now() - started).toBeLessThan(5000);
+        });
     });
 });
