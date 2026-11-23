@@ -5,6 +5,7 @@ const core = require('./core');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
+const { sequelize } = require('./sequelize');
 
 // The fields a candidate sets. The others are set by the server (candidate, position, body name)
 // or through their own endpoints (status, image).
@@ -76,23 +77,28 @@ exports.submitYourCandidature = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
-    const newCandidate = await Candidate.create({
-        ...helpers.whitelistObject(req.body, CANDIDATE_FIELDS),
-        body_id: body.id,
-        body_name: body.name,
-        user_id: req.user.id,
-        position_id: req.position.id
-    });
+    let newCandidate;
 
-    // Send email to JC when a new application is submitted
-    await mailer.sendMail({
-        to: config.application_notification,
-        subject: 'A new application was submitted',
-        template: 'candidate_applied.html',
-        parameters: {
-            position: req.position,
-            candidate: newCandidate
-        }
+    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
+    await sequelize.transaction(async (t) => {
+        newCandidate = await Candidate.create({
+            ...helpers.whitelistObject(req.body, CANDIDATE_FIELDS),
+            body_id: body.id,
+            body_name: body.name,
+            user_id: req.user.id,
+            position_id: req.position.id
+        }, { transaction: t });
+
+        // Send email to JC when a new application is submitted
+        await mailer.sendMail({
+            to: config.application_notification,
+            subject: 'A new application was submitted',
+            template: 'candidate_applied.html',
+            parameters: {
+                position: req.position,
+                candidate: newCandidate
+            }
+        });
     });
 
     return res.json({
