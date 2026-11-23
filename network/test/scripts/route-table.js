@@ -56,6 +56,16 @@ module.exports = {
         removeNetcomAssignment: ['body_id']
     },
 
+    // operationId -> the route's own 404 message, so that the sweep cannot pass on the
+    // catch-all 404 of a path that is not a route.
+    notFoundMessages: {
+        listCurrentBodyBoards: 'There is no current board.',
+        getBoard: 'The board is not found.',
+        updateBoard: 'The board is not found.',
+        deleteBoard: 'The board is not found.',
+        removeNetcomAssignment: 'NetCom assignment is not found.'
+    },
+
     // operationId -> a body that would succeed with a session (writes only).
     bodies: {
         createBoard: generator.generateBoard({ body_id: BODY_ID, name: 'Created' }),

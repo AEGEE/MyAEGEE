@@ -51,6 +51,14 @@ describe('Path parameters', () => {
         expect(missing).toEqual([]);
     });
 
+    test('every looked-up operation has its 404 message in route-table.js', () => {
+        const missing = notFoundRows
+            .map(([, op]) => op.operationId)
+            .filter((id) => !table.notFoundMessages[id]);
+
+        expect(missing).toEqual([]);
+    });
+
     test.each(notFoundRows)('%s answers 404', async (_, op, param) => {
         const fixtures = await table.createFixtures();
 
@@ -62,7 +70,7 @@ describe('Path parameters', () => {
         });
 
         expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
+        expect(res.body).toEqual({ success: false, message: table.notFoundMessages[op.operationId] });
         expect(sendMailSpy).not.toHaveBeenCalled();
         if (table.unchanged[op.operationId]) await table.unchanged[op.operationId](fixtures);
     });
