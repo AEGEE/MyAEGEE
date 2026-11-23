@@ -97,6 +97,6 @@ exports.deleteQuestion = async (req, res) => {
 
     return res.json({
         success: true,
-        data: 'Question is deleted.'
+        message: 'Question is deleted.'
     });
 };
