@@ -1,12 +1,14 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const Logger = require('bunyan');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const bugReport = require('../../middlewares/bug-report');
+const log = require('../../lib/logger');
 const config = require('../../config');
 
 const fields = {
@@ -101,6 +103,41 @@ describe('Bug report', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(requestsMock.atlassian.isDone()).toEqual(true);
+    });
+
+    it('should log the user id of the reporter, and not their email or the report text', async () => {
+        const user = await generator.createUser({ email: 'notifications@example.com' });
+        const token = await generator.createAccessToken(user);
+        mock.mockAll();
+
+        const written = [];
+        jest.spyOn(log, 'child').mockImplementation((childFields) => {
+            written.push(childFields);
+            return log;
+        });
+        jest.spyOn(Logger.prototype, 'info').mockImplementation((...args) => {
+            written.push(args);
+        });
+
+        try {
+            const res = await request({
+                path: '/bug-report',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                files: {},
+                fields: { summary: fields.summary, description: fields.description }
+            });
+
+            expect(res.statusCode).toEqual(200);
+        } finally {
+            jest.restoreAllMocks();
+        }
+
+        const logged = JSON.stringify(written);
+        expect(logged).toContain(`"user_id":${user.id}`);
+        expect(logged).not.toContain('notifications@example.com');
+        expect(logged).not.toContain(fields.summary);
+        expect(logged).not.toContain(fields.description);
     });
 
     it('should return 422 with the Atlassian reason if Atlassian rejects the issue', async () => {

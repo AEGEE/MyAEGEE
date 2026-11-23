@@ -46,8 +46,6 @@ exports.reportBug = async (req, res) => {
     const reportLog = log.child({
         bug_report: {
             user_id: req.user ? req.user.id : null,
-            email,
-            summary: req.body.summary,
             files: files.map((file) => ({ name: file.originalname, size: file.size, mimetype: file.mimetype }))
         }
     });
@@ -78,7 +76,7 @@ exports.reportBug = async (req, res) => {
 
             reportLog.info({
                 file: file.originalname,
-                atlassian: { status: uploadResponse.statusCode, body: uploadResponse.body }
+                atlassian: { status: uploadResponse.statusCode }
             }, 'Bug report: screenshot uploaded to Atlassian');
             attachmentIds.push(attachment.temporaryAttachmentId);
         }
@@ -98,10 +96,10 @@ exports.reportBug = async (req, res) => {
             fullResponse: true
         });
 
-        const atlassian = { status: issueResponse.statusCode, body: issueResponse.body };
-
         if (!isSuccessful(issueResponse)) {
-            reportLog.error({ atlassian }, 'Bug report: Atlassian rejected the issue');
+            reportLog.error({
+                atlassian: { status: issueResponse.statusCode, body: issueResponse.body }
+            }, 'Bug report: Atlassian rejected the issue');
 
             const reason = issueResponse.body && issueResponse.body.friendlyReason
                 ? issueResponse.body.friendlyReason.body
@@ -112,7 +110,9 @@ exports.reportBug = async (req, res) => {
             return errors.makeError(res, statusCode, reason);
         }
 
-        reportLog.info({ atlassian }, 'Bug report: issue created in Atlassian');
+        reportLog.info({
+            atlassian: { status: issueResponse.statusCode, key: issueResponse.body && issueResponse.body.key }
+        }, 'Bug report: issue created in Atlassian');
     } catch (err) {
         reportLog.error({ err }, 'Bug report: could not reach Atlassian');
         return errors.makeError(res, 502, 'Could not reach the issue tracker.');

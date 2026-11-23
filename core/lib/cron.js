@@ -23,9 +23,7 @@ const JobCallbacks = {
         logger.info({ length: confirmations.length }, 'Found stale mail confirmations');
         for (const confirmation of confirmations) {
             const { user } = confirmation;
-            logger.info({
-                user: _.pick(user, ['username', 'id', 'email'])
-            }, 'Deleting not confirmed user');
+            logger.info({ user_id: user.id }, 'Deleting not confirmed user');
 
             await confirmation.destroy();
             await user.destroy();
