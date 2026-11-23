@@ -73,15 +73,6 @@
             </div>
           </div>
         </div>
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more events</button>
-        </div>
       </article>
     </div>
   </div>
@@ -105,9 +96,6 @@ export default {
       events: [],
       isLoading: false,
       query: '',
-      limit: 30,
-      offset: 0,
-      canLoadMore: true,
       source: null,
       can: { create: false },
       permissions: []
@@ -115,10 +103,7 @@ export default {
   },
   computed: {
     queryObject () {
-      const queryObj = {
-        limit: this.limit,
-        offset: this.offset
-      }
+      const queryObj = {}
 
       if (this.query) queryObj.search = this.query
       return queryObj
@@ -128,8 +113,6 @@ export default {
   methods: {
     refetch () {
       this.events = []
-      this.offset = 0
-      this.canLoadMore = true
       this.fetchData()
     },
     fetchData () {
@@ -138,9 +121,7 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       this.axios.get(this.services['statutory'], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
-        this.events = this.events.concat(response.data.data)
-        this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
+        this.events = response.data.data
 
         return this.axios.get(this.services['core'] + '/my_permissions')
       }).then((response) => {
