@@ -485,6 +485,13 @@ components:
       anyOf:
         - {$ref: '#/components/schemas/Id'}
         - {type: string, pattern: '^[0-9]{1,10}$'}
+    MemberIdInput:
+      description: >-
+        A member's ID, from 1, as a number or as a string of digits; the answer has the
+        number.
+      anyOf:
+        - {type: integer, minimum: 1, maximum: 2147483647}
+        - {type: string, maxLength: 10, pattern: '^[0-9]*[1-9][0-9]*$'}
     DateInput:
       description: >-
         A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day
@@ -531,9 +538,9 @@ components:
             - {$ref: '#/components/schemas/DateInput'}
             - {type: 'null'}
         name: {type: [string, 'null'], maxLength: 255}
-        president: {$ref: '#/components/schemas/IdInput'}
-        secretary: {$ref: '#/components/schemas/IdInput'}
-        treasurer: {$ref: '#/components/schemas/IdInput'}
+        president: {$ref: '#/components/schemas/MemberIdInput'}
+        secretary: {$ref: '#/components/schemas/MemberIdInput'}
+        treasurer: {$ref: '#/components/schemas/MemberIdInput'}
         other_members:
           type: [array, 'null']
           items:

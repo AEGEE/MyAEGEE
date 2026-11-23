@@ -8,9 +8,9 @@ const Board = sequelize.define('board', {
         allowNull: false,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Body should be set.' },
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' },
-            ...helpers.idRange('Body ID')
+            ...helpers.idValidators('Body ID')
         }
     },
     elected_date: {
@@ -18,6 +18,7 @@ const Board = sequelize.define('board', {
         set: helpers.dateSetter('elected_date'),
         allowNull: false,
         validate: {
+            notNull: { msg: 'Election date should be set.' },
             isDateValue: helpers.dateValidator('Election date'),
             isPast(value) {
                 // Compared by day: a board may be entered on its election day.
@@ -33,6 +34,7 @@ const Board = sequelize.define('board', {
         set: helpers.dateSetter('start_date'),
         allowNull: false,
         validate: {
+            notNull: { msg: 'Start date of the mandate should be set.' },
             notEmpty: { msg: 'Start date of the mandate should be set.' },
             isDateValue: helpers.dateValidator('Start date of the mandate')
         }
@@ -65,27 +67,30 @@ const Board = sequelize.define('board', {
         type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
+            notNull: { msg: 'President should be selected.' },
             notEmpty: { msg: 'President should be selected.' },
-            isInt: { msg: 'President should be a number.' },
-            ...helpers.idRange('President')
+            // A member, whose ID starts at 1, as for the other positions.
+            ...helpers.idValidators('President', 1)
         }
     },
     secretary: {
         type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
+            notNull: { msg: 'Secretary should be selected.' },
             notEmpty: { msg: 'Secretary should be selected.' },
-            isInt: { msg: 'Secretary should be a number.' },
-            ...helpers.idRange('Secretary')
+            // A member, whose ID starts at 1, as for the other positions.
+            ...helpers.idValidators('Secretary', 1)
         }
     },
     treasurer: {
         type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
+            notNull: { msg: 'Treasurer should be selected.' },
             notEmpty: { msg: 'Treasurer should be selected.' },
-            isInt: { msg: 'Treasurer should be a number.' },
-            ...helpers.idRange('Treasurer')
+            // A member, whose ID starts at 1, as for the other positions.
+            ...helpers.idValidators('Treasurer', 1)
         }
     },
     other_members: {
@@ -123,8 +128,7 @@ const Board = sequelize.define('board', {
         type: Sequelize.INTEGER,
         allowNull: true,
         validate: {
-            isInt: { msg: 'Image ID should be a number.' },
-            ...helpers.idRange('Image ID')
+            ...helpers.idValidators('Image ID')
         }
     }
 }, {

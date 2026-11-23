@@ -335,6 +335,8 @@ export interface components {
         Id: number;
         /** @description An ID as a number or as a string of digits; the answer has the number. */
         IdInput: components["schemas"]["Id"] | string;
+        /** @description A member's ID, from 1, as a number or as a string of digits; the answer has the number. */
+        MemberIdInput: number | string;
         /** @description A date, or a full ISO 8601 timestamp with a time zone, which is stored as the day it is written with. */
         DateInput: string;
         BoardPosition: {
@@ -365,9 +367,9 @@ export interface components {
             start_date?: components["schemas"]["DateInput"];
             end_date?: components["schemas"]["DateInput"] | null;
             name?: string | null;
-            president?: components["schemas"]["IdInput"];
-            secretary?: components["schemas"]["IdInput"];
-            treasurer?: components["schemas"]["IdInput"];
+            president?: components["schemas"]["MemberIdInput"];
+            secretary?: components["schemas"]["MemberIdInput"];
+            treasurer?: components["schemas"]["MemberIdInput"];
             other_members?: {
                 function: string;
                 user_id: number;

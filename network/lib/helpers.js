@@ -25,13 +25,6 @@ exports.isDateOrTimestamp = (value) => typeof value === 'string'
     && DATE_OR_TIMESTAMP.test(value)
     && moment.parseZone(value, moment.ISO_8601, true).isValid();
 
-// Sequelize validators that keep an ID within its INTEGER column. Not a number is left
-// to isInt, so that a field gets one message.
-exports.idRange = (label) => {
-    const msg = `${label} should be between 0 and ${MAX_ID}.`;
-    return { min: { args: [0], msg }, max: { args: [MAX_ID], msg } };
-};
-
 // The Sequelize validator of an ID column: a whole number, sent as a number or as a
 // string of digits, within the column's range. A list or an object is no ID, even one
 // that reads as a number ([7] would be stored as 7). One message per value. Sequelize
