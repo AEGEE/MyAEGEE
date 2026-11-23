@@ -2,6 +2,7 @@
 import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 
 import { createAntenna, type TestAntenna } from './core-data.ts';
+import { coverageFixtures, type CoverageFixtures, type CoverageWorkerFixtures } from './coverage.ts';
 import { PASSWORD, url, type Username } from './constants.ts';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -331,7 +332,10 @@ const knownBugErrors = new Map<string, RegExp>();
 
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
-export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void }>({
+export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void } & CoverageFixtures, CoverageWorkerFixtures>({
+    // Frontend coverage of the tests that open a browser, and the routes they visit
+    // (only with E2E_COVERAGE=1, see support/coverage.ts).
+    ...coverageFixtures('real'),
     // The frontend loads map tiles from the internet. The tests don't need them,
     // and a slow or failing external request would delay the page's load event, so block them.
     context: async ({ context }, use) => {

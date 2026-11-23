@@ -46,6 +46,27 @@ if (!frontendOnly) {
 }
 
 if (!skipFrontend) {
+    // One build for all suites. By default it is the production build with the code of
+    // frontend/src instrumented for coverage and not minified (frontend/vue.config.js), so
+    // what the tests run is what gets measured. E2E_FRONTEND_BUILD=production gives the plain
+    // production build, to chase a bug that only shows up minified.
+    const build = process.env.E2E_FRONTEND_BUILD ?? 'coverage';
+    if (build !== 'coverage' && build !== 'production') {
+        throw new Error(`E2E_FRONTEND_BUILD is "${build}": it can be "production", or unset for the instrumented build.`);
+    }
+
+    // The instrumented build writes what the coverage report needs next to the app: every
+    // file's empty coverage and the compiled templates. Nothing of an older build may stay,
+    // and what earlier runs collected belongs to that older build too.
+    const coverageDir = path.join(root, 'e2e/.coverage/build');
+    fs.rmSync(path.join(root, 'e2e/.coverage'), { recursive: true, force: true });
+    delete env.FRONTEND_COVERAGE;
+    delete env.FRONTEND_COVERAGE_DIR;
+    if (build === 'coverage') {
+        env.FRONTEND_COVERAGE = '1';
+        env.FRONTEND_COVERAGE_DIR = coverageDir;
+    }
+
     // vue-cli keeps an existing NODE_ENV, so set it explicitly to get the production build.
     env.NODE_ENV = 'production';
     run(`npx vue-cli-service build --dest ${path.join(root, 'e2e/.frontend-dist')}`, path.join(root, 'frontend'));
