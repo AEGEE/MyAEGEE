@@ -290,6 +290,9 @@ exports.addEvent = async (req, res) => {
     delete data.status;
     delete data.deleted;
     delete data.is_european_event;
+    delete data.publication_date;
+    delete data.created_at;
+    delete data.updated_at;
 
     const event = new Event(data);
 
@@ -389,6 +392,9 @@ exports.editEvent = async (req, res) => {
     delete data.status;
     delete data.deleted;
     delete data.is_european_event;
+    delete data.publication_date;
+    delete data.created_at;
+    delete data.updated_at;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');

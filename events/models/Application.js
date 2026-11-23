@@ -1,6 +1,8 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf } = require('../lib/validators');
+const {
+    INT4_MAX, isOneOf, isInteger, plainSetter
+} = require('../lib/validators');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -36,7 +38,7 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInteger: isInteger(-INT4_MAX - 1, INT4_MAX, 'Body ID should be a number.')
         },
     },
     first_name: {
@@ -84,6 +86,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        set: plainSetter('confirmed'),
         validate: {
             isBoolean,
             notAllowIfAttended(value) {
@@ -97,6 +100,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        set: plainSetter('attended'),
         validate: {
             isBoolean,
             notAllowIfNotConfirmed(value) {
@@ -171,6 +175,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         type: Sequelize.BOOLEAN,
         defaultValue: '',
+        set: plainSetter('agreed_to_privacy_policy'),
         validate: {
             isValid(value) {
                 if (value !== true) {

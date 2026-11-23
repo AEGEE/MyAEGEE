@@ -1047,16 +1047,19 @@ components:
             published: {type: boolean}
           additionalProperties: false
       additionalProperties: false
+    DateInput:
+      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), or an ISO 8601 timestamp.
+      type: string
     EventInputFields:
       type: object
       properties:
         name: {type: string, maxLength: 255}
         url: {type: [string, 'null'], maxLength: 255, description: 'Letters, digits and dashes, not only digits; stored in lower case.'}
         description: {type: string}
-        application_starts: {type: string}
-        application_ends: {type: string}
-        starts: {type: string}
-        ends: {type: string}
+        application_starts: {$ref: '#/components/schemas/DateInput'}
+        application_ends: {$ref: '#/components/schemas/DateInput'}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
         fee: {type: [number, string, 'null']}
         optional_fee: {type: [number, string, 'null']}
         organizing_bodies:
@@ -1069,7 +1072,18 @@ components:
               body_id: {type: integer}
         locations:
           type: array
-          items: {$ref: '#/components/schemas/Location'}
+          items:
+            description: A map marker, as in Location. Other keys are not stored.
+            type: object
+            required: [name, position]
+            properties:
+              name: {type: string}
+              position:
+                type: object
+                required: [lat, lng]
+                properties:
+                  lat: {type: number}
+                  lng: {type: number}
         type: {$ref: '#/components/schemas/EventType'}
         organizers:
           description: Only `user_id` and `comment` are read; the names come from core.
@@ -1082,8 +1096,16 @@ components:
               comment: {type: string}
         questions:
           type: array
-          items: {$ref: '#/components/schemas/Question'}
-        max_participants: {type: [integer, string, 'null']}
+          items:
+            description: A question, as in Question. Other keys (the edit form sends `name`) are not stored.
+            type: object
+            required: [type, description, required]
+            properties:
+              type: {type: string, enum: [string, text, number, checkbox, select]}
+              description: {type: string}
+              required: {type: boolean}
+              values: {type: array, items: {type: string}}
+        max_participants: {type: [integer, string, 'null'], description: 'A whole number up to 2147483647, or a string of digits.'}
         budget: {type: [string, 'null']}
         programme: {type: [string, 'null']}
         optional_programme: {type: [string, 'null']}
