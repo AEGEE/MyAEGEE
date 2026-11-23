@@ -17,6 +17,8 @@ const {
 exports.fetchUser = async (req, res, next) => {
     if (req.params.user_id === 'me') {
         req.currentUser = req.user;
+        // The same local permissions as when the member is addressed by their ID.
+        await req.permissions.fetchUserPermissions(req.user);
         return next();
     }
 
