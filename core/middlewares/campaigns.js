@@ -84,17 +84,20 @@ exports.listAllCampaigns = async (req, res) => {
 };
 
 exports.getCampaign = async (req, res) => {
+    // A plain object: a field that is set on the model instance would not reach the answer.
+    let campaign = req.currentCampaign.toJSON();
+
     if (!req.user || !req.permissions.hasPermission('global:create:campaign')) {
-        req.currentCampaign = helpers.whitelistObject(req.currentCampaign, constants.PUBLIC_FIELDS.CAMPAIGN);
+        campaign = helpers.whitelistObject(campaign, constants.PUBLIC_FIELDS.CAMPAIGN);
     }
 
-    if (req.currentCampaign.autojoin_body) {
-        req.currentCampaign.autojoin_body = helpers.whitelistObject(req.currentCampaign.autojoin_body, ['id', 'name', 'email', 'phone', 'address', 'website']);
+    if (campaign.autojoin_body) {
+        campaign.autojoin_body = helpers.whitelistObject(campaign.autojoin_body, ['id', 'name', 'email', 'phone', 'address', 'website']);
     }
 
     return res.json({
         success: true,
-        data: req.currentCampaign
+        data: campaign
     });
 };
 
@@ -143,6 +146,8 @@ exports.updateCampaign = async (req, res) => {
     }
 
     await req.currentCampaign.update(fields);
+    // The answer shows the body that is stored now, not the one that was loaded before the update.
+    await req.currentCampaign.reload();
     return res.json({
         success: true,
         data: req.currentCampaign

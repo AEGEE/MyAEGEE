@@ -475,6 +475,9 @@ exports.setPrimaryBody = async (req, res) => {
         await req.currentUser.update({ primary_body_id: null });
     }
 
+    // The answer shows the primary body that is stored now, not the one that was loaded before the update.
+    req.currentUser.setDataValue('primary_body', await req.currentUser.getPrimary_body());
+
     return res.json({
         success: true,
         data: req.currentUser
