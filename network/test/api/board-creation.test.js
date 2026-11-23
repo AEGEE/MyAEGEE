@@ -401,7 +401,26 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('president');
         expect(res.body.data).toHaveProperty('secretary');
         expect(res.body.data).toHaveProperty('treasurer');
-        expect(res.body.data).not.toHaveProperty('other_members');
+        expect(res.body.data.other_members).toEqual(null);
+    });
+
+    test('should return the created board with its id', async () => {
+        const board = generator.generateBoard({ name: 'Board 2026' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const boardFromDB = await Board.findOne({ where: { name: 'Board 2026' } });
+        expect(res.body.data.id).toEqual(boardFromDB.id);
+        expect(res.body.data.body_id).toEqual(body.id);
+        expect(res.body.data).toHaveProperty('created_at');
+        expect(res.body.data).toHaveProperty('updated_at');
     });
 
     test('should succeed for more positions if everything is okay', async () => {
