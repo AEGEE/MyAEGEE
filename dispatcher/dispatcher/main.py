@@ -154,6 +154,24 @@ def requeue_wait(ch, method, properties, body, reason):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
+def build_email(msg: dict, recipient: str, text: str) -> EmailMessage:
+    """One mail to one recipient; cc, bcc and reply-to are set on every recipient's mail."""
+    email = EmailMessage()
+    email.set_content(text, subtype='html')
+    email['From'] = msg.get('from') or EMAIL_ADDRESS or ''
+    email['To'] = recipient
+    email['Subject'] = msg['subject']
+    if msg.get('reply_to'):
+        email['Reply-To'] = msg['reply_to']
+    if msg.get('cc'):
+        cc = msg['cc']
+        email['Cc'] = ', '.join(cc) if isinstance(cc, list) else cc
+    if msg.get('bcc'):
+        bcc = msg['bcc']
+        email['Bcc'] = ', '.join(bcc) if isinstance(bcc, list) else bcc
+    return email
+
+
 def send_email(ch, method, properties, body):
     """
     Callback for the NORMAL MESSAGE.
@@ -190,6 +208,30 @@ def send_email(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
+    # One mail per recipient, as the mailer sends them: the recipients don't see each other.
+    recipients = msg['to'] if isinstance(msg['to'], list) else [msg['to']]
+    if not recipients or not all(isinstance(r, str) and r for r in recipients):
+        logging.error("Dropping a message without a valid recipient")
+        operator_alert("Malformed message dropped: no valid recipient",
+                    submessage="The producer sent an empty or invalid `to`. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    # `parameters` is one object for every recipient, or a list with one object per
+    # recipient (a mass mail with a text per person).
+    parameters = msg['parameters']
+    if isinstance(parameters, list):
+        valid = (isinstance(msg['to'], list) and len(parameters) == len(recipients)
+                 and all(isinstance(p, dict) for p in parameters))
+    else:
+        valid = isinstance(parameters, dict)
+    if not valid:
+        logging.error("Dropping a message whose parameters don't match its recipients")
+        operator_alert("Malformed message dropped: parameters don't match the recipients",
+                    submessage="`parameters` must be an object, or a list with one object per address in `to`.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
     template_name = template_file_name(msg['template'])
     try:
         template = tpl_environment.get_template(template_name)
@@ -200,7 +242,11 @@ def send_email(ch, method, properties, body):
         return
 
     try:
-        rendered = template.render(msg['parameters'], altro=msg['subject'])
+        # All texts are rendered before anything is sent: one that fails drops the whole message.
+        if isinstance(parameters, list):
+            texts = [template.render(p, altro=msg['subject']) for p in parameters]
+        else:
+            texts = [template.render(parameters, altro=msg['subject'])] * len(recipients)
     except exceptions.UndefinedError as e:
         logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
         # NON-requeuable: the payload is malformed and retrying will never fix it.
@@ -225,20 +271,8 @@ def send_email(ch, method, properties, body):
         return
 
     try:
-        email = EmailMessage()
-        email.set_content(rendered, subtype='html')
-        email['From'] = msg.get('from') or EMAIL_ADDRESS or ''
-        email['To'] = msg['to']
-        email['Subject'] = msg['subject']
-        if msg.get('reply_to'):
-            email['Reply-To'] = msg['reply_to']
-        if msg.get('cc'):
-            cc = msg['cc']
-            email['Cc'] = ', '.join(cc) if isinstance(cc, list) else cc
-        if msg.get('bcc'):
-            bcc = msg['bcc']
-            email['Bcc'] = ', '.join(bcc) if isinstance(bcc, list) else bcc
-        smtpObj.send_message(email)
+        for recipient, text in zip(recipients, texts):
+            smtpObj.send_message(build_email(msg, recipient, text))
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except smtplib.SMTPServerDisconnected:
         # The message goes back to the queue. If reconnecting fails, smtpObj stays None and
