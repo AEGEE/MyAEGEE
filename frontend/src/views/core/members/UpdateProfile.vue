@@ -56,6 +56,7 @@
               placeholder="You will be able to login with it."
             />
           </div>
+          <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ') }}</p>
         </div>
 
         <div class="field" v-if="validationErrors.privacy">
