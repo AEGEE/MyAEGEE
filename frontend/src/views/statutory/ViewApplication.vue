@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">See application on {{ event.name }}</div>
+        <h1 class="title">See application on {{ event.name }}</h1>
 
         <div class="tile is-parent" v-show="!this.application">
           <div class="tile is-child">
@@ -28,105 +28,105 @@
             <table class="table is-narrow is-fullwidth">
               <thead>
                 <tr>
-                  <th>Question</th>
-                  <th>Your answer</th>
+                  <th scope="col">Question</th>
+                  <th scope="col">Your answer</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>Statutory ID</th>
+                  <th scope="row">Statutory ID</th>
                   <td>{{ application.statutory_id }}</td>
                 </tr>
                 <tr>
-                  <th>Applied on</th>
+                  <th scope="row">Applied on</th>
                   <td>{{ application.created_at | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Updated on</th>
+                  <th scope="row">Updated on</th>
                   <td>{{ application.updated_at | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>First name</th>
+                  <th scope="row">First name</th>
                   <td>{{ application.first_name }}</td>
                 </tr>
                 <tr>
-                  <th>Last name</th>
+                  <th scope="row">Last name</th>
                   <td>{{ application.last_name }}</td>
                 </tr>
                 <tr>
-                  <th>Gender</th>
+                  <th scope="row">Gender</th>
                   <td>{{ application.gender }}</td>
                 </tr>
                 <tr>
-                  <th>Date of birth</th>
+                  <th scope="row">Date of birth</th>
                   <td>{{ application.date_of_birth }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th>
+                  <th scope="row">Email</th>
                   <td>{{ application.notification_email }}</td>
                 </tr>
                 <tr>
-                  <th>Nationality</th>
+                  <th scope="row">Nationality</th>
                   <td>{{ application.nationality }}</td>
                 </tr>
                 <tr>
-                  <th>Meals</th>
+                  <th scope="row">Meals</th>
                   <td>{{ application.meals }}</td>
                 </tr>
                 <tr>
-                  <th>Allergies</th>
+                  <th scope="row">Allergies</th>
                   <td>{{ application.allergies }}</td>
                 </tr>
                 <tr>
-                  <th>Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited</th>
+                  <th scope="row">Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited</th>
                   <td>{{ application.number_of_events_visited | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Visa required?</th>
+                  <th scope="row">Visa required?</th>
                   <td>{{ application.visa_required | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport number</th>
+                  <th scope="row">Visa passport number</th>
                   <td>{{ application.visa_passport_number }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport issue date</th>
+                  <th scope="row">Visa passport issue date</th>
                   <td>{{ application.visa_passport_issue_date }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport expiration date</th>
+                  <th scope="row">Visa passport expiration date</th>
                   <td>{{ application.visa_passport_expiration_date }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport issue authority</th>
+                  <th scope="row">Visa passport issue authority</th>
                   <td>{{ application.visa_passport_issue_authority }}</td>
                 </tr>
                 <tr>
-                  <th>Place of birth</th>
+                  <th scope="row">Place of birth</th>
                   <td>{{ application.visa_place_of_birth }}</td>
                 </tr>
                 <tr>
-                  <th>Street and house number</th>
+                  <th scope="row">Street and house number</th>
                   <td>{{ application.visa_street_and_house }}</td>
                 </tr>
                 <tr>
-                  <th>Postal code</th>
+                  <th scope="row">Postal code</th>
                   <td>{{ application.visa_postal_code }}</td>
                 </tr>
                 <tr>
-                  <th>City</th>
+                  <th scope="row">City</th>
                   <td>{{ application.visa_city }}</td>
                 </tr>
                 <tr>
-                  <th>Country</th>
+                  <th scope="row">Country</th>
                   <td>{{ application.visa_country }}</td>
                 </tr>
                 <tr>
-                  <th>Embassy</th>
+                  <th scope="row">Embassy</th>
                   <td>{{ application.visa_embassy }}</td>
                 </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
-                  <th>{{ question.description }}</th>
+                  <th scope="row">{{ question.description }}</th>
                   <td class="has-text-pre-wrap" v-if="can.see_applications">{{ application.answers[index] | beautify }}</td>
                 </tr>
               </tbody>
@@ -135,30 +135,30 @@
             <table class="table is-narrow is-fullwidth">
               <tbody>
                 <tr>
-                  <th>Participant type</th>
+                  <th scope="row">Participant type</th>
                   <td v-if="application.participant_type">{{ application.participant_type }}</td>
                   <td v-if="!application.participant_type"><i>Not set yet.</i></td>
                 </tr>
                 <tr>
-                  <th>Participant order</th>
+                  <th scope="row">Participant order</th>
                   <td v-if="application.participant_order">{{ application.participant_order }}</td>
                   <td v-if="!application.participant_order"><i>Not set yet.</i></td>
                 </tr>
                 <!--<tr>
-                  <th>Board comment</th>
+                  <th scope="row">Board comment</th>
                   <td v-if="application.board_comment">{{ application.board_comment }}</td>
                   <td v-if="!application.board_comment"><i>Not set yet.</i></td>
                 </tr>-->
                 <tr>
-                  <th>Confirmed?</th>
+                  <th scope="row">Confirmed?</th>
                   <td>{{ application.confirmed | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Attended?</th>
+                  <th scope="row">Attended?</th>
                   <td>{{ application.attended | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Registered</th>
+                  <th scope="row">Registered</th>
                   <td>{{ application.registered | beautify }}</td>
                 </tr>
               </tbody>
