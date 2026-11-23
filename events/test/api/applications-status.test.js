@@ -95,4 +95,30 @@ describe('Events application status', () => {
         await application.reload();
         expect(application.status).toEqual('pending');
     });
+    describe.each([
+        ['/attended', { attended: null }],
+        ['/confirmed', { confirmed: null }],
+        ['/comment', { board_comment: 42 }]
+    ])('PUT %s without a valid value', (subpath, invalid) => {
+        test.each([
+            ['no value', {}],
+            ['an invalid value', invalid]
+        ])('should return 422 for %s and change nothing', async (name, body) => {
+            const event = await generator.createEvent();
+            const application = await generator.createApplication(event, { body_id: 34, confirmed: true, attended: false, board_comment: 'Kept' });
+            const before = application.toJSON();
+
+            const res = await request({
+                path: '/single/' + event.id + '/applications/' + application.id + subpath,
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            await application.reload();
+            expect(application.toJSON()).toEqual(before);
+        });
+    });
 });

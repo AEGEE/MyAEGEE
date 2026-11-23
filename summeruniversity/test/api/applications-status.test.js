@@ -86,6 +86,29 @@ describe('Applications status changes', () => {
         });
     });
 
+    describe.each([
+        ['/attended', { attended: null }],
+        ['/confirmed', { confirmed: null }],
+        ['/cancelled', { cancelled: null }],
+        ['/status', { status: null }],
+        ['/comment', { board_comment: 42 }]
+    ])('PUT %s without a valid value', (subpath, invalid) => {
+        test.each([
+            ['no value', {}],
+            ['an invalid value', invalid]
+        ])('should return 422 for %s and change nothing', async (name, body) => {
+            const before = (await application.reload()).toJSON();
+
+            const res = await put(subpath, body);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(mails).toHaveLength(0);
+            await application.reload();
+            expect(application.toJSON()).toEqual(before);
+        });
+    });
+
     describe('PUT /confirmed', () => {
         test('should allow an organizer to confirm an application', async () => {
             const res = await put('/confirmed', { confirmed: true });
