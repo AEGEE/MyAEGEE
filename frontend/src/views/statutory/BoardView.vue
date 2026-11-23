@@ -410,7 +410,7 @@ export default {
         // Fetching all bodies
         this.axios.get(this.services['core'] + '/bodies/').then((body) => {
           this.boardBodies = body.data.data
-        })
+        }).catch((err) => this.$root.showError('Could not fetch bodies', err))
       } else {
         // Using login user's bodies.
         this.boardBodies = this.myBoards.map(id => this.loginUser.bodies.find(body => body.id === id))
