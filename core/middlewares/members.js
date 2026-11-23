@@ -465,18 +465,19 @@ exports.triggerEmailChange = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
     }
 
-    if (!req.body.new_email) {
+    const newEmail = typeof req.body.new_email === 'string' ? req.body.new_email.trim() : '';
+    if (!newEmail) {
         return errors.makeBadRequestError(res, 'No new email is provided.');
     }
 
-    if (helpers.isRestrictedEmail(req.body.new_email)) {
+    if (helpers.isRestrictedEmail(newEmail)) {
         return errors.makeValidationError(res, 'New email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
     }
 
     const existingMail = await User.findOne({
         where: {
             email: {
-                [Sequelize.Op.iLike]: req.body.new_email.trim()
+                [Sequelize.Op.iLike]: newEmail
             }
         }
     });
@@ -486,14 +487,35 @@ exports.triggerEmailChange = async (req, res) => {
     }
 
     const needsOldConfirmation = !isOwnChange && !req.permissions.hasPermission('global:update:member');
+    const requestedBy = isOwnChange ? null : req.user.id;
     const names = {
         name: req.currentUser.first_name,
         surname: req.currentUser.last_name
     };
 
+    // The mail to the current address tells who asks and through which of the member's bodies.
+    let requesterBodies = [];
+    if (needsOldConfirmation) {
+        const bodyIds = await req.permissions.fetchUserPermissionBodyIds(req.currentUser, 'update:member');
+        requesterBodies = await Body.findAll({
+            where: { id: { [Sequelize.Op.in]: bodyIds } },
+            attributes: ['name'],
+            order: [['name', 'ASC']]
+        });
+    }
+
     await sequelize.transaction(async (t) => {
-        const mailChange = await MailChange.createForUser(req.currentUser, req.body.new_email, {
-            requestedBy: isOwnChange ? null : req.user.id,
+        // Locking the member, so requests at the same time are processed one by one.
+        await User.findByPk(req.currentUser.id, { lock: t.LOCK.UPDATE, transaction: t });
+
+        // There's at most one pending change per member and requester: a new request replaces the earlier one.
+        await MailChange.destroy({
+            where: { user_id: req.currentUser.id, requested_by: requestedBy },
+            transaction: t
+        });
+
+        const mailChange = await MailChange.createForUser(req.currentUser, newEmail, {
+            requestedBy,
             needsOldConfirmation,
             transaction: t
         });
@@ -517,6 +539,8 @@ exports.triggerEmailChange = async (req, res) => {
                     ...names,
                     new_email: mailChange.new_email,
                     requester_name: `${req.user.first_name} ${req.user.last_name}`,
+                    requester_email: req.user.email,
+                    requester_body: requesterBodies.map((body) => body.name).join(', '),
                     token: mailChange.old_value
                 }
             });
@@ -526,7 +550,9 @@ exports.triggerEmailChange = async (req, res) => {
     return res.json({
         success: true,
         message: needsOldConfirmation
-            ? 'The email change was requested. It takes effect after the member confirms it from both their current address and the new address.'
+            ? 'The email change was requested. The member has to confirm it from both their current address '
+                + 'and the new address; a mail was sent to each. If the member can no longer read their current address, '
+                + 'ask a global member manager to change the email: they can do it without that confirmation.'
             : 'The email change was requested. It takes effect after it is confirmed from the new address.',
         data: { needs_old_address_confirmation: needsOldConfirmation }
     });
@@ -536,7 +562,7 @@ exports.triggerEmailChange = async (req, res) => {
 // one that was sent to the current address. The email changes once every address that has
 // to confirm has done so, and the old address is told about it.
 exports.confirmEmailChange = async (req, res) => {
-    const token = (req.body.token || '').trim();
+    const token = typeof req.body.token === 'string' ? req.body.token.trim() : '';
     if (!token) {
         return errors.makeNotFoundError(res, 'Token is invalid.');
     }
