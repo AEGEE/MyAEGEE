@@ -424,12 +424,18 @@ describe('Events creation', () => {
         expect(res.body.data.season).toEqual(1999);
     });
 
-    test('should store a created_at given in the body', async () => {
-        const res = await createEvent(generator.generateEventBody({ created_at: '2000-01-01T00:00:00.000Z' }));
+    test.each([
+        ['a date', '2000-01-01T00:00:00.000Z'],
+        ['not a date', 'garbage']
+    ])('should ignore created_at and updated_at in the body (%s)', async (_name, value) => {
+        const before = Date.now();
+
+        const res = await createEvent(generator.generateEventBody({ created_at: value, updated_at: value }));
 
         expect(res.statusCode).toEqual(201);
         const event = await Event.findByPk(res.body.data.id);
-        expect(event.created_at.toISOString()).toEqual('2000-01-01T00:00:00.000Z');
+        expect(event.created_at.getTime()).toBeGreaterThanOrEqual(before);
+        expect(event.updated_at.getTime()).toBeGreaterThanOrEqual(before);
     });
 
     test('should accept social media links', async () => {
