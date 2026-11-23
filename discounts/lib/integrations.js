@@ -72,6 +72,12 @@ exports.deleteIntegration = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to delete integration.');
     }
 
+    // Codes keep their integration: members see their claimed codes with it under "My codes".
+    const codesCount = await Code.count({ where: { integration_id: req.integration.id } });
+    if (codesCount > 0) {
+        return errors.makeError(res, 409, 'The integration has codes, so it cannot be deleted. Codes cannot be deleted either, so the integration stays.');
+    }
+
     await req.integration.destroy();
 
     return res.json({
