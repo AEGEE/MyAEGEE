@@ -136,13 +136,16 @@ exports.getApplicationFields = (event) => {
     return fields;
 };
 
-// A helper to determine if user has permission.
-function hasPermission(permissionsList, combinedPermission) {
+// A helper to determine if the user holds the global permission `action:object`.
+// Only global permissions grant these rights: body-bound (local) permissions come
+// from POST /my_permissions and are handled separately.
+function hasPermission(permissionsList, permission) {
     if (!Array.isArray(permissionsList)) {
         return false;
     }
 
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    const combined = 'global:' + permission;
+    return permissionsList.some((held) => held.combined === combined);
 }
 
 // A helpers to determine if the user is member of a body.
