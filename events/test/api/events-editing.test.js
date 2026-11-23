@@ -71,6 +71,13 @@ describe('Events editing', () => {
         expect((await Event.findByPk(event.id)).status).toEqual('draft');
     });
 
+    it('should answer with the stored values, not the ones sent', async () => {
+        const res = await putEvent(event.id, { max_participants: '7' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.max_participants).toEqual(7);
+    });
+
     it('should return 422 if the URL belongs to another event', async () => {
         await generator.createEvent({ url: 'taken' });
 

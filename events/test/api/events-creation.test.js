@@ -121,6 +121,14 @@ describe('Events creation', () => {
         expect(res.statusCode).toEqual(201);
     });
 
+    it('should answer with the stored values, not the ones sent', async () => {
+        const res = await createEvent(validEvent({ max_participants: '7', meals_per_day: '2' }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.max_participants).toEqual(7);
+        expect(res.body.data.meals_per_day).toEqual(2);
+    });
+
     it('should store the URL in lower case without spaces', async () => {
         const res = await createEvent(validEvent({ url: ' My-Event ' }));
 

@@ -37,6 +37,22 @@ describe('Events application editing', () => {
         expect(res.statusCode).toEqual(404);
     });
 
+    it('should answer with the stored body id when it is sent as a string', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'week').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: []
+        });
+        await generator.createApplication(event, { user_id: user.id, body_id: user.bodies[0].id, answers: [] });
+
+        const res = await putApplication(event, 'me', { body_id: String(user.bodies[0].id) });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.body_id).toEqual(user.bodies[0].id);
+        expect(res.body.data.notification_email).toEqual(user.notification_email);
+    });
+
     it('should return 422 if the answers do not match the questions', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(1, 'week').toDate(),
