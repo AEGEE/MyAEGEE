@@ -1,7 +1,15 @@
 # MyAEGEE end-to-end tests
 
-Playwright tests that run against real `core`, `events`, `summeruniversity` and `statutory`
-services and the built frontend.
+Two Playwright suites live here:
+
+- the **mocked-API suite** (`ui/`, `playwright.ui.config.ts`): the built frontend in a browser,
+  with every API call answered by the test. It is where the frontend's behaviour is tested.
+- the **real-stack suite** (`tests/`, `playwright.config.ts`): the built frontend against real
+  `core`, `events`, `summeruniversity`, `statutory`, `network` and `discounts` services.
+
+What each is for, how to write specs for the mocked suite, coverage, the accessibility baseline
+and how to run everything (also next to other checkouts) are in
+[docs/testing/](../docs/testing/README.md). The rest of this file is about the real-stack suite.
 
 ## Scope
 
@@ -9,7 +17,10 @@ e2e tests are slow and need the whole stack, so keep them for what the module te
 
 - behaviour that crosses services, such as what core grants and what events,
   summeruniversity or statutory then allow (the per-service jest tests mock core away);
-- the frontend working against the real APIs;
+- the frontend working against the real APIs (how a page behaves in detail is for the
+  mocked-API suite);
+- the contract checks of the mocked suite's factories (`tests/<area>-contract.spec.ts`): every
+  field a factory builds must exist in the real answer, with the same type;
 - a few smoke tests of the stack itself.
 
 Anything a single service decides on its own (its permission checks, validation, the mails it
@@ -30,9 +41,10 @@ can't be tested yet.
 
 No Docker images or traefik are involved:
 
-- One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`, `statutory-e2e`).
-- `core`, `events`, `summeruniversity` and `statutory` run as plain Node processes with `NODE_ENV=e2e`
-  (see the `e2e` block in each service's `config/index.js`).
+- One Postgres, with a database per service (`core-e2e`, `events-e2e`, `summeruniversity-e2e`,
+  `statutory-e2e`, `network-e2e`, `discounts-e2e`).
+- `core`, `events`, `summeruniversity`, `statutory`, `network` and `discounts` run as plain Node
+  processes with `NODE_ENV=e2e` (see the `e2e` block in each service's `config/index.js`).
 - `support/fake-mailer.ts` replaces the mailer and records every mail, so tests can check recipients.
 - `support/gateway.ts` serves the frontend build and proxies `/api/<service>/` to the services.
 - Playwright starts all of these itself (`webServer` in `playwright.config.ts`).
@@ -44,7 +56,14 @@ No Docker images or traefik are involved:
 | events | 18085 |
 | summeruniversity | 18086 |
 | statutory | 18087 |
+| network | 18088 |
+| discounts | 18089 |
 | fake mailer | 18090 |
+
+`E2E_SLOT=n` (0 to 9) moves all ports by `n * 1000` and gives the databases and media folders a
+suffix, so several checkouts can run at once: see [docs/testing/running.md](../docs/testing/running.md).
+A port that is already taken stops the run instead of reusing whatever listens there;
+`E2E_REUSE=1` reuses running servers on purpose.
 
 ## Data
 
@@ -61,6 +80,17 @@ Everything else a test needs, it creates itself:
 
 Tests never write to the databases directly: going through the APIs keeps the data consistent with the
 services' validation and hooks.
+
+Shared helpers, so a test file rarely needs its own setup code:
+
+| Helper | Where | What |
+|---|---|---|
+| `USERS` | `support/constants.ts` | The seeded users the tests log in as |
+| `asAdmin`, `createAntenna`, `createCircle`, `createCampaign`, `grantPermission` | `support/core-data.ts` | Core data made through the API as admin, each with a cleanup. `grantPermission(api, username, 'global:create:summeruniversity')` gives a user a permission through a new circle |
+| `api.waitForMail({ to, template })`, `mailLink(mail)` | `support/api.ts` | The mail the fake mailer received, and the frontend path its link leads to. Filter by your own address; never clear the mails of other tests |
+| `expectShape(name, factoryObject, realAnswer)` | `support/contract.ts` | The contract check of a factory |
+
+Helpers for one area go in `support/<area>-data.ts`, so `api.ts` and `constants.ts` stay as they are.
 
 ## Running locally
 
@@ -79,6 +109,7 @@ cd e2e
 npx playwright install chromium
 DB_PORT=55432 npm run setup        # databases, fixtures and frontend build
 DB_PORT=55432 npm test             # or: npm run test:ui
+npm run test:mocked                # the mocked-API suite (needs no database)
 ```
 
 `DB_HOST`, `DB_PORT`, `DB_USERNAME` and `PG_PASSWORD` point the services at another Postgres.
@@ -105,5 +136,7 @@ tests and see how they fail.
 
 ## CI
 
-The `e2e-test` CircleCI job runs the same steps in `cimg/node` with a `cimg/postgres` sidecar,
-then stores the JUnit results, the HTML report and traces of failing tests as artifacts.
+The `e2e-test` CircleCI job (workflow `frontend-tests`) runs the same steps in `cimg/node` with a
+`cimg/postgres` sidecar, then stores the JUnit results, the HTML report and traces of failing
+tests as artifacts. The other jobs of the workflow are described in
+[docs/testing/running.md](../docs/testing/running.md#ci).
