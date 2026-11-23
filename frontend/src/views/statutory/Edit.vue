@@ -383,7 +383,8 @@
           </div>
         </div>
 
-        <div class="tile" style="position: relative; height: 400px">
+        <!-- Started once the event is there, so it shows its locations and isn't started for a page that is left. -->
+        <div class="tile" style="position: relative; height: 400px" v-if="!isLoading">
           <MglMap
             accessToken=""
             :mapStyle="map.style"
@@ -548,7 +549,8 @@ export default {
         disableMobile: true
       },
       errors: {},
-      isLoading: false,
+      // An existing event is loaded first (see mounted).
+      isLoading: Boolean(this.$route.params.id),
       savedStarts: null,
       isSaving: false
     }
@@ -617,14 +619,12 @@ export default {
     onMapLoaded (event) {
       this.map.actions = event.component.actions
 
-      // waiting till the event is loaded.
-      if (!this.isLoading && this.event.id) {
+      // The map starts once an existing event is loaded.
+      if (this.event.id) {
         this.centerMap()
       }
     },
     centerMap () {
-      // we don't know, what'll happen first, the map will load or the event will load.
-      // and we need both to be loaded.
       if (this.event.locations.length === 0) {
         return
       }
@@ -838,8 +838,6 @@ export default {
       return
     }
 
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
 
@@ -865,13 +863,8 @@ export default {
         this.$root.showError('Could not fetch the organising body', err)
       })
     }).then(() => {
-      if (this.map.actions) {
-        this.centerMap()
-      }
-
       this.isLoading = false
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
