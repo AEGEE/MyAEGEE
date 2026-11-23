@@ -181,6 +181,18 @@ describe('Applications listing, viewing and exporting', () => {
             expect(res.body.permissions.edit_application).toEqual(false);
         });
 
+        test('should allow a holder of the global boardview permission to view an application', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:approve_members:summeruniversity'] }, approvePermissions: { noPermissions: true } });
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const application = await generator.createApplication(otherEvent, { user_id: 10, body_id: 1 });
+
+            const res = await get('/single/' + otherEvent.id + '/applications/' + application.id);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(application.id);
+            expect(res.body.permissions.edit_application).toEqual(false);
+        });
+
         test('should not allow a board member to view an application from another body', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });

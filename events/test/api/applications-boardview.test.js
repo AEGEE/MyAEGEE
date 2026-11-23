@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid.json').data;
+const constants = require('../../lib/constants');
 
 describe('Events application boardview', () => {
     beforeEach(async () => {
@@ -61,6 +62,36 @@ describe('Events application boardview', () => {
 
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(application.id);
+    });
+
+    it('should return only the public fields of the event', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const body = user.bodies.find((b) => user.circles.some((c) => c.body_id === b.id && c.name.toLowerCase().includes('board')));
+        const event = await generator.createEvent({
+            budget: 'https://example.org/budget',
+            programme: 'https://example.org/programme',
+            organizers: [{ user_id: 4242, first_name: 'Some', last_name: 'Organizer' }]
+        });
+        await generator.createApplication(event, { body_id: body.id });
+
+        const res = await request({
+            path: '/boardview/' + body.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.length).toEqual(1);
+
+        const returned = res.body.data[0].event;
+        expect(returned.id).toEqual(event.id);
+        expect(returned.name).toEqual(event.name);
+        expect(returned.url).toEqual(event.url);
+        expect(returned).toHaveProperty('questions');
+        for (const field of ['budget', 'programme', 'organizers', 'deleted', 'is_european_event']) {
+            expect(returned).not.toHaveProperty(field);
+        }
+        expect(Object.keys(returned).every((field) => constants.EVENT_PUBLIC_FIELDS.includes(field))).toEqual(true);
     });
 
     it('should not display the application of other bodies', async () => {
