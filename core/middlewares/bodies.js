@@ -80,7 +80,28 @@ exports.updateBody = async (req, res) => {
     // ones that don't change, so an old value that wouldn't pass validation today (like a website
     // from before links were validated) would block editing anything else.
     const allowedFields = req.permissions.getPermissionFilters('update:body') || constants.FIELDS_TO_UPDATE.BODY.UPDATE;
-    await req.currentBody.update(helpers.whitelistObject(req.body, allowedFields));
+    const values = helpers.whitelistObject(req.body, allowedFields);
+
+    // New members of the body join its shadow circle, so a new one can only be one of the body's own circles.
+    // The stored value is not checked again: clients send the whole body back on every edit.
+    const isId = (value) => ['number', 'string'].includes(typeof value) && /^[0-9]+$/.test(String(value));
+    const shadowCircleId = isId(values.shadow_circle_id) ? Number(values.shadow_circle_id) : values.shadow_circle_id;
+
+    if (shadowCircleId !== undefined && shadowCircleId !== null && shadowCircleId !== req.currentBody.shadow_circle_id) {
+        const circle = isId(shadowCircleId)
+            ? await Circle.findOne({ where: { id: shadowCircleId, body_id: req.currentBody.id } })
+            : null;
+
+        if (!circle) {
+            return errors.makeValidationError(res, { shadow_circle_id: ['The shadow circle should be a circle of this body.'] });
+        }
+    }
+
+    if (shadowCircleId !== undefined) {
+        values.shadow_circle_id = shadowCircleId;
+    }
+
+    await req.currentBody.update(values);
     return res.json({
         success: true,
         data: req.currentBody
