@@ -142,8 +142,11 @@ export default {
       pax.isSaving = true
       const url = this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/status'
 
-      this.axios.put(url, { status: pax.newStatus }).then(() => {
+      this.axios.put(url, { status: pax.newStatus }).then((response) => {
         pax.status = pax.newStatus
+        // An application that stops being accepted loses its confirmation.
+        pax.confirmed = response.data.data.confirmed
+        pax.newConfirmed = pax.confirmed
         pax.isSaving = false
         this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
       }).catch((err) => {
