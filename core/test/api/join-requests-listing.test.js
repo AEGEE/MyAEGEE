@@ -270,4 +270,41 @@ describe('Join requests list', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(joinRequest.id);
     });
+
+    describe('status filter that cannot be used', () => {
+        const listWithStatus = async (query) => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+
+            const body = await generator.createBody();
+            await generator.createJoinRequest(body, await generator.createUser());
+            await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
+
+            return request({
+                path: '/bodies/' + body.id + '/join-requests?' + query,
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+        };
+
+        test.each([
+            ['a boolean', 'status=true'],
+            ['a list', 'status[]=pending'],
+            ['only spaces', 'status=%20']
+        ])('should answer 400 if the status is %s', async (name, query) => {
+            const res = await listWithStatus(query);
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('The "status" filter should be a text.');
+            expect(res.body).not.toHaveProperty('data');
+        });
+
+        test('should answer with an empty list for a status that does not exist', async () => {
+            const res = await listWithStatus('status=accepted');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+        });
+    });
 });

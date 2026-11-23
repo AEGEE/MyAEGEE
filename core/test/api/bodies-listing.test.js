@@ -288,4 +288,71 @@ describe('Bodies list', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.length).toEqual(1);
     });
+
+    test('should filter by one type for a member', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createBody({ type: 'antenna' });
+        await generator.createBody({ type: 'contact' });
+
+        const res = await request({
+            path: '/bodies?type=contact',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((body) => body.type)).toEqual(['contact']);
+    });
+
+    test('should filter by several types for a member', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createBody({ type: 'antenna' });
+        await generator.createBody({ type: 'partner' });
+        await generator.createBody({ type: 'working group' });
+
+        const res = await request({
+            path: '/bodies?type=antenna,partner',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((body) => body.type).sort()).toEqual(['antenna', 'partner']);
+    });
+
+    test('should answer with an empty list for a type that does not exist', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        await generator.createBody({ type: 'antenna' });
+
+        const res = await request({
+            path: '/bodies?type=club',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([]);
+    });
+
+    test.each([
+        ['a boolean', '/bodies?type=true'],
+        ['a list', '/bodies?type[]=antenna&type[]=contact'],
+        ['an object', '/bodies?type[a]=antenna'],
+        ['only spaces', '/bodies?type=%20']
+    ])('should answer 400 if the type is %s', async (name, path) => {
+        await generator.createBody({ type: 'antenna' });
+
+        const res = await request({ path, method: 'GET' });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('The "type" filter should be a text.');
+        expect(res.body).not.toHaveProperty('data');
+    });
 });
