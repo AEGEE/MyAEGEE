@@ -160,6 +160,8 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingAttended = false
+        // Showing what is still stored.
+        pax.newAttended = pax.attended
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -173,6 +175,8 @@ export default {
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingConfirmed = false
+        // Showing what is still stored.
+        pax.newConfirmed = pax.confirmed
         this.$root.showError('Could not update participant fee info', err)
       })
     },
@@ -186,6 +190,8 @@ export default {
         this.$root.showSuccess(`Successfully updated incoming info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingIncoming = false
+        // Showing what is still stored.
+        pax.newIncoming = pax.incoming
         this.$root.showError('Could not update participant incoming info', err)
       })
     },
