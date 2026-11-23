@@ -51,6 +51,26 @@ function isText(value) {
     }
 }
 
+// The most digits after the decimal point that a Postgres NUMERIC without a precision keeps.
+const DECIMAL_SCALE_MAX = 16383;
+
+// A number for a DECIMAL column: a number, or its text as forms send it. Sequelize's own
+// isNumeric reads String(value), which an array such as [5] passes; and Postgres refuses
+// more decimals than it keeps with a 500.
+function isDecimal(msg) {
+    return function isDecimalValue(value) {
+        if (value === null || value === undefined) {
+            return;
+        }
+
+        const text = typeof value === 'number' ? String(value) : value;
+        const match = typeof text === 'string' && /^[+-]?([0-9]+|[0-9]*\.([0-9]+))$/.exec(text);
+        if (!match || (match[2] || '').length > DECIMAL_SCALE_MAX) {
+            throw new Error(msg);
+        }
+    };
+}
+
 // A day (2027-07-01) or an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without
 // an offset), as the frontend sends them.
 const DATE_FORMAT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,3})?)?(Z|[+-][0-9]{2}:[0-9]{2})?)?$/;
@@ -82,5 +102,5 @@ function isDate(msg) {
 }
 
 module.exports = {
-    isOneOf, isInteger, isBoolean, isText, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, dateSetter, isDate, areDates
 };

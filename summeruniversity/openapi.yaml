@@ -1576,8 +1576,8 @@ components:
         accommodation_type: {type: string, maxLength: 255}
         starts: {$ref: '#/components/schemas/DateInput'}
         ends: {$ref: '#/components/schemas/DateInput'}
-        fee: {type: [number, string]}
-        optional_fee: {type: [number, string, 'null']}
+        fee: {type: [number, string], pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]{1,16383})$'}
+        optional_fee: {type: [number, string, 'null'], pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]{1,16383})$'}
         type: {type: string}
         organizing_bodies: {type: array}
         cooperation: {type: [array, 'null']}

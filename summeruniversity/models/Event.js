@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const {
-    isOneOf, isInteger, isBoolean, isText, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -232,7 +232,7 @@ const Event = sequelize.define(
             defaultValue: 0,
             validate: {
                 notEmpty: { msg: 'Event fee should be set.' },
-                isNumeric: { msg: 'Event fee should be valid.' },
+                isDecimal: isDecimal('Event fee should be valid.'),
                 min: { args: [0], msg: 'Event fee cannot be negative' }
             }
         },
@@ -240,7 +240,7 @@ const Event = sequelize.define(
             type: Sequelize.DECIMAL,
             allowNull: true,
             validate: {
-                isNumeric: { msg: 'Optional fee should be valid.' },
+                isDecimal: isDecimal('Optional fee should be valid.'),
                 min: { args: [0], msg: 'Optional fee cannot be negative' },
                 max: { args: [50], msg: 'Optional fee cannot be more than 50 euros.' }
             }
