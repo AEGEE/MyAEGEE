@@ -237,4 +237,19 @@ describe('Categories creation', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.name).toEqual('n'.repeat(255));
     });
+
+    test('should fail if a discount has a key that is not one of the four fields', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory({
+                discounts: [generator.generateDiscount({ url: 'https://example.org' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('discounts');
+    });
 });

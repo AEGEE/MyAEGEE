@@ -269,4 +269,47 @@ describe('Integrations creation', () => {
         expect(res.body.data.name).toEqual('n'.repeat(255));
         expect(res.body.data.code).toEqual('c'.repeat(255));
     });
+
+    test.each([
+        ['empty', ''],
+        ['null', null]
+    ])('should fail if the name is %s', async (_, name) => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ name })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('name');
+    });
+
+    test('should fail if the amount quota is 0', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ quota_amount: 0 })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('quota_amount');
+    });
+
+    test('should accept an integration without a description and return it as null', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ code: 'no-description' })
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const integrationFromDb = await Integration.findByPk(res.body.data.id);
+        expect(integrationFromDb.description).toBeNull();
+    });
 });

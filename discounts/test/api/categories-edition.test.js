@@ -65,7 +65,7 @@ describe('Categories edition', () => {
         expect(res.body.errors).toHaveProperty('name');
     });
 
-    test('should return 404 if the integration is not found', async () => {
+    test('should return 404 if the category is not found', async () => {
         const res = await request({
             path: '/categories/1337',
             method: 'PUT',
@@ -79,7 +79,7 @@ describe('Categories edition', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 400 if the integration ID is NaN', async () => {
+    test('should return 400 if the category ID is NaN', async () => {
         const res = await request({
             path: '/categories/false',
             method: 'PUT',
