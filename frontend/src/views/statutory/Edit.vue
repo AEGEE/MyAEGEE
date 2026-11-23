@@ -288,7 +288,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.body">{{ errors.body.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.body_id">{{ errors.body_id.join(', ')}}</p>
         </div>
 
         <div class="field">
