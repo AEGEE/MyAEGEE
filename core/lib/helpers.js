@@ -27,33 +27,28 @@ function traverseIndirectCircles(allCirclesMap, circlesIds) {
     return Object.keys(indirectCircles);
 }
 
-// Figure out if the value is a number or a string containing only numbers
-function isNumber(value) {
-    /* istanbul ignore if */
-    if (typeof value === 'number') {
-        return true;
-    }
+// The highest ID (and the highest limit and offset) that fits the integer columns of the database.
+const MAX_ID = 2147483647;
 
-    /* istanbul ignore else */
-    if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
-    }
+// For a value that should be the ID of something: returns it as a number, or null if it's not
+// a positive whole number that an ID can be (given as a number or as a text of digits).
+const parseId = (value) => {
+    const id = typeof value === 'string' && /^[0-9]+$/.test(value) ? Number(value) : value;
+    return Number.isSafeInteger(id) && id > 0 && id <= MAX_ID ? id : null;
+};
 
-    // Is not covered, probably will be in the future.
-    /* istanbul ignore next */
-    return false;
-}
-
+// A limit or an offset that is not a positive whole number is left out, like one that is not given.
 function getPagination(query) {
     const result = {};
 
-    if (query.limit && isNumber(query.limit) && query.limit > 0) {
-        result.limit = +query.limit;
+    const limit = parseId(query.limit);
+    if (limit) {
+        result.limit = limit;
     }
 
-    if (query.offset && isNumber(query.offset) && query.offset > 0) {
-        result.offset = +query.offset;
+    const offset = parseId(query.offset);
+    if (offset) {
+        result.offset = offset;
     }
 
     return result;
@@ -168,16 +163,6 @@ function findBy(query, fields) {
     return whereObject;
 }
 
-// The highest ID that fits the integer columns of the database.
-const MAX_ID = 2147483647;
-
-// For a value that should be the ID of something: returns it as a number, or null if it's not
-// a positive whole number that an ID can be (given as a number or as a text of digits).
-const parseId = (value) => {
-    const id = typeof value === 'string' && /^[0-9]+$/.test(value) ? Number(value) : value;
-    return Number.isSafeInteger(id) && id > 0 && id <= MAX_ID ? id : null;
-};
-
 // For a field of a request body that should be a text: anything else counts as not given.
 const stringOrEmpty = (value) => (typeof value === 'string' ? value : '');
 
@@ -251,7 +236,6 @@ const lockMailChanges = (userId, transaction) => sequelize.query(
 );
 
 module.exports = {
-    isNumber,
     traverseIndirectCircles,
     getPagination,
     getSorting,
