@@ -20,7 +20,8 @@ import { test, expect } from '../support/test.ts';
 
 test.describe('applying to an event', () => {
     test('shows why the service refused the application', async ({ page, api }) => {
-        // 1. What the API answers. Anything the page asks for that isn't answered fails the test.
+        // 1. What the API answers. Anything the page asks for that isn't answered fails the test,
+        //    and so does an answer that the page never asks for.
         const data = event({ id: 5, url: 'spring', name: 'Spring Training', questions: [question({ type: 'string', description: 'Why?', required: true })] });
         api.json('GET events /single/:id', ok(data, { permissions: eventPermissions() }));
         api.on('GET events /single/:id/applications/:application_id', { status: 404, json: notFound('Application with id me not found') });
@@ -52,7 +53,8 @@ test.describe('applying to an event', () => {
 - Shell specs (`e2e/ui/shell/`) are named by topic.
 - `test.describe('<what the page is>')`, and test titles say what a user sees or does:
   "organisers get the actions they are allowed".
-- Files a spec uploads go in `e2e/ui/fixtures/<area>/`.
+- Files a spec uploads go in `e2e/ui/fixtures/<area>/` (see the README there): small, made
+  for the test, never real member data.
 
 ## Fixtures
 
@@ -64,15 +66,26 @@ Import `test` and `expect` from `ui/support/test.ts`.
 | `me` | The logged-in member, or `null`. `member` is Alex Member (id 2), `board` is Bea Board (id 3, in the board circle of body 1), `superadmin` is Ada Admin (id 1). Change it before `page.goto()` for another profile: `me!.privacy_consent = null` |
 | `myPermissions` | What `GET core /my_permissions` answers: the global permissions of the session's circles in core's seed (every permission for a superadmin). Change the array before `page.goto()` |
 | `tokens` (option) | Which tokens the browser starts with: `'both'` (default), `'access'`, `'refresh'`, `'none'` |
-| `api` | The API mock, see below. `GET core /members/me`, `GET core /my_permissions` and `POST core /logout` are answered already |
-| `strictApi` (option) | `true`: a request nobody answered fails the test. Only the generated smoke and axe tests turn it off |
+| `api` | The API mock, see below. `GET core /members/me`, `GET core /my_permissions` and `POST core /logout` are answered already. It is there for every test, also one that only takes `{ page }`, and for every page of the test's browser context (a second tab, a popup) |
+| `strictApi` (option) | `true`: a request nobody answered fails the test. Only the generated smoke and axe tests turn it off (lint refuses it elsewhere) |
 | `layout` | `'desktop'` or `'phone'`. Pass it to the helpers that need it; don't branch on it in a spec |
 | `frontend` | Which app the project runs: `'vue'` |
-| `allowedConsoleErrors` (option) | `console.error` messages the test expects, as regular expressions |
+| `allowedConsoleErrors` (option) | `console.error` messages the test expects, as regular expressions with the text of the message |
+| `now` (option) | For the generated tests only: sets the clock and dates the logged-in member from one instant. A behavioural spec calls `freezeTime(page)` |
 
-Two checks run in every test without being asked for:
+The session is in the browser from the start: the tokens are part of the context's storage
+state, so a second page of the same test is logged in too, and what the app does to the tokens
+(renewing them, logging out) is kept. Don't open a context of your own with `browser.newContext()`:
+it would have no mock, no session and none of the checks below.
 
-- An uncaught error in the page fails the test.
+Four checks run in every test without being asked for:
+
+- A request that no handler answers fails the test ("requests nobody mocked"). When the test
+  failed for another reason first, the list is shown next to that failure and attached to the
+  test, because a forgotten mock is the usual reason for an assertion that timed out.
+- A handler that no request matched fails the test ("handlers that no request matched"): the
+  route has a typo, or the page stopped asking. See "Answering the API" for the ways out.
+- An uncaught error in a page fails the test.
 - `console.error` in the page is recorded. Vue reports errors in render functions, watchers and
   hooks this way. In an area whose coverage gate is enforced they fail the test; before that
   they are noted on the test in the report. The browser's own "Failed to load resource" lines
@@ -80,8 +93,31 @@ Two checks run in every test without being asked for:
 
 ## Answering the API
 
-Handlers are written like routes, without the `/api` prefix: `'METHOD service /path/:param'`.
-The last handler that matches wins, so a test can override a default.
+Handlers are written like routes, without the `/api` prefix: `'METHOD service /path/:param'`,
+with exactly one space between the three parts. The last handler that matches wins, so a test
+can override a default.
+
+A route that could never match is refused where it is written, in `api.on()`, `api.json()`,
+`api.url()` and `api.callsTo()`: a method that isn't `GET`, `POST`, `PUT`, `PATCH`, `DELETE` or
+`*` (`get`), a service that isn't one of `core`, `events`, `summeruniversity`, `statutory`,
+`discounts`, `network`, `mailer` (`evnts`), a path without its leading slash, with `/api`, a
+query string or a `*` in it (`GET events/`, `GET events /?search=x`). The message says what is
+wrong and, for a typo, what was probably meant. Without this, `api.callsTo('POST evnts /')`
+would count no calls and an assertion that nothing was sent would pass.
+
+**Every handler has to be used.** A handler that no request matched fails the test. Three kinds
+of handler are exempt:
+
+```ts
+api.json('GET events /mine/organizing', ok([]), { optional: 'only asked for when the member organises an event' });
+api.json('GET events /', ok([eventSummary()]));      // replaced by the next line: same route, registered later
+api.json('GET events /', ok([]));
+api.fallback(mockEverything);                         // fallback answers are never required
+```
+
+`optional` takes the reason, in at least three words. Use it for an answer of a shared
+`beforeEach` that some of its tests don't need; don't use it to quieten a test whose page
+stopped asking.
 
 ```ts
 api.json('GET events /single/:id', ok(event()));                         // 200 with this body
@@ -106,6 +142,8 @@ expect(api.callsTo('PUT events /single/:id/applications/:application_id').map((c
 A recorded call has `method`, `service`, `path`, `params`, `query`, `headers`, `body` (parsed
 JSON), `status`, and for uploads `parts`: the fields of a `multipart/form-data` body, with
 `name`, and `filename` and `contentType` for files or `value` for text. `raw` is the body as sent.
+`api.callsTo('* * *')` is every call to a service, `api.unhandled` the ones nobody answered and
+`api.unused` the routes of the handlers that nothing has matched yet.
 
 **Requests outside `/api`**: the calendar and wiki proxies, files of the services, other hosts.
 
@@ -160,6 +198,8 @@ The suite runs in the time zone `Europe/Brussels` with the locale `en-GB`.
   `await freezeTime(page)` before `page.goto()`. That sets the clock to `FIXED_NOW`
   (2027-03-01 10:00 in Brussels, a Monday in winter time) and lets it run on from there, so
   toasts and timers work. Build its dates with `iso(n, Date.parse(FIXED_NOW))`.
+- After `freezeTime(page)`, `await passTime(page, 3500)` lets that much time pass at once: to
+  see that a toast is gone, or a timer of the page fire, without waiting for it.
 - Another instant (summer time, a weekend) goes through `freezeTime(page, '2027-07-03T12:00:00+02:00')` too.
 - Check both winter and summer time where a page shows times.
 
@@ -182,7 +222,7 @@ a commit of its own (`fix(frontend): ...`), the same way everywhere:
 | A `<button>` in a form that should not submit it | `type="button"` |
 | A label that isn't tied to its field | `<label for>` with an `id` on the control, or `b-field :label-for`; controls per row get `aria-label="<what> of <row name>"` |
 | A page title that is a `div` | `<h1 class="title">` (or `role="heading" aria-level="1"`); tile and section titles `<h2>`. Specs use `getByRole('heading', { name })` without a level |
-| A dialog or modal opened from code | Its role is set for all of them (`frontend/src/app.js`). The call only adds a name: `title` for `dialog.confirm`/`prompt`, `ariaLabel` for `modal.open`, `inputAttrs: { 'aria-label': ... }` for a prompt's input |
+| A dialog or modal opened from code | Its role is set for all of them (`frontend/src/app.js`). The call only adds what names it: `title` for `dialog.confirm`/`alert`/`prompt`, `ariaLabel` for `modal.open`, `inputAttrs: { 'aria-label': ... }` for a prompt's input. Buefy's dialog doesn't refer to its own title, so `app.js` ties them together when a dialog opens: it is named by its title (`aria-labelledby`) and described by its message; one without a title is named by its message. Specs: `page.getByRole('alertdialog', { name: 'Deleting an event' })` or `dialog(page, 'Deleting an event')` |
 | A paginated table | `aria-next-label="Next page"`, `aria-previous-label="Previous page"`, `aria-page-label="Page"`, `aria-current-label="Current page"` on the `b-table`; specs use `getByRole('button', { name: 'Next page' })` |
 | A loading state a spec needs to see | `:aria-busy` on the region around the `b-loading`. Otherwise wait for the content, never for the overlay |
 | A date picker (flatpickr) | `allowInput: true` and `disableMobile: true` in its config, an `id` and a label; specs use `fillDate()` |
@@ -198,15 +238,18 @@ From `ui/support/shell.ts`. They hide what differs between the two viewports.
 
 | Helper | Use |
 |---|---|
-| `toast(page, text)` | The toast after an action. Toasts are gone after three seconds: check them right away |
-| `dialog(page)` | The open confirmation, prompt or modal; narrow down with `.filter({ hasText })` |
+| `toast(page, text)` | The toast after an action. A toast stays three seconds, and longer for a long text (60 ms per character, ten seconds at most): check it right away |
+| `dialog(page, name?)` | The open confirmation, prompt or modal, by its name (the dialog's `title`, the modal's `ariaLabel`); or narrow down with `.filter({ hasText })` |
 | `openMenu(page, layout)` | The sidebar menu, opened first on a phone. Returns it |
 | `openAccountMenu(page, layout)` | The top bar's account menu ("See my account", "Logout", or "Login" for a visitor), opened first. Returns it |
-| `tableRows(table)` | The rows of a table that hold data |
+| `accountMenuToggle(page, layout)` | The button that opens and closes the account menu; its `aria-expanded` says whether it is open |
+| `tableRows(table)` | The rows of a table that hold data. An empty table has 0: the row Buefy renders to say "Nothing here." doesn't count |
+| `expectEmptyTable(table, text?)` | The table has no data and shows its row for that, with the app's "Nothing here." (or `text`; `null` for a table without such a text). Wait for the table's request first: a table that is still loading is empty too |
 | `cellOf(table, row, column)` | The cell of a row in the column with this header (`await` it) |
 | `sortBy(table, column, layout, direction?)` | Sorts a table that isn't sorted by that column yet |
 | `permissionsFor(api, kind, id, combined)` | Answers the permissions for one body, member or circle |
 | `freezeTime(page, iso?)` | Sets "now" |
+| `passTime(page, ms)` | Lets time pass at once, after `freezeTime()` |
 | `fillDate(input, value)` | Types a date into a flatpickr field, in the format the field shows (`'2027-03-01 10:00'`) |
 
 Tooltips have no helper: `focus()` the "More information" button instead of hovering, which
@@ -249,14 +292,56 @@ test('sorts by clicking the column header', {
   button). It needs no reason.
 - No other tags in specs.
 
-## No skipped tests, no expected failures
+## No skipped tests, no expected failures, no flaky tests
 
 `test.skip`, `test.fixme`, `test.fail` and `test.only` (and their `describe` forms) are lint
-errors in `e2e/ui/`. A reporter also fails the run when a test was skipped or expected to fail,
-which catches a skip inside a condition or a loop.
+errors in `e2e/ui/`. A reporter (`e2e/ui/support/no-expected-failures.ts`) also fails the run
+when a test was skipped or expected to fail, which catches a skip inside a condition or a loop.
+
+CI retries a failed test once. That tells a test that fails now and then from one that is
+broken, and keeps the trace of the failed attempt. It does not make the run green: the same
+reporter fails the run for a test that passed only on its retry, and lists it as
+`passed only on a retry (flaky)`. Fix the test (usually a missing wait for what the user would
+see) or the page; locally there are no retries.
 
 When a spec finds a bug, the bug is fixed in the same pull request, in a commit of its own, and
 the spec checks the fixed behaviour.
+
+## A test checks something
+
+A green test has to mean that something was checked. `npm run lint` refuses the ways a test can
+pass without that (the rules are in `e2e/lint/rules/`, each shown at work in `e2e/lint/fixtures/`):
+
+| Not allowed | Instead |
+|---|---|
+| A test without an assertion | `expect(…)`, `expect.poll(…)`, or one of the suite's asserting helpers. Their names are listed in `e2e/lint/assertion-helpers.js` (`expectStatus`, `expectShape`, `expectEmptyTable`); a new helper that asserts by itself is named `expect…` and added there |
+| `return` in the body of a test | Every test runs to its end, on both projects |
+| A condition on `layout`, `frontend`, `isMobile`, `viewport` or `testInfo.project` in a spec | Pass `layout` to a helper of `ui/support/shell.ts` (or add one there). Behaviour of one viewport only is a `@phone-only` test, or a `@desktop-only` test with a reason |
+| An assertion inside `if`, a ternary, `&&`, `switch`, `catch`, or a `try` with a `catch` | Set up the one case the test is about and assert without a condition; two cases are two tests. `try`/`finally` for cleaning up is fine |
+| `expect(x)` without a matcher, an expectation about a constant, `.catch()` on an expectation | An expectation that can fail |
+| A promise nobody waits for: `page.goto()`, `click()`, `expect(locator).toBeVisible()` without `await` | `await` it |
+| `test.skip`, `.fixme`, `.fail`, `.only` in any form: on `describe`, `test.step`, `testInfo`, under another name, as `annotation: { type: 'skip' }`, or a test that is only declared when a condition holds | Fix the page or the test |
+| `test.use({ strictApi: false })` in a behavioural spec | Answer the request, or `api.fallback(mockEverything)` for a page of another area |
+| `allowedConsoleErrors` that allows everything (`/.*/`, `/./`, a variable) | Regular expression literals with the text of the message: `[/Network Error/]` |
+| `retries`, serial mode, a time limit of 0 in a spec | A test passes alone, in any order, at the first try. `test.slow()` and `test.setTimeout(n)` are fine |
+
+An exception needs its reason on the same line (`// eslint-disable-next-line <rule> -- <why>`), in
+`e2e/ui/` and in `e2e/tests/`, and a disable comment that no longer suppresses anything is an error.
+The same rules, apart from the ones about viewports and the API mock, hold for the real-stack suite.
+
+The custom rules are loaded with `--rulesdir`, which `npm run lint` passes. An editor needs to
+be told too, or it reports "Definition for rule 'e2e-…' not found": in VS Code,
+`"eslint.options": { "rulePaths": ["e2e/lint/rules"] }`.
+
+## The suite checks itself
+
+`e2e/ui/harness/` holds the suite's own tests. Besides the helpers and the API mock on real
+pages, `self-check.spec.ts` runs the tests of `e2e/ui/harness/must-fail/` as a Playwright run of
+its own (`e2e/playwright.selfcheck.config.ts`) and checks how each one ended: a test that takes
+only `{ page }` and forgets a mock has to fail, and so do a request from a second page, an
+unused handler, a test that passed only on its retry and a test that skipped itself while
+running. A change to the fixtures, the mock or the reporter that opens one of these holes turns
+that spec red. Add a case there when you add a safety net.
 
 ## The generated tests
 
@@ -269,6 +354,14 @@ Two files make one test per route of `frontend/src/router/routes.js`, with gener
 
 A new route is picked up by itself. If its page needs more than empty lists to load, add answers
 to `smoke(api)` in its area's file. That file also has `params` (values for the route's path
-parameters; the default is `1`), `redirects` (pages that send the viewer on) and
-`expectedAlerts` (error toasts that are the right result of having no data). A key that is no
-route of the area fails every generated test with a message that says which.
+parameters; the default is `1`), `redirects` (pages that send every viewer on),
+`expectedAlerts` (error toasts that are the right result of having no data) and `profiles`
+(what to change about the logged-in member for a page that only some members get: the page
+for completing a profile needs a member whose profile is incomplete). A key that is no route of
+the area fails every generated test with a message that says which.
+
+Both runs check, once the page has settled, that it is still the page of the route: a page
+that sends the viewer somewhere else fails until it is listed in `redirects`, so no page is
+"checked" by looking at another one. Both run on a fixed day (`test.use({ now: FIXED_NOW })`,
+with the generic answers dated from the same instant), so a calendar or a deadline looks the
+same on every run.

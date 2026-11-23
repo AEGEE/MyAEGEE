@@ -20,8 +20,11 @@ reads well enough to find the `v-if` it came from:
 _vm.can.edit_event ? _c('div', { staticClass: 'field is-grouped' }, [ ... ]) : _vm._e()
 ```
 
-Code that Vue generates for `v-model` and event modifiers (`if ($event.target.composing) return`)
-is left out: no test can reach both sides of it.
+Code that Vue generates is left out, because nobody wrote it and no test can reach both sides
+of it: for `v-model` (`if ($event.target.composing) return`, the `"_value" in o ? …` of a
+select, the `Array.isArray(…) ? …` of a checkbox) and for event modifiers. A ternary you write
+in a template is counted, also when it looks similar. `frontend/build/coverage-loader.test.js`
+shows both.
 
 Not measured, so check it with assertions where it matters: attribute bindings (`:disabled`,
 `:class`), slot fallbacks and what happens inside Buefy.
@@ -35,6 +38,8 @@ Per area (see [README.md](README.md#areas)), three numbers:
 | Script lines | 90 % |
 | Script branches | 85 % |
 | Template branches (`v-if`, `v-show`, ternaries) | 85 % |
+
+The minimums are in `e2e/ui/support/coverage/thresholds.json`.
 
 `e2e/ui/support/coverage/<area>.json` says whether the gate holds for the area yet:
 
@@ -57,14 +62,14 @@ Coverage from both suites counts, the real-stack flows included.
 **In `<script>` and `.js`**: the usual istanbul comments, with a reason after ` -- `:
 
 ```js
-/* istanbul ignore next -- needs WebGL, which the CI browser lacks */
+/* istanbul ignore next -- the print dialog of the browser is outside the page, a test can't see it */
 /* istanbul ignore if -- the API never sends an event without organisers */
 /* istanbul ignore else -- ... */
 ```
 
-`npm run lint` in `e2e/` fails for an ignore comment without a reason of at least three words,
-for one written as a `//` comment or outside `<script>`, and for `istanbul ignore file`,
-`c8 ignore` and `v8 ignore`. The coverage summary lists every
+`npm run lint` in `e2e/` fails for an ignore comment without a reason (see below for what
+counts as one), for one written as a `//` comment or outside `<script>`, and for
+`istanbul ignore file`, `c8 ignore` and `v8 ignore`. The coverage summary lists every
 ignore comment with its place, so a reviewer sees them all.
 
 **In templates** comments can't be used. Add the condition to the area's file instead:
@@ -82,14 +87,76 @@ ignore comment with its place, so a reviewer sees them all.
 report). An exception that matches nothing fails the gate, so none are left behind when the
 template changes.
 
-A good reason says why no test can reach the code: a browser feature the test browser lacks, a
-defensive branch for something the API can't answer. "Hard to test" is not one.
+A reason has at least four words and 20 characters of its own (repeating the condition doesn't
+count) and is not a placeholder: `todo`, `tbd`, `n/a`, "hard to test", "see above" and the like
+are refused, for ignore comments (`npm run lint`), template exceptions and accepted downgrades
+(the gate). That only stops entries nobody meant to be read. A good reason says why no test
+can reach the code: a browser feature the test browser lacks, a defensive branch for something
+the API can't answer.
 
 ## Every route is opened
 
 For an enforced area, each of its routes in `frontend/src/router/routes.js` must be opened by at
 least one behavioural spec. The generated smoke and axe tests don't count. This is recorded from
 the pages a test visits; nothing has to be annotated.
+
+## The gate can't get weaker unnoticed
+
+`node scripts/coverage.ts gate` (and `gate-config`, which needs no coverage data and is part of
+`npm run lint`) compares the gate's own files with a base: in CI the merge base with
+`origin/stable`, on `stable` the commit before, or `--base <commit>`. It fails when
+
+- an area that was `enforced` is `pending` again or lost its file,
+- a template exception or an `istanbul ignore` comment was added in an area that was enforced
+  at the base,
+- a threshold was lowered.
+
+To accept one, add `e2e/ui/support/coverage/downgrades.json` in the same pull request:
+
+```json
+[
+  { "change": "pending", "area": "events", "reason": "…" },
+  { "change": "exception", "file": "views/events/Single.vue", "condition": "_vm.event.status === 'cancelled'", "reason": "…" },
+  { "change": "ignore", "file": "frontend/src/views/events/Single.vue", "reason": "…" },
+  { "change": "threshold", "metric": "templateBranches", "reason": "…" }
+]
+```
+
+Every downgrade is printed as `COVERAGE-DOWNGRADE: …`, accepted or not, so `grep ^COVERAGE-` on
+the job's output shows them all. An entry only counts in the change that adds it: one that
+matches no downgrade fails, and one left over from a merged change accepts nothing and is
+reported until it is removed. Exceptions and ignore comments added while an area becomes
+enforced are part of that review: they are printed as `COVERAGE-EXCEPTION-ADDED: …` and need no
+entry. Without `origin/stable` the comparison is skipped locally and fails in CI.
+
+## Codecov
+
+`frontend-coverage` uploads the script half of the numbers to Codecov (flag and component
+`frontend`). `codecov.yml` keeps frontend code out of the two statuses that gate a pull request:
+
+| Status | Covers | Can fail |
+|---|---|---|
+| `codecov/project`, `codecov/patch` | the six services (`paths` of the `default` statuses) | yes |
+| `codecov/project/frontend`, `codecov/patch/frontend` | `frontend/**` | no: `informational: true` |
+
+The two are about different things. The services have unit tests and are near 99 %; adding the
+frontend's numbers to the same status would drop it to about 74 % and fail every pull request
+that touches a view without covering each new line. The frontend's own gate is the one per
+area above, in the `frontend-tests` workflow, and it is the stricter one for every area that is
+enforced (it also counts template branches, which Codecov never sees).
+
+The frontend statuses stop being informational when the last area's gate is enforced, in the
+pull request that enforces `shell` ([area-definition-of-done.md](area-definition-of-done.md)):
+remove the two `informational: true` lines under `frontend` in `codecov.yml`. From then on
+`codecov/project/frontend` fails when the frontend's script coverage drops, and
+`codecov/patch/frontend` when the changed lines of a pull request are covered less than the
+project is. Until then they are shown on every pull request and block nothing. The components
+in the same file (`component_management`) have no statuses of their own; they only split the
+numbers per service in Codecov's comment.
+
+After changing `codecov.yml`, check it: `curl --data-binary @codecov.yml https://codecov.io/validate`
+(it sends the file and nothing else), and `node packages/backend-test-utils/check-codecov-builds.js`
+for `after_n_builds`.
 
 ## Running it yourself
 
@@ -100,6 +167,7 @@ E2E_COVERAGE=1 npm run test:mocked
 E2E_COVERAGE=1 npm test                             # optional: the real stack counts too
 npm run coverage                                    # merge and report
 npm run coverage:gate
+npm run coverage:gate-config                        # the gate's own files only, no coverage data needed
 ```
 
 - `e2e/.coverage/summary.md`: the table per area that the commands also print.
@@ -107,9 +175,16 @@ npm run coverage:gate
 - `e2e/.coverage/report/lcov.info`: what goes to Codecov. It has the script half only, because
   the render files are not in the repository.
 
-Without `E2E_COVERAGE=1` nothing is collected. What runs collect adds up in `e2e/.coverage/`
-until the next `npm run setup:frontend`, which starts clean (data of another build can't be
-merged anyway).
+Without `E2E_COVERAGE=1` nothing is collected. With it, a run first removes what an earlier
+run of the same suite wrote (and says so), so the report is about the last mocked run and the
+last real-stack run, never about a sum of runs nobody remembers. To add up several partial
+runs on purpose (one area at a time, say), set `E2E_COVERAGE_KEEP=1` on all but the first.
+`npm run setup:frontend` removes everything: data of another build can't be merged anyway.
+
+A test that fails or runs into its timeout still hands over what it covered: the counters are
+read from its pages when the test is torn down. What is lost is the data of a worker that
+crashes or is killed, because a worker writes its sum when it stops. A run in which that
+happens is red anyway; don't read coverage numbers from a red run.
 
 For one area while writing its specs:
 
@@ -130,7 +205,8 @@ npm run coverage
 - `e2e/scripts/coverage.ts merge` starts from the empty coverage of every file (written at build
   time, so files no test loads count as 0 %), adds the raw files and maps the scripts back to
   their sources. It refuses to merge data from different builds.
-- `report` writes the reports; `gate` checks the areas.
+- `report` writes the reports; `gate` checks the areas, and first the gate's own files against
+  their base (`e2e/scripts/coverage-gate.ts`).
 - CI builds in every container and merges in the `frontend-coverage` job.
 
 ## Limits
@@ -138,8 +214,5 @@ npm run coverage
 - The suites test the instrumented, unminified build. A bug that only minified code has would
   not show up; `E2E_FRONTEND_BUILD=production` builds the production one to look for it.
 - Template coverage is shown on generated code, not on template lines.
-- A checkbox with `v-model` compiles to a check whether its value is an array
-  (`Array.isArray(_vm.x) ? ... : _vm.x`). For a checkbox bound to a boolean one side can never
-  run; that is what a template exception is for.
 - All containers of a CI run must check the repository out at the same path: the build
   identifies a file by its path, and data of different builds is not merged.

@@ -7,6 +7,18 @@ the generic answers of `e2e/ui/support/smoke/`.
 The pages are not clean yet, so the run is a ratchet: a page may not get worse than it is today,
 and once it gets better it has to stay better.
 
+What a page looks like must not depend on the day of the run, or the counts would move by
+themselves: a calendar shows the days of the neighbouring months in grey, and how many there
+are differs per month. So the run sets the clock to a fixed instant (`FIXED_NOW`, 1 March 2027)
+before the page loads, and the generic answers and the logged-in member are dated from the
+same instant. Two runs of the same code give identical result files.
+
+Members-only pages are opened as a superadmin with every permission, public ones anonymously.
+A page that only some members get to see is given such a member in `profiles` of its area's
+smoke file (the page for completing a profile needs an incomplete one). Each test checks, after
+the page has settled, that it is still on the route it opened: a page that sends the viewer on
+fails until it is listed under `redirects`, so no page is "checked" by scanning another one.
+
 ## The baseline
 
 `e2e/ui/support/a11y/<area>.json` says, per route, how many elements break each rule:

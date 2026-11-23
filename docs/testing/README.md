@@ -20,6 +20,8 @@ The mailer (Elixir) and the dispatcher (Python) have their own tests in their fo
    test (`e2e/README.md`). Keep these few: they are slow and need everything running.
 4. Did you add or change a factory in `e2e/ui/support/factories/`? It needs a contract check in
    `e2e/tests/<area>-contract.spec.ts`, so the mocked answers can't drift away from the real ones.
+   Every field has to be compared with a value on both sides: a field that was null or an empty
+   list in every comparison of a test fails it, unless it is listed in `gaps` with the reason.
 
 The frontend has no unit or component tests on purpose. The Playwright specs only rely on what a
 user sees (roles, labels, text), so they keep their value when a page is rewritten.
@@ -54,8 +56,11 @@ Each area has its own files, so changes in one area don't touch a shared list:
 | Coverage gate | `e2e/ui/support/coverage/<area>.json` |
 | Real-stack flows and contract checks | `e2e/tests/<area>-<flow>.spec.ts`, `e2e/tests/<area>-contract.spec.ts` |
 | Real-stack data helpers | `e2e/support/<area>-data.ts` |
+| Files that specs upload | `e2e/ui/fixtures/<area>/` |
 
-`e2e/ui/harness/` is not an area: its specs check the suite's own helpers against real pages.
+`e2e/ui/harness/` is not an area: its specs check the suite's own helpers against real pages,
+and that its safety nets still catch what they are for (a forgotten mock, an unused handler, a
+flaky or skipped test).
 
 ## More
 
@@ -63,4 +68,8 @@ Each area has its own files, so changes in one area don't touch a shared list:
 - [coverage.md](coverage.md): what is measured, the gate per area, ignore comments.
 - [accessibility.md](accessibility.md): the axe run and its baseline.
 - [running.md](running.md): setup, running next to other checkouts, debugging, CI.
+- [area-definition-of-done.md](area-definition-of-done.md): the checklist for a pull request
+  that finishes an area.
 - `e2e/README.md`: how the real stack runs, its data and helpers.
+- [backend-openapi.md](backend-openapi.md): the services' OpenAPI files, the response checks
+  in their jest tests and their coverage ratchet.

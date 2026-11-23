@@ -20,7 +20,10 @@ e2e tests are slow and need the whole stack, so keep them for what the module te
 - the frontend working against the real APIs (how a page behaves in detail is for the
   mocked-API suite);
 - the contract checks of the mocked suite's factories (`tests/<area>-contract.spec.ts`): every
-  field a factory builds must exist in the real answer, with the same type;
+  field a factory builds must exist in the real answer, with the same type. A field can only be
+  compared when both sides have a value, so a test fills them (`fillAntenna`, overrides of the
+  factory); a field that was null or an empty list in every comparison of a test fails it,
+  unless the test lists it in `gaps` with the reason nobody can fill it;
 - a few smoke tests of the stack itself.
 
 Anything a single service decides on its own (its permission checks, validation, the mails it
@@ -87,8 +90,9 @@ Shared helpers, so a test file rarely needs its own setup code:
 |---|---|---|
 | `USERS` | `support/constants.ts` | The seeded users the tests log in as |
 | `asAdmin`, `createAntenna`, `createCircle`, `createCampaign`, `grantPermission` | `support/core-data.ts` | Core data made through the API as admin, each with a cleanup. `grantPermission(api, username, 'global:create:summeruniversity')` gives a user a permission through a new circle |
+| `fillAntenna`, `uploadPicture` | `support/core-data.ts` | Give the antenna of `createAntenna` and its member a value for every optional field (details, a picture, a primary body, a join request, an application ban), and upload a picture to a service, so a contract check has something to compare |
 | `api.waitForMail({ to, template })`, `mailLink(mail)` | `support/api.ts` | The mail the fake mailer received, and the frontend path its link leads to. Filter by your own address; never clear the mails of other tests |
-| `expectShape(name, factoryObject, realAnswer)` | `support/contract.ts` | The contract check of a factory |
+| `expectShape(name, factoryObject, realAnswer, { gaps, ignore })` | `support/contract.ts` | The contract check of a factory. `gaps` and `ignore` map a path (`$.email`) to the reason it stays uncompared |
 
 Helpers for one area go in `support/<area>-data.ts`, so `api.ts` and `constants.ts` stay as they are.
 
