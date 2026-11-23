@@ -110,7 +110,8 @@ exports.generatePermission = (options = {}) => {
     if (notSet(options.scope)) options.scope = 'global';
     if (notSet(options.action)) options.action = faker.string.alphanumeric({ length: 16, casing: 'lower' });
     if (notSet(options.object)) options.object = faker.string.alphanumeric({ length: 16, casing: 'lower' });
-    if (notSet(options.description)) options.description = faker.lorem.paragraph();
+    // A text column of 255 characters: a paragraph is sometimes longer.
+    if (notSet(options.description)) options.description = faker.lorem.sentence();
 
     return options;
 };
