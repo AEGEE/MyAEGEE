@@ -17,6 +17,31 @@ describe('API requests', () => {
         await generator.clearAll();
     });
 
+    it('should list and show published events without a token while core is down', async () => {
+        mock.mockAll({ core: { netError: true }, mainPermissions: { netError: true }, approvePermissions: { netError: true } });
+        const event = await generator.createEvent({ status: 'published' });
+
+        const list = await request({ path: '/' });
+        const single = await request({ path: '/single/' + event.id });
+
+        expect(list.statusCode).toEqual(200);
+        expect(list.body.data.map((e) => e.id)).toEqual([event.id]);
+        expect(single.statusCode).toEqual(200);
+        expect(single.body.permissions.edit_event).toEqual(false);
+    });
+
+    it('should answer 401 without asking core when there is no token', async () => {
+        const { omscoreStub } = mock.mockAll({ core: { netError: true }, mainPermissions: { netError: true }, approvePermissions: { netError: true } });
+        let coreCalls = 0;
+        omscoreStub.on('request', () => { coreCalls += 1; });
+
+        const res = await request({ path: '/mine/organizing' });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+        expect(coreCalls).toEqual(0);
+    });
+
     it('should answer the health check without a session', async () => {
         mock.cleanAll();
 
@@ -38,7 +63,6 @@ describe('API requests', () => {
 
         expect(unknown.statusCode).toEqual(404);
         expect(known.statusCode).toEqual(401);
-        await generator.clearAll();
     });
 
     it('should fail if the user is unauthorized for autnorized-only endpoint', async () => {
