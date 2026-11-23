@@ -78,6 +78,19 @@ Vue.use(Switch)
 Vue.use(Table)
 Vue.use(Tag)
 Vue.use(Toast)
+// Buefy has no global default for the role of the dialogs and modals opened from code, so
+// they all get it here. Call sites only add a name: `title` for dialogs, `ariaLabel` for modals.
+const withDefaults = (programmatic, method, defaults, textOption) => {
+  const original = programmatic[method]
+  programmatic[method] = params => original.call(programmatic, {
+    ...defaults,
+    ...(typeof params === 'string' ? { [textOption]: params } : params)
+  })
+}
+for (const method of ['alert', 'confirm', 'prompt']) {
+  withDefaults(Vue.prototype.$buefy.dialog, method, { ariaRole: 'alertdialog', ariaModal: true }, 'message')
+}
+withDefaults(Vue.prototype.$buefy.modal, 'open', { ariaRole: 'dialog', ariaModal: true }, 'content')
 Vue.use(Vue2TouchEvents)
 Vue.use(VTooltip)
 Vue.component('select-or-custom', SelectOrCustom)
