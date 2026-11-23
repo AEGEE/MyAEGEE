@@ -99,6 +99,10 @@ paths:
     post:
       operationId: addIntegrationCodes
       summary: Add codes to a partner
+      description: |
+        Stores each code once per integration, so two members are never handed the same code.
+        Codes are compared without the spaces around them: a code the request has twice is
+        stored once, and a code the integration has already refuses the whole request with 422.
       tags: [integrations]
       x-permission: manage:discounts
       requestBody:
@@ -120,7 +124,14 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
-        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '422':
+          description: >-
+            A code is not a string with more than spaces in it or is longer than 255 characters,
+            or the integration has some of the codes already, which the message names. No code
+            is stored.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
   /integrations/{integration_id}/claim:
     parameters:
       - $ref: '#/components/parameters/IntegrationId'
@@ -408,20 +419,26 @@ components:
           type: [string, 'null']
       unevaluatedProperties: false
     IntegrationCreateInput:
+      description: >-
+        The name and the code are stored without the spaces around them and may have at most
+        255 characters after that, which a schema cannot express.
       type: object
       required: [name, code, quota_period, quota_amount]
       properties:
-        name: {type: string, minLength: 1, maxLength: 255}
-        code: {type: string, minLength: 1, maxLength: 255}
+        name: {type: string, minLength: 1}
+        code: {type: string, minLength: 1}
         quota_period: {$ref: '#/components/schemas/IntegrationQuotaPeriod'}
         quota_amount: {$ref: '#/components/schemas/QuotaAmountInput'}
         description: {type: [string, 'null']}
       additionalProperties: true
     IntegrationUpdateInput:
+      description: >-
+        The name and the code are stored without the spaces around them and may have at most
+        255 characters after that, which a schema cannot express.
       type: object
       properties:
-        name: {type: string, minLength: 1, maxLength: 255}
-        code: {type: string, minLength: 1, maxLength: 255}
+        name: {type: string, minLength: 1}
+        code: {type: string, minLength: 1}
         quota_period: {$ref: '#/components/schemas/IntegrationQuotaPeriod'}
         quota_amount: {$ref: '#/components/schemas/QuotaAmountInput'}
         description: {type: [string, 'null']}

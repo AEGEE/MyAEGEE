@@ -95,7 +95,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add codes to a partner */
+        /**
+         * Add codes to a partner
+         * @description Stores each code once per integration, so two members are never handed the same code.
+         *     Codes are compared without the spaces around them: a code the request has twice is
+         *     stored once, and a code the integration has already refuses the whole request with 422.
+         */
         post: operations["addIntegrationCodes"];
         delete?: never;
         options?: never;
@@ -271,6 +276,7 @@ export interface components {
             /** @description Markdown, shown on the discounts pages and in the claim mail. */
             description: string | null;
         } & components["schemas"]["Timestamps"];
+        /** @description The name and the code are stored without the spaces around them and may have at most 255 characters after that, which a schema cannot express. */
         IntegrationCreateInput: {
             name: string;
             code: string;
@@ -280,6 +286,7 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description The name and the code are stored without the spaces around them and may have at most 255 characters after that, which a schema cannot express. */
         IntegrationUpdateInput: {
             name?: string;
             code?: string;
@@ -577,7 +584,15 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
+            /** @description A code is not a string with more than spaces in it or is longer than 255 characters, or the integration has some of the codes already, which the message names. No code is stored. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     claimIntegrationCode: {
