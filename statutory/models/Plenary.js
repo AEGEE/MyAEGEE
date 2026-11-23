@@ -15,8 +15,10 @@ const Plenary = sequelize.define('plenary', {
     },
     name: {
         type: Sequelize.STRING,
+        allowNull: false,
         defaultValue: '',
         validate: {
+            notNull: { msg: 'Plenary name should be set.' },
             notEmpty: { msg: 'Plenary name should be set.' },
         },
     },

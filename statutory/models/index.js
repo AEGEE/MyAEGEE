@@ -131,6 +131,14 @@ const isDate = (value) => {
     }
 };
 
+// A validator for a column that holds one value of a kind that text, a number or a list
+// with one item all pass for (a choice out of a few, an amount): a list or an object is none.
+const isOneValue = (value) => {
+    if (value !== null && typeof value === 'object') {
+        throw new Error('The value should be one value, not a list or an object.');
+    }
+};
+
 // Every string, whole number and date column refuses a value that does not fit it, with
 // a validation error on the field. Without it such a value fails in the database, or is
 // stored as something else than what was sent.
@@ -144,6 +152,8 @@ for (const model of models) {
         } else if (attribute.type instanceof Sequelize.DATE || attribute.type instanceof Sequelize.DATEONLY) {
             attribute.set = setDate(name, attribute.type instanceof Sequelize.DATEONLY);
             attribute.validate = { ...attribute.validate, isWrittenAsDate: isDate };
+        } else if (attribute.type instanceof Sequelize.ENUM || attribute.type instanceof Sequelize.DECIMAL) {
+            attribute.validate = { isOneValue, ...attribute.validate };
         }
     }
 

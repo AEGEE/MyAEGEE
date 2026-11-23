@@ -139,12 +139,6 @@ const Application = sequelize.define('application', {
         defaultValue: 'pending',
         validate: {
             notNull: { msg: 'Participant status should be set.' },
-            // One of the values itself, not a list that holds one.
-            isNoList(value) {
-                if (typeof value === 'object') {
-                    throw new Error('Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".');
-                }
-            },
             isIn: {
                 args: [['pending', 'waiting_list', 'accepted', 'rejected']],
                 msg: 'Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".'

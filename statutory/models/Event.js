@@ -445,6 +445,13 @@ const Event = sequelize.define('event', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        validate: {
+            isBoolean(value) {
+                if (typeof value !== 'boolean') {
+                    throw new Error('The value should be true or false.');
+                }
+            }
+        }
     },
     image_id: {
         allowNull: true,
