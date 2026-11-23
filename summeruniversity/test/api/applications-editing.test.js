@@ -157,6 +157,65 @@ describe('Applications editing', () => {
         expect(fromDb.motivation).not.toEqual('Changed');
     });
 
+    test('should return 403 if the applicant is already accepted', async () => {
+        await application.update({ status: 'accepted' });
+
+        const res = await edit({ motivation: 'Changed' });
+
+        expect(res.statusCode).toEqual(403);
+        await application.reload();
+        expect(application.motivation).not.toEqual('Changed');
+    });
+
+    test('should let the applicant edit a rejected application while the applications are open', async () => {
+        await application.update({ status: 'rejected' });
+
+        const res = await edit({ motivation: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.motivation).toEqual('Changed');
+        expect(res.body.data.status).toEqual('rejected');
+    });
+
+    test('should only notify the applicant and the organizers if the body has no board members', async () => {
+        mockAndCapture({ ...applicantMocks, bodyMembers: { data: [] } });
+
+        const res = await edit({ motivation: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(mails.map((mail) => mail.template)).toEqual([
+            'summeruniversity_application_edited.html',
+            'summeruniversity_organizer_edited.html'
+        ]);
+    });
+
+    test('should let an organizer edit an application while the event is in second submission', async () => {
+        mockAndCapture({ mainPermissions: { noPermissions: true }, member: { data: applicant } });
+        const organized = await generator.createEvent({ status: 'second submission', published: 'minimal' });
+        const other = await generator.createApplication(organized, { user_id: applicant.id, body_id: 1, body_name: 'AEGEE-Dresden' });
+
+        const res = await request({
+            path: '/single/' + organized.id + '/applications/' + other.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'foobar' },
+            body: { answers: ['Changed by the organizer'] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.answers).toEqual(['Changed by the organizer']);
+    });
+
+    test('should let a banned applicant edit their application (the ban is not checked)', async () => {
+        mockAndCapture({
+            ...applicantMocks,
+            core: { data: { ...applicant, event_application_ban: { ban_until: generator.daysFromNow(365) } } }
+        });
+
+        const res = await edit({ motivation: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+    });
+
     test('should return 403 for a stranger editing somebody else\'s application', async () => {
         const other = await generator.createApplication(event, { user_id: 10 });
 
