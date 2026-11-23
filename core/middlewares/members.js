@@ -306,11 +306,12 @@ exports.setUserPassword = async (req, res) => {
 
     const userWithPassword = await User.scope('withPassword').findByPk(req.currentUser.id);
 
-    if (!await userWithPassword.checkPassword(req.body.old_password)) {
+    // A password that is missing or not a text never matches, and can't be set.
+    if (!await userWithPassword.checkPassword(helpers.stringOrEmpty(req.body.old_password))) {
         return errors.makeValidationError(res, 'The old password is invalid.');
     }
 
-    await userWithPassword.update({ password: req.body.password });
+    await userWithPassword.update({ password: helpers.stringOrEmpty(req.body.password) });
 
     // TODO: add a mail that the password was changed.
 
