@@ -1,3 +1,5 @@
+const xlsx = require('node-xlsx').default;
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -456,6 +458,40 @@ describe('Events editing', () => {
             await event.reload();
             expect(event.starts.getTime()).toEqual(starts.getTime());
         });
+    });
+
+    test('should let an organizer change the questions after applications exist', async () => {
+        mockAndCapture(organizerMocks);
+        const event = await generator.createEvent({ status: 'first approval', published: 'minimal', questions: [{ description: 'Why?' }] });
+        const application = await generator.createApplication(event, { user_id: 2 });
+
+        const res = await editEvent(event, { questions: [{ description: 'Why?' }, { description: 'Where from?' }] });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.questions).toHaveLength(2);
+        await application.reload();
+        expect(application.answers).toHaveLength(1);
+
+        // The existing application keeps one answer; the export lists the new questions.
+        mock.mockAll();
+        const exportRes = await request({
+            path: '/single/' + event.id + '/applications/export',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'foobar' },
+            responseType: 'buffer'
+        });
+        expect(exportRes.statusCode).toEqual(200);
+        const [sheet] = xlsx.parse(exportRes.body);
+        expect(sheet.data[0].slice(-2)).toEqual(['Answer 1: Why?', 'Answer 2: Where from?']);
+    });
+
+    test('should return 422 if the questions are null', async () => {
+        const event = await generator.createEvent({ status: 'first approval', published: 'minimal' });
+
+        const res = await editEvent(event, { questions: null });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.questions).toEqual(['Event questions should be an array of strings.']);
     });
 
     test('should return 422 on an empty body', async () => {

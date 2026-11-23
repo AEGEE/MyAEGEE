@@ -228,6 +228,20 @@ describe('Events listing', () => {
             expect(res.body.meta).toEqual({ offset: 1, limit: 2 });
         });
 
+        test('should filter by application status after the offset and limit (short pages)', async () => {
+            await generator.createEvent({ starts: generator.daysFromNow(41), application_starts: generator.daysFromNow(-10), application_ends: generator.daysFromNow(-5) });
+            await generator.createEvent({ starts: generator.daysFromNow(42), application_starts: generator.daysFromNow(-10), application_ends: generator.daysFromNow(-5) });
+            const open = await generator.createEvent({ starts: generator.daysFromNow(43) });
+
+            const res = await request({ path: '/', method: 'GET', query: { application_status: 'open', limit: '2' }, headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+
+            const all = await request({ path: '/', method: 'GET', query: { application_status: 'open' }, headers: { 'X-Auth-Token': 'foobar' } });
+            expect(all.body.data.map((e) => e.id)).toEqual([open.id]);
+        });
+
         test('should ignore invalid offset and limit', async () => {
             await generator.createEvent();
             await generator.createEvent();
