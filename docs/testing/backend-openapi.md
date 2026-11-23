@@ -113,7 +113,9 @@ Rules:
 - **Responses that depend on the caller**: a key that only some callers get is optional. A
   different field set is a `oneOf` of closed variants (`User` and `UserLimited`), where the
   larger variant requires a key the smaller lacks. Say in the operation's `description` who
-  gets which, and test each variant.
+  gets which, and test each variant. Where a caller must not get a key (a comment only boards
+  see), the test of that caller passes `openApiVariant: '<schema name>'` to `request()`: the
+  response's `data` must then also match that variant, so a leaked key fails the check.
 - **Sequelize join rows** (`body_membership` on a `belongsToMany` include) keep the Sequelize
   name, are required, and use the join model's schema, or a `<JoinModel>Link` schema when an
   include narrows the columns. The parent is a variant: `allOf: [Body]` plus the join row,

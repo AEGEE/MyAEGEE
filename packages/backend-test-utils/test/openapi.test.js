@@ -257,6 +257,33 @@ describe('response bodies', () => {
     });
 });
 
+describe('variants of a response that depends on the caller', () => {
+    const full = { type: 'object', required: ['id', 'comment'], properties: { id: { type: 'integer' }, comment: { type: 'string' } }, additionalProperties: false };
+    const limited = { type: 'object', required: ['id'], properties: { id: { type: 'integer' } }, additionalProperties: false };
+    const schema = {
+        type: 'object',
+        required: ['data'],
+        properties: { data: { oneOf: [{ $ref: '#/components/schemas/Full' }, { $ref: '#/components/schemas/Limited' }] } },
+        additionalProperties: false
+    };
+    const scratch = createContract({ serviceRoot: writeSpec(minimalSpec({ schema, schemas: { Full: full, Limited: limited } })), requireFrom: REQUIRE_FROM });
+    const check = (body, variant) => scratch.check({ path: '/x', statusCode: 200, headers: JSON_HEADERS, body, variant });
+
+    test('without a variant, either variant passes', () => {
+        assert.doesNotThrow(() => check({ data: { id: 1, comment: 'x' } }));
+        assert.doesNotThrow(() => check({ data: { id: 1 } }));
+    });
+
+    test('with a variant, data must match it', () => {
+        assert.doesNotThrow(() => check({ data: { id: 1 } }, 'Limited'));
+        assert.throws(() => check({ data: { id: 1, comment: 'x' } }, 'Limited'), /data does not match the variant Limited the test expects:\n.*must NOT have additional properties 'comment'/);
+    });
+
+    test('an unknown variant fails', () => {
+        assert.throws(() => check({ data: { id: 1 } }, 'Missing'), /expects the variant Missing, which is not in components\/schemas/);
+    });
+});
+
 describe('bodies read as a buffer or as text', () => {
     test('a JSON body that arrived as a Buffer (responseType: buffer) is parsed and validated', () => {
         ok({ path: '/courses/1', statusCode: 404, body: Buffer.from('{"success":false,"message":"Course is not found."}') });
