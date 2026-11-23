@@ -153,4 +153,35 @@ describe('Memberslist fee_paid editing', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should ask core for the user and the event permissions once', async () => {
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
+
+        const requests = [];
+        const stubs = mock.mockAll();
+        for (const stub of Object.values(stubs)) {
+            stub.on('request', (req) => requests.push(`${req.method} ${req.path}`));
+        }
+
+        const res = await request({
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id + '/fee_paid',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { fee_paid: 300 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        // The user, their permissions, and the bodies they approve members and manage memberslists for.
+        expect(requests.sort()).toEqual([
+            'GET /members/me',
+            'GET /my_permissions',
+            'POST /my_permissions',
+            'POST /my_permissions'
+        ]);
+    });
 });
