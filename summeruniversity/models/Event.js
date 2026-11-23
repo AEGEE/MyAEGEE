@@ -3,7 +3,9 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf, isInteger, isBoolean, isText } = require('../lib/validators');
+const {
+    isOneOf, isInteger, isBoolean, isText, dateSetter, isDate, areDates
+} = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -150,11 +152,12 @@ const Event = sequelize.define(
         },
         application_starts: {
             type: Sequelize.DATE,
+            set: dateSetter('application_starts'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application starts date should be valid.' },
+                isDate: isDate('Event application starts date should be valid.'),
                 beforeApplicationEnd(val) {
-                    if (!val || !this.application_ends) {
+                    if (!areDates(val, this.application_ends)) {
                         return;
                     }
 
@@ -166,11 +169,12 @@ const Event = sequelize.define(
         },
         application_ends: {
             type: Sequelize.DATE,
+            set: dateSetter('application_ends'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application end date should be valid.' },
+                isDate: isDate('Event application end date should be valid.'),
                 laterThanApplicationStart(val) {
-                    if (!val || !this.application_starts) {
+                    if (!areDates(val, this.application_starts)) {
                         return;
                     }
 
@@ -179,6 +183,10 @@ const Event = sequelize.define(
                     }
                 },
                 beforeEventStart(val) {
+                    if (!areDates(val, this.starts)) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrAfter(this.starts)) {
                         throw new Error('Application period cannot end before or at the same time the event starts.');
                     }
@@ -187,22 +195,28 @@ const Event = sequelize.define(
         },
         starts: {
             type: Sequelize.DATE,
+            set: dateSetter('starts'),
             allowNull: false,
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event start date should be set.' },
-                isDate: { msg: 'Event start date should be valid.' }
+                isDate: isDate('Event start date should be valid.')
             // TODO: check if within timeframe set by CIA/SUCT
             }
         },
         ends: {
             type: Sequelize.DATE,
+            set: dateSetter('ends'),
             allowNull: false,
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event end date should be set.' },
-                isDate: { msg: 'Event end date should be valid.' },
+                isDate: isDate('Event end date should be valid.'),
                 laterThanStart(val) {
+                    if (!areDates(val, this.starts)) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrBefore(this.starts)) {
                         throw new Error('Event cannot start after or at the same time it ends.');
                     }
