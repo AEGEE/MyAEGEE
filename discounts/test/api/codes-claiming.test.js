@@ -199,15 +199,19 @@ describe('Codes claiming', () => {
         expect(res.body.data.claimed_by).toEqual(user.id);
     });
 
-    test('should return 500 if mailer returns net error', async () => {
-        mock.mockAll({ mailer: { netError: true } });
+    test.each([
+        ['a network error', { netError: true }],
+        ['a response that is not JSON', { badResponse: true }],
+        ['an unsuccessful response', { unsuccessfulResponse: true }]
+    ])('should keep the claim and answer 200 when the mailer returns %s', async (_, mailerOptions) => {
+        mock.mockAll({ mailer: mailerOptions });
         const integration = await generator.createIntegration({
             quota_period: 'month',
             quota_amount: 1
         });
 
         // 1 code available
-        await generator.createCode({}, integration);
+        const code = await generator.createCode({}, integration);
 
         const res = await request({
             path: '/integrations/' + integration.id + '/claim',
@@ -215,54 +219,20 @@ describe('Codes claiming', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(code.id);
+        expect(res.body.data.claimed_by).toEqual(user.id);
 
-    test('should return 500 if mailer returns bad response', async () => {
-        mock.mockAll({ mailer: { badResponse: true } });
-        const integration = await generator.createIntegration({
-            quota_period: 'month',
-            quota_amount: 1
-        });
-
-        // 1 code available
-        await generator.createCode({}, integration);
-
-        const res = await request({
-            path: '/integrations/' + integration.id + '/claim',
-            method: 'POST',
+        // The code is the member's: "My codes" shows it.
+        const myCodes = await request({
+            path: '/codes/mine',
+            method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 500 if mailer returns unsuccessful response', async () => {
-        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
-        const integration = await generator.createIntegration({
-            quota_period: 'month',
-            quota_amount: 1
-        });
-
-        // 1 code available
-        await generator.createCode({}, integration);
-
-        const res = await request({
-            path: '/integrations/' + integration.id + '/claim',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(myCodes.statusCode).toEqual(200);
+        expect(myCodes.body.data.map((myCode) => myCode.id)).toEqual([code.id]);
     });
 });
 
