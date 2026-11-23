@@ -85,10 +85,17 @@ const MembersList = sequelize.define('memberslist', {
         }
     },
     fee_paid: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.DECIMAL,
         defaultValue: 0,
         validate: {
+            notNull: { msg: 'Fee paid should be set.' },
+            // A number itself, not a list that holds one.
+            isAmount(value) {
+                if (!['number', 'string'].includes(typeof value)) {
+                    throw new Error('Fee paid should be a number.');
+                }
+            },
             isNumeric: { msg: 'Fee paid should be a number.' },
             min: { args: [0], msg: 'Fee paid should be positive.' }
         },

@@ -135,8 +135,16 @@ const Application = sequelize.define('application', {
     },
     status: {
         type: Sequelize.ENUM('pending', 'waiting_list', 'accepted', 'rejected'),
+        allowNull: false,
         defaultValue: 'pending',
         validate: {
+            notNull: { msg: 'Participant status should be set.' },
+            // One of the values itself, not a list that holds one.
+            isText(value) {
+                if (typeof value !== 'string') {
+                    throw new Error('Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".');
+                }
+            },
             isIn: {
                 args: [['pending', 'waiting_list', 'accepted', 'rejected']],
                 msg: 'Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".'
