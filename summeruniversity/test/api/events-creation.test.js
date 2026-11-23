@@ -103,6 +103,9 @@ describe('Events creation', () => {
         });
 
         test.each([
+            ['an array', ['pilot']],
+            ['an object', { type: 'pilot' }],
+            ['a number', 1],
             ['an unknown type', 'garbage']
         ])('should answer 422 for a type that is %s, also without edit:su_type', async (_name, type) => {
             mock.mockAll({ mainPermissions: { permissions: ['global:create:summeruniversity'] } });
@@ -129,6 +132,19 @@ describe('Events creation', () => {
         });
     });
 
+    test.each([
+        ['theme_category', 'sports'],
+        ['pax_confirmation', 'payment'],
+        ['course_level', 'beginner']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await createEvent(generator.generateEventBody({ [field]: sent }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        expect(await Event.count()).toEqual(0);
+    });
 
     test('should create an event and notify the organizers and SUCT', async () => {
         const body = generator.generateEventBody({ name: 'Brand new SU', season: 2027, url: 'brand-new-su' });

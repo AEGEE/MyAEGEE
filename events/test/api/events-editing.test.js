@@ -119,6 +119,27 @@ describe('Events editing', () => {
         expect(res.body.errors).toHaveProperty('ends');
     });
 
+    it.each([
+        ['type', 'training'],
+        ['method', 'online']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        const stored = event.toJSON()[field];
+
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await request({
+                path: '/single/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { [field]: sent }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        await event.reload();
+        expect(event[field]).toEqual(stored);
+    });
+
     it('should fail if no organizers are set', async () => {
         const res = await request({
             path: '/single/' + event.id,

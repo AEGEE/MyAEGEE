@@ -366,6 +366,9 @@ describe('Events editing', () => {
         });
 
         test.each([
+            ['an array', ['pilot']],
+            ['an object', { type: 'pilot' }],
+            ['a number', 1],
             ['an unknown type', 'garbage']
         ])('should answer 422 for a type that is %s, also without edit:su_type', async (_name, type) => {
             mockAndCapture(organizerMocks);
@@ -399,6 +402,23 @@ describe('Events editing', () => {
         });
     });
 
+    test.each([
+        ['theme_category', 'sports'],
+        ['pax_confirmation', 'payment'],
+        ['course_level', 'beginner']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        const event = await generator.createEvent({ status: 'second approval' });
+        const stored = event.toJSON()[field];
+
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await editEvent(event, { [field]: sent });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        await event.reload();
+        expect(event[field]).toEqual(stored);
+    });
 
     test('should return 422 on an empty body', async () => {
         const event = await generator.createEvent();
