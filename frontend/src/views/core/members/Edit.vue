@@ -75,6 +75,8 @@
           <label class="label" for="member-birthday">Birthday</label>
           <b-datepicker
             id="member-birthday"
+            editable
+            :mobile-native="false"
             :date-formatter="formatDate"
             :date-parser="parseDate"
             v-model="birthday"
@@ -179,7 +181,8 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
+      // A cleared field is no birthday, not an invalid one.
+      this.user.date_of_birth = this.birthday ? moment(this.birthday).format('YYYY-MM-DD') : null
     },
     saveUser () {
       this.isSaving = true
