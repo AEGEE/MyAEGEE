@@ -27,7 +27,7 @@
     },
     "overrides": [
         {
-            "files": ["check-coverage.js", "check-codecov-builds.js", "unexercised.js"],
+            "files": ["check-coverage.js", "check-coverage-lowered.js", "check-codecov-builds.js", "spec-lint.js", "unexercised.js"],
             "rules": { "no-console": "off" }
         }
     ]

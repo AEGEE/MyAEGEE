@@ -3,63 +3,39 @@
 //
 // Lists documented responses (operation + status) that no test produced. The hits files
 // are written by the response check when OPENAPI_HITS_FILE is set, one per CI shard.
-// A response may opt out with `x-untested: <reason>`, which a reviewer approves.
-// Exits 1 when anything is left.
+// An operation may exempt one of its responses with x-untested: {'<status>': '<reason>'},
+// which a reviewer approves. An exemption for a response that a test did produce is
+// stale and fails too. Exits 1 when anything is left.
 
 const fs = require('node:fs');
 const path = require('node:path');
 const { createRequire } = require('node:module');
 
-const METHODS = ['get', 'put', 'post', 'delete', 'patch', 'options', 'trace'];
-
-function resolveRef(spec, ref) {
-    return ref.replace(/^#\//, '').split('/')
-        .map((s) => s.replace(/~1/g, '/').replace(/~0/g, '~'))
-        .reduce((acc, key) => (acc === undefined ? undefined : acc[key]), spec);
-}
-
-// x-untested may sit on the response itself or on the shared response it $refs.
-function untestedReason(spec, response) {
-    let current = response;
-    const seen = new Set();
-    while (current) {
-        if (current['x-untested'] !== undefined) return current['x-untested'];
-        if (!current.$ref || seen.has(current.$ref)) return undefined;
-        seen.add(current.$ref);
-        current = resolveRef(spec, current.$ref);
-    }
-    return undefined;
-}
+const { lintSpec, untestedExemptions, operations } = require('./spec-lint');
 
 function findUnexercised(spec, hitLines) {
     const hits = new Set(hitLines);
-    // "GET /x 4XX" is exercised by any 4xx hit on that operation.
-    const rangeHits = new Set(hitLines.map((line) => line.replace(/ (\d)\d\d$/, ' $1XX')));
+    const { exemptions } = untestedExemptions(spec);
     const missing = [];
-    const problems = [];
-    for (const [template, item] of Object.entries(spec.paths || {})) {
-        for (const method of METHODS) {
-            const op = item[method];
-            if (op) {
-                for (const [status, response] of Object.entries(op.responses || {})) {
-                    const key = `${method.toUpperCase()} ${template} ${status}`;
-                    const reason = untestedReason(spec, response);
-                    if (reason !== undefined && (typeof reason !== 'string' || reason.trim() === '')) {
-                        problems.push(`${key}: x-untested needs a reason`);
-                    }
-                    const hit = /^\dXX$/i.test(status)
-                        ? rangeHits.has(`${method.toUpperCase()} ${template} ${status.toUpperCase()}`)
-                        : hits.has(key);
-                    if (!hit && reason === undefined) missing.push(`${key}  (${op.operationId})`);
-                }
+    // Placement and reasons of x-untested, and the other spec rules.
+    const problems = lintSpec(spec);
+    for (const { template, method, op } of operations(spec)) {
+        for (const status of Object.keys(op.responses || {})) {
+            const key = `${method.toUpperCase()} ${template} ${status}`;
+            const exempt = exemptions.has(key);
+            if (exempt && hits.has(key)) {
+                problems.push(`${key}: x-untested is stale, a test produced this response; remove the exemption`);
+            } else if (!exempt && !hits.has(key)) {
+                missing.push(`${key}  (${op.operationId})`);
             }
         }
     }
     return { missing, problems };
 }
 
+// Lines starting with # (the run header) are not hits.
 function readHits(hitFiles) {
-    return hitFiles.flatMap((f) => fs.readFileSync(f, 'utf8').split('\n').map((l) => l.trim()).filter(Boolean));
+    return hitFiles.flatMap((f) => fs.readFileSync(f, 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#')));
 }
 
 if (require.main === module) {
@@ -77,11 +53,12 @@ if (require.main === module) {
         process.exit(1);
     }
     const { missing, problems } = findUnexercised(spec, hitLines);
-    if (problems.length) console.log(`Invalid x-untested:\n  ${problems.join('\n  ')}`);
+    if (problems.length) console.log(`Spec problems:\n  ${problems.join('\n  ')}`);
     console.log(missing.length
-        ? `Documented but never exercised (write the test, or mark the response x-untested: <reason>):\n  ${missing.join('\n  ')}`
+        ? 'Documented but never exercised (write the test, or exempt the response on its operation with '
+            + `x-untested: {'<status>': '<reason>'}):\n  ${missing.join('\n  ')}`
         : 'Every documented response was exercised.');
     process.exit(missing.length || problems.length ? 1 : 0);
 }
 
-module.exports = { findUnexercised, readHits, untestedReason };
+module.exports = { findUnexercised, readHits };

@@ -5,10 +5,13 @@ Test-only helpers for the Node services' jest suites and CI. How to use them:
 
 | File | What |
 |---|---|
-| `openapi.js` | `createContract()` and `createRequestHook()`: checks each test response (and each accepted JSON request body) against `<service>/openapi.yaml` |
+| `openapi.js` | `createContract()` and `createRequestHook()`: checks each test response (and each accepted JSON request body) against `<service>/openapi.yaml`; `resetHitsFile()` |
+| `spec-lint.js` | The spec conventions (closed response schemas, `x-free-form`, no `Todo`, no status ranges, operation-level `x-untested`). `createContract()` runs them; as a CLI it checks every spec in `redocly.yaml` |
+| `jest-global-setup.js` | jest `globalSetup` that starts `OPENAPI_HITS_FILE` afresh for each run |
 | `routes.js` | Records the routes `lib/server.js` registers (`instrumentExpress`, `listExpressRoutes`) and lists spec operations (`listSpecOperations`, `listOperations`) |
 | `unexercised.js` | CLI: documented responses that no test produced |
 | `check-coverage.js` | CLI: merges the CI shards' coverage and checks the service's `jest.coverageThreshold` |
+| `check-coverage-lowered.js` | CLI: fails when a branch lowers the ratchet without a `Coverage-lowered: <service>: <why>` commit trailer |
 | `check-codecov-builds.js` | CLI: checks `codecov.yml` `after_n_builds` against the uploads in `.circleci/config.yml` |
 | `test/` | Their unit tests: `node --test packages/backend-test-utils/test/` |
 

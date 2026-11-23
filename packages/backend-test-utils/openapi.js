@@ -9,6 +9,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createRequire } = require('node:module');
 
+const { lintSpec, formatProblems, isJsonMediaType } = require('./spec-lint');
+
 // Keywords that are valid OpenAPI but unknown to Ajv's JSON Schema 2020-12 vocabulary.
 const OPENAPI_ONLY_KEYWORDS = ['example', 'xml', 'externalDocs', 'discriminator'];
 // The whole document is registered with Ajv so that internal $refs resolve; its
@@ -17,12 +19,25 @@ const OPENAPI_DOCUMENT_FIELDS = ['openapi', 'info', 'jsonSchemaDialect', 'server
     'webhooks', 'components', 'security', 'tags'];
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'options', 'trace'];
 
+// Removes x-* extension keys before Ajv sees the document (strict mode rejects unknown
+// keywords), but only where a key is a keyword: names in properties and other name maps,
+// and literal values (const, enum, examples), keep keys that start with x-.
+const NAME_MAPS = new Set(['properties', 'patternProperties', 'dependentSchemas', 'dependentRequired', '$defs', 'schemas']);
+const LITERALS = new Set(['const', 'enum', 'default', 'example', 'examples']);
+
 function stripExtensions(node) {
     if (Array.isArray(node)) return node.map(stripExtensions);
     if (!node || typeof node !== 'object') return node;
     const out = {};
     for (const [key, value] of Object.entries(node)) {
-        if (!key.startsWith('x-')) out[key] = stripExtensions(value);
+        if (key.startsWith('x-')) continue;
+        if (LITERALS.has(key)) {
+            out[key] = value;
+        } else if (NAME_MAPS.has(key) && value && typeof value === 'object' && !Array.isArray(value)) {
+            out[key] = Object.fromEntries(Object.entries(value).map(([name, sub]) => [name, stripExtensions(sub)]));
+        } else {
+            out[key] = stripExtensions(value);
+        }
     }
     return out;
 }
@@ -55,6 +70,18 @@ function templateToRegExp(template) {
     return new RegExp('^' + source + '$');
 }
 
+// Literal segments before templated ones, from the left: /members/me before
+// /members/{user_id}, /a/b/{c} before /a/{b}/c.
+function compareTemplates(a, b) {
+    const kinds = (t) => t.split('/').map((segment) => (/^\{[^}]+\}$/.test(segment) ? 1 : 0));
+    const ka = kinds(a);
+    const kb = kinds(b);
+    for (let i = 0; i < Math.min(ka.length, kb.length); i++) {
+        if (ka[i] !== kb[i]) return ka[i] - kb[i];
+    }
+    return ka.length - kb.length;
+}
+
 function shorten(body) {
     if (Buffer.isBuffer(body)) return `<${body.length} bytes>`;
     const text = typeof body === 'string' ? body : JSON.stringify(body);
@@ -76,9 +103,35 @@ function isEmptyBody(body) {
     return body === '' || body === undefined || (Buffer.isBuffer(body) && body.length === 0);
 }
 
+// The hits file starts with a line naming the jest run that owns it, written by
+// resetHitsFile() in the service's jest globalSetup. The check appends only to a file
+// that this run started, so hits from an earlier local run cannot hide a missing test.
+const HITS_HEADER = '# openapi hits, jest run ';
+
+function resetHitsFile(file = process.env.OPENAPI_HITS_FILE) {
+    if (file) fs.writeFileSync(file, `${HITS_HEADER}${process.pid}\n`);
+}
+
+function assertHitsFileOwned(file) {
+    let first = '';
+    try {
+        first = fs.readFileSync(file, 'utf8').split('\n', 1)[0];
+    } catch (err) { // eslint-disable-line no-unused-vars
+        // missing: reported below
+    }
+    const owner = first.startsWith(HITS_HEADER) ? Number(first.slice(HITS_HEADER.length)) : undefined;
+    if (owner !== process.pid && owner !== process.ppid) {
+        throw new Error(`OPENAPI_HITS_FILE ${file} was not started by this jest run. Add the shared globalSetup `
+            + '(packages/backend-test-utils/jest-global-setup.js) to the service\'s jest config, or call resetHitsFile() '
+            + 'from its own globalSetup (docs/testing/backend-openapi.md).');
+    }
+}
+
 // requireFrom: a file whose node_modules provide ajv, ajv-formats and yaml. Defaults to
 // the service's package.json; the helper's own unit tests point it at a service.
-function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } = {}) {
+// allowTodo: accept the Todo placeholder schema (a spec being built). Defaults to
+// OPENAPI_ALLOW_TODO=1 in the environment; CI never sets it.
+function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, allowTodo = process.env.OPENAPI_ALLOW_TODO === '1' } = {}) {
     if (!serviceRoot) throw new Error('createContract needs serviceRoot');
     const requireFromService = createRequire(requireFrom || path.join(serviceRoot, 'package.json'));
     const YAML = requireFromService('yaml');
@@ -95,6 +148,8 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
         throw new Error(`${specFile}: expected OpenAPI 3.1.x, got ${spec && spec.openapi}`);
     }
     assertLocalRefs(spec, specFile);
+    const problems = lintSpec(spec, { allowTodo });
+    if (problems.length) throw new Error(formatProblems(specFile, problems));
 
     const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
     addFormats(ajv);
@@ -103,12 +158,8 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
 
     // Literal paths win over templated ones (/members/me before /members/{user_id}).
     const templates = Object.keys(spec.paths || {})
-        .map((template) => ({
-            template,
-            regexp: templateToRegExp(template),
-            params: (template.match(/\{/g) || []).length
-        }))
-        .sort((a, b) => a.params - b.params);
+        .sort(compareTemplates)
+        .map((template) => ({ template, regexp: templateToRegExp(template) }));
 
     const validators = new Map();
     const compile = (pointer) => {
@@ -139,11 +190,12 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
 
     function findOperation(method, urlPath) {
         const pathname = new URL(urlPath, 'http://x').pathname.replace(/(.)\/$/, '$1');
-        const match = templates.find((t) => t.regexp.test(pathname));
         const lower = method.toLowerCase();
-        if (!match || !spec.paths[match.template][lower]) {
-            return { pathname, template: match && match.template };
-        }
+        // Path and method together, as Express routes: PUT /members/me goes to
+        // /members/{user_id} when only GET /members/me is literal.
+        const matches = templates.filter((t) => t.regexp.test(pathname));
+        const match = matches.find((t) => spec.paths[t.template][lower]);
+        if (!match) return { pathname, template: matches.length ? matches[0].template : undefined };
         return { pathname, template: match.template, operation: spec.paths[match.template][lower] };
     }
 
@@ -160,9 +212,15 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
     }
 
     // One line per checked response, read by unexercised.js after all shards finish.
+    let hitsFileChecked;
     function recordHit(template, method, status) {
         const file = process.env.OPENAPI_HITS_FILE;
-        if (file) fs.appendFileSync(file, `${method.toUpperCase()} ${template} ${status}\n`);
+        if (!file) return;
+        if (hitsFileChecked !== file) {
+            assertHitsFileOwned(file);
+            hitsFileChecked = file;
+        }
+        fs.appendFileSync(file, `${method.toUpperCase()} ${template} ${status}\n`);
     }
 
     // Called by test/scripts/helpers.js after every request. Throws on a violation.
@@ -177,10 +235,19 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
         const opPointer = `/paths/${escapePointer(template)}/${method.toLowerCase()}`;
 
         // A request the server accepted must match the documented request body.
-        if (statusCode < 300 && requestBody !== undefined && operation.requestBody) {
+        if (statusCode < 300 && requestBody !== undefined) {
+            if (!operation.requestBody) {
+                fail([`${label}: the server accepted a request with a JSON body, but the operation documents no requestBody.`,
+                    'Document the body, or stop sending it.', `request body: ${shorten(requestBody)}`]);
+            }
             const { node: requestDoc, pointer } = deref(operation.requestBody, `${opPointer}/requestBody`);
-            if (requestDoc.content && requestDoc.content['application/json']) {
-                const validate = compile(`${pointer}/content/application~1json/schema`);
+            const jsonType = Object.keys(requestDoc.content || {}).find(isJsonMediaType);
+            if (!jsonType) {
+                fail([`${label}: the server accepted a JSON request body, but the operation documents only `
+                    + `${Object.keys(requestDoc.content || {}).join(', ') || 'no media type'}.`]);
+            }
+            if (requestDoc.content[jsonType].schema) {
+                const validate = compile(`${pointer}/content/${escapePointer(jsonType)}/schema`);
                 if (!validate(requestBody)) {
                     fail([`${label}: the server accepted a request body that the spec rejects:`,
                         ...formatErrors(validate.errors), `request body: ${shorten(requestBody)}`]);
@@ -189,8 +256,8 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
         }
 
         const responses = operation.responses || {};
-        let key = String(statusCode);
-        if (!responses[key]) key = `${key[0]}XX`;
+        // Statuses are listed one by one: the spec lint refuses 4XX ranges and default.
+        const key = String(statusCode);
         // Implicit responses, never listed per operation: 500 (unhandled error) everywhere,
         // and 400 (body is not valid JSON) on operations that take a JSON body. They are
         // not recorded as hits: there is nothing documented to exercise.
@@ -221,12 +288,14 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom } 
         if (!mediaTypes.includes(contentType)) {
             fail([`${label}: content-type '${contentType}' is not documented (documented: ${mediaTypes.join(', ')}).`]);
         }
-        // Binary and text bodies: the media type is all that is checked.
-        if (contentType !== 'application/json' || !content[contentType].schema) return;
+        // Binary and text bodies: the media type is all that is checked. JSON bodies
+        // (application/json and application/*+json) are validated; the spec lint makes sure
+        // that every JSON response has a schema.
+        if (!isJsonMediaType(contentType) || !content[contentType].schema) return;
 
         const { json, error } = parseJson(body);
-        if (error) fail([`${label}: content-type is application/json, but the body is not JSON: ${shorten(body)}`]);
-        const validate = compile(`${responsePointer}/content/application~1json/schema`);
+        if (error) fail([`${label}: content-type is ${contentType}, but the body is not JSON: ${shorten(body)}`]);
+        const validate = compile(`${responsePointer}/content/${escapePointer(contentType)}/schema`);
         if (!validate(json)) {
             fail([`${label}: response body does not match ${responsePointer}:`,
                 ...formatErrors(validate.errors), `body: ${shorten(json)}`]);
@@ -265,4 +334,4 @@ function createRequestHook(contractOptions) {
     };
 }
 
-module.exports = { createContract, createRequestHook, HTTP_METHODS };
+module.exports = { createContract, createRequestHook, resetHitsFile, HTTP_METHODS };

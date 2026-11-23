@@ -17,11 +17,13 @@ function instrumentExpress(express) {
     const originalRoute = proto.route;
 
     proto.use = function use(...args) {
-        const mountPath = typeof args[0] === 'string' ? args[0] : '/';
-        if (typeof args[0] !== 'string' && typeof args[0] !== 'function' && !Array.isArray(args[0])) {
-            throw new Error(`Router#use with a ${typeof args[0]} path is not supported; extend routes.js`);
-        }
-        const handlers = args.flat(Infinity).filter((a) => typeof a === 'function');
+        // Router#use([path], ...handlers): the first argument is a path unless it is a
+        // function or a (nested) array that starts with one, as in Express itself.
+        let first = args[0];
+        while (Array.isArray(first) && first.length) [first] = first;
+        const hasPath = typeof first !== 'function';
+        const mountPath = hasPath ? args[0] : '/';
+        const handlers = args.slice(hasPath ? 1 : 0).flat(Infinity).filter((a) => typeof a === 'function');
         (this.recordedMounts = this.recordedMounts || []).push({ mountPath, handlers });
         return originalUse.apply(this, args);
     };
@@ -49,6 +51,16 @@ function toOpenApiPath(expressPath) {
     return expressPath.replace(/:(\w+)/g, '{$1}');
 }
 
+// A sub-application: app.use(path, subApp) mounts a wrapper named mounted_app, and
+// router.use(subApp) mounts the application function itself.
+function isApplication(handler) {
+    return handler.name === 'mounted_app' || (typeof handler.handle === 'function' && typeof handler.set === 'function');
+}
+
+function isRouter(handler) {
+    return Boolean(handler.recordedRoutes || handler.recordedMounts) || Array.isArray(handler.stack);
+}
+
 function collect(router, prefix, out) {
     for (const { routePath, route } of router.recordedRoutes || []) {
         for (const [method, enabled] of Object.entries(route.methods)) {
@@ -61,10 +73,31 @@ function collect(router, prefix, out) {
             }
         }
     }
-    for (const { mountPath, handlers } of router.recordedMounts || []) {
+    const mounts = router.recordedMounts || [];
+    // Prefixes at which a router is mounted: other handlers there are its middleware
+    // (endpointsMetrics.recordMountPath, fetchers), which answer no request themselves.
+    const routerPrefixes = new Set(mounts.filter((m) => typeof m.mountPath === 'string' && m.handlers.some(isRouter))
+        .map((m) => join('/', m.mountPath)));
+    for (const { mountPath, handlers } of mounts) {
+        if (typeof mountPath !== 'string') {
+            throw new Error(`use() at ${prefix} with ${Array.isArray(mountPath) ? 'an array of paths' : `a ${typeof mountPath} path`} `
+                + `(${String(mountPath)}): routes.js cannot list its routes; mount each path with its own use() call`);
+        }
+        const mountedAt = join(prefix, mountPath);
         for (const handler of handlers) {
+            if (isApplication(handler)) {
+                throw new Error(`An Express application is mounted at ${mountedAt}: routes.js cannot list its routes; `
+                    + 'mount an express.Router() instead');
+            }
             if (handler.recordedRoutes || handler.recordedMounts) {
-                collect(handler, join(prefix, mountPath), out);
+                collect(handler, mountedAt, out);
+            } else if (isRouter(handler) && handler.stack.length > 0) {
+                throw new Error(`A router mounted at ${mountedAt} was created before instrumentExpress(): load lib/server.js `
+                    + 'after instrumentExpress(express)');
+            } else if (!isRouter(handler) && join('/', mountPath) !== '/' && !routerPrefixes.has(join('/', mountPath))) {
+                throw new Error(`${handler.name || 'An anonymous handler'} is mounted at ${mountedAt} without a router: `
+                    + 'it may answer requests that the route parity test cannot see. Register routes on an express.Router(), '
+                    + 'or mount the handler in the same place as the router it prepares');
             }
         }
     }
