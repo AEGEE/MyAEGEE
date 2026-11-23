@@ -27,7 +27,8 @@ describe('Mailer client', () => {
             url: `${config.mailer.url}:${config.mailer.port}/`,
             method: 'POST',
             body: mail,
-            fullResponse: true
+            fullResponse: true,
+            timeout: 10000
         });
     });
 
