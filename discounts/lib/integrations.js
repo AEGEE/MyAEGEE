@@ -5,6 +5,7 @@ const { Sequelize, sequelize } = require('./sequelize');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
+const config = require('../config');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
@@ -112,7 +113,11 @@ exports.claimCode = async (req, res) => {
     // One transaction per claim, holding a lock on the integration's row: claims of one
     // integration run one after the other, so the quota count and the free-code lookup
     // see every claim made before them.
+    // The wait for the lock is limited (config.claim.lockTimeout), because every waiting
+    // claim holds a database connection.
     const result = await sequelize.transaction(async (transaction) => {
+        await sequelize.query(`SET LOCAL lock_timeout = ${Number(config.claim.lockTimeout)}`, { transaction });
+
         const integration = await Integration.findOne({
             where: { id: req.integration.id },
             lock: transaction.LOCK.UPDATE,
@@ -160,6 +165,12 @@ exports.claimCode = async (req, res) => {
 
         await freeCode.update({ claimed_by: req.user.id }, { transaction });
         return { code: freeCode };
+    }).catch((err) => {
+        // Postgres answers lock_not_available (55P03) when the lock timeout runs out.
+        if (err.parent && err.parent.code === '55P03') {
+            return { status: 503, message: 'Other claims of this integration are being processed. Please try again in a moment.' };
+        }
+        throw err;
     });
 
     if (!result.code) {
