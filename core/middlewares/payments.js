@@ -26,8 +26,13 @@ exports.createPayment = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission create:payment is required, but not present.');
     }
 
+    const userId = helpers.parseId(req.body.user_id);
+    if (!userId) {
+        return errors.makeBadRequestError(res, 'The user ID is not valid.');
+    }
+
     const user = await User.findOne({
-        where: { id: req.body.user_id },
+        where: { id: userId },
         include: [BodyMembership]
     });
 

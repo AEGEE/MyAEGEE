@@ -168,11 +168,14 @@ function findBy(query, fields) {
     return whereObject;
 }
 
-// For a field of a request body that should be the ID of something: returns it as a number,
-// or null if it's not a positive whole number (given as a number or as a text of digits).
+// The highest ID that fits the integer columns of the database.
+const MAX_ID = 2147483647;
+
+// For a value that should be the ID of something: returns it as a number, or null if it's not
+// a positive whole number that an ID can be (given as a number or as a text of digits).
 const parseId = (value) => {
     const id = typeof value === 'string' && /^[0-9]+$/.test(value) ? Number(value) : value;
-    return Number.isSafeInteger(id) && id > 0 ? id : null;
+    return Number.isSafeInteger(id) && id > 0 && id <= MAX_ID ? id : null;
 };
 
 // For a field of a request body that should be a text: anything else counts as not given.

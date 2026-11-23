@@ -101,11 +101,12 @@ exports.setParentCircle = async (req, res) => {
     }
 
     // setting parent circle
-    if (!helpers.isNumber(req.body.parent_circle_id)) {
+    const parentCircleId = helpers.parseId(req.body.parent_circle_id);
+    if (!parentCircleId) {
         return errors.makeBadRequestError(res, 'The circle ID is not valid.');
     }
 
-    const parentCircle = await Circle.findByPk(req.body.parent_circle_id);
+    const parentCircle = await Circle.findByPk(parentCircleId);
     if (!parentCircle) {
         return errors.makeNotFoundError(res, 'No parent circle found.');
     }

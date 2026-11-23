@@ -145,7 +145,12 @@ exports.createMembership = async (req, res) => {
         );
     }
 
-    const user = await User.findByPk(req.body.user_id);
+    const userId = helpers.parseId(req.body.user_id);
+    if (!userId) {
+        return errors.makeBadRequestError(res, 'The user ID is not valid.');
+    }
+
+    const user = await User.findByPk(userId);
     if (!user) {
         return errors.makeNotFoundError(res, 'User is not found');
     }
