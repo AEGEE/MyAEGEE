@@ -4,3 +4,6 @@ exports.CLAIM_BODY_TYPES = ['antenna', 'contact antenna', 'contact'];
 // The fields a manager sets when creating or editing; ids and timestamps are the database's.
 exports.INTEGRATION_FIELDS = ['name', 'code', 'quota_period', 'quota_amount', 'description'];
 exports.CATEGORY_FIELDS = ['name', 'discounts'];
+
+// Codes are stored in a varchar(255) column.
+exports.MAX_CODE_LENGTH = 255;

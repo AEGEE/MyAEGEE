@@ -6,7 +6,8 @@ const Integration = sequelize.define('integration', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Integration name should be set.' }
+            notEmpty: { msg: 'Integration name should be set.' },
+            len: { args: [0, 255], msg: 'Integration name should be at most 255 characters long.' }
         },
     },
     code: {
@@ -14,7 +15,8 @@ const Integration = sequelize.define('integration', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Integration code should be set.' }
+            notEmpty: { msg: 'Integration code should be set.' },
+            len: { args: [0, 255], msg: 'Integration code should be at most 255 characters long.' }
         },
         unique: {
             args: true,

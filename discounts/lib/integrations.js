@@ -6,7 +6,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const config = require('../config');
-const { INTEGRATION_FIELDS } = require('./constants');
+const { INTEGRATION_FIELDS, MAX_CODE_LENGTH } = require('./constants');
 const logger = require('./logger');
 
 exports.createIntegration = async (req, res) => {
@@ -102,6 +102,10 @@ exports.addCodesToIntegration = async (req, res) => {
 
     if (!req.body.every((code) => typeof code === 'string' && code.trim() !== '')) {
         return errors.makeValidationError(res, 'Every code should be a non-empty string.');
+    }
+
+    if (req.body.some((code) => code.length > MAX_CODE_LENGTH)) {
+        return errors.makeValidationError(res, 'Every code should be at most 255 characters long.');
     }
 
     const arrayToCreate = req.body.map((code) => ({
