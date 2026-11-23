@@ -25,7 +25,7 @@ exports.rateLimit = rateLimit({
     legacyHeaders: false,
     store: exports.rateLimitStore,
     handler: (req, res) => {
-        log.warn({ ip: req.ip, user_id: req.user ? req.user.id : null }, 'Bug report: rate limit exceeded');
+        log.warn({ user_id: req.user ? req.user.id : null }, 'Bug report: rate limit exceeded');
         return errors.makeError(res, 429, 'You have sent too many bug reports, please try again later.');
     }
 });
@@ -69,7 +69,7 @@ exports.reportBug = async (req, res) => {
             if (!isSuccessful(uploadResponse) || !attachment || !attachment.temporaryAttachmentId) {
                 reportLog.error({
                     file: file.originalname,
-                    atlassian: { status: uploadResponse.statusCode, body: uploadResponse.body }
+                    atlassian: { status: uploadResponse.statusCode }
                 }, 'Bug report: Atlassian rejected the screenshot upload');
                 return errors.makeError(res, 502, 'Could not upload the screenshot to the issue tracker.');
             }
@@ -97,9 +97,7 @@ exports.reportBug = async (req, res) => {
         });
 
         if (!isSuccessful(issueResponse)) {
-            reportLog.error({
-                atlassian: { status: issueResponse.statusCode, body: issueResponse.body }
-            }, 'Bug report: Atlassian rejected the issue');
+            reportLog.error({ atlassian: { status: issueResponse.statusCode } }, 'Bug report: Atlassian rejected the issue');
 
             const reason = issueResponse.body && issueResponse.body.friendlyReason
                 ? issueResponse.body.friendlyReason.body
