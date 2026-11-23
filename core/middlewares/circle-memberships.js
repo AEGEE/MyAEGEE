@@ -81,6 +81,7 @@ exports.updateMembership = async (req, res) => {
     }
 
     await req.currentCircleMembership.update({ position: req.body.position });
+    await req.currentCircleMembership.reload();
     return res.json({
         success: true,
         data: req.currentCircleMembership

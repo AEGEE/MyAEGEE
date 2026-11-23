@@ -68,6 +68,7 @@ exports.updateCircle = async (req, res) => {
 
     // TODO: check if the parent circle's joinable is the same as child circle's one
     await req.currentCircle.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CIRCLE.UPDATE));
+    await req.currentCircle.reload();
     return res.json({
         success: true,
         data: req.currentCircle

@@ -282,6 +282,7 @@ exports.updateUser = async (req, res) => {
     }
 
     await req.currentUser.update(req.body, { fields });
+    await req.currentUser.reload();
     return res.json({
         success: true,
         data: req.currentUser

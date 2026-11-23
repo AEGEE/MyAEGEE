@@ -212,9 +212,14 @@ exports.updateMembership = async (req, res) => {
     }
 
     await req.currentBodyMembership.update({ comment: req.body.comment });
+
+    // Read again, so the answer shows what is stored. Not with reload(): that leaves out
+    // the computed fields of the member that comes with the membership.
+    const membership = await BodyMembership.findByPk(req.currentBodyMembership.id, { include: [User] });
+
     return res.json({
         success: true,
-        data: req.currentBodyMembership,
+        data: membership,
     });
 };
 

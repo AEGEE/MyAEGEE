@@ -62,6 +62,7 @@ exports.updatePayment = async (req, res) => {
     }
 
     await req.currentPayment.update(req.body, { fields: constants.FIELDS_TO_UPDATE.PAYMENT.UPDATE });
+    await req.currentPayment.reload();
     return res.json({
         success: true,
         data: req.currentPayment

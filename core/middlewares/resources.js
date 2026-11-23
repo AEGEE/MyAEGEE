@@ -120,6 +120,7 @@ exports.updateCategory = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
     await req.currentResourceCategory.update(pickFields(req.body, constants.FIELDS_TO_UPDATE.RESOURCE_CATEGORY));
+    await req.currentResourceCategory.reload();
 
     return res.json({
         success: true,
@@ -211,6 +212,7 @@ exports.updateLink = async (req, res) => {
     }
 
     await link.update(fields);
+    await link.reload();
 
     return res.json({
         success: true,

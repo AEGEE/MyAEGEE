@@ -43,6 +43,7 @@ exports.updatePermission = async (req, res) => {
     }
 
     await req.currentPermission.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.PERMISSION.UPDATE));
+    await req.currentPermission.reload();
     return res.json({
         success: true,
         data: req.currentPermission

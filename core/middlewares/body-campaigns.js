@@ -57,6 +57,7 @@ exports.updateCampaign = async (req, res) => {
     }
 
     await req.currentBodyCampaign.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE));
+    await req.currentBodyCampaign.reload();
     return res.json({
         success: true,
         data: req.currentBodyCampaign
