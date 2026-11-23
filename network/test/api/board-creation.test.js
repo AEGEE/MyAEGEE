@@ -8,8 +8,8 @@ const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const { Board } = require('../../models');
 const mailer = require('../../lib/mailer');
-const cron = require('../../lib/cron');
 const config = require('../../config');
+const cron = require('../../lib/cron');
 const logger = require('../../lib/logger');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
@@ -494,6 +494,53 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('other_members');
         expect(res.body.data.other_members[0].function).toEqual('Test');
         expect(res.body.data.other_members[0].user_id).toEqual(user.id);
+    });
+
+    test('should fail with 422 if the request has no body', async () => {
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('president');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should tell NetCom about the new board', async () => {
+        const sendMailSpy = jest.spyOn(mailer, 'sendMail');
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: user.id }] });
+
+        try {
+            const res = await request({
+                path: '/bodies/' + body.id + '/boards',
+                method: 'POST',
+                body: board,
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const notifications = sendMailSpy.mock.calls.filter(([options]) => options.template === 'network_new_board.html');
+            expect(notifications.length).toEqual(1);
+            const name = user.first_name + ' ' + user.last_name;
+            expect(notifications[0][0]).toMatchObject({
+                to: config.new_board_notifications,
+                parameters: {
+                    body_name: body.name,
+                    positions: [
+                        { function: 'President', name },
+                        { function: 'Secretary', name },
+                        { function: 'Treasurer', name },
+                        { function: 'Comms', name }
+                    ]
+                }
+            });
+            expect(notifications[0][0].parameters.board).toMatchObject({ body_id: body.id, president: board.president });
+        } finally {
+            sendMailSpy.mockRestore();
+        }
     });
 
     describe('welcome mail', () => {

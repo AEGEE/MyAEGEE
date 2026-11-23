@@ -73,6 +73,32 @@ describe('Antenna Criteria fulfilment mail', () => {
         expect(sendMailSpy).not.toHaveBeenCalled();
     });
 
+    test('should fail with 500 if the mailer fails', async () => {
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            path: '/antennaCriteria/sendFulfilmentMail',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: validMail()
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should list the required fields if the request has no body', async () => {
+        const res = await request({
+            path: '/antennaCriteria/sendFulfilmentMail',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors).sort()).toEqual(['body', 'subject', 'to']);
+        expect(sendMailSpy).not.toHaveBeenCalled();
+    });
+
     describe('sender address', () => {
         test.each([
             'network@aegee.eu',
