@@ -3,6 +3,29 @@ const moment = require('moment');
 const constants = require('./constants');
 const { Sequelize } = require('./sequelize');
 
+// Dates are read as YYYY-MM-DD; a longer ISO string (the frontend sends one to /recents) is
+// read by its date part, as the list queries do.
+const isValidDay = (value) => typeof value === 'string' && moment(value, 'YYYY-MM-DD').isValid();
+
+// Checks the filters of the event lists. Returns a message for the user, or null if the
+// filters are fine. Without this, an unknown type or date reaches Postgres and fails there.
+exports.validateListQuery = (query) => {
+    if (typeof query.type !== 'undefined') {
+        const types = Array.isArray(query.type) ? query.type : [query.type];
+        if (!types.every((type) => constants.EVENT_TYPES.includes(type))) {
+            return `The type filter should be one or more of: ${constants.EVENT_TYPES.join(', ')}.`;
+        }
+    }
+
+    for (const field of ['starts', 'ends']) {
+        if (typeof query[field] !== 'undefined' && !isValidDay(query[field])) {
+            return `The ${field} filter should be a date (YYYY-MM-DD).`;
+        }
+    }
+
+    return null;
+};
+
 // A helper to get default search/query/pagination filter for events listings.
 exports.getDefaultQuery = (req) => {
     // Default filter is empty.

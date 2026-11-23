@@ -11,6 +11,11 @@ const mailer = require('./mailer');
 const config = require('../config');
 
 exports.listEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
 
@@ -37,6 +42,11 @@ exports.listEvents = async (req, res) => {
 
 // TODO: See if we want to you this function for something else than the AC check
 exports.listMostRecentEuropeanEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const queryObj = {
         where: {
             deleted: false,
@@ -86,6 +96,11 @@ exports.listBodyApplications = async (req, res) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -104,6 +119,11 @@ exports.listUserOrganizedEvents = async (req, res) => {
 
 // List all the event where the user is participant at.
 exports.listUserAppliedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
