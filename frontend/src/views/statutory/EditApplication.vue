@@ -94,7 +94,7 @@
                     type="number"
                     required
                     min="0"
-                    v-model="application.number_of_events_visited" />
+                    v-model.number="application.number_of_events_visited" />
                 </div>
               </div>
 
