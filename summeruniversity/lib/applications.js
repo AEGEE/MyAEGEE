@@ -545,8 +545,8 @@ exports.exportAll = async (req, res) => {
 
     const headers = Object.keys(headersNames).map((field) => headersNames[field]);
 
-    // One admin login for the whole export.
-    const adminToken = await core.getAdminToken();
+    // One admin login for the whole export, and none when there is nobody to look up.
+    const adminToken = applications.length > 0 ? await core.getAdminToken() : null;
     applications = await Promise.all(applications
         .map(async (application) => {
             const user = await core.fetchApplicationUser(application.user_id, adminToken);
