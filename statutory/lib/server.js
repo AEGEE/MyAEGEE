@@ -43,6 +43,15 @@ const QuestionsRouter = express.Router({ mergeParams: true });
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
 server.use(bodyParser.json());
+// A request without a body is handled like one with an empty object, so that a route
+// answers as it does for missing fields.
+server.use((req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+    }
+
+    return next();
+});
 server.use(queryBoolean());
 server.use(morgan);
 
