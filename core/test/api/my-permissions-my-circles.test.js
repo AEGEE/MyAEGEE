@@ -267,4 +267,27 @@ describe('Listing my circles for permission', () => {
             expect(res.body.meta.count).toEqual(1);
         });
     });
+
+    test.each([
+        ['a number', 5],
+        ['a list', ['process']],
+        ['an object', { a: 1 }],
+        ['a boolean', true]
+    ])('should return 400 if the action or the object is %s', async (name, value) => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
+
+        for (const body of [{ action: value, object: 'object' }, { action: 'action', object: value }]) {
+            const res = await request({
+                path: '/my_permissions',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'Action or object is not specified.' });
+        }
+    });
 });

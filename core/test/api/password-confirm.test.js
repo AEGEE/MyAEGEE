@@ -154,4 +154,49 @@ describe('Password confirm', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('message');
     });
+
+    test.each([
+        ['a number', 5],
+        ['a list', ['a']],
+        ['an object', { a: 1 }],
+        ['a boolean', true]
+    ])('should return 404 if the token is %s', async (name, value) => {
+        const user = await generator.createUser();
+        await generator.createPasswordReset(user);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: value, password: 'testtest' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toEqual({ success: false, message: 'Token is invalid.' });
+        expect(await PasswordReset.count()).toEqual(1);
+    });
+
+    test.each([
+        ['a number', 12345678],
+        ['a list', ['testtest']],
+        ['an object', { a: 'testtest' }],
+        ['a boolean', true]
+    ])('should fail if the password is %s', async (name, value) => {
+        const user = await generator.createUser({ password: 'the-old-password' });
+        const reset = await generator.createPasswordReset(user);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: value }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('password');
+
+        // Nothing is used up: the reset still works and the password is the old one.
+        expect(await PasswordReset.count()).toEqual(1);
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+    });
 });
