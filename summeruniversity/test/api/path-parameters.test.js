@@ -56,9 +56,11 @@ describe('Path parameters', () => {
             body: table.bodies[op.operationId]
         });
 
+        // The route's own lookup answered, not the catch-all 404 of a path no route matches.
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toEqual(table.notFoundMessages[param](table.NONEXISTENT_ID));
+        expect(res.body.message).not.toMatch(table.CATCH_ALL_MESSAGE);
         if (table.unchanged[op.operationId]) await table.unchanged[op.operationId](fixtures);
     });
 
@@ -91,6 +93,7 @@ describe('Path parameters', () => {
 
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(table.notFoundMessages.application_id(fixtures.application.id));
         if (table.unchanged[op.operationId]) await table.unchanged[op.operationId](fixtures);
     });
 
@@ -102,5 +105,19 @@ describe('Path parameters', () => {
 
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(table.notFoundMessages.event_id('no-such-event'));
+    });
+
+    test('a path that no route matches answers the catch-all 404, which the sweep tells apart', async () => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            path: `/single/${event.id}/no-such-route`,
+            headers: { 'X-Auth-Token': 'foobar' },
+            skipOpenApi: 'checks the catch-all message that the not-found sweep must not accept'
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.message).toMatch(table.CATCH_ALL_MESSAGE);
     });
 });

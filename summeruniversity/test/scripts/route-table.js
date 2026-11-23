@@ -88,6 +88,16 @@ module.exports = {
         setApplicationComment: ['event_id', 'application_id'],
     },
 
+    // path parameter -> the not-found message of the route's own lookup, for the value looked up.
+    notFoundMessages: {
+        event_id: (value) => `Event with id ${value} not found`,
+        application_id: (value) => `Application with id ${value} not found`,
+        year: () => 'Season is not found.',
+    },
+
+    // The message of the catch-all 404 for a path that no route matches.
+    CATCH_ALL_MESSAGE: /^No such API endpoint: /,
+
     // operationId -> path parameters that answer 400 when they are not a number.
     badIds: {
         // Their 400 is about the request body (events-status.test.js, applications-creating.test.js).
