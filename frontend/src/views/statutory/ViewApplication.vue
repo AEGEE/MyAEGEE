@@ -194,7 +194,7 @@
             <div class="notification is-danger">
               <span v-if="isOwnApplication">Your application is cancelled.</span>
               <span v-else>This application is cancelled.</span>
-              <span v-if="showOwnDeadlineCancelHint">You can uncancel it till the application period ends.</span>
+              <span v-if="showOwnDeadlineCancelHint"> You can uncancel it till the application period ends.</span>
             </div>
           </div>
         </div>
