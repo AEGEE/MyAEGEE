@@ -7,6 +7,7 @@ const constants = require('../../lib/constants');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { Application } = require('../../models');
 
 describe('Applications listing', () => {
     beforeAll(async () => {
@@ -22,6 +23,7 @@ describe('Applications listing', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         await generator.clearAll();
         mock.cleanAll();
     });
@@ -191,7 +193,7 @@ describe('Applications listing', () => {
         expect(res.body.data.length).toEqual(0);
     });
 
-    test('should result in an error if user does not have permission on /juridical', async () => {
+    test('should result in an error if user does not have permission on /incoming', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
 
@@ -307,6 +309,212 @@ describe('Applications listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(0);
+    });
+
+    test('should leave the address out on /incoming only for the applicants core does not know', async () => {
+        const event = await generator.createEvent({ applications: [] });
+
+        // The core mock knows the notification email of user 2, not of user 1337.
+        const known = await generator.createApplication({ status: 'accepted', user_id: 2 }, event);
+        const unknown = await generator.createApplication({ status: 'accepted', user_id: 1337 }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/incoming',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.length).toEqual(2);
+
+        const rowOf = (application) => res.body.data.find((row) => row.id === application.id);
+        expect(rowOf(known).notification_email).toEqual('test@example.com');
+        expect(rowOf(unknown)).not.toHaveProperty('notification_email');
+    });
+
+    describe('who may see which list', () => {
+        const fieldsOf = {
+            all: [...Object.keys(Application.rawAttributes), 'notification_email'],
+            juridical: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+            incoming: [...constants.ALLOWED_INCOMING_FIELDS, 'notification_email'],
+            network: constants.ALLOWED_NETWORK_LIST_FIELDS
+        };
+        const lists = Object.keys(fieldsOf);
+
+        // The lists each permission opens, when it is the only one the caller holds.
+        const opens = {
+            manage_applications: ['all', 'juridical', 'incoming', 'network'],
+            manage_juridical: ['juridical'],
+            manage_incoming: ['incoming'],
+            update_memberslist_status: ['network'],
+            approve_members: [],
+            manage_event: []
+        };
+
+        const rows = Object.entries(opens).flatMap(([permission, allowed]) => lists.map((name) => [
+            permission,
+            name,
+            allowed.includes(name) ? 200 : 403
+        ]));
+
+        const list = (event, name) => request({
+            path: '/events/' + event.id + '/applications/' + name,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        // An application that every list has: accepted, confirmed and of a user core knows.
+        const createListedApplication = (event) => generator.createApplication({
+            user_id: 2,
+            status: 'accepted',
+            confirmed: true
+        }, event);
+
+        test.each(rows)('global:%s:agora alone answers /%s of an Agora with %i', async (permission, name, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [`global:${permission}:agora`] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await createListedApplication(event);
+
+            const res = await list(event, name);
+
+            expect(res.statusCode).toEqual(status);
+
+            if (status === 403) {
+                expect(res.body.success).toEqual(false);
+                expect(res.body).toHaveProperty('message');
+                expect(res.body).not.toHaveProperty('data');
+                return;
+            }
+
+            expect(res.body.meta.count).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(Object.keys(res.body.data[0]).sort()).toEqual([...fieldsOf[name]].sort());
+        });
+
+        test.each(rows.filter(([, , status]) => status === 200))(
+            'global:%s:epm alone answers /%s of an Agora with 403',
+            async (permission, name) => {
+                mock.mockAll({ mainPermissions: { permissions: [`global:${permission}:epm`] } });
+
+                const event = await generator.createEvent({ type: 'agora', applications: [] });
+                await createListedApplication(event);
+
+                const res = await list(event, name);
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body.success).toEqual(false);
+                expect(res.body).not.toHaveProperty('data');
+            }
+        );
+
+        test('global:manage_applications:spm opens the lists of an SPM', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_applications:spm'] } });
+
+            const event = await generator.createEvent({ type: 'spm', applications: [] });
+            const application = await createListedApplication(event);
+
+            for (const name of lists) {
+                const res = await list(event, name);
+
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.data.map((row) => row.id)).toEqual([application.id]);
+            }
+        });
+    });
+
+    // The participants list opens after the deadline: at the deadline itself it is still closed,
+    // although the applicants read their status from that moment on.
+    describe('the participants list deadline on /accepted', () => {
+        const listAccepted = (event) => request({
+            path: '/events/' + event.id + '/applications/accepted',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test.each([
+            ['refuses a member 1 ms before the deadline', -1, 403],
+            ['refuses a member exactly at the deadline (exclusive)', 0, 403],
+            ['shows a member the list 1 ms after the deadline', 1, 200]
+        ])('%s', async (name, offset, status) => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ status: 'accepted' }, event);
+
+            tk.freeze(moment(event.participants_list_publish_deadline).add(offset, 'ms').toDate());
+
+            const res = await listAccepted(event);
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+
+            if (status === 200) {
+                expect(res.body.data.map((row) => row.id)).toEqual([application.id]);
+            } else {
+                expect(res.body).not.toHaveProperty('data');
+            }
+        });
+
+        test('shows the list before the deadline to those who manage the applications', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_applications:agora'] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ status: 'accepted' }, event);
+
+            tk.freeze(moment(event.participants_list_publish_deadline).subtract(1, 'ms').toDate());
+
+            const res = await listAccepted(event);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((row) => row.id)).toEqual([application.id]);
+        });
+
+        test.each([
+            'global:manage_incoming:agora',
+            'global:manage_juridical:agora',
+            'global:update_memberslist_status:agora',
+            'global:approve_members:agora',
+            'global:manage_applications:epm'
+        ])('refuses a holder of %s alone before the deadline of an Agora', async (permission) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createApplication({ status: 'accepted' }, event);
+
+            tk.freeze(moment(event.participants_list_publish_deadline).subtract(1, 'ms').toDate());
+
+            const res = await listAccepted(event);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).not.toHaveProperty('data');
+        });
+
+        test('sorts the list by body, then participant type, then order, those without a type last', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ applications: [] });
+            const create = (fields) => generator.createApplication({ status: 'accepted', ...fields }, event);
+
+            const untyped = await create({ body_id: 1, body_name: 'Aachen', participant_type: null, participant_order: null });
+            const secondVisitor = await create({ body_id: 1, body_name: 'Aachen', participant_type: 'visitor', participant_order: 2 });
+            const otherBody = await create({ body_id: 2, body_name: 'Brno', participant_type: 'delegate', participant_order: 1 });
+            const firstVisitor = await create({ body_id: 1, body_name: 'Aachen', participant_type: 'visitor', participant_order: 1 });
+            const delegate = await create({ body_id: 1, body_name: 'Aachen', participant_type: 'delegate', participant_order: 1 });
+
+            tk.freeze(moment(event.participants_list_publish_deadline).add(1, 'ms').toDate());
+
+            const res = await listAccepted(event);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((row) => row.id)).toEqual([
+                delegate.id,
+                firstVisitor.id,
+                secondVisitor.id,
+                untyped.id,
+                otherBody.id
+            ]);
+        });
     });
 
     describe('displaying if the user is on memberslist', () => {
@@ -551,24 +759,6 @@ describe('Applications listing', () => {
             expect(res.body).toHaveProperty('data');
             expect(res.body.data.length).toEqual(1);
             expect(res.body.data[0].last_name).toEqual('surname surname');
-        });
-
-        test.skip('should filter by email', async () => {
-            const event = await generator.createEvent();
-            await generator.createApplication({ user_id: 1, email: 'testtest@aegee.eu' }, event);
-
-            const res = await request({
-                path: '/events/' + event.id + '/applications/all?query=testtest',
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.success).toEqual(true);
-            expect(res.body).not.toHaveProperty('errors');
-            expect(res.body).toHaveProperty('data');
-            expect(res.body.data.length).toEqual(1);
-            expect(res.body.data[0].email).toEqual('testtest@aegee.eu');
         });
 
         test('should return cancelled applications on displayCancelled=true', async () => {
