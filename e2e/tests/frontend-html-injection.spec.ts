@@ -30,8 +30,11 @@ test.describe('HTML injection in the frontend', () => {
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}`);
 
-        const rendered = page.locator('.markdown').filter({ hasText: 'Intro with' });
-        await expect(rendered).toBeVisible();
+        // The description on the event page: the cell next to its row header.
+        const rendered = page.getByRole('row')
+            .filter({ has: page.getByRole('rowheader', { name: 'Description', exact: true }) })
+            .getByRole('cell');
+        await expect(rendered.getByText('Intro with')).toBeVisible();
 
         // Markdown itself still works.
         await expect(rendered.locator('strong')).toHaveText('bold text');
@@ -44,14 +47,14 @@ test.describe('HTML injection in the frontend', () => {
         await expect(rendered.locator('form, input, button')).toHaveCount(0);
         await expect(rendered.locator('[style]')).toHaveCount(0);
         // Classes are dropped too: with Bulma's modal classes this would cover the whole page.
-        await expect(rendered.locator('[class]')).toHaveCount(0);
+        await expect(rendered.locator('.markdown [class]')).toHaveCount(0);
         await expect(page.locator('.modal.is-active')).toHaveCount(0);
         await expect(rendered.getByText('Session expired')).toBeVisible();
         await expect(rendered.locator('a[href^="javascript:"]')).toHaveCount(0);
         // Only http(s), mailto: and tel: links stay links.
         await expect(rendered.getByText('mail the board')).toHaveAttribute('href', 'mailto:board@example.org');
         await expect(rendered.getByText('download it')).toBeVisible();
-        await expect(rendered.getByText('download it')).not.toHaveAttribute('href');
+        await expect(rendered.getByRole('link', { name: 'download it' })).toHaveCount(0);
         await rendered.getByText('click me').click();
         expect(await injected(page)).toBeUndefined();
     });
@@ -112,22 +115,23 @@ test.describe('HTML injection in the frontend', () => {
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}`);
 
-        const budget = page.locator('a', { hasText: 'window.__injected=\'budget\'' });
-        await expect(budget).toBeVisible();
-        // These links open in a new tab, so clicking them wouldn't show anything here:
-        // without an href, there's nothing to open.
-        await expect(budget).not.toHaveAttribute('href');
+        // The text stays visible, but not as a link: these open in a new tab, so clicking them
+        // wouldn't show anything here; without a link (an <a> without href isn't one), there's
+        // nothing to open.
+        const budget = 'window.__injected=\'budget\'';
+        await expect(page.getByText(budget)).toBeVisible();
+        await expect(page.getByRole('link', { name: budget })).toHaveCount(0);
 
-        const travel = page.locator('a', { hasText: 'window.__injected=\'travel\'' });
-        await expect(travel).toBeVisible();
-        await expect(travel).not.toHaveAttribute('href');
+        const travel = 'window.__injected=\'travel\'';
+        await expect(page.getByText(travel)).toBeVisible();
+        await expect(page.getByRole('link', { name: travel })).toHaveCount(0);
 
         // A link without a scheme opens as https instead of as a page of MyAEGEE.
-        await expect(page.locator('a', { hasText: 'www.aegee.org/programme' })).toHaveAttribute('href', 'https://www.aegee.org/programme');
+        await expect(page.getByRole('link', { name: 'www.aegee.org/programme' })).toHaveAttribute('href', 'https://www.aegee.org/programme');
 
         await page.goto(`/bodies/${body.id}`);
-        const website = page.locator('a', { hasText: 'window.__injected=\'website\'' });
-        await expect(website).toBeVisible();
-        await expect(website).not.toHaveAttribute('href');
+        const website = 'window.__injected=\'website\'';
+        await expect(page.getByText(website)).toBeVisible();
+        await expect(page.getByRole('link', { name: website })).toHaveCount(0);
     });
 });
