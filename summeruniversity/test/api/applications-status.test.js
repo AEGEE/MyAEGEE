@@ -298,4 +298,57 @@ describe('Applications status changes', () => {
             expect(res.statusCode).toEqual(403);
         });
     });
+    describe('participant counts and states', () => {
+        test('should not accept more participants than max_participants', async () => {
+            await event.update({ max_participants: 1 });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty('status');
+            await application.reload();
+            expect(application.status).toEqual('pending');
+            expect(mails).toHaveLength(0);
+        });
+
+        test('should not count cancelled applications against max_participants', async () => {
+            await event.update({ max_participants: 1 });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted', cancelled: true });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.status).toEqual('accepted');
+        });
+
+        test('should accept without a limit if max_participants is not set', async () => {
+            await event.update({ max_participants: null });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        test('should close the open call when the event is over capacity', async () => {
+            await event.update({ max_participants: 5, open_call: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+            await generator.createApplication(event, { user_id: 11, status: 'accepted' });
+
+            const res = await request({
+                path: '/single/' + event.id + '/open_call',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body: { open_call: true, max_participants: 1 }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.available_spots).toBeLessThan(0);
+            expect(event.open_call).toEqual(false);
+        });
+    });
 });
