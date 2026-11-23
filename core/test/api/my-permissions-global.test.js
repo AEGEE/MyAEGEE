@@ -198,4 +198,159 @@ describe('My permissions global', () => {
             }
         });
     });
+
+    describe('what the other services read', () => {
+        test('should have the scope, action and object of each permission, and the three combined', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({
+                scope: 'global',
+                action: 'view',
+                object: 'member',
+                description: 'See every member.'
+            });
+            const circle = await generator.createCircle();
+            await generator.createCirclePermission(circle, permission);
+            await generator.createCircleMembership(circle, user);
+
+            const res = await request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(Object.keys(res.body).sort()).toEqual(['data', 'success']);
+            expect(res.body.data).toEqual([{
+                id: permission.id,
+                scope: 'global',
+                action: 'view',
+                object: 'member',
+                combined: 'global:view:member',
+                description: 'See every member.',
+                filters: [],
+                created_at: expect.any(String),
+                updated_at: expect.any(String),
+                circle_permissions: [{
+                    circle_id: circle.id,
+                    permission_id: permission.id,
+                    created_at: expect.any(String),
+                    updated_at: expect.any(String)
+                }]
+            }]);
+        });
+
+        test('should list a permission once if several circles of the member give it, with each of those circles', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+            const firstCircle = await generator.createCircle();
+            const secondCircle = await generator.createCircle();
+            const otherCircle = await generator.createCircle();
+            for (const circle of [firstCircle, secondCircle, otherCircle]) {
+                await generator.createCirclePermission(circle, permission);
+            }
+            await generator.createCircleMembership(firstCircle, user);
+            await generator.createCircleMembership(secondCircle, user);
+
+            const res = await request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].combined).toEqual('global:view:member');
+            expect(res.body.data[0].circle_permissions.map((item) => item.circle_id).sort((a, b) => a - b))
+                .toEqual([firstCircle.id, secondCircle.id]);
+        });
+
+        test('should answer with an empty list for a member without circles', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+            const circle = await generator.createCircle();
+            await generator.createCirclePermission(circle, permission);
+
+            const res = await request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, data: [] });
+        });
+
+        test('should have the filters of a permission', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({
+                scope: 'global',
+                action: 'view',
+                object: 'member',
+                filters: ['email', 'phone']
+            });
+            const circle = await generator.createCircle();
+            await generator.createCirclePermission(circle, permission);
+            await generator.createCircleMembership(circle, user);
+
+            const res = await request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data[0].filters).toEqual(['email', 'phone']);
+        });
+
+        test('should not list the join request permissions that a circle of the member has', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const body = await generator.createBody();
+            const circle = await generator.createCircle({ body_id: body.id });
+            const permission = await generator.createPermission({ scope: 'join_request', action: 'view', object: 'member' });
+            await generator.createCirclePermission(circle, permission);
+            await generator.createCircleMembership(circle, user);
+            await generator.createBodyMembership(body, user);
+
+            const res = await request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+        });
+
+        test('should not list the permissions of a circle the member has left', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+            const circle = await generator.createCircle();
+            await generator.createCirclePermission(circle, permission);
+            const membership = await generator.createCircleMembership(circle, user);
+
+            const getPermissions = () => request({
+                path: '/my_permissions',
+                method: 'GET',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect((await getPermissions()).body.data.length).toEqual(1);
+
+            await membership.destroy();
+
+            expect((await getPermissions()).body.data).toEqual([]);
+        });
+    });
 });
