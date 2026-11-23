@@ -76,15 +76,25 @@ Import `test` and `expect` from `ui/support/test.ts`.
 The session is in the browser from the start: the tokens are part of the context's storage
 state, so a second page of the same test is logged in too, and what the app does to the tokens
 (renewing them, logging out) is kept. Don't open a context of your own with `browser.newContext()`:
-it would have no mock, no session and none of the checks below.
+it would have no mock, no session and none of the checks below. For the same reason lint keeps a
+spec inside the harness: it takes `test` and `expect` from `ui/support/test.ts` and from nowhere
+else (types of `@playwright/test` are fine), makes no `test` of its own with `test.extend()`,
+doesn't replace the harness's fixtures with `test.use({ api: … })`, and sends no requests from
+the test process (`page.request`, `context.request`, the `request` fixture): those go around the
+mock, straight to the suite's static server, and nothing is recorded. Let the page ask
+(`page.goto()`, a click, `page.evaluate(() => fetch(…))`) and read `api.callsTo(…)`.
 
 Four checks run in every test without being asked for:
 
 - A request that no handler answers fails the test ("requests nobody mocked"). When the test
   failed for another reason first, the list is shown next to that failure and attached to the
-  test, because a forgotten mock is the usual reason for an assertion that timed out.
+  test, because a forgotten mock is the usual reason for an assertion that timed out. The same
+  goes for a request to the suite's own address that is neither `/api/<service>/…`, a file of
+  the frontend build nor a page navigation, such as `/apii/events`, `/api` or `/API/events`: the
+  page gets a 404 for it (not the app's `index.html` with a 200), and the test fails.
 - A handler that no request matched fails the test ("handlers that no request matched"): the
-  route has a typo, or the page stopped asking. See "Answering the API" for the ways out.
+  route has a typo, or the page stopped asking. See "Answering the API" for the ways out, and
+  "When the handlers are judged" for the moment this is decided.
 - An uncaught error in a page fails the test.
 - `console.error` in the page is recorded. Vue reports errors in render functions, watchers and
   hooks this way. In an area whose coverage gate is enforced they fail the test; before that
@@ -115,9 +125,28 @@ api.json('GET events /', ok([]));
 api.fallback(mockEverything);                         // fallback answers are never required
 ```
 
-`optional` takes the reason, in at least three words. Use it for an answer of a shared
-`beforeEach` that some of its tests don't need; don't use it to quieten a test whose page
-stopped asking.
+`optional` takes the reason, under the same rule as a coverage exception
+([coverage.md](coverage.md)): at least four words and 20 characters, no placeholder (`todo`),
+and "hard to mock" is not a reason. Use it for an answer of a shared `beforeEach` that some of
+its tests don't need; don't use it to quieten a test whose page stopped asking.
+
+**When the handlers are judged.** A test ends with its last assertion, and the page may not have
+sent every request by then: a request follows a render, a debounce or a timer of the page, and
+under load the browser gets to it late. So a test that reached its end with a handler nobody
+has used yet waits for that request, for at most five seconds (the time every assertion of the
+suite gets), and fails only when it still hasn't come. What this means for a spec:
+
+- A test whose handlers were all used ends at once. Only a test that is about to fail for an
+  unused handler waits, so the wait costs nothing in a green run.
+- A request the page sends shortly after the last assertion counts. You don't have to add
+  `await expect.poll(() => api.callsTo(route)).toHaveLength(1)` only to keep the test from
+  ending too early. Add it when the request is what the test is about.
+- A handler that is really unused still fails the test, five seconds later, and a request that
+  arrives late for one handler doesn't hide another one that nothing asked for.
+- The wait is in real time. A test that stopped the page's clock (`freezeTime`) and never
+  moves it on gets no request from a timer of the page, and fails for its handler.
+- A test that failed or timed out is not judged for unused handlers: it didn't get to all its
+  requests. The list is attached to it all the same.
 
 ```ts
 api.json('GET events /single/:id', ok(event()));                         // 200 with this body
@@ -315,19 +344,26 @@ pass without that (the rules are in `e2e/lint/rules/`, each shown at work in `e2
 | Not allowed | Instead |
 |---|---|
 | A test without an assertion | `expect(…)`, `expect.poll(…)`, or one of the suite's asserting helpers. Their names are listed in `e2e/lint/assertion-helpers.js` (`expectStatus`, `expectShape`, `expectEmptyTable`); a new helper that asserts by itself is named `expect…` and added there |
-| `return` in the body of a test | Every test runs to its end, on both projects |
-| A condition on `layout`, `frontend`, `isMobile`, `viewport` or `testInfo.project` in a spec | Pass `layout` to a helper of `ui/support/shell.ts` (or add one there). Behaviour of one viewport only is a `@phone-only` test, or a `@desktop-only` test with a reason |
+| A test whose only assertions are in a loop that may run zero times (`for (const row of await rows.all())`, `calls.forEach(…)`) | Assert the number of items before the loop (`await expect(rows).toHaveCount(3)`), or loop over a list written out in the spec |
+| `return` in the body of a test, in a `describe`, or in a `test.step` before its last statement | Every test and every step runs to its end, on both projects, and a `describe` declares all its tests. A step may end with `return <its result>` |
+| A condition on `layout`, `frontend`, `isMobile`, `viewport`, `page.viewportSize()` or `testInfo.project` in a spec, also when its answer is first kept in a variable (`const phone = ['phone'].includes(layout)`) or the fixture is renamed (`{ layout: l }`) | Pass `layout` to a helper of `ui/support/shell.ts` (or add one there). Behaviour of one viewport only is a `@phone-only` test, or a `@desktop-only` test with a reason |
 | An assertion inside `if`, a ternary, `&&`, `switch`, `catch`, or a `try` with a `catch` | Set up the one case the test is about and assert without a condition; two cases are two tests. `try`/`finally` for cleaning up is fine |
 | `expect(x)` without a matcher, an expectation about a constant, `.catch()` on an expectation | An expectation that can fail |
 | A promise nobody waits for: `page.goto()`, `click()`, `expect(locator).toBeVisible()` without `await` | `await` it |
-| `test.skip`, `.fixme`, `.fail`, `.only` in any form: on `describe`, `test.step`, `testInfo`, under another name, as `annotation: { type: 'skip' }`, or a test that is only declared when a condition holds | Fix the page or the test |
+| `test.skip`, `.fixme`, `.fail`, `.only` in any form: on `describe`, `test.step`, `testInfo`, under another name, as `annotation: { type: 'skip' }`, or a test that is only declared when a condition holds. A `skip`, `only` or `fail` of something that isn't Playwright's (`paging.skip` in an answer of the mock) is fine | Fix the page or the test |
 | `test.use({ strictApi: false })` in a behavioural spec | Answer the request, or `api.fallback(mockEverything)` for a page of another area |
 | `allowedConsoleErrors` that allows everything (`/.*/`, `/./`, a variable) | Regular expression literals with the text of the message: `[/Network Error/]` |
-| `retries`, serial mode, a time limit of 0 in a spec | A test passes alone, in any order, at the first try. `test.slow()` and `test.setTimeout(n)` are fine |
+| `retries`, serial mode, a time limit of 0, given to Playwright in a spec (`test.use`, `test.describe.configure`, `test.setTimeout`). Data with the same names (`{ retries: 3 }` in an answer of the mock) is fine | A test passes alone, in any order, at the first try. `test.slow()` and `test.setTimeout(n)` are fine |
+| Leaving the harness: `test` or `expect` imported from `@playwright/test` or from another file than `ui/support/test.ts`, `test.extend()`, `test.use()` with a fixture of the harness (`api`, `pageErrors`, `consoleErrors`, `storageState`, `page`, `context`, `layout`), `page.request`, `context.request`, the `request` fixture | See "Fixtures": `test.use()` for the options, the page for the requests, `ui/support/` for what specs share |
 
 An exception needs its reason on the same line (`// eslint-disable-next-line <rule> -- <why>`), in
 `e2e/ui/` and in `e2e/tests/`, and a disable comment that no longer suppresses anything is an error.
 The same rules, apart from the ones about viewports and the API mock, hold for the real-stack suite.
+
+`npm run lint` checks the rules themselves too (`e2e/lint/rules.test.js`): every fixture is
+linted with the real configuration and has to be reported on exactly its marked lines. CI lints
+with `CI=true`, which makes typescript-eslint read files from disk in one run; the test covers
+both ways, so run `CI=true npm run lint` when a change to the rules passes locally and fails in CI.
 
 The custom rules are loaded with `--rulesdir`, which `npm run lint` passes. An editor needs to
 be told too, or it reports "Definition for rule 'e2e-…' not found": in VS Code,
@@ -338,9 +374,10 @@ be told too, or it reports "Definition for rule 'e2e-…' not found": in VS Code
 `e2e/ui/harness/` holds the suite's own tests. Besides the helpers and the API mock on real
 pages, `self-check.spec.ts` runs the tests of `e2e/ui/harness/must-fail/` as a Playwright run of
 its own (`e2e/playwright.selfcheck.config.ts`) and checks how each one ended: a test that takes
-only `{ page }` and forgets a mock has to fail, and so do a request from a second page, an
-unused handler, a test that passed only on its retry and a test that skipped itself while
-running. A change to the fixtures, the mock or the reporter that opens one of these holes turns
+only `{ page }` and forgets a mock has to fail, and so do a request from a second page, a
+request with a wrong address (`/apii/…`), an unused handler (also next to one that got its
+request late), a test that passed only on its retry and a test that skipped itself while
+running; a test whose page sends a request just after its last assertion has to pass. A change to the fixtures, the mock or the reporter that opens one of these holes turns
 that spec red. Add a case there when you add a safety net.
 
 ## The generated tests

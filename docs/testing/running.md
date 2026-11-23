@@ -69,7 +69,13 @@ before pushing. Leave the full run to CI.
   shown for every failed test too, next to the assertion that failed, and attached to the test
   in the report: look there first when an assertion timed out.
 - "handlers that no request matched" lists the routes a test answers although the page never
-  asked: a typo in the path, or a page that stopped asking.
+  asked: a typo in the path, or a page that stopped asking. A test with such a handler takes
+  five seconds longer to fail: it waits for a request the page may still send.
+- A `GET http://127.0.0.1:…/apii/events` among the "requests nobody mocked" is a request with a
+  wrong address: neither `/api/<service>/…`, a file of the build nor a page.
+- CI sets `CI=true`, which changes the run: one retry, four workers, and ESLint reading files
+  from disk in one go. Run a failing command the same way (`CI=true npm run lint`,
+  `CI=true npx playwright test -c playwright.ui.config.ts`) before looking further.
 - A run that is red although every test is green: the reporter's lines at the end name the test
   that was skipped, or passed only on its retry (`flaky`).
 - A test that passes on `vue` and fails on `vue-mobile` usually used the menu, a table header
@@ -156,9 +162,11 @@ tested different builds).
 
 `after_n_builds` in `codecov.yml` does **not** change with these numbers. Codecov waits for a
 fixed number of uploads before it reports: every container of the six service test jobs uploads
-(six jobs with four containers each), and the frontend adds exactly one upload, from
-`frontend-coverage`, whatever the `parallelism` of the two frontend test jobs is. The number
-only changes when a job that uploads itself gets more or fewer containers.
+(six jobs with four containers each, 24). The frontend adds one upload, from
+`frontend-coverage`, whatever the `parallelism` of the two frontend test jobs is, and Codecov
+does not wait for that one: the job only runs when the frontend tests passed
+([coverage.md](coverage.md#the-frontend-upload-is-not-one-codecov-waits-for)). The number only
+changes when a service test job gets more or fewer containers.
 `node packages/backend-test-utils/check-codecov-builds.js` (the `openapi` job) counts the
 uploads in the CircleCI config and fails when `after_n_builds` disagrees.
 

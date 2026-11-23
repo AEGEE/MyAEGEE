@@ -90,7 +90,8 @@ template changes.
 A reason has at least four words and 20 characters of its own (repeating the condition doesn't
 count) and is not a placeholder: `todo`, `tbd`, `n/a`, "hard to test", "see above" and the like
 are refused, for ignore comments (`npm run lint`), template exceptions and accepted downgrades
-(the gate). That only stops entries nobody meant to be read. A good reason says why no test
+(the gate), and for the `optional` of a handler of the API mock (when the test runs). That only
+stops entries nobody meant to be read. A good reason says why no test
 can reach the code: a browser feature the test browser lacks, a defensive branch for something
 the API can't answer.
 
@@ -109,7 +110,16 @@ the pages a test visits; nothing has to be annotated.
 - an area that was `enforced` is `pending` again or lost its file,
 - a template exception or an `istanbul ignore` comment was added in an area that was enforced
   at the base,
+- the ignore comments of a file in such an area take more lines of code out of the numbers
+  than before, also when there are as many of them: a comment moved from one statement to the
+  function around it is a downgrade,
 - a threshold was lowered.
+
+For that, the gate works out what each comment covers, in the file as it is now and at the base:
+the statement, function or expression that starts after the comment (what istanbul attaches it
+to), or the side of the `if` or `?:` that `ignore if` and `ignore else` name. It adds up the
+lines per file. Moving ignored code, or changing it without making it longer, is not a
+downgrade; an ignored function that grows is one, and is accepted like the others.
 
 To accept one, add `e2e/ui/support/coverage/downgrades.json` in the same pull request:
 
@@ -153,6 +163,36 @@ remove the two `informational: true` lines under `frontend` in `codecov.yml`. Fr
 project is. Until then they are shown on every pull request and block nothing. The components
 in the same file (`component_management`) have no statuses of their own; they only split the
 numbers per service in Codecov's comment.
+
+### The frontend upload is not one Codecov waits for
+
+Codecov reports once it has `after_n_builds` uploads of a commit (`codecov.yml`). That number is
+24: the four containers of each of the six service test jobs. The upload of `frontend-coverage`
+is a 25th and is deliberately not counted. `frontend-coverage` only runs when
+`frontend-mocked-test` and `e2e-test` passed, so with 25 a single failing frontend test would
+leave Codecov waiting for an upload that never comes, and it would post no status at all: no
+`codecov/project` and no `codecov/patch` for the services either, on a pull request that may not
+have touched them.
+
+What happens instead:
+
+| `frontend-tests` | Uploads | Codecov posts |
+|---|---|---|
+| green | 24 and the frontend's | all four statuses. When the frontend's upload arrives after the 24th, Codecov has reported on the services already and reports again with the frontend's numbers |
+| red | 24 | `codecov/project` and `codecov/patch` for the services. The two frontend statuses have no upload of this commit to go by; they are informational, and the red workflow is what says the frontend is not fine |
+
+One upload more than Codecov waits for also means that it can report before everything is in:
+when the frontend's upload arrives before the last container of a service, the first report
+misses that container, and `codecov/project` can be lower for a moment. Codecov reports again
+with every later upload, so the statuses are right once all 25 are in. Running the upload after
+a failed test job instead (so that 25 would always be reached) was not chosen: the coverage of a
+run that stopped half-way is not a number to report, and a cancelled or crashed job would still
+leave Codecov silent.
+
+`node packages/backend-test-utils/check-codecov-builds.js` (the `openapi` job) keeps the number
+honest. It counts the uploads of the jobs that run on every push, leaves out a job that
+`requires` others (it lists `frontend-coverage` as "not waited for"), and fails when either
+`after_n_builds` differs.
 
 After changing `codecov.yml`, check it: `curl --data-binary @codecov.yml https://codecov.io/validate`
 (it sends the file and nothing else), and `node packages/backend-test-utils/check-codecov-builds.js`

@@ -521,7 +521,9 @@ The small suites (events, summeruniversity, network, discounts) run unsharded:
 
 Codecov waits for `after_n_builds` uploads (`codecov.yml`, twice) before it reports. The
 number is the sum of `parallelism` over the jobs with a `codecov/upload` step that run on
-every push. A pull request that adds or removes such a job, or changes its parallelism,
+every push. A job that `requires` other jobs is left out: it only uploads when those passed,
+and Codecov must not wait for it (the frontend's `frontend-coverage`, see
+[coverage.md](coverage.md#the-frontend-upload-is-not-one-codecov-waits-for)). A pull request that adds or removes such a job, or changes its parallelism,
 applies its own change to the value on `stable` when it rebases, and changes both lines.
 `node packages/backend-test-utils/check-codecov-builds.js` checks it in the `openapi` job and
 prints the expected value.
