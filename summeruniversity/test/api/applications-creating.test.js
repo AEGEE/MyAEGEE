@@ -306,6 +306,16 @@ describe('Applications creation', () => {
         expect(await Application.count()).toEqual(0);
     });
 
+    test('should return 422 if core gives the applicant an id that is not a number', async () => {
+        mockAndCapture({ ...applicantMocks, core: { data: { ...applicant, id: String(applicant.id) } } });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.user_id).toEqual(['User ID must be a number.']);
+        expect(await Application.count()).toEqual(0);
+    });
+
     test('should accept answers that are not strings', async () => {
         const res = await apply(generator.generateApplicationBody(event, { body_id: 1, answers: [{}] }));
 
