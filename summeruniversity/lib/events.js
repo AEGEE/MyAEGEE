@@ -287,10 +287,11 @@ const validateTypeAndFee = async (data) => {
 };
 
 // Fetches the names of the bodies in `bodies` from core. Bodies core does not know or does
-// not show (deleted ones) are listed in `missing` instead of failing the request.
+// not show (deleted ones) are listed in `missing` instead of failing the request. Malformed
+// entries (null among them) are kept as they are, for the Event model to refuse.
 async function fetchBodies(bodies, token) {
     const fetched = await Promise.all(bodies.map((body) => core.fetchBody(body, token)));
-    const missing = bodies.filter((body, index) => fetched[index] === null).map((body) => body.body_id);
+    const missing = bodies.filter((body, index) => body !== null && fetched[index] === null).map((body) => body.body_id);
     return { bodies: fetched, missing };
 }
 
@@ -342,7 +343,7 @@ exports.addEvent = async (req, res) => {
 
     // we'll catch these on validation inside the Event model.
     if (Array.isArray(event.organizers)) {
-        if (!event.organizers.some((org) => org.user_id === req.user.id)) {
+        if (!event.organizers.some((org) => org && org.user_id === req.user.id)) {
             return errors.makeForbiddenError(res, 'User creating the event should be one of the organizers.');
         }
     }

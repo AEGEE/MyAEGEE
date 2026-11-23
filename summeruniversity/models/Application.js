@@ -251,7 +251,7 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             async isValid(value) {
-                if (!Array.isArray(value)) {
+                if (!Array.isArray(value) || !value.every((answer) => typeof answer === 'string')) {
                     throw new Error('Answers should be an array of strings.');
                 }
 

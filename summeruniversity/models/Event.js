@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -82,7 +82,10 @@ const Event = sequelize.define(
         photos: {
         // TODO: check if JSONB is the type that we want, maybe an array of ids/location is enough?
             type: Sequelize.JSONB,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isList: isList('Photos should be a list.')
+            }
         // TODO: max 6 photos
         },
         video: {
@@ -371,6 +374,7 @@ const Event = sequelize.define(
         // TODO: change this to an array of strings since we do not store anything else than the learning objective itself
             type: Sequelize.JSONB,
             validate: {
+                isList: isList('Learning objectives should be a list.'),
                 notEmpty: { msg: 'Learning objectives should be set.' },
             // TODO: min 2 and max 5 learning objectives
             }
@@ -429,6 +433,11 @@ const Event = sequelize.define(
                 isValid(value) {
                     if (!Array.isArray(value)) {
                         throw new Error('Event questions should be a list.');
+                    }
+
+                    // The applications export reads the description of every question.
+                    if (!value.every((question) => typeof question === 'object' && question !== null && typeof question.description === 'string')) {
+                        throw new Error('Every question should have a description.');
                     }
                 }
             }

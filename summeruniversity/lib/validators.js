@@ -51,6 +51,15 @@ function isText(value) {
     }
 }
 
+// A list. The entries are not checked. allowNull decides on a missing value.
+function isList(msg) {
+    return function isListValue(value) {
+        if (value !== null && value !== undefined && !Array.isArray(value)) {
+            throw new Error(msg);
+        }
+    };
+}
+
 // The most digits after the decimal point that a Postgres NUMERIC without a precision keeps.
 const DECIMAL_SCALE_MAX = 16383;
 
@@ -102,5 +111,5 @@ function isDate(msg) {
 }
 
 module.exports = {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, dateSetter, isDate, areDates
+    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, dateSetter, isDate, areDates
 };
