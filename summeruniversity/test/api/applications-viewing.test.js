@@ -430,18 +430,20 @@ describe('Applications listing, viewing and exporting', () => {
             ownEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
         });
 
-        const call = (subpath, method, body) => request({
+        // `variant`: the schema the caller's answer must match (see openApiVariant).
+        const call = (subpath, method, body, variant) => request({
             path: '/single/' + ownEvent.id + '/applications' + subpath,
             method,
             headers: { 'X-Auth-Token': 'foobar' },
-            body
+            body,
+            openApiVariant: variant
         });
 
         test('should not show the board comment to the applicant', async () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me', 'GET');
+            const res = await call('/me', 'GET', undefined, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.user_id).toEqual(applicant.id);
@@ -451,7 +453,7 @@ describe('Applications listing, viewing and exporting', () => {
         test('should show the board comment to someone who may list the applications', async () => {
             const application = await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/' + application.id, 'GET');
+            const res = await call('/' + application.id, 'GET', undefined, 'ApplicationWithUser');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.board_comment).toEqual('Board only');
@@ -461,7 +463,7 @@ describe('Applications listing, viewing and exporting', () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me', 'PUT', { motivation: 'Changed' });
+            const res = await call('/me', 'PUT', { motivation: 'Changed' }, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data).not.toHaveProperty('board_comment');
@@ -471,7 +473,7 @@ describe('Applications listing, viewing and exporting', () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me/cancelled', 'PUT', { cancelled: true });
+            const res = await call('/me/cancelled', 'PUT', { cancelled: true }, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.cancelled).toEqual(true);
@@ -481,7 +483,7 @@ describe('Applications listing, viewing and exporting', () => {
         test('should not show the board comment in the answer to the application', async () => {
             mock.mockAll(ownApplicantMocks);
 
-            const res = await call('', 'POST', generator.generateApplicationBody(ownEvent, { body_id: 1 }));
+            const res = await call('', 'POST', generator.generateApplicationBody(ownEvent, { body_id: 1 }), 'ApplicationForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.user_id).toEqual(applicant.id);

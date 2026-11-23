@@ -584,7 +584,8 @@ paths:
       summary: Apply to a Summer University
       description: |
         The caller applies with one of their bodies. The applicant, the organizers and the board of
-        the body get a mail. Answers 200, not 201.
+        the body get a mail. Answers 200, not 201. The applicant gets the application without the
+        board comment, unless they may see it.
       tags: [applications]
       x-permission: apply:summeruniversity while applications are open, the Summer University is fully published, and the caller has no other active application in the season and no active ban
       requestBody:
@@ -628,6 +629,7 @@ paths:
     get:
       operationId: getApplication
       summary: One application
+      description: The applicant gets their application without the board comment, unless they may list the applications of the Summer University or set board comments for the body.
       tags: [applications]
       x-permission: the applicant, an organizer or manage_summeruniversity:<type>, the board of the application's body or global:approve_members:summeruniversity, or anyone who may edit the Summer University
       responses:
@@ -643,7 +645,7 @@ paths:
     put:
       operationId: updateApplication
       summary: Edit an application
-      description: A new body must be one of the applicant's bodies. The applicant, the organizers and the board of the body get a mail.
+      description: A new body must be one of the applicant's bodies. The applicant, the organizers and the board of the body get a mail. The applicant gets the application without the board comment, unless they may see it.
       tags: [applications]
       x-permission: the applicant while they may apply, or anyone who may edit the Summer University
       requestBody:
@@ -692,7 +694,7 @@ paths:
     put:
       operationId: setApplicationCancelled
       summary: Cancel an application, or take the cancellation back
-      description: The accepted participants of the Summer University are counted again.
+      description: The accepted participants of the Summer University are counted again. The applicant gets the application without the board comment, unless they may see it.
       tags: [applications]
       x-permission: organizer or manage_summeruniversity:<type>, or the applicant while they may apply
       requestBody:
@@ -705,7 +707,7 @@ paths:
           description: The changed application.
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApplicationWithUserResponse'}
+              schema: {$ref: '#/components/schemas/ApplicationForCallerResponse'}
         '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
@@ -1302,7 +1304,8 @@ components:
         edit_application: {type: boolean}
         set_application_cancelled: {type: boolean}
       unevaluatedProperties: false
-    Application:
+    ApplicationFields:
+      description: The columns of an application but the board comment, shared by the variants below.
       type: object
       required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at]
       properties:
@@ -1330,7 +1333,6 @@ components:
         confirmed: {type: boolean}
         attended: {type: boolean}
         cancelled: {type: boolean}
-        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
         aegee_experience: {type: string}
         ideal_su: {type: string}
         motivation: {type: string}
@@ -1341,93 +1343,62 @@ components:
         agreed_to_su_terms: {type: boolean}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
-      additionalProperties: false
-    ApplicationWithUser:
-      description: 'An application with the applicant''s gender, date of birth and notification email from core.'
+    ApplicantFields:
+      description: The applicant's details from core, which most application responses add.
       type: object
-      required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at, gender, date_of_birth, notification_email]
+      required: [gender, date_of_birth, notification_email]
       properties:
-        id: {type: integer}
-        user_id: {type: integer}
-        event_id: {type: integer}
-        first_name: {type: string}
-        last_name: {type: string}
-        nationality: {type: string}
-        travelling_from: {type: string}
-        visa_required: {type: boolean}
-        visa_place_of_birth: {type: [string, 'null']}
-        visa_passport_number: {type: [string, 'null']}
-        visa_passport_issue_date: {type: [string, 'null']}
-        visa_passport_expiration_date: {type: [string, 'null']}
-        visa_passport_issue_authority: {type: [string, 'null']}
-        visa_embassy: {type: [string, 'null']}
-        visa_street_and_house: {type: [string, 'null']}
-        visa_postal_code: {type: [string, 'null']}
-        visa_city: {type: [string, 'null']}
-        visa_country: {type: [string, 'null']}
-        body_id: {type: integer}
-        body_name: {type: string}
-        status: {type: string, enum: [pending, accepted, rejected]}
-        confirmed: {type: boolean}
-        attended: {type: boolean}
-        cancelled: {type: boolean}
-        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
-        aegee_experience: {type: string}
-        ideal_su: {type: string}
-        motivation: {type: string}
-        answers: {type: array, items: {$ref: '#/components/schemas/Answer'}}
-        meals: {type: string}
-        allergies: {type: [string, 'null']}
-        agreed_to_privacy_policy: {type: boolean}
-        agreed_to_su_terms: {type: boolean}
-        created_at: {type: string, format: date-time}
-        updated_at: {type: string, format: date-time}
         gender: {type: [string, 'null'], description: From the applicant's core profile.}
         date_of_birth: {type: [string, 'null'], format: date, description: From the applicant's core profile.}
         notification_email: {type: [string, 'null'], description: From the applicant's core profile.}
-      additionalProperties: false
+    BoardComment:
+      description: |
+        The board's comment on the applicant. Left out of the answers the applicant gets about
+        their own application (the ForApplicant variants), unless they may also list the
+        applications of the Summer University or set board comments for the application's body.
+      type: [string, 'null']
+    Application:
+      description: An application as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [board_comment]
+      properties:
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationForApplicant:
+      description: An application as its applicant gets it, without the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      unevaluatedProperties: false
+    ApplicationWithUser:
+      description: An application with the applicant's gender, date of birth and notification email from core, as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+        - $ref: '#/components/schemas/ApplicantFields'
+      required: [board_comment]
+      properties:
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationWithUserForApplicant:
+      description: An application with the applicant's gender, date of birth and notification email from core, as its applicant gets it, without the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+        - $ref: '#/components/schemas/ApplicantFields'
+      unevaluatedProperties: false
     ApplicationWithEvent:
       description: 'An application with what a board needs of the Summer University it belongs to.'
       type: object
-      required: [id, user_id, event_id, first_name, last_name, nationality, travelling_from, visa_required, visa_place_of_birth, visa_passport_number, visa_passport_issue_date, visa_passport_expiration_date, visa_passport_issue_authority, visa_embassy, visa_street_and_house, visa_postal_code, visa_city, visa_country, body_id, body_name, status, confirmed, attended, cancelled, board_comment, aegee_experience, ideal_su, motivation, answers, meals, allergies, agreed_to_privacy_policy, agreed_to_su_terms, created_at, updated_at, event]
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [board_comment, event]
       properties:
-        id: {type: integer}
-        user_id: {type: integer}
-        event_id: {type: integer}
-        first_name: {type: string}
-        last_name: {type: string}
-        nationality: {type: string}
-        travelling_from: {type: string}
-        visa_required: {type: boolean}
-        visa_place_of_birth: {type: [string, 'null']}
-        visa_passport_number: {type: [string, 'null']}
-        visa_passport_issue_date: {type: [string, 'null']}
-        visa_passport_expiration_date: {type: [string, 'null']}
-        visa_passport_issue_authority: {type: [string, 'null']}
-        visa_embassy: {type: [string, 'null']}
-        visa_street_and_house: {type: [string, 'null']}
-        visa_postal_code: {type: [string, 'null']}
-        visa_city: {type: [string, 'null']}
-        visa_country: {type: [string, 'null']}
-        body_id: {type: integer}
-        body_name: {type: string}
-        status: {type: string, enum: [pending, accepted, rejected]}
-        confirmed: {type: boolean}
-        attended: {type: boolean}
-        cancelled: {type: boolean}
-        board_comment: {type: [string, 'null'], description: 'Left out for the applicant, unless they may list the applications of the Summer University or set board comments for the body.'}
-        aegee_experience: {type: string}
-        ideal_su: {type: string}
-        motivation: {type: string}
-        answers: {type: array, items: {$ref: '#/components/schemas/Answer'}}
-        meals: {type: string}
-        allergies: {type: [string, 'null']}
-        agreed_to_privacy_policy: {type: boolean}
-        agreed_to_su_terms: {type: boolean}
-        created_at: {type: string, format: date-time}
-        updated_at: {type: string, format: date-time}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
         event: {$ref: '#/components/schemas/BoardviewEvent'}
-      additionalProperties: false
+      unevaluatedProperties: false
     ApplicationListResponse:
       type: object
       required: [success, data]
@@ -1448,7 +1419,11 @@ components:
       properties:
         success: {const: true}
         message: {type: string}
-        data: {$ref: '#/components/schemas/Application'}
+        data:
+          description: The applicant gets ApplicationForApplicant, unless they may see the board comment.
+          anyOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationForApplicant'
       additionalProperties: false
     ApplicationWithUserMessageResponse:
       type: object
@@ -1456,7 +1431,7 @@ components:
       properties:
         success: {const: true}
         message: {type: string}
-        data: {$ref: '#/components/schemas/ApplicationWithUser'}
+        data: {$ref: '#/components/schemas/ApplicationWithUserForCaller'}
       additionalProperties: false
     ApplicationWithUserResponse:
       type: object
@@ -1465,12 +1440,24 @@ components:
         success: {const: true}
         data: {$ref: '#/components/schemas/ApplicationWithUser'}
       additionalProperties: false
+    ApplicationForCallerResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ApplicationWithUserForCaller'}
+      additionalProperties: false
+    ApplicationWithUserForCaller:
+      description: The applicant gets ApplicationWithUserForApplicant, unless they may see the board comment; everyone else ApplicationWithUser.
+      anyOf:
+        - $ref: '#/components/schemas/ApplicationWithUser'
+        - $ref: '#/components/schemas/ApplicationWithUserForApplicant'
     ApplicationDetailsResponse:
       type: object
       required: [success, data, permissions]
       properties:
         success: {const: true}
-        data: {$ref: '#/components/schemas/ApplicationWithUser'}
+        data: {$ref: '#/components/schemas/ApplicationWithUserForCaller'}
         permissions: {$ref: '#/components/schemas/ApplicationPermissions'}
       additionalProperties: false
     FutureApplication:
