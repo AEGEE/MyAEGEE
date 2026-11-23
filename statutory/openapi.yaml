@@ -331,9 +331,13 @@ paths:
     get:
       operationId: getEvent
       summary: One event
-      description: The event with its image and what the caller may do with it (`permissions`).
+      description: |
+        The event with its image and what the caller may do with it (`permissions`). For an
+        anonymous caller every permission that depends on the caller is false; `apply` and
+        `see_participants_list` follow the dates of the event for everybody, so they are
+        true in the application period and after the participants list deadline.
       tags: [events]
-      x-permission: none; anonymous callers get the event with every permission false. A draft needs global:manage_event:<type>
+      x-permission: none; anonymous callers get the event with the permissions of somebody who may do nothing. A draft needs global:manage_event:<type>
       security: [{}, {XAuthToken: []}]
       responses:
         '200':
