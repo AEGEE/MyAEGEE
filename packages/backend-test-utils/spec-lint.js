@@ -146,7 +146,7 @@ function untestedExemptions(spec) {
     for (const [name, response] of Object.entries((spec.components && spec.components.responses) || {})) {
         if (isPlainObject(response) && response['x-untested'] !== undefined) {
             problems.push(`#/components/responses/${name}: x-untested on a shared response would exempt every operation `
-                + `that uses it; write ${MAP_FORM} on each operation instead`);
+                + `that uses it; write ${MAP_FORM} of each one instead`);
         }
     }
     return { exemptions, problems };
