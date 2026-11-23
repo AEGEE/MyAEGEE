@@ -2,12 +2,14 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add member</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body" style="height:200px;">
       <div class="field has-addons">
         <b-autocomplete
           v-model="addedMemberName"
+          aria-label="Search member"
+          placeholder="Name of the member"
           :data="members"
           field="title"
           :loading="isLoadingMembers"
@@ -24,7 +26,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
