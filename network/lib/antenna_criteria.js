@@ -31,11 +31,35 @@ const isAegeeAddress = (value) => {
     return address !== null && constants.AEGEE_MAIL_DOMAINS.includes(address.domain);
 };
 
-// One address, or a non-empty list of them.
+// One address, several separated by commas (what the send dialog's one field holds), or
+// a non-empty list. Spaces and tabs around each address are dropped; line breaks are not.
+const toAddressList = (value) => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (typeof value !== 'string') {
+        return [value];
+    }
+
+    return value.split(',').map((address) => address.replace(/^[ \t]+|[ \t]+$/g, ''));
+};
+
 const isAddressList = (value) => {
-    const list = Array.isArray(value) ? value : [value];
+    const list = toAddressList(value);
     return list.length > 0 && list.every(isAddress);
 };
+
+// What the mailer gets: a list for several addresses (it takes one or a list), the
+// value as sent otherwise.
+const normalizeAddressList = (value) => {
+    const list = toAddressList(value);
+    return typeof value === 'string' && list.length > 1 ? list : value;
+};
+
+// A mail header line holds at most 998 characters; a subject of 255 leaves room for
+// the header name and fits what mail clients show.
+const SUBJECT_MAX_LENGTH = 255;
 
 exports.listCriteria = async (req, res) => {
     if (!req.permissions.manage_antenna_criteria) {
@@ -94,11 +118,11 @@ const validateFulfilmentMail = (input) => {
     }
 
     if (!isAddressList(input.to)) {
-        fieldErrors.to = ['The recipient must be an address or a list of addresses.'];
+        fieldErrors.to = ['The recipient must be an address, or several addresses separated by commas.'];
     }
 
     if (!isEmpty(input.cc) && !isAddressList(input.cc)) {
-        fieldErrors.cc = ['Cc must be an address or a list of addresses.'];
+        fieldErrors.cc = ['Cc must be an address, or several addresses separated by commas.'];
     }
 
     if (!isEmpty(input.reply_to) && !isAddress(input.reply_to)) {
@@ -109,6 +133,8 @@ const validateFulfilmentMail = (input) => {
         fieldErrors.subject = ['The subject must be set.'];
     } else if (/[\r\n]/.test(input.subject)) {
         fieldErrors.subject = ['The subject must be one line.'];
+    } else if (input.subject.length > SUBJECT_MAX_LENGTH) {
+        fieldErrors.subject = [`The subject must be at most ${SUBJECT_MAX_LENGTH} characters.`];
     }
 
     if (!isFilledString(input.body)) {
@@ -131,8 +157,8 @@ exports.sendFulfilmentMail = async (req, res) => {
 
     await mailer.sendMail({
         from: isEmpty(input.from) ? constants.FULFILMENT_MAIL_DEFAULT_FROM : input.from,
-        to: input.to,
-        cc: input.cc,
+        to: normalizeAddressList(input.to),
+        cc: normalizeAddressList(input.cc),
         subject: input.subject,
         template: 'custom.html',
         reply_to: input.reply_to,
