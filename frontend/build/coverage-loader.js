@@ -23,7 +23,8 @@ const isPitcher = (loader) => /vue-loader(-v15)?[\\/]lib[\\/]loaders[\\/]pitcher
 
 // Code that Vue generates for v-model and for event modifiers (`if ($event.target.composing) return`,
 // `$$el.checked ? true : false`, key checks). Nobody wrote it and half of it can't run, so its
-// branches would only be noise in the numbers.
+// branches would only be noise in the numbers. build/coverage-loader.test.js shows what is
+// left out and what still counts.
 const isEventName = (name) => name === '$event' || name.startsWith('$$')
 const readsEventCode = (testPath) => {
   if (testPath.isIdentifier()) return isEventName(testPath.node.name)
@@ -42,13 +43,70 @@ const IGNORE = ' istanbul ignore next '
 
 // Changes to the render function before it is instrumented.
 const renderBranches = ({ types: t }) => {
+  const ignore = (node) => {
+    const marked = (node.leadingComments || []).some((comment) => comment.value === IGNORE)
+    if (!marked) t.addComment(node, 'leading', IGNORE)
+  }
+
   // The whole statement is left out, not only the condition: istanbul loses a comment on an
   // expression when it wraps that expression in a counter.
   const ignoreEventCode = (nodePath) => {
     if (!readsEventCode(nodePath.get('test'))) return
-    const statement = nodePath.getStatementParent()
-    const marked = (statement.node.leadingComments || []).some((comment) => comment.value === IGNORE)
-    if (!marked) t.addComment(statement.node, 'leading', IGNORE)
+    ignore(nodePath.getStatementParent().node)
+  }
+
+  // Two more ternaries that Vue writes for v-model have no `$event` in their condition. Both
+  // are matched by the exact code Vue generates (genSelect and genCheckboxModel in its
+  // compiler), so a ternary somebody wrote in a template is still counted.
+
+  // v-model on a <select>, in the handler of its change event:
+  //   var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) { return o.selected })
+  //     .map(function (o) { var val = "_value" in o ? o._value : o.value; return val })
+  // Vue sets `_value` on an <option> only when its value is bound (`:value`). A select whose
+  // options are all bound, or all fixed, can only ever run one side of this.
+  const isSelectedValue = (nodePath) => {
+    const { test, consequent, alternate } = nodePath.node
+    if (!t.isBinaryExpression(test, { operator: 'in' }) || !t.isStringLiteral(test.left, { value: '_value' }) || !t.isIdentifier(test.right)) return false
+    const reads = (node, property) => t.isMemberExpression(node, { computed: false })
+      && t.isIdentifier(node.object, { name: test.right.name })
+      && t.isIdentifier(node.property, { name: property })
+    if (!reads(consequent, '_value') || !reads(alternate, 'value')) return false
+    // `$$selectedVal` can't be declared in a template: only Vue's handler has it.
+    return !!nodePath.findParent((parent) => parent.isVariableDeclarator() && t.isIdentifier(parent.node.id, { name: '$$selectedVal' }))
+  }
+
+  // v-model on a checkbox, in its `checked` property:
+  //   domProps: { "checked": Array.isArray(_vm.x) ? _vm._i(_vm.x, null) > -1 : _vm.x }
+  // (`: _vm._q(_vm.x, "yes")` with a true-value). A checkbox is bound to a list or to one
+  // value, never to both, so one side of this never runs.
+  const isCheckedValue = (nodePath) => {
+    const { test, consequent, alternate } = nodePath.node
+    const helper = (node, name) => t.isCallExpression(node)
+      && t.isMemberExpression(node.callee, { computed: false })
+      && t.isIdentifier(node.callee.property, { name })
+      && node.arguments.length === 2
+    if (!t.isCallExpression(test) || !t.matchesPattern(test.callee, 'Array.isArray') || test.arguments.length !== 1) return false
+    const [model] = test.arguments
+    const inList = t.isBinaryExpression(consequent, { operator: '>' })
+      && helper(consequent.left, '_i')
+      && t.isNodesEquivalent(consequent.left.arguments[0], model)
+      && t.isUnaryExpression(consequent.right, { operator: '-' })
+      && t.isNumericLiteral(consequent.right.argument, { value: 1 })
+    const isValue = t.isNodesEquivalent(alternate, model)
+      || (helper(alternate, '_q') && t.isNodesEquivalent(alternate.arguments[0], model))
+    if (!inList || !isValue) return false
+    const named = (propertyPath, name) => propertyPath.isObjectProperty() && !propertyPath.node.computed
+      && (t.isIdentifier(propertyPath.node.key, { name }) || t.isStringLiteral(propertyPath.node.key, { value: name }))
+    const property = nodePath.parentPath
+    return named(property, 'checked') && property.parentPath.isObjectExpression() && named(property.parentPath.parentPath, 'domProps')
+  }
+
+  const ignoreModelCode = (nodePath) => {
+    // The statement holds nothing else: `var val = …`.
+    if (isSelectedValue(nodePath)) ignore(nodePath.getStatementParent().node)
+    // The statement around this one is the whole render function, so only the ternary is
+    // marked. That works here because istanbul doesn't wrap the value of a property.
+    else if (isCheckedValue(nodePath)) ignore(nodePath.node)
   }
 
   return {
@@ -65,7 +123,10 @@ const renderBranches = ({ types: t }) => {
         }
       },
       IfStatement: ignoreEventCode,
-      ConditionalExpression: ignoreEventCode
+      ConditionalExpression (nodePath) {
+        ignoreEventCode(nodePath)
+        ignoreModelCode(nodePath)
+      }
     }
   }
 }
