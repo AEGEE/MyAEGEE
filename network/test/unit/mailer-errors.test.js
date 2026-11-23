@@ -49,4 +49,29 @@ describe('Mailer client errors', () => {
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
     });
+
+    describe('timeout', () => {
+        const defaultTimeout = config.mailer.timeout;
+
+        afterEach(() => {
+            config.mailer.timeout = defaultTimeout;
+        });
+
+        test('should wait at most 10 seconds for the mailer by default', () => {
+            expect(defaultTimeout).toEqual(10000);
+        });
+
+        test('should give up when the mailer does not answer in time', async () => {
+            config.mailer.timeout = 50;
+            nock(`${config.mailer.url}:${config.mailer.port}`)
+                .post('/')
+                .delay(1000)
+                .reply(200, { success: true });
+
+            const err = await mailer.sendMail(mail).catch((e) => e);
+
+            expect(err).toBeInstanceOf(Error);
+            expect(err.message).toEqual('The mailer did not answer within 50 ms');
+        });
+    });
 });
