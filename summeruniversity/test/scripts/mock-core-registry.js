@@ -171,6 +171,13 @@ exports.mockAll = (options = {}) => {
     };
 };
 
+// Collects the request bodies (parsed as JSON) of all the requests to the given stub.
+exports.captureRequests = (stub) => {
+    const bodies = [];
+    stub.on('request', (req, interceptor, requestBody) => bodies.push(JSON.parse(requestBody)));
+    return bodies;
+};
+
 // Collects the bodies of all the mails sent through the given mailer stub.
 exports.captureMails = (mailerStub) => {
     const mails = [];

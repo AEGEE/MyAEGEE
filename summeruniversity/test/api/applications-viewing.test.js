@@ -330,6 +330,18 @@ describe('Applications listing, viewing and exporting', () => {
             expect(byName.Pending[emailIndex]).toEqual(coreUser.notification_email);
         });
 
+        test('should log in to core once for the whole export', async () => {
+            const logins = mock.captureRequests(mock.mockAll().omsCoreLoginStub);
+            for (const userId of [10, 11, 12]) {
+                await generator.createApplication(event, { user_id: userId });
+            }
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(logins.length).toEqual(1);
+        });
+
         test('should export an empty sheet if there are no applications', async () => {
             const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
 
