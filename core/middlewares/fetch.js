@@ -20,13 +20,9 @@ exports.fetchUser = async (req, res, next) => {
         return next();
     }
 
-    // searching the user by url
-    let where = helpers.equalsIgnoreCase('username', req.params.user_id);
-
-    // searching the user by id if it's numeric
-    if (helpers.isNumber(req.params.user_id)) {
-        where = { id: Number(req.params.user_id) };
-    }
+    // searching the user by id if it's one, by username otherwise
+    const id = helpers.parseId(req.params.user_id);
+    const where = id ? { id } : helpers.equalsIgnoreCase('username', req.params.user_id);
 
     const user = await User.findOne({
         where,
@@ -49,13 +45,9 @@ exports.fetchUser = async (req, res, next) => {
 };
 
 exports.fetchBody = async (req, res, next) => {
-    // searching the body by code
-    let where = helpers.equalsIgnoreCase('code', req.params.body_id);
-
-    // searching the body by id if it's numeric
-    if (helpers.isNumber(req.params.body_id)) {
-        where = { id: Number(req.params.body_id) };
-    }
+    // searching the body by id if it's one, by code otherwise
+    const id = helpers.parseId(req.params.body_id);
+    const where = id ? { id } : helpers.equalsIgnoreCase('code', req.params.body_id);
 
     const body = await Body.findOne({
         where,
@@ -79,12 +71,13 @@ exports.fetchBody = async (req, res, next) => {
 
 exports.fetchCircle = async (req, res, next) => {
     // searching the circle by id if it's numeric
-    if (!helpers.isNumber(req.params.circle_id)) {
+    const id = helpers.parseId(req.params.circle_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Circle ID is invalid.');
     }
 
     const circle = await Circle.findOne({
-        where: { id: Number(req.params.circle_id) },
+        where: { id },
         include: [
             { model: Circle, as: 'child_circles' },
             { model: Circle, as: 'parent_circle' },
@@ -104,12 +97,13 @@ exports.fetchCircle = async (req, res, next) => {
 
 exports.fetchPermission = async (req, res, next) => {
     // searching the circle by id if it's numeric
-    if (!helpers.isNumber(req.params.permission_id)) {
+    const id = helpers.parseId(req.params.permission_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Permission ID is invalid.');
     }
 
     const permission = await Permission.findOne({
-        where: { id: Number(req.params.permission_id) },
+        where: { id },
         include: [
             { model: Circle, as: 'circles' },
         ]
@@ -123,12 +117,9 @@ exports.fetchPermission = async (req, res, next) => {
 };
 
 exports.fetchCampaign = async (req, res, next) => {
-    // Checking if the passed ID is a string or not.
-    // If it is a string, find the campaign by URL, if not, find it by ID or URL.
-    let findObject = { url: req.params.campaign_id };
-    if (!Number.isNaN(Number(req.params.campaign_id))) {
-        findObject = { id: Number(req.params.campaign_id) };
-    }
+    // searching the campaign by id if it's one, by URL otherwise
+    const id = helpers.parseId(req.params.campaign_id);
+    const findObject = id ? { id } : { url: req.params.campaign_id };
 
     const campaign = await Campaign.findOne({
         where: findObject,
@@ -144,14 +135,15 @@ exports.fetchCampaign = async (req, res, next) => {
 
 exports.fetchMembership = async (req, res, next) => {
     // searching the campaign by id if it's numeric
-    if (!helpers.isNumber(req.params.membership_id)) {
+    const id = helpers.parseId(req.params.membership_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Membership ID is invalid.');
     }
 
     const membership = await BodyMembership.findOne({
         where: {
-            id: Number(req.params.membership_id),
-            body_id: Number(req.params.body_id)
+            id,
+            body_id: req.currentBody.id
         },
         include: [User]
     });
@@ -165,14 +157,15 @@ exports.fetchMembership = async (req, res, next) => {
 
 exports.fetchJoinRequest = async (req, res, next) => {
     // searching the campaign by id if it's numeric
-    if (!helpers.isNumber(req.params.request_id)) {
+    const id = helpers.parseId(req.params.request_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Join request ID is invalid.');
     }
 
     const request = await JoinRequest.findOne({
         where: {
-            id: Number(req.params.request_id),
-            body_id: Number(req.params.body_id)
+            id,
+            body_id: req.currentBody.id
         }
     });
     if (!request) {
@@ -185,13 +178,14 @@ exports.fetchJoinRequest = async (req, res, next) => {
 
 exports.fetchBodyCampaign = async (req, res, next) => {
     // searching the campaign by id if it's numeric
-    if (!helpers.isNumber(req.params.campaign_id)) {
+    const id = helpers.parseId(req.params.campaign_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Campaign ID is invalid.');
     }
 
     const campaign = await Campaign.findOne({
         where: {
-            id: Number(req.params.campaign_id),
+            id,
             autojoin_body_id: req.currentBody.id
         },
         include: [{ model: Body, as: 'autojoin_body' }]
@@ -207,13 +201,14 @@ exports.fetchBodyCampaign = async (req, res, next) => {
 
 exports.fetchPayment = async (req, res, next) => {
     // searching the payment by id if it's numeric
-    if (!helpers.isNumber(req.params.payment_id)) {
+    const id = helpers.parseId(req.params.payment_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Payment ID is invalid.');
     }
 
     const payment = await Payment.findOne({
         where: {
-            id: Number(req.params.payment_id),
+            id,
             body_id: req.currentBody.id
         }
     });
@@ -228,14 +223,15 @@ exports.fetchPayment = async (req, res, next) => {
 
 exports.fetchCircleMembership = async (req, res, next) => {
     // searching the circle membership by id if it's numeric
-    if (!helpers.isNumber(req.params.membership_id)) {
+    const id = helpers.parseId(req.params.membership_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Membership ID is invalid.');
     }
 
     const membership = await CircleMembership.findOne({
         where: {
-            id: Number(req.params.membership_id),
-            circle_id: Number(req.params.circle_id)
+            id,
+            circle_id: req.currentCircle.id
         }
     });
     if (!membership) {
@@ -247,11 +243,12 @@ exports.fetchCircleMembership = async (req, res, next) => {
 };
 
 exports.fetchResourceCategory = async (req, res, next) => {
-    if (!helpers.isNumber(req.params.category_id)) {
+    const id = helpers.parseId(req.params.category_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Section ID is invalid.');
     }
 
-    const category = await ResourceCategory.findByPk(Number(req.params.category_id));
+    const category = await ResourceCategory.findByPk(id);
     if (!category) {
         return errors.makeNotFoundError(res, 'Section is not found.');
     }
@@ -261,11 +258,12 @@ exports.fetchResourceCategory = async (req, res, next) => {
 };
 
 exports.fetchResourceLink = async (req, res, next) => {
-    if (!helpers.isNumber(req.params.link_id)) {
+    const id = helpers.parseId(req.params.link_id);
+    if (!id) {
         return errors.makeBadRequestError(res, 'Link ID is invalid.');
     }
 
-    const link = await ResourceLink.findByPk(Number(req.params.link_id));
+    const link = await ResourceLink.findByPk(id);
     if (!link) {
         return errors.makeNotFoundError(res, 'Link is not found.');
     }
