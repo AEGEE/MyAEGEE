@@ -7,6 +7,7 @@ const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 
@@ -741,7 +742,8 @@ exports.subscribeListserv = async (req, res) => {
             throw new Error(`Listserv responded with status ${response.statusCode}.`);
         }
     } catch (err) {
-        return errors.makeInternalError(res, err);
+        logger.error({ err }, 'Could not subscribe to the mailing lists');
+        return errors.makeInternalError(res);
     }
 
     return res.json({

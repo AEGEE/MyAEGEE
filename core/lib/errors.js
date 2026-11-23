@@ -59,5 +59,7 @@ exports.makeValidationError = (res, err) => exports.makeError(res, 422, err);
 exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);
 exports.makeNotFoundError = (res, err) => exports.makeError(res, 404, err);
 exports.makeConflictError = (res, err) => exports.makeError(res, 409, err);
-exports.makeInternalError = (res, err) => exports.makeError(res, 500, err);
+// The answer never carries the text of the error: it can be a database error or the answer
+// of another service. Whoever calls this logs the error.
+exports.makeInternalError = (res) => exports.makeError(res, 500, 'Something went wrong on the server.');
 exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
