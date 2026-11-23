@@ -330,4 +330,24 @@ describe('Board listing', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].latest_election).toEqual(formerBoard.elected_date);
     });
+
+    test.each([
+        '/boards',
+        '/boards/recents',
+        '/bodies/34/boards',
+        '/bodies/34/boards/current'
+    ])('should show %s to members holding only the global view permission', async (path) => {
+        mock.mockAll({ mainPermissions: { viewOnly: true }, managePermissions: { noPermissions: true } });
+        await generator.createBoard({ body_id: 34, elected_date: moment().subtract(1, 'week').toDate(), start_date: moment().subtract(1, 'day').toDate() });
+
+        const res = await request({
+            path,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.length).toEqual(1);
+    });
 });

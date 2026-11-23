@@ -130,4 +130,35 @@ describe('Board details', () => {
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
     });
+
+    test('should show a board to members holding only the global view permission', async () => {
+        mock.mockAll({ mainPermissions: { viewOnly: true }, managePermissions: { noPermissions: true } });
+
+        const board = await generator.createBoard({ body_id: 34 });
+
+        const res = await request({
+            path: '/bodies/34/boards/' + board.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(board.id);
+    });
+
+    test('should not show a board to a board manager of the body without the view permission', async () => {
+        // The user manages body 34 locally, but holds no global permission.
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const board = await generator.createBoard({ body_id: 34 });
+
+        const res = await request({
+            path: '/bodies/34/boards/' + board.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
 });
