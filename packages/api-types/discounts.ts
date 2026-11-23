@@ -275,7 +275,7 @@ export interface components {
             name: string;
             code: string;
             quota_period: components["schemas"]["IntegrationQuotaPeriod"];
-            quota_amount: number;
+            quota_amount: components["schemas"]["QuotaAmountInput"];
             description?: string | null;
         } & {
             [key: string]: unknown;
@@ -284,11 +284,13 @@ export interface components {
             name?: string;
             code?: string;
             quota_period?: components["schemas"]["IntegrationQuotaPeriod"];
-            quota_amount?: number;
+            quota_amount?: components["schemas"]["QuotaAmountInput"];
             description?: string | null;
         } & {
             [key: string]: unknown;
         };
+        /** @description A whole number from 1, or a string of digits, which is stored as a number. */
+        QuotaAmountInput: number | string;
         IntegrationResponse: {
             /** @constant */
             success: true;

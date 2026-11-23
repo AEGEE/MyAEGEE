@@ -132,4 +132,19 @@ describe('Categories edition', () => {
         const categoryFromDb = await Category.findByPk(category.id);
         expect(categoryFromDb.name).toEqual(category.name);
     });
+
+    test('should return the category as stored', async () => {
+        const category = await generator.createCategory();
+        const res = await request({
+            path: '/categories/' + category.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { name: 'test', discounts: [generator.generateDiscount()] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const categoryFromDb = await Category.findByPk(category.id);
+        expect(res.body.data).toEqual(JSON.parse(JSON.stringify(categoryFromDb)));
+    });
 });

@@ -252,4 +252,18 @@ describe('Categories creation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body.errors).toHaveProperty('discounts');
     });
+
+    test('should return the category as stored', async () => {
+        const res = await request({
+            path: '/categories',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateCategory()
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const categoryFromDb = await Category.findByPk(res.body.data.id);
+        expect(res.body.data).toEqual(JSON.parse(JSON.stringify(categoryFromDb)));
+    });
 });

@@ -312,4 +312,19 @@ describe('Integrations creation', () => {
         const integrationFromDb = await Integration.findByPk(res.body.data.id);
         expect(integrationFromDb.description).toBeNull();
     });
+
+    test('should return the integration as stored, with a numeric quota amount sent as a string', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ quota_amount: '7' })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.quota_amount).toEqual(7);
+
+        const integrationFromDb = await Integration.findByPk(res.body.data.id);
+        expect(res.body.data).toEqual(JSON.parse(JSON.stringify(integrationFromDb)));
+    });
 });

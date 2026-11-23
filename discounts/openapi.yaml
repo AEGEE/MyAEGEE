@@ -414,7 +414,7 @@ components:
         name: {type: string, minLength: 1, maxLength: 255}
         code: {type: string, minLength: 1, maxLength: 255}
         quota_period: {$ref: '#/components/schemas/IntegrationQuotaPeriod'}
-        quota_amount: {type: integer, minimum: 1}
+        quota_amount: {$ref: '#/components/schemas/QuotaAmountInput'}
         description: {type: [string, 'null']}
       additionalProperties: true
     IntegrationUpdateInput:
@@ -423,9 +423,14 @@ components:
         name: {type: string, minLength: 1, maxLength: 255}
         code: {type: string, minLength: 1, maxLength: 255}
         quota_period: {$ref: '#/components/schemas/IntegrationQuotaPeriod'}
-        quota_amount: {type: integer, minimum: 1}
+        quota_amount: {$ref: '#/components/schemas/QuotaAmountInput'}
         description: {type: [string, 'null']}
       additionalProperties: true
+    QuotaAmountInput:
+      description: A whole number from 1, or a string of digits, which is stored as a number.
+      type: [integer, string]
+      minimum: 1
+      pattern: '^[0-9]+$'
     IntegrationResponse:
       type: object
       required: [success, data]
