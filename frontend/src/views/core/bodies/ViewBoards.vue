@@ -91,9 +91,6 @@ export default {
     }
   },
   computed: {
-    queryObject () {
-      return this.query ? { query: this.query } : {}
-    },
     ...mapGetters({
       services: 'services'
     })
