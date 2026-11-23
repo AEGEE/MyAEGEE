@@ -677,4 +677,46 @@ describe('Plenaries exports', () => {
             expect(bodyRow[6]).toEqual('0.00%');
         });
     });
+
+    describe('sheet names', () => {
+        const getSheetNames = async (event) => {
+            const res = await request({
+                path: '/events/' + event.id + '/plenaries/stats',
+                method: 'GET',
+                responseType: 'buffer', // make response body to Buffer.
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return xlsx.parse(res.body).map((sheet) => sheet.name);
+        };
+
+        test('should shorten the name of a plenary to what a sheet name can hold', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createPlenary({
+                name: 'Opening plenary and reports of the Comité Directeur',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate()
+            }, event);
+
+            const names = await getSheetNames(event);
+
+            // A sheet name holds 31 characters.
+            expect(names[2]).toEqual('1 - Opening plenary and reports');
+            expect(names[2].length).toBeLessThanOrEqual(31);
+        });
+
+        test('should replace the characters a sheet name cannot hold', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createPlenary({
+                name: 'Q&A: CD/JC [part 1]?*\\',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate()
+            }, event);
+
+            const names = await getSheetNames(event);
+
+            expect(names[2]).toEqual('1 - Q&A- CD-JC -part 1----');
+        });
+    });
 });
