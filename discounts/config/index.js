@@ -18,6 +18,12 @@ const config = {
             url: 'http://mailer',
             port: 4000
         },
+        claim: {
+            // Milliseconds a claim waits for other claims of the same integration
+            // (Postgres lock_timeout) before it answers 503. Each waiting claim holds
+            // a database connection, so the wait stays short.
+            lockTimeout: 3000
+        },
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'

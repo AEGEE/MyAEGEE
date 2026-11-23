@@ -225,6 +225,7 @@
         "bodies": [
             {
                 "type": "antenna",
+                "status": "active",
                 "shadow_circle_id": 133,
                 "shadow_circle": null,
                 "seo_url": 34,
@@ -239,6 +240,7 @@
             },
             {
                 "type": "commission",
+                "status": "active",
                 "shadow_circle_id": null,
                 "shadow_circle": null,
                 "seo_url": 9,
