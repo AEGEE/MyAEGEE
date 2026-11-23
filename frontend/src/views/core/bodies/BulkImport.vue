@@ -9,8 +9,9 @@
         </div>
 
         <div class="field is-grouped">
+          <label class="label" for="bulk-import-file">CSV file</label>
           <div class="control">
-            <input type="file" @change="openFileDialog($event)">
+            <input id="bulk-import-file" type="file" accept=".csv,text/csv" @change="openFileDialog($event)">
           </div>
         </div>
 
@@ -32,10 +33,10 @@
           </b-table-column>
 
           <b-table-column label="Delete user" v-slot="props">
-            <a v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
+            <button type="button" v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
               <span class="icon"><font-awesome-icon icon="minus" /></span>
               <span>Delete user</span>
-            </a>
+            </button>
           </b-table-column>
 
           <b-table-column label="Status" v-slot="props">
@@ -53,7 +54,7 @@
 
         <div class="field" v-show="members.length">
           <div class="control">
-            <a type="submit" @click="createMembers()" class="button is-primary is-fullwidth">Create members</a>
+            <button type="button" @click="createMembers()" class="button is-primary is-fullwidth">Create members</button>
           </div>
         </div>
       </article>
