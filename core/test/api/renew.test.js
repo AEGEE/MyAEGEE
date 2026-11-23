@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const config = require('../../config');
-const { RefreshToken } = require('../../models');
+const { AccessToken, RefreshToken } = require('../../models');
 
 // Only faking Date, so the DB driver and HTTP requests keep working.
 const useFakeDate = (now) => jest.useFakeTimers({
@@ -124,5 +124,34 @@ describe('Tokens renewal', () => {
             expect(res.body).toHaveProperty('refresh_token');
         }
         expect(responses[0].body.refresh_token).not.toEqual(responses[1].body.refresh_token);
+    });
+
+    test('should not renew the tokens of a suspended member', async () => {
+        const user = await generator.createUser({ mail_confirmed_at: new Date() });
+        const refreshToken = await generator.createRefreshToken(user);
+        await user.update({ active: false });
+
+        const res = await renew(refreshToken.value);
+
+        // The same answer as for a token that doesn't exist.
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Token is not found.' });
+
+        expect(await AccessToken.count({ where: { user_id: user.id } })).toEqual(0);
+        expect(await RefreshToken.count({ where: { user_id: user.id } })).toEqual(1);
+
+        await refreshToken.reload();
+        expect(refreshToken.rotated_at).toEqual(null);
+    });
+
+    test('should renew the tokens again after the suspension is lifted', async () => {
+        const user = await generator.createUser({ mail_confirmed_at: new Date(), active: false });
+        const refreshToken = await generator.createRefreshToken(user);
+        await user.update({ active: true });
+
+        const res = await renew(refreshToken.value);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('access_token');
     });
 });
