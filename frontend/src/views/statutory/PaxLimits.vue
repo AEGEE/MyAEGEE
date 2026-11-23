@@ -117,7 +117,7 @@ export default {
     deleteLimit (limit) {
       this.axios.delete(this.services['statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then(() => {
         this.$root.showSuccess('Limit is deleted.')
-        window.location.reload()
+        this.fetchData()
       }).catch((err) => {
         this.$root.showError('Error deleting limit', err)
       })
