@@ -923,7 +923,8 @@ exports.exportOpenslides = async (req, res) => {
         where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
     });
 
-    const wrap = (string) => '"' + string + '"';
+    // A CSV field in quotes; a quote inside the value is doubled.
+    const wrap = (value) => '"' + String(value).replace(/"/g, '""') + '"';
 
     const headers = [
         'Title',
@@ -1084,7 +1085,9 @@ exports.exportDelegatesJc = async (req, res) => {
     const exportString = await Promise.all(applications.map(async (application) => {
         const user = mails.find((m) => application.user_id === m.id);
         const body = bodies.find((b) => application.body_id === b.id);
-        const regex = /[^a-zA-z\-\ ]/; // eslint-disable-line
+        // The import of this file takes plain letters, dashes and spaces in names;
+        // everything else, the field separator included, is replaced.
+        const regex = /[^a-zA-Z\- ]/g;
         application.first_name = application.first_name.replace(regex, '?');
         application.last_name = application.last_name.replace(regex, '?');
 
