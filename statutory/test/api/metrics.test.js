@@ -12,6 +12,8 @@ describe('Metrics requests', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+        // Other files count rows, so nothing is left behind.
+        await generator.clearAll();
     });
 
     test('should return data correctly on /metrics', async () => {
