@@ -192,6 +192,11 @@ export default {
   },
   methods: {
     sendMassMailer () {
+      // The browser lets a text of only spaces through.
+      if (!this.text.trim()) {
+        return this.$root.showError('Please type the email text.')
+      }
+
       this.isSending = true
 
       this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/massmailer/', {
