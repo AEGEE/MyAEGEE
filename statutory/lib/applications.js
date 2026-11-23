@@ -716,8 +716,7 @@ exports.setBoardForBody = async (req, res) => {
         return errors.makeBadRequestError(res, 'The body is not an array.');
     }
 
-    for (const index in req.body) {
-        const entry = req.body[index];
+    for (const [index, entry] of req.body.entries()) {
         if (!helpers.isObject(entry)) {
             return errors.makeBadRequestError(res, `Entry ${index + 1}: is not an object.`);
         }

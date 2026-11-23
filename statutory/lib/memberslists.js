@@ -98,7 +98,7 @@ exports.setMemberslistFeePaid = async (req, res) => {
     }
 
     if (!req.permissions.set_memberslists_fee_paid) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see this memberslist.');
+        return errors.makeForbiddenError(res, 'You are not allowed to set the paid fee of this memberslist.');
     }
 
     const memberslist = await MembersList.findOne({ where: {
