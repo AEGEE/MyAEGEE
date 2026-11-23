@@ -88,13 +88,21 @@ jobs:
       - image: cimg/node:26.13.1
     steps:
       - checkout
+      # Only the root tools and two workspaces: core provides ajv, yaml, express, eslint and
+      # istanbul-lib-coverage to the helpers and their tests, e2e provides the TypeScript that
+      # openapi-typescript needs. Half the download of all nine workspaces. Own cache-version,
+      # because the e2e job caches the full install of the same lockfile.
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project
-          override-ci-command: npm ci --legacy-peer-deps
+          cache-version: openapi-v1
+          override-ci-command: npm ci --legacy-peer-deps --workspace core --workspace e2e --include-workspace-root
       - run:
           name: Lint the OpenAPI files
           command: npx redocly lint
+      - run:
+          name: Check the OpenAPI files against the service conventions (closed schemas, no Todo)
+          command: node packages/backend-test-utils/spec-lint.js
       - run:
           name: Check that the generated types are up to date
           command: npx openapi-typescript --check
@@ -107,6 +115,11 @@ jobs:
       - run:
           name: Check codecov.yml after_n_builds against the uploads
           command: node packages/backend-test-utils/check-codecov-builds.js
+      - run:
+          name: Check that no coverage ratchet was lowered without a Coverage-lowered trailer
+          command: |
+            git fetch --quiet origin stable
+            node packages/backend-test-utils/check-coverage-lowered.js core statutory events summeruniversity network discounts
   core-test:
     docker:
       - image: cimg/node:26.13.1

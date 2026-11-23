@@ -51,8 +51,8 @@
     "postinstall": "echo '✓ Workspace setup complete - all 9 modules ready'",
     "test": "echo 'Run tests in individual modules'",
     "lint": "echo 'Run linters in individual modules'",
-    "openapi:lint": "redocly lint",
+    "openapi:lint": "redocly lint && node packages/backend-test-utils/spec-lint.js",
     "openapi:types": "openapi-typescript",
-    "openapi:check": "redocly lint && openapi-typescript --check && node --test packages/backend-test-utils/test/"
+    "openapi:check": "redocly lint && node packages/backend-test-utils/spec-lint.js && openapi-typescript --check && node --test packages/backend-test-utils/test/"
   }
 }
