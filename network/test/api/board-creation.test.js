@@ -351,6 +351,38 @@ describe('Board creation', () => {
         expect(await Board.count()).toEqual(0);
     });
 
+    test('should fail with 422 if the caller may not see an officer', async () => {
+        mock.mockAll({ member: { forbidden: [403] } });
+        const board = generator.generateBoard({ president: 403, secretary: 1, treasurer: 2 });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ president: ['You are not allowed to see this member.'] });
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if the caller may not see one of the other members', async () => {
+        mock.mockAll({ member: { forbidden: [99] } });
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: 99 }] });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ other_members: ['You are not allowed to see the member of the position Comms.'] });
+        expect(await Board.count()).toEqual(0);
+    });
+
     test('should fail if core user request returns net error', async () => {
         mock.mockAll({ member: { netError: true } });
         const board = generator.generateBoard({ president: user.id });
