@@ -179,4 +179,66 @@ describe('Field types', () => {
             expect((await Season.findOne({ where: { year: 2026 } })).name).toEqual('Summer University 2026');
         });
     });
+
+    describe('dates', () => {
+        const values = [['a number', 5], ['a boolean', true], ['an array', ['2027-07-01']], ['an object', { date: '2027-07-01' }],
+            ['a lone number as text', '1'], ['a day that does not exist', '2027-02-30'], ['a text', 'garbage']];
+        const rows = (fields) => fields.flatMap(([field, message]) => values.map(([name, value]) => [field, name, value, message]));
+        const EVENT_DATES = [['starts', 'Event start date should be valid.'], ['ends', 'Event end date should be valid.']];
+        const PERIOD_DATES = [['application_starts', 'Event application starts date should be valid.'], ['application_ends', 'Event application end date should be valid.']];
+        const SEASON_DATES = [['event_submission_deadline', 'Event submission deadline should be valid.'],
+            ['application_period_starts', 'Application period start should be valid.'], ['application_period_ends', 'Application period end should be valid.']];
+
+        test.each(rows(EVENT_DATES))('creating a Summer University refuses a %s that is %s', async (field, _name, value, message) => {
+            const res = await call('POST', '/', generator.generateEventBody({ [field]: value }));
+
+            expectFieldError(res, field, message);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each(rows(EVENT_DATES))('editing a Summer University refuses a %s that is %s', async (field, _name, value, message) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}`, { [field]: value });
+
+            expectFieldError(res, field, message);
+            expect((await Event.findByPk(event.id))[field]).toEqual(event[field]);
+        });
+
+        test.each(rows(PERIOD_DATES))('the application period refuses an %s that is %s', async (field, _name, value, message) => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}/application_period`, { application_ends: generator.daysFromNow(5), [field]: value });
+
+            expectFieldError(res, field, message);
+            const stored = await Event.findByPk(event.id);
+            expect(stored.application_starts).toEqual(event.application_starts);
+            expect(stored.application_ends).toEqual(event.application_ends);
+        });
+
+        test.each(rows(SEASON_DATES))('creating a season refuses an %s that is %s', async (field, _name, value, message) => {
+            const res = await call('POST', '/seasons', { year: 2040, name: 'Summer University 2040', [field]: value });
+
+            expectFieldError(res, field, message);
+            expect(await Season.count()).toEqual(6);
+        });
+
+        test.each(rows(SEASON_DATES))('editing a season refuses an %s that is %s', async (field, _name, value, message) => {
+            const res = await call('PUT', '/seasons/2026', { [field]: value });
+
+            expectFieldError(res, field, message);
+            expect((await Season.findOne({ where: { year: 2026 } }))[field]).toEqual(null);
+        });
+
+        test.each([
+            ['a day', '2027-07-01', '2027-07-01T00:00:00.000Z'],
+            ['a timestamp in UTC', '2027-07-01T10:30:00.000Z', '2027-07-01T10:30:00.000Z'],
+            ['a timestamp with an offset', '2027-07-01T10:30:00+02:00', '2027-07-01T08:30:00.000Z']
+        ])('a season takes %s', async (_name, value, stored) => {
+            const res = await call('PUT', '/seasons/2026', { event_submission_deadline: value });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Season.findOne({ where: { year: 2026 } })).event_submission_deadline.toISOString()).toEqual(stored);
+        });
+    });
 });
