@@ -273,7 +273,7 @@ export default {
 
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => (app[field] || '').toLowerCase().includes(lowercaseQuery)))
     },
     canEditSelectedBody () {
       return this.can.set_board_comment_and_participant_type.global
