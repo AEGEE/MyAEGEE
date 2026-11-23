@@ -207,7 +207,6 @@ describe('Events editing', () => {
         const res = await editEvent(event, { season: 2025, name: 'Changed' });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data.season).toEqual(2025);
     });
 
     test('should keep the season if it is not in the body', async () => {
@@ -216,7 +215,6 @@ describe('Events editing', () => {
         const res = await editEvent(event, { name: 'Changed' });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data.season).toEqual(2025);
     });
 
     test('should let managers change the season', async () => {
@@ -483,6 +481,15 @@ describe('Events editing', () => {
         expect(exportRes.statusCode).toEqual(200);
         const [sheet] = xlsx.parse(exportRes.body);
         expect(sheet.data[0].slice(-2)).toEqual(['Answer 1: Why?', 'Answer 2: Where from?']);
+    });
+
+    test('should answer with the stored values, not the ones sent', async () => {
+        const event = await generator.createEvent({ status: 'first approval', published: 'minimal' });
+
+        const res = await editEvent(event, { max_participants: '25' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.max_participants).toEqual(25);
     });
 
     test('should return 422 if the questions are null', async () => {

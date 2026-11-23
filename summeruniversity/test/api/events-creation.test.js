@@ -362,6 +362,13 @@ describe('Events creation', () => {
         expect(await Event.count()).toEqual(0);
     });
 
+    test('should answer with the stored values, not the ones sent', async () => {
+        const res = await createEvent(generator.generateEventBody({ max_participants: '20' }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.max_participants).toEqual(20);
+    });
+
     test('should return 422 with both messages if the email is empty', async () => {
         const res = await createEvent(generator.generateEventBody({ email: '' }));
 

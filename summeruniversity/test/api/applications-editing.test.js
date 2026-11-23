@@ -157,6 +157,14 @@ describe('Applications editing', () => {
         expect(fromDb.motivation).not.toEqual('Changed');
     });
 
+    test('should answer with the stored values, not the ones sent', async () => {
+        const res = await edit({ body_id: '1' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.body_id).toEqual(1);
+        expect(res.body.data.notification_email).toEqual(applicant.notification_email);
+    });
+
     test('should return 403 if the applicant is already accepted', async () => {
         await application.update({ status: 'accepted' });
 
