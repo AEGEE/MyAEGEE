@@ -236,4 +236,166 @@ describe('Users testing', () => {
         expect(user.address).toEqual(null);
         expect(user.about_me).toEqual(null);
     });
+
+    describe('validation rules', () => {
+        // Every message of the fields that are wrong, by field.
+        const validationErrors = async (fields) => {
+            try {
+                await User.create(generator.generateUser(fields));
+            } catch (err) {
+                expect(err.name).toMatch(/^Sequelize(Validation|UniqueConstraint)Error$/);
+
+                const messages = {};
+                for (const error of err.errors) {
+                    messages[error.path] = [...(messages[error.path] || []), error.message].sort();
+                }
+                return messages;
+            }
+
+            return null;
+        };
+
+        test.each([
+            ['username', '', ['Username should be set.']],
+            ['username', null, ['Username should be set.']],
+            ['username', 'user name', ['Username should only contain letters, numbers, dots, underscores and dashes.']],
+            ['username', 'üser', ['Username should only contain letters, numbers, dots, underscores and dashes.']],
+            ['username', '12.34_5-6', ['Username should have at least 1 letter.']],
+            ['email', '', ['Email should be set.', 'Email should be valid.']],
+            ['email', null, ['Email should be set.']],
+            ['email', 'not-an-email', ['Email should be valid.']],
+            ['email', 'some.one@', ['Email should be valid.']],
+            ['email', 'some one@example.com', ['Email should be valid.']],
+            ['email', 'some.one@aegee.eu', ['Email can not be in one of the following domains: aegee.org, aegee.eu.']],
+            ['password', '', ['Password should be at least 8 characters long.', 'Password should be set.']],
+            ['password', null, ['Password should be set.']],
+            ['password', '1234567', ['Password should be at least 8 characters long.']],
+            ['first_name', '', ['First name should be set.']],
+            ['first_name', 'Some1', ['First name should only contain letters, spaces and dashes, got "Some1".']],
+            ['last_name', '', ['Last name should be set.']],
+            ['last_name', 'One_', ['Last name should only contain letters, spaces and dashes, got "One_".']],
+            ['date_of_birth', 'abc', ['Birthday should be a valid date.']],
+            ['date_of_birth', '2999-01-01', ['Birthday should be in the past.']],
+            ['privacy_consent', 'abc', ['Privacy consent should be a valid date.']],
+            ['active', 'abc', ['Active should be valid.']],
+            ['superadmin', 'abc', ['Superadmin should be valid.']],
+            ['primary_email', 'work', ['Primary email should be one of these: "personal", "gsuite".']],
+            ['primary_email', '', ['Primary email should be one of these: "personal", "gsuite".']],
+            ['gsuite_id', 'not-an-email', [
+                'GSuite ID should be a valid email.',
+                'GSuite ID should be in one of the following domains: aegee.org, aegee.eu.'
+            ]],
+            ['gsuite_id', 'some.one@example.com', ['GSuite ID should be in one of the following domains: aegee.org, aegee.eu.']]
+        ])('should refuse %s %j', async (field, value, messages) => {
+            expect(await validationErrors({ [field]: value })).toEqual({ [field]: [...messages].sort() });
+            expect(await User.count()).toEqual(0);
+        });
+
+        test.each([
+            ['username', 'some.one_2-b'],
+            ['email', 'some.one+tag@sub.example.com'],
+            ['password', '12345678'],
+            ['first_name', 'Anne-Marie d\'Été'],
+            ['last_name', 'van der Ångström Jr.'],
+            ['date_of_birth', '1995-03-17'],
+            ['primary_email', 'personal']
+        ])('should accept %s %j', async (field, value) => {
+            const user = await User.create(generator.generateUser({ [field]: value }));
+
+            expect(user.id).toEqual(expect.any(Number));
+        });
+
+        test('should name every field that is wrong at once', async () => {
+            expect(await validationErrors({ username: '1', email: 'x', first_name: '1', primary_email: 'x' })).toEqual({
+                username: ['Username should have at least 1 letter.'],
+                email: ['Email should be valid.'],
+                first_name: ['First name should only contain letters, spaces and dashes, got "1".'],
+                primary_email: ['Primary email should be one of these: "personal", "gsuite".']
+            });
+        });
+
+        test('should refuse the Google Workspace account as primary email only in the routes, not in the model', async () => {
+            // The routes check it, so that a member who is stored like this can still be edited.
+            const user = await User.create(generator.generateUser({ primary_email: 'gsuite', gsuite_id: null }));
+
+            expect(user.primary_email).toEqual('gsuite');
+            expect(user.notification_email).toBeNull();
+        });
+
+        test.each([
+            ['the same', 'taken@aegee.eu'],
+            ['in another case', 'Taken@AEGEE.eu'],
+            ['with spaces around it', '\t taken@aegee.eu ']
+        ])('should refuse a Google Workspace account that another member has (%s)', async (name, value) => {
+            await generator.createUser({ gsuite_id: 'taken@aegee.eu' });
+
+            expect(await validationErrors({ gsuite_id: value })).toEqual({ gsuite_id: ['gsuite_id must be unique'] });
+            expect(await User.count()).toEqual(1);
+        });
+
+        test('should accept several members without a Google Workspace account', async () => {
+            await generator.createUser({ gsuite_id: null });
+            await generator.createUser({ gsuite_id: null });
+
+            expect(await User.count()).toEqual(2);
+        });
+
+        test('should accept the login email of one member as the Google Workspace account of nobody', async () => {
+            // The two can't be the same address: the login email is never on the AEGEE domains,
+            // the Google Workspace account always is.
+            await generator.createUser({ email: 'some.one@example.com' });
+
+            expect(await validationErrors({ gsuite_id: 'some.one@example.com' })).toEqual({
+                gsuite_id: ['GSuite ID should be in one of the following domains: aegee.org, aegee.eu.']
+            });
+        });
+    });
+
+    describe('password', () => {
+        test('should be stored as a hash and checked against it', async () => {
+            const user = await generator.createUser({ password: 'a-secret-password' });
+            const stored = await User.scope('withPassword').findByPk(user.id);
+
+            expect(stored.password).not.toEqual('a-secret-password');
+            expect(await stored.checkPassword('a-secret-password')).toEqual(true);
+            expect(await stored.checkPassword('another-password')).toEqual(false);
+        });
+
+        test('should be hashed again when it changes, and left alone when something else changes', async () => {
+            const user = await generator.createUser({ password: 'a-secret-password' });
+            const stored = await User.scope('withPassword').findByPk(user.id);
+            const firstHash = stored.password;
+
+            await stored.update({ first_name: 'Changed' });
+            expect((await User.scope('withPassword').findByPk(user.id)).password).toEqual(firstHash);
+
+            await stored.update({ password: 'another-password' });
+            const changed = await User.scope('withPassword').findByPk(user.id);
+            expect(changed.password).not.toEqual(firstHash);
+            expect(await changed.checkPassword('another-password')).toEqual(true);
+        });
+
+        test('should not be read by default', async () => {
+            const user = await generator.createUser();
+
+            const byDefault = await User.findByPk(user.id);
+            expect(byDefault.password).toBeUndefined();
+            expect(JSON.parse(JSON.stringify(byDefault))).not.toHaveProperty('password');
+        });
+    });
+
+    describe('notification email', () => {
+        test('should be the login email by default', async () => {
+            const user = await generator.createUser({ email: 'some.one@example.com', gsuite_id: 'some.one@aegee.eu' });
+
+            expect(user.primary_email).toEqual('personal');
+            expect(user.notification_email).toEqual('some.one@example.com');
+        });
+
+        test('should be in the JSON of a member', async () => {
+            const user = await generator.createUser({ email: 'some.one@example.com' });
+
+            expect(JSON.parse(JSON.stringify(user)).notification_email).toEqual('some.one@example.com');
+        });
+    });
 });
