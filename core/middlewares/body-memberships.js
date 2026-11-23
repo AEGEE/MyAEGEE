@@ -213,6 +213,32 @@ exports.updateMembership = async (req, res) => {
     });
 };
 
+// A member who is in no body anymore has no right to a Google Workspace account. The Workspace
+// administrators are told, so they can remove the account by hand; nothing is removed here.
+const notifyWorkspaceAdminsIfLastBody = async (userId) => {
+    const bodyCount = await BodyMembership.count({
+        where: { user_id: userId },
+    });
+
+    if (bodyCount > 0) {
+        return;
+    }
+
+    const user = await User.findByPk(userId);
+
+    await mailer.sendMail({
+        to: config.google_workspace_notifications,
+        subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
+        template: 'workspace_deleted_member.html',
+        parameters: {
+            member_firstname: user.first_name,
+            member_lastname: user.last_name,
+            user_id: user.id,
+            member_workspace_email: user.gsuite_id,
+        },
+    });
+};
+
 exports.deleteMembership = async (req, res) => {
     if (!req.permissions.hasPermission('delete_member:body')) {
         return errors.makeForbiddenError(
@@ -222,26 +248,7 @@ exports.deleteMembership = async (req, res) => {
     }
 
     await req.currentBodyMembership.destroy();
-
-    const bodyCount = await BodyMembership.count({
-        where: { user_id: req.currentBodyMembership.user_id },
-    });
-
-    if (bodyCount === 0) {
-        const user = await User.findByPk(req.currentBodyMembership.user_id);
-
-        await mailer.sendMail({
-            to: config.google_workspace_notifications,
-            subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
-            template: 'workspace_deleted_member.html',
-            parameters: {
-                member_firstname: user.first_name,
-                member_lastname: user.last_name,
-                user_id: user.id,
-                member_workspace_email: user.gsuite_id,
-            },
-        });
-    }
+    await notifyWorkspaceAdminsIfLastBody(req.currentBodyMembership.user_id);
 
     return res.json({
         success: true,
@@ -259,6 +266,7 @@ exports.deleteOwnMembership = async (req, res) => {
     }
 
     await bodyMembership.destroy();
+    await notifyWorkspaceAdminsIfLastBody(req.user.id);
 
     return res.json({
         success: true,
