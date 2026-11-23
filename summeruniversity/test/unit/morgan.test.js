@@ -136,10 +136,25 @@ describe('Request log', () => {
         expect(fields.status).toEqual('500');
     });
 
-    it('should log the path without the query string when no route matched', async () => {
-        const [fields] = await logRequest(`/unknown/12?query=${MARKER}`, 'GET', 404);
+    it('should not log what follows the mount in the URL when no route matched inside it', async () => {
+        const [fields] = await logRequest(`/members/missing/${MARKER}/12`, 'GET', 404);
 
-        expect(fields.path).toEqual('/unknown/12');
+        expect(fields.path).toEqual('/members/:user_id/*');
+        expect(JSON.stringify(fields)).not.toContain(MARKER);
+    });
+
+    it('should not log the path when no route matched', async () => {
+        const [fields] = await logRequest(`/unknown/${MARKER}?query=${MARKER}`, 'GET', 404);
+
+        expect(fields.path).toEqual('unmatched');
+        expect(fields.status).toEqual('404');
+        expect(JSON.stringify(fields)).not.toContain(MARKER);
+    });
+
+    it('should not log the path when the path is known but the method is not', async () => {
+        const [fields] = await logRequest(`/members/${MARKER}`, 'PATCH', 404);
+
+        expect(fields.path).toEqual('unmatched');
         expect(JSON.stringify(fields)).not.toContain(MARKER);
     });
 });

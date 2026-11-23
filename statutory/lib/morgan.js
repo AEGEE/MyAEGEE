@@ -8,7 +8,6 @@ const log = require('./logger');
 // pattern, so each mount records its pattern in req.metricsMountPath (see the
 // endpoint metrics' recordMountPath).
 const routePattern = (req) => {
-    const concretePath = req.originalUrl.split('?')[0];
     const mountPath = req.metricsMountPath || '';
 
     if (req.route) {
@@ -17,13 +16,15 @@ const routePattern = (req) => {
 
     if (mountPath) {
         // Answered inside a mounted router before a route matched, for example by an
-        // authorization or lookup middleware: the mounted part becomes its pattern.
-        const rest = concretePath.split('/').slice(mountPath.split('/').length);
-        return [mountPath, ...rest].join('/');
+        // authorization or lookup middleware: only the mount's pattern is known, so
+        // whatever follows it in the URL is logged as /*.
+        const segments = req.originalUrl.split('?')[0].split('/').length;
+        return segments > mountPath.split('/').length ? `${mountPath}/*` : mountPath;
     }
 
-    // No route matched (a 404): the path without the query string.
-    return concretePath;
+    // No route matched: an unknown path, a known path with another method, or a
+    // request answered before routing (a CORS preflight). The path is not logged.
+    return 'unmatched';
 };
 
 // One line per request: what was called, how it ended and by which user id.
