@@ -1,5 +1,13 @@
 const errors = require('./errors');
+const constants = require('./constants');
 const { VotesPerAntenna, VotesPerDelegate, Application } = require('../models');
+
+// Every logged-in member can see the votes, so only these fields
+// of a delegate's application are returned along with them.
+const delegateApplication = {
+    model: Application,
+    attributes: constants.ALLOWED_VOTES_APPLICATION_FIELDS
+};
 
 exports.getAllVotesPerAntenna = async (req, res) => {
     const votes = await VotesPerAntenna.findAll({ where: { event_id: req.event.id } });
@@ -12,7 +20,7 @@ exports.getAllVotesPerAntenna = async (req, res) => {
 exports.getAllVotesPerDelegate = async (req, res) => {
     const votes = await VotesPerDelegate.findAll({
         where: { event_id: req.event.id },
-        include: [Application]
+        include: [delegateApplication]
     });
 
     return res.json({
@@ -32,7 +40,7 @@ exports.getVotesPerAntenna = async (req, res) => {
 
     const votesPerDelegate = await VotesPerDelegate.findAll({
         where: { event_id: req.event.id, body_id: Number(req.params.body_id, 10) },
-        include: [Application]
+        include: [delegateApplication]
     });
 
     return res.json({

@@ -110,6 +110,11 @@ module.exports = {
         'body_id',
         'body_name'
     ],
+    ALLOWED_VOTES_APPLICATION_FIELDS: [
+        'statutory_id',
+        'user_id',
+        'body_id'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',
