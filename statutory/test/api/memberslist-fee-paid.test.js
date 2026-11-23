@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { MembersList } = require('../../models');
 const regularUser = require('../assets/core-valid.json').data;
 const { MembersList } = require('../../models');
 
@@ -153,6 +154,118 @@ describe('Memberslist fee_paid editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    describe('who may set it and what it accepts', () => {
+        const bodyId = regularUser.bodies[0].id;
+        let event;
+
+        beforeEach(async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:set_memberslists_fee_paid:agora'] } });
+
+            event = await generator.createEvent({ type: 'agora' });
+            await generator.createMembersList({ body_id: bodyId, fee_paid: 12 }, event);
+        });
+
+        const setFeePaid = (body, targetEvent = event) => request({
+            path: '/events/' + targetEvent.id + '/memberslists/' + bodyId + '/fee_paid',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        const storedFeePaid = async () => {
+            const memberslist = await MembersList.findOne({ where: { event_id: event.id, body_id: bodyId } });
+            return Number(memberslist.fee_paid);
+        };
+
+        test('lets a holder of global:set_memberslists_fee_paid:agora alone set it', async () => {
+            const res = await setFeePaid({ fee_paid: 300 });
+
+            expect(res.statusCode).toEqual(200);
+            expect(Number(res.body.data.fee_paid)).toEqual(300);
+            expect(await storedFeePaid()).toEqual(300);
+        });
+
+        test('refuses the board of the local, the other members lists permissions and the permission for another event type', async () => {
+            // The default mocks make the caller a board member of this body.
+            mock.mockAll({
+                mainPermissions: {
+                    permissions: [
+                        'global:set_memberslists_fee_paid:epm',
+                        'global:manage_memberslist:agora',
+                        'global:see_memberslists:agora',
+                        'global:edit_memberslist_between_deadlines:agora'
+                    ]
+                }
+            });
+
+            const res = await setFeePaid({ fee_paid: 300 });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'You are not allowed to set the paid fee of this memberslist.' });
+            expect(await storedFeePaid()).toEqual(12);
+        });
+
+        test.each([
+            ['a zero', 0, 0],
+            ['a number with cents', 12.34, 12.34],
+            ['a number as a string', '12.5', 12.5]
+        ])('accepts %s', async (description, value, expected) => {
+            const res = await setFeePaid({ fee_paid: value });
+
+            expect(res.statusCode).toEqual(200);
+            expect(Number(res.body.data.fee_paid)).toEqual(expected);
+            expect(await storedFeePaid()).toEqual(expected);
+        });
+
+        test.each([
+            ['a word', 'abc', 'Fee paid should be a number.'],
+            ['an empty string', '', 'Fee paid should be a number.'],
+            ['a boolean', true, 'Fee paid should be a number.'],
+            ['a negative number', -1, 'Fee paid should be positive.'],
+            ['a negative number as a string', '-0.01', 'Fee paid should be positive.']
+        ])('answers 422 for %s and stores nothing', async (description, value, message) => {
+            const res = await setFeePaid({ fee_paid: value });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { fee_paid: [message] } });
+            expect(await storedFeePaid()).toEqual(12);
+        });
+
+        // BUG: the model allows null for fee_paid and the column does not, so the database refuses it
+        // and the answer is 500 with the database's message. Expected: 422 with errors.fee_paid.
+        test('answers 500 for null and stores nothing', async () => {
+            const res = await setFeePaid({ fee_paid: null });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(await storedFeePaid()).toEqual(12);
+        });
+
+        test('changes nothing without fee_paid in the body', async () => {
+            const res = await setFeePaid({});
+
+            expect(res.statusCode).toEqual(200);
+            expect(Number(res.body.data.fee_paid)).toEqual(12);
+            expect(await storedFeePaid()).toEqual(12);
+        });
+
+        test.each(['epm', 'spm'])('answers 400 for an %s event', async (type) => {
+            mock.mockAll({
+                mainPermissions: { permissions: ['global:set_memberslists_fee_paid:agora', `global:set_memberslists_fee_paid:${type}`] }
+            });
+            const otherEvent = await generator.createEvent({ type });
+            await generator.createMembersList({ body_id: bodyId, fee_paid: 12 }, otherEvent);
+
+            const res = await setFeePaid({ fee_paid: 300 }, otherEvent);
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'You can only access memberslist for Agora.' });
+
+            const memberslist = await MembersList.findOne({ where: { event_id: otherEvent.id, body_id: bodyId } });
+            expect(Number(memberslist.fee_paid)).toEqual(12);
+        });
     });
 
     test('should ask core for the user and the event permissions once', async () => {

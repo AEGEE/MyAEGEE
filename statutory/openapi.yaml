@@ -3577,7 +3577,7 @@ components:
       description: Without `fee_paid` nothing changes.
       type: object
       properties:
-        fee_paid: {type: [number, string, 'null']}
+        fee_paid: {type: [number, string]}
       additionalProperties: true
     MembersListResponse:
       type: object
