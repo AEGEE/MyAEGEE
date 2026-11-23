@@ -140,4 +140,40 @@ describe('Integrations edition', () => {
         const integrationFromDb = await Integration.findByPk(integration.id);
         expect(integrationFromDb[field]).toEqual(integration[field]);
     });
+
+    test('should store the name and the code without their surrounding spaces', async () => {
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { name: '  Partner\r', code: ' partner\t' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('Partner');
+        expect(res.body.data.code).toEqual('partner');
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.name).toEqual('Partner');
+        expect(integrationFromDb.code).toEqual('partner');
+    });
+
+    test('should fail with 422 and keep the integration if the code is taken already once its spaces are removed', async () => {
+        await generator.createIntegration({ code: 'taken' });
+        const integration = await generator.createIntegration({ code: 'first' });
+        const res = await request({
+            path: '/integrations/' + integration.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { code: 'taken ' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.code).toEqual(['Integration code is already taken.']);
+
+        const integrationFromDb = await Integration.findByPk(integration.id);
+        expect(integrationFromDb.code).toEqual('first');
+    });
 });

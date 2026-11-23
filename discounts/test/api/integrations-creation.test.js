@@ -207,4 +207,66 @@ describe('Integrations creation', () => {
         expect(res.body.data.name).toEqual('n'.repeat(255));
         expect(res.body.data.code).toEqual('c'.repeat(255));
     });
+
+    // " foo" and "foo" must be one integration code.
+    test('should store the name and the code without their surrounding spaces', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ name: '  Partner\r', code: ' partner\t' })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('Partner');
+        expect(res.body.data.code).toEqual('partner');
+
+        const integrationFromDb = await Integration.findByPk(res.body.data.id);
+        expect(integrationFromDb.name).toEqual('Partner');
+        expect(integrationFromDb.code).toEqual('partner');
+    });
+
+    test('should fail with 422 if the code is taken already once its spaces are removed', async () => {
+        await generator.createIntegration({ code: 'test' });
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ code: ' test ' })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors.code).toEqual(['Integration code is already taken.']);
+        expect(await Integration.count()).toEqual(1);
+    });
+
+    test.each([
+        ['name', 'Integration name should be set.'],
+        ['code', 'Integration code should be set.']
+    ])('should fail with 422 if the %s is only spaces', async (field, message) => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ [field]: '   ' })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toEqual([message]);
+        expect(await Integration.count()).toEqual(0);
+    });
+
+    test('should check the length of the name and the code without their surrounding spaces', async () => {
+        const res = await request({
+            path: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ name: ' ' + 'n'.repeat(255) + ' ', code: ' ' + 'c'.repeat(255) + ' ' })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.name).toEqual('n'.repeat(255));
+        expect(res.body.data.code).toEqual('c'.repeat(255));
+    });
 });
