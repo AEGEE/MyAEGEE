@@ -64,7 +64,8 @@ exports.editQuestion = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this question.');
     }
 
-    if (req.questionLine.status !== 'open') {
+    // Once the question line is closed, only those who manage question lines can edit its questions.
+    if (req.questionLine.status !== 'open' && !req.permissions.manage_question_lines) {
         return errors.makeForbiddenError(res, 'The question line is closed, you cannot edit questions now.');
     }
 
@@ -83,6 +84,11 @@ exports.editQuestion = async (req, res) => {
 exports.deleteQuestion = async (req, res) => {
     if (!req.permissions.edit_question) {
         return errors.makeForbiddenError(res, 'You cannot delete this question.');
+    }
+
+    // Once the question line is closed, only those who manage question lines can delete its questions.
+    if (req.questionLine.status !== 'open' && !req.permissions.manage_question_lines) {
+        return errors.makeForbiddenError(res, 'The question line is closed, you cannot delete questions now.');
     }
 
     await req.question.destroy();
