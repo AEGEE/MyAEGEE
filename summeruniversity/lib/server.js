@@ -29,10 +29,10 @@ server.use(bodyParser.json());
 server.use(morgan);
 server.use(queryBoolean());
 
-/* istanbul ignore next -- unhandledRejection is process-level */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
+    /* istanbul ignore next -- Bugsnag reports outside tests only */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
@@ -117,7 +117,6 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-        /* istanbul ignore next -- Express 5 hands listen errors to the callback above; this is a fallback */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }

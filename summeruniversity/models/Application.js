@@ -21,7 +21,6 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             async isValid(value) {
-                /* istanbul ignore next -- the handlers always set user_id from the caller's core profile */
                 if (typeof value !== 'number') {
                     throw new Error('User ID must be a number.');
                 }
@@ -236,7 +235,6 @@ const Application = sequelize.define('application', {
                 }
 
                 const event = await Event.findOne({ where: { id: this.event_id } });
-                /* istanbul ignore next -- applications are only created and edited through an existing event */
                 if (!event) {
                     throw new Error('Could not find event.');
                 }
