@@ -11,9 +11,15 @@
 //   report
 //       From the merge: the HTML report (.coverage/report/index.html), coverage-summary.json and
 //       lcov.info in .coverage/report, and the table per area on stdout and in .coverage/summary.md.
-//   gate
+//   gate [--base <commit>]
 //       Checks every area that is `enforced` in ui/support/coverage/<area>.json against the
-//       thresholds below, and that each of its routes was opened by a behavioural test.
+//       thresholds in ui/support/coverage/thresholds.json, and that each of its routes was
+//       opened by a behavioural test. Also everything `gate-config` checks.
+//   gate-config [--base <commit>]
+//       The part of the gate that needs no coverage data: the area files and the thresholds are
+//       well-formed, every exception has a real reason, and the gate didn't get weaker since
+//       the base (scripts/coverage-gate.ts) unless ui/support/coverage/downgrades.json accepts
+//       that. The base is the merge base with origin/stable, in CI on stable the commit before.
 //
 // An area is a directory of frontend/src/views, or `shell` for everything else in frontend/src.
 // A .vue file is measured twice: its <script> on the lines of the file, and its template as the
@@ -32,13 +38,15 @@ import {
     addHits, APP_ROUTES, COVERAGE_DIR, RAW_DIR, ROUTES_DIR, type RawCoverage, type RouteVisits
 } from '../support/coverage.ts';
 import { findIgnoreComments } from './check-ignores.ts';
-
-// What an enforced area has to reach, in percent.
-const THRESHOLDS = { scriptLines: 90, scriptBranches: 85, templateBranches: 85 } as const;
+import {
+    AREA_CONFIG_PATH, GATED_METRICS, NOT_AREA_FILES, THRESHOLDS_FILE, areaOfFile, commitTree, compareWithBase, gitIn, resolveBase, squash, workingTree,
+    type Thresholds
+} from './coverage-gate.ts';
+import { reasonProblem } from './reason.ts';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const SRC = path.join(root, 'frontend/src');
-const AREA_CONFIG_DIR = path.resolve(import.meta.dirname, '../ui/support/coverage');
+const AREA_CONFIG_DIR = path.join(root, AREA_CONFIG_PATH);
 
 const BUILD_DIR = path.join(COVERAGE_DIR, 'build');
 const MERGED_FILE = path.join(COVERAGE_DIR, 'merged.json');
@@ -226,7 +234,7 @@ interface Numbers {
     exceptedBranches: number;
 }
 
-const GATED = ['scriptLines', 'scriptBranches', 'templateBranches'] as const;
+const GATED = GATED_METRICS;
 const LABELS = {
     scriptLines: 'script lines',
     scriptBranches: 'script branches',
@@ -257,9 +265,6 @@ const add = (into: Numbers, from: Numbers): void => {
 const percent = ({ covered, total }: Count): number => (total === 0 ? 100 : (100 * covered) / total);
 const show = (count: Count): string => (count.total === 0 ? '-' : `${percent(count).toFixed(1)} % (${count.covered}/${count.total})`);
 
-// views/<area>/… belongs to that area, everything else in frontend/src to the shell.
-const areaOfFile = (name: string): string => name.match(/^views\/([^/]+)\//)?.[1] ?? SHELL;
-
 // A file of the merge: its path under frontend/src (a compiled template under the path of its
 // .vue file) and the area that owns it.
 interface Source {
@@ -275,8 +280,6 @@ const sourcesOf = (map: CoverageMap): Source[] => map.files().sort().map((file) 
     if (name.startsWith('..')) throw new UsageError(`${file} in ${fromRoot(MERGED_FILE)} is not a file of frontend/src: merge again.`);
     return { name, template, area: areaOfFile(name), coverage: map.fileCoverageFor(file) };
 });
-
-const squash = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 // The conditions of a compiled template by the position where their `x ? a : b` or `if (x)`
 // starts, as istanbul numbers it (lines from 1, columns from 0).
@@ -358,7 +361,7 @@ const areaNames = (): string[] => [
 const readAreaConfigs = (areas: string[]): { configs: Map<string, AreaConfig>; problems: string[] } => {
     const configs = new Map<string, AreaConfig>();
     const problems: string[] = [];
-    const extra = fs.readdirSync(AREA_CONFIG_DIR).filter((file) => !areas.includes(file.replace(/\.json$/, '')));
+    const extra = fs.readdirSync(AREA_CONFIG_DIR).filter((file) => !NOT_AREA_FILES.includes(file) && !areas.includes(file.replace(/\.json$/, '')));
     if (extra.length > 0) problems.push(`${fromRoot(AREA_CONFIG_DIR)} has files for areas that don't exist: ${extra.join(', ')}`);
 
     for (const area of areas) {
@@ -391,6 +394,8 @@ const readAreaConfigs = (areas: string[]): { configs: Map<string, AreaConfig>; p
                 problems.push(`${label}: ${exception.file} belongs to the area ${areaOfFile(exception.file)}, not to ${area}`);
             } else if (config.templateExceptions!.findIndex((other) => other?.file === exception.file && squash(String(other?.condition)) === squash(exception.condition)) !== index) {
                 problems.push(`${label} is there twice`);
+            } else if (reasonProblem(exception.reason, { not: [exception.condition, exception.file] })) {
+                problems.push(`${label}: the reason ${reasonProblem(exception.reason, { not: [exception.condition, exception.file] })}`);
             } else {
                 return true;
             }
@@ -399,6 +404,45 @@ const readAreaConfigs = (areas: string[]): { configs: Map<string, AreaConfig>; p
         configs.set(area, { gate: config.gate === 'enforced' ? 'enforced' : 'pending', templateExceptions: exceptions });
     }
     return { configs, problems };
+};
+
+// What an enforced area has to reach, in percent.
+const readThresholds = (): Thresholds => {
+    const file = path.join(AREA_CONFIG_DIR, THRESHOLDS_FILE);
+    const usage = `${fromRoot(file)} has to give a percentage for ${GATED.map((metric) => `"${metric}"`).join(', ')} and nothing else`;
+    if (!fs.existsSync(file)) throw new UsageError(`${usage}, but the file is missing.`);
+    let given: Record<string, unknown>;
+    try {
+        given = readJson<Record<string, unknown>>(file);
+    } catch (error) {
+        throw new UsageError(`${fromRoot(file)} is not valid JSON: ${(error as Error).message}`);
+    }
+    const valid = typeof given === 'object' && given !== null
+        && Object.keys(given).sort().join() === [...GATED].sort().join()
+        && GATED.every((metric) => typeof given[metric] === 'number' && given[metric] >= 0 && given[metric] <= 100);
+    if (!valid) throw new UsageError(`${usage}.`);
+    return given as Thresholds;
+};
+
+// The gate's own files against their base: what got weaker has to be accepted in so many words.
+const checkAgainstBase = (base: string | undefined): string[] => {
+    const git = gitIn(root);
+    const resolved = resolveBase(base, process.env, git);
+    if ('problem' in resolved) {
+        // Without a base nothing can be compared. That is fine on a machine without the
+        // history of stable, and never in CI, where it would switch the check off for good.
+        if (process.env.CI || base) return [`The gate can't be compared with its base: ${resolved.problem}`];
+        console.log(`Changes to the gate itself: not checked, ${resolved.problem}.\n`);
+        return [];
+    }
+
+    const ignoreFiles = [...new Set(findIgnoreComments().map((comment) => comment.file))];
+    const { lines, problems } = compareWithBase(workingTree(root), commitTree(git, resolved.ref), ignoreFiles);
+    console.log(`Changes to the gate itself since ${resolved.ref.slice(0, 9)} (${resolved.from}):${lines.length > 0 ? '' : ' none that weaken it.'}`);
+    // At the start of a line, so `grep ^COVERAGE-` finds them in a log.
+    if (lines.length > 0) console.log(lines.join('\n'));
+    console.log('');
+    return problems;
 };
 
 const readMerged = (): CoverageMap => {
@@ -452,6 +496,7 @@ const areaTable = (results: AreaResult[]): string[] => {
 };
 
 const report = (): void => {
+    const THRESHOLDS = readThresholds();
     const map = readMerged();
     const { results, problems } = measure(map);
 
@@ -512,8 +557,31 @@ const report = (): void => {
 // ---------------------------------------------------------------------------------------------
 // gate
 
-const gate = (): void => {
-    const { results, problems } = measure(readMerged());
+const baseOption = (args: string[]): string | undefined => {
+    if (args.length === 0) return undefined;
+    if (args.length !== 2 || args[0] !== '--base') throw new UsageError('The only option is --base <commit>.');
+    return args[1];
+};
+
+const gateConfig = (args: string[]): void => {
+    const base = baseOption(args);
+    const THRESHOLDS = readThresholds();
+    const problems = [...checkAgainstBase(base), ...readAreaConfigs(areaNames()).problems];
+    console.log(`Thresholds for an enforced area: ${GATED.map((metric) => `${LABELS[metric]} >= ${THRESHOLDS[metric]} %`).join(', ')}.`);
+    if (problems.length > 0) {
+        console.log(`\nProblems:\n${problems.map((problem) => `- ${problem}`).join('\n')}`);
+        process.exit(1);
+    }
+    console.log('The files of the coverage gate are in order.');
+};
+
+const gate = (args: string[]): void => {
+    const base = baseOption(args);
+    const THRESHOLDS = readThresholds();
+    const merged = readMerged();
+    const weaker = checkAgainstBase(base);
+    const { results, problems: found } = measure(merged);
+    const problems = [...weaker, ...found];
     const visits = fs.existsSync(ROUTE_VISITS_FILE) ? readJson<RouteVisits>(ROUTE_VISITS_FILE) : {};
 
     console.log(`Frontend coverage gate: ${GATED.map((metric) => `${LABELS[metric]} >= ${THRESHOLDS[metric]} %`).join(', ')}, every route opened by a behavioural test.\n`);
@@ -551,8 +619,9 @@ const [command, ...args] = process.argv.slice(2);
 try {
     if (command === 'merge') await merge(args);
     else if (command === 'report' && args.length === 0) report();
-    else if (command === 'gate' && args.length === 0) gate();
-    else throw new UsageError('Usage: node scripts/coverage.ts merge [--raw <dir>…] [--routes <dir>…] [--build <dir>] | report | gate');
+    else if (command === 'gate') gate(args);
+    else if (command === 'gate-config') gateConfig(args);
+    else throw new UsageError('Usage: node scripts/coverage.ts merge [--raw <dir>…] [--routes <dir>…] [--build <dir>] | report | gate [--base <commit>] | gate-config [--base <commit>]');
 } catch (error) {
     if (!(error instanceof UsageError)) throw error;
     console.error(error.message);

@@ -2,7 +2,8 @@
 //
 // The only accepted form, in the <script> of a .vue file or in a .js file of frontend/src, is
 //   /* istanbul ignore next -- <reason> */      (also `if` and `else`)
-// with a reason of at least three words. Whole-file ignores and the c8/v8 forms are refused.
+// with a reason that says something (scripts/reason.ts: at least four words and 20 characters,
+// no placeholder). Whole-file ignores and the c8/v8 forms are refused.
 // A template can't take such a comment: its exceptions are listed in the area's file in
 // ui/support/coverage/.
 //
@@ -11,9 +12,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { reasonProblem } from './reason.ts';
+
 const root = path.resolve(import.meta.dirname, '../..');
 const SRC = path.join(root, 'frontend/src');
-const MIN_REASON_WORDS = 3;
 
 export interface IgnoreComment {
     // Path from the repository root.
@@ -26,6 +28,10 @@ export interface IgnoreComment {
 }
 
 const MENTION = /\b(istanbul|c8|v8)\s+ignore\b/g;
+
+// How many ignore comments a source has, valid or not. The gate compares this number per file
+// with the one at its base (scripts/coverage-gate.ts).
+export const countIgnoreMentions = (source: string): number => [...source.matchAll(MENTION)].length;
 // From the mention on: what is ignored, the reason, the end of the block comment.
 const ALLOWED = /^istanbul\s+ignore\s+(next|if|else)\s+--\s+([\s\S]*?)\s*\*\//;
 
@@ -61,8 +67,8 @@ const check = (source: string, index: number, isVue: boolean): { text: string; e
     if (!allowed) return { text: firstLine, error: 'needs a reason: `/* istanbul ignore next -- <reason> */`' };
 
     const text = `/* ${allowed[0].replace(/\s+/g, ' ')}`;
-    const words = allowed[2].split(/\s+/).filter((word) => /\w/.test(word));
-    if (words.length < MIN_REASON_WORDS) return { text, error: `the reason needs at least ${MIN_REASON_WORDS} words` };
+    const problem = reasonProblem(allowed[2]);
+    if (problem) return { text, error: `the reason ${problem}` };
     return { text };
 };
 
