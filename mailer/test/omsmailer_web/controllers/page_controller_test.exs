@@ -185,6 +185,22 @@ defmodule OmsmailerWeb.PageControllerTest do
     refute String.contains?(res, "token")
   end
 
+  test "mail_change_notice names the requester with their login email" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "Board Member", "changed_by_email" => "board.member@example.org"})
+    assert String.contains?(res, "The change was requested by Board Member (board.member@example.org).")
+  end
+
+  test "mail_change_notice shows no email when the member changed the address themselves" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "yourself", "changed_by_email" => nil})
+    assert String.contains?(res, "The change was requested by yourself.")
+  end
+
+  test "mail_change_notice escapes the requester's email" do
+    res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"changed_by" => "x", "changed_by_email" => "<b>mail</b>@example.org"})
+    assert String.contains?(res, "requested by x (&lt;b&gt;mail&lt;/b&gt;@example.org).")
+    refute String.contains?(res, "<b>mail</b>")
+  end
+
   test "mail_change_notice says so when the member changed the address themselves" do
     res = Phoenix.View.render_to_string(OmsmailerWeb.PageView, "mail_change_notice.html", parameters: %{"name" => "Franz", "surname" => "Ferdinant", "new_email" => "new.address@example.org", "changed_by" => "yourself"})
     assert String.contains?(res, "The change was requested by yourself.")

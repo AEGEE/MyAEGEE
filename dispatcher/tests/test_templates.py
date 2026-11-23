@@ -54,6 +54,7 @@ COMPLETE_PARAMETERS = {
     "body_id": 42,
     "body_name": "AEGEE-Delft",
     "changed_by": "Grace Hopper",
+    "changed_by_email": "grace.hopper@example.org",
     "candidate": {
         "first_name": "Grace",
         "last_name": "Hopper",
@@ -216,6 +217,50 @@ def test_mail_change_notice_shows_new_address_and_who_asked(changed_by):
     ) in rendered
     assert "mail-change" not in rendered
     assert "token" not in rendered
+
+
+def test_mail_change_notice_names_the_requester_with_their_login_email():
+    parameters = {
+        "name": "Ada",
+        "surname": "Lovelace",
+        "new_email": "new.address@example.org",
+        "changed_by": "Grace Hopper",
+        "changed_by_email": "grace.hopper@example.org",
+    }
+
+    rendered = render_template("mail_change_notice.jinja2", parameters)
+
+    assert "The change was requested by Grace Hopper (grace.hopper@example.org)." in rendered
+
+
+@pytest.mark.parametrize("changed_by_email", [None, ""])
+def test_mail_change_notice_shows_no_email_for_an_own_change(changed_by_email):
+    parameters = {
+        "name": "Ada",
+        "surname": "Lovelace",
+        "new_email": "new.address@example.org",
+        "changed_by": "yourself",
+        "changed_by_email": changed_by_email,
+    }
+
+    rendered = render_template("mail_change_notice.jinja2", parameters)
+
+    assert "The change was requested by yourself." in rendered
+
+
+def test_mail_change_notice_escapes_the_requester_email():
+    parameters = {
+        "name": "Ada",
+        "surname": "Lovelace",
+        "new_email": "new.address@example.org",
+        "changed_by": "x",
+        "changed_by_email": "<b>mail</b>@example.org",
+    }
+
+    rendered = render_template("mail_change_notice.jinja2", parameters)
+
+    assert "requested by x (&lt;b&gt;mail&lt;/b&gt;@example.org)." in rendered
+    assert "<b>mail</b>" not in rendered
 
 
 def test_mail_change_notice_escapes_values():

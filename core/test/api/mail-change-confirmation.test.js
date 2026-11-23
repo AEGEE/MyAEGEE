@@ -122,13 +122,14 @@ describe('Mail change confirm', () => {
                     name: 'Some',
                     surname: 'One',
                     new_email: 'new@example.com',
-                    changed_by: 'yourself'
+                    changed_by: 'yourself',
+                    changed_by_email: null
                 }
             }));
         });
 
         test('should tell the old address who asked for the change', async () => {
-            const requester = await generator.createUser({ first_name: 'Member', last_name: 'Manager' });
+            const requester = await generator.createUser({ first_name: 'Member', last_name: 'Manager', email: 'member.manager@example.com' });
             const user = await generator.createUser({ first_name: 'Some', last_name: 'One', email: 'current@example.com' });
             const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com', requested_by: requester.id });
 
@@ -147,7 +148,8 @@ describe('Mail change confirm', () => {
                 name: 'Some',
                 surname: 'One',
                 new_email: 'new@example.com',
-                changed_by: 'Member Manager'
+                changed_by: 'Member Manager',
+                changed_by_email: 'member.manager@example.com'
             });
         });
 
@@ -313,7 +315,7 @@ describe('Mail change confirm', () => {
         });
 
         test('should change the email after the current address confirmed too', async () => {
-            const { user } = await createPendingChange();
+            const { requester, user } = await createPendingChange();
 
             await confirm('new-token');
             const res = await confirm('old-token');
@@ -336,7 +338,8 @@ describe('Mail change confirm', () => {
                     name: 'Some',
                     surname: 'One',
                     new_email: 'new@example.com',
-                    changed_by: 'Board Member'
+                    changed_by: 'Board Member',
+                    changed_by_email: requester.email
                 }
             }));
         });
