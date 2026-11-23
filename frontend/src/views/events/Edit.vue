@@ -287,6 +287,7 @@
           </a>
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</a>
         </div>
+        <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Add organising body</label>

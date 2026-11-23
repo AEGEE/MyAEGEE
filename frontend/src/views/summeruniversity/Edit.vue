@@ -104,6 +104,8 @@
               v-model="dates.starts" />
           </div>
           <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+          <!-- The application period is set elsewhere; its end has to be before the start. -->
+          <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
         </div>
 
         <!-- TODO: start with datePicker on 6 days after first possible SU start date (or set start date) set by CIA/SUCT -->
@@ -398,6 +400,7 @@
           </a>
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
         </div>
+        <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Add organising body</label>
@@ -438,6 +441,7 @@
           </a>
           <a class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</a>
         </div>
+        <p class="help is-danger" v-if="errors.cooperation">{{ errors.cooperation.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Add cooperation</label>
