@@ -2,7 +2,7 @@
 // viewport, the layout or the project to decide what to do or to check is two tests in one, and
 // usually half of it checks nothing. What differs between the viewports lives in the helpers
 // of ui/support/shell.ts, which take `layout` as an argument.
-const { propertyName } = require('../ast.js');
+const { keyName, propertyName, WRAPPERS } = require('../ast.js');
 
 // Fixtures and options that say which project or viewport the test runs on.
 const NAMES = new Set(['layout', 'frontend', 'isMobile', 'viewport', 'hasTouch']);
@@ -10,6 +10,9 @@ const NAMES = new Set(['layout', 'frontend', 'isMobile', 'viewport', 'hasTouch']
 const PROPERTIES = new Set(['project', 'viewportSize', 'layout', 'frontend', 'isMobile', 'viewport', 'hasTouch']);
 
 const COMPARISONS = new Set(['==', '===', '!=', '!==', '<', '<=', '>', '>=']);
+// Methods that compare: ['phone'].includes(layout), /mobile/.test(testInfo.project.name),
+// testInfo.project.name.endsWith('mobile').
+const COMPARING = new Set(['includes', 'indexOf', 'has', 'startsWith', 'endsWith', 'match', 'matchAll', 'search', 'test', 'localeCompare']);
 
 // Whether `child` is the part of `parent` that decides something.
 const decides = (parent, child) => {
@@ -51,8 +54,28 @@ module.exports = {
     },
     create(context) {
         const check = (node, name) => {
-            // const l = layout: a way around the checks below.
-            if (node.parent.type === 'VariableDeclarator' && node.parent.init === node) {
+            // What is read from it: `layout`, `viewport!.width`, `page.viewportSize()`,
+            // `testInfo.project.name.endsWith('mobile')`.
+            let read = node;
+            let compares = false;
+            for (;;) {
+                const { parent } = read;
+                if (parent.type === 'MemberExpression' && parent.object === read) read = parent;
+                else if (parent.type === 'CallExpression' && parent.callee === read) {
+                    compares ||= COMPARING.has(propertyName(read));
+                    read = parent;
+                } else if (WRAPPERS.has(parent.type)) read = parent;
+                else break;
+            }
+            const holder = read.parent;
+            // A comparison, wherever its answer goes: kept in a variable, or handed on.
+            if (compares || (holder.type === 'CallExpression' && holder.arguments.includes(read) && COMPARING.has(propertyName(holder.callee)))) {
+                context.report({ node, messageId: 'branch', data: { name } });
+                return;
+            }
+            // const l = layout, const size = page.viewportSize(), name = testInfo.project.name:
+            // a way around the checks below.
+            if ((holder.type === 'VariableDeclarator' && holder.init === read) || (holder.type === 'AssignmentExpression' && holder.right === read)) {
                 context.report({ node, messageId: 'alias', data: { name } });
                 return;
             }
@@ -69,6 +92,13 @@ module.exports = {
         };
 
         return {
+            // async ({ layout: l }) => …, const { project } = testInfo: the same under another name.
+            'ObjectPattern > Property': (node) => {
+                const name = keyName(node);
+                const value = node.value.type === 'AssignmentPattern' ? node.value.left : node.value;
+                const renamed = value.type !== 'Identifier' || value.name !== name;
+                if ((NAMES.has(name) && renamed) || (PROPERTIES.has(name) && !NAMES.has(name))) context.report({ node, messageId: 'alias', data: { name } });
+            },
             Identifier(node) {
                 if (!NAMES.has(node.name)) return;
                 const { parent } = node;

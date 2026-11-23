@@ -13,6 +13,7 @@ const viaAnotherFunction = async (page: Page): Promise<void> => savedIsShown(pag
 const onlyClicks = async (page: Page): Promise<void> => {
     await page.getByRole('button', { name: 'Save' }).click();
 };
+const ACTIONS = ['View applications', 'Edit event'] as const;
 async function whole({ page }: { page: Page }): Promise<void> {
     await page.goto('/events');
     await expect(page).toHaveTitle('MyAEGEE | List all events');
@@ -70,6 +71,25 @@ test.describe('tests that assert', () => {
     test('with details and an assertion', { tag: '@phone-only' }, async ({ page }) => {
         await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeVisible();
     });
+
+    test('in a loop over a list written out here', async ({ page }) => {
+        for (const action of ['View applications', 'Edit event']) {
+            await expect(page.getByRole('link', { name: action })).toBeVisible();
+        }
+    });
+
+    test('in a loop over a list of this file', async ({ page }) => {
+        for (const [index, action] of ACTIONS.entries()) {
+            await expect(page.getByRole('link', { name: action })).toHaveAttribute('tabindex', String(index));
+        }
+        ACTIONS.forEach((action) => expect(action).not.toBe(''));
+    });
+
+    test('in a loop, after the number of items was asserted', async ({ page }) => {
+        const rows = page.getByRole('row');
+        await expect(rows).toHaveCount(3);
+        for (const row of await rows.all()) await expect(row).toContainText('AEGEE');
+    });
 });
 
 test.describe('tests that assert nothing', () => {
@@ -92,6 +112,22 @@ test.describe('tests that assert nothing', () => {
 
     // expect-lint: e2e-expect-expect
     test('has a function without an assertion as its body', wholeWithoutAssertion);
+
+    // expect-lint: e2e-expect-expect
+    test('asserts only in a loop over what the page happens to show', async ({ page }) => {
+        await page.goto('/events');
+        for (const row of await page.getByRole('row').all()) {
+            await expect(row).toContainText('AEGEE');
+        }
+    });
+
+    // expect-lint: e2e-expect-expect
+    test('asserts only once per item of a list that may be empty', async ({ page, api }) => {
+        await page.goto('/events');
+        api.callsTo('GET events /').forEach((call) => expect(call.status).toBe(200));
+        for (let index = 0; index < api.calls.length; index++) expect(api.calls[index].handled).toBe(true);
+        while (await page.getByRole('button', { name: 'Load more' }).isVisible()) await savedIsShown(page);
+    });
 
     test.beforeEach(async ({ page }) => {
         // An assertion in a hook is not one of the test.

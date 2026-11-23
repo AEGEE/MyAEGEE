@@ -59,4 +59,36 @@ test.describe('branching on the viewport', () => {
         await expect(page.getByRole('button', { name })).toHaveCount(count);
         expect([isPhone, where]).toHaveLength(2);
     });
+
+    // expect-lint: e2e-no-layout-branch, e2e-no-layout-branch
+    test('under another name', async ({ page, layout: l, isMobile: phone = false }) => {
+        if (l === 'phone' || phone) await page.reload();
+        await expect(page).toHaveTitle('MyAEGEE');
+    });
+
+    test('kept for later', async ({ page, layout }, testInfo) => {
+        // expect-lint: e2e-no-layout-branch
+        const onPhone = ['phone'].includes(layout);
+        // expect-lint: e2e-no-layout-branch
+        const size = page.viewportSize();
+        // expect-lint: e2e-no-layout-branch
+        const project = testInfo.project.name;
+        // expect-lint: e2e-no-layout-branch
+        const mobile = testInfo.project.name.endsWith('mobile');
+        // expect-lint: e2e-no-layout-branch
+        const narrow = /mobile/.test(test.info().project.name);
+        // expect-lint: e2e-no-layout-branch
+        const { project: { name } } = testInfo;
+        let later;
+        // expect-lint: e2e-no-layout-branch
+        later = testInfo.project.metadata.layout as string;
+        if (onPhone || mobile || narrow || size!.width < 800 || project === 'vue-mobile' || name === later) await page.reload();
+        await expect(page).toHaveTitle('MyAEGEE');
+    });
+
+    // expect-lint: e2e-no-layout-branch
+    test('taken out of the test\'s information', async ({ page }, { project }) => {
+        if (project.name === 'vue-mobile') await page.reload();
+        await expect(page).toHaveTitle('MyAEGEE');
+    });
 });

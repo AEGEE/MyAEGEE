@@ -16,6 +16,15 @@ test.describe('tests that run', () => {
         });
     }
 
+    test('a skip, only or fail of something else is not Playwright\'s', async ({ page, api }) => {
+        const paging = { skip: 20, only: 'published', fail: (): string => 'never' };
+        api.on('GET events /', ({ query }) => ({ json: { success: true, data: [], meta: { skip: Number(query.get('skip')), only: paging.only } } }));
+        const { skip: offset, only } = paging;
+        await page.goto(`/events?skip=${paging.skip}`);
+        const answer = await page.evaluate(async () => (await fetch('/api/events/?skip=20')).json() as Promise<{ meta: { skip: number; only: string } }>);
+        expect([answer.meta.skip, answer.meta.only, paging.fail()]).toEqual([offset, only, 'never']);
+    });
+
     test('an annotation that only says something', { annotation: { type: 'issue', description: 'https://example.org/1' } }, async ({ page }) => {
         await expect(page).toHaveTitle('MyAEGEE');
         // Reading the status is not setting it.
@@ -78,6 +87,25 @@ test('skips inside a test', async ({ page, isMobile }, testInfo) => {
         await expect(page).toHaveTitle('Not MyAEGEE');
     });
     skip();
+    await expect(page).toHaveTitle('MyAEGEE');
+});
+
+test('the test\'s information under another name', async ({ page }, info) => {
+    // expect-lint: e2e-no-skipped-tests
+    info.skip();
+    const sameInfo = info;
+    // expect-lint: e2e-no-skipped-tests
+    sameInfo.fixme();
+    await test.step('a step that skips itself', async (step) => {
+        // expect-lint: e2e-no-skipped-tests
+        step.skip();
+    });
+    await expect(page).toHaveTitle('MyAEGEE');
+});
+
+// expect-lint: e2e-no-skipped-tests
+test('skip taken out of the test\'s information', async ({ page }, { skip: leave }) => {
+    leave();
     await expect(page).toHaveTitle('MyAEGEE');
 });
 

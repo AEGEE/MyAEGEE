@@ -2,7 +2,7 @@
 // every way to write one: test.skip/fixme/fail/only and their describe and step forms, the same
 // under another name or through testInfo, a skip written as an annotation, and a test that is
 // only declared when a condition holds.
-const { callbackOf, isFunction, keyName, kindOfCall, kindOfCallback, propertyName } = require('../ast.js');
+const { callbackOf, comesFromTest, isFunction, isInfoParameter, keyName, kindOfCall, kindOfCallback, propertyName } = require('../ast.js');
 
 const MODIFIERS = new Set(['skip', 'fixme', 'fail', 'only']);
 
@@ -19,19 +19,27 @@ module.exports = {
         }
     },
     create: (context) => ({
-        // test.skip, test.describe.fixme, test.step.skip, testInfo.fail, test.info().skip, it.only, test['skip']
+        // test.skip, test.describe.fixme, test.step.skip, testInfo.fail, test.info().skip, it.only, test['skip'],
+        // and the same on `test` or the test's information under another name. A `skip`, `only`
+        // or `fail` of something else (an answer of the API mock, an option) is not Playwright's.
         MemberExpression(node) {
             const name = propertyName(node);
-            if (MODIFIERS.has(name)) context.report({ node: node.property, messageId: 'modifier', data: { name } });
+            if (MODIFIERS.has(name) && comesFromTest(node.object, context.sourceCode)) context.report({ node: node.property, messageId: 'modifier', data: { name } });
             // testInfo.expectedStatus = 'failed'
             if (name === 'expectedStatus' && node.parent.type === 'AssignmentExpression' && node.parent.left === node) {
                 context.report({ node, messageId: 'expectedStatus' });
             }
         },
-        // const { skip } = test
+        // const { skip } = test, and async ({ page }, { skip }) => …
         'ObjectPattern > Property': (node) => {
             const name = keyName(node);
-            if (MODIFIERS.has(name)) context.report({ node: node.key, messageId: 'modifier', data: { name } });
+            if (!MODIFIERS.has(name)) return;
+            const pattern = node.parent;
+            const owner = pattern.parent;
+            const fromTest = owner.type === 'VariableDeclarator'
+                ? owner.id === pattern && !!owner.init && comesFromTest(owner.init, context.sourceCode)
+                : isFunction(owner) && isInfoParameter(owner, pattern);
+            if (fromTest) context.report({ node: node.key, messageId: 'modifier', data: { name } });
         },
         // test('…', { annotation: { type: 'skip' } }, …) and annotation: [{ type: 'fixme' }]
         'Property[key.name="annotation"] ObjectExpression > Property': (node) => {

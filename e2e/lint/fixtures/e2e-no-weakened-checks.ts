@@ -5,6 +5,8 @@ const ANYTHING = /Network Error/;
 
 test.describe('the checks every test gets', () => {
     test.use({ session: 'board', strictApi: true, allowedConsoleErrors: [/Network Error/, /\[Vue warn\]: Error in render: "TypeError/i] });
+    // Escaped brackets and dots are text of the message, not a character class or "anything".
+    test.use({ allowedConsoleErrors: [/\[Vue warn\]/, /\(404\)/, /axios\.get/] });
 
     test('names the console error it expects', async ({ page }) => {
         await expect(page).toHaveTitle('MyAEGEE');
@@ -35,6 +37,12 @@ test.describe('turned off', () => {
     test.use({ allowedConsoleErrors: [/(Network Error)?/] });
     // expect-lint: e2e-no-weakened-checks
     test.use({ allowedConsoleErrors: [/e/i] });
+    // expect-lint: e2e-no-weakened-checks
+    test.use({ allowedConsoleErrors: [/[Vue warn]/] });
+    // expect-lint: e2e-no-weakened-checks
+    test.use({ allowedConsoleErrors: [/\w\w\w\d{3}/] });
+    // expect-lint: e2e-no-weakened-checks
+    test.use({ allowedConsoleErrors: [/\u0045\x72\x72/] });
     // expect-lint: e2e-no-weakened-checks
     test.use({ allowedConsoleErrors: [new RegExp('')] });
     // expect-lint: e2e-no-weakened-checks

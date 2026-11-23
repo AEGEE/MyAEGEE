@@ -31,9 +31,34 @@ test.describe('returning', () => {
         return;
     });
 
+    test('nor a step before its end', async ({ page }) => {
+        const title = await test.step('reads the title', async () => {
+            // expect-lint: e2e-no-early-return
+            if (page.url() === 'about:blank') return '';
+            await expect(page).toHaveTitle('MyAEGEE');
+            return page.title();
+        });
+        await test.step('checks the rows', async () => {
+            const rows = await page.getByRole('row').count();
+            // expect-lint: e2e-no-early-return
+            if (rows === 0) return;
+            await expect(page.getByRole('row')).toHaveCount(3);
+        });
+        expect(title).toBe('MyAEGEE');
+    });
+
     test.beforeEach(async ({ page }) => {
         // A hook is not a test.
         if (page.url() !== 'about:blank') return;
         await page.goto('/events');
+    });
+});
+
+test.describe('a group that stops declaring its tests', () => {
+    // expect-lint: e2e-no-early-return
+    if (!process.env.WITH_MAPS) return;
+
+    test('is never declared without the variable', async ({ page }) => {
+        await expect(page).toHaveTitle('MyAEGEE');
     });
 });

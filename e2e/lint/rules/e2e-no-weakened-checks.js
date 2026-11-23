@@ -6,13 +6,34 @@ const { keyName } = require('../ast.js');
 // A message the page can't have written by accident.
 const PROBES = ['', '§'];
 
-// What is left of a pattern when everything that isn't plain text is taken out.
-const literalText = (pattern) => pattern
-    .replace(/\\[dDwWsSbBnrtfv]/g, ' ')
-    .replace(/\\(.)/g, '$1')
-    .replace(/\[[^\]]*\]/g, ' ')
-    .replace(/\{\d*,?\d*\}/g, ' ')
-    .replace(/[.*+?^$()|]/g, ' ');
+// What is left of a pattern when everything that isn't plain text is taken out. Read from left
+// to right, so an escaped character is text (`\[Vue warn\]` names "[Vue warn]") and is not
+// taken for the start of a character class.
+const literalText = (pattern) => {
+    let text = '';
+    for (let index = 0; index < pattern.length; index++) {
+        const char = pattern[index];
+        if (char === '\\') {
+            // \d, \w, \s, \b, a backreference, \cJ, \x41, \u0041, \u{1F600}, \p{Letter} and
+            // \k<name> are no text of a message; any other escaped character is that character.
+            const [escape] = pattern.slice(index).match(/^\\(?:[pPu]\{[^}]*\}|k<[^>]*>|u[0-9A-Fa-f]{4}|x[0-9A-Fa-f]{2}|c[A-Za-z]|[\s\S])/) ?? ['\\'];
+            index += escape.length - 1;
+            text += /^\\[A-Za-z0-9]/.test(escape) ? ' ' : escape.slice(1);
+        } else if (char === '[') {
+            // A character class, up to its closing bracket.
+            for (index += 1; index < pattern.length && pattern[index] !== ']'; index++) {
+                if (pattern[index] === '\\') index += 1;
+            }
+            text += ' ';
+        } else if (char === '{' && /^\{\d*,?\d*\}/.test(pattern.slice(index))) {
+            index = pattern.indexOf('}', index);
+            text += ' ';
+        } else {
+            text += '.*+?^$()|'.includes(char) ? ' ' : char;
+        }
+    }
+    return text;
+};
 
 const problemWith = (element) => {
     if (!element || element.type !== 'Literal' || !element.regex) return 'notLiteral';

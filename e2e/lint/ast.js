@@ -59,10 +59,67 @@ const kindOfCallback = (fn) => {
     return parent && parent.type === 'CallExpression' && callbackOf(parent) === fn ? kindOfCall(parent) : undefined;
 };
 
+// Whether `parameter` of the function `fn` is the information about the running test or step:
+// `(fixtures, testInfo)` of a test or hook, `(step)` of a step.
+function isInfoParameter(fn, parameter) {
+    const kind = kindOfCallback(fn);
+    const index = fn.params.indexOf(parameter);
+    return (['test', 'hook'].includes(kind) && index === 1) || (kind === 'step' && index === 0);
+}
+
 const nearestFunction = (node) => {
     let current = node.parent;
     while (current && !isFunction(current)) current = current.parent;
     return current || undefined;
+};
+
+// The variable an identifier stands for, from the scopes around it.
+const variableOf = (sourceCode, identifier) => {
+    for (let scope = sourceCode.getScope(identifier); scope; scope = scope.upper) {
+        const variable = scope.set.get(identifier.name);
+        if (variable) return variable;
+    }
+    return undefined;
+};
+
+// `x as T`, `x!`, `(await x)` and `x?.y` say nothing new about what `x` is.
+const WRAPPERS = new Set(['TSNonNullExpression', 'TSAsExpression', 'TSSatisfiesExpression', 'TSTypeAssertion', 'ChainExpression', 'AwaitExpression']);
+
+const unwrap = (node) => {
+    let current = node;
+    while (current && WRAPPERS.has(current.type)) current = current.type === 'AwaitExpression' ? current.argument : current.expression;
+    return current;
+};
+
+// The identifier an expression starts with: `test` for `test.describe.configure` and
+// `test.info().project`, `testInfo` for `testInfo.project.name`.
+const rootOf = (node) => {
+    let current = unwrap(node);
+    while (current && (current.type === 'MemberExpression' || current.type === 'CallExpression')) {
+        current = unwrap(current.type === 'MemberExpression' ? current.object : current.callee);
+    }
+    return current && current.type === 'Identifier' ? current : undefined;
+};
+
+const TEST_OBJECTS = new Set(['test', 'it', 'testInfo']);
+
+// Whether an expression is Playwright's `test`, something of it (`test.describe`, `test.info()`)
+// or the information about the running test or step, under whatever name the file gave it:
+// `import { test as base }`, `const it = test`, the second parameter of a test or hook and the
+// parameter of a step. A `skip`, `only` or `retries` of anything else is not Playwright's.
+const comesFromTest = (node, sourceCode, seen = new Set()) => {
+    const root = rootOf(node);
+    if (!root) return false;
+    if (TEST_OBJECTS.has(root.name)) return true;
+    const variable = variableOf(sourceCode, root);
+    if (!variable || seen.has(variable)) return false;
+    seen.add(variable);
+    return variable.defs.some((def) => {
+        if (def.type === 'ImportBinding') return def.node.type === 'ImportSpecifier' && def.node.imported.name === 'test';
+        if (def.type === 'Variable') return def.node.id.type === 'Identifier' && !!def.node.init && comesFromTest(def.node.init, sourceCode, seen);
+        if (def.type === 'Parameter') return isInfoParameter(def.node, def.name);
+        return false;
+    });
 };
 
 // expect(x), expect.soft(x) and expect.poll(fn): where an expectation starts.
@@ -85,5 +142,20 @@ const isHelperAssertion = (node) => {
 const isAssertion = (node) => isExpectStart(node) || isHelperAssertion(node);
 
 module.exports = {
-    ASSERTION_HELPERS, callbackOf, isAssertion, isExpectStart, isFunction, keyName, kindOfCall, kindOfCallback, nearestFunction, propertyName
+    ASSERTION_HELPERS,
+    callbackOf,
+    comesFromTest,
+    isAssertion,
+    isExpectStart,
+    isFunction,
+    isInfoParameter,
+    keyName,
+    kindOfCall,
+    kindOfCallback,
+    nearestFunction,
+    propertyName,
+    rootOf,
+    unwrap,
+    variableOf,
+    WRAPPERS
 };

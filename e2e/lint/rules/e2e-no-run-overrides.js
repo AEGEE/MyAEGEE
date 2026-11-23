@@ -1,17 +1,20 @@
 // How the suite runs is decided in one place, the Playwright config. A spec may not give
 // itself retries (a test that needs a second try is broken), run its tests in serial mode,
 // or take the time limit away.
-const { keyName, propertyName } = require('../ast.js');
-
-const rootName = (node) => {
-    let current = node;
-    while (current && (current.type === 'MemberExpression' || current.type === 'CallExpression')) {
-        current = current.type === 'MemberExpression' ? current.object : current.callee;
-    }
-    return current && current.type === 'Identifier' ? current.name : undefined;
-};
+const { comesFromTest, keyName, propertyName, unwrap, variableOf } = require('../ast.js');
 
 const isZero = (node) => node && node.type === 'Literal' && node.value === 0;
+
+// The object a call is given: written in place, or a `const` of the file.
+const objectOf = (argument, sourceCode) => {
+    const node = unwrap(argument);
+    if (!node) return undefined;
+    if (node.type === 'ObjectExpression') return node;
+    if (node.type !== 'Identifier') return undefined;
+    const [def] = variableOf(sourceCode, node)?.defs ?? [];
+    const init = def && def.type === 'Variable' ? unwrap(def.node.init) : undefined;
+    return init && init.type === 'ObjectExpression' ? init : undefined;
+};
 
 module.exports = {
     meta: {
@@ -25,24 +28,24 @@ module.exports = {
         }
     },
     create: (context) => ({
-        'ObjectExpression > Property': (node) => {
-            const name = keyName(node);
-            if (name === 'retries') context.report({ node, messageId: 'retries' });
-            if (name === 'mode' && node.value.type === 'Literal' && node.value.value === 'serial') context.report({ node, messageId: 'serial' });
-            // test.use({ … }), test.describe.configure({ … }), test('…', { … }, …)
-            const call = node.parent.parent;
-            if (name === 'timeout' && isZero(node.value) && call.type === 'CallExpression' && ['test', 'it'].includes(rootName(call.callee))) {
-                context.report({ node, messageId: 'timeout' });
-            }
-        },
         // test.describe.serial(…)
         MemberExpression(node) {
-            if (propertyName(node) === 'serial' && ['test', 'it'].includes(rootName(node))) context.report({ node: node.property, messageId: 'serial' });
+            if (propertyName(node) === 'serial' && comesFromTest(node.object, context.sourceCode)) context.report({ node: node.property, messageId: 'serial' });
         },
-        // test.setTimeout(0)
         CallExpression(node) {
-            if (propertyName(node.callee) === 'setTimeout' && ['test', 'it', 'testInfo'].includes(rootName(node.callee)) && isZero(node.arguments[0])) {
-                context.report({ node, messageId: 'timeout' });
+            // Only what Playwright is given: `retries` or `mode: 'serial'` in an answer of the
+            // API mock or in a form's data is somebody else's.
+            if (!comesFromTest(node.callee, context.sourceCode)) return;
+            // test.setTimeout(0), testInfo.setTimeout(0)
+            if (propertyName(node.callee) === 'setTimeout' && isZero(node.arguments[0])) context.report({ node, messageId: 'timeout' });
+            // test.use({ … }), test.describe.configure({ … }), test('…', { … }, …)
+            for (const argument of node.arguments) {
+                for (const property of objectOf(argument, context.sourceCode)?.properties ?? []) {
+                    const name = keyName(property);
+                    if (name === 'retries') context.report({ node: property, messageId: 'retries' });
+                    if (name === 'mode' && property.value.type === 'Literal' && property.value.value === 'serial') context.report({ node: property, messageId: 'serial' });
+                    if (name === 'timeout' && isZero(property.value)) context.report({ node: property, messageId: 'timeout' });
+                }
             }
         }
     })
