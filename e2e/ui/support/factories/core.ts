@@ -1,6 +1,6 @@
 // Factories for what core answers. See base.ts for the rules.
 import { loadSeedPermissions } from '../../../support/core.ts';
-import { id, iso } from './base.ts';
+import { date, id, iso } from './base.ts';
 
 // Exports of this file that don't build an entity of their own, so they need no contract
 // check (scripts/check-factory-contracts.ts).
@@ -120,6 +120,170 @@ export const member = (overrides: Partial<Member> = {}): Member => {
     };
 };
 
+// A circle as the lists have it (`GET core /circles`, a body's or member's `circles`).
+export interface Circle {
+    id: number;
+    name: string;
+    description: string;
+    gsuite_id: string | null;
+    // Set for a circle bound to a body; free circles have none.
+    body_id: number | null;
+    parent_circle_id: number | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export const circle = (overrides: Partial<Circle> = {}): Circle => {
+    const circleId = overrides.id ?? id();
+    return {
+        id: circleId,
+        name: `Test circle ${circleId}`,
+        description: 'A circle for testing',
+        gsuite_id: null,
+        body_id: null,
+        parent_circle_id: null,
+        created_at: iso(-200),
+        updated_at: iso(-20),
+        ...overrides
+    };
+};
+
+// A row of `GET core /members_search`. Everyone who may search gets the id and the name; the
+// last three fields only come with `global:view:member`, so pass them for such a session.
+export interface MemberSearchResult {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username?: string;
+    email?: string;
+    gsuite_id?: string | null;
+}
+
+export const memberSearchResult = (overrides: Partial<MemberSearchResult> = {}): MemberSearchResult => ({
+    id: id(),
+    first_name: 'Alex',
+    last_name: 'Member',
+    ...overrides
+});
+
+// What `GET core /members/:id` adds to the user's own fields.
+const MEMBER_RELATIONS = ['primary_body', 'bodies', 'circles', 'join_requests', 'event_application_ban'] as const;
+
+// The user inside a membership: the user's own fields only.
+export interface MembershipUser extends Omit<Member, typeof MEMBER_RELATIONS[number]> {
+    gsuite_id: string | null;
+    campaign_id: number | null;
+    last_logged_in: string | null;
+    last_active: string | null;
+}
+
+// A row of `GET core /bodies/:id/members`.
+export interface BodyMembership {
+    id: number;
+    user_id: number;
+    body_id: number;
+    comment: string | null;
+    user: MembershipUser;
+    created_at: string;
+    updated_at: string;
+}
+
+export const bodyMembership = (overrides: Partial<BodyMembership> = {}): BodyMembership => {
+    const bodyId = overrides.body_id ?? 1;
+    const full = member({
+        ...(overrides.user_id === undefined ? {} : { id: overrides.user_id }),
+        bodies: [body({ id: bodyId })]
+    });
+    const own = Object.fromEntries(
+        Object.entries(full).filter(([key]) => !(MEMBER_RELATIONS as readonly string[]).includes(key))
+    ) as Omit<Member, typeof MEMBER_RELATIONS[number]>;
+    const user: MembershipUser = overrides.user ?? {
+        ...own,
+        gsuite_id: null,
+        campaign_id: null,
+        last_logged_in: iso(-1),
+        last_active: iso(-1)
+    };
+    return {
+        id: id(),
+        body_id: bodyId,
+        comment: null,
+        created_at: iso(-300),
+        updated_at: iso(-300),
+        ...overrides,
+        user,
+        user_id: user.id
+    };
+};
+
+// A membership fee payment (`GET core /bodies/:id/payments`).
+export interface Payment {
+    id: number;
+    user_id: number;
+    body_id: number;
+    // Dates without a time: `2026-01-01`.
+    starts: string;
+    expires: string;
+    // Core sends the amount as a number (12.5), not as the string Postgres stores decimals as.
+    amount: number;
+    currency: string;
+    comment: string | null;
+    invoice_name: string | null;
+    invoice_address: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export const payment = (overrides: Partial<Payment> = {}): Payment => ({
+    id: id(),
+    user_id: 1,
+    body_id: 1,
+    starts: date(-30),
+    expires: date(335),
+    amount: 12.5,
+    currency: 'EUR',
+    comment: null,
+    invoice_name: null,
+    invoice_address: null,
+    created_at: iso(-30),
+    updated_at: iso(-30),
+    ...overrides
+});
+
+// A signup campaign as everyone without `global:create:campaign` gets it, logged in or not
+// (`GET core /campaigns/:url`, the page at /signup/:url): the public fields only, and of the
+// body people join through it just what the page shows.
+export interface PublicCampaign {
+    id: number;
+    url: string;
+    name: string;
+    active: boolean;
+    description_short: string | null;
+    description_long: string;
+    autojoin_body: Pick<Body, 'id' | 'name' | 'email' | 'phone' | 'address' | 'website'> | null;
+}
+
+export const publicCampaign = (overrides: Partial<PublicCampaign> = {}): PublicCampaign => {
+    const campaignId = overrides.id ?? id();
+    return {
+        id: campaignId,
+        url: `campaign-${campaignId}`,
+        name: `Recruitment campaign ${campaignId}`,
+        active: true,
+        description_short: 'Join us',
+        description_long: 'Sign up and **join** our antenna.',
+        autojoin_body: {
+            id: 1,
+            name: 'AEGEE-Antenna',
+            email: 'antenna-1@example.com',
+            phone: null,
+            address: 'Somewhere in Europe',
+            website: null
+        },
+        ...overrides
+    };
+};
+
 export interface Permission {
     id: number;
     scope: 'global' | 'local' | 'join_request';
@@ -153,9 +317,9 @@ const seed = loadSeedPermissions();
 export const seedPermissions = (...circleKeys: string[]): Permission[] => {
     const combined = new Set<string>();
     for (const key of circleKeys) {
-        const circle = seed.CIRCLE_PERMISSIONS[key];
-        if (!circle) throw new Error(`No circle "${key}" in core/scripts/seed-permissions.js (there are: ${Object.keys(seed.CIRCLE_PERMISSIONS).join(', ')})`);
-        circle.filter((item) => item.startsWith('global:')).forEach((item) => combined.add(item));
+        const ofCircle = seed.CIRCLE_PERMISSIONS[key];
+        if (!ofCircle) throw new Error(`No circle "${key}" in core/scripts/seed-permissions.js (there are: ${Object.keys(seed.CIRCLE_PERMISSIONS).join(', ')})`);
+        ofCircle.filter((item) => item.startsWith('global:')).forEach((item) => combined.add(item));
     }
     return [...combined].map(permission);
 };
