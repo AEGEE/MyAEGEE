@@ -46,7 +46,7 @@
               {{ props.row.last_name | beautify }}
             </b-table-column>
 
-            <b-table-column field="email" label="Email" centered sortable v-slot="props">
+            <b-table-column label="Email" centered v-slot="props">
               {{ props.row.notification_email }}
             </b-table-column>
 
