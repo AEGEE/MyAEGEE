@@ -550,7 +550,8 @@ Event.beforeValidate(async (event) => {
 
 Event.afterSave(async (event, options) => {
     // Without max_participants there's no limit, even though available_spots computes to 0.
-    if (event.max_participants !== null && event.available_spots === 0 && event.open_call === true) {
+    // An event can be over capacity (max_participants lowered below the accepted count).
+    if (event.max_participants !== null && event.available_spots <= 0 && event.open_call === true) {
         await event.update({ open_call: false }, { hooks: false, transaction: options.transaction });
     }
 });

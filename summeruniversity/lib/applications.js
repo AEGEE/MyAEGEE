@@ -366,6 +366,21 @@ exports.setApplicationStatus = async (req, res) => {
         return helpers.makeFieldError(res, 'status', `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
+    // Accepting needs a free spot when the event has a maximum. Cancelled applications and
+    // the application itself (if it is already accepted) do not count.
+    if (req.body.status === 'accepted' && req.event.max_participants !== null) {
+        const acceptedOthers = await Application.count({ where: {
+            event_id: req.event.id,
+            status: 'accepted',
+            cancelled: false,
+            id: { [Sequelize.Op.ne]: req.application.id }
+        } });
+
+        if (acceptedOthers >= req.event.max_participants) {
+            return helpers.makeFieldError(res, 'status', 'There are no spots left: the event already has max_participants accepted participants.');
+        }
+    }
+
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update({ status: req.body.status }, { transaction: t });
