@@ -1,17 +1,11 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf, isInteger } = require('../lib/validators');
+const { isOneOf, isInteger, isBoolean } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
     len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
 };
-
-function isBoolean(val) {
-    if (typeof val !== 'boolean') {
-        throw new Error('The value should be true or false.');
-    }
-}
 
 const Application = sequelize.define('application', {
     // TODO: check that birth date and gender are retrieved from user

@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf, isInteger } = require('../lib/validators');
+const { isOneOf, isInteger, isBoolean } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -448,7 +448,10 @@ const Event = sequelize.define(
         open_call: {
             type: Sequelize.BOOLEAN,
             allowNull: true,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         budget: {
             type: Sequelize.STRING,
@@ -507,7 +510,10 @@ const Event = sequelize.define(
         university_support: {
             type: Sequelize.BOOLEAN,
             allowNull: true,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         cancellation_rules: {
             type: Sequelize.TEXT,

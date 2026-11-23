@@ -1584,6 +1584,7 @@ components:
         organizers: {type: array}
         questions: {type: array}
         max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
+        university_support: {type: [boolean, 'null']}
       additionalProperties: true
     ApplicationInput:
       description: The applicant's answers. Other fields (status, board_comment and so on) are ignored.

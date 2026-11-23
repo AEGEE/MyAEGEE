@@ -32,4 +32,13 @@ function isInteger(msg) {
     };
 }
 
-module.exports = { isOneOf, isInteger };
+// true or false. Sequelize reads 'true', 'false', 1 and 0 as booleans before validating; any
+// other value reached the database, which refused it with a 500. allowNull decides on a
+// missing value.
+function isBoolean(value) {
+    if (value !== null && value !== undefined && typeof value !== 'boolean') {
+        throw new Error('The value should be true or false.');
+    }
+}
+
+module.exports = { isOneOf, isInteger, isBoolean };
