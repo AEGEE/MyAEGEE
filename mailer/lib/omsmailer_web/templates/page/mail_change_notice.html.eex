@@ -38,7 +38,7 @@
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Hello <%= @parameters["name"] %> <%= @parameters["surname"] %></strong></div>
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">The login email of your MyAEGEE account was changed to <%= @parameters["new_email"] %>. The change was requested by <%= @parameters["changed_by"] %>.</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">The login email of your MyAEGEE account was changed to <%= @parameters["new_email"] %>. The change was requested by <%= @parameters["changed_by"] %><%= if @parameters["changed_by_email"] do %> (<%= @parameters["changed_by_email"] %>)<% end %>.</div>
                         </td>
                       </tr>
                       <tr>
