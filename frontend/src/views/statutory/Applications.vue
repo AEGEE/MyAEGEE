@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Manage applications</div>
+        <h1 class="title">Manage applications</h1>
 
         <div class="field">
           <div class="control">
@@ -15,6 +15,7 @@
               :preserve-search="true"
               :options="fields"
               placeholder="Select application fields"
+              aria-label="Application fields"
               track-by="name"
               label="name">
               <template
@@ -27,10 +28,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Search by name or surname</label>
+          <label class="label" for="applications-search">Search by name, surname or statutory ID</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or surname" />
+              <input id="applications-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
             </div>
             <div class="control">
               <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
@@ -41,93 +42,99 @@
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          :row-class="row => calculateClassForApplication(row)"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Applications" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            :row-class="row => calculateClassForApplication(row)"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            aria-next-label="Next page"
+            aria-previous-label="Previous page"
+            aria-page-label="Page"
+            aria-current-label="Current page"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
-            <span :class="calculateClassForMemberslist(props.row.is_on_memberslist)">
-              {{ props.row.is_on_memberslist | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
+              <span :class="calculateClassForMemberslist(props.row.is_on_memberslist)">
+                {{ props.row.is_on_memberslist | beautify }}
+              </span>
+            </b-table-column>
 
-          <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
-            <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
-              {{ props.row.is_on_previous_memberslist | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
+              <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
+                {{ props.row.is_on_previous_memberslist | beautify }}
+              </span>
+            </b-table-column>
 
-          <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
-          <b-table-column
-            v-for="(field, index) in fields"
-            :visible="selectedFields.some(sField => sField.name === field.name)"
-            v-bind:key="index"
-            :field="field.column"
-            class="has-text-pre-wrap"
-            :sortable="!!field.column"
-            :label="field.name"
-            v-slot="props">{{ field.get(props.row) | beautify }}</b-table-column>
+            <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
+            <b-table-column
+              v-for="(field, index) in fields"
+              :visible="selectedFields.some(sField => sField.name === field.name)"
+              v-bind:key="index"
+              :field="field.column"
+              class="has-text-pre-wrap"
+              :sortable="!!field.column"
+              :label="field.name"
+              v-slot="props">{{ field.get(props.row) | beautify }}</b-table-column>
 
-          <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled" v-slot="props">
-            {{ props.row.cancelled | beautify }}
-          </b-table-column>
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled" v-slot="props">
+              {{ props.row.cancelled | beautify }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
-            {{ props.row.confirmed | beautify }}
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
+              {{ props.row.confirmed | beautify }}
+            </b-table-column>
 
-          <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
-            {{ props.row.attended | beautify }}
-          </b-table-column>
+            <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
+              {{ props.row.attended | beautify }}
+            </b-table-column>
 
-          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="waiting_list">Waiting list</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" :aria-label="'Status of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxStatus(props.row)">
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="waiting_list">Waiting list</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column label="View" centered v-slot="props">
-            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-              View
-            </router-link>
-          </b-table-column>
+            <b-table-column label="View" centered v-slot="props">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
 
-          <b-table-column label="Edit" centered v-slot="props" :visible="!!(event.permissions && event.permissions.manage_applications)">
-            <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-              Edit
-            </router-link>
-          </b-table-column>
+            <b-table-column label="Edit" centered v-slot="props" :visible="!!(event.permissions && event.permissions.manage_applications)">
+              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+                Edit
+              </router-link>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
