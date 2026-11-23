@@ -56,9 +56,6 @@
     "reporters": [
       "default",
       "jest-junit"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/scripts/mail-contract.js"
     ]
   },
   "dependencies": {

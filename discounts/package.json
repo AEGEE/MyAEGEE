@@ -30,8 +30,7 @@
     "verbose": true,
     "collectCoverage": true,
     "setupFilesAfterEnv": [
-      "<rootDir>/test/setup.js",
-      "<rootDir>/test/scripts/mail-contract.js"
+      "<rootDir>/test/setup.js"
     ],
     "collectCoverageFrom": [
       "lib/**/*.js",

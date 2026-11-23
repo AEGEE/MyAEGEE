@@ -34,9 +34,6 @@
     "reporters": [
       "default",
       "jest-junit"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/scripts/mail-contract.js"
     ]
   },
   "author": "Rik Smale <github.com/WikiRik>",
