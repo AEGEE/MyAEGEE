@@ -463,12 +463,26 @@ describe('Codes claiming: waiting for other claims of the integration', () => {
     const BUSY_MESSAGE = 'Other claims of this integration are being processed. Please try again in a moment.';
     let originalClaimConfig;
 
-    // Holds the integration's row lock, as a running claim does, and releases it after `holdFor` ms.
-    const holdIntegrationLock = async (integration, holdFor) => {
+    // Holds the integration's row lock, as a running claim does, until `release` is called.
+    const holdIntegrationLock = async (integration) => {
         const transaction = await sequelize.transaction();
         await Integration.findOne({ where: { id: integration.id }, lock: transaction.LOCK.UPDATE, transaction });
-        const released = new Promise((resolve) => { setTimeout(resolve, holdFor); }).then(() => transaction.rollback());
-        return { released };
+        return { release: () => transaction.rollback() };
+    };
+
+    // Resolves once another session of the test database waits for a row lock in a
+    // SELECT ... FOR UPDATE, which is the claim waiting for the integration's lock. The tests
+    // release the lock only then, so they do not depend on how fast the claim gets there.
+    const claimWaitsForLock = async () => {
+        const [[{ waiting }]] = await sequelize.query(`
+            SELECT count(*)::int AS waiting FROM pg_stat_activity
+            WHERE datname = current_database() AND pid <> pg_backend_pid()
+              AND wait_event_type = 'Lock' AND query LIKE '%FOR UPDATE%'`);
+        if (waiting > 0) {
+            return;
+        }
+        await new Promise((resolve) => { setTimeout(resolve, 10); });
+        await claimWaitsForLock();
     };
 
     const claim = (integration) => request({
@@ -497,9 +511,10 @@ describe('Codes claiming: waiting for other claims of the integration', () => {
         const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
         const code = await generator.createCode({}, integration);
 
-        const { released } = await holdIntegrationLock(integration, 1000);
+        // The lock is released only after the answer, so the claim cannot get it in time.
+        const { release } = await holdIntegrationLock(integration);
         const res = await claim(integration);
-        await released;
+        await release();
 
         expect(res.statusCode).toEqual(503);
         expect(res.body.success).toEqual(false);
@@ -524,30 +539,33 @@ describe('Codes claiming: waiting for other claims of the integration', () => {
     });
 
     test('should answer 404 when the integration is deleted while the claim waits for the lock', async () => {
-        config.claim.lockTimeout = 2000;
+        config.claim.lockTimeout = 30000;
         const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
 
-        // A delete that holds the integration's lock and commits after 100 ms.
+        // A delete that holds the integration's lock and commits once the claim waits for it.
         const transaction = await sequelize.transaction();
         await Integration.findOne({ where: { id: integration.id }, lock: transaction.LOCK.UPDATE, transaction });
         await Integration.destroy({ where: { id: integration.id }, transaction });
-        const deleted = new Promise((resolve) => { setTimeout(resolve, 100); }).then(() => transaction.commit());
 
-        const res = await claim(integration);
-        await deleted;
+        const pending = claim(integration);
+        await claimWaitsForLock();
+        await transaction.commit();
+        const res = await pending;
 
         expect(res.statusCode).toEqual(404);
         expect(res.body.message).toEqual('The integration is not found.');
     });
 
     test('should claim the code when the lock is free within the lock timeout', async () => {
-        config.claim.lockTimeout = 2000;
+        config.claim.lockTimeout = 30000;
         const integration = await generator.createIntegration({ quota_period: 'month', quota_amount: 1 });
         const code = await generator.createCode({}, integration);
 
-        const { released } = await holdIntegrationLock(integration, 100);
-        const res = await claim(integration);
-        await released;
+        const { release } = await holdIntegrationLock(integration);
+        const pending = claim(integration);
+        await claimWaitsForLock();
+        await release();
+        const res = await pending;
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.id).toEqual(code.id);
