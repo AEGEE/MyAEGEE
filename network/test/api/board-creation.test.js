@@ -135,6 +135,36 @@ describe('Board creation', () => {
         expect(res.body.errors).toHaveProperty('elected_date');
     });
 
+    test('should accept a board elected today whose term starts today', async () => {
+        const today = moment().format('YYYY-MM-DD');
+        const board = generator.generateBoard({ elected_date: today, start_date: today });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.elected_date).toEqual(today);
+        expect(res.body.data.start_date).toEqual(today);
+    });
+
+    test('should fail if elected_date is tomorrow', async () => {
+        const board = generator.generateBoard({ elected_date: moment().add(1, 'day').format('YYYY-MM-DD') });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('elected_date');
+    });
+
     test('should fail if start_date is not set', async () => {
         const board = generator.generateBoard({ start_date: null });
 
