@@ -4,9 +4,10 @@
       <div class="tile is-child">
         <h1 class="title">See application on {{ event.name }}</h1>
 
-        <div class="tile is-parent" v-show="!this.application">
+        <div class="tile is-parent" v-if="notFound">
           <div class="tile is-child">
-            <div class="subtitle">You haven't applied to this event yet.</div>
+            <div class="subtitle" v-if="$route.params.application_id === 'me'">You haven't applied to this event yet.</div>
+            <div class="subtitle" v-else>There is no such application.</div>
           </div>
         </div>
 
@@ -278,6 +279,8 @@ export default {
         spm: 'SPMs'
       },
       application: null,
+      // Statutory has no such application (or the member hasn't applied yet).
+      notFound: false,
       can: {
         edit: false
       },
@@ -350,10 +353,12 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        // if there's no application, just ignore, otherwise re-throw the error
+        // if there's no application, just say so, otherwise re-throw the error
         if (!err.response || err.response.status !== 404) {
           throw err
         }
+
+        this.notFound = true
       })
     }).catch((err) => {
       this.isLoading = false
