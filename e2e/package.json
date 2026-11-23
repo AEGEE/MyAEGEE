@@ -8,10 +8,11 @@
     "node": ">=26.0.0"
   },
   "scripts": {
-    "lint": "eslint --ext .ts . && tsc --noEmit && node scripts/check-ignores.ts && node scripts/check-factory-contracts.ts",
+    "lint": "eslint --rulesdir lint/rules --report-unused-disable-directives --ext .ts,.js . && node --test lint/rules.test.js && tsc --noEmit && node scripts/check-ignores.ts && node scripts/check-factory-contracts.ts && npm run test:tools && node scripts/coverage.ts gate-config",
     "setup": "node scripts/prepare.ts",
     "setup:no-frontend": "node scripts/prepare.ts --skip-frontend",
     "setup:frontend": "node scripts/prepare.ts --frontend-only",
+    "teardown": "node scripts/drop-databases.ts",
     "test": "playwright test",
     "test:mocked": "playwright test -c playwright.ui.config.ts",
     "test:mobile": "playwright test -c playwright.ui.config.ts --project=vue-mobile",
@@ -19,6 +20,8 @@
     "report": "playwright show-report",
     "coverage": "node scripts/coverage.ts merge && node scripts/coverage.ts report",
     "coverage:gate": "node scripts/coverage.ts gate",
+    "coverage:gate-config": "node scripts/coverage.ts gate-config",
+    "test:tools": "node --test scripts/*.test.ts ../frontend/build/*.test.js",
     "a11y:lower": "node scripts/a11y-baseline.ts lower"
   },
   "license": "ISC",
