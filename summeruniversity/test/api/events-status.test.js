@@ -146,6 +146,48 @@ describe('Events status, publication, periods and deletion', () => {
             expect(event.status).toEqual(to);
         });
 
+        test.each([
+            ['first approval', 'first submission', 'minimal'],
+            ['second approval', 'second submission', 'full']
+        ])('should unpublish the event when an approver moves it back from %s to %s', async (from, to, published) => {
+            mockAndCapture(approverMocks);
+            const event = await generator.createEvent({ status: from, published });
+
+            const res = await put(event, '/status', { status: to });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual(to);
+            expect(event.published).toEqual('none');
+
+            const list = await request({ path: '/', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+            expect(list.statusCode).toEqual(200);
+            expect(list.body.data.map((e) => e.id)).not.toContain(event.id);
+        });
+
+        test('should keep the publication when the event moves forward', async () => {
+            mockAndCapture(approverMocks);
+            const event = await generator.createEvent({ status: 'first approval', published: 'minimal' });
+
+            const res = await put(event, '/status', { status: 'second submission' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual('second submission');
+            expect(event.published).toEqual('minimal');
+        });
+
+        test('should allow an approver who organizes the event to approve it', async () => {
+            mockAndCapture({ mainPermissions: { permissions: ['global:approve_summeruniversity:regular'] } });
+            const event = await generator.createEvent({ status: 'first submission', published: 'none' });
+
+            const res = await put(event, '/status', { status: 'first approval' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.status).toEqual('first approval');
+        });
+
         test('should not allow an invalid transition', async () => {
             mockAndCapture(approverMocks);
             const event = await generator.createEvent({ status: 'second approval' });
@@ -392,6 +434,18 @@ describe('Events status, publication, periods and deletion', () => {
             await event.reload();
             expect(event.open_call).toEqual(true);
             expect(event.max_participants).toEqual(20);
+        });
+
+        test('should let an organizer change max_participants and open the call after second approval', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'second approval', published: 'full', max_participants: 20 });
+
+            const res = await put(event, '/open_call', { open_call: true, max_participants: 30 });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.open_call).toEqual(true);
+            expect(event.max_participants).toEqual(30);
         });
 
         test('should only update open_call if max_participants is not given', async () => {
