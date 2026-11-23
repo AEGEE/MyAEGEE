@@ -20,10 +20,10 @@ exports.registerUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Campaign is not active.');
     }
 
-    let user;
+    let created;
 
     await sequelize.transaction(async (t) => {
-        user = await User.scope('noExtraFields').create({
+        const user = await User.scope('noExtraFields').create({
             ...req.body,
             campaign_id: campaign.id
         }, {
@@ -54,11 +54,14 @@ exports.registerUser = async (req, res) => {
                 token: confirmation.value
             }
         });
+
+        created = user;
     });
 
+    // The member as every other route returns it: as stored, and without the password.
     return res.json({
         success: true,
-        data: user
+        data: await User.findByPk(created.id)
     });
 };
 
