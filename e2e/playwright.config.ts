@@ -27,6 +27,9 @@ export default defineConfig({
     workers: 1,
     fullyParallel: false,
     forbidOnly: !!process.env.CI,
+    // With E2E_COVERAGE=1 a run starts without the coverage files of earlier real-stack runs.
+    globalSetup: './support/coverage-setup.ts',
+    metadata: { coverageSuite: 'real' },
     retries: 0,
     timeout: 30 * 1000,
     reporter: process.env.CI

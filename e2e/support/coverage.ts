@@ -7,6 +7,11 @@
 // `npm run coverage` (scripts/coverage.ts) merges and reports them. Without E2E_COVERAGE=1 the
 // fixtures do nothing.
 //
+// A run starts by removing what an earlier run of the same suite wrote (support/coverage-setup.ts,
+// the globalSetup of both configs), so the report is about the last run of each suite and never
+// about a sum of runs nobody remembers. E2E_COVERAGE_KEEP=1 keeps the earlier files, to add up
+// several partial runs on purpose.
+//
 // Use: spread `coverageFixtures('<suite>')` into the suite's `base.extend()`:
 //   base.extend<MyFixtures & CoverageFixtures, CoverageWorkerFixtures>({ ...coverageFixtures('mocked'), ... })
 import fs from 'node:fs';
@@ -25,6 +30,21 @@ export const RAW_DIR = path.join(COVERAGE_DIR, 'raw');
 export const ROUTES_DIR = path.join(COVERAGE_DIR, 'routes');
 
 export const coverageEnabled = process.env.E2E_COVERAGE === '1';
+
+// Removes the files an earlier run of `suite` left in the given directories. Returns how many.
+export const clearSuiteData = (suite: Suite, dirs: string[] = [RAW_DIR, ROUTES_DIR]): number => {
+    let removed = 0;
+    for (const dir of dirs) {
+        if (!fs.existsSync(dir)) continue;
+        for (const name of fs.readdirSync(dir)) {
+            if (name.startsWith(`${suite}-`) && name.endsWith('.json')) {
+                fs.rmSync(path.join(dir, name));
+                removed++;
+            }
+        }
+    }
+    return removed;
+};
 
 // How often the statements, functions and branches of one instrumented file ran, with the ids
 // istanbul gave them. `hash` identifies the instrumented code, so counts of different builds
