@@ -26,7 +26,13 @@ defmodule OmsmailerWeb.PageController do
     })
   end
 
-  def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject} = body_params) do
+  def send_mail(conn, body_params) do
+    with :ok <- Page.check_request(body_params) do
+      deliver(conn, body_params)
+    end
+  end
+
+  defp deliver(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject} = body_params) do
     from = body_params["from"] || Application.get_env(:omsmailer, :from_address)
 
     with {:ok, content} <- Page.render_template(template, parameters),
@@ -37,6 +43,4 @@ defmodule OmsmailerWeb.PageController do
       render conn, "success.json"
     end
   end
-
-  
 end

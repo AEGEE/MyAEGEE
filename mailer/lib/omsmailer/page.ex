@@ -9,6 +9,35 @@ defmodule Omsmailer.Page do
     end
   end
 
+  @required_fields ["template", "parameters", "to", "subject"]
+
+  # Checks the fields of a request before anything is rendered or sent. Empty or
+  # missing recipients and subjects are checked by create_mails/3.
+  def check_request(body) do
+    missing = Enum.reject(@required_fields, &Map.has_key?(body, &1))
+
+    cond do
+      missing != [] ->
+        {:error, :unprocessable_entity, "Missing field(s): " <> Enum.join(missing, ", ")}
+
+      not (is_binary(body["template"]) and body["template"] != "") ->
+        {:error, :unprocessable_entity, "Template must be a non-empty string"}
+
+      body["parameters"] == [] ->
+        # Rendering no bodies would send the mails without text.
+        {:error, :unprocessable_entity, "Parameters must not be an empty list"}
+
+      not valid_parameters?(body["parameters"]) ->
+        {:error, :unprocessable_entity, "Parameters must be an object or a list of objects"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp valid_parameters?(parameters) when is_list(parameters), do: Enum.all?(parameters, &is_map/1)
+  defp valid_parameters?(parameters), do: is_map(parameters)
+
   # Renders either a list of templates or a single template
   def render_template(template, [cur_params | parameters]) do
     with {:ok, content} <- render_template(template, cur_params),
