@@ -201,14 +201,18 @@
         </div>
 
         <!-- Explanation why you cannot apply -->
-        <div class="tile is-parent" v-if="!application && !can.apply ">
+        <div class="tile is-parent" v-if="notFound && !can.apply">
           <div class="tile is-child">
-            <div class="notification is-danger" v-show="new Date() < event.application_period_starts">
+            <div class="notification is-danger" v-if="applicationPeriod === 'not started'">
               You cannot apply to this event: application period hasn't started yet.
             </div>
 
-            <div class="notification is-danger" v-show="new Date() > event.application_period_ends">
+            <div class="notification is-danger" v-else-if="applicationPeriod === 'over'">
               You cannot apply to this event: application period is over.
+            </div>
+
+            <div class="notification is-danger" v-else>
+              You cannot apply to this event right now.
             </div>
           </div>
         </div>
@@ -303,6 +307,14 @@ export default {
       }
 
       return 'This application is recorded and waiting for organiser review.'
+    },
+    applicationPeriod () {
+      const now = new Date()
+      if (now < this.event.application_period_starts) {
+        return 'not started'
+      }
+
+      return now > this.event.application_period_ends ? 'over' : 'open'
     },
     showOwnDeadlineEditHint () {
       return this.isOwnApplication && this.can.edit_application && this.event.can_apply
