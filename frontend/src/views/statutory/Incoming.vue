@@ -21,6 +21,7 @@
             backend-pagination
             :total="total"
             :per-page="limit"
+            :current-page.sync="page"
             @page-change="onPageChange"
             backend-sorting
             default-sort="statutory_id"
@@ -119,6 +120,7 @@ export default {
       query: '',
       limit: 50,
       offset: 0,
+      page: 1,
       total: 0,
       sort: {
         field: 'id',
@@ -145,7 +147,10 @@ export default {
     }
   },
   watch: {
+    // Another search starts from the first page.
     query () {
+      this.offset = 0
+      this.page = 1
       this.loadApplications()
     }
   },
