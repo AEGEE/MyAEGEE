@@ -88,7 +88,6 @@ const Application = sequelize.define('application', {
                             throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): you should agree.`);
                         }
                         break;
-                    /* istanbul ignore next */
                     default:
                         throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`);
                     }

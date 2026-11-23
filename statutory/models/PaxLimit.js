@@ -82,7 +82,6 @@ const PaxLimit = sequelize.define('PaxLimit', {
 // for working groups, committees and projects: 3 envoys, 30 visitors, no others
 // for interest groups: 30 visitors, no others
 // default one is there if the body type is not one of described above: noone can apply dy default.
-/* istanbul ignore next */
 function defaultLimitForAgora(type) {
     switch (type) {
     case 'partner':
@@ -107,7 +106,6 @@ function defaultLimitForAgora(type) {
 // Default ones for EPM:
 // unlimited envoys and no others for locals, no one for other (customized in the system
 // for CD, ACT and Working groups).
-/* istanbul ignore next */
 function defaultLimitForEPM(type) {
     switch (type) {
     case 'antenna':
@@ -120,7 +118,6 @@ function defaultLimitForEPM(type) {
 }
 
 PaxLimit.getDefaultForBody = function getDefaultForBody(body, eventType) {
-    /* istanbul ignore next */
     const paxLimit = eventType === 'agora'
         ? defaultLimitForAgora(body.type)
         : defaultLimitForEPM(body.type);

@@ -313,7 +313,6 @@ exports.fetchSingleApplication = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -325,7 +324,6 @@ exports.healthcheck = (req, res) => {
     });
 };
 
-/* istanbul ignore next */
 exports.getTasksList = (req, res) => {
     if (!req.permissions.see_background_tasks) {
         return errors.makeForbiddenError(res, 'You cannot see background tasks.');
@@ -374,13 +372,10 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeServiceUnavailableError(res, 'The server is busy, please try again.');
     }
 
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err });
-    /* istanbul ignore next */
     return errors.makeInternalError(res);
 };
