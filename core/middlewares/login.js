@@ -10,15 +10,11 @@ const config = require('../config');
 module.exports.login = async (req, res) => {
     const username = (req.body.username || '').trim();
 
-    const user = await User.scope('withPassword').findOne({
-        where: {
-            [Sequelize.Op.or]: {
-                email: { [Sequelize.Op.iLike]: username },
-                username: { [Sequelize.Op.iLike]: username },
-                gsuite_id: { [Sequelize.Op.iLike]: username }
-            }
-        }
+    // The login email identifies an account before the username and the Google Workspace account.
+    const findBy = (field) => User.scope('withPassword').findOne({
+        where: { [field]: { [Sequelize.Op.iLike]: username } }
     });
+    const user = await findBy('email') || await findBy('username') || await findBy('gsuite_id');
 
     if (!user) {
         return errors.makeForbiddenError(res, 'User is not found.');

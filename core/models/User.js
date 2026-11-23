@@ -166,7 +166,14 @@ const User = sequelize.define('user', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            isEmail: { msg: 'GSuite ID should be a valid email.' }
+            isEmail: { msg: 'GSuite ID should be a valid email.' },
+            // The login email can't be on these domains, so the two can never be the same address.
+            isValid(value) {
+                // Custom validators also run for an empty value; other types are caught by isEmail.
+                if (typeof value === 'string' && !helpers.isRestrictedEmail(value)) {
+                    throw new Error('GSuite ID should be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
+                }
+            }
         },
         unique: true
     }

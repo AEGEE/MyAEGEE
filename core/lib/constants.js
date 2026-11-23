@@ -13,7 +13,6 @@ module.exports = {
                 'privacy_consent',
                 'address',
                 'about_me',
-                'primary_email',
             ],
             UPDATE: [
                 'username',

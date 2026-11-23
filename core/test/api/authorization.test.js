@@ -1,7 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
-const { RefreshToken } = require('../../models');
+const { AccessToken, RefreshToken, User } = require('../../models');
 
 describe('Authorization', () => {
     beforeAll(async () => {
@@ -200,6 +200,74 @@ describe('Authorization', () => {
         expect(res.body).toHaveProperty('access_token');
         expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should find by the Google Workspace account', async () => {
+        const user = await generator.createUser({ password: 'testtest', gsuite_id: 'member@aegee.eu' });
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: 'Member@aegee.eu',
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+        expect(tokenFromDb.user_id).toEqual(user.id);
+    });
+
+    test('should identify an account by the login email before the Google Workspace account', async () => {
+        // Saved without validation, like a value from before the domain rule.
+        await User.create(
+            generator.generateUser({ password: 'firstfirst', gsuite_id: 'shared@example.com' }),
+            { validate: false }
+        );
+        const user = await generator.createUser({ password: 'testtest', email: 'shared@example.com' });
+
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: 'shared@example.com',
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+        expect(tokenFromDb.user_id).toEqual(user.id);
+    });
+
+    test('should identify an account by the login email first, whichever account is older', async () => {
+        const user = await generator.createUser({ password: 'testtest', email: 'shared@example.com' });
+        await User.create(
+            generator.generateUser({ password: 'secondsecond', gsuite_id: 'shared@example.com' }),
+            { validate: false }
+        );
+
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: 'shared@example.com',
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const tokenFromDb = await AccessToken.findOne({ where: { value: res.body.access_token } });
+        expect(tokenFromDb.user_id).toEqual(user.id);
     });
 
     test('should not revoke the other sessions of the user', async () => {

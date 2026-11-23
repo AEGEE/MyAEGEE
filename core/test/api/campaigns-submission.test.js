@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
-const { BodyMembership } = require('../../models');
+const { BodyMembership, User } = require('../../models');
 
 describe('Campaign submission', () => {
     beforeAll(async () => {
@@ -214,6 +214,25 @@ describe('Campaign submission', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('username');
+    });
+
+    test('should sign the member up with the personal email as primary email, whatever is sent', async () => {
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser({ primary_email: 'gsuite' });
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const userFromDb = await User.findByPk(res.body.data.id);
+        expect(userFromDb.primary_email).toEqual('personal');
+        expect(userFromDb.notification_email).toEqual(userFromDb.email);
     });
 
     test('should succeed when everything is okay', async () => {

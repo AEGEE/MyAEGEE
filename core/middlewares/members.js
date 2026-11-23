@@ -262,7 +262,25 @@ exports.updateUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
     }
 
-    await req.currentUser.update(req.body, { fields: constants.FIELDS_TO_UPDATE.USER.UPDATE });
+    // The Google Workspace account is managed centrally. From anyone else the field is ignored
+    // and not refused, because clients send the whole profile back on every edit.
+    const fields = req.permissions.hasPermission('global:update:member')
+        ? constants.FIELDS_TO_UPDATE.USER.UPDATE
+        : constants.FIELDS_TO_UPDATE.USER.UPDATE.filter((field) => field !== 'gsuite_id');
+
+    // The primary email can only be the Google Workspace account for a member who has one.
+    // Checked here and not on the model, so a member who is stored otherwise can still be edited.
+    const usesWorkspaceWithoutAccount = (values) => values.primary_email === 'gsuite' && !values.gsuite_id;
+    const current = _.pick(req.currentUser, ['primary_email', 'gsuite_id']);
+    const updated = { ...current, ..._.pick(req.body, fields.filter((field) => field in current)) };
+
+    if (usesWorkspaceWithoutAccount(updated) && !usesWorkspaceWithoutAccount(current)) {
+        return errors.makeValidationError(res, {
+            primary_email: ['The primary email can only be the Google Workspace account for a member who has one.']
+        });
+    }
+
+    await req.currentUser.update(req.body, { fields });
     return res.json({
         success: true,
         data: req.currentUser
