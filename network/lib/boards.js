@@ -21,13 +21,16 @@ const OFFICERS = [['president', 'President'], ['secretary', 'Secretary'], ['trea
 
 // Looks up the members of a valid board in core: every member on creation, and on an edit
 // those the edit adds or changes (see changedMembers). Returns the positions with the
-// members' names, and the errors of the fields whose member core does not know.
+// members' names, and the errors of the fields whose member core does not know or does
+// not let the caller see.
 const lookUpMembers = async (boardData, token) => {
     const positions = [];
     const fieldErrors = {};
     for (const [field, position] of OFFICERS.filter(([officer]) => officer in boardData)) {
         const member = await core.fetchUser(boardData[field], token);
-        if (member) {
+        if (member === core.FORBIDDEN) {
+            fieldErrors[field] = ['You are not allowed to see this member.'];
+        } else if (member) {
             positions.push({ function: position, name: member.name });
         } else {
             fieldErrors[field] = ['The member is not found.'];
@@ -36,7 +39,9 @@ const lookUpMembers = async (boardData, token) => {
 
     for (const other of boardData.other_members || []) {
         const member = await core.fetchUser(other.user_id, token);
-        if (member) {
+        if (member === core.FORBIDDEN) {
+            fieldErrors.other_members = ['You are not allowed to see the member of the position ' + other.function + '.'];
+        } else if (member) {
             positions.push({ function: other.function, name: member.name });
         } else {
             fieldErrors.other_members = ['The member of the position ' + other.function + ' is not found.'];

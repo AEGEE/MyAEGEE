@@ -77,7 +77,11 @@ module.exports.fetchBody = async (body, token) => {
     };
 };
 
-// Returns null if core does not know the member.
+// Returns null if core does not know the member, and FORBIDDEN if core does not let
+// the caller see them.
+const FORBIDDEN = 'forbidden';
+module.exports.FORBIDDEN = FORBIDDEN;
+
 module.exports.fetchUser = async (user, token) => {
     const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
@@ -87,6 +91,10 @@ module.exports.fetchUser = async (user, token) => {
 
     if (response.statusCode === 404) {
         return null;
+    }
+
+    if (response.statusCode === 403) {
+        return FORBIDDEN;
     }
 
     const userRequest = response.body;

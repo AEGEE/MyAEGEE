@@ -124,8 +124,11 @@ paths:
       summary: Add a board to a body
       description: >-
         Checks the board, then asks core (with the caller's token) for the body and
-        every member on the board. Sends the "new board" mail to NetCom, and the welcome
-        mail to the board if its term has started (best effort).
+        every member on the board: an unknown body answers 404; a member core does not
+        know, or does not let the caller see, answers 422 on that field. Then stores the
+        board and sends the "new board" mail to NetCom, and the welcome mail to the board
+        if its term has started. Both mails are best effort: a failure is logged and the
+        board stays created.
       tags: [boards]
       x-permission: local manage_network:boards for the body in the URL, or global:manage_network:boards
       requestBody:
