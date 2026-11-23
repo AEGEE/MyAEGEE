@@ -447,9 +447,7 @@ export default {
       },
       bodies: [],
       application: {
-        body: null,
         body_id: null,
-        id: null,
         visa_required: false,
         answers: [],
         meals: '',
@@ -467,7 +465,7 @@ export default {
         'ANNOUNCE-L': false,
         'AEGEE-L': false,
         'AEGEE-EVENT-L': false,
-        'AEGEEENEWS-L': false
+        'AEGEENEWS-L': false
       },
       can: {
         apply: false
@@ -480,10 +478,6 @@ export default {
   },
   methods: {
     saveApplication () {
-      if (this.isNew && this.activeEventApplicationBan) {
-        return this.$root.showError('You are temporarily banned from submitting new event applications.')
-      }
-
       if (!this.application.body_id) {
         return this.$root.showError('Please select a body.')
       }
@@ -548,24 +542,6 @@ export default {
 
         this.$root.showError('Could not save application', err)
       })
-    },
-    askSetCancelled (value) {
-      this.$buefy.dialog.confirm({
-        title: 'Cancel application',
-        message: 'Are you sure you want to <b>cancel your application</b>? You can uncancel it only during application period.',
-        confirmText: 'Cancel application',
-        type: 'is-danger',
-        hasIcon: true,
-        onConfirm: () => this.setCancelled(value)
-      })
-    },
-    setCancelled (value) {
-      this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
-        cancelled: value
-      }).then(() => {
-        this.application.cancelled = value
-        this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
-      }).catch((err) => this.$root.showError('Could not cancel application', err))
     }
   },
   computed: {
@@ -609,7 +585,6 @@ export default {
       if (!val) {
         this.application.visa_passport_number = ''
         this.application.visa_place_of_birth = ''
-        this.application.visa_passport_number = ''
         this.application.visa_passport_issue_date = ''
         this.application.visa_passport_expiration_date = ''
         this.application.visa_passport_issue_authority = ''

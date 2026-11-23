@@ -124,10 +124,9 @@ export default {
       total: 0,
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: {

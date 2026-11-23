@@ -241,8 +241,8 @@ export default {
         type: ''
       },
       can: {
-        see_boardview_of: {},
-        see_boardview_global: false
+        see_boardview: {},
+        set_board_comment_and_participant_type: {}
       },
       eventTypeNames: {
         agora: 'Agora',

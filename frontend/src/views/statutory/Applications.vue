@@ -196,13 +196,12 @@ export default {
       total: 0,
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
       selectedFields: BASE_FIELDS.filter((field) => DEFAULT_FIELDS.includes(field.key)),
       baseFields: BASE_FIELDS,
       displayCancelled: false,
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: {

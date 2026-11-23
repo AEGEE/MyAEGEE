@@ -232,7 +232,6 @@
         <div class="buttons" v-show="can.set_application_cancelled || can.edit || can.apply">
           <router-link
             :to="{ name: 'oms.statutory.applications.new', params: { id: event.url || event.id } }"
-            type="submit"
             class="button is-warning"
             v-if="!application && can.apply">
             Apply!
@@ -240,7 +239,6 @@
 
           <router-link
             :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
-            type="submit"
             class="button is-warning"
             v-if="application && can.edit_application">
             {{ isOwnApplication ? 'Edit your application' : 'Edit application' }}
@@ -288,9 +286,7 @@ export default {
       can: {
         edit: false
       },
-      errors: {},
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: {
