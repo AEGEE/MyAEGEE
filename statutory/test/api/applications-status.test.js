@@ -313,24 +313,28 @@ describe('Applications status', () => {
         expect(applicationFromDb.status).toEqual('pending');
     });
 
-    // BUG: a list is not a status, but it is not refused before it reaches the database.
-    // Expected: 422 with errors.status.
-    test('should return 500 if status is a list', async () => {
+    test.each([
+        ['null', null],
+        ['a list', ['accepted']],
+        ['an object', { value: 'accepted' }],
+        ['true', true]
+    ])('should return 422 if status is %s', async (description, value) => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ status: 'waiting_list' }, event);
 
         const res = await request({
             path: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { status: ['accepted'] }
+            body: { status: value }
         });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('status');
 
         const applicationFromDb = await Application.findByPk(application.id);
-        expect(applicationFromDb.status).toEqual('pending');
+        expect(applicationFromDb.status).toEqual('waiting_list');
     });
 
     test('should change nothing when the request has no status', async () => {
@@ -346,27 +350,6 @@ describe('Applications status', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.status).toEqual('waiting_list');
-    });
-
-    // BUG: null is not one of the four statuses, yet it is accepted and stored: the column
-    // allows it and the validator skips it. Such an application counts in the total of the
-    // statistics and in none of the statuses. Expected: 422 with errors.status.
-    test('should store null as the status', async () => {
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({ status: 'accepted' }, event);
-
-        const res = await request({
-            path: '/events/' + event.id + '/applications/' + application.id + '/status',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { status: null }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.data.status).toEqual(null);
-
-        const applicationFromDb = await Application.findByPk(application.id);
-        expect(applicationFromDb.status).toEqual(null);
     });
 
     // The applicant reads "pending" until the event reveals the statuses: from the participants

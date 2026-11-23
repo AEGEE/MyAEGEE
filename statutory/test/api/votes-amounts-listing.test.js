@@ -316,15 +316,13 @@ describe('Votes amounts listing', () => {
             expect(res.body).toEqual({ success: true, data: { antenna: null, delegate: [] } });
         });
 
-        // BUG: "Infinity" passes the check that the body id is a number and reaches the query, which
-        // fails. Expected: 400, as for any other value that is not a body id.
-        test('answers 500 for the body id Infinity', async () => {
+        test('answers 400 for the body id Infinity, as for any value that is not written in digits', async () => {
             const event = await createAgoraWithVotes(1337);
 
             const res = await get(event, '/votes-amounts/Infinity');
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body ID is malformed.' });
         });
 
         describe.each(['epm', 'spm'])('of an %s event', (type) => {

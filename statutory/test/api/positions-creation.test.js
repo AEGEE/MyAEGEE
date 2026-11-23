@@ -323,16 +323,15 @@ describe('Positions creation', () => {
             expect(await Position.count()).toEqual(1);
         });
 
-        // BUG: these values pass the model validation and are refused by the database, so the answer
-        // is 500 with the database's message. Expected: 422 with errors.places or errors.body_id.
         test.each([
-            ['a number of places with a fraction', { places: 1.5 }],
-            ['a body id that is not a number', { body_id: 'abc' }]
-        ])('answers 500 for %s and stores nothing', async (description, change) => {
+            ['a number of places with a fraction', { places: 1.5 }, 'places'],
+            ['a body id that is not a number', { body_id: 'abc' }, 'body_id']
+        ])('answers 422 for %s and stores nothing', async (description, change, field) => {
             const res = await create({ ...openPosition(), ...change });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty(field);
             expect(await Position.count()).toEqual(0);
         });
 

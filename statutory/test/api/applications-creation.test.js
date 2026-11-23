@@ -1454,18 +1454,17 @@ describe('Applications creation', () => {
             expect(res.body.data.visa_passport_number).toEqual(null);
         });
 
-        // BUG: these are refused by the database, not by the validation, so the member gets an
-        // internal error for a wrong number. Expected: 422 with errors.number_of_events_visited.
         test.each([
             ['a decimal number', 1.5],
             ['a number above the largest the column holds', 2147483648]
-        ])('should return 500 if number_of_events_visited is %s', async (description, value) => {
+        ])('should return 422 if number_of_events_visited is %s', async (description, value) => {
             const event = await createOpenEvent();
 
             const res = await apply(event, { number_of_events_visited: value });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty('number_of_events_visited');
             expect(await Application.count({ where: { event_id: event.id } })).toEqual(0);
         });
     });

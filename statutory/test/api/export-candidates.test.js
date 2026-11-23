@@ -415,9 +415,7 @@ describe('Export candidates', () => {
             expect(rows.slice(1).map((row) => row[0]).sort()).toEqual(['approved', 'pending']);
         });
 
-        // BUG: one selected field written as `select=id` reaches the route as a string, which it
-        // takes as no selection at all. Expected: the one column, as with `select[]=id`.
-        test('exports every field when one field is selected without brackets', async () => {
+        test('exports one column when one field is selected, with or without brackets', async () => {
             const position = await generator.createPosition({}, event);
             await generator.createCandidate({ user_id: 2 }, position);
 
@@ -434,7 +432,7 @@ describe('Export candidates', () => {
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
 
-            expect(rowsOf(withoutBrackets)[0]).toEqual(ALL_HEADERS);
+            expect(rowsOf(withoutBrackets)[0]).toEqual(['ID']);
             expect(rowsOf(withBrackets)[0]).toEqual(['ID']);
         });
     });

@@ -241,13 +241,11 @@ describe('Positions status update', () => {
             expect((await Position.findByPk(position.id)).status).toEqual('open');
         });
 
-        // BUG: "Infinity" passes the check that the position id is a number and reaches the query,
-        // which fails. Expected: 400, as for any other value that is not a position id.
-        test('answers 500 for the position id Infinity', async () => {
+        test('answers 400 for the position id Infinity, as for any value that is not written in digits', async () => {
             const res = await setStatus('closed', event, 'Infinity');
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The position ID is invalid.' });
         });
 
         test.each(['epm', 'spm'])('answers 400 for an %s event and changes nothing', async (type) => {

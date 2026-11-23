@@ -129,16 +129,14 @@ describe('Memberslists without fee', () => {
         expect(res.body).toEqual({ success: true, data: [] });
     });
 
-    // BUG: the upload accepts a fee sent as a string ("0") and stores it as it came, and this route
-    // compares every fee with the number 0. Expected: the body is listed, or the upload stores a number.
-    test('leaves out a members list whose fees of 0 were sent as strings', async () => {
+    test('lists a members list whose fees of 0 were sent as text, as they are stored as numbers', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 34, members: membersWithFees('0', '0') }, event);
 
         const res = await getWithoutFee(event);
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toEqual({ success: true, data: [] });
+        expect(res.body.data.map((body) => body.id)).toEqual([34]);
     });
 
     test.each(['epm', 'spm'])('answers 400 for an %s event', async (type) => {

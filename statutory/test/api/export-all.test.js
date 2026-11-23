@@ -436,16 +436,28 @@ describe('Export all', () => {
         expect(sheet[1][0]).toEqual(application.id);
     });
 
-    // BUG: one column asked for as "select=id" is read as a word, not as a list of one, and
-    // the export is refused with a message about filters. Only "select[]=id" works for one
-    // column, while two columns work either way. Expected: 200 with the column.
-    test('should return 400 for one column that is not written as a list', async () => {
+    test('should take a single selected field, written without brackets, as a list of one', async () => {
+        await generator.createApplication({ user_id: regularUser.id, first_name: 'Anna', answers: [true, 'An answer'] }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?select=first_name',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const [sheet] = xlsx.parse(res.body);
+        expect(sheet.data).toEqual([['First name'], ['Anna']]);
+    });
+
+    test('should return 400 when no field is selected', async () => {
         const res = await request({
             path: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
             responseType: 'buffer',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            query: { select: 'id' }
+            headers: { 'X-Auth-Token': 'blablabla' }
         });
 
         expect(res.statusCode).toEqual(400);

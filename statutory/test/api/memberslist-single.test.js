@@ -186,9 +186,7 @@ describe('Memberslist displaying', () => {
         expect(res.body).toEqual({ success: false, message: 'Members list is not found.' });
     });
 
-    // BUG: the body id is read with parseInt, so a value that only starts with digits is taken as that
-    // number. Expected: 400, as for any other value that is not a number.
-    test('takes a body id that starts with digits as that number', async () => {
+    test('should answer 400 for a body id that only starts with digits', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
@@ -197,8 +195,8 @@ describe('Memberslist displaying', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.data.body_id).toEqual(1337);
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The body_id parameter is invalid.' });
     });
 
     test('should fail if the event is not Agora', async () => {

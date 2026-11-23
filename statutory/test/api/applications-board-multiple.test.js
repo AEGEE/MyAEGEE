@@ -460,9 +460,6 @@ describe('Applications pax type/board comment for a body', () => {
             await expectUnchanged(applications);
         });
 
-        // BUG: the message names the number of applications so far as the upper bound (1, where
-        // the body may send 3 delegates) and calls the order the participant type.
-        // Expected: "Expected participant number from 1 to 3, got 4", or similar.
         test('should refuse an order above the limit and change nothing', async () => {
             const applications = await createApplications(1);
 
@@ -471,7 +468,7 @@ describe('Applications pax type/board comment for a body', () => {
             ]);
 
             expect(res.statusCode).toEqual(403);
-            expect(res.body.message).toEqual('Expected participant number from 1 to 1, got participant type 4');
+            expect(res.body.message).toEqual('Expected a participant order from 1 to 3, got 4.');
 
             await expectUnchanged(applications);
         });

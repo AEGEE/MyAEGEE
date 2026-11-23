@@ -209,13 +209,11 @@ describe('Candidates displaying', () => {
             expect(res.body).toEqual({ success: false, message: 'Position is not found.' });
         });
 
-        // BUG: "Infinity" passes the check that the candidate id is a number and reaches the query,
-        // which fails. Expected: 400, as for any other value that is not a candidate id.
-        test('answers 500 for the candidate id Infinity', async () => {
+        test('answers 400 for the candidate id Infinity, as for any value that is not written in digits', async () => {
             const res = await get('Infinity');
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The candidate ID is invalid.' });
         });
 
         test.each(['epm', 'spm'])('answers 400 for an %s event', async (type) => {

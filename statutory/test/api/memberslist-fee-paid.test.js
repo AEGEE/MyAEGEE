@@ -6,7 +6,6 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { MembersList } = require('../../models');
 const regularUser = require('../assets/core-valid.json').data;
-const { MembersList } = require('../../models');
 
 describe('Memberslist fee_paid editing', () => {
     beforeAll(async () => {
@@ -233,13 +232,11 @@ describe('Memberslist fee_paid editing', () => {
             expect(await storedFeePaid()).toEqual(12);
         });
 
-        // BUG: the model allows null for fee_paid and the column does not, so the database refuses it
-        // and the answer is 500 with the database's message. Expected: 422 with errors.fee_paid.
-        test('answers 500 for null and stores nothing', async () => {
+        test('answers 422 for null and stores nothing', async () => {
             const res = await setFeePaid({ fee_paid: null });
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { fee_paid: ['Fee paid should be set.'] } });
             expect(await storedFeePaid()).toEqual(12);
         });
 
