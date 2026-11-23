@@ -105,4 +105,31 @@ describe('Campaigns testing', () => {
         expect(campaign.url).toEqual('test');
         expect(campaign.description_long).toEqual('test');
     });
+
+    test.each([
+        ['empty', ''],
+        ['only spaces', '  \t ']
+    ])('should fail with a description_short that is %s', async (name, value) => {
+        await expect(generator.createCampaign({ description_short: value })).rejects.toMatchObject({
+            name: 'SequelizeValidationError',
+            errors: [expect.objectContaining({ path: 'description_short', message: 'Description should be set.' })]
+        });
+        expect(await Campaign.count()).toEqual(0);
+    });
+
+    test('should succeed without a description_short', async () => {
+        const campaign = await generator.createCampaign({ description_short: null });
+
+        expect(campaign.description_short).toEqual(null);
+    });
+
+    test('should fail with the url of another campaign in another case', async () => {
+        await generator.createCampaign({ url: 'summer' });
+
+        await expect(generator.createCampaign({ url: ' SUMMER ' })).rejects.toMatchObject({
+            name: 'SequelizeUniqueConstraintError',
+            errors: [expect.objectContaining({ path: 'url', type: 'unique violation' })]
+        });
+        expect(await Campaign.count()).toEqual(1);
+    });
 });
