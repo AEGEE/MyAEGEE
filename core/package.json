@@ -50,6 +50,14 @@
       "!lib/sequelize.js",
       "!lib/logger.js"
     ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
     "reporters": [
       "default",
       "jest-junit"
