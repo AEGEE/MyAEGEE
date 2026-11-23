@@ -145,6 +145,18 @@ describe('Applications editing', () => {
         expect(res.body.message).toEqual('You cannot edit this application.');
     });
 
+    test('should not let the applicant edit their application on a deleted event', async () => {
+        await event.update({ deleted: true });
+
+        const res = await edit({ motivation: 'Changed' });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('You cannot edit this application.');
+
+        const fromDb = await Application.findByPk(application.id);
+        expect(fromDb.motivation).not.toEqual('Changed');
+    });
+
     test('should return 403 for a stranger editing somebody else\'s application', async () => {
         const other = await generator.createApplication(event, { user_id: 10 });
 

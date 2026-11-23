@@ -51,6 +51,45 @@ describe('Events application editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should not let the applicant edit their application on a deleted event', async () => {
+        mock.mockAll(({ mainPermissions: { noPermissions: true } }));
+
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            deleted: true,
+            organizers: [{
+                user_id: 1234,
+                first_name: 'test',
+                last_name: 'test'
+            }],
+            questions: [{
+                type: 'number',
+                description: 'test',
+                required: true
+            }]
+        });
+        const application = await generator.createApplication(event, {
+            user_id: user.id,
+            body_id: user.bodies[0].id,
+            answers: [1]
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/me',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { answers: [2] }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.answers[0]).toEqual(1);
+    });
+
     it('should update other application if you have global permissions', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(1, 'weeks').toDate(),

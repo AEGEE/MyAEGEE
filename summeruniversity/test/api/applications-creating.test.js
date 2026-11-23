@@ -60,6 +60,17 @@ describe('Applications creation', () => {
         expect(res.statusCode).toEqual(404);
     });
 
+    test('should not accept applications to a deleted event', async () => {
+        await event.update({ deleted: true });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(await Application.count()).toEqual(0);
+        expect(mails).toHaveLength(0);
+    });
+
     test('should create an application and notify the user, organizers and board', async () => {
         const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
 
