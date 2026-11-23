@@ -102,6 +102,52 @@ describe('Users testing', () => {
         expect(user.notification_email).toEqual('test@aegee.eu');
     });
 
+    test('should fail with a gsuite id that is not an email', async () => {
+        try {
+            await generator.createUser({ gsuite_id: 'not-an-email' });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.map((error) => error.path)).toContain('gsuite_id');
+        }
+    });
+
+    test('should fail with a gsuite id outside of the AEGEE domains', async () => {
+        try {
+            await generator.createUser({ gsuite_id: 'test@example.com' });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].type).toEqual('Validation error');
+            expect(err.errors[0].path).toEqual('gsuite_id');
+        }
+    });
+
+    test('should fail with a gsuite id that only looks like an AEGEE domain', async () => {
+        try {
+            await generator.createUser({ gsuite_id: 'test@notaegee.eu' });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].path).toEqual('gsuite_id');
+        }
+    });
+
+    test('should accept a gsuite id on both AEGEE domains', async () => {
+        const first = await generator.createUser({ gsuite_id: 'first@aegee.eu' });
+        const second = await generator.createUser({ gsuite_id: 'Second@AEGEE.org' });
+
+        expect(first.gsuite_id).toEqual('first@aegee.eu');
+        expect(second.gsuite_id).toEqual('second@aegee.org');
+    });
+
+    test('should accept no gsuite id', async () => {
+        const user = await generator.createUser({ gsuite_id: null });
+        expect(user.gsuite_id).toBeNull();
+    });
+
     test('should fail with not valid email (aegee.eu)', async () => {
         try {
             await generator.createUser({ email: 'test@aegee.eu' });
