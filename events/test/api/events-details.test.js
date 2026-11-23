@@ -181,4 +181,16 @@ describe('Events details', () => {
             expect(res.body.success).toEqual(false);
         });
     });
+    test('should find an event by its URL in any letter case', async () => {
+        const event = await generator.createEvent({ url: 'case-test-event' });
+
+        const res = await request({
+            path: '/single/Case-Test-EVENT',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(event.id);
+    });
 });
