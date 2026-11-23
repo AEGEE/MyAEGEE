@@ -11,6 +11,33 @@ const config = require('../config');
 const constants = require('./constants');
 const logger = require('./logger');
 
+// Looks up every member of a valid board in core, for creating and editing it. Returns
+// the positions with the members' names, and the errors of the fields whose member core
+// does not know.
+const lookUpMembers = async (boardData, token) => {
+    const positions = [];
+    const fieldErrors = {};
+    for (const [field, position] of [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']]) {
+        const member = await core.fetchUser(boardData[field], token);
+        if (member) {
+            positions.push({ function: position, name: member.name });
+        } else {
+            fieldErrors[field] = ['The member is not found.'];
+        }
+    }
+
+    for (const other of boardData.other_members || []) {
+        const member = await core.fetchUser(other.user_id, token);
+        if (member) {
+            positions.push({ function: other.function, name: member.name });
+        } else {
+            fieldErrors.other_members = ['The member of the position ' + other.function + ' is not found.'];
+        }
+    }
+
+    return { positions, fieldErrors };
+};
+
 exports.createBoard = async (req, res) => {
     if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'Body ID is invalid.');
@@ -32,26 +59,7 @@ exports.createBoard = async (req, res) => {
     }
     const bodyName = coreBody.body_name;
 
-    const positions = [];
-    const fieldErrors = {};
-    for (const [field, position] of [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']]) {
-        const member = await core.fetchUser(boardData[field], token);
-        if (member) {
-            positions.push({ function: position, name: member.name });
-        } else {
-            fieldErrors[field] = ['The member is not found.'];
-        }
-    }
-
-    for (const other of boardData.other_members || []) {
-        const member = await core.fetchUser(other.user_id, token);
-        if (member) {
-            positions.push({ function: other.function, name: member.name });
-        } else {
-            fieldErrors.other_members = ['The member of the position ' + other.function + ' is not found.'];
-        }
-    }
-
+    const { positions, fieldErrors } = await lookUpMembers(boardData, token);
     if (Object.keys(fieldErrors).length > 0) {
         return res.status(422).json({ success: false, errors: fieldErrors });
     }
@@ -247,7 +255,17 @@ exports.updateBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
     }
 
-    await req.board.update({ ...req.body, body_id: req.board.body_id });
+    // The board as it would be stored: checked as a whole, then its members, unchanged
+    // ones too, as on creation.
+    req.board.set({ ...req.body, body_id: req.board.body_id });
+    await req.board.validate();
+
+    const { fieldErrors } = await lookUpMembers(req.board.get(), req.headers['x-auth-token']);
+    if (Object.keys(fieldErrors).length > 0) {
+        return res.status(422).json({ success: false, errors: fieldErrors });
+    }
+
+    await req.board.save();
 
     return res.json({
         success: true,
