@@ -55,6 +55,15 @@ server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, array
 // Requests come through Traefik, which appends the client IP to X-Forwarded-For.
 server.set('trust proxy', 1);
 server.use(bodyParser.json());
+// The routes read fields from `req.body`. The JSON parser leaves it unset for a request without
+// a body, and a JSON list has no fields, so both are handled like an empty object.
+server.use((req, res, next) => {
+    if (typeof req.body === 'undefined' || Array.isArray(req.body)) {
+        req.body = {};
+    }
+
+    return next();
+});
 server.use(morgan);
 server.use(queryBoolean());
 server.use(cors());
