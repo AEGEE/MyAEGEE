@@ -146,6 +146,8 @@ module.exports = {
     MAIL_SUBJECTS: {
         MAIL_CONFIRMATION: 'MyAEGEE: Please confirm your account',
         MAIL_CHANGE: 'MyAEGEE: Email change',
+        MAIL_CHANGE_OLD_CONFIRM: 'MyAEGEE: Confirm the change of your email',
+        MAIL_CHANGE_NOTICE: 'MyAEGEE: Your email was changed',
         PASSWORD_RESET: 'MyAEGEE: Password reset request',
         NEW_JOIN_REQUEST: 'MyAEGEE: New join request for your body',
         NEW_MEMBER: 'MyAEGEE: Welcome to AEGEE',
