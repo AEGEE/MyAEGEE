@@ -465,7 +465,7 @@ test.describe('the board view of a statutory event', () => {
         await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Jan Jansen' })).toHaveCount(1);
         release();
         await (await late).finished();
-        // eslint-disable-next-line no-restricted-syntax -- lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
+        // Lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
         await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
 
         await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Alex Member' })).toHaveCount(0);

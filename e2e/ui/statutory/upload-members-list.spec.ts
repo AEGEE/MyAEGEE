@@ -289,7 +289,7 @@ test.describe('sending the members list of a local', () => {
         await expect(page.getByText('Total members: 1')).toBeVisible();
         release();
         await (await late).finished();
-        // eslint-disable-next-line no-restricted-syntax -- lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
+        // Lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
         await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
 
         await expect(page.getByText('Total members: 1')).toBeVisible();
