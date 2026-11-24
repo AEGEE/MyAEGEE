@@ -200,7 +200,8 @@ const sendPasswordReset = async (email) => {
             ? await User.findOne({ where: helpers.equalsIgnoreCase('email', email) })
             : null;
 
-        if (!user) {
+        // A suspended member gets no reset, but the answer does not say so.
+        if (!user || !user.active) {
             return;
         }
 
@@ -256,7 +257,8 @@ module.exports.passwordConfirm = async (req, res) => {
         include: [User]
     });
 
-    if (!token) {
+    // The link of a suspended member does not work, as if it did not exist.
+    if (!token || !token.user.active) {
         return errors.makeNotFoundError(res, 'Token is invalid.');
     }
 

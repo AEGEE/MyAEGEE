@@ -599,7 +599,8 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         // It can be gone by now, if another change of the member just took effect.
-        if (!user || !mailChange) {
+        // The link of a suspended member does not work, as if it did not exist.
+        if (!user || !mailChange || !user.active) {
             return { notFound: 'Token is invalid.' };
         }
 
