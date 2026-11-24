@@ -6,7 +6,7 @@ import { FIXED_NOW, iso, notFound, ok } from '../support/factories/base.ts';
 import { body, circle } from '../support/factories/core.ts';
 import { appliedEvent, appliedStatutoryEvent, appliedSummerUniversity, latestStatutoryEvent, dashboardStatutoryPermissions } from '../support/factories/dashboard.ts';
 import type { ApiMock } from '../support/api-mock.ts';
-import { freezeTime, toast } from '../support/shell.ts';
+import { freezeTime, openAccountMenu, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const NOW = Date.parse(FIXED_NOW);
@@ -53,6 +53,19 @@ test.describe('dashboard', () => {
 
         // The member was fetched when the app started; the dashboard doesn't ask again.
         expect(api.callsTo('GET core /members/me').length).toBe(1);
+    });
+
+    test('logging out from the dashboard ends on the login page', async ({ page, api, layout }) => {
+        nothingYet(api);
+        await page.goto('/dashboard');
+        await expect(tile(page, 'Alex Member')).toBeVisible();
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        // The page is still on screen for a moment without a member: it must not break.
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByLabel('Email / Username')).toBeVisible();
     });
 
     test('lists upcoming and past applications of all three modules, sorted, with links to each module', async ({ page, api }) => {
