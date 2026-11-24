@@ -7,8 +7,7 @@
     "color-contrast": 1
   },
   "oms.statutory.applications.export": {
-    "color-contrast": 1,
-    "select-name": 4
+    "color-contrast": 1
   },
   "oms.statutory.applications.new": {
     "color-contrast": 2
@@ -24,17 +23,10 @@
     "color-contrast": 2
   },
   "oms.statutory.candidates.edit": {
-    "color-contrast": 3,
-    "label": 11,
-    "select-name": 2
-  },
-  "oms.statutory.candidates.export": {
-    "select-name": 1
+    "color-contrast": 2
   },
   "oms.statutory.candidates.new": {
-    "color-contrast": 1,
-    "label": 11,
-    "select-name": 2
+    "color-contrast": 1
   },
   "oms.statutory.create": {
     "color-contrast": 9
@@ -46,8 +38,7 @@
     "color-contrast": 1
   },
   "oms.statutory.juridical": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.statutory.memberslist.list": {
     "color-contrast": 1
@@ -56,8 +47,7 @@
     "color-contrast": 1
   },
   "oms.statutory.network": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.statutory.plenaries": {
     "color-contrast": 1
