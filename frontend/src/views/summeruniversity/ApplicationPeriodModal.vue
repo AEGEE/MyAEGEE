@@ -8,9 +8,10 @@
     <section class="modal-card-body">
       <form @submit.prevent="saveApplicationPeriod()">
         <div class="field">
-          <label class="label">Application starts</label>
+          <label class="label" for="application-period-starts">Application starts</label>
           <div class="control">
             <input
+              id="application-period-starts"
               v-model="applicationStarts"
               class="input"
               type="datetime-local">
@@ -19,9 +20,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Application ends <span class="has-text-danger">*</span></label>
+          <label class="label" for="application-period-ends">Application ends <span class="has-text-danger">*</span></label>
           <div class="control">
             <input
+              id="application-period-ends"
               v-model="applicationEnds"
               class="input"
               type="datetime-local"

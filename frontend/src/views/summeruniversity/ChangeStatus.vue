@@ -178,6 +178,7 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: ApplicationPeriodModal,
+        ariaLabel: 'Set application period',
         hasModalCard: true,
         trapFocus: true,
         props: {
