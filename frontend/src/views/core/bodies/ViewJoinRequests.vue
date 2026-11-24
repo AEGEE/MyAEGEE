@@ -4,15 +4,15 @@
       <article class="tile is-child">
         <h4 class="title">Join requests</h4>
         <div class="field">
-          <label class="label">Search</label>
+          <label class="label" for="join-requests-search">Search</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+              <input id="join-requests-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
             </div>
             <div class="control">
-              <a class="button is-info" @click="displayAccepted = !displayAccepted; refetch()">
+              <button type="button" class="button is-info" @click="displayAccepted = !displayAccepted; refetch()">
                 {{ this.displayAccepted ? 'Display only pending join requests' : 'Display all join requests' }}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -35,10 +35,10 @@
           <b-table-column label="Approve" v-slot="props">
             <div class="field" v-if="props.row.status === 'pending'">
               <div class="control">
-                <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
+                <button type="button" class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
                   <span class="icon"><font-awesome-icon icon="plus" /></span>
                   <span>Approve</span>
-                </a>
+                </button>
               </div>
             </div>
           </b-table-column>
@@ -46,10 +46,10 @@
           <b-table-column label="Reject" v-slot="props">
             <div class="field" v-if="props.row.status === 'pending'">
               <div class="control">
-                <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
+                <button type="button" class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
                   <span class="icon"><font-awesome-icon icon="minus" /></span>
                   <span>Reject</span>
-                </a>
+                </button>
               </div>
             </div>
           </b-table-column>
