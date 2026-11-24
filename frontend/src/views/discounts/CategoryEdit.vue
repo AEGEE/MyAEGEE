@@ -32,7 +32,7 @@
             <div class="control">
               <input class="input" :id="'discount-' + index + '-icon'" :aria-describedby="'discount-' + index + '-icon-help'" type="text" required v-model="discount.icon" />
             </div>
-            <p class="help" :id="'discount-' + index + '-icon-help'">fa-something without the fa- prefix, check out <a href="https://fontawesome.com/v5/icons">this list</a> for icons</p>
+            <p class="help" :id="'discount-' + index + '-icon-help'">fa-something without the fa- prefix, check out <a class="is-underlined" href="https://fontawesome.com/v5/icons">this list</a> for icons</p>
           </div>
 
           <div class="field">
