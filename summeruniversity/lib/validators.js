@@ -86,19 +86,26 @@ function isDecimal(msg) {
 }
 
 // A day (2027-07-01) or an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without
-// an offset), as the frontend sends them.
+// an offset), as the frontend sends them. A number of milliseconds is taken too (isDateMs).
 const DATE_FORMAT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,3})?)?(Z|[+-][0-9]{2}:[0-9]{2})?)?$/;
 const isDateText = (value) => typeof value === 'string'
     && DATE_FORMAT.test(value)
     && moment(value, moment.ISO_8601, true).isValid();
 
+// Milliseconds since 1970 (what Date.getTime() gives) within the years 0001-9999, from
+// 0001-01-01T00:00:00.000Z to 9999-12-31T23:59:59.999Z. Postgres has no year 0000 (it refuses
+// one with a 500), and larger numbers, NaN and Infinity are not dates a client means.
+const DATE_MS_MIN = -62135596800000;
+const DATE_MS_MAX = 253402300799999;
+const isDateMs = (value) => typeof value === 'number' && value >= DATE_MS_MIN && value <= DATE_MS_MAX;
+
 // The setter of a DATE column. Sequelize turns any value of a DATE column into a Date before
 // validating it (true became 1970-01-01, "1" became 2001-01-01), so a validator cannot tell
-// what was sent. This setter converts only a day or a timestamp, keeps a Date, and keeps any
-// other value as it was sent, so that isDate refuses it.
+// what was sent. This setter converts only a day, a timestamp or a number of milliseconds,
+// keeps a Date, and keeps any other value as it was sent, so that isDate refuses it.
 function dateSetter(field) {
     return function setDate(value) {
-        this.setDataValue(field, isDateText(value) ? new Date(value) : value);
+        this.setDataValue(field, isDateText(value) || isDateMs(value) ? new Date(value) : value);
     };
 }
 
@@ -106,10 +113,11 @@ function dateSetter(field) {
 // only compare dates (isDate answers for the others).
 const areDates = (...values) => values.every((value) => value instanceof Date && !Number.isNaN(value.getTime()));
 
-// A valid Date (see dateSetter). allowNull decides on a missing value.
+// A valid Date within the years 0001-9999 (see dateSetter): a day or a timestamp can be in
+// the year 0000 too. allowNull decides on a missing value.
 function isDate(msg) {
     return function isDateValue(value) {
-        if (value !== null && value !== undefined && !areDates(value)) {
+        if (value !== null && value !== undefined && !(areDates(value) && isDateMs(value.getTime()))) {
             throw new Error(msg);
         }
     };
