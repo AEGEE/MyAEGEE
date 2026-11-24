@@ -212,7 +212,7 @@ export default {
 
         this.autoComplete[key].loading = false
 
-        this.$root.showError('Could not fetch ' + context + 's', err)
+        this.$root.showError('Could not fetch ' + context, err)
       })
     },
     setParentCircle (circle) {
