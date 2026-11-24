@@ -111,10 +111,6 @@ export default {
             return this.$root.showError('Some of the password data is invalid.')
           }
 
-          if (err.response && err.response.status === 404) {
-            return this.$root.showError('Your token is invalid.')
-          }
-
           this.$root.showError('Could not change password', err)
         })
     }
