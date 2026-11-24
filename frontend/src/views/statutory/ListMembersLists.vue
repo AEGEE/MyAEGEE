@@ -142,7 +142,6 @@ export default {
       for (const memberslist of memberslists) {
         // Core lists the active bodies only, so the body of an old list may not be among them.
         const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.body_id)
-        memberslist.expanded = false
         memberslist.body_name = body ? body.name : `Unknown body (#${memberslist.body_id})`
       }
 

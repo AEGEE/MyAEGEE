@@ -28,23 +28,6 @@
             <div class="control">
               <button type="button" class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
-            <!-- Disabled for now, probably will be enabled again later, therefore not deleted. -->
-            <!-- <div class="control">
-              <div class="file">
-                <label class="file-label">
-                  <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
-                  <span class="file-cta">
-                    <span class="file-icon">
-                      <font-awesome-icon icon="upload" />
-                    </span>
-                    <span class="file-label">
-                      Fetch members list from CSV
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div> -->
-
             <div class="control" v-if="memberslist">
               <button type="button" class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
               <button type="button" class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
@@ -170,9 +153,7 @@ export default {
       boardBodies: [],
       myBoards: [],
       selectedBody: null,
-      event: {
-        questions: []
-      },
+      event: {},
       currenciesList,
       can: {
         upload_memberslist: {}
@@ -181,15 +162,12 @@ export default {
       tempFee: 0,
       isLoading: false,
       isLoadingBodies: true,
-      isEditing: false,
-      isSaving: false,
-      saved: true
+      isEditing: false
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     // Only an Agora has these deadlines; without them nothing is said about them.
     isAfterSubmissionDeadline () {
@@ -243,11 +221,6 @@ export default {
 
             // getting last payment for each user, setting it as a members' fee on newly-created memberslist
             for (const member of this.memberslist.members) {
-              // for old memberslists that were uploaded through CSV and do not have the user ID, do nothing
-              if (!member.user_id) {
-                continue
-              }
-
               // get member's current payment
               const currentPayment = this.payments.find(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
 
@@ -334,54 +307,8 @@ export default {
         this.$root.showError('Could not save memberslist', err)
       })
     },
-    openFileDialog (event) {
-      const file = event.target.files[0]
-      if (!file) {
-        return
-      }
-
-      if (file) {
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = (evt) => this.processFileContent(evt.target.result)
-        reader.onerror = (err) => {
-          this.$root.showError('Could not open file', err)
-        }
-      }
-    },
     isLocal (body) {
       return ['antenna', 'contact antenna', 'contact'].includes(body.type)
-    },
-    processFileContent (input) {
-      // CSV content: first_name,last_name,fee
-      const csvArray = input
-        .replace(/;/g, ',') // replacing all semicolons with commas
-        .replace(/"/g, '') // removing all quotes
-        .split('\n') // splitting by new lime
-        .filter(line => line.length > 0) // removing empty strings
-        .map(elt => elt.split(','))
-
-      // Checking if each line has at least 3 columns.
-      if (csvArray.some(elt => elt.length < 3)) {
-        return this.$root.showError('CSV is malformed.')
-      }
-
-      const members = csvArray.map((element) => {
-        const firstName = element[0].trim()
-        const lastName = element[1].trim()
-        const fee = parseInt(element[2].trim(), 10) || 0
-
-        return {
-          first_name: firstName,
-          last_name: lastName,
-          fee
-        }
-      })
-
-      this.memberslist = {
-        currency: null,
-        members
-      }
     },
     canEditMemberslist (bodyId) {
       if (this.memberslist) {
@@ -397,8 +324,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
@@ -427,7 +352,6 @@ export default {
         }
       })
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {

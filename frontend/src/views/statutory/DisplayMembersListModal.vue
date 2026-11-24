@@ -38,14 +38,6 @@
 <script>
 export default {
   name: 'DisplayMembersListModal',
-  props: ['memberslist'],
-  data () {
-    return {
-
-    }
-  },
-  methods: {
-
-  }
+  props: ['memberslist']
 }
 </script>

@@ -107,7 +107,6 @@ export default {
       delegates: [],
       isLoading: false,
       isLoadingBodies: true,
-      isSaving: false,
       exportVotesTXT: {
         content: '',
         filename: ''
@@ -115,8 +114,7 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     // Core lists the active bodies only, so the body of an old vote may not be among them.
