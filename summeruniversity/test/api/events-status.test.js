@@ -381,6 +381,18 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.body.errors.application_ends).toEqual(['Application period cannot end before or at the same time the event starts.']);
         });
 
+        test.each([
+            ['application_starts', 'Event application starts date should be valid.'],
+            ['application_ends', 'Event application end date should be valid.']
+        ])('should return 422 if %s is not a date', async (field, message) => {
+            const event = await generator.createEvent();
+
+            const res = await put(event, '/application_period', { application_ends: generator.daysFromNow(10), [field]: 'garbage' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors[field]).toEqual([message]);
+        });
+
         test('should return 422 if the application period ends before it starts', async () => {
             const event = await generator.createEvent();
 
