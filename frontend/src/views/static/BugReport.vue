@@ -127,10 +127,6 @@ export default {
       this.$set(this.files, index, file)
     },
     sendBugReport () {
-      if (this.files.length > this.maxFiles) {
-        return this.$root.showError(`You can attach at most ${this.maxFiles} screenshots.`)
-      }
-
       for (const file of this.files) {
         if (!file) {
           return this.$root.showError('Please select all the files.')
