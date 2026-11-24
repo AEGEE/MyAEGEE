@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event, Application, Season } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
 const fullPermissions = require('../assets/oms-core-permissions-full.json').data;
 const user = require('../assets/oms-core-valid.json').data;
 
@@ -435,13 +436,18 @@ describe('Field types', () => {
     describe('lists', () => {
         const notLists = [['a text', 'garbage'], ['a number', 5], ['a boolean', true], ['an object', { value: 1 }]];
         const eventRows = [
-            ...[[null], [5], ['Why?'], [{}], [{ description: 5 }]].map((value) => ['questions', JSON.stringify(value), value, 'Every question should have a description.']),
+            ...[[null], [5], ['Why?'], [{}], [{ name: '', required: true }]].map((value) => ['questions', JSON.stringify(value), value, 'Every question should have a description.']),
             ...notLists.map(([name, value]) => ['photos', name, value, 'Photos should be a list.']),
             ...notLists.map(([name, value]) => ['learning_objectives', name, value, 'Learning objectives should be a list.']),
-            ...[[{ description: 'Why?', other: 1 }], [{ description: 'Why?', name: 5 }], [{ description: 'Why?', required: 'yes' }]]
-                .map((value) => ['questions', JSON.stringify(value), value, 'A question can only have a name (text), a description (text) and required (true or false).']),
-            ...[[{ description: 'https://example.org', other: 1 }], [{ description: 'https://example.org', name: 5 }]]
-                .map((value) => ['social_media', JSON.stringify(value), value, 'A social media entry can only have a name (text) and a description (the link).']),
+            // A known key of the wrong type names the entry by its position.
+            ['questions', 'a list with a description that is a number', [{ description: 5 }], 'Question 1: the description should be a text.'],
+            ['questions', 'a list with a second description that is null', [{ description: 'Why?' }, { description: null }], 'Question 2: the description should be a text.'],
+            ['questions', 'a list with a name that is a number', [{ description: 'Why?', name: 5 }], 'Question 1: the name should be a text.'],
+            ['questions', 'a list with a required that is text', [{ description: 'Why?', required: 'yes' }], 'Question 1: required should be true or false.'],
+            ['questions', 'a list with a required that is the text true', [{ description: 'Why?' }, { description: 'And?', required: 'true' }], 'Question 2: required should be true or false.'],
+            ['social_media', 'a list with a link that is a number', [{ description: 5 }], 'Social media entry 1: the link should be a text.'],
+            ['social_media', 'a list with a second link that is a list', [{ description: 'https://example.org' }, { description: ['https://example.org'] }], 'Social media entry 2: the link should be a text.'],
+            ['social_media', 'a list with a name that is a number', [{ description: 'https://example.org', name: 5 }], 'Social media entry 1: the name should be a text.'],
             ['organizing_bodies', 'a list with null', [null], 'Body is malformed.'],
             ['cooperation', 'a list with null', [null], 'Body is malformed.']
         ];
@@ -472,6 +478,42 @@ describe('Field types', () => {
             const event = await Event.findByPk(res.body.data.id);
             expect(event.questions).toEqual(questions);
             expect(event.social_media).toEqual(socialMedia);
+        });
+
+        test.each([['creating', 'POST'], ['editing', 'PUT']])('%s a Summer University drops the other keys of questions and social media entries', async (_name, method) => {
+            const event = await generator.createEvent();
+            const questions = [{ name: '', description: 'Why?', required: true, type: 'text', values: ['a'] }, { description: 'And?', other: { a: 1 } }];
+            const socialMedia = [{ name: '', description: 'https://example.org/aegee', icon: 'test' }];
+
+            const res = method === 'POST'
+                ? await call('POST', '/', generator.generateEventBody({ questions, social_media: socialMedia }))
+                : await call('PUT', `/single/${event.id}`, { questions, social_media: socialMedia });
+
+            expect(res.statusCode).toBeLessThan(300);
+            expect(res.body.data.questions).toEqual([{ name: '', description: 'Why?', required: true }, { description: 'And?' }]);
+            expect(res.body.data.social_media).toEqual([{ name: '', description: 'https://example.org/aegee' }]);
+            const stored = await Event.findByPk(res.body.data.id);
+            expect(stored.questions).toEqual([{ name: '', description: 'Why?', required: true }, { description: 'And?' }]);
+            expect(stored.social_media).toEqual([{ name: '', description: 'https://example.org/aegee' }]);
+        });
+
+        // Questions stored with other keys (as an earlier version took them) are sent back by
+        // the edit form with one more question.
+        test('a Summer University whose stored questions have other keys takes one more question', async () => {
+            const event = await generator.createEvent();
+            await sequelize.query('UPDATE events SET questions = :questions WHERE id = :id', {
+                replacements: { id: event.id, questions: JSON.stringify([{ name: '', description: 'Why?', required: false, type: 'text' }]) }
+            });
+            const stored = await Event.findByPk(event.id);
+            expect(stored.questions).toEqual([{ name: '', description: 'Why?', required: false, type: 'text' }]);
+
+            const res = await call('PUT', `/single/${event.id}`, { questions: [...stored.questions, { name: '', description: 'And?', required: false }] });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Event.findByPk(event.id)).questions).toEqual([
+                { name: '', description: 'Why?', required: false },
+                { name: '', description: 'And?', required: false }
+            ]);
         });
 
         test('creating a Summer University refuses organizers that are not objects', async () => {
