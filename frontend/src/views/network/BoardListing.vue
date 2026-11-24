@@ -194,13 +194,16 @@ export default {
 
           this.isLoading = false
         }).catch((err) => {
+          this.isLoading = false
           this.$root.showError('Could not fetch boards list', err)
         })
       }).catch((err) => {
+        // A newer search replaced this one and is still loading.
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading = false
         this.$root.showError('Could not fetch bodies list', err)
       })
     }
