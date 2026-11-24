@@ -16,13 +16,13 @@
             <p>
               <b v-show="this.application.user_id === this.loginUser.id">You applied from this body:</b>
               <b v-show="this.application.user_id !== this.loginUser.id">Application from the body:</b>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+              <router-link class="is-underlined" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
                 {{ application.body_name }}
               </router-link>
             </p>
             <p v-show="this.application.user_id !== this.loginUser.id">
               <b>Member name:</b>
-              <router-link :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
+              <router-link class="is-underlined" :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
                 {{ application.first_name }} {{ application.last_name }}
               </router-link>
             </p>
@@ -381,3 +381,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Links inside a sentence are told apart from it by more than their colour. */
+.is-underlined {
+  text-decoration: underline;
+}
+</style>
