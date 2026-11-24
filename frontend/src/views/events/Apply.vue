@@ -128,7 +128,7 @@
                   </thead>
                   <tbody>
                     <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                      <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                      <td><b>{{ field.description }}</b><span class="has-text-danger" v-if="field.required">*</span></td>
                       <td>{{ application.answers[index] | beautify }}</td>
                     </tr>
                     <tr>
