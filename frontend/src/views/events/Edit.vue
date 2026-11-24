@@ -345,7 +345,7 @@
             </b-table-column>
 
             <b-table-column label="Delete" v-slot="props">
-              <button class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete organiser ' + props.row.first_name + ' ' + props.row.last_name" @click="deleteOrganizer(props.index)">
+              <button type="button" class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete organiser ' + props.row.first_name + ' ' + props.row.last_name" @click="deleteOrganizer(props.index)">
                 Delete
               </button>
             </b-table-column>
@@ -521,7 +521,7 @@
                     <input type="text" class="input" required :aria-label="'Location ' + (index + 1) + ' name'" v-model="marker.name" />
                   </td>
                   <td>
-                    <button class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                    <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
                   </td>
                 </tr>
                 <tr v-if="event.locations.length === 0">
