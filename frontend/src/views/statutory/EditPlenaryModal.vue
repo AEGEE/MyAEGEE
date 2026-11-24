@@ -57,7 +57,7 @@ export default {
   components: {
     flatPickr
   },
-  props: ['event', 'plenary', 'services', 'showSuccess', 'showError', 'router'],
+  props: ['event', 'plenary', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       errors: {},
@@ -104,7 +104,9 @@ export default {
         this.showSuccess(this.isNew ? 'Plenary is created.' : 'Plenary is updated.')
 
         this.isLoading = false
-        this.router.go(0) // Reloading the page.
+        // The page shows the saved one from the service.
+        this.$emit('saved')
+        this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
         if (err.response && err.response.status === 422) {

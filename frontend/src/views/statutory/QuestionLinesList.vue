@@ -239,8 +239,10 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadQuestionLines()
         }
       })
     },
@@ -258,8 +260,10 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadQuestionLines()
         }
       })
     },
@@ -280,8 +284,10 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadQuestionLines()
         }
       })
     },
@@ -300,10 +306,30 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadQuestionLines()
         }
       })
+    },
+    loadQuestionLines () {
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/').then((response) => {
+        const questionLines = response.data.data
+        for (const questionLine of questionLines) {
+          questionLine.isSaving = false
+          questionLine.newStatus = questionLine.status
+        }
+
+        this.questionLines = questionLines
+        // The selected line stays selected, with its questions as they are now.
+        if (this.selectedQuestionLine) {
+          this.selectedQuestionLine = questionLines.find((questionLine) => questionLine.id === this.selectedQuestionLine.id) || null
+        }
+      })
+    },
+    reloadQuestionLines () {
+      this.loadQuestionLines().catch((err) => this.$root.showError('Could not load the question lines', err))
     },
     switchQuestionLineStatus (questionLine) {
       questionLine.isSaving = true
@@ -326,14 +352,8 @@ export default {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/')
-    }).then((questionLines) => {
-      for (const questionLine of questionLines.data.data) {
-        questionLine.isSaving = false
-        questionLine.newStatus = questionLine.status
-      }
-
-      this.questionLines = questionLines.data.data
+      return this.loadQuestionLines()
+    }).then(() => {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false

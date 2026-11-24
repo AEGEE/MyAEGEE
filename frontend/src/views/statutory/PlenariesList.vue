@@ -94,10 +94,20 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadPlenaries()
         }
       })
+    },
+    loadPlenaries () {
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/').then((plenaries) => {
+        this.plenaries = plenaries.data.data
+      })
+    },
+    reloadPlenaries () {
+      this.loadPlenaries().catch((err) => this.$root.showError('Could not load the plenaries', err))
     },
     exportAll () {
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/', {
@@ -120,9 +130,8 @@ export default {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/')
-    }).then((plenary) => {
-      this.plenaries = plenary.data.data
+      return this.loadPlenaries()
+    }).then(() => {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false

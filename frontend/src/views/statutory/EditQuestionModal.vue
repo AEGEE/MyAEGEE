@@ -35,7 +35,7 @@
 <script>
 export default {
   name: 'EditQuestionModal',
-  props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showError', 'router'],
+  props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       isLoading: true,
@@ -62,7 +62,9 @@ export default {
       action.then(() => {
         this.showSuccess(this.isNew ? 'Question is created.' : 'Question is updated.')
 
-        this.router.go(0) // Reloading the page.
+        // The page shows the saved one from the service.
+        this.$emit('saved')
+        this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
         if (err.response && err.response.status === 422) {
