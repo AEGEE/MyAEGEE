@@ -9,16 +9,13 @@
     "color-contrast": 1
   },
   "oms.bodies.campaigns.edit": {
-    "color-contrast": 2,
-    "label": 3
+    "color-contrast": 2
   },
   "oms.bodies.campaigns.members": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.bodies.campaigns.new": {
-    "color-contrast": 3,
-    "label": 3
+    "color-contrast": 3
   },
   "oms.bodies.join_requests": {
     "color-contrast": 2
@@ -32,20 +29,20 @@
   "oms.bodies.new_member": {
     "color-contrast": 1
   },
+  "oms.bodies.view": {
+    "color-contrast": 1
+  },
   "oms.campaigns.create": {
-    "color-contrast": 3,
-    "label": 3
+    "color-contrast": 3
   },
   "oms.campaigns.edit": {
-    "color-contrast": 2,
-    "label": 3
+    "color-contrast": 1
   },
   "oms.campaigns.list": {
     "color-contrast": 1
   },
   "oms.campaigns.members": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.circles.edit": {
     "color-contrast": 1
