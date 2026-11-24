@@ -1,6 +1,14 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const {
+    isInteger, plainSetter, isBoolean, isText, dateSetter, isDate, areDates
+} = require('../lib/validators');
+
+// Every STRING column is a varchar(255): longer values are a validation error, not a database error.
+const STRING_LENGTH = {
+    len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
+};
 
 const Season = sequelize.define(
     'season',
@@ -10,7 +18,7 @@ const Season = sequelize.define(
             allowNull: false,
             unique: true,
             validate: {
-                isInt: { msg: 'Season year should be a valid year.' },
+                isInteger: isInteger('Season year should be a valid year.'),
                 min: { args: [2000], msg: 'Season year should be a valid year.' }
             }
         },
@@ -19,33 +27,42 @@ const Season = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Season name should be set.' }
             }
         },
         active: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('active'),
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         event_submission_deadline: {
             type: Sequelize.DATE,
+            set: dateSetter('event_submission_deadline'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event submission deadline should be valid.' }
+                isDate: isDate('Event submission deadline should be valid.')
             }
         },
         application_period_starts: {
             type: Sequelize.DATE,
+            set: dateSetter('application_period_starts'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Application period start should be valid.' }
+                isDate: isDate('Application period start should be valid.')
             }
         },
         application_period_ends: {
             type: Sequelize.DATE,
+            set: dateSetter('application_period_ends'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Application period end should be valid.' }
+                isDate: isDate('Application period end should be valid.')
             }
         }
     },
@@ -57,7 +74,7 @@ const Season = sequelize.define(
         validate: {
             // A model validator, so it also runs when only one of the two dates is updated.
             applicationPeriodOrder() {
-                if (!this.application_period_starts || !this.application_period_ends) {
+                if (!areDates(this.application_period_starts, this.application_period_ends)) {
                     return;
                 }
 

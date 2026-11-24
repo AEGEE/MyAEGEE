@@ -2,12 +2,12 @@ codecov:
   branch: stable
   require_ci_to_pass: true
   notify:
-    # The sum of parallelism over the six test jobs that upload (discounts, network and events
-    # run unsharded), plus mailer-test and dispatcher-test. The upload of frontend-coverage is
-    # one more and is not waited for: that job only runs when the frontend tests passed, and
-    # Codecov must report on the services also when they did not (docs/testing/coverage.md).
-    # Checked by packages/backend-test-utils/check-codecov-builds.js.
-    after_n_builds: 17
+    # The sum of parallelism over the six test jobs that upload (discounts, network, events and
+    # summeruniversity run unsharded), plus mailer-test and dispatcher-test. The upload of
+    # frontend-coverage is one more and is not waited for: that job only runs when the frontend
+    # tests passed, and Codecov must report on the services also when they did not
+    # (docs/testing/coverage.md). Checked by packages/backend-test-utils/check-codecov-builds.js.
+    after_n_builds: 14
 
 coverage:
   status:
@@ -71,7 +71,7 @@ fixes:
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
-  after_n_builds: 17  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
+  after_n_builds: 14  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
 
 component_management:
   individual_components:

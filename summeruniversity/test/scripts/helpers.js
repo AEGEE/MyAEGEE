@@ -1,7 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+// Root-level shared helper; becomes a workspace package after the pnpm restructure.
+const { createRequestHook } = require('../../../packages/backend-test-utils/openapi');
 
 const config = require('../../config');
+
+// Checks every response (and every accepted JSON request body) against openapi.yaml.
+const checkResponse = createRequestHook({ serviceRoot: path.join(__dirname, '..', '..') });
 
 const baseUrl = 'http://localhost:' + config.port;
 
@@ -26,7 +31,9 @@ const appendQuery = (url, query) => {
 
 const request = async (options) => {
     const responseType = options.responseType || 'json';
-    const headers = { ...(options.headers || {}) };
+    // Connection: close, so that no keep-alive socket outlives the server that a test file
+    // stops: fetch would otherwise reuse a socket of a closed server (ECONNRESET).
+    const headers = { Connection: 'close', ...(options.headers || {}) };
     const fetchOptions = { method: options.method || 'GET', headers };
 
     if (options.body !== undefined) {
@@ -58,14 +65,25 @@ const request = async (options) => {
         }
     }
 
+    // The check sees the request body as the server got it: the raw text, or the JSON
+    // (dates and other objects serialized).
+    let checkOptions = options;
+    if (options.rawBody !== undefined) {
+        checkOptions = { ...options, body: options.rawBody };
+    } else if (options.body !== undefined) {
+        checkOptions = { ...options, body: JSON.parse(JSON.stringify(options.body)) };
+    }
+
     const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
     if (responseType === 'buffer') {
-        return {
+        const bufferResult = {
             statusCode: response.status,
             statusMessage: response.statusText,
             headers: Object.fromEntries(response.headers.entries()),
             body: Buffer.from(await response.arrayBuffer())
         };
+        checkResponse(checkOptions, fetchOptions, bufferResult);
+        return bufferResult;
     }
 
     const text = await response.text();
@@ -79,12 +97,14 @@ const request = async (options) => {
         }
     }
 
-    return {
+    const result = {
         statusCode: response.status,
         statusMessage: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
         body
     };
+    checkResponse(checkOptions, fetchOptions, result);
+    return result;
 };
 
 exports.request = request;

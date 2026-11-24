@@ -228,6 +228,20 @@ describe('Events listing', () => {
             expect(res.body.meta).toEqual({ offset: 1, limit: 2 });
         });
 
+        test('should filter by application status after the offset and limit (short pages)', async () => {
+            await generator.createEvent({ starts: generator.daysFromNow(41), application_starts: generator.daysFromNow(-10), application_ends: generator.daysFromNow(-5) });
+            await generator.createEvent({ starts: generator.daysFromNow(42), application_starts: generator.daysFromNow(-10), application_ends: generator.daysFromNow(-5) });
+            const open = await generator.createEvent({ starts: generator.daysFromNow(43) });
+
+            const res = await request({ path: '/', method: 'GET', query: { application_status: 'open', limit: '2' }, headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+
+            const all = await request({ path: '/', method: 'GET', query: { application_status: 'open' }, headers: { 'X-Auth-Token': 'foobar' } });
+            expect(all.body.data.map((e) => e.id)).toEqual([open.id]);
+        });
+
         test('should ignore invalid offset and limit', async () => {
             await generator.createEvent();
             await generator.createEvent();
@@ -237,6 +251,31 @@ describe('Events listing', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.length).toEqual(2);
             expect(res.body.meta).toEqual({});
+        });
+
+        // Beyond the integer range Postgres answered "bigint out of range" (500).
+        test.each([
+            ['above the integer range', '2147483648'],
+            ['far above the bigint range', '99999999999999999999']
+        ])('should ignore an offset and a limit %s', async (_name, value) => {
+            await generator.createEvent();
+            await generator.createEvent();
+
+            const res = await request({ path: '/', method: 'GET', query: { offset: value, limit: value }, headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.length).toEqual(2);
+            expect(res.body.meta).toEqual({});
+        });
+
+        test('should take an offset and a limit at the top of the integer range', async () => {
+            await generator.createEvent();
+
+            const res = await request({ path: '/', method: 'GET', query: { offset: '2147483647', limit: '2147483647' }, headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+            expect(res.body.meta).toEqual({ offset: 2147483647, limit: 2147483647 });
         });
     });
 
@@ -310,6 +349,15 @@ describe('Events listing', () => {
 
             const res = await request({ path: '/mine/organizing', method: 'GET', query: { search: 'findable' }, headers: { 'X-Auth-Token': 'foobar' } });
 
+            expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
+        });
+
+        test('should ignore an offset and a limit above the integer range', async () => {
+            const event = await generator.createEvent();
+
+            const res = await request({ path: '/mine/organizing', method: 'GET', query: { offset: '99999999999999999999', limit: '99999999999999999999' }, headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(200);
             expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
         });
     });

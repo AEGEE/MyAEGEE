@@ -50,9 +50,11 @@ describe('General endpoints and error handling', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers['content-type']).toContain('text/plain');
             expect(res.body).toContain('summeruniversity_events_total{type="regular",status="second approval",deleted="false"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Alicante",status="pending",event_name="Metrics SU"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Dresden",status="pending",event_name="Metrics SU"} 1');
-            expect(res.body).toContain('events_applications_total{body_name="AEGEE-Alicante",status="accepted",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Alicante",status="pending",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Dresden",status="pending",event_name="Metrics SU"} 1');
+            expect(res.body).toContain('summeruniversity_applications_total{body_name="AEGEE-Alicante",status="accepted",event_name="Metrics SU"} 1');
+            // The events service has its own events_applications_total; this service must not add to it.
+            expect(res.body).not.toMatch(/^events_applications_total/m);
         });
 
         test('should work with an empty database', async () => {
@@ -66,7 +68,7 @@ describe('General endpoints and error handling', () => {
     describe('GET /metrics/requests', () => {
         test('should count the requests made to the service', async () => {
             await request({ path: '/healthcheck', method: 'GET' });
-            await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+            await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, skipOpenApi: 'the not-found handler' });
 
             const res = await request({ path: '/metrics/requests', method: 'GET', responseType: 'text' });
 
@@ -77,9 +79,41 @@ describe('General endpoints and error handling', () => {
         });
     });
 
+    describe('requests without a token', () => {
+        // Core is down: a request that asks it anything fails with 500.
+        const coreDownMocks = { core: { netError: true }, mainPermissions: { netError: true }, approvePermissions: { netError: true } };
+
+        test.each(['/', '/seasons', '/seasons/active'])('should answer GET %s without asking core', async (path) => {
+            mock.mockAll(coreDownMocks);
+
+            const res = await request({ path, method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        test('should show a published event without asking core', async () => {
+            mock.mockAll(coreDownMocks);
+            const event = await generator.createEvent();
+
+            const res = await request({ path: '/single/' + event.id, method: 'GET' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.permissions).not.toHaveProperty('apply');
+        });
+
+        test('should answer 401 on an authenticated route without asking core', async () => {
+            mock.mockAll(coreDownMocks);
+
+            const res = await request({ path: '/mine/organizing', method: 'GET' });
+
+            expect(res.statusCode).toEqual(401);
+            expect(res.body.message).toEqual('Error fetching data: user is not authenticated.');
+        });
+    });
+
     describe('error handling', () => {
         test('should return 404 on an unknown route', async () => {
-            const res = await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+            const res = await request({ path: '/nonexistent-endpoint', method: 'GET', headers: { 'X-Auth-Token': 'foobar' }, skipOpenApi: 'the not-found handler' });
 
             expect(res.statusCode).toEqual(404);
             expect(res.body.success).toEqual(false);
@@ -88,7 +122,12 @@ describe('General endpoints and error handling', () => {
 
         test('should return 404 on an unknown method for a known route', async () => {
             const event = await generator.createEvent();
-            const res = await request({ path: '/single/' + event.id + '/applications', method: 'DELETE', headers: { 'X-Auth-Token': 'foobar' } });
+            const res = await request({
+                path: '/single/' + event.id + '/applications',
+                method: 'DELETE',
+                headers: { 'X-Auth-Token': 'foobar' },
+                skipOpenApi: 'the not-found handler'
+            });
 
             expect(res.statusCode).toEqual(404);
             expect(res.body.success).toEqual(false);
@@ -116,6 +155,15 @@ describe('General endpoints and error handling', () => {
             expect(res.statusCode).toEqual(500);
             expect(res.body.success).toEqual(false);
             expect(res.body.message).toContain('Malformed response when fetching user');
+        });
+
+        test('should return 500 naming the malformed response if core returns an empty body for the user', async () => {
+            mock.mockAll({ core: { emptyResponse: true } });
+
+            const res = await request({ path: '/', method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Malformed response when fetching user: null');
         });
 
         test('should return 500 if core returns an unsuccessful response for the user', async () => {

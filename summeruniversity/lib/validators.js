@@ -1,4 +1,5 @@
 // Validators for the models that Sequelize does not have in the form needed.
+const moment = require('moment');
 
 // One of a fixed list of strings. Sequelize's own isIn compares String(value), so an array
 // such as ['a'] or an object would pass it and be sent to the database as text. Sequelize
@@ -12,4 +13,172 @@ function isOneOf(values, msg) {
     };
 }
 
-module.exports = { isOneOf };
+// The range of a Postgres INTEGER.
+const INTEGER_MIN = -2147483648;
+const INTEGER_MAX = 2147483647;
+
+// A whole number within the range of a Postgres INTEGER column. Forms send numbers as text,
+// so a string of digits counts too. Sequelize's own isInt reads String(value), which an
+// array such as [20] passes, and it knows no range, so larger numbers reached the database.
+function isInteger(msg) {
+    return function isIntegerValue(value) {
+        if (value === null || value === undefined) {
+            return;
+        }
+
+        const number = typeof value === 'string' && /^-?[0-9]+$/.test(value) ? Number(value) : value;
+        if (!Number.isInteger(number) || number < INTEGER_MIN || number > INTEGER_MAX) {
+            throw new Error(msg);
+        }
+    };
+}
+
+// The setter of a BOOLEAN column: it stores the value as sent. Without it, Sequelize reads
+// 'true', 'false', 1 and 0 as booleans before the validators see them.
+function plainSetter(field) {
+    return function setPlain(value) {
+        this.setDataValue(field, value);
+    };
+}
+
+// true or false (see plainSetter). Any other value reached the database, which refused it with
+// a 500. allowNull decides on a missing value.
+function isBoolean(value) {
+    if (value !== null && value !== undefined && typeof value !== 'boolean') {
+        throw new Error('The value should be true or false.');
+    }
+}
+
+// A text. Sequelize turns a number or a boolean into text on the way to the database
+// (5 was stored as "5"); arrays and objects it refuses itself. allowNull decides on a missing
+// value.
+function isText(value) {
+    if (value !== null && value !== undefined && typeof value !== 'string') {
+        throw new Error('The value should be a text.');
+    }
+}
+
+// A list. The entries are not checked. allowNull decides on a missing value.
+function isList(msg) {
+    return function isListValue(value) {
+        if (value !== null && value !== undefined && !Array.isArray(value)) {
+            throw new Error(msg);
+        }
+    };
+}
+
+const isPlainObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// Keeps only the given keys of a plain object; anything else is returned as it is, for the
+// validators to refuse.
+function pickKeys(value, keys) {
+    if (!isPlainObject(value)) {
+        return value;
+    }
+
+    return Object.fromEntries(keys
+        .filter((key) => Object.prototype.hasOwnProperty.call(value, key))
+        .map((key) => [key, value[key]]));
+}
+
+// The setter of a JSONB list of objects: each entry that is a plain object keeps only the
+// given keys (the forms and older versions add keys of their own); anything else is stored as
+// sent, for the validators to refuse.
+function listOfKeysSetter(field, keys) {
+    return function setListOfKeys(value) {
+        this.setDataValue(field, Array.isArray(value) ? value.map((entry) => pickKeys(entry, keys)) : value);
+    };
+}
+
+// The most digits before and after the decimal point. A Postgres NUMERIC without a precision
+// keeps 16383 after it and answers "value overflows numeric format" (a 500) beyond; before it,
+// 308 digits are what the API still reads back as a number (DECIMAL.parse is parseFloat, and a
+// larger value became Infinity, sent as null). The events service has the same rule.
+const DECIMAL_DIGITS_MAX = 308;
+const DECIMAL_SCALE_MAX = 16383;
+
+// A decimal number as text: digits with an optional sign, decimal point and exponent (.5, +5,
+// 2.50, 1e2, 1E-2; not 5., 1,5, NaN or Infinity). The groups: the digits of a number without a
+// point, or those before and after the point, and the exponent.
+const DECIMAL_FORMAT = /^[+-]?(?:([0-9]+)|([0-9]*)\.([0-9]+))(?:[eE]([+-]?[0-9]+))?$/;
+
+// A number for a DECIMAL column: a number, or its text as forms send it. An <input
+// type="number"> may submit an exponent (1e2 is a valid floating-point number in HTML).
+// Sequelize's own isNumeric reads String(value), which an array such as [5] passes; and
+// Postgres refuses more digits than it keeps with a 500. A number is checked as its text.
+function isDecimal(msg) {
+    return function isDecimalValue(value) {
+        if (value === null || value === undefined) {
+            return;
+        }
+
+        const text = typeof value === 'number' ? String(value) : value;
+        const match = typeof text === 'string' && DECIMAL_FORMAT.exec(text);
+        if (!match) {
+            throw new Error(msg);
+        }
+
+        const exponent = Number(match[4] || 0);
+        // The digits before the point: group 1 is never empty, group 2 may be ('.5').
+        const digits = (match[1] || match[2]).replace(/^0+/, '').length + exponent;
+        const scale = (match[3] || '').length - exponent;
+        if (digits > DECIMAL_DIGITS_MAX || scale > DECIMAL_SCALE_MAX) {
+            throw new Error(msg);
+        }
+    };
+}
+
+// A day (2027-07-01) or an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without
+// seconds, decimals and an offset such as +02:00 or +0200), as the frontend sends them: the ISO
+// 8601 forms the events service takes. A whole number of milliseconds is taken too (isDateMs).
+const DATE_FORMAT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?(Z|[+-][0-9]{2}:?[0-9]{2})?)?$/;
+const isDateText = (value) => typeof value === 'string'
+    && DATE_FORMAT.test(value)
+    && moment(value, moment.ISO_8601, true).isValid();
+
+// Whole milliseconds since 1970 (what Date.getTime() gives) within the years 0001-9999, from
+// 0001-01-01T00:00:00.000Z to 9999-12-31T23:59:59.999Z. Postgres has no year 0000 (it refuses
+// one with a 500), and larger numbers, fractions, NaN and Infinity are not dates a client means.
+const DATE_MS_MIN = -62135596800000;
+const DATE_MS_MAX = 253402300799999;
+const isDateMs = (value) => Number.isInteger(value) && value >= DATE_MS_MIN && value <= DATE_MS_MAX;
+
+// The setter of a DATE column. Sequelize turns any value of a DATE column into a Date before
+// validating it (true became 1970-01-01, "1" became 2001-01-01), so a validator cannot tell
+// what was sent. This setter converts only a day, a timestamp or a number of milliseconds,
+// keeps a Date, and keeps any other value as it was sent, so that isDate refuses it.
+function dateSetter(field) {
+    return function setDate(value) {
+        this.setDataValue(field, isDateText(value) || isDateMs(value) ? new Date(value) : value);
+    };
+}
+
+// Whether all the values are valid Dates, so that the validators that put dates in order
+// only compare dates (isDate answers for the others).
+const areDates = (...values) => values.every((value) => value instanceof Date && !Number.isNaN(value.getTime()));
+
+// A valid Date within the years 0001-9999 (see dateSetter): a day or a timestamp can be in
+// the year 0000 too. allowNull decides on a missing value.
+function isDate(msg) {
+    return function isDateValue(value) {
+        if (value !== null && value !== undefined && !(areDates(value) && isDateMs(value.getTime()))) {
+            throw new Error(msg);
+        }
+    };
+}
+
+module.exports = {
+    isOneOf,
+    isInteger,
+    plainSetter,
+    isBoolean,
+    isText,
+    isDecimal,
+    isList,
+    isPlainObject,
+    pickKeys,
+    listOfKeysSetter,
+    dateSetter,
+    isDate,
+    areDates
+};

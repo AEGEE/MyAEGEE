@@ -184,6 +184,37 @@ describe('Event details', () => {
         expect(res.body.permissions.export_pax).toEqual(true);
     });
 
+    test('should not show an unpublished event of another type to an approver', async () => {
+        mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:approve_summeruniversity:pilot'] } });
+        const event = await generator.createEvent({ type: 'regular', published: 'none', status: 'first submission' });
+
+        const res = await request({ path: '/single/' + event.id, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('You cannot see this event.');
+    });
+
+    test('should only show the public fields of a published event to an approver of another type', async () => {
+        mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:approve_summeruniversity:pilot'] } });
+        const event = await generator.createEvent({ type: 'regular' });
+
+        const res = await request({ path: '/single/' + event.id, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(Object.keys(res.body.data).sort()).toEqual([...constants.EVENT_FULL_FIELDS].sort());
+        expect(res.body.permissions.change_status.second_submission).toEqual(false);
+    });
+
+    test('should not offer applying to a deleted, published and open event', async () => {
+        mock.mockAll({ core: { notSuperadmin: true }, mainPermissions: { permissions: ['global:apply:summeruniversity'] } });
+        const event = await generator.createEvent({ deleted: true, organizers: generator.generateOrganizers(5) });
+
+        const res = await request({ path: '/single/' + event.id, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.permissions.apply).toEqual(false);
+    });
+
     describe('apply permission', () => {
         const applicantMocks = {
             core: { notSuperadmin: true },

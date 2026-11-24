@@ -1,9 +1,29 @@
+const nock = require('nock');
+
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Application, Event } = require('../../models');
 const applicant = require('../assets/oms-core-valid-not-superadmin.json').data;
+
+const config = require('../../config');
+
+const coreUrl = `${config.core.url}:${config.core.port}`;
+
+const visaFields = {
+    visa_required: true,
+    visa_place_of_birth: 'Dresden',
+    visa_passport_number: '123',
+    visa_passport_issue_date: '2020-01-01',
+    visa_passport_expiration_date: '2030-01-01',
+    visa_passport_issue_authority: 'Authority',
+    visa_embassy: 'Embassy',
+    visa_street_and_house: 'Street 1',
+    visa_postal_code: '01234',
+    visa_city: 'Dresden',
+    visa_country: 'Germany'
+};
 
 // User #5 (member of bodies 9, 173 and 1) who can apply to SUs.
 const applicantMocks = {
@@ -232,9 +252,11 @@ describe('Applications creation', () => {
         ['answers', { answers: 'not an array' }, 'Answers should be an array of strings.'],
         ['answers', { answers: ['one', 'two'] }, 'Expected 1 answers, but got 2.'],
         ['agreed_to_privacy_policy', { agreed_to_privacy_policy: false }, 'You should agree to Privacy Policy.'],
-        ['agreed_to_su_terms', { agreed_to_su_terms: false }, null],
+        ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['visa_required', { visa_required: 'yes' }, 'The value should be true or false.'],
         ['motivation', { motivation: null }, null],
+        ['aegee_experience', { aegee_experience: null }, null],
+        ['ideal_su', { ideal_su: null }, null],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {
         const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...overrides }));
 
@@ -255,22 +277,93 @@ describe('Applications creation', () => {
         expect(res.body.errors.visaFieldsFilledIn).toEqual(['Visa is required, but visa_passport_number is not set.']);
     });
 
-    test('should accept an application with all visa fields', async () => {
-        const visa = {
-            visa_required: true,
-            visa_place_of_birth: 'Dresden',
-            visa_passport_number: '123',
-            visa_passport_issue_date: '2020-01-01',
-            visa_passport_expiration_date: '2030-01-01',
-            visa_passport_issue_authority: 'Authority',
-            visa_embassy: 'Embassy',
-            visa_street_and_house: 'Street 1',
-            visa_postal_code: '01234',
-            visa_city: 'Dresden',
-            visa_country: 'Germany'
-        };
+    test.each([
+        ['is not a string', 5],
+        ['is empty', '  ']
+    ])('should return 422 if a visa is required but a visa field %s', async (problem, value) => {
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...visaFields, visa_city: value }));
 
-        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...visa }));
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.visaFieldsFilledIn).toEqual([`Visa is required, but visa_city ${problem}.`]);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test.each(['nationality', 'meals', 'visa_city'])('should return 422 if %s is longer than its column (255 characters)', async (field) => {
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...visaFields, [field]: 'x'.repeat(256) }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toContain('This text should be at most 255 characters long.');
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should return 422 if core gives the applicant an empty first name', async () => {
+        mockAndCapture({ ...applicantMocks, core: { data: { ...applicant, first_name: '' } } });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('first_name');
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should return 422 if core gives the applicant an id that is not a number', async () => {
+        mockAndCapture({ ...applicantMocks, core: { data: { ...applicant, id: String(applicant.id) } } });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.user_id).toEqual(['User ID must be a number.']);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should return 422 for answers that are not strings', async () => {
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, answers: [{}] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.answers).toEqual(['Answers should be an array of strings.']);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should accept applications during an open call after the event started', async () => {
+        const started = await generator.createEvent({
+            organizers: generator.generateOrganizers(9999),
+            season: 2025,
+            open_call: true,
+            starts: generator.daysFromNow(-2),
+            ends: generator.daysFromNow(5),
+            application_starts: generator.daysFromNow(-20),
+            application_ends: generator.daysFromNow(-10)
+        });
+
+        const res = await apply(generator.generateApplicationBody(started, { body_id: 1 }), started.id);
+
+        expect(res.statusCode).toEqual(200);
+    });
+
+    test.each([
+        ['is unsuccessful', 'Error fetching auth request', { success: false }],
+        ['is not JSON', 'Malformed response when fetching auth request', 'Some error happened.']
+    ])('should return 500 and not create the application if the second core login %s', async (_, message, reply) => {
+        // The first login (to notify the organizers) works; the one to find the board members does not.
+        nock.cleanAll();
+        mock.mockCore(applicantMocks.core);
+        mock.mockCoreMainPermissions(applicantMocks.mainPermissions);
+        mock.mockCoreApprovePermissions(applicantMocks.approvePermissions);
+        mock.mockCoreMember({});
+        mock.mockCoreBodyMembers({});
+        mock.mockMailer({});
+        nock(coreUrl).post('/login').reply(200, { success: true, access_token: '1', refresh_token: '1' });
+        nock(coreUrl).post('/login').reply(500, reply);
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.message).toContain(message);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    test('should accept an application with all visa fields', async () => {
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1, ...visaFields }));
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.visa_required).toEqual(true);
@@ -302,6 +395,16 @@ describe('Applications creation', () => {
 
         expect(res.statusCode).toEqual(500);
         expect(res.body.message).toContain('Malformed response when fetching members for permission');
+    });
+
+    test('should return 500 naming the malformed response if core returns an empty body for the board members', async () => {
+        mockAndCapture({ ...applicantMocks, bodyMembers: { emptyResponse: true } });
+
+        const res = await apply(generator.generateApplicationBody(event, { body_id: 1 }));
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.message).toEqual('Malformed response when fetching members for permission: null');
+        expect(await Application.count()).toEqual(0);
     });
 
     test('should return 500 if the core login fails', async () => {

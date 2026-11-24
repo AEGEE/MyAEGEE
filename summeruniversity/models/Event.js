@@ -3,7 +3,14 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf } = require('../lib/validators');
+const {
+    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, isPlainObject, listOfKeysSetter, dateSetter, isDate, areDates
+} = require('../lib/validators');
+
+// Every STRING column is a varchar(255): longer values are a validation error, not a database error.
+const STRING_LENGTH = {
+    len: { args: [0, 255], msg: 'This text should be at most 255 characters long.' }
+};
 
 // TODO: require body_id if role is main_coordinator
 // TODO: validate that role is in enum ['main_coordinator', 'content_manager', 'treasurer', 'incoming_responsible', 'general_organizer']
@@ -20,6 +27,10 @@ const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
         lng: Joi.number().required()
     }),
     description: Joi.string().allow(''), // TODO: check that description is filled in for the second submission
+    // Unlike the BOOLEAN columns, start and end also take the text 'true' or 'false' (Joi reads
+    // them as booleans; the location is stored as sent). The edit forms sent the starting and
+    // ending city as the text 'true', stored Summer Universities hold it, and the second edit
+    // form sends the stored locations back as they are.
     start: Joi.boolean(), // TODO: validate that there is 1 starting city
     end: Joi.boolean() // TODO: validate that there is 1 ending city
 }));
@@ -32,6 +43,8 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Event name should be set.' },
             }
         },
@@ -39,8 +52,11 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 isValid(value) {
-                    if (!value) {
+                    // Not a text: isText answers.
+                    if (!value || typeof value !== 'string') {
                         return;
                     }
 
@@ -58,7 +74,10 @@ const Event = sequelize.define(
         season: {
             // The year of the season (see the Season model) this event belongs to.
             type: Sequelize.INTEGER,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isInteger: isInteger('Season should be a year.')
+            }
         },
         image: {
             type: Sequelize.STRING,
@@ -67,18 +86,26 @@ const Event = sequelize.define(
         photos: {
         // TODO: check if JSONB is the type that we want, maybe an array of ids/location is enough?
             type: Sequelize.JSONB,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isList: isList('Photos should be a list.')
+            }
         // TODO: max 6 photos
         },
         video: {
             type: Sequelize.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText,
+                ...STRING_LENGTH
+            }
         },
         description: {
             type: Sequelize.TEXT,
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Event description should be set.' },
             }
         },
@@ -87,6 +114,8 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'Email should be given.' },
                 isEmail: { msg: 'Given email is not valid.' }
             }
@@ -95,6 +124,8 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 isWebLink
             }
         },
@@ -102,6 +133,8 @@ const Event = sequelize.define(
         // TODO: change this to an array of strings since we do not store anything else than the URL itself
             type: Sequelize.JSONB,
             allowNull: true,
+            // The frontend sends a name (left empty) next to the link; other keys are dropped.
+            set: listOfKeysSetter('social_media', ['name', 'description']),
             validate: {
                 isValid(socialMedia) {
                     if (socialMedia === null || socialMedia === undefined) {
@@ -116,23 +149,34 @@ const Event = sequelize.define(
                         throw new Error('At most 3 social media links can be set.');
                     }
 
-                    for (const medium of socialMedia) {
-                        if (!medium || typeof medium.description !== 'string' || medium.description.trim() === '') {
+                    socialMedia.forEach((medium, index) => {
+                        const entry = `Social media entry ${index + 1}`;
+                        if (!isPlainObject(medium) || medium.description === undefined
+                            || (typeof medium.description === 'string' && medium.description.trim() === '')) {
                             throw new Error('Every social media entry should have a link.');
                         }
 
+                        if (typeof medium.description !== 'string') {
+                            throw new Error(`${entry}: the link should be a text.`);
+                        }
+
+                        if (medium.name !== undefined && typeof medium.name !== 'string') {
+                            throw new Error(`${entry}: the name should be a text.`);
+                        }
+
                         isWebLink(medium.description);
-                    }
+                    });
                 }
             }
         },
         application_starts: {
             type: Sequelize.DATE,
+            set: dateSetter('application_starts'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application starts date should be valid.' },
+                isDate: isDate('Event application starts date should be valid.'),
                 beforeApplicationEnd(val) {
-                    if (!val || !this.application_ends) {
+                    if (!areDates(val, this.application_ends)) {
                         return;
                     }
 
@@ -144,11 +188,12 @@ const Event = sequelize.define(
         },
         application_ends: {
             type: Sequelize.DATE,
+            set: dateSetter('application_ends'),
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application end date should be valid.' },
+                isDate: isDate('Event application end date should be valid.'),
                 laterThanApplicationStart(val) {
-                    if (!val || !this.application_starts) {
+                    if (!areDates(val, this.application_starts)) {
                         return;
                     }
 
@@ -157,6 +202,10 @@ const Event = sequelize.define(
                     }
                 },
                 beforeEventStart(val) {
+                    if (!areDates(val, this.starts)) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrAfter(this.starts)) {
                         throw new Error('Application period cannot end before or at the same time the event starts.');
                     }
@@ -165,22 +214,28 @@ const Event = sequelize.define(
         },
         starts: {
             type: Sequelize.DATE,
+            set: dateSetter('starts'),
             allowNull: false,
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event start date should be set.' },
-                isDate: { msg: 'Event start date should be valid.' }
+                isDate: isDate('Event start date should be valid.')
             // TODO: check if within timeframe set by CIA/SUCT
             }
         },
         ends: {
             type: Sequelize.DATE,
+            set: dateSetter('ends'),
             allowNull: false,
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event end date should be set.' },
-                isDate: { msg: 'Event end date should be valid.' },
+                isDate: isDate('Event end date should be valid.'),
                 laterThanStart(val) {
+                    if (!areDates(val, this.starts)) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrBefore(this.starts)) {
                         throw new Error('Event cannot start after or at the same time it ends.');
                     }
@@ -196,7 +251,7 @@ const Event = sequelize.define(
             defaultValue: 0,
             validate: {
                 notEmpty: { msg: 'Event fee should be set.' },
-                isNumeric: { msg: 'Event fee should be valid.' },
+                isDecimal: isDecimal('Event fee should be valid.'),
                 min: { args: [0], msg: 'Event fee cannot be negative' }
             }
         },
@@ -204,7 +259,7 @@ const Event = sequelize.define(
             type: Sequelize.DECIMAL,
             allowNull: true,
             validate: {
-                isNumeric: { msg: 'Optional fee should be valid.' },
+                isDecimal: isDecimal('Optional fee should be valid.'),
                 min: { args: [0], msg: 'Optional fee cannot be negative' },
                 max: { args: [50], msg: 'Optional fee cannot be more than 50 euros.' }
             }
@@ -301,7 +356,7 @@ const Event = sequelize.define(
             defaultValue: 'regular',
             validate: {
                 notEmpty: { msg: 'SU type should be set.' },
-                isOneOf: isOneOf(['regular', 'pilot'], 'SU type should be one of these: normal, pilot.')
+                isOneOf: isOneOf(['regular', 'pilot'], 'SU type should be one of these: regular, pilot.')
             }
         },
         theme_category: {
@@ -310,7 +365,7 @@ const Event = sequelize.define(
             defaultValue: 'leisure',
             validate: {
                 notEmpty: { msg: 'Theme should be set.' },
-                isOneOf: isOneOf(['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.')
+                isOneOf: isOneOf(['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'], 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.')
             }
         },
         theme: {
@@ -318,6 +373,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Theme explanation should be set.' },
             }
         },
@@ -326,6 +382,7 @@ const Event = sequelize.define(
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
                 notEmpty: { msg: 'Explanation of theme implementation should be set.' },
             }
         },
@@ -333,6 +390,7 @@ const Event = sequelize.define(
         // TODO: change this to an array of strings since we do not store anything else than the learning objective itself
             type: Sequelize.JSONB,
             validate: {
+                isList: isList('Learning objectives should be a list.'),
                 notEmpty: { msg: 'Learning objectives should be set.' },
             // TODO: min 2 and max 5 learning objectives
             }
@@ -355,8 +413,12 @@ const Event = sequelize.define(
         },
         deleted: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('deleted'),
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         organizers: {
             type: Sequelize.JSONB,
@@ -376,30 +438,59 @@ const Event = sequelize.define(
         },
         trainers: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         questions: {
         // TODO: change this to an array of strings since we do not store anything else than the question itself
             type: Sequelize.JSONB,
             allowNull: true,
             defaultValue: [],
+            // The frontend sends a name (left empty) and whether an answer is required; other keys
+            // (older Summer Universities hold a type) are dropped.
+            set: listOfKeysSetter('questions', ['name', 'description', 'required']),
             validate: {
             // TODO: validate for maximum of 3 questions
                 isValid(value) {
                     if (!Array.isArray(value)) {
-                        throw new Error('Event questions should be an array of strings.');
+                        throw new Error('Event questions should be a list.');
                     }
+
+                    value.forEach((question, index) => {
+                        const entry = `Question ${index + 1}`;
+                        // The applications export reads the description of every question.
+                        if (!isPlainObject(question) || question.description === undefined) {
+                            throw new Error('Every question should have a description.');
+                        }
+
+                        if (typeof question.description !== 'string') {
+                            throw new Error(`${entry}: the description should be a text.`);
+                        }
+
+                        if (question.name !== undefined && typeof question.name !== 'string') {
+                            throw new Error(`${entry}: the name should be a text.`);
+                        }
+
+                        if (question.required !== undefined && typeof question.required !== 'boolean') {
+                            throw new Error(`${entry}: required should be true or false.`);
+                        }
+                    });
                 }
             }
         },
         pax_description: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         pax_confirmation: {
             type: Sequelize.ENUM('no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'),
             validate: {
-                isOneOf: isOneOf(['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'], 'Theme should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.')
+                isOneOf: isOneOf(['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'], 'Pax confirmation should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.')
             }
         },
         max_participants: {
@@ -407,7 +498,7 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: null,
             validate: {
-                isNumeric: { msg: 'Max amount of participants should be valid.' },
+                isInteger: isInteger('Max amount of participants should be valid.'),
                 // TODO: min 15 participants
                 min: { args: [0], msg: 'Max amount of participants cannot be negative' }
             }
@@ -432,13 +523,19 @@ const Event = sequelize.define(
         },
         open_call: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('open_call'),
             allowNull: true,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         budget: {
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 isWebLink
             }
         },
@@ -446,22 +543,33 @@ const Event = sequelize.define(
             type: Sequelize.STRING,
             allowNull: false,
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'The programme for SUCT should be set.' },
                 isWebLink
             }
         },
         programme: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         activities_list: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         optional_programme: {
         // TODO: if optional_fee is given, then optional_programme is required
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         course_level: {
             type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
@@ -472,35 +580,54 @@ const Event = sequelize.define(
         },
         courses: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         accommodation_type: {
             type: Sequelize.STRING,
             allowNull: false,
             defaultValue: '',
             validate: {
+                isText,
+                ...STRING_LENGTH,
                 notEmpty: { msg: 'The type of accommodation should be set.' },
             }
         },
         special_equipment: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         university_support: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('university_support'),
             allowNull: true,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         cancellation_rules: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         additional_regulation: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText
+            }
         },
         agreed_to_su_terms: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('agreed_to_su_terms'),
             allowNull: false,
             defaultValue: false,
             validate: {

@@ -128,6 +128,49 @@ describe('Seasons', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('applicationPeriodOrder');
         });
+
+        test.each([
+            ['before 2000', { year: 1999 }, 'year'],
+            ['missing', { year: undefined }, 'year'],
+            ['not a whole number', { year: 2027.5 }, 'year'],
+        ])('should return 422 if the year is %s', async (_, overrides, field) => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('POST', '/seasons', { ...body, ...overrides });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(await Season.count()).toEqual(6);
+        });
+
+        test.each(['event_submission_deadline', 'application_period_starts', 'application_period_ends'])('should return 422 if %s is not a date', async (field) => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('POST', '/seasons', { ...body, [field]: 'x' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        });
+
+        test('should return 422 if the name is longer than its column (255 characters)', async () => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('POST', '/seasons', { ...body, name: 'x'.repeat(256) });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.name).toContain('This text should be at most 255 characters long.');
+            expect(await Season.count()).toEqual(6);
+        });
+
+        test('should return 422 if the year is beyond the database integer range', async () => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('POST', '/seasons', { ...body, year: 99999999999 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.year).toEqual(['Season year should be a valid year.']);
+            expect(await Season.count()).toEqual(6);
+        });
     });
 
     describe('updating', () => {
@@ -195,6 +238,15 @@ describe('Seasons', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toHaveProperty('applicationPeriodOrder');
+        });
+
+        test('should return 404 if the year is not a number', async () => {
+            mock.mockAll(managerMocks);
+
+            const res = await call('PUT', '/seasons/abc', { name: 'Changed' });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.message).toEqual('Season is not found.');
         });
     });
 

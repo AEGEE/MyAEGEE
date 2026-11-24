@@ -48,6 +48,16 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.message).toEqual('bodyId is not a number.');
         });
 
+        test.each(['1.5', '99999999999'])('should list nothing for the body id %s, which no body has', async (bodyId) => {
+            const event = await generator.createEvent();
+            await generator.createApplication(event, { user_id: 10, body_id: 1 });
+
+            const res = await get('/boardview/' + bodyId);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+        });
+
         test('should return 403 without any boardview permission', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
 
@@ -210,6 +220,21 @@ describe('Cross-event application endpoints', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.data).toEqual([]);
         });
+
+        test('should allow a manager of pilot Summer Universities only', async () => {
+            mock.mockAll({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:manage_summeruniversity:pilot'] },
+                approvePermissions: { noPermissions: true }
+            });
+            const event = await generator.createEvent();
+            await generator.createApplication(event, { user_id: 10 });
+
+            const res = await get('/applications/future/10');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((application) => application.event_id)).toEqual([event.id]);
+        });
     });
 
     describe('GET /applications', () => {
@@ -344,6 +369,50 @@ describe('Cross-event application endpoints', () => {
             const res = await get('/applications');
 
             expect(res.statusCode).toEqual(200);
+        });
+
+        test('should count rejected and cancelled applications in the totals', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication(event, { user_id: 10, status: 'rejected' });
+            await generator.createApplication(event, { user_id: 11, cancelled: true });
+
+            const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_status).toEqual([
+                { type: 'total_applications', value: 2 },
+                { type: 'total_members', value: 2 },
+                { type: 'confirmed', value: 0 }
+            ]);
+        });
+
+        test('should list two Summer Universities with the same name as two entries', async () => {
+            const first = await generator.createEvent({ name: 'Same name' });
+            const second = await generator.createEvent({ name: 'Same name' });
+            await generator.createApplication(first, { user_id: 10 });
+            await generator.createApplication(second, { user_id: 11 });
+
+            const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_event).toEqual([
+                { type: 'Same name', value: 1 },
+                { type: 'Same name', value: 1 }
+            ]);
+        });
+
+        test('should count an applicant of several seasons once, with one of their bodies', async () => {
+            const old = await generator.createEvent({ season: 2025 });
+            const current = await generator.createEvent({ season: 2026 });
+            await generator.createApplication(old, { user_id: 10, body_name: 'AEGEE-Alicante' });
+            await generator.createApplication(current, { user_id: 10, body_name: 'AEGEE-Dresden' });
+
+            const res = await get('/applications');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.by_body).toHaveLength(1);
+            expect(res.body.data.by_body[0].value).toEqual(1);
+            expect(['AEGEE-Alicante', 'AEGEE-Dresden']).toContain(res.body.data.by_body[0].type);
         });
     });
     describe('GET /applications/export', () => {

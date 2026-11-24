@@ -16,6 +16,9 @@ const isValidDay = (value) => typeof value === 'string'
 
 const APPLICATION_STATUSES = ['open', 'closed'];
 
+// The largest Postgres INTEGER: the type of the IDs, and the largest offset and limit.
+const MAX_ID = 2147483647;
+
 const asList = (value) => (Array.isArray(value) ? value : [value]);
 
 // An empty filter (?type=) is no filter, as in the list queries below.
@@ -51,8 +54,7 @@ exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
         where: {},
-        order: [['starts', 'ASC']],
-        select: constants.EVENT_PUBLIC_FIELDS
+        order: [['starts', 'ASC']]
     };
 
     // If search is set, searching for event by name or description case-insensitive.
@@ -81,10 +83,11 @@ exports.getDefaultQuery = (req) => {
     if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
     queryObj.where[Sequelize.Op.and] = dateQuery;
 
-    // If offset is set and is valid, use it.
+    // If offset is set and is valid, use it. Like an invalid one, an offset or a limit above the
+    // integer range is ignored: far beyond it, Postgres answers "bigint out of range".
     if (req.query.offset) {
         const offset = parseInt(req.query.offset, 10);
-        if (!Number.isNaN(offset) && offset >= 0) {
+        if (!Number.isNaN(offset) && offset >= 0 && offset <= MAX_ID) {
             queryObj.offset = offset;
         }
     }
@@ -92,7 +95,7 @@ exports.getDefaultQuery = (req) => {
     // If limit is set and is valid, use it.
     if (req.query.limit) {
         const limit = parseInt(req.query.limit, 10);
-        if (!Number.isNaN(limit) && limit > 0) {
+        if (!Number.isNaN(limit) && limit > 0 && limit <= MAX_ID) {
             queryObj.limit = limit;
         }
     }
@@ -166,9 +169,6 @@ exports.flattenObject = (obj, prefix = '') => {
         return acc;
     }, {});
 };
-
-// The largest Postgres INTEGER, which is the type of the IDs.
-const MAX_ID = 2147483647;
 
 // Figure out if the value is an integer or a string containing only digits, within the ID range
 exports.isNumber = (value) => {
@@ -261,9 +261,6 @@ function hasPermission(permissionsList, permission) {
     const combined = 'global:' + permission;
     return permissionsList.some((held) => held.combined === combined);
 }
-
-// A helpers to determine if the user is member of a body.
-exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includes(bodyId);
 
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions

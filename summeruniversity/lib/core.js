@@ -25,13 +25,35 @@ const makeRequest = (options) => {
     return request(requestOptions);
 };
 
+const getAdminToken = async () => {
+    // Getting access and refresh token using admin credentials.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (authRequest === null || typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    return authRequest.access_token;
+};
+
 const fetchUser = async (user, token) => {
     const userRequest = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user.user_id,
         token
     });
 
-    if (typeof userRequest !== 'object') {
+    if (userRequest === null || typeof userRequest !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userRequest);
     }
 
@@ -50,32 +72,18 @@ const fetchUser = async (user, token) => {
     };
 };
 
-const fetchApplicationUser = async (user) => {
-    // Getting access and refresh token.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
+// Fetches an applicant with the admin token. Pass `token` to reuse one (exports fetch
+// many applicants); without it, the function logs in itself.
+const fetchApplicationUser = async (user, token) => {
+    const adminToken = token || await getAdminToken();
 
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: authRequest.access_token,
+        token: adminToken,
     });
 
-    if (typeof userResponse !== 'object') {
+    if (userResponse === null || typeof userResponse !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userResponse);
     }
 
@@ -89,7 +97,7 @@ const fetchApplicationUser = async (user) => {
 // Returns { body_id, body_name }, or null if core does not know or does not show the body.
 const fetchBody = async (body, token) => {
     // return invalid body as it is, will catch it in Event validation.
-    if (typeof body !== 'object' || typeof body.body_id !== 'number') {
+    if (typeof body !== 'object' || body === null || typeof body.body_id !== 'number') {
         return body;
     }
 
@@ -107,7 +115,7 @@ const fetchBody = async (body, token) => {
 
     const bodyRequest = response.body;
 
-    if (typeof bodyRequest !== 'object') {
+    if (bodyRequest === null || typeof bodyRequest !== 'object') {
         throw new Error('Malformed response when fetching body: ' + bodyRequest);
     }
 
@@ -132,7 +140,7 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
-    if (typeof authRequest !== 'object') {
+    if (authRequest === null || typeof authRequest !== 'object') {
         throw new Error('Malformed response when fetching auth request: ' + authRequest);
     }
 
@@ -149,7 +157,7 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
-    if (typeof membersResponse !== 'object') {
+    if (membersResponse === null || typeof membersResponse !== 'object') {
         throw new Error('Malformed response when fetching members for permission: ' + membersResponse);
     }
 
@@ -158,28 +166,6 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
     }
 
     return membersResponse.data;
-};
-
-const getAdminToken = async () => {
-    // Getting access and refresh token using admin credentials.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth request: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
-    }
-
-    return authRequest.access_token;
 };
 
 module.exports = {

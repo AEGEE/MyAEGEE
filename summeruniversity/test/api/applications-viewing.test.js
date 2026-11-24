@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const constants = require('../../lib/constants');
 const coreUser = require('../assets/oms-core-valid.json').data;
 const applicant = require('../assets/oms-core-valid-not-superadmin.json').data;
 
@@ -84,6 +85,15 @@ describe('Applications listing, viewing and exporting', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.length).toEqual(1);
+        });
+
+        test('should return 403 for the applicant', async () => {
+            mock.mockAll(applicantMocks);
+            await generator.createApplication(event, { user_id: applicant.id });
+
+            const res = await get('/single/' + event.id + '/applications');
+
+            expect(res.statusCode).toEqual(403);
         });
     });
 
@@ -224,6 +234,16 @@ describe('Applications listing, viewing and exporting', () => {
             expect(res.body.message).toContain('Malformed response when fetching user');
         });
 
+        test('should return 500 naming the malformed response if core returns an empty body for the applicant', async () => {
+            mock.mockAll({ member: { emptyResponse: true } });
+            const application = await generator.createApplication(event, { user_id: 10 });
+
+            const res = await get('/single/' + event.id + '/applications/' + application.id);
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Malformed response when fetching user: null');
+        });
+
         test('should return 500 if the core login fails', async () => {
             mock.mockAll({ login: { badResponse: true } });
             const application = await generator.createApplication(event, { user_id: 10 });
@@ -242,6 +262,19 @@ describe('Applications listing, viewing and exporting', () => {
 
             expect(res.statusCode).toEqual(500);
             expect(res.body.message).toContain('Error fetching auth request');
+        });
+
+        test('should show an application with the applicant data to a manager who is not an organizer', async () => {
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const application = await generator.createApplication(otherEvent, { user_id: 10 });
+
+            const res = await get('/single/' + otherEvent.id + '/applications/' + application.id);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.gender).toEqual(coreUser.gender);
+            expect(res.body.data.date_of_birth).toEqual(coreUser.date_of_birth);
+            expect(res.body.data.notification_email).toEqual(coreUser.notification_email);
+            expect(res.body.permissions.view_application).toEqual(true);
         });
     });
 
@@ -297,12 +330,33 @@ describe('Applications listing, viewing and exporting', () => {
             expect(byName.Pending[emailIndex]).toEqual(coreUser.notification_email);
         });
 
+        test('should log in to core once for the whole export', async () => {
+            const logins = mock.captureRequests(mock.mockAll().omsCoreLoginStub);
+            for (const userId of [10, 11, 12]) {
+                await generator.createApplication(event, { user_id: userId });
+            }
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(logins.length).toEqual(1);
+        });
+
         test('should export an empty sheet if there are no applications', async () => {
             const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
 
             expect(res.statusCode).toEqual(200);
             const [sheet] = xlsx.parse(res.body);
             expect(sheet.data.length).toEqual(1);
+        });
+
+        test('should not log in to core for an export without applications', async () => {
+            const logins = mock.captureRequests(mock.mockAll().omsCoreLoginStub);
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(logins.length).toEqual(0);
         });
 
         // BUG: the event name is put into the Content-Disposition header unescaped, so
@@ -333,6 +387,40 @@ describe('Applications listing, viewing and exporting', () => {
 
             expect(res.statusCode).toEqual(500);
         });
+
+        test('should return 403 for the applicant', async () => {
+            mock.mockAll(applicantMocks);
+            await generator.createApplication(event, { user_id: applicant.id });
+
+            const res = await get('/single/' + event.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(403);
+        });
+
+        test('should export to a manager who is not an organizer, without rejected and cancelled applications', async () => {
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            await generator.createApplication(otherEvent, { user_id: 10, first_name: 'Pending' });
+            await generator.createApplication(otherEvent, { user_id: 11, first_name: 'Rejected', status: 'rejected' });
+            await generator.createApplication(otherEvent, { user_id: 12, first_name: 'Cancelled', cancelled: true });
+
+            const res = await get('/single/' + otherEvent.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            const [sheet] = xlsx.parse(res.body);
+            const [headers, ...rows] = sheet.data;
+            expect(rows.map((row) => row[headers.indexOf('First name')])).toEqual(['Pending']);
+        });
+
+        test('should export only the fixed columns for an event without questions', async () => {
+            const noQuestions = await generator.createEvent({ questions: [] });
+            await generator.createApplication(noQuestions, { user_id: 10, answers: [] });
+
+            const res = await get('/single/' + noQuestions.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            const [sheet] = xlsx.parse(res.body);
+            expect(sheet.data[0]).toEqual(Object.values(constants.APPLICATION_FIELD_NAMES));
+        });
     });
     describe('board comment', () => {
         const ownApplicantMocks = { ...applicantMocks, member: { data: applicant } };
@@ -342,18 +430,20 @@ describe('Applications listing, viewing and exporting', () => {
             ownEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
         });
 
-        const call = (subpath, method, body) => request({
+        // `variant`: the schema the caller's answer must match (see openApiVariant).
+        const call = (subpath, method, body, variant) => request({
             path: '/single/' + ownEvent.id + '/applications' + subpath,
             method,
             headers: { 'X-Auth-Token': 'foobar' },
-            body
+            body,
+            openApiVariant: variant
         });
 
         test('should not show the board comment to the applicant', async () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me', 'GET');
+            const res = await call('/me', 'GET', undefined, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.user_id).toEqual(applicant.id);
@@ -363,7 +453,7 @@ describe('Applications listing, viewing and exporting', () => {
         test('should show the board comment to someone who may list the applications', async () => {
             const application = await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/' + application.id, 'GET');
+            const res = await call('/' + application.id, 'GET', undefined, 'ApplicationWithUser');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.board_comment).toEqual('Board only');
@@ -373,7 +463,7 @@ describe('Applications listing, viewing and exporting', () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me', 'PUT', { motivation: 'Changed' });
+            const res = await call('/me', 'PUT', { motivation: 'Changed' }, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data).not.toHaveProperty('board_comment');
@@ -383,7 +473,7 @@ describe('Applications listing, viewing and exporting', () => {
             mock.mockAll(ownApplicantMocks);
             await generator.createApplication(ownEvent, { user_id: applicant.id, body_id: 1, board_comment: 'Board only' });
 
-            const res = await call('/me/cancelled', 'PUT', { cancelled: true });
+            const res = await call('/me/cancelled', 'PUT', { cancelled: true }, 'ApplicationWithUserForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.cancelled).toEqual(true);
@@ -393,7 +483,7 @@ describe('Applications listing, viewing and exporting', () => {
         test('should not show the board comment in the answer to the application', async () => {
             mock.mockAll(ownApplicantMocks);
 
-            const res = await call('', 'POST', generator.generateApplicationBody(ownEvent, { body_id: 1 }));
+            const res = await call('', 'POST', generator.generateApplicationBody(ownEvent, { body_id: 1 }), 'ApplicationForApplicant');
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.user_id).toEqual(applicant.id);

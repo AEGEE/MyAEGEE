@@ -302,8 +302,8 @@ describe('Events creation', () => {
         ['ends', { starts: generator.daysFromNow(70), ends: generator.daysFromNow(60) }, 'Event cannot start after or at the same time it ends.'],
         ['fee', { fee: -1 }, 'Event fee cannot be negative'],
         ['optional_fee', { optional_fee: 51 }, 'Optional fee cannot be more than 50 euros.'],
-        ['type', { type: 'nwm' }, 'SU type should be one of these: normal, pilot.'],
-        ['theme_category', { theme_category: 'unknown' }, null],
+        ['type', { type: 'nwm' }, 'SU type should be one of these: regular, pilot.'],
+        ['theme_category', { theme_category: 'unknown' }, 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.'],
         ['theme', { theme: '' }, 'Theme explanation should be set.'],
         ['theme_implementation', { theme_implementation: '' }, 'Explanation of theme implementation should be set.'],
         ['programme_suct', { programme_suct: 'not a url' }, 'The link should be a valid URL starting with http:// or https://.'],
@@ -324,10 +324,23 @@ describe('Events creation', () => {
         ['accommodation_type', { accommodation_type: '' }, 'The type of accommodation should be set.'],
         ['agreed_to_su_terms', { agreed_to_su_terms: false }, 'You should agree to the SU terms.'],
         ['max_participants', { max_participants: -5 }, 'Max amount of participants cannot be negative'],
-        ['questions', { questions: 'not an array' }, 'Event questions should be an array of strings.'],
+        ['questions', { questions: 'not an array' }, 'Event questions should be a list.'],
         ['course_level', { course_level: 'expert' }, 'SU course level should be one of these: beginner, intermediate, advanced.'],
         ['locations', { locations: [] }, null],
         ['organizers', { organizers: [{ user_id: user.id, role: 'main_coordinator' }] }, null],
+        ['organizers', { organizers: 'abc' }, null],
+        ['organizers', { organizers: [...generator.generateOrganizers().slice(0, 3), { user_id: 1004 }] }, null],
+        ['email', { email: '' }, 'Email should be given.'],
+        ['starts', { starts: 'garbage' }, 'Event start date should be valid.'],
+        ['fee', { fee: 'abc' }, 'Event fee should be valid.'],
+        ['optional_fee', { optional_fee: -1 }, 'Optional fee cannot be negative'],
+        ['organizing_bodies', { organizing_bodies: 'abc' }, 'Organizing bodies should be an array.'],
+        ['organizing_bodies', { organizing_bodies: [{ body_id: 'x' }] }, 'body_id should be an integer.'],
+        ['cooperation', { cooperation: 'abc' }, 'Cooperation should be an array.'],
+        ['cooperation', { cooperation: [5] }, 'Body is malformed.'],
+        ['locations', { locations: [{ name: 'Alicante', position: { lat: 1 } }] }, null],
+        ['learning_objectives', { learning_objectives: [] }, 'Learning objectives should be set.'],
+        ['pax_confirmation', { pax_confirmation: 'x' }, 'Pax confirmation should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.'],
     ])('should return 422 on an invalid %s', async (field, overrides, message) => {
         const res = await createEvent(generator.generateEventBody(overrides));
 
@@ -339,6 +352,91 @@ describe('Events creation', () => {
         }
         expect(await Event.count()).toEqual(0);
         expect(mails.length).toEqual(0);
+    });
+
+    test.each(['name', 'video', 'accommodation_type'])('should return 422 if %s is longer than its column (255 characters)', async (field) => {
+        const res = await createEvent(generator.generateEventBody({ [field]: 'x'.repeat(256) }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toContain('This text should be at most 255 characters long.');
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should answer with the stored values, not the ones sent', async () => {
+        const res = await createEvent(generator.generateEventBody({ max_participants: '20' }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.max_participants).toEqual(20);
+    });
+
+    test('should return 422 with both messages if the email is empty', async () => {
+        const res = await createEvent(generator.generateEventBody({ email: '' }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.email).toEqual(['Email should be given.', 'Given email is not valid.']);
+    });
+
+    test('should return 422 if the programme for SUCT is missing', async () => {
+        const body = generator.generateEventBody();
+        delete body.programme_suct;
+
+        const res = await createEvent(body);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('programme_suct');
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test.each([
+        ['organizing_bodies', 'body_name should be a string.', 123],
+        ['organizing_bodies', 'body_name should not be empty.', ' '],
+        ['cooperation', 'body_name should be a string.', 123],
+        ['cooperation', 'body_name should not be empty.', ' ']
+    ])('should return 422 on %s if core gives a body name that is not usable (%s)', async (field, message, name) => {
+        mails = mock.captureMails(mock.mockAll({ body: { data: { id: 34, name } } }).omsMailerStub);
+        // Every body is fetched from core, so the organizing body gets the same name.
+        const res = await createEvent(generator.generateEventBody({ cooperation: [{ body_id: 34 }] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors[field]).toEqual([message]);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should return 422 if a cooperation body is null', async () => {
+        const res = await createEvent(generator.generateEventBody({ cooperation: [null] }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.cooperation).toEqual(['Body is malformed.']);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should return 422 if a manager gives a season that is not a number', async () => {
+        const res = await createEvent(generator.generateEventBody({ season: 'abc' }));
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.season).toEqual(['Season should be a year.']);
+        expect(await Event.count()).toEqual(0);
+    });
+
+    test('should let a manager choose a season that has no season record', async () => {
+        const res = await createEvent(generator.generateEventBody({ season: 1999 }));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data.season).toEqual(1999);
+    });
+
+    test.each([
+        ['a date', '2000-01-01T00:00:00.000Z'],
+        ['not a date', 'garbage']
+    ])('should ignore created_at and updated_at in the body (%s)', async (_name, value) => {
+        const before = Date.now();
+
+        const res = await createEvent(generator.generateEventBody({ created_at: value, updated_at: value }));
+
+        expect(res.statusCode).toEqual(201);
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.created_at.getTime()).toBeGreaterThanOrEqual(before);
+        expect(event.updated_at.getTime()).toBeGreaterThanOrEqual(before);
     });
 
     test('should accept social media links', async () => {
@@ -419,6 +517,20 @@ describe('Events creation', () => {
 
         expect(res.statusCode).toEqual(500);
         expect(res.body.message).toContain('Malformed response when fetching auth request');
+    });
+
+    test.each([
+        ['the core login', { login: { emptyResponse: true } }, 'Malformed response when fetching auth request: null'],
+        ['an organizer', { member: { emptyResponse: true } }, 'Malformed response when fetching user: null'],
+        ['a body', { body: { emptyResponse: true } }, 'Malformed response when fetching body: null']
+    ])('should return 500 naming the malformed response if core returns an empty body for %s', async (_, options, message) => {
+        mails = mock.captureMails(mock.mockAll(options).omsMailerStub);
+
+        const res = await createEvent(generator.generateEventBody());
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.message).toEqual(message);
+        expect(await Event.count()).toEqual(0);
     });
 
     test('should return 500 and not create the event if fetching an organizer fails', async () => {

@@ -182,6 +182,31 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(403);
         });
+
+        test('should return 422 on a non-boolean value', async () => {
+            await application.update({ confirmed: true });
+
+            const res = await put('/attended', { attended: 'yes' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.attended).toContain('The value should be true or false.');
+        });
+
+        test('should allow a manager who is not an organizer', async () => {
+            mockAndCapture({});
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const other = await generator.createApplication(otherEvent, { user_id: 10, confirmed: true });
+
+            const res = await request({
+                path: '/single/' + otherEvent.id + '/applications/' + other.id + '/attended',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body: { attended: true }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.attended).toEqual(true);
+        });
     });
 
     describe('PUT /cancelled', () => {
@@ -233,6 +258,28 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
+        });
+
+        test('should let the applicant take back their cancellation while the applications are open', async () => {
+            mockAndCapture(applicantMocks);
+            await application.update({ cancelled: true });
+
+            const res = await put('/cancelled', { cancelled: false }, 'me');
+
+            expect(res.statusCode).toEqual(200);
+            await application.reload();
+            expect(application.cancelled).toEqual(false);
+        });
+
+        test('should not let the applicant cancel an accepted application', async () => {
+            mockAndCapture(applicantMocks);
+            await application.update({ status: 'accepted' });
+
+            const res = await put('/cancelled', { cancelled: true }, 'me');
+
+            expect(res.statusCode).toEqual(403);
+            await application.reload();
+            expect(application.cancelled).toEqual(false);
         });
     });
 
@@ -302,6 +349,35 @@ describe('Applications status changes', () => {
             await application.reload();
             expect(application.status).toEqual('pending');
         });
+
+        test('should move an accepted application back to pending and recount', async () => {
+            await application.update({ status: 'accepted' });
+            await event.update({ accepted_participants: 1 });
+
+            const res = await put('/status', { status: 'pending' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('pending');
+            await event.reload();
+            expect(event.accepted_participants).toEqual(0);
+        });
+
+        test('should return 403 for a board member of the application body who is not an organizer', async () => {
+            mockAndCapture({ mainPermissions: { noPermissions: true } });
+            const otherEvent = await generator.createEvent({ organizers: generator.generateOrganizers(9999) });
+            const other = await generator.createApplication(otherEvent, { user_id: 10, body_id: 34 });
+
+            const res = await request({
+                path: '/single/' + otherEvent.id + '/applications/' + other.id + '/status',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'foobar' },
+                body: { status: 'accepted' }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            await other.reload();
+            expect(other.status).toEqual('pending');
+        });
     });
 
     describe('PUT /comment', () => {
@@ -330,6 +406,20 @@ describe('Applications status changes', () => {
             const res = await put('/comment', { board_comment: 'x' });
 
             expect(res.statusCode).toEqual(403);
+        });
+
+        test('should return 403 with only the global boardview permission', async () => {
+            mockAndCapture({
+                core: { notSuperadmin: true },
+                mainPermissions: { permissions: ['global:approve_members:summeruniversity'] },
+                approvePermissions: { noPermissions: true }
+            });
+
+            const res = await put('/comment', { board_comment: 'x' });
+
+            expect(res.statusCode).toEqual(403);
+            await application.reload();
+            expect(application.board_comment).toEqual(null);
         });
     });
     describe('participant counts and states', () => {

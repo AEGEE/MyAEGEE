@@ -46,6 +46,14 @@ const requireBoolean = (res, body, field) => {
     return true;
 };
 
+// Adds the applicant's details from core, which the application responses include.
+const addApplicantFields = (application, user) => {
+    application.dataValues.gender = user.gender;
+    application.dataValues.date_of_birth = user.date_of_birth;
+    application.dataValues.notification_email = user.notification_email;
+    return application;
+};
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -278,6 +286,10 @@ exports.updateApplication = async (req, res) => {
             });
         }
     });
+
+    // Answer with what was stored: a body id sent as a string is an integer in the database.
+    await req.application.reload();
+    addApplicantFields(req.application, applicant);
 
     return res.json({
         success: true,
@@ -533,15 +545,12 @@ exports.exportAll = async (req, res) => {
 
     const headers = Object.keys(headersNames).map((field) => headersNames[field]);
 
+    // One admin login for the whole export, and none when there is nobody to look up.
+    const adminToken = applications.length > 0 ? await core.getAdminToken() : null;
     applications = await Promise.all(applications
         .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
-
-            application.dataValues.gender = user.gender;
-            application.dataValues.date_of_birth = user.date_of_birth;
-            application.dataValues.notification_email = user.notification_email;
-
-            return application;
+            const user = await core.fetchApplicationUser(application.user_id, adminToken);
+            return addApplicantFields(application, user);
         }));
 
     // TODO: if status != accepted do not return visa fields

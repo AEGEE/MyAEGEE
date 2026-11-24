@@ -7,11 +7,25 @@ const errors = require('./errors');
 const logger = require('./logger');
 const { Application, Event } = require('../models');
 const helpers = require('./helpers');
+const { isPlainObject } = require('./validators');
 const config = require('../config');
 
 const packageInfo = require('../package.json');
 
+// What a core call answers to a request without a token: nobody is logged in.
+const NOT_AUTHENTICATED = { statusCode: 401, body: null };
+
 exports.authenticateUser = async (req, res, next) => {
+    // Without a token there is nobody to ask core about: the caller is anonymous. Public
+    // routes answer as for any anonymous caller (also while core is down), the others 401.
+    if (!req.headers['x-auth-token']) {
+        req.userRequest = NOT_AUTHENTICATED;
+        req.permissionsRequest = NOT_AUTHENTICATED;
+        req.approveRequest = NOT_AUTHENTICATED;
+        req.permissions = helpers.getPermissions();
+        return next();
+    }
+
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
@@ -52,7 +66,7 @@ exports.authenticateUser = async (req, res, next) => {
     // If the service returned faulty answer (either garbage, or HTTP code other than 401),
     // throw an error.
     for (const errorObject of errorObjectsMap) {
-        if (typeof errorObject.object.body !== 'object') {
+        if (errorObject.object.body === null || typeof errorObject.object.body !== 'object') {
             throw new Error(`Malformed response when fetching ${errorObject.name}: ${errorObject.object.body}`);
         }
 
@@ -142,7 +156,68 @@ exports.fetchSingleApplication = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
+// Keys that would reach an object's prototype when the body is copied or merged.
+const PROTOTYPE_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+// The deepest nesting a body may have: an object or list in the body is one level.
+const BODY_DEPTH_MAX = 64;
+
+// The message for the first value of the body that no route can take, or null. Postgres refuses
+// U+0000 in a JSON column, and a deeply nested body made the validation run out of stack. The
+// body is walked with a stack of its own, so that no nesting can overflow this check either.
+// The events service has the same check.
+const findBodyProblem = (body) => {
+    const stack = [[body, 1]];
+    while (stack.length > 0) {
+        const [value, depth] = stack.pop();
+        if (typeof value === 'string' && value.includes('\u0000')) {
+            return 'The body should not contain the character U+0000.';
+        }
+
+        if (typeof value === 'object' && value !== null) {
+            if (depth > BODY_DEPTH_MAX) {
+                return 'The body is nested too deeply.';
+            }
+
+            for (const [key, item] of Object.entries(value)) {
+                stack.push([key, depth], [item, depth + 1]);
+            }
+        }
+    }
+
+    return null;
+};
+
+// A JSON body is an object. bodyParser.json() also takes a list such as [1,2] (in its strict
+// mode it takes nothing but objects and lists), which the handlers read as if it were an
+// object: PUT /single/:id answered 200 and mailed the organizers. The body's own prototype
+// keys are dropped: a __proto__ key made creating a Summer University answer 500. A request
+// without a JSON body (none, or a file upload) has no req.body here and gets an empty one,
+// which the handlers read like any other (POST / without a body answered 500).
+exports.checkJsonBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    if (!isPlainObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    const problem = findBodyProblem(req.body);
+    if (problem) {
+        return errors.makeBadRequestError(res, problem);
+    }
+
+    for (const key of PROTOTYPE_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+            delete req.body[key];
+        }
+    }
+
+    return next();
+};
+
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -164,18 +239,21 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // Body-parser's own refusals (http-errors with a 4xx to show): too large, another charset or
+    // encoding, broken compression.
+    if (err.expose === true && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
+    }
+
     // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
 
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err }, 'Request error');
-    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };
