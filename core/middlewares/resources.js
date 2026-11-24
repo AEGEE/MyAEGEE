@@ -97,7 +97,7 @@ exports.createCategory = async (req, res) => {
 exports.setCategoriesOrder = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
-    const ids = req.body && req.body.ids;
+    const { ids } = req.body;
     const existingIds = (await ResourceCategory.findAll({ attributes: ['id'] })).map((category) => category.id);
     const orderError = getOrderError(ids, existingIds);
     if (orderError) {
@@ -147,7 +147,7 @@ exports.deleteCategory = async (req, res) => {
 exports.setLinksOrder = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
-    const ids = req.body && req.body.ids;
+    const { ids } = req.body;
     const existingIds = (await ResourceLink.findAll({
         attributes: ['id'],
         where: { category_id: req.currentResourceCategory.id }
