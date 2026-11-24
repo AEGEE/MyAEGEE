@@ -36,19 +36,19 @@
                     <tbody>
                       <tr>
                         <th>President</th>
-                        <td>{{ board.president_user ? board.president_user.first_name : 'Deleted' }} {{ board.president_user ? board.president_user.last_name : 'User' }}</td>
+                        <td>{{ board.president_user ? board.president_user.first_name + ' ' + board.president_user.last_name : 'Member not found' }}</td>
                       </tr>
                       <tr>
                         <th>Secretary</th>
-                        <td>{{ board.secretary_user ? board.secretary_user.first_name : 'Deleted' }} {{ board.secretary_user ? board.secretary_user.last_name : 'User' }}</td>
+                        <td>{{ board.secretary_user ? board.secretary_user.first_name + ' ' + board.secretary_user.last_name : 'Member not found' }}</td>
                       </tr>
                       <tr>
                         <th>Treasurer</th>
-                        <td>{{ board.treasurer_user ? board.treasurer_user.first_name : 'Deleted' }} {{ board.treasurer_user ? board.treasurer_user.last_name : 'User' }}</td>
+                        <td>{{ board.treasurer_user ? board.treasurer_user.first_name + ' ' + board.treasurer_user.last_name : 'Member not found' }}</td>
                       </tr>
                       <tr v-for="position in board.other_members" v-bind:key="position.index">
                         <th>{{ position.function }}</th>
-                        <td>{{ position.user ? position.user.first_name : 'Deleted' }} {{ position.user ? position.user.last_name : 'User' }}</td>
+                        <td>{{ position.user ? position.user.first_name + ' ' + position.user.last_name : 'Member not found' }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -133,9 +133,18 @@ export default {
       this.axios.get(this.services['network'] + '/bodies/' + this.$route.params.id + '/boards?sort=start_date&direction=desc').then((response) => {
         this.boards = response.data.data
 
+        // A body without boards gets an empty list: no members to match.
+        if (this.boards.length === 0) {
+          return null
+        }
+
         // Get members of the body
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/members')
       }).then((memberResponse) => {
+        if (!memberResponse) {
+          return
+        }
+
         const members = memberResponse.data.data
         const users = []
         for (const member of members) {
@@ -148,14 +157,11 @@ export default {
           this.$set(board, 'secretary_user', users.find(user => user.id === board.secretary))
           this.$set(board, 'treasurer_user', users.find(user => user.id === board.treasurer))
 
-          for (const position of board.other_members) {
+          for (const position of board.other_members || []) {
             this.$set(position, 'user', users.find(user => user.id === position.user_id))
           }
         }
       }).catch((err) => {
-        if (err.response && err.response.status === 404) {
-          return
-        }
         this.$root.showError('Could not fetch boards', err)
       })
     }

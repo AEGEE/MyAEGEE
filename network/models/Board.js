@@ -16,8 +16,9 @@ const Board = sequelize.define('board', {
         allowNull: false,
         validate: {
             isPast(value) {
-                if (moment().isSameOrBefore(value)) {
-                    throw new Error('Election date should be in the past.');
+                // Compared by day: a board may be entered on its election day.
+                if (moment(value).isAfter(moment(), 'day')) {
+                    throw new Error('Election date should be today or in the past.');
                 }
             },
             notEmpty: { msg: 'Election date should be set.' }
@@ -75,7 +76,25 @@ const Board = sequelize.define('board', {
     },
     other_members: {
         type: Sequelize.JSONB,
-        allowNull: true
+        allowNull: true,
+        validate: {
+            isListOfPositions(value) {
+                if (value === null || value === undefined) {
+                    return;
+                }
+
+                const isPosition = (position) => position !== null
+                    && typeof position === 'object'
+                    && typeof position.function === 'string'
+                    && position.function.trim() !== ''
+                    && Number.isInteger(position.user_id)
+                    && position.user_id > 0;
+
+                if (!Array.isArray(value) || !value.every(isPosition)) {
+                    throw new Error('Other members should be a list of positions, each with a function and a member.');
+                }
+            }
+        }
     },
     message: {
         type: Sequelize.TEXT,

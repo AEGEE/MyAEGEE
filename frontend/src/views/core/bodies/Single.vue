@@ -251,24 +251,24 @@
                 <tr>
                   <th>President</th>
                   <td>
-                    {{ board.president_user.first_name }} {{ board.president_user.last_name }}
+                    {{ board.president_user ? board.president_user.first_name + ' ' + board.president_user.last_name : 'Member not found' }}
                   </td>
                 </tr>
                 <tr>
                   <th>Secretary</th>
                   <td>
-                    {{ board.secretary_user.first_name }} {{ board.secretary_user.last_name }}
+                    {{ board.secretary_user ? board.secretary_user.first_name + ' ' + board.secretary_user.last_name : 'Member not found' }}
                   </td>
                 </tr>
                 <tr>
                   <th>Treasurer</th>
                   <td>
-                    {{ board.treasurer_user.first_name }} {{ board.treasurer_user.last_name }}
+                    {{ board.treasurer_user ? board.treasurer_user.first_name + ' ' + board.treasurer_user.last_name : 'Member not found' }}
                   </td>
                 </tr>
                 <tr v-for="position in board.other_members" v-bind:key="position.index">
                   <th>{{ position.function }}</th>
-                  <td>{{ position.user.first_name }} {{ position.user.last_name }}</td>
+                  <td>{{ position.user ? position.user.first_name + ' ' + position.user.last_name : 'Member not found' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -551,7 +551,7 @@ export default {
                 users.find((user) => user.id === board.treasurer)
               )
 
-              for (const position of board.other_members) {
+              for (const position of board.other_members || []) {
                 this.$set(
                   position,
                   'user',

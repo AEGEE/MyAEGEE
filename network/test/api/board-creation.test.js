@@ -1,3 +1,4 @@
+const http = require('http');
 const { faker } = require('@faker-js/faker');
 const moment = require('moment');
 
@@ -8,6 +9,8 @@ const generator = require('../scripts/generator');
 const { Board } = require('../../models');
 const mailer = require('../../lib/mailer');
 const cron = require('../../lib/cron');
+const config = require('../../config');
+const logger = require('../../lib/logger');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
 
@@ -135,6 +138,36 @@ describe('Board creation', () => {
         expect(res.body.errors).toHaveProperty('elected_date');
     });
 
+    test('should accept a board elected today whose term starts today', async () => {
+        const today = moment().format('YYYY-MM-DD');
+        const board = generator.generateBoard({ elected_date: today, start_date: today });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.elected_date).toEqual(today);
+        expect(res.body.data.start_date).toEqual(today);
+    });
+
+    test('should fail if elected_date is tomorrow', async () => {
+        const board = generator.generateBoard({ elected_date: moment().add(1, 'day').format('YYYY-MM-DD') });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('elected_date');
+    });
+
     test('should fail if start_date is not set', async () => {
         const board = generator.generateBoard({ start_date: null });
 
@@ -184,6 +217,106 @@ describe('Board creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
         expect(res.body.errors).toHaveProperty('image_id');
+    });
+
+    test.each(['president', 'secretary', 'treasurer'])('should fail with 422 if the %s is not set', async (field) => {
+        const board = generator.generateBoard({ [field]: null });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty(field);
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if the president is not a number', async () => {
+        const board = generator.generateBoard({ president: 'abc' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('president');
+    });
+
+    test.each([
+        ['not a list', 'x'],
+        ['a list of strings', ['x']],
+        ['a member without a user', [{ function: 'Comms' }]],
+        ['a member without a function', [{ user_id: 1 }]],
+        ['a member with a user that is not a number', [{ function: 'Comms', user_id: 'abc' }]]
+    ])('should fail with 422 if other_members is %s', async (_, otherMembers) => {
+        const board = generator.generateBoard({ other_members: otherMembers });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('other_members');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 404 if core does not know the body', async () => {
+        mock.mockAll({ body: { notFound: true } });
+        const board = generator.generateBoard();
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if core does not know an officer', async () => {
+        mock.mockAll({ member: { notFound: [404] } });
+        const board = generator.generateBoard({ president: 1, secretary: 404, treasurer: 2 });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['secretary']);
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if core does not know one of the other members', async () => {
+        mock.mockAll({ member: { notFound: [99] } });
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: 99 }] });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['other_members']);
+        expect(await Board.count()).toEqual(0);
     });
 
     test('should fail if core user request returns net error', async () => {
@@ -301,7 +434,26 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('president');
         expect(res.body.data).toHaveProperty('secretary');
         expect(res.body.data).toHaveProperty('treasurer');
-        expect(res.body.data).not.toHaveProperty('other_members');
+        expect(res.body.data.other_members).toEqual(null);
+    });
+
+    test('should return the created board with its id', async () => {
+        const board = generator.generateBoard({ name: 'Board 2026' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const boardFromDB = await Board.findOne({ where: { name: 'Board 2026' } });
+        expect(res.body.data.id).toEqual(boardFromDB.id);
+        expect(res.body.data.body_id).toEqual(body.id);
+        expect(res.body.data).toHaveProperty('created_at');
+        expect(res.body.data).toHaveProperty('updated_at');
     });
 
     test('should succeed for more positions if everything is okay', async () => {
@@ -387,6 +539,86 @@ describe('Board creation', () => {
             expect(welcomeMails()).toHaveLength(0);
             const board = await Board.findOne({ where: { body_id: body.id } });
             expect(board.new_board_email_sent_at).toBeNull();
+        });
+    });
+
+    describe('mail to NetCom', () => {
+        let errorSpy;
+        const netcomMailErrors = () => errorSpy.mock.calls.filter(([, message]) => message === 'Could not send the new board mail to NetCom');
+
+        beforeEach(() => {
+            errorSpy = jest.spyOn(logger, 'error');
+        });
+
+        afterEach(() => {
+            errorSpy.mockRestore();
+        });
+
+        const createBoard = () => request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: generator.generateBoard({ start_date: moment().add(1, 'days').format('YYYY-MM-DD') }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('should send it with the new board', async () => {
+            const sendMailSpy = jest.spyOn(mailer, 'sendMail');
+
+            try {
+                const res = await createBoard();
+
+                expect(res.statusCode).toEqual(200);
+                const netcomMails = sendMailSpy.mock.calls.filter(([options]) => options.template === 'network_new_board.html');
+                expect(netcomMails).toHaveLength(1);
+                expect(netcomMails[0][0].to).toEqual(config.new_board_notifications);
+            } finally {
+                sendMailSpy.mockRestore();
+            }
+        });
+
+        test('should still create the board if the mailer fails, and log the failure without personal data', async () => {
+            mock.cleanAll();
+            mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+
+            const res = await createBoard();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            const board = await Board.findByPk(res.body.data.id);
+            expect(board).not.toBeNull();
+
+            expect(netcomMailErrors()).toHaveLength(1);
+            const [logged] = netcomMailErrors()[0];
+            expect(Object.keys(logged).sort()).toEqual(['board_id', 'err']);
+            expect(logged.board_id).toEqual(board.id);
+            expect(logged.err.message).toEqual('Unsuccessful response from mailer (status 500)');
+        });
+
+        test('should still create the board if the mailer does not answer in time', async () => {
+            // A local mailer that accepts the request and never answers.
+            const server = http.createServer(() => {});
+            await new Promise((resolve) => { server.listen(0, '127.0.0.1', resolve); });
+            const { url, port, timeout } = config.mailer;
+
+            try {
+                config.mailer.url = 'http://127.0.0.1';
+                config.mailer.port = server.address().port;
+                config.mailer.timeout = 50;
+
+                const res = await createBoard();
+
+                expect(res.statusCode).toEqual(200);
+                const board = await Board.findByPk(res.body.data.id);
+                expect(board).not.toBeNull();
+                expect(netcomMailErrors()).toHaveLength(1);
+                expect(netcomMailErrors()[0][0].err.message).toEqual('The mailer did not answer within 50 ms');
+            } finally {
+                config.mailer.url = url;
+                config.mailer.port = port;
+                config.mailer.timeout = timeout;
+                server.closeAllConnections();
+                await new Promise((resolve) => { server.close(resolve); });
+            }
         });
     });
 });

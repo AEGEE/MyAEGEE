@@ -20,7 +20,9 @@ const config = {
         },
         mailer: {
             url: 'http://mailer',
-            port: 4000
+            port: 4000,
+            // Milliseconds to wait for the mailer's answer.
+            timeout: 10000
         },
         new_board_notifications: [
             'netcommies@aegee.eu'
