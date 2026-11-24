@@ -84,11 +84,11 @@
             </b-table-column>
 
             <b-table-column label="Edit" centered :visible="!!can.manage_question_lines" v-slot="props">
-              <button type="button" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</button>
+              <button type="button" class="button is-warning is-small" @click.stop="openEditQuestionLineModal(props.row)">Edit</button>
             </b-table-column>
 
             <b-table-column label="Delete" centered :visible="!!can.manage_question_lines" v-slot="props">
-              <button type="button" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</button>
+              <button type="button" class="button is-danger is-small" @click.stop="askDeleteQuestionLine(props.row, props.index)">Delete</button>
             </b-table-column>
 
             <b-table-column label="Ask a question" centered v-slot="props">
@@ -204,7 +204,10 @@ export default {
       this.axios.delete(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then(() => {
         this.$root.showSuccess('Question line is deleted.')
         this.questionLines.splice(index, 1)
-        this.selectedQuestionLine = this.questionLines[index]
+        // The questions of another line stay in view.
+        if (this.selectedQuestionLine === questionLine) {
+          this.selectedQuestionLine = null
+        }
       }).catch((err) => this.$root.showError('Could not delete question line', err))
     },
     askDeleteQuestion (questionLine, question, questionIndex) {
