@@ -33,6 +33,7 @@
           <button
             type="button"
             class="button is-small"
+            :ref="'move-section-' + section.id + '-up'"
             :disabled="isSaving || sectionIndex === 0"
             :aria-label="'Move section ' + section.name + ' up'"
             @click="moveSection(sectionIndex, -1)"
@@ -42,6 +43,7 @@
           <button
             type="button"
             class="button is-small"
+            :ref="'move-section-' + section.id + '-down'"
             :disabled="isSaving || sectionIndex === sections.length - 1"
             :aria-label="'Move section ' + section.name + ' down'"
             @click="moveSection(sectionIndex, 1)"
@@ -83,6 +85,7 @@
             <button
               type="button"
               class="button is-small"
+              :ref="'move-link-' + link.id + '-up'"
               :disabled="isSaving || linkIndex === 0"
               :aria-label="'Move link ' + link.title + ' up'"
               @click="moveLink(section, linkIndex, -1)"
@@ -92,6 +95,7 @@
             <button
               type="button"
               class="button is-small"
+              :ref="'move-link-' + link.id + '-down'"
               :disabled="isSaving || linkIndex === section.links.length - 1"
               :aria-label="'Move link ' + link.title + ' down'"
               @click="moveLink(section, linkIndex, 1)"
@@ -184,21 +188,32 @@ export default {
           this.isSaving = false
         })
     },
+    // The buttons are off while a move is saved, which takes the focus away from the one that
+    // was pressed. Once they are on again, it goes back to that button, or to the other one of
+    // the same item when the item can't move further that way.
+    focusMoveButton (item, direction) {
+      const pressed = this.$refs[item + (direction < 0 ? '-up' : '-down')]
+      const other = this.$refs[item + (direction < 0 ? '-down' : '-up')]
+      const button = [].concat(pressed, other).find(candidate => candidate && !candidate.disabled)
+      if (button) button.focus()
+    },
     moveSection (index, direction) {
+      const section = this.sections[index]
       const ids = swappedIds(this.sections, index, direction)
       return this.save(
         () => this.axios.put(this.services['core'] + '/resources/categories/order', { ids }),
         null,
         'Could not move the section'
-      )
+      ).then(() => this.$nextTick()).then(() => this.focusMoveButton('move-section-' + section.id, direction))
     },
     moveLink (section, index, direction) {
+      const link = section.links[index]
       const ids = swappedIds(section.links, index, direction)
       return this.save(
         () => this.axios.put(this.services['core'] + '/resources/categories/' + section.id + '/links/order', { ids }),
         null,
         'Could not move the link'
-      )
+      ).then(() => this.$nextTick()).then(() => this.focusMoveButton('move-link-' + link.id, direction))
     },
     askDeleteSection (section) {
       this.$buefy.dialog.confirm({
