@@ -20,13 +20,6 @@
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
         </div>
 
-        <div class="field">
-          <label class="label">Joinable?
-            <input type="checkbox" class="checkbox" v-model="circle.joinable" />
-          </label>
-          <p class="help is-danger" v-if="errors.joinable">{{ errors.joinable.join(', ')}}</p>
-        </div>
-
         <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">

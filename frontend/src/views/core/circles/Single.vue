@@ -21,10 +21,6 @@
                   <td v-if="!circle.body"><i>This circle is not associated to a body</i></td>
                 </tr>
                 <tr>
-                  <th scope="row">Joinable?</th>
-                  <td>{{ circle.joinable ? 'Yes' : 'No' }}</td>
-                </tr>
-                <tr>
                   <th scope="row">Parent circle</th>
                   <td v-if="circle.parent_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: circle.parent_circle.id } }">{{ circle.parent_circle.name }} </router-link></td>
                   <td v-if="!circle.parent_circle"><i>This circle is a toplevel circle</i></td>
@@ -87,10 +83,6 @@
           Add member
         </button>
 
-        <a class="button is-info" @click="joinCircle()" v-if="can.join && !isMember">
-          Join circle
-        </a>
-
         <button type="button" class="button is-danger" @click="askLeaveCircle()" v-if="isMember">
           Leave circle
         </button>
@@ -117,7 +109,6 @@ export default {
         id: null,
         name: '',
         description: '',
-        joinable: false,
         parent_circle: null,
         child_circles: [],
         permissions: [],
@@ -135,7 +126,6 @@ export default {
       can: {
         edit: false,
         delete: false,
-        join: false,
         viewMembers: false,
         addMembers: false
       }
@@ -175,23 +165,6 @@ export default {
         this.$router.push({ name: 'oms.circles.list' })
       }).catch((err) => this.$root.showError('Could not delete circle', err))
     },
-    joinCircle () {
-      this.isLoading = true
-      this.axios.post(this.services['core'] + '/circles/' + this.circle.id + '/members').then(() => {
-        this.$root.showSuccess('Successfully joined circle.')
-        this.can.join = false
-        this.isMember = true
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-
-        if (err.response && err.response.data && err.response.data.errors && 'circle_membership_unique' in err.response.data.errors) {
-          this.$root.showError('Could not join circle: you are already a member of this circle.')
-        } else {
-          this.$root.showError('Could not join circle', err)
-        }
-      })
-    },
     askLeaveCircle () {
       this.$buefy.dialog.confirm({
         title: 'Leave circle',
@@ -206,7 +179,6 @@ export default {
       this.isLoading = true
       this.axios.delete(this.services['core'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully left circle.')
-        this.can.join = true
         this.isMember = false
         this.isLoading = false
       }).catch((err) => {
@@ -227,7 +199,6 @@ export default {
 
         this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:circle'))
         this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
-        this.can.join = this.permissions.some(permission => permission.combined.endsWith('join:circle')) && this.circle.joinable
         this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:circle'))
 
         // A person has the right to add members in 2 cases: this person has add_member:circle permission and
