@@ -136,7 +136,9 @@ export default {
           this.$set(antenna, 'body', bodies.data.data.find(b => b.id === antenna.body_id))
         }
         this.exportVotesTXT = prepareExportTxt(this.antennae, this.$route.params.id)
-      }).catch(console.error)
+      }).catch((err) => {
+        this.$root.showError('Could not fetch bodies', err)
+      })
     }).catch((err) => {
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
