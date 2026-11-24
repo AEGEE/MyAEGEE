@@ -250,7 +250,7 @@ describe('Request bodies', () => {
         test.each(REFUSING_FIELDS)('%s refuses a %s that is not an ISO date', async (title, field) => {
             const route = ROUTES.find((item) => item.title === title);
 
-            for (const value of [1, '1', '2001', '12/31/2001', '31-12-2001', 'January 1, 2001', '2001-13-45', '2001-02-30', '2001-01-01 10:00', true]) {
+            for (const value of [1, '1', '2001', '12/31/2001', '31-12-2001', 'January 1, 2001', '2001-13-45', '2001-02-30', '0000-01-01', '0000-01-01T00:00:00Z', '2001-01-01 10:00', true]) {
                 const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
 
                 expect({ value, status: res.statusCode, fields: Object.keys(res.body.errors || {}) })
