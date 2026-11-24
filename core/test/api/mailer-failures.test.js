@@ -7,11 +7,14 @@ const mock = require('../scripts/mock');
 const { startSilentServer } = require('../scripts/silent-server');
 const Bugsnag = require('../../lib/bugsnag');
 const logger = require('../../lib/logger');
+const metrics = require('../../middlewares/metrics');
 const {
     User,
     BodyMembership,
+    CircleMembership,
     JoinRequest,
     MailChange,
+    MailConfirmation,
     PasswordReset
 } = require('../../models');
 
@@ -56,6 +59,48 @@ describe('A mailer that fails', () => {
 
         expectMailError(res);
         expect(await User.count()).toEqual(0);
+    });
+
+    // The member is stored and committed before the confirmation is mailed. When the mail
+    // fails, all of the signup is deleted again, so the same member can sign up once more.
+    test('signing up leaves nothing behind, and the same member can sign up again', async () => {
+        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+        const errorSpy = jest.spyOn(logger, 'error');
+        try {
+            const body = await generator.createBody();
+            const shadowCircle = await generator.createCircle({ body_id: body.id });
+            await body.update({ shadow_circle_id: shadowCircle.id });
+            const campaign = await generator.createCampaign({ active: true, autojoin_body_id: body.id });
+            const member = generator.generateUser();
+            const failuresBefore = (await metrics.signupMailFailures.get()).values[0].value;
+
+            const res = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
+
+            expectMailError(res);
+            expect(await User.count()).toEqual(0);
+            expect(await MailConfirmation.count()).toEqual(0);
+            expect(await BodyMembership.count()).toEqual(0);
+            expect(await CircleMembership.count()).toEqual(0);
+            expect((await metrics.signupMailFailures.get()).values[0].value).toEqual(failuresBefore + 1);
+            expect(notifySpy).toHaveBeenCalledTimes(1);
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ campaign_id: campaign.id, user_id: expect.any(Number), err: expect.any(Error) }),
+                'Could not send the confirmation of a signup'
+            );
+
+            mock.cleanAll();
+            mock.mockAll();
+            const again = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
+
+            expect(again.statusCode).toEqual(200);
+            expect(again.body.data.username).toEqual(member.username.toLowerCase());
+            expect(await User.count()).toEqual(1);
+            expect(await MailConfirmation.count()).toEqual(1);
+            expect(await BodyMembership.count()).toEqual(1);
+        } finally {
+            notifySpy.mockRestore();
+            errorSpy.mockRestore();
+        }
     });
 
     test('requesting an email change answers 503 and keeps no request', async () => {
@@ -282,6 +327,42 @@ describe('A mailer that fails', () => {
             expect(silentMailer.requests).toEqual(1);
             expect(await PasswordReset.count()).toEqual(0);
         });
+
+        // A signup is stored and committed before its mail is sent, so a mailer that hangs
+        // holds no database connection.
+        test('signups do not hold up the requests of other members', async () => {
+            config.mailer.timeout = 5000;
+            const campaign = await generator.createCampaign({ active: true });
+            const otherUser = await generator.createUser();
+            const otherToken = await generator.createAccessToken(otherUser);
+
+            const signups = Promise.all([1, 2, 3, 4, 5, 6].map(() => request({
+                path: '/signup/' + campaign.url,
+                method: 'POST',
+                body: generator.generateUser()
+            })));
+
+            // Until all six signups wait for the mailer.
+            for (let i = 0; i < 100 && silentMailer.requests < 6; i++) {
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+            }
+
+            const started = Date.now();
+            const res = await request({
+                path: '/members/me',
+                headers: { 'X-Auth-Token': otherToken.value }
+            });
+            const took = Date.now() - started;
+
+            expect(res.statusCode).toEqual(200);
+            expect(silentMailer.requests).toEqual(6);
+            expect(took).toBeLessThan(1000);
+
+            const answers = await signups;
+            expect(answers.map((answer) => answer.statusCode)).toEqual([503, 503, 503, 503, 503, 503]);
+            expect(answers.map((answer) => answer.body)).toEqual(Array(6).fill(MAIL_ERROR));
+            expect(await User.count()).toEqual(1);
+        }, 20000);
 
         // A reset is stored and committed before its mail is sent, so a mailer that hangs
         // holds no database connection and no lock.
