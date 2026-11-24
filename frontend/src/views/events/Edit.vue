@@ -867,7 +867,7 @@ export default {
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
-      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, comment: org.comment }))
 
       const promise = this.$route.params.id
         ? this.axios.put(this.services['events'] + '/single/' + this.$route.params.id, eventToSave)
