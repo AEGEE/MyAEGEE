@@ -231,15 +231,15 @@ exports.lookupUser = async (req, res) => {
 
 exports.getUsersEmail = async (req, res) => {
     const correctQuery = req.query.query && typeof req.query.query === 'string' && req.query.query.trim().length > 0 && req.query.query.match(/^\d+(?:,\d+)*$/g);
+    // Each id also has to be one that a member can have.
+    const userIds = correctQuery ? req.query.query.split(',').map(helpers.parseId) : [];
 
-    if (!correctQuery) {
+    if (!correctQuery || userIds.includes(null)) {
         return errors.makeBadRequestError(res, 'Query should be a string of 1 id or multiple ids seperated by commas.');
     }
 
-    const userIds = req.query.query.split(',');
-
     // Without the permission, a member can only look up their own id.
-    const onlyOwnId = userIds.every((id) => Number(id) === req.user.id);
+    const onlyOwnId = userIds.every((id) => id === req.user.id);
     if (!req.permissions.hasPermission('global:mail:member') && !onlyOwnId) {
         return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
     }
