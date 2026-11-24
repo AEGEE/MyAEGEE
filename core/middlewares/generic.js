@@ -98,6 +98,12 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // Handling a body the JSON parser could not read (too large, an unknown charset or
+    // encoding, a compressed body that does not decompress): its own status, a fixed text.
+    if (err.expose && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
+    }
+
     // Handling input that a helper refused (like a field that a list can't be sorted by)
     if (err instanceof errors.BadRequestError) {
         return errors.makeBadRequestError(res, err.message);
