@@ -663,6 +663,23 @@ describe('Applications listing', () => {
             expect(res.body.meta.count).toEqual(2);
         });
 
+        test('should answer an empty page for a limit of zero', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createApplication({ user_id: 2, first_name: 'first', last_name: 'last' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/all?limit=0',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.data).toEqual([]);
+            expect(res.body.meta.count).toEqual(2);
+        });
+
         test('should use offset if provided', async () => {
             const event = await generator.createEvent();
             await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);

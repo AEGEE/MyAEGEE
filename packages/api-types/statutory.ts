@@ -3433,6 +3433,7 @@ export interface components {
         };
     };
     parameters: {
+        /** @description A limit of 0 answers an empty page with the count of all rows. */
         Limit: number;
         Offset: number;
         /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
@@ -4153,6 +4154,7 @@ export interface operations {
     listApplications: {
         parameters: {
             query?: {
+                /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
                 /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
@@ -4223,6 +4225,7 @@ export interface operations {
     listJuridicalApplications: {
         parameters: {
             query?: {
+                /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
                 /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
@@ -4261,6 +4264,7 @@ export interface operations {
     listIncomingApplications: {
         parameters: {
             query?: {
+                /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
                 /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
@@ -4299,6 +4303,7 @@ export interface operations {
     listNetworkApplications: {
         parameters: {
             query?: {
+                /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
                 /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */

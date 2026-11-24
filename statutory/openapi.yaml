@@ -2003,7 +2003,7 @@ components:
       name: X-Auth-Token
       description: Access token issued by core. Other services check it against core on every request.
   parameters:
-    Limit: {name: limit, in: query, schema: {type: integer, minimum: 1}}
+    Limit: {name: limit, in: query, description: 'A limit of 0 answers an empty page with the count of all rows.', schema: {type: integer, minimum: 0}}
     Offset: {name: offset, in: query, schema: {type: integer, minimum: 0}}
     ApplicationSort:
       name: sort
