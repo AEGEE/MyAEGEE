@@ -4,7 +4,7 @@ const config = require('../../config');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
-const { RefreshToken, MailChange, User } = require('../../models');
+const { RefreshToken, MailChange, PasswordReset, User } = require('../../models');
 
 const BUSY = {
     success: false,
@@ -107,6 +107,29 @@ describe('Waiting for another request', () => {
 
         const again = await request({ path: '/confirm-email-change', method: 'POST', body: { token: mailChange.value } });
         expect(again.statusCode).toEqual(200);
+    });
+
+    // The notice that the email changed goes out only once nothing else can make the change fail.
+    test('POST /confirm-email-change sends no notice when a password reset of the member is locked', async () => {
+        const mails = mock.captureMails();
+        const user = await generator.createUser({ email: 'current@example.com' });
+        const reset = await generator.createPasswordReset(user);
+        const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+        await PasswordReset.findByPk(reset.id, { lock: holder.LOCK.UPDATE, transaction: holder });
+
+        const res = await request({ path: '/confirm-email-change', method: 'POST', body: { token: mailChange.value } });
+
+        expect(res.statusCode).toEqual(503);
+        expect(res.body).toEqual(BUSY);
+        expect(mails).toEqual([]);
+
+        await holder.rollback();
+        expect((await User.findByPk(user.id)).email).toEqual('current@example.com');
+        expect(await MailChange.count({ where: { user_id: user.id } })).toEqual(1);
+
+        const again = await request({ path: '/confirm-email-change', method: 'POST', body: { token: mailChange.value } });
+        expect(again.statusCode).toEqual(200);
+        expect(mails.map((mail) => mail.template)).toEqual(['mail_change_notice.html']);
     });
 
     test('a request that does not have to wait is not affected', async () => {
