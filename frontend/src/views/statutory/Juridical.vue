@@ -16,7 +16,8 @@
             <div class="control">
               <button type="button" @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</button>
             </div>
-            <div class="control">
+            <!-- Only Agorae have votes. -->
+            <div class="control" v-if="event.type === 'agora'">
               <router-link :to="{ name: 'oms.statutory.votes', params: { id: this.$route.params.id } }" class="button is-primary">View amount of votes</router-link>
             </div>
           </div>
