@@ -72,6 +72,8 @@ export default {
   },
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       season: {
         year: null,
         name: ''
@@ -149,9 +151,14 @@ export default {
       }
       this.isLoading = false
     }).catch((err) => {
+      if (this.left) return
+
       this.$root.showError('Could not fetch season', err)
       this.$router.push({ name: 'oms.summeruniversity.seasons' })
     })
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>
