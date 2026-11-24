@@ -21,6 +21,12 @@ const NAMES: Record<number, [string, string]> = { 2: ['Alex', 'Member'], 7: ['Ol
 const showForm = (api: ApiMock) => {
     api.json('GET summeruniversity /seasons', ok(SEASONS));
     api.json('GET core /bodies', ok(BODIES));
+    // The map's style, as showMap() answers it, so the map doesn't fail to load in the tests that
+    // are not about it.
+    api.url('GET', 'https://api.maptiler.com/maps/basic/style.json*', {
+        json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#e8e8e8' } }] },
+        delayMs: 300
+    }, { optional: 'the map asks for its style only once it starts, which a short test does not wait for' });
 };
 
 const EDITED = suEvent({

@@ -41,6 +41,12 @@ const showForm = (api: ApiMock, me: Member | null, su: SuEvent = SECOND, permiss
     api.json('GET summeruniversity /seasons', ok(SEASONS));
     api.json('GET summeruniversity /single/:id', ok(su, { permissions }));
     organizerLookup(api, me);
+    // The map's style, as showMap() answers it, so the map doesn't fail to load in the tests that
+    // are not about it.
+    api.url('GET', 'https://api.maptiler.com/maps/basic/style.json*', {
+        json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#e8e8e8' } }] },
+        delayMs: 300
+    }, { optional: 'the map asks for its style only once it starts, which a short test does not wait for' });
 };
 
 const answerSave = (api: ApiMock) => {
@@ -415,6 +421,7 @@ test.describe('Summer University second submission editor', () => {
         api.on('GET summeruniversity /seasons', { abort: 'failed' });
         api.json('GET summeruniversity /single/:id', ok(SECOND, { permissions: suOrganizerPermissions('first approval') }));
         organizerLookup(api, me);
+        showMap(api);
         await page.goto('/summeruniversity/lake-su/edit_second');
 
         await expect(toast(page, 'Could not fetch seasons: Network Error')).toBeVisible();
