@@ -308,6 +308,22 @@ describe('User activation', () => {
             expect(userFromDb.active).toEqual(true);
         });
 
+        // A suspended member is not logged in, so whoever reaches the route is active already.
+        test('should answer activating yourself without changing anything', async () => {
+            const { user, token } = await createSuspender();
+
+            for (const id of [user.id, 'me']) {
+                const res = await setActive(token, id, true);
+
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.success).toEqual(true);
+                expect(res.body.data.id).toEqual(user.id);
+            }
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
         test('should refuse a superadmin suspending themselves', async () => {
             const admin = await generator.createUser({ superadmin: true });
             const token = await generator.createAccessToken(admin);
