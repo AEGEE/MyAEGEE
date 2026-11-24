@@ -63,10 +63,11 @@
               :aria-describedby="'stats-' + chart.key + '-data'" />
           </div>
           <div class="content" v-if="chart.key === 'by-body'">
-            <div class="tags">
+            <div class="tags" role="list" aria-label="Bodies">
               <span
                 v-for="(body, index) in stats.by_body"
                 v-bind:key="index"
+                role="listitem"
                 class="tag"
                 :style="{ 'background-color': index >= colors.length ? '' : colors[index], color: index >= tagTextColors.length ? '' : tagTextColors[index] }">
                 {{ body.body ? body.body.name : body.type }} ({{ body.value }})
