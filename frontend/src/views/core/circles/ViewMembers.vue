@@ -147,6 +147,7 @@ export default {
 
         const index = this.members.findIndex(m => m.id === membership.id)
         this.members.splice(index, 1)
+        this.total -= 1
       }).catch((err) => this.$root.showError('Could not delete member', err))
     },
     refetch () {
