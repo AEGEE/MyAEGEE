@@ -1636,13 +1636,36 @@ jobs:
           name: Run statutory tests
           working_directory: ~/project/statutory
           command: |
-            TEST=$(circleci tests glob "test/**/*.js" | circleci tests split --split-by=timings)
-            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+            mkdir -p ~/shard
+            TEST=$(circleci tests glob "test/**/*.test.js" | circleci tests split --split-by=timings)
+            OPENAPI_HITS_FILE=$HOME/shard/openapi-hits-$CIRCLE_NODE_INDEX.txt \
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- \
+              --reporters=default --reporters=jest-junit --coverageThreshold='{}'
+            cp coverage/coverage-final.json ~/shard/coverage-$CIRCLE_NODE_INDEX.json
+      - persist_to_workspace:
+          root: ~/shard
+          paths: [.]
       - codecov/upload
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  statutory-coverage:
+    docker:
+      - image: cimg/node:26.13.1
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/statutory
+          override-ci-command: npm ci --legacy-peer-deps
+      - attach_workspace:
+          at: ~/shard
+      - run: node packages/backend-test-utils/check-coverage.js statutory --expect 4 ~/shard/coverage-*.json
+      - run: node packages/backend-test-utils/unexercised.js statutory ~/shard/openapi-hits-*.txt
+      - run:
+          name: Every coverage ignore has a reason
+          command: "! grep -rnE 'istanbul ignore (next|if|else|file) *(\\*/|$)' statutory/lib statutory/models"
   statutory-build:
     docker:
       - image: cimg/base:2026.11
@@ -2463,6 +2486,8 @@ workflows:
   statutory-test:
     jobs:
       - statutory-test
+      - statutory-coverage:
+          requires: [statutory-test]
   statutory-docker-build-and-push:
     jobs:
       - statutory-docker-build-and-push:
