@@ -13,6 +13,7 @@
               <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
             </select>
           </div>
+          <p class="help is-danger" v-if="errors.body_id">{{ errors.body_id.join(', ') }}</p>
         </div>
 
         <event-no-body-notification v-show="bodies.length == 0" />
@@ -275,6 +276,7 @@ import sortBodies from '../../methods/sort-bodies'
 
 // The fields that show statutory's reasons under them.
 const FIELDS_WITH_ERRORS = [
+  'body_id',
   'date_of_birth',
   'member_since',
   'nationality',
@@ -378,10 +380,11 @@ export default {
         if (err.response && err.response.status === 422) { // validation errors
           this.$set(this, 'errors', err.response.data.errors)
 
-          // Reasons for none of the fields (a second candidature for the position) are only
-          // in the message.
-          if (!Object.keys(this.errors).some((key) => FIELDS_WITH_ERRORS.includes(key))) {
-            return this.$root.showError('Some of the candidate data is invalid', err)
+          // Reasons that belong to no field of the form (a second candidature for the
+          // position) are in the message, also when fields have reasons of their own.
+          const other = Object.keys(this.errors).filter((key) => !FIELDS_WITH_ERRORS.includes(key))
+          if (other.length > 0) {
+            return this.$root.showError(`Some of the candidate data is invalid: ${other.map((key) => this.errors[key].join(', ')).join('; ')}`)
           }
 
           return this.$root.showError('Some of the candidate data is invalid.')
