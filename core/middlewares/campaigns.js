@@ -10,8 +10,7 @@ const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const { sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
-const logger = require('../lib/logger');
-const Bugsnag = require('../lib/bugsnag');
+const { reportMailFailure } = require('../lib/mail-failures');
 const metrics = require('./metrics');
 
 exports.registerUser = async (req, res) => {
@@ -60,9 +59,8 @@ exports.registerUser = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error({ err, user_id: user.id, campaign_id: campaign.id }, 'Could not send the confirmation of a signup');
+        reportMailFailure(err, 'Could not send the confirmation of a signup', { user_id: user.id, campaign_id: campaign.id });
         metrics.signupMailFailures.inc();
-        Bugsnag.notify(err);
 
         // A member who cannot confirm their address is of no use: the signup is undone, so that
         // the same username and address can sign up again. The circle membership that joining

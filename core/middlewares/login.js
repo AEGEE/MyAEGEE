@@ -5,9 +5,8 @@ const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
-const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
-const Bugsnag = require('../lib/bugsnag');
+const { reportMailFailure } = require('../lib/mail-failures');
 const metrics = require('./metrics');
 const constants = require('../lib/constants');
 const config = require('../config');
@@ -246,9 +245,11 @@ const sendPasswordReset = async (email) => {
     } catch (err) {
         // Nobody is waiting for the result anymore, so a failure only shows up here:
         // in the log, in the error tracker and in the counter on /metrics.
-        logger.error({ err, user_id: user ? user.id : null }, 'Could not send a password reset');
+        reportMailFailure(err, 'Could not send a password reset', {
+            user_id: user ? user.id : null,
+            password_reset_id: reset ? reset.id : null
+        });
         metrics.passwordResetFailures.inc();
-        Bugsnag.notify(err);
 
         // A reset whose mail did not go out is of no use.
         if (reset) {

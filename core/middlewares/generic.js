@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
+const { reportMailFailure } = require('../lib/mail-failures');
 const {
     User,
     AccessToken,
@@ -92,6 +93,19 @@ exports.healthcheck = (req, res) => {
 // The query is left out: it is the client's input, and can carry a token.
 exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl.split('?')[0]);
 
+// The ids of what a request is about, as far as the routes found it: who sent it, the member,
+// the body and the join request.
+const requestIds = (req) => {
+    const ids = {
+        user_id: req.user && req.user.id,
+        member_id: req.currentUser && req.currentUser.id,
+        body_id: req.currentBody && req.currentBody.id,
+        join_request_id: req.currentJoinRequest && req.currentJoinRequest.id
+    };
+
+    return Object.fromEntries(Object.entries(ids).filter(([, id]) => id !== undefined));
+};
+
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
     // Handling invalid JSON
@@ -112,7 +126,7 @@ exports.errorHandler = (err, req, res, next) => {
 
     // Handling a mail that could not be sent: the route rolled back, so trying again may work
     if (errors.isMailError(err)) {
-        logger.error({ err }, 'Could not send a mail');
+        reportMailFailure(err, 'Could not send a mail', requestIds(req));
         return errors.makeMailError(res);
     }
 

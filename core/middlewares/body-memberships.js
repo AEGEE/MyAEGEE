@@ -10,8 +10,7 @@ const { sequelize, Sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
-const logger = require('../lib/logger');
-const Bugsnag = require('../lib/bugsnag');
+const { reportMailFailure } = require('../lib/mail-failures');
 const config = require('../config');
 
 exports.listAllMemberships = async (req, res) => {
@@ -252,8 +251,7 @@ const notifyWorkspaceAdminsIfLastBody = async (userId) => {
             },
         });
     } catch (err) {
-        logger.error({ err, user_id: userId }, 'Could not tell the Workspace administrators about a member without a body');
-        Bugsnag.notify(err);
+        reportMailFailure(err, 'Could not tell the Workspace administrators about a member without a body', { user_id: userId });
     }
 };
 

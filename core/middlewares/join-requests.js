@@ -3,7 +3,7 @@ const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const logger = require('../lib/logger');
-const Bugsnag = require('../lib/bugsnag');
+const { reportMailFailure } = require('../lib/mail-failures');
 const mailer = require('../lib/mailer');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
@@ -93,8 +93,11 @@ exports.createJoinRequest = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error({ err, body_id: req.currentBody.id, join_request_id: request.id }, 'Could not tell the board about a join request');
-        Bugsnag.notify(err);
+        reportMailFailure(err, 'Could not tell the board about a join request', {
+            user_id: req.user.id,
+            body_id: req.currentBody.id,
+            join_request_id: request.id
+        });
     }
 
     return res.json({

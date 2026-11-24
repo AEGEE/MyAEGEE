@@ -13,6 +13,12 @@ const { createMailError } = require('./errors');
  */
 module.exports.sendMail = async (options) => {
     const { timeout } = config.mailer;
+    // Every error names the template, so that a failure can be told apart without an address.
+    const fail = (message, cause) => {
+        const err = createMailError(message, cause);
+        err.template = options.template;
+        return err;
+    };
     let response;
 
     try {
@@ -33,21 +39,21 @@ module.exports.sendMail = async (options) => {
     } catch (err) {
         // A mailer that hangs must not hold the request, and the database transaction around it, for longer.
         if (err.name === 'TimeoutError') {
-            throw createMailError(`No response from mailer within ${timeout} ms`, err);
+            throw fail(`No response from mailer within ${timeout} ms`, err);
         }
 
-        throw createMailError('Could not reach the mailer', err);
+        throw fail('Could not reach the mailer', err);
     }
 
     const mailerBody = response.body;
 
     // The messages carry the status only: the mailer's error text can name a recipient.
     if (!mailerBody || typeof mailerBody !== 'object') {
-        throw createMailError(`Malformed response from mailer (status ${response.statusCode})`);
+        throw fail(`Malformed response from mailer (status ${response.statusCode})`);
     }
 
     if (!mailerBody.success) {
-        throw createMailError(`Unsuccessful response from mailer (status ${response.statusCode})`);
+        throw fail(`Unsuccessful response from mailer (status ${response.statusCode})`);
     }
 
     return mailerBody;
