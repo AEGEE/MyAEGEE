@@ -267,7 +267,9 @@ export default {
         parent_circle_id: this.circle.id
       }).then(() => {
         this.autoComplete.childCircles.loading = false
-        this.circle.child_circles.push(circle)
+        if (!this.circle.child_circles.some(child => child.id === circle.id)) {
+          this.circle.child_circles.push(circle)
+        }
 
         this.$root.showSuccess('Child circle is added.')
       }).catch((err) => {
