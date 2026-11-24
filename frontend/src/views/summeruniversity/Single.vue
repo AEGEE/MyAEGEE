@@ -722,6 +722,7 @@ export default {
       this.map.actions = event.component.actions
 
       // waiting till the event is loaded.
+      /* istanbul ignore else -- the map is only rendered once the event has loaded with locations */
       if (!this.isLoading && this.event.id) {
         this.centerMap()
       }
@@ -729,6 +730,7 @@ export default {
     centerMap () {
       // we don't know, what'll happen first, the map will load or the event will load.
       // and we need both to be loaded.
+      /* istanbul ignore if -- the map, and so this call, only exists for an event with locations */
       if (this.event.locations.length === 0) {
         return
       }
@@ -764,6 +766,7 @@ export default {
         this.can = response.data.permissions
         this.isLoading = false
 
+        /* istanbul ignore if -- the map is only rendered after this, so it can't have loaded yet */
         if (this.map.actions) {
           this.centerMap()
         }

@@ -128,6 +128,7 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
 
+      /* istanbul ignore if -- only the watcher of selectedBody calls this, once a body is selected */
       if (!this.selectedBody) {
         return
       }

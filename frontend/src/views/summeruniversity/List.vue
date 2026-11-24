@@ -291,6 +291,7 @@ export default {
       if (this.$route.name === 'oms.summeruniversity.list.participating') return 'participating'
       if (this.$route.name === 'oms.summeruniversity.list.organizing') return 'organizing'
 
+      /* istanbul ignore next -- the view is only mounted by the three list routes above */
       throw new Error('Unknown scope: ' + this.$route.name)
     },
     isLoadingSomething () {

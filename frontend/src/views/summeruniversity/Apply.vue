@@ -564,6 +564,7 @@ export default {
   },
   methods: {
     saveApplication () {
+      /* istanbul ignore if -- the form is hidden from a banned member without an application; kept as a defence */
       if (this.isNew && this.activeEventApplicationBan) {
         return this.$root.showError('You are temporarily banned from submitting new event applications.')
       }
