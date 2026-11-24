@@ -46,4 +46,37 @@ describe('Event rules', () => {
             expect((await Event.findByPk(event.id)).publication_date).toEqual(published);
         });
     });
+
+    describe('the search', () => {
+        test.each(['50%', 'item_1', 'a\\b'])('of the event list finds %s as it is written', async (search) => {
+            const found = await generator.createEvent({ name: `Find ${search} here`, description: 'other' });
+            await generator.createEvent({ name: 'Find 500 or item11 or ab here', description: 'other' });
+
+            const res = await request({
+                path: '/',
+                query: { search },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((event) => event.id)).toEqual([found.id]);
+        });
+
+        test.each(['50%', 'item_1', 'a\\b'])('of the application lists finds %s as it is written', async (search) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const found = await generator.createApplication({ first_name: `Find ${search} here` }, event);
+            await generator.createApplication({ first_name: 'Find 500 or item11 or ab here' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/all',
+                query: { query: search },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((application) => application.id)).toEqual([found.id]);
+        });
+    });
 });
