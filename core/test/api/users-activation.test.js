@@ -38,11 +38,12 @@ describe('User activation', () => {
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser();
 
         await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
-            path: '/members/' + user.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: 'aaa' }
@@ -58,11 +59,12 @@ describe('User activation', () => {
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser();
 
-        await generator.createPermission({ scope: 'local', action: 'update_active', object: 'user' });
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
-            path: '/members/' + user.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -92,7 +94,7 @@ describe('User activation', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should work with local permission', async () => {
+    test('should fail with only the local permission, for a member of the same body', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
@@ -111,11 +113,11 @@ describe('User activation', () => {
             body: { active: false }
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.active).toEqual(false);
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Permission global:update_active:user is required, but not present.');
+
+        const userFromDb = await User.findByPk(otherUser.id);
+        expect(userFromDb.active).toEqual(true);
     });
 
     test('should fail for other person without permission', async () => {
@@ -200,7 +202,7 @@ describe('User activation', () => {
         });
 
         expect(res.statusCode).toEqual(403);
-        expect(res.body.message).toEqual('Permission update_active:user is required, but not present.');
+        expect(res.body.message).toEqual('Permission global:update_active:user is required, but not present.');
 
         const userFromDb = await User.findByPk(otherUser.id);
         expect(userFromDb.active).toEqual(true);
@@ -262,4 +264,5 @@ describe('User activation', () => {
         });
         expect(renewal.statusCode).toEqual(403);
     });
+
 });
