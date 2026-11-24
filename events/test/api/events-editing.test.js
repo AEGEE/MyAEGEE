@@ -308,6 +308,107 @@ describe('Events editing', () => {
         });
     });
 
+    // The edit form sets the application period of an event without applications to "now" until
+    // one minute before the start on every save. Once the event has started, that period ends
+    // before it starts; it means nothing for such an event, so the checks of the application
+    // dates do not apply to it.
+    describe('events without applications', () => {
+        const DAY = 24 * 60 * 60 * 1000;
+        const MINUTE = 60 * 1000;
+        const inDays = (days) => new Date(Date.now() + days * DAY);
+
+        // An online event without applications, last saved three days before `startsIn` from now.
+        const createWithoutApplications = (startsIn, endsIn) => {
+            const starts = inDays(startsIn);
+            return generator.createEvent({
+                organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }],
+                method: 'online',
+                has_applications: false,
+                application_starts: new Date(starts.getTime() - 3 * DAY),
+                application_ends: new Date(starts.getTime() - MINUTE),
+                starts,
+                ends: inDays(endsIn)
+            });
+        };
+
+        const get = (id) => request({ path: '/single/' + id, method: 'GET', headers: { 'X-Auth-Token': 'blablabla' } });
+        const edit = (id, body) => request({ path: '/single/' + id, method: 'PUT', headers: { 'X-Auth-Token': 'blablabla' }, body });
+
+        // What the edit form sends: the event as loaded, the bodies and organizers by id, and the
+        // application period rewritten for an event without applications.
+        const formPayload = (loaded, changes) => {
+            const form = { ...loaded, ...changes };
+            form.organizing_bodies = form.organizing_bodies.map((body) => ({ body_id: body.body_id }));
+            form.organizers = form.organizers.map((organizer) => ({ user_id: organizer.user_id }));
+            if (!form.has_applications) {
+                form.application_starts = new Date().toISOString();
+                form.application_ends = new Date(form.starts).getTime() - MINUTE;
+            }
+            return form;
+        };
+
+        test.each([
+            ['started yesterday', -1, 2],
+            ['ended yesterday', -3, -1]
+        ])('should save an event without applications that %s with the form\'s payload', async (_name, startsIn, endsIn) => {
+            const running = await createWithoutApplications(startsIn, endsIn);
+            const loaded = await get(running.id);
+
+            const res = await edit(running.id, formPayload(loaded.body.data, { description: 'A report of the event' }));
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Event.findByPk(running.id)).description).toEqual('A report of the event');
+        });
+
+        test('should still check that an event without applications ends after it starts', async () => {
+            const running = await createWithoutApplications(-1, 2);
+            const loaded = await get(running.id);
+
+            const res = await edit(running.id, formPayload(loaded.body.data, { ends: inDays(-2).toISOString() }));
+
+            expect(res.statusCode).toEqual(422);
+            expect(Object.keys(res.body.errors)).toEqual(['ends']);
+        });
+
+        test('should check the application dates again when such an event takes applications', async () => {
+            const running = await createWithoutApplications(-1, 2);
+            // As a save from the form after the start leaves it: the period ends before it starts.
+            await running.update({ application_starts: new Date() }, { validate: false });
+
+            const res = await edit(running.id, { has_applications: true });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('application_ends');
+            expect((await Event.findByPk(running.id)).has_applications).toEqual(false);
+        });
+
+        test('should check the application dates of a started event with applications as before', async () => {
+            const running = await generator.createEvent({
+                organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }],
+                application_starts: inDays(-10),
+                application_ends: inDays(-5),
+                starts: inDays(-1),
+                ends: inDays(2)
+            });
+
+            const res = await edit(running.id, { application_starts: new Date().toISOString() });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('application_ends');
+        });
+
+        test('should not show an event without applications as open for applications', async () => {
+            const future = await createWithoutApplications(10, 12);
+            await future.update({ application_starts: inDays(-1), status: 'published' });
+
+            const res = await get(future.id);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.application_status).toEqual('closed');
+            expect(res.body.permissions.apply).toEqual(false);
+        });
+    });
+
     describe('organizers outside the organizing bodies', () => {
         let cultural;
 
