@@ -190,14 +190,18 @@ exports.mockCoreMember = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
-    // Members whose id is listed in notFound are unknown to core; the others exist.
-    if (options.notFound) {
+    // Members whose id is listed in notFound are unknown to core, those in forbidden are
+    // members the caller may not see (core answers 403); the others exist.
+    if (options.notFound || options.forbidden) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/members\/[0-9].*/)
-            .reply((uri) => (options.notFound.includes(Number(uri.split('/').pop()))
-                ? [404, { success: false, message: 'User is not found.' }]
-                : [200, { success: true, data: user }]));
+            .reply((uri) => {
+                const id = Number(uri.split('/').pop());
+                if ((options.notFound || []).includes(id)) return [404, { success: false, message: 'User is not found.' }];
+                if ((options.forbidden || []).includes(id)) return [403, { success: false, message: 'You are not allowed to see this user.' }];
+                return [200, { success: true, data: user }];
+            });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)

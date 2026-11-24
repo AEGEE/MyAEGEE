@@ -197,7 +197,7 @@ describe('Board editing', () => {
     });
 
     describe('members of the board', () => {
-        test('should fail with 422 if core does not know an officer the request leaves unchanged', async () => {
+        test('should save a board whose officer core no longer knows, if the request leaves it in place', async () => {
             mock.mockAll({ member: { notFound: [404] } });
             const board = await generator.createBoard({ president: 1, secretary: 404, treasurer: 2, message: 'some text' });
 
@@ -205,15 +205,33 @@ describe('Board editing', () => {
                 path: '/bodies/' + board.body_id + '/boards/' + board.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'blablabla' },
-                body: { message: 'a new text' }
+                body: { secretary: 404, message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.secretary).toEqual(404);
+            expect(boardFromDB.message).toEqual('a new text');
+        });
+
+        test('should look up a stored member who moves to another position', async () => {
+            mock.mockAll({ member: { notFound: [404] } });
+            const board = await generator.createBoard({ president: 1, secretary: 2, treasurer: 404 });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { president: 404, treasurer: 1 }
             });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.success).toEqual(false);
-            expect(res.body.errors).toEqual({ secretary: ['The member is not found.'] });
+            expect(res.body.errors).toEqual({ president: ['The member is not found.'] });
 
             const boardFromDB = await Board.findByPk(board.id);
-            expect(boardFromDB.message).toEqual('some text');
+            expect(boardFromDB.president).toEqual(1);
+            expect(boardFromDB.treasurer).toEqual(404);
         });
 
         test('should fail with 422 if core does not know the officer the request sets', async () => {
@@ -294,13 +312,13 @@ describe('Board editing', () => {
 
         test('should fail with 500 and keep the board if core fails to answer for a member', async () => {
             mock.mockAll({ member: { netError: true } });
-            const board = await generator.createBoard({ message: 'some text' });
+            const board = await generator.createBoard({ president: 1, message: 'some text' });
 
             const res = await request({
                 path: '/bodies/' + board.body_id + '/boards/' + board.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'blablabla' },
-                body: { message: 'a new text' }
+                body: { president: 7, message: 'a new text' }
             });
 
             expect(res.statusCode).toEqual(500);
@@ -308,6 +326,94 @@ describe('Board editing', () => {
 
             const boardFromDB = await Board.findByPk(board.id);
             expect(boardFromDB.message).toEqual('some text');
+        });
+    });
+
+    // An old board keeps its former members: people who have left the body, whom a board
+    // manager of the body may no longer see in core (core answers 403), or whose account
+    // is gone (404). Only the members a request adds or changes are looked up.
+    describe.each([
+        ['a board manager of the body', { mainPermissions: { viewOnly: true } }],
+        ['a global board manager', {}]
+    ])('a board with former members, edited by %s', (_, permissions) => {
+        const FORMER = 403;
+        const DELETED = 404;
+
+        beforeEach(() => {
+            mock.mockAll({ ...permissions, member: { forbidden: [FORMER], notFound: [DELETED] } });
+        });
+
+        const createOldBoard = () => generator.createBoard({
+            body_id: body.id,
+            president: FORMER,
+            secretary: 2,
+            treasurer: DELETED,
+            other_members: [{ function: 'Comms', user_id: FORMER }],
+            message: 'some text'
+        });
+
+        const edit = (board, fields) => request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: fields
+        });
+
+        test('should save the board unchanged, as the edit dialog sends it', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, {
+                body_id: body.id,
+                elected_date: board.elected_date,
+                start_date: board.start_date,
+                end_date: null,
+                president: FORMER,
+                secretary: 2,
+                treasurer: DELETED,
+                other_members: [{ function: 'Comms', user_id: FORMER }],
+                name: null,
+                message: 'some text'
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ president: FORMER, treasurer: DELETED, other_members: [{ function: 'Comms', user_id: FORMER }] });
+        });
+
+        test('should save a change of the message only', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, { message: 'a new text' });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Board.findByPk(board.id)).message).toEqual('a new text');
+        });
+
+        test('should keep another member whose function changes', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, { other_members: [{ function: 'Communications', user_id: FORMER }] });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Board.findByPk(board.id)).other_members).toEqual([{ function: 'Communications', user_id: FORMER }]);
+        });
+
+        test('should save a secretary replaced by a member core knows', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, { secretary: 5 });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Board.findByPk(board.id)).secretary).toEqual(5);
+        });
+
+        test('should refuse an unknown member added to another position', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, { other_members: [{ function: 'Comms', user_id: FORMER }, { function: 'PR', user_id: DELETED }] });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ other_members: ['The member of the position PR is not found.'] });
+            expect((await Board.findByPk(board.id)).other_members).toEqual([{ function: 'Comms', user_id: FORMER }]);
         });
     });
 });
