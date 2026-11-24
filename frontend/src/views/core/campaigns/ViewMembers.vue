@@ -1,6 +1,7 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
+      <h1 class="title" v-if="campaign.name">{{ campaign.name }}</h1>
       <h2 class="subtitle">Campaign submissions</h2>
 
       <div class="field">
