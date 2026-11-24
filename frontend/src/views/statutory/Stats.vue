@@ -38,14 +38,6 @@
               <th scope="row">Arrived:</th>
               <td>{{ stats.numbers.attended }}</td>
             </tr>
-            <!--<tr>
-              <th scope="row">JC registered:</th>
-              <td>{{ stats.numbers.registered }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Departed:</th>
-              <td>{{ stats.numbers.departed }}</td>
-            </tr>-->
           </tbody>
         </table>
 
@@ -76,7 +68,7 @@
                 v-for="(body, index) in stats.by_body"
                 v-bind:key="index"
                 class="tag"
-                :style="{ 'background-color': index >= colors.length ? '' : colors[index], color: index >= backgroundColors.length ? '' : backgroundColors[index] }">
+                :style="{ 'background-color': index >= colors.length ? '' : colors[index], color: index >= tagTextColors.length ? '' : tagTextColors[index] }">
                 {{ body.body ? body.body.name : body.type }} ({{ body.value }})
               </span>
             </div>
@@ -212,6 +204,7 @@ export default {
           cancelled: 0
         }
       },
+      // The colour of each slice and of the tag of its body, and the text colour of that tag.
       colors: [
         '#3E95CD', '#8E5EA2', '#3CBA9F', '#E8C3B9', '#C45850',
         '#FFB6B2', '#E5E6BB', '#E6BDE5', '#FFF0B2', '#B2D6FF',
@@ -219,7 +212,7 @@ export default {
         '#C51C13', '#A0C514', '#931991', '#FBBA00', '#1468C5',
         '#7A1E16', '#647A16', '#70086E', '#CF9800', '#163E7A'
       ],
-      backgroundColors: [ // using black for all of them except for those when it's unreadable
+      tagTextColors: [ // using black for all of them except for those when it's unreadable
         '#FFFFFF', '#FFFFFF', '#000000', '#000000', '#000000',
         '#000000', '#000000', '#000000', '#000000', '#000000',
         '#000000', '#000000', '#000000', '#000000', '#000000',
@@ -230,19 +223,12 @@ export default {
         'Meat-eater': '#C45850',
         'Vegetarian': '#C2DE5D',
         'Vegan': '#A0C514'
-      },
-      can: {
-        apply: false
-      },
-      errors: {},
-      isLoading: false,
-      isSaving: false
+      }
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     quorum () {
       const localsMap = {}
@@ -351,7 +337,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
 
@@ -389,11 +374,8 @@ export default {
           this.$set(stat, 'body', body)
         }
       }
-
-      this.isLoading = false
     })
       .catch((err) => {
-        this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Application is not found')
         } else {

@@ -9,9 +9,7 @@
         <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
           <b-table
             :data="applications"
-            :loading="isLoading"
-            default-sort="statutory_id"
-            default-sort-direction="desc">
+            :loading="isLoading">
             <b-table-column field="statutory_id" label="#" numeric v-slot="props">
               {{ props.row.statutory_id }}
             </b-table-column>
@@ -70,8 +68,7 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     calculateClassForTag (value) {

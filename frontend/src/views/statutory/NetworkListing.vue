@@ -61,7 +61,7 @@
 
             <b-table-column label="Set memberslist status" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingOnMemberslist }">
-                <select v-model="props.row.newIsOnMemberslist" :aria-label="'Members list status of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)">
+                <select v-model="props.row.newIsOnMemberslist" :aria-label="'Members list status of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxOnMemberslist(props.row)">
                   <option :value="true">Is on memberslist</option>
                   <option :value="false">Is not on memberslist</option>
                 </select>
@@ -93,19 +93,15 @@ export default {
         ariaCurrentLabel: 'Current page'
       },
       applications: [],
-      event: {
-        questions: []
-      },
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
       query: '',
       limit: 50,
       offset: 0,
       total: 0,
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   watch: {
@@ -115,8 +111,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     queryObject () {
       const queryObj = {
@@ -133,7 +128,7 @@ export default {
     calculateClassForMemberslist (pax) {
       return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
     },
-    switchPaxRegistered (pax) {
+    switchPaxOnMemberslist (pax) {
       pax.isSavingOnMemberslist = true
       const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/is_on_memberslist'
 
@@ -157,11 +152,7 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-        this.event = event.data.data
-
-        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject })
-      }).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false

@@ -70,7 +70,7 @@
 
             <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
-                <select v-model="props.row.newRegistered" :aria-label="'JC registered of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
+                <select v-model="props.row.newRegistered" :aria-label="'JC registered of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
@@ -112,7 +112,7 @@ export default {
       },
       applications: [],
       event: {
-        questions: []
+        type: null
       },
       query: '',
       limit: 50,
@@ -121,16 +121,14 @@ export default {
       total: 0,
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     queryObject () {
       const queryObj = {
