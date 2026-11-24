@@ -2,14 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Manage members list</div>
+        <h1 class="title">Manage members list</h1>
 
         <div class="field" v-if="boardBodies.length > 0">
-          <label>Select the body to manage members list for:</label>
+          <label for="memberslist-body">Select the body to manage members list for:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="memberslist-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -26,7 +26,7 @@
         <div v-show="selectedBody && canEditMemberslist(selectedBody)">
           <div class="field is-grouped">
             <div class="control">
-              <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
+              <button type="button" class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
             <!-- Disabled for now, probably will be enabled again later, therefore not deleted. -->
             <!-- <div class="control">
@@ -46,11 +46,12 @@
             </div> -->
 
             <div class="control">
-              <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
-              <button class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
+              <button type="button" class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
+              <button type="button" class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
             </div>
             <div class="control">
               <button
+                type="button"
                 class="button is-warning"
                 @click="checkMemberslist()"
                 :disabled="isLoading">
@@ -77,10 +78,10 @@
             <li v-if="memberslist.fee_to_aegee"><strong>Total fee paid to AEGEE-Europe: </strong>{{ memberslist.fee_to_aegee.toFixed(2) }} EUR</li>
           </ul>
           <div class="field">
-            <label class="label">Currency</label>
+            <label class="label" for="memberslist-currency">Currency</label>
             <div class="control">
               <div class="select">
-                <select v-model="memberslist.currency">
+                <select id="memberslist-currency" v-model="memberslist.currency">
                   <option v-for="(description, value) in currenciesList" v-bind:key="value" v-bind:value="value">{{ description }}</option>
                 </select>
               </div>
@@ -90,18 +91,18 @@
           <hr v-if="isEditing" />
 
           <div class="field" v-if="isEditing">
-            <label class="label">Set fee for everyone</label>
+            <label class="label" for="memberslist-fee-for-everyone">Set fee for everyone</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="number" v-model.number="tempFee">
+                <input id="memberslist-fee-for-everyone" class="input" type="number" v-model.number="tempFee">
               </div>
               <div class="control">
-                <a class="button is-info" @click="setFee()">Set</a>
+                <button type="button" class="button is-info" @click="setFee()">Set</button>
               </div>
             </div>
           </div>
 
-          <table class="table is-narrow is-fullwidth">
+          <table class="table is-narrow is-fullwidth" aria-label="Members">
             <thead>
               <tr>
                 <th>Index</th>
@@ -125,13 +126,11 @@
                 <td v-if="!isEditing">{{ member.last_name }}</td>
                 <td v-if="!isEditing">{{ member.fee }}</td>
 
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name" /></td>
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name" /></td>
-                <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee" /></td>
+                <td v-if="isEditing"><input type="text" class="input" :aria-label="'First name of member ' + (index + 1)" v-model="member.first_name" /></td>
+                <td v-if="isEditing"><input type="text" class="input" :aria-label="'Last name of member ' + (index + 1)" v-model="member.last_name" /></td>
+                <td v-if="isEditing"><input type="number" class="input" :aria-label="'Fee of member ' + (index + 1)" v-model.number="member.fee" /></td>
 
-                <td>
-                  <span v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</span>
-                </td>
+                <td v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</td>
               </tr>
             </tbody>
           </table>
