@@ -210,7 +210,7 @@ module.exports = [
     path: '/bodies/:id/campaigns',
     component: 'core/bodies/CampaignsList',
     meta: {
-      label: 'View members of a body'
+      label: 'View recruitment campaigns of a body'
     }
   },
   {
