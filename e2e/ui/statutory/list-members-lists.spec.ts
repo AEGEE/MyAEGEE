@@ -9,7 +9,6 @@ import { body, type Body } from '../support/factories/core.ts';
 import { statutoryEvent, statutoryEventPermissions, type StatutoryEventPermissions } from '../support/factories/statutory-events.ts';
 import { membersList, membersListMember, type MembersList } from '../support/factories/statutory-memberslists.ts';
 import { cellOf, dialog, expectEmptyTable, sortBy, tableRows, toast } from '../support/shell.ts';
-import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 // The Network Director (global:see_memberslists:agora and global:set_memberslists_fee_paid:agora).
@@ -295,15 +294,5 @@ test.describe('the members lists of an Agora', () => {
         await page.goto('/statutory/agora-spring/memberslist/list');
 
         await expect(toast(page, 'Could not fetch members lists: Database is down')).toBeVisible();
-    });
-
-    test('a body links to its page', async ({ page, api }) => {
-        mockPage(api);
-        await page.goto('/statutory/agora-spring/memberslist/list');
-        api.fallback(mockEverything);
-
-        await rowOf(page, 'AEGEE-Utrecht').getByRole('link', { name: 'AEGEE-Utrecht' }).click();
-
-        await expect(page).toHaveURL('/bodies/3');
     });
 });

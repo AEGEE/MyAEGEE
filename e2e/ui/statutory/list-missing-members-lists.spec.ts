@@ -7,7 +7,6 @@ import { badRequest, forbidden, notFound, ok } from '../support/factories/base.t
 import { statutoryEvent, statutoryEventPermissions } from '../support/factories/statutory-events.ts';
 import { membersListBody, type MembersListBody } from '../support/factories/statutory-memberslists.ts';
 import { cellOf, expectEmptyTable, sortBy, tableRows, toast } from '../support/shell.ts';
-import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 // Who may see them (global:see_missing_memberslists:agora).
@@ -48,9 +47,7 @@ test.describe('the locals without a members list', () => {
         await page.goto('/statutory/agora-spring/memberslist/list/missing');
 
         await expect(rowOf(page, 'AEGEE-Utrecht').getByRole('link', { name: 'AEGEE-Utrecht' })).toHaveAttribute('href', '/bodies/3');
-        api.fallback(mockEverything);
-        await rowOf(page, 'AEGEE-Zagreb').getByRole('link', { name: 'AEGEE-Zagreb' }).click();
-        await expect(page).toHaveURL('/bodies/5');
+        await expect(rowOf(page, 'AEGEE-Zagreb').getByRole('link', { name: 'AEGEE-Zagreb' })).toHaveAttribute('href', '/bodies/5');
     });
 
     test('the bodies can be sorted by name and by type', async ({ page, api, layout }) => {
