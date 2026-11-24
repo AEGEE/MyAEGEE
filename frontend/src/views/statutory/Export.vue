@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Export data for {{ event.name }}</div>
+        <h1 class="title">Export data for {{ event.name }}</h1>
         <div v-if="can.export.openslides">
           <div class="field">
             <div class="control">
-              <button @click="exportOpenSlides()" class="button is-primary">
+              <button type="button" @click="exportOpenSlides()" class="button is-primary">
                 Export OpenSlides data
               </button>
             </div>
@@ -23,9 +23,9 @@
 
         <div>
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on participant status</label>
+            <label class="label" for="export-status">Filter on participant status</label>
             <div class="select">
-              <select v-model="filter.status">
+              <select id="export-status" v-model="filter.status">
                 <option :value="null">Everybody</option>
                 <option value="accepted">Accepted participants</option>
                 <option value="rejected">Rejected participants</option>
@@ -35,9 +35,9 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on cancellation</label>
+            <label class="label" for="export-cancelled">Filter on cancellation</label>
             <div class="select">
-              <select v-model="filter.cancelled">
+              <select id="export-cancelled" v-model="filter.cancelled">
                 <option :value="null">Everybody</option>
                 <option :value="true">Cancelled participants</option>
                 <option :value="false">Not cancelled participants</option>
@@ -46,9 +46,9 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on confirmation</label>
+            <label class="label" for="export-confirmed">Filter on confirmation</label>
             <div class="select">
-              <select v-model="filter.confirmed">
+              <select id="export-confirmed" v-model="filter.confirmed">
                 <option :value="null">Everybody</option>
                 <option :value="true">Confirmed participants</option>
                 <option :value="false">Not confirmed participants</option>
@@ -57,9 +57,9 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on participant type</label>
+            <label class="label" for="export-participant-type">Filter on participant type</label>
             <div class="select">
-              <select v-model="filter.participant_type">
+              <select id="export-participant-type" v-model="filter.participant_type">
                 <option :value="null">Everybody</option>
                 <option value="delegate">Delegates</option>
                 <option value="envoy">Envoys</option>
@@ -79,7 +79,7 @@
 
             <div class="field">
               <div class="control">
-                <button @click="exportAll()" class="button is-primary">
+                <button type="button" @click="exportAll()" class="button is-primary">
                   Export participants data
                 </button>
               </div>
