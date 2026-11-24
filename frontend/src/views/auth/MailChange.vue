@@ -6,9 +6,10 @@
           <div class="notification is-info" v-if="notice">{{ notice }}</div>
           <form v-on:submit.prevent="confirmToken">
             <div class="field">
-              <label class="label">Token</label>
+              <label class="label" for="mail-change-token">Token</label>
               <div class="control">
                 <input
+                  id="mail-change-token"
                   v-model="token"
                   required
                   class="input"
