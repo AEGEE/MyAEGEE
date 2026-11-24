@@ -276,7 +276,7 @@ paths:
       parameters:
         - name: ends
           in: query
-          description: Only events that end on or before this day (YYYY-MM-DD).
+          description: Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
           schema: {type: string, format: date}
       responses:
         '200':
@@ -779,12 +779,12 @@ components:
     StartsFilter:
       name: starts
       in: query
-      description: Only events that start on or after this day (YYYY-MM-DD).
+      description: Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
       schema: {type: string, format: date}
     EndsFilter:
       name: ends
       in: query
-      description: Only events that end on or before this day (YYYY-MM-DD).
+      description: Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
       schema: {type: string, format: date}
     EventId:
       name: event_id
