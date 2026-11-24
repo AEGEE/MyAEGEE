@@ -187,7 +187,7 @@ test.describe('the page of a body', () => {
 
     test('says nothing when the body has no board', async ({ page, api }) => {
         api.json('GET core /bodies/:id', ok(bodyDetail({ id: 1 })));
-        api.on('GET network /bodies/:id/boards/current', { status: 404, json: notFound('No current board') });
+        api.on('GET network /bodies/:id/boards/current', { status: 404, json: notFound('There is no current board.') });
         permissionsFor(api, 'bodies', 1, BOARD);
 
         await page.goto('/bodies/1');
@@ -259,11 +259,11 @@ test.describe('the page of a body', () => {
     test('keeps the page when the permissions can\'t be loaded', async ({ page, api }) => {
         api.json('GET core /bodies/:id', ok(bodyDetail({ id: 1 })));
         api.json('GET network /bodies/:id/boards/current', ok([]));
-        api.on('GET core /bodies/:id/my_permissions', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id/my_permissions', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1');
 
-        await expect(toast(page, 'Could not fetch your permissions for this body: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch your permissions for this body: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/1');
         await expect(page.getByRole('heading', { name: 'AEGEE-Test 1', level: 1 })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Leave body' })).toBeVisible();
@@ -355,7 +355,7 @@ test.describe('joining and leaving a body', () => {
 
     test('says when the member asked already', async ({ page, api }) => {
         answer(api, bodyDetail({ id: 5 }));
-        api.on('POST core /bodies/:id/join-requests', { status: 422, json: validationError({ body_id: ['This user already has a join request for this body.'] }) });
+        api.on('POST core /bodies/:id/join-requests', { status: 422, json: validationError({ body_id: ['body_id must be unique'], user_id: ['user_id must be unique'] }) });
 
         await page.goto('/bodies/5');
         await page.getByRole('button', { name: 'Ask to join body' }).click();
@@ -368,13 +368,13 @@ test.describe('joining and leaving a body', () => {
 
     test('says why the join request was not sent', async ({ page, api }) => {
         answer(api, bodyDetail({ id: 5 }));
-        api.on('POST core /bodies/:id/join-requests', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST core /bodies/:id/join-requests', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/5');
         await page.getByRole('button', { name: 'Ask to join body' }).click();
         await dialog(page, 'Join body').getByRole('button', { name: 'OK' }).click();
 
-        await expect(toast(page, 'Could not send join request: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not send join request: Something went wrong on the server.')).toBeVisible();
     });
 
     test('a member leaves the body after confirming', async ({ page, api }) => {
@@ -400,13 +400,13 @@ test.describe('joining and leaving a body', () => {
 
     test('says why leaving failed', async ({ page, api }) => {
         answer(api, bodyDetail({ id: 1 }));
-        api.on('DELETE core /bodies/:id/members', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('DELETE core /bodies/:id/members', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1');
         await page.getByRole('button', { name: 'Leave body' }).click();
         await dialog(page, 'Leaving a body').getByRole('button', { name: 'Leave body' }).click();
 
-        await expect(toast(page, 'Could not leave body: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not leave body: Something went wrong on the server.')).toBeVisible();
         await expect(dialog(page, 'Leaving a body')).toBeHidden();
         await expect(page.getByRole('button', { name: 'Leave body' })).toBeVisible();
     });
@@ -602,7 +602,7 @@ test.describe('adding a board from the body page', () => {
     test('a position added by mistake can be removed', async ({ page, api }) => {
         answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
         api.json('PUT core /bodies/:id', ok({}));
-        api.on('POST network /bodies/:id/boards', { status: 403, json: forbidden('You are not allowed to manage the boards of this body.') });
+        api.on('POST network /bodies/:id/boards', { status: 403, json: forbidden('You are not allowed to create boards.') });
 
         await page.goto('/bodies/1');
         await page.getByRole('button', { name: 'Change board' }).click();
@@ -613,7 +613,7 @@ test.describe('adding a board from the body page', () => {
         await expect(modal.getByRole('group', { name: 'New position' })).toHaveCount(0);
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(toast(page, 'Something went wrong: You are not allowed to manage the boards of this body.')).toBeVisible();
+        await expect(toast(page, 'Something went wrong: You are not allowed to create boards.')).toBeVisible();
         await expect.poll(() => api.callsTo('POST network /bodies/:id/boards')[0].body).toMatchObject({ other_members: [] });
     });
 
@@ -634,13 +634,13 @@ test.describe('adding a board from the body page', () => {
 
     test('says why the people could not be searched', async ({ page, api }) => {
         answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
-        api.on('GET core /bodies/:id/members', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id/members', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1');
         await page.getByRole('button', { name: 'Change board' }).click();
         await dialog(page, 'Add board').getByRole('group', { name: 'President' }).getByRole('textbox').fill('Pia');
 
-        await expect(toast(page, 'Could not fetch members: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch members: Something went wrong on the server.')).toBeVisible();
         await dialog(page, 'Add board').getByRole('button', { name: 'Cancel' }).click();
         await expect(dialog(page, 'Add board')).toBeHidden();
     });

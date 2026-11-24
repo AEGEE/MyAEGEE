@@ -188,8 +188,9 @@ test.describe('editing a board', () => {
     });
 
     test('says why a board could not be deleted', async ({ page, api }) => {
-        answer(api, { boards: [board({ ...current(), name: null, end_date: null })], permissions: ['global:manage_network:boards'] });
-        api.on('DELETE network /bodies/:id/boards/:board_id', { status: 403, json: forbidden('You are not allowed to delete this board.') });
+        // Only the global permission deletes a board; a manager of the body's boards sees the button.
+        answer(api, { boards: [board({ ...current(), name: null, end_date: null })], permissions: ['local:manage_network:boards'] });
+        api.on('DELETE network /bodies/:id/boards/:board_id', { status: 403, json: forbidden('Deleting a board needs the global:manage_network:boards permission.') });
 
         await page.goto('/bodies/1/boards');
         await boardCard(page, /^2027-01-01 -\s*$/).click();
@@ -199,7 +200,7 @@ test.describe('editing a board', () => {
         await expect(dialog(page, 'Deleting a board')).toContainText('Are you sure you want to delete the board 2027-01-01 - ? This action cannot be undone.');
         await dialog(page, 'Deleting a board').getByRole('button', { name: 'Delete board' }).click();
 
-        await expect(toast(page, 'Could not delete board: You are not allowed to delete this board.')).toBeVisible();
+        await expect(toast(page, 'Could not delete board: Deleting a board needs the global:manage_network:boards permission.')).toBeVisible();
         await expect(dialog(page, 'Edit board')).toBeVisible();
     });
 });
