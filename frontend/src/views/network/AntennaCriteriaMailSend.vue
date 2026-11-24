@@ -47,7 +47,7 @@
 <script>
 export default {
   name: 'AntennaCriteriaMailSend',
-  props: ['local', 'agora', 'mailComponents', 'antennaCriteriaMapping', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['local', 'agora', 'mailComponents', 'antennaCriteriaMapping', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       from: 'network@aegee.eu',
@@ -69,8 +69,6 @@ export default {
         'reply_to': this.from,
         'body': this.$options.filters.markdown(this.mail)
       }
-
-      console.log(data)
 
       this.axios.post(
         this.services['network'] + '/antennaCriteria/sendFulfilmentMail',

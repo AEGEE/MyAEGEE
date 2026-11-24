@@ -83,7 +83,7 @@
 export default {
   name: 'AntennaCriteriaMail',
   // onSaved: called after the texts were saved, so the page takes the new ones.
-  props: ['agora', 'mailComponents', 'permissions', 'services', 'showError', 'showSuccess', 'onSaved'],
+  props: ['agora', 'mailComponents', 'services', 'showError', 'showSuccess', 'onSaved'],
   data () {
     return {
       parts: {

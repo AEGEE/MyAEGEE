@@ -176,7 +176,6 @@ export default {
       statutoryEvents: [],
       summerUniversities: [],
       isLoading: false,
-      isLoadingAgora: false,
       // How many times the data was loaded: what an earlier load gets is dropped.
       loads: 0,
       // The texts of the fulfilment mail for the chosen Agora; none without the permission.
@@ -214,13 +213,9 @@ export default {
   },
   methods: {
     bodyTypeLabel (type) {
-      if (!this.isCompactTable) return this.$options.filters.capitalize(type)
-
-      if (type === 'antenna') return 'A'
-      if (type === 'contact antenna') return 'CA'
-      if (type === 'contact') return 'C'
-
-      return this.$options.filters.capitalize(type)
+      // Only antennae, contact antennae and contacts are listed.
+      const short = { 'antenna': 'A', 'contact antenna': 'CA', 'contact': 'C' }
+      return this.isCompactTable ? short[type] : this.$options.filters.capitalize(type)
     },
     bodyTypeTitle (type) {
       return this.$options.filters.capitalize(type)
@@ -254,8 +249,7 @@ export default {
           permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
         }
       })
     },
@@ -265,12 +259,7 @@ export default {
         hasModalCard: true,
         ariaLabel: 'Comments for ' + row.name,
         props: {
-          local: row,
-          agora: this.selectedAgora,
-          services: this.services,
-          showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          local: row
         }
       })
     },
@@ -301,8 +290,7 @@ export default {
           antennaCriteriaMapping: this.antennaCriteriaMapping,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
         }
       })
     },
@@ -361,7 +349,6 @@ export default {
       }) ? 'Safe' : 'Danger'
     },
     fetchAgorae () {
-      this.isLoadingAgora = true
       this.axios.get(this.services['statutory'], { params: { type: 'agora' } }).then((response) => {
         this.agorae = response.data.data
         if (this.agorae.length === 0) {
@@ -370,9 +357,7 @@ export default {
         // Automatically set the most recent Agora as the selected one
         this.selectedAgora = this.agorae[0]
         this.fetchData()
-        this.isLoadingAgora = false
       }).catch((err) => {
-        this.isLoadingAgora = false
         this.$root.showError('Could not fetch statutory data', err)
       })
     },

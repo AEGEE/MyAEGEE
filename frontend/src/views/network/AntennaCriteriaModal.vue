@@ -157,7 +157,7 @@
 <script>
 export default {
   name: 'AntennaCriteriaModal',
-  props: ['local', 'agora', 'netcommies', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['local', 'agora', 'netcommies', 'permissions', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       antennaCriteria: {
@@ -192,13 +192,11 @@ export default {
         setDevelopmentPlan: false,
         setFulfilmentReport: false
       },
-      selectedNetcom: undefined,
-      isLoading: false
+      selectedNetcom: undefined
     }
   },
   methods: {
     async save () {
-      this.isLoading = true
       const changed = []
       for (const criterion in this.antennaCriteria) {
         const permission = 'set' + criterion.charAt(0).toUpperCase() + criterion.slice(1)
@@ -217,7 +215,6 @@ export default {
       const requests = changed.map(criterion => this.setAntennaCriterionFulfilment(criterion))
       if (netcomChanged) requests.push(this.setNetcommie())
       const results = await Promise.allSettled(requests)
-      this.isLoading = false
 
       // The row shows what was saved; each error was shown by the request that failed.
       changed.forEach((criterion, index) => {
@@ -249,7 +246,6 @@ export default {
     setAntennaCriterionFulfilment (criterion) {
       // Convert camelCase to seperate, lower-case words
       const criterionName = criterion.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
-      console.log(criterion, this.antennaCriteria[criterion], this.comments[criterion])
 
       const data = {
         'agora_id': this.agora.id,
@@ -269,8 +265,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
-
     this.can.setNetcomAssignment = this.permissions.some(permission => permission.combined.endsWith('manage_network:netcom_assignment'))
     this.can.setCommunication = this.permissions.some(permission => permission.combined.endsWith('manage_network:communication'))
     this.can.setCommunicationException = this.permissions.some(permission => permission.combined.endsWith('manage_network:communication_exception'))
@@ -290,8 +284,6 @@ export default {
 
     // A Local has no NetCom data when it could not be loaded.
     this.selectedNetcom = this.netcommies.find(x => x.user_id === this.local.netcom?.user_id)
-
-    this.isLoading = false
   }
 }
 
