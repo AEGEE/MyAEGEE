@@ -83,7 +83,7 @@ export default {
     return {
       permission: {
         action: '',
-        scope: '',
+        scope: 'global',
         object: null,
         filters: []
       },
