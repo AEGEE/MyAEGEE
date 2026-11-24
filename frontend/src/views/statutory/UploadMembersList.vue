@@ -162,7 +162,9 @@ export default {
       tempFee: 0,
       isLoading: false,
       isLoadingBodies: true,
-      isEditing: false
+      isEditing: false,
+      // Counts the requests for a list, so a late answer for another local is dropped.
+      memberslistRequest: 0
     }
   },
   computed: {
@@ -180,13 +182,18 @@ export default {
   },
   methods: {
     fetchMembersList () {
+      // Only the answers for the local chosen last count: a late answer for a local chosen
+      // before is dropped.
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.memberslist = null
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
+        if (request !== this.memberslistRequest) return
         this.memberslist = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        if (request !== this.memberslistRequest) return
         this.isLoading = false
         this.memberslist = null
 
@@ -201,10 +208,13 @@ export default {
       }
     },
     fetchFromBody () {
+      const bodyId = this.selectedBody
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.isEditing = false
 
-      this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/members').then((response) => {
+      this.axios.get(this.services['core'] + '/bodies/' + bodyId + '/members').then((response) => {
+        if (request !== this.memberslistRequest) return null
         this.memberslist = {
           currency: null,
           members: response.data.data.map(member => ({
@@ -215,8 +225,9 @@ export default {
           }))
         }
 
-        return this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/payments')
+        return this.axios.get(this.services['core'] + '/bodies/' + bodyId + '/payments')
           .then((paymentsResponse) => {
+            if (request !== this.memberslistRequest) return
             this.payments = paymentsResponse.data.data
 
             // getting last payment for each user, setting it as a members' fee on newly-created memberslist
@@ -235,11 +246,13 @@ export default {
             this.isLoading = false
           })
           .catch((err) => {
+            if (request !== this.memberslistRequest) return
             // not great, not terrible
             this.$root.showWarning('Could not fetch payments info: ' + err.message)
             this.isLoading = false
           })
       }).catch((err) => {
+        if (request !== this.memberslistRequest) return
         this.isLoading = false
         this.$root.showError('Some error happened', err)
       })
