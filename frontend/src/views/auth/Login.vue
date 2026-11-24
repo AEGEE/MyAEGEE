@@ -42,7 +42,8 @@ export default {
     login () {
       this.error = null
       this.$auth.login(this.data).then(() => {
-        this.$router.replace(this.$route.query.to || '/dashboard')
+        // A member whose profile is incomplete is sent on to complete it: that is no error.
+        this.$router.replace(this.$route.query.to || '/dashboard').catch(() => {})
       }).catch((err) => {
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message
