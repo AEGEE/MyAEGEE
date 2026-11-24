@@ -38,17 +38,23 @@ export default {
   data () {
     return {
       isLoadingMembers: false,
-      memberName: '',
+      addedMemberName: '',
       members: [],
       token: null
     }
   },
   methods: {
     fetchMembers () {
-      this.isLoadingMembers = true
       this.members = []
-
       if (this.token) this.token.cancel()
+
+      // Nothing to search for: the field was emptied, or a member was just chosen.
+      if (!this.addedMemberName) {
+        this.isLoadingMembers = false
+        return
+      }
+
+      this.isLoadingMembers = true
       this.token = this.axios.CancelToken.source()
 
       // If circle is bound to a body, search for body members. If not, use global search.
