@@ -1,8 +1,8 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Ask a question</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">Ask a question</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="notification is-info" v-if="event.url === 'spring-agora-novi-sad-2022'">
@@ -18,16 +18,16 @@
         O - Objection
       </div>
       <div class="field">
-        <label class="label">Text</label>
+        <label class="label" for="question-text">Text</label>
         <div class="control">
-          <textarea class="textarea" required v-model="question.text" />
+          <textarea id="question-text" class="textarea" required v-model="question.text" />
         </div>
         <p class="help is-danger" v-if="errors.text">{{ errors.text.join(', ')}}</p>
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" :disabled="isLoading" @click="saveQuestion()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" :disabled="isLoading" @click="saveQuestion()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>

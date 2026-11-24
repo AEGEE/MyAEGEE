@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Question lines list</div>
+        <h1 class="title">Question lines list</h1>
 
         <div class="notification is-info" v-if="$route.params.id === 'spring-agora-novi-sad-2022'">
           Every Agora participant can request a place in the question line in real time by <b>entering the corresponding number</b>.<br>
@@ -50,108 +50,115 @@
 
         <div class="field" v-if="can.manage_question_lines">
           <div class="control">
-            <button class="button is-primary" @click="openCreateQuestionLineModal">Create a question line</button>
+            <button type="button" class="button is-primary" @click="openCreateQuestionLineModal">Create a question line</button>
           </div>
         </div>
 
-        <b-table :data="questionLines" :loading="isLoading" :selected.sync="selectedQuestionLine" narrowed>
-          <b-table-column field="id" label="#" numeric v-slot="props">
-            {{ props.index + 1 }}
-          </b-table-column>
+        <section aria-label="Question lines" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table :data="questionLines" :loading="isLoading" :selected.sync="selectedQuestionLine" narrowed>
+            <b-table-column field="id" label="#" numeric v-slot="props">
+              {{ props.index + 1 }}
+            </b-table-column>
 
-          <b-table-column field="name" label="Name" v-slot="props">
-            {{ props.row.name }}
-          </b-table-column>
+            <b-table-column field="name" label="Name" v-slot="props">
+              {{ props.row.name }}
+            </b-table-column>
 
-          <b-table-column label="Questions" numeric v-slot="props">
-            {{ props.row.questions.length }}
-          </b-table-column>
+            <b-table-column label="Questions" numeric v-slot="props">
+              {{ props.row.questions.length }}
+            </b-table-column>
 
-          <b-table-column field="starts" label="Status" centered v-slot="props">
-            <span
-              class="tag"
-              v-if="!can.manage_question_lines"
-              :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
-              {{ props.row.status }}
-            </span>
-            <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchQuestionLineStatus(props.row)">
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="starts" label="Status" centered v-slot="props">
+              <span
+                class="tag"
+                v-if="!can.manage_question_lines"
+                :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
+                {{ props.row.status }}
+              </span>
+              <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" :aria-label="'Status of ' + props.row.name" @change="switchQuestionLineStatus(props.row)">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column label="Edit" centered :visible="!!can.manage_question_lines" v-slot="props">
-            <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
-          </b-table-column>
+            <b-table-column label="Edit" centered :visible="!!can.manage_question_lines" v-slot="props">
+              <button type="button" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</button>
+            </b-table-column>
 
-          <b-table-column label="Delete" centered :visible="!!can.manage_question_lines" v-slot="props">
-            <a href="#" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</a>
-          </b-table-column>
+            <b-table-column label="Delete" centered :visible="!!can.manage_question_lines" v-slot="props">
+              <button type="button" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</button>
+            </b-table-column>
 
-          <b-table-column label="Ask a question" centered v-slot="props">
-            <button
-              class="button is-small"
-              v-if="can.submit_questions && props.row.status === 'open'"
-              @click="openCreateQuestionModal(props.row)">
-              Ask a question!
-            </button>
-            <span v-else-if=" props.row.status !== 'open'">The question line is closed.</span>
-            <span v-else>You are not a confirmed participant.</span>
-          </b-table-column>
+            <b-table-column label="Ask a question" centered v-slot="props">
+              <button
+                type="button"
+                class="button is-small"
+                v-if="can.submit_questions && props.row.status === 'open'"
+                @click="openCreateQuestionModal(props.row)">
+                Ask a question!
+              </button>
+              <span v-else-if=" props.row.status !== 'open'">The question line is closed.</span>
+              <span v-else>You are not a confirmed participant.</span>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
 
         <hr />
 
-        <div class="subtitle" v-if="selectedQuestionLine">Question for selected question line</div>
+        <section v-if="selectedQuestionLine" aria-labelledby="selected-question-line">
+          <h2 id="selected-question-line" class="subtitle">Questions of {{ selectedQuestionLine.name }}</h2>
 
-        <b-table :data.sync="selectedQuestionLine.questions" v-if="selectedQuestionLine" narrowed>
-          <b-table-column label="#" v-slot="props">
-            {{ props.index + 1 }}
-          </b-table-column>
+          <b-table :data.sync="selectedQuestionLine.questions" narrowed>
+            <b-table-column label="#" v-slot="props">
+              {{ props.index + 1 }}
+            </b-table-column>
 
-          <b-table-column field="participant" label="Participant" v-slot="props">
-            {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
-          </b-table-column>
+            <b-table-column field="participant" label="Participant" v-slot="props">
+              {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
+            </b-table-column>
 
-          <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type" v-slot="props">
-            {{ props.row.application.participant_type }}
-          </b-table-column>
+            <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type" v-slot="props">
+              {{ props.row.application.participant_type }}
+            </b-table-column>
 
-          <b-table-column field="text" label="Text" v-slot="props">
-            {{ props.row.text }}
-          </b-table-column>
+            <b-table-column field="text" label="Text" v-slot="props">
+              {{ props.row.text }}
+            </b-table-column>
 
-          <b-table-column field="updated_at" label="Last updated on" v-slot="props">
-            {{ props.row.updated_at | datetime }}
-          </b-table-column>
+            <b-table-column field="updated_at" label="Last updated on" v-slot="props">
+              {{ props.row.updated_at | datetime }}
+            </b-table-column>
 
-          <b-table-column label="" v-slot="props">
-            <button
-              class="button is-small is-warning"
-              v-show="(loginUser.id === props.row.application.user_id && selectedQuestionLine.status === 'open') || can.manage_question_lines"
-              @click="openEditQuestionModal(selectedQuestionLine, props.row)">
-              Edit
-            </button>
-          </b-table-column>
-          <b-table-column label=" " v-slot="props">
-            <button
-              class="button is-small is-danger"
-              v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
-              @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
-              Delete
-            </button>
-          </b-table-column>
+            <b-table-column label="" v-slot="props">
+              <button
+                type="button"
+                class="button is-small is-warning"
+                v-show="(loginUser.id === props.row.application.user_id && selectedQuestionLine.status === 'open') || can.manage_question_lines"
+                @click="openEditQuestionModal(selectedQuestionLine, props.row)">
+                Edit
+              </button>
+            </b-table-column>
+            <b-table-column label=" " v-slot="props">
+              <button
+                type="button"
+                class="button is-small is-danger"
+                v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
+                @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
+                Delete
+              </button>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -220,6 +227,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionLineModal,
         hasModalCard: true,
+        ariaLabel: 'Add question line',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -240,6 +248,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionLineModal,
         hasModalCard: true,
+        ariaLabel: 'Add question line',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -258,6 +267,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionModal,
         hasModalCard: true,
+        ariaLabel: 'Ask a question',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -279,6 +289,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionModal,
         hasModalCard: true,
+        ariaLabel: 'Ask a question',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
