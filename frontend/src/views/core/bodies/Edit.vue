@@ -395,9 +395,15 @@ export default {
       this.isSaving = true
       this.errors = {}
 
+      // An emptied optional field is sent as no value: core refuses an empty text for some of them.
+      const body = { ...this.body }
+      for (const key of ['abbreviation', 'phone', 'address', 'postal_address', 'website', 'gsuite_id', 'google_group']) {
+        if (body[key] === '') body[key] = null
+      }
+
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id, this.body)
-        : this.axios.post(this.services['core'] + '/bodies/', this.body)
+        ? this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id, body)
+        : this.axios.post(this.services['core'] + '/bodies/', body)
 
       promise
         .then((response) => {
