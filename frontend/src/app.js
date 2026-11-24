@@ -43,7 +43,7 @@ import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
 import EmptyTableStub from './components/EmptyTableStub'
 import Tooltip from './components/Tooltip'
-import { afterLogin } from './methods/navigation'
+import { afterLogin, ignoreNavigationFailure } from './methods/navigation'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -230,7 +230,7 @@ const endSession = (request) => {
   if (!leaving && app.$route.name !== 'oms.login') {
     // The toast stays over the login page: the member didn't choose to log out.
     app.showWarning('Your session has ended. Please log in again. Changes that were not saved are lost.')
-    leaving = router.push(loginFor(app.$route)).catch(() => {}).finally(() => { leaving = null })
+    leaving = router.push(loginFor(app.$route)).catch(ignoreNavigationFailure).finally(() => { leaving = null })
   }
   return true
 }

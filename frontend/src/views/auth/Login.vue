@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { afterLogin, ignoreRedirect } from '../../methods/navigation'
+import { afterLogin, ignoreNavigationFailure } from '../../methods/navigation'
 
 export default {
   name: 'Login',
@@ -44,8 +44,8 @@ export default {
     login () {
       this.error = null
       this.$auth.login(this.data).then(() => {
-        // A member whose profile is incomplete is sent on to complete it: that is no error.
-        this.$router.replace(afterLogin(this.$route.query)).catch(ignoreRedirect)
+        // The guard may send a member whose profile is incomplete on to complete it.
+        this.$router.replace(afterLogin(this.$route.query)).catch(ignoreNavigationFailure)
       }).catch((err) => {
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message

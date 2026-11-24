@@ -32,7 +32,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ignoreRedirect } from '../../methods/navigation'
+import { ignoreNavigationFailure } from '../../methods/navigation'
 
 export default {
   name: 'MailChange',
@@ -59,7 +59,7 @@ export default {
 
           this.$root.showSuccess(response.data.message)
           // Somebody who is logged out is sent to log in first: that is no error.
-          this.$router.push({ name: 'oms.members.view', params: { id: 'me' } }).catch(ignoreRedirect)
+          this.$router.push({ name: 'oms.members.view', params: { id: 'me' } }).catch(ignoreNavigationFailure)
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {
