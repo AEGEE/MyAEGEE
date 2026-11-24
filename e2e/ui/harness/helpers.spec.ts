@@ -90,7 +90,7 @@ test.describe('dialogs', () => {
         await page.goto('/events/spring/participants');
 
         const table = page.getByRole('table');
-        await tableRows(table).filter({ hasText: 'Alex First' }).getByRole('link', { name: 'View' }).click();
+        await tableRows(table).filter({ hasText: 'Alex First' }).getByRole('button', { name: /^View/ }).click();
 
         const modal = dialog(page).filter({ hasText: 'View participant' });
         await expect(modal).toBeVisible();
