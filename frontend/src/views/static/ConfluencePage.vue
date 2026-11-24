@@ -2,7 +2,7 @@
   <div class="tile is-ancestor legal">
     <div class="tile is-parent is-vertical">
       <div class="tile is-child">
-        <div class="title">{{ error ? 'The page is not found' : title }}</div>
+        <h1 class="title">{{ error ? 'The page is not found' : title }}</h1>
         <div class="content" v-html="text" />
 
         <div class="notification is-danger" v-if="error">
