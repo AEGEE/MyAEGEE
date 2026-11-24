@@ -9,10 +9,10 @@
         "name": "AEGEE-Alicante",
         "code": "ALC",
         "id": 34,
-        "email": "junta@aegeealicante.org",
-        "description": "Local in Alicante, see also http://www.aegeealicante.org/, https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante",
+        "email": "alicante@example.org",
+        "description": "Local in Alicante, see also https://alicante.example.org/",
         "circles": null,
-        "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+        "address": "Example University, Student Council, Office 3, 03000 Alicante, Spain"
     },
     {
         "type": "committee",
@@ -23,9 +23,9 @@
         "name": "Chair Team of the Agora",
         "code": "XCH",
         "id": 9,
-        "email": "chair@aegee.org",
+        "email": "chair@example.org",
         "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
         "circles": null,
-        "address": "Notelaarsstraat 55"
+        "address": "Example Street 55"
     }]
 }

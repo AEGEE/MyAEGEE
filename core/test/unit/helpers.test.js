@@ -13,7 +13,7 @@ describe('isRestrictedEmail', () => {
 
     test('should allow addresses that only look like restricted domains', () => {
         expect(helpers.isRestrictedEmail('me@notaegee.org')).toEqual(false);
-        expect(helpers.isRestrictedEmail('aegee.org.fan@gmail.com')).toEqual(false);
+        expect(helpers.isRestrictedEmail('aegee.org.fan@example.com')).toEqual(false);
         expect(helpers.isRestrictedEmail('test@aegee.org.example.com')).toEqual(false);
     });
 });

@@ -23,8 +23,8 @@
         "code": "ALC",
         "id": 34,
         "founded_at": "2002-11-15",
-        "email": "junta@aegeealicante.org",
-        "description": "Local in Alicante. Take a look at our web page http://www.aegeealicante.org/ and our social media: https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante, https://www.instagram.com/aegeealicante/?hl=en \nIf you want to be part of our antenna, please fill our local form. You can find it here: http://aegeealicante.org/socio-nuevo/",
+        "email": "alicante@example.org",
+        "description": "Local in Alicante. Take a look at our web page https://alicante.example.org/ and fill in our local form to join.",
         "circles": [{
             "seo_url": 133,
             "permissions": null,
@@ -48,6 +48,6 @@
             "body_id": 34,
             "body": null
         }],
-        "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+        "address": "Example University, Student Council, Office 3, 03000 Alicante, Spain"
     }
 }
