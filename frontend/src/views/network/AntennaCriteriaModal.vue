@@ -199,7 +199,7 @@ export default {
   methods: {
     async save () {
       this.isLoading = true
-      const promises = []
+      const changed = []
       for (const criterion in this.antennaCriteria) {
         const permission = 'set' + criterion.charAt(0).toUpperCase() + criterion.slice(1)
         if (
@@ -209,44 +209,41 @@ export default {
             || (this.comments[criterion] !== '' && this.comments[criterion] !== this.local.comments[criterion])
           )
         ) {
-          promises.push(this.setAntennaCriterionFulfilment(criterion))
-          this.$set(this.local.antennaCriteria, criterion, this.antennaCriteria[criterion])
-          this.$set(this.local.comments, criterion, this.comments[criterion])
+          changed.push(criterion)
         }
       }
+      const netcomChanged = this.local.netcom !== this.selectedNetcom
 
-      if (this.local.netcom !== this.selectedNetcom) {
-        promises.push(this.setNetcommie())
+      const requests = changed.map(criterion => this.setAntennaCriterionFulfilment(criterion))
+      if (netcomChanged) requests.push(this.setNetcommie())
+      const results = await Promise.allSettled(requests)
+      this.isLoading = false
+
+      // The row shows what was saved; each error was shown by the request that failed.
+      changed.forEach((criterion, index) => {
+        if (results[index].status !== 'fulfilled') return
+        this.$set(this.local.antennaCriteria, criterion, this.antennaCriteria[criterion])
+        this.$set(this.local.comments, criterion, this.comments[criterion])
+      })
+      if (netcomChanged && results[results.length - 1].status === 'fulfilled') {
         this.local.netcom = this.selectedNetcom
       }
+      if (results.some(result => result.status === 'rejected')) return
 
-      await Promise.all(promises).then(() => {
-        this.isLoading = false
-        this.showSuccess('Antenna Criteria fulfilment updated.')
-        this.$parent.close()
-      }).catch((err) => {
-        this.isLoading = false
-        this.showError('Something went wrong', err)
-      })
+      this.showSuccess('Antenna Criteria fulfilment updated.')
+      this.$parent.close()
     },
     setNetcommie () {
-      if (this.selectedNetcom.first_name === 'Not set') {
-        this.axios.delete(this.services['network'] + '/netcom/' + this.local.id).catch((err) => {
-          this.showError('Error saving NetCom', err)
+      const request = this.selectedNetcom.first_name === 'Not set'
+        ? this.axios.delete(this.services['network'] + '/netcom/' + this.local.id)
+        : this.axios.put(this.services['network'] + '/netcom', {
+          'body_id': this.local.id,
+          'netcom_id': this.selectedNetcom.user_id
         })
-        return
-      }
 
-      const data = {
-        'body_id': this.local.id,
-        'netcom_id': this.selectedNetcom.user_id
-      }
-
-      this.axios.put(
-        this.services['network'] + '/netcom',
-        data
-      ).catch((err) => {
+      return request.catch((err) => {
         this.showError('Error saving NetCom', err)
+        throw err
       })
     },
     setAntennaCriterionFulfilment (criterion) {
@@ -262,11 +259,12 @@ export default {
         'comment': this.comments[criterion]
       }
 
-      this.axios.put(
+      return this.axios.put(
         this.services['network'] + '/antennaCriteria',
         data
       ).catch((err) => {
         this.showError('Error saving Antenna Criteria', err)
+        throw err
       })
     }
   },
