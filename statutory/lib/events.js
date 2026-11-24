@@ -169,7 +169,7 @@ exports.editEvent = async (req, res) => {
     // returning: the answer has the values as they were stored, not as they were sent.
     const dbResult = await req.event.update(req.body, {
         returning: true,
-        fields: helpers.withRelatedDates(req.body, constants.EVENT_DATE_FIELDS)
+        fields: helpers.changedFields(req.event, req.body, constants.EVENT_DATE_FIELDS)
     });
 
     return res.json({

@@ -161,7 +161,7 @@ exports.editPosition = async (req, res) => {
     // returning: the answer has the values as they were stored, not as they were sent.
     await req.position.update(req.body, {
         returning: true,
-        fields: helpers.withRelatedDates(req.body, constants.PERIOD_FIELDS)
+        fields: helpers.changedFields(req.position, req.body, constants.PERIOD_FIELDS)
     });
 
     return res.json({

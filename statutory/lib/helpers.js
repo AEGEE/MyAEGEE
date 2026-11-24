@@ -35,6 +35,15 @@ exports.isDefined = (value) => typeof value !== 'undefined';
 
 // The fields to check and save on an edit: the ones that were sent, and, when one of them
 // is a date whose rules compare it with other dates, those other dates as well.
+// The fields an edit changes, to save and to check: the forms send the whole record back,
+// and a stored value that today's checks would refuse is not checked when it stays as it is.
+// A changed date comes with the other dates of the record, which it is checked against.
+exports.changedFields = (instance, values, dateFields) => {
+    instance.set(values);
+    const changed = instance.changed() || [];
+    return exports.withRelatedDates(Object.fromEntries(changed.map((field) => [field, true])), dateFields);
+};
+
 exports.withRelatedDates = (fields, dateFields) => {
     const sent = Object.keys(fields);
     return sent.some((field) => dateFields.includes(field)) ? [...new Set([...sent, ...dateFields])] : sent;
