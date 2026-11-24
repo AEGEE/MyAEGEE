@@ -87,8 +87,7 @@ export default {
       limit: 30,
       offset: 0,
       canLoadMore: true,
-      source: null,
-      permissions: []
+      source: null
     }
   },
   computed: {
@@ -153,11 +152,6 @@ export default {
         this.members = this.members.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
-
-        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {

@@ -30,15 +30,6 @@
             </template>
           </b-table>
         </div>
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more campaigns</button>
-        </div>
       </article>
     </div>
   </div>
@@ -53,7 +44,6 @@ export default {
     return {
       campaigns: [],
       isLoading: false,
-      permissions: [],
       can: {
         create: false
       }
@@ -63,10 +53,6 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    refetch () {
-      this.campaigns = []
-      this.fetchData()
-    },
     fetchData () {
       this.isLoading = true
 
@@ -75,15 +61,11 @@ export default {
 
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
-        this.permissions = response.data.data
+        const permissions = response.data.data
 
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:campaign'))
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:campaign'))
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
         this.$root.showError('Could not fetch campaign list', err)
         this.isLoading = false
       })
