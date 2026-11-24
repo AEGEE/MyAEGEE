@@ -179,6 +179,8 @@ export default {
       isLoadingAgora: false,
       // How many times the data was loaded: what an earlier load gets is dropped.
       loads: 0,
+      // The texts of the fulfilment mail for the chosen Agora; none without the permission.
+      mailComponents: [],
       viewportWidth: window.innerWidth,
       antennaCriteriaMapping: {
         'contact': ['communication'],
@@ -421,7 +423,8 @@ export default {
 
       if (!isCurrent()) return
       this.netcommies = context.netcommies
-      if (context.mailComponents) this.mailComponents = context.mailComponents
+      // Never the texts of another Agora.
+      this.mailComponents = context.mailComponents ?? []
       this.bodies = context.bodies
       this.isLoading = false
     },

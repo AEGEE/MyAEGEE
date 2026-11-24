@@ -6,6 +6,10 @@
     </header>
 
     <section class="modal-card-body">
+      <div class="notification is-warning" v-if="missingParts.length">
+        <p v-for="part in missingParts" :key="part">No text set for {{ part }}.</p>
+      </div>
+
       <b-field label="From" label-for="ac-send-from" horizontal>
         <b-input id="ac-send-from" v-model="from" />
       </b-field>
@@ -50,7 +54,9 @@ export default {
       to: '',
       cc: '',
       subject: '',
-      body: ''
+      body: '',
+      // Parts of the mail that the Agora has no text for.
+      missingParts: []
     }
   },
   methods: {
@@ -90,18 +96,23 @@ export default {
     this.cc = this.local.netcom.email // TODO: See how we can set this to always be an @aegee.eu account
     this.subject = 'Preliminary Antenna Criteria check ' + this.agora.name
 
-    // Add all parts of the mail template that the Local is not fulfilling and should fulfil
-    let rawMail = this.mailComponents.find(c => c.mail_component === 'introduction').text + '\n<br><br>\n'
+    const textOf = (part) => {
+      const component = this.mailComponents.find(c => c.mail_component === part)
+      if (!component) this.missingParts.push(part)
+      return component?.text
+    }
 
+    // Add all parts of the mail template that the Local is not fulfilling and should fulfil
+    const parts = [textOf('introduction')]
     for (const criterion of this.antennaCriteriaMapping[this.local.type]) {
       const part = criterion.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
       const criterionFulfilment = this.local.antennaCriteria[criterion]
       if (criterionFulfilment !== 'true' && criterionFulfilment !== 'exception') {
-        rawMail += this.mailComponents.find(c => c.mail_component === part).text
-        rawMail += '\n<br><br>\n'
+        parts.push(textOf(part))
       }
     }
-    rawMail += this.mailComponents.find(c => c.mail_component === 'closing').text
+    parts.push(textOf('closing'))
+    const rawMail = parts.filter(text => text !== undefined).join('\n<br><br>\n')
 
     // Replace the variables of the template with actual values
     this.body = rawMail
