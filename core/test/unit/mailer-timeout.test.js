@@ -6,7 +6,7 @@ const mail = {
     to: 'test@test.io',
     subject: 'Subject',
     template: 'custom.html',
-    parameters: {}
+    parameters: { email_body: 'test' }
 };
 
 describe('Mailer client timeout', () => {

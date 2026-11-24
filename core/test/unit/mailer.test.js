@@ -63,7 +63,7 @@ describe('Mailer', () => {
                 to: 'test@test.io',
                 subject: 'test',
                 template: 'custom.html',
-                parameters: {}
+                parameters: { email_body: 'test' }
             })).rejects.toMatchObject({ name: 'MailError' });
         }
     });
