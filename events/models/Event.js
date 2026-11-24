@@ -70,11 +70,19 @@ const Event = sequelize.define(
                 notEmpty: { msg: 'Event application ends date should be set.' },
                 isDate: { msg: 'Event application ends date should be set.' },
                 laterThanApplicationStart(val) {
+                    if (this.has_applications === false) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrBefore(this.application_starts)) {
                         throw new Error('Application period cannot start after or at the same time it ends.');
                     }
                 },
                 beforeEventStart(val) {
+                    if (this.has_applications === false) {
+                        return;
+                    }
+
                     if (moment(val).isSameOrAfter(this.starts)) {
                         throw new Error('Application period cannot end before or at the same time the event starts.');
                     }
@@ -339,6 +347,11 @@ const Event = sequelize.define(
         application_status: {
             type: Sequelize.VIRTUAL,
             get() {
+                // An event without applications is never open for them, whatever dates it holds.
+                if (this.has_applications === false) {
+                    return 'closed';
+                }
+
                 return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
                     ? 'open'
                     : 'closed'; // inclusive
@@ -462,10 +475,13 @@ const Event = sequelize.define(
 
 // The date validators compare dates with each other, but on update Sequelize only validates
 // the attributes that changed. When one of the dates changes, validate all of them, so a
-// partial edit cannot put them out of order.
+// partial edit cannot put them out of order. The application dates of an event without
+// applications mean nothing (the edit form rewrites them on every save), so their checks
+// skip such an event; when it starts to take applications, the dates are checked again.
 const DATE_FIELDS = ['application_starts', 'application_ends', 'starts', 'ends'];
+const DATE_TRIGGERS = [...DATE_FIELDS, 'has_applications'];
 Event.beforeValidate((event, options) => {
-    if (!Array.isArray(options.skip) || DATE_FIELDS.every((field) => options.skip.includes(field))) {
+    if (!Array.isArray(options.skip) || DATE_TRIGGERS.every((field) => options.skip.includes(field))) {
         return;
     }
 
