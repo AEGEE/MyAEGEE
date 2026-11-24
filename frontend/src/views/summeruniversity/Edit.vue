@@ -860,7 +860,11 @@ export default {
       selectedCooperation: null,
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        // Typing a date works, also with a keyboard only, and phones get the same picker
+        // instead of their own date input.
+        allowInput: true,
+        disableMobile: true
       },
       seasons: [],
       // The event types the user can manage. Only managers of the event's type can choose its season.
