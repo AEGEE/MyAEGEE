@@ -139,21 +139,25 @@ MembersList.beforeSave(async (memberslist, options) => {
 module.exports = MembersList;
 
 // Updating the users' inclusion in memberslist for this body.
-MembersList.afterSave(async (memberslist) => {
+MembersList.afterSave(async (memberslist, options) => {
     // Prevent circular model loading.
     // eslint-disable-next-line global-require
     const Application = require('./Application');
 
-    const applicationsForBody = await Application.findAll({ where: {
-        body_id: memberslist.body_id,
-        event_id: memberslist.event_id
-    } });
+    // In the transaction of the save, if any.
+    const applicationsForBody = await Application.findAll({
+        where: {
+            body_id: memberslist.body_id,
+            event_id: memberslist.event_id
+        },
+        transaction: options.transaction
+    });
 
     for (const application of applicationsForBody) {
         const isOnMemberslist = helpers.memberslistHasMember(memberslist, application);
         await application.update(
             { is_on_memberslist: isOnMemberslist },
-            { hooks: false } // to prevent unnecessary queries for memberslists on application
+            { hooks: false, transaction: options.transaction } // to prevent unnecessary queries for memberslists on application
         );
     }
 });

@@ -40,7 +40,14 @@ const VotesPerAntenna = sequelize.define('VotesPerAntenna', {
     updatedAt: 'updated_at'
 });
 
-VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForAntenna(body, event) {
+VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForAntenna(body, event, transaction = null) {
+    if (!transaction) {
+        await sequelize.transaction(async (t) => {
+            await this.recalculateVotesForAntenna(body, event, t);
+        });
+        return;
+    }
+
     // Not calculating amount of votes for EPM.
     if (event.type !== 'agora') {
         return;
@@ -49,10 +56,13 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
     let votesAmount = 0;
 
     // Finding memberslist for this Agora for this body.
-    const memberslist = await MembersList.findOne({ where: {
-        event_id: event.id,
-        body_id: body.id
-    } });
+    const memberslist = await MembersList.findOne({
+        where: {
+            event_id: event.id,
+            body_id: body.id
+        },
+        transaction
+    });
 
     // If no memberslist is provided, no votes.
     // Otherwise, calculating amount of votes based on CIA.
@@ -98,26 +108,30 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
         else votesAmount = 14 + Math.floor((members - 950) / 250);
     }
 
-    // Upsert somehow doesn't work, so we're doing it with 2 requests.
+    // Upsert somehow doesn't work, so we're doing it with 2 requests. The votes of the body
+    // stay locked until the transaction ends, as in recalculateVotesForDelegates.
+    await limitLockWait(transaction);
     const existingVotes = await this.findOne({
         where: {
             event_id: event.id,
             body_id: body.id
-        }
+        },
+        lock: transaction.LOCK.UPDATE,
+        transaction
     });
 
     if (existingVotes) {
-        await existingVotes.update({ votes: votesAmount });
+        await existingVotes.update({ votes: votesAmount }, { transaction });
     } else {
         await this.create({
             event_id: event.id,
             body_id: body.id,
             votes: votesAmount
-        });
+        }, { transaction });
     }
 
     // Also recalculating votes per delegate for this antenna.
-    await this.recalculateVotesForDelegates(event, body.id);
+    await this.recalculateVotesForDelegates(event, body.id, transaction);
 };
 
 // Recalculates how many votes each delegate has for this event based on

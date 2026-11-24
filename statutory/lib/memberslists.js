@@ -7,6 +7,7 @@ const config = require('../config');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { MembersList, VotesPerAntenna } = require('../models');
+const { sequelize } = require('./sequelize');
 
 exports.checkIfAgora = async (req, res, next) => {
     if (req.event.type !== 'agora') {
@@ -145,8 +146,13 @@ exports.uploadMembersList = async (req, res) => {
             return errors.makeForbiddenError(res, 'You are not allowed to edit memberslist.');
         }
 
+        // The members list and the votes of the body change together, or not at all.
         // returning: the answer has the values as they were stored, not as they were sent.
-        const result = await existingMembersList.update(req.body, { returning: true });
+        const result = await sequelize.transaction(async (t) => {
+            const updated = await existingMembersList.update(req.body, { returning: true, transaction: t });
+            await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
+            return updated;
+        });
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -160,9 +166,6 @@ exports.uploadMembersList = async (req, res) => {
             }
         });
 
-        // Recalculating votes per antenna.
-        await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
-
         return res.json({
             success: true,
             data: result
@@ -173,7 +176,12 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
-    const newMembersList = await MembersList.create(req.body);
+    // The members list and the votes of the body change together, or not at all.
+    const newMembersList = await sequelize.transaction(async (t) => {
+        const created = await MembersList.create(req.body, { transaction: t });
+        await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
+        return created;
+    });
 
     // Sending the mail to a user.
     await mailer.sendMail({
@@ -186,9 +194,6 @@ exports.uploadMembersList = async (req, res) => {
             membership_fee: newMembersList.fee_to_aegee
         }
     });
-
-    // Calculating votes per antenna.
-    await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
     return res.json({
         success: true,
