@@ -275,6 +275,9 @@ export default {
           }
           this.showError('Something went wrong', err)
         })
+      }).catch((err) => {
+        this.isSaving = false
+        this.showError('Could not save the body details', err)
       })
     },
     addPosition () {
