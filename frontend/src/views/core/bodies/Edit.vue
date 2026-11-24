@@ -340,7 +340,7 @@ export default {
         editCode: creating,
         editShadowCircle: creating,
         editType: creating,
-        editGsuite: creating
+        editGsuite: false
       },
       countries,
       autocompleteBody: '',
