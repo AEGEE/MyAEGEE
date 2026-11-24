@@ -121,6 +121,23 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('url');
     });
 
+    test('should fail if the event URL is a number and not text', async () => {
+        // The default user holds global:manage_event for the types of the generated events.
+        const res = await request({
+            path: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                url: 12345
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors)).toEqual(['url']);
+        expect(await Event.count()).toEqual(0);
+    });
+
     it('should return 422 if URL is not unique', async () => {
         await generator.createEvent({ url: 'non-unique-url' });
 
