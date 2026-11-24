@@ -3,6 +3,7 @@ const moment = require('moment');
 const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
+const { isWrittenAsDate, notBeforeTheYear1 } = require('./dates');
 const { Sequelize } = require('./sequelize');
 const { Event, Image, Application } = require('../models');
 
@@ -44,13 +45,12 @@ exports.addEvent = async (req, res) => {
 // day is taken (the network pages pass the end of an Agora as they got it).
 // Returns null for anything else.
 function parseDateFilter(value) {
-    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2}))?$/.test(value)) {
+    if (!isWrittenAsDate(value)) {
         return null;
     }
 
     // Strict: the day as it is written, not whatever the value can be read as.
-    const date = moment(value.slice(0, 10), 'YYYY-MM-DD', true);
-    return date.isValid() ? date : null;
+    return moment(value.slice(0, 10), 'YYYY-MM-DD', true);
 }
 
 const invalidDateMessage = (field) => `The "${field}" date is invalid, it should be in the YYYY-MM-DD format.`;
@@ -91,7 +91,7 @@ exports.listEvents = async (req, res) => {
             return errors.makeBadRequestError(res, invalidDateMessage('starts'));
         }
 
-        dateQuery.push({ starts: { [Sequelize.Op.gte]: starts.startOf('day').toDate() } });
+        dateQuery.push({ starts: { [Sequelize.Op.gte]: notBeforeTheYear1(starts.startOf('day').toDate()) } });
     }
 
     if (req.query.ends) {

@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const { Sequelize } = require('../lib/sequelize');
+const { isWrittenAsDate } = require('../lib/dates');
 const Event = require('./Event');
 const Application = require('./Application');
 const MembersList = require('./MembersList');
@@ -104,18 +105,16 @@ const fitsInIntegerColumn = (value) => {
     }
 };
 
-// A date as a client writes it: a day (2031-07-01) or a full timestamp with its time zone
-// (2031-07-01T10:00:00.000Z). Anything else that JavaScript would read as some date
-// ("1", "2031", a number) is not a date here.
-const WRITTEN_DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2}))?$/;
-const isWrittenAsDate = (value) => typeof value === 'string' && WRITTEN_DATE.test(value) && moment(value).isValid();
 const isEmpty = (value) => value === null || value === undefined || value === '';
 
 // A setter for a date column: a date as a client writes it becomes a date, as it would
 // without this setter, and so does a date object that the code itself sets. Any other
 // value is kept as it is, for the validator below to refuse.
 const setDate = (name, dateOnly) => function set(value) {
-    if (isWrittenAsDate(value) || value instanceof Date || moment.isMoment(value)) {
+    if (isWrittenAsDate(value) && dateOnly) {
+        // The day as it is written, whatever the time zone of a full timestamp.
+        this.setDataValue(name, value.slice(0, 10));
+    } else if (isWrittenAsDate(value) || value instanceof Date || moment.isMoment(value)) {
         this.setDataValue(name, dateOnly ? moment(value).format('YYYY-MM-DD') : new Date(value));
     } else {
         this.setDataValue(name, value);
