@@ -74,6 +74,9 @@
               </div>
             </div>
           </div>
+          <div class="message is-warning" v-if="otherPaymentCurrencies.length > 0">
+            <div class="message-body">Some payments are in another currency ({{ otherPaymentCurrencies.join(', ') }}): their fees are not filled in, check them.</div>
+          </div>
 
           <hr v-if="isEditing" />
 
@@ -164,13 +167,24 @@ export default {
       isLoadingBodies: true,
       isEditing: false,
       // Counts the requests for a list, so a late answer for another local is dropped.
-      memberslistRequest: 0
+      memberslistRequest: 0,
+      // For a list fetched from a body: the members whose fee was filled in from a payment.
+      // Null for a stored list.
+      feesFromPayments: null
     }
   },
   computed: {
     ...mapGetters({
       services: 'services'
     }),
+    // For a list fetched from a body: the currencies of payments whose fee isn't filled in, as
+    // they are in another currency than the list's.
+    otherPaymentCurrencies () {
+      if (!this.feesFromPayments || !this.memberslist) return []
+      return this.currentPaymentCurrencies()
+        .filter(currency => currency !== this.memberslist.currency)
+        .map(currency => currenciesList[currency] || currency)
+    },
     // Only an Agora has these deadlines; without them nothing is said about them.
     isAfterSubmissionDeadline () {
       return Boolean(this.event.memberslist_submission_deadline) && moment().isAfter(this.event.memberslist_submission_deadline)
@@ -191,6 +205,7 @@ export default {
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
         if (request !== this.memberslistRequest) return
         this.memberslist = response.data.data
+        this.feesFromPayments = null
         this.isLoading = false
       }).catch((err) => {
         if (request !== this.memberslistRequest) return
@@ -230,18 +245,13 @@ export default {
             if (request !== this.memberslistRequest) return
             this.payments = paymentsResponse.data.data
 
-            // getting last payment for each user, setting it as a members' fee on newly-created memberslist
-            for (const member of this.memberslist.members) {
-              // get member's current payment
-              const currentPayment = this.payments.find(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
-
-              // if there's no payment, do nothing, so it'd default to zero
-              // if there is one, setting it for the user.
-              if (currentPayment) {
-                const intFee = Number(currentPayment.amount)
-                member.fee = !Number.isNaN(intFee) ? intFee : 0
-              }
-            }
+            // The current payments of the members fill in their fees, but only those in the
+            // currency of the list: when they are all in one currency, that becomes the
+            // currency of the list.
+            this.feesFromPayments = {}
+            const currencies = this.currentPaymentCurrencies()
+            if (currencies.length === 1) this.memberslist.currency = currencies[0]
+            this.fillFeesFromPayments()
 
             this.isLoading = false
           })
@@ -314,11 +324,39 @@ export default {
       this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
         this.$root.showSuccess('Members list is uploaded.')
         this.memberslist = response.data.data
+        this.feesFromPayments = null
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not save memberslist', err)
       })
+    },
+    // The current payment of a member, if they have one.
+    currentPaymentOf (member) {
+      return this.payments.find(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+    },
+    // The currencies of the current payments of the members on the list, without repeats.
+    currentPaymentCurrencies () {
+      const currencies = this.memberslist.members
+        .map(member => this.currentPaymentOf(member))
+        .filter(payment => payment)
+        .map(payment => payment.currency)
+      return [...new Set(currencies)].sort()
+    },
+    // Sets the fee of every member whose current payment is in the list's currency to that
+    // payment, and takes back a fee filled in from a payment in another currency.
+    fillFeesFromPayments () {
+      for (const member of this.memberslist.members) {
+        const payment = this.currentPaymentOf(member)
+        if (payment && payment.currency === this.memberslist.currency) {
+          const fee = Number(payment.amount)
+          member.fee = !Number.isNaN(fee) ? fee : 0
+          this.feesFromPayments[member.user_id] = true
+        } else if (this.feesFromPayments[member.user_id]) {
+          member.fee = 0
+          delete this.feesFromPayments[member.user_id]
+        }
+      }
     },
     isLocal (body) {
       return ['antenna', 'contact antenna', 'contact'].includes(body.type)
@@ -332,6 +370,10 @@ export default {
     }
   },
   watch: {
+    // Another currency for a list fetched from a body fills in the fees of the payments in it.
+    'memberslist.currency': function () {
+      if (this.feesFromPayments) this.fillFeesFromPayments()
+    },
     selectedBody () {
       this.fetchMembersList()
     }
