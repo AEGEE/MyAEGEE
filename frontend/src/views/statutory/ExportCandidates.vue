@@ -9,7 +9,7 @@
             <div class="select">
               <select id="statutory-candidates-export-status" v-model="filter.status">
                 <option :value="null">Everybody</option>
-                <option value="accepted">Accepted candidates</option>
+                <option value="approved">Approved candidates</option>
                 <option value="rejected">Rejected candidates</option>
                 <option value="pending">Pending candidates</option>
               </select>
