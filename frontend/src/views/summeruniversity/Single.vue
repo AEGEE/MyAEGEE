@@ -457,6 +457,7 @@
           >
             <MglMap
               id="map"
+              :mapboxGl="mapboxgl"
               :accessToken="accessToken"
               :mapStyle="map.style"
               :zoom="map.zoom"
@@ -493,6 +494,7 @@
 import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import mapboxgl from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -791,6 +793,12 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
+    // mapbox-gl itself, so the map is built as soon as it is shown: vue-mapbox would load it
+    // on its own after the map was created, and throw when the map is gone by then (the member
+    // left, or the map was taken away). A computed property, so Vue doesn't observe the library.
+    mapboxgl () {
+      return mapboxgl
+    },
     // The city where the SU starts or ends: the edit forms used to store the flag as the text 'true'.
     startLocation () {
       const location = this.event.locations.find((item) => item.start === 'true' || item.start === true)
