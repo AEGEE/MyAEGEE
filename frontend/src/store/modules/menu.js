@@ -28,9 +28,10 @@ const mapComponent = (component, nested = false) => ({
   auth: component.auth,
   params: component.params || '',
   icon: typeof component.icon !== 'undefined' ? component.icon : null,
-  expanded: typeof component.expanded !== 'undefined' ? component.expanded : false,
+  // Every group starts closed; the sidebar opens the group of the page that is shown.
+  expanded: false,
   permissions: Array.isArray(component.permissions) ? component.permissions : null,
-  children: (component.children && !nested) ? component.children.map(mapComponent, true) : null
+  children: (component.children && !nested) ? component.children.map(child => mapComponent(child, true)) : null
 })
 
 const mapCategory = category => ({
@@ -44,14 +45,9 @@ const state = {
 }
 
 const mutations = {
-  [types.EXPAND_MENU] (newState, menuItem) {
-    if (menuItem.index > -1 && menuItem.categoryIndex > -1) {
-      if (newState.items[menuItem.categoryIndex].components[menuItem.index]) {
-        newState.items[menuItem.categoryIndex].components[menuItem.index].expanded = menuItem.expanded
-      }
-    } else if (menuItem.item && 'expanded' in menuItem.item) {
-      menuItem.item.expanded = menuItem.expanded
-    }
+  // Opens or closes the group at `index` of the category at `categoryIndex`.
+  [types.EXPAND_MENU] (newState, { index, categoryIndex, expanded }) {
+    newState.items[categoryIndex].components[index].expanded = expanded
   }
 }
 
