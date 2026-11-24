@@ -64,10 +64,11 @@ test.describe('the shell on a phone', () => {
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeHidden();
     });
 
-    test('on a desktop the sidebar is open from the start', {
-        tag: '@desktop-only',
-        annotation: { type: 'desktop-only', description: 'a phone starts with the sidebar closed; the tests above cover that' }
-    }, async ({ page }) => {
+    test('at a desktop\'s width the sidebar is open from the start', async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 800 });
+        await page.reload();
+        await expect(page.getByText('No events found.')).toBeVisible();
+
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeHidden();
 
@@ -75,6 +76,25 @@ test.describe('the shell on a phone', () => {
         await swipe(page, 250, 20);
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
         await swipe(page, 20, 250);
+        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+    });
+
+    test('a page in the background leaves the sidebar as it is until it is shown again', { tag: '@phone-only' }, async ({ page }) => {
+        const setHidden = (hidden: boolean) => page.evaluate((value) => {
+            Object.defineProperty(document, 'hidden', { value, configurable: true });
+            document.dispatchEvent(new Event('visibilitychange'));
+        }, hidden);
+        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeHidden();
+
+        // The window gets a desktop's width while the tab is in the background.
+        await setHidden(true);
+        await page.setViewportSize({ width: 1280, height: 800 });
+        // A frame runs the page's resize handlers before its animation callbacks: two frames
+        // later the page has seen the new width.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeHidden();
+
+        await setHidden(false);
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
     });
 });

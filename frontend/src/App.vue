@@ -30,7 +30,6 @@ export default {
     const RATIO = 3
 
     const handler = () => {
-      /* istanbul ignore else -- the browser of the tests always shows the page; a hidden one only skips this */
       if (!document.hidden) {
         const rect = body.getBoundingClientRect()
         const isMobile = rect.width - RATIO < WIDTH
