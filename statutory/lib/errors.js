@@ -42,3 +42,4 @@ exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);
 exports.makeNotFoundError = (res, err) => exports.makeError(res, 404, err);
 exports.makeInternalError = (res, err) => exports.makeError(res, 500, err);
 exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
+exports.makeServiceUnavailableError = (res, err) => exports.makeError(res, 503, err);

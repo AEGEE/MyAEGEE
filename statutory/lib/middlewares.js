@@ -8,6 +8,7 @@ const { Event, Application, Image, PaxLimit } = require('../models');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
 const cron = require('./cron');
+const { isLockTimeout } = require('./locks');
 
 exports.authenticateUser = async (req, res, next) => {
     try {
@@ -273,6 +274,11 @@ exports.errorHandler = (err, req, res, next) => {
     // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
+    }
+
+    // A lock that other requests held for longer than the lock timeout: nothing was changed.
+    if (isLockTimeout(err)) {
+        return errors.makeServiceUnavailableError(res, 'The server is busy, please try again.');
     }
 
     /* istanbul ignore next */

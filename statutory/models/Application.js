@@ -1,5 +1,6 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const helpers = require('../lib/helpers');
+const { limitLockWait } = require('../lib/locks');
 const Event = require('./Event');
 const MembersList = require('./MembersList');
 
@@ -523,6 +524,7 @@ Application.afterValidate(async (application, options) => {
 Application.beforeCreate(async (application, options) => {
     // Locking per event until the transaction ends, so concurrent applications
     // to the same event can't get the same statutory ID.
+    await limitLockWait(options.transaction);
     await sequelize.query('SELECT pg_advisory_xact_lock(hashtext(\'applications.statutory_id\'), :eventId)', {
         replacements: { eventId: application.event_id },
         transaction: options.transaction

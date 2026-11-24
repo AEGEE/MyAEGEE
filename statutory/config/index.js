@@ -9,6 +9,9 @@ const config = {
             username: process.env.DB_USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'statutory',
+            // Milliseconds a request waits for a lock (Postgres lock_timeout) before it
+            // answers 503. Each waiting request holds a database connection.
+            lock_timeout: 5000
         },
         core: {
             url: 'http://core',
@@ -74,7 +77,8 @@ const config = {
         port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
-            database: 'statutory-testing'
+            database: 'statutory-testing',
+            lock_timeout: 1000
         },
         logger: {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
