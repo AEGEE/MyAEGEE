@@ -61,6 +61,32 @@ describe('Users image upload', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should answer 500 without the text of the error if the image cannot be stored', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        // The folder for the images is a file, so storing one fails with a filesystem error.
+        fs.mkdirSync(config.media_dir, { recursive: true });
+        fs.writeFileSync(path.join(config.media_dir, 'headimages'), 'not a folder');
+
+        const res = await request({
+            path: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            files: {
+                head_image: {
+                    path: './test/assets/valid_image.png'
+                }
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body).toEqual({ success: false, message: 'Something went wrong on the server.' });
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.image).toEqual(user.image);
+    });
+
     it('should fail if the uploaded file is not an image (by content)', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
