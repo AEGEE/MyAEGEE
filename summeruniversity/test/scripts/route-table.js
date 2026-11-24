@@ -103,9 +103,15 @@ module.exports = {
 
     // operationId -> path parameters that answer 400 when they are not a number.
     badIds: {
-        // Their 400 is about the request body (events-status.test.js, applications-creating.test.js).
+        // Their 400 is about the request body (events-status.test.js, applications-creating.test.js,
+        // body-object.test.js).
         setEventPublished: [],
         createApplication: [],
+        updateSeason: [],
+        updateEvent: [],
+        setEventStatus: [],
+        setEventApplicationPeriod: [],
+        setEventOpenCall: [],
         listBodyApplications: ['body_id'],
         listFutureApplications: ['user_id'],
         getApplication: ['application_id'],
