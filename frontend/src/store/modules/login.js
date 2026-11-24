@@ -26,6 +26,9 @@ const mutations = {
   [types.LOGOUT] (newState) {
     newState.isLoggedIn = false
     newState.user = null
+    newState.permissions = []
+    newState.isValid = true
+    newState.validationErrors = {}
   }
 }
 
