@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h1 class="title">Members who have the permission</h1>
+        <h1 class="title">Members who have the permission {{ permission.combined }}</h1>
 
         <b-table
           :data="members"
@@ -31,7 +31,7 @@ export default {
     return {
       members: [],
       permission: {
-        name: ''
+        combined: ''
       },
       isLoading: false
     }
