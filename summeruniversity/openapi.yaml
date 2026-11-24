@@ -122,6 +122,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /mine/organizing:
     get:
       operationId: listOrganizedEvents
@@ -317,6 +319,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /seasons/active:
     get:
       operationId: getActiveSeason
@@ -356,6 +360,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /seasons/{year}/active:
     parameters:
       - $ref: '#/components/parameters/Year'
@@ -418,6 +424,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
     delete:
       operationId: deleteEvent
       summary: Delete a Summer University
@@ -464,6 +472,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/upload:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -516,6 +526,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/application_period:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -541,6 +553,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/open_call:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -570,6 +584,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications:
     parameters:
@@ -610,6 +626,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/export:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -670,6 +688,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/attended:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -696,6 +716,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/cancelled:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -722,6 +744,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications/{application_id}/confirmed:
     parameters:
@@ -749,6 +773,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/status:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -775,6 +801,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications/{application_id}/comment:
     parameters:
@@ -801,6 +829,8 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
 components:
   securitySchemes:
     XAuthToken:
@@ -853,7 +883,9 @@ components:
         application/json:
           schema: {$ref: '#/components/schemas/ApplicationInput'}
   responses:
-    BadRequest: {description: 'Malformed request, for example a non-numeric ID, or a JSON body that is not an object.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadRequest: {description: 'Malformed request, for example a non-numeric ID, or a JSON body that is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The body is larger than 1 MB ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyUnsupported: {description: 'The body is in another charset than UTF-8 or in an unknown encoding ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}

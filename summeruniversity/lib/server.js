@@ -25,7 +25,8 @@ const server = express();
 // lowers qs's array limit to 20. Keep Express 4's behaviour: nested and bracketed
 // parameters (filter[status]=..., type[]=...) with up to 1000 array items.
 server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, arrayLimit: 1000 }));
-server.use(bodyParser.json());
+// The second edit form sends every long text of a Summer University in one request.
+server.use(bodyParser.json({ limit: '1mb' }));
 server.use(middlewares.checkJsonBody);
 server.use(morgan);
 server.use(queryBoolean());
