@@ -162,11 +162,11 @@ export default {
       this.axios.put(url, { cancelled: pax.newCancelled }).then(() => {
         pax.cancelled = pax.newCancelled
         pax.isSavingCancelled = false
-        this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
+        this.$root.showSuccess(`Successfully updated cancellation info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingCancelled = false
         pax.newCancelled = pax.cancelled
-        this.$root.showError('Could not update participant attendance info', err)
+        this.$root.showError('Could not update participant cancellation info', err)
       })
     },
     switchPaxAttended (pax) {
