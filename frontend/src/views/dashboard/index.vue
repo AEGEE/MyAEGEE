@@ -4,8 +4,8 @@
       <div class="tile is-vertical is-12">
         <div class="tile">
           <div class="tile is-4 is-parent">
-            <article class="tile is-child box">
-              <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-member" :aria-busy="isLoading.user">
+              <h2 id="dashboard-member" class="title">{{ user.first_name }} {{ user.last_name }}</h2>
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
@@ -29,8 +29,8 @@
           </div>
 
           <div class="tile is-4 is-parent is-vertical">
-            <article class="tile is-child box">
-              <p class="title">Upcoming events you’ve applied to</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-upcoming" :aria-busy="isLoading.events">
+              <h2 id="dashboard-upcoming" class="title">Upcoming events you've applied to</h2>
               <div class="content" v-show="events.future.length > 0">
                 <ul>
                   <li v-for="event in events.future" v-bind:key="event.id">
@@ -51,8 +51,8 @@
               </div>
             </article>
 
-            <article class="tile is-child box">
-              <p class="title">Past events you've applied to</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-past" :aria-busy="isLoading.events">
+              <h2 id="dashboard-past" class="title">Past events you've applied to</h2>
               <div class="content" v-show="events.past.length > 0">
                 <ul>
                   <li v-for="event in events.past" v-bind:key="event.id">
@@ -76,8 +76,8 @@
           </div>
 
           <div class="tile is-4 is-parent">
-            <article class="tile is-child box">
-              <p class="title">Statutory events</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-statutory" :aria-busy="isLoading.statutory">
+              <h2 id="dashboard-statutory" class="title">Statutory events</h2>
               <div class="content">
                 <strong>Latest statutory event</strong>
                 <ul v-if="!statutory">
