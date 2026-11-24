@@ -1,8 +1,8 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">Discounts categories list</h4>
+      <article class="tile is-child" aria-labelledby="discount-categories-title" :aria-busy="isLoading">
+        <h1 class="title" id="discount-categories-title">Discounts categories list</h1>
 
         <div class="field" v-if="can.create">
           <div class="control">
@@ -16,17 +16,17 @@
           </b-table-column>
 
           <b-table-column field="discounts" label="Discounts" v-slot="props">
-            <ul v-for="(discount, index) in props.row.discounts" v-bind:key="index">
-              <li>{{ discount.name }}</li>
+            <ul>
+              <li v-for="(discount, index) in props.row.discounts" v-bind:key="index">{{ discount.name }}</li>
             </ul>
           </b-table-column>
 
           <b-table-column label="Edit" v-slot="props">
-            <router-link :to="{ name: 'oms.discounts.categories.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
+            <router-link :to="{ name: 'oms.discounts.categories.edit', params: { id: props.row.id } }" class="button is-small is-warning" :aria-label="'Edit category ' + props.row.name">Edit</router-link>
           </b-table-column>
 
           <b-table-column label="Delete" v-slot="props">
-            <button @click="askDeleteCategory(props.index)" class="button is-small is-danger">Delete</button>
+            <button type="button" @click="askDeleteCategory(props.index)" class="button is-small is-danger" :aria-label="'Delete category ' + props.row.name">Delete</button>
           </b-table-column>
 
           <template slot="empty">
