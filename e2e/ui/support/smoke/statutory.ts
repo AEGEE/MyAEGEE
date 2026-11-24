@@ -1,13 +1,22 @@
 // Answers for the pages of the area `statutory` in the smoke and accessibility runs
 // (see index.ts).
 import type { ApiMock } from '../api-mock.ts';
-import { ok } from '../factories/base.ts';
+import { ok, okList } from '../factories/base.ts';
 import { body } from '../factories/core.ts';
 import { singleStatutoryApplication } from '../factories/statutory-applications.ts';
 import { allStatutoryPermissions, statutoryEvent } from '../factories/statutory-events.ts';
+import { membersList } from '../factories/statutory-memberslists.ts';
+import { mockMap } from '../map.ts';
 import { applicationFields, incomingApplicationFields, statutoryStats } from '../factories/statutory-stats.ts';
 
 export const smoke = (api: ApiMock): void => {
+    // The event form and the event page draw a map.
+    mockMap(api);
+    // The members list of a body (body 1, the superadmin's); `missing` and `without_fee` are
+    // lists of bodies.
+    api.on('GET statutory /events/:id/memberslists/:body_id', ({ params }) => ({
+        json: /^\d+$/.test(params.body_id) ? ok(membersList({ body_id: Number(params.body_id) })) : okList([], 0)
+    }));
     // statutory puts the permissions inside `data`: here every permission, as a superadmin has.
     api.json('GET statutory /events/:id', ok(statutoryEvent({
         questions: [
