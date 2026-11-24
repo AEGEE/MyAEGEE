@@ -7,12 +7,12 @@ const generator = require('../scripts/generator');
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const { sequelize } = require('../../lib/sequelize');
-const { Application, Attendance, VotesPerAntenna, VotesPerDelegate } = require('../../models');
+const { Application, Attendance, MembersList, VotesPerAntenna, VotesPerDelegate } = require('../../models');
 
 const BUSY = { success: false, message: 'The server is busy, please try again.' };
 
 // Requests that change the same rows at the same time run one after the other: the
-// statutory ID of the applications to an event and the votes of the delegates of a body.
+// statutory ID of the applications to an event and the votes of a body and its delegates.
 // A request waits for such a lock at most postgres.lock_timeout, then answers 503 and
 // changes nothing. A member has at most one open attendance at a plenary.
 describe('Locks', () => {
@@ -131,6 +131,38 @@ describe('Locks', () => {
             const unchanged = await Application.findByPk(delegate.id);
             expect(unchanged.confirmed).toEqual(false);
             expect(await VotesPerDelegate.count()).toEqual(0);
+        }, 20000);
+    });
+
+    describe('the votes of a body after its members list', () => {
+        test.each([
+            ['a first members list', false],
+            ['an edit of the members list', true]
+        ])('%s that waits too long for the votes of the body answers 503 and stores nothing', async (description, existing) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const bodyId = regularUser.bodies[0].id;
+            await VotesPerAntenna.create({ event_id: event.id, body_id: bodyId, votes: 1 });
+            const before = existing
+                ? await generator.createMembersList({ body_id: bodyId, members: [generator.generateMembersListMember()] }, event)
+                : null;
+
+            const res = await holdingLock(
+                'SELECT * FROM votes_per_antenna WHERE event_id = :eventId AND body_id = :bodyId FOR UPDATE',
+                { eventId: event.id, bodyId },
+                () => request({
+                    path: '/events/' + event.id + '/memberslists/' + bodyId,
+                    method: 'POST',
+                    headers: { 'X-Auth-Token': 'blablabla' },
+                    body: generator.generateMembersList({ members: Array.from({ length: 30 }, () => generator.generateMembersListMember()) })
+                })
+            );
+
+            expect(res.statusCode).toEqual(503);
+            expect(res.body).toEqual(BUSY);
+
+            const stored = await MembersList.findAll();
+            expect(stored.map((list) => list.members.length)).toEqual(existing ? [before.members.length] : []);
+            expect((await VotesPerAntenna.findOne()).votes).toEqual(1);
         }, 20000);
     });
 
