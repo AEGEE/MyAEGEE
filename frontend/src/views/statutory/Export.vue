@@ -133,7 +133,7 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
-      })
+      }).catch((err) => this.showExportError('Could not export the OpenSlides data', err))
     },
     exportAll () {
       const prefix = this.can.export.all
@@ -157,7 +157,19 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
-      })
+      }).catch((err) => this.showExportError('Could not export the participants', err))
+    },
+    async showExportError (message, err) {
+      // The error body is a Blob too, so reading the service's message out of it.
+      if (err.response && err.response.data instanceof Blob) {
+        try {
+          err.response.data = JSON.parse(await err.response.data.text())
+        } catch (parseError) {
+          err.response.data = null
+        }
+      }
+
+      this.$root.showError(message, err)
     },
     filterKeys () {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
