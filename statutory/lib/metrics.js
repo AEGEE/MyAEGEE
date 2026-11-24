@@ -74,6 +74,7 @@ exports.getMetrics = async (req, res) => {
             include: [{
                 model: Event,
                 attributes: [],
+                where: { status: 'published' }
             }],
             raw: true
         }),
@@ -86,6 +87,7 @@ exports.getMetrics = async (req, res) => {
             include: [{
                 model: Event,
                 attributes: [],
+                where: { status: 'published' }
             }],
             raw: true
         }),
@@ -98,6 +100,7 @@ exports.getMetrics = async (req, res) => {
             include: [{
                 model: Event,
                 attributes: [],
+                where: { status: 'published' }
             }],
             raw: true
         }),
@@ -110,14 +113,17 @@ exports.getMetrics = async (req, res) => {
             include: [{
                 model: Event,
                 attributes: [],
+                where: { status: 'published' }
             }],
             raw: true
         }),
+        // Only published events are named: a draft is for those who manage events of its type.
         sequelize.query(
             'SELECT positions.status AS status, positions.name AS position_name, events.name AS event_name, COUNT(candidates.id) AS value '
             + 'FROM candidates, positions, events '
             + 'WHERE positions.id = candidates.position_id '
             + 'AND events.id = positions.event_id '
+            + 'AND events.status = \'published\' '
             + 'GROUP BY position_name, event_name, positions.status',
             { type: sequelize.QueryTypes.SELECT }
         )
