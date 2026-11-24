@@ -150,9 +150,7 @@ test.describe('event editor', () => {
                 locations: [{ name: 'Main square', position: { lat: 50.8503396, lng: 4.3517103 } }],
                 link_info_travel_country: 'https://example.org/travel',
                 budget: 'https://example.org/budget',
-                programme: 'https://example.org/programme',
-                body_id: null,
-                body: null
+                programme: 'https://example.org/programme'
             }]);
         });
 

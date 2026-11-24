@@ -111,8 +111,6 @@ export default {
         return 'has-background-success'
       case 'rejected':
         return 'has-background-danger'
-      case 'waiting_list':
-        return 'has-background-warning'
       default:
         return ''
       }
@@ -181,11 +179,6 @@ export default {
     services: 'services',
     loginUser: 'user'
   }),
-  filters: {
-    capitalize (value) {
-      return value.charAt(0).toUpperCase() + value.slice(1)
-    }
-  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {

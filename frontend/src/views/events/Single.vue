@@ -382,7 +382,6 @@ export default {
       can: {
         edit_event: false,
         approve_event: {},
-        view_applications: false,
         apply: false,
         change_status: {
           draft: false,
@@ -401,7 +400,6 @@ export default {
         ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -577,9 +575,6 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
-    isOrganizer () {
-      return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
-    },
     isOnlineEvent () {
       return this.event.method === 'online'
     },

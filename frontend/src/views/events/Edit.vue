@@ -679,8 +679,6 @@ export default {
         application_ends: null,
         starts: null,
         ends: null,
-        body_id: null,
-        body: null,
         optional_fee: null,
         meals_per_day: 0,
         vegetarian: false,
@@ -706,7 +704,6 @@ export default {
         zoom: 3
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
-      file: null,
       bodies: [],
       selectedBody: null,
       dateConfig: {
@@ -714,9 +711,6 @@ export default {
         time_24hr: true,
         allowInput: true,
         disableMobile: true
-      },
-      can: {
-        edit_application_status: false
       },
       errors: {},
       isLoading: false,
@@ -975,7 +969,6 @@ export default {
 
       return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
-        this.can = eventsResponse.data.permissions
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.ends = new Date(this.event.ends)
