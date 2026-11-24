@@ -8,7 +8,7 @@ import type { Page } from '@playwright/test';
 import { ok } from '../support/factories/base.ts';
 import { dockerTags, githubRelease, healthcheck } from '../support/factories/static.ts';
 import type { ApiMock, MockResponse } from '../support/api-mock.ts';
-import { cellOf, tableRows } from '../support/shell.ts';
+import { cellOf, openAccountMenu, tableRows } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const FRONTEND_VERSION = (JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '../../../frontend/package.json'), 'utf8')) as { version: string }).version;
@@ -39,6 +39,18 @@ const answerAll = (api: ApiMock): void => {
 test.use({ session: 'anonymous' });
 
 test.describe('status page', () => {
+    test('the page keeps the screen\'s width, so the account menu stays in reach', async ({ page, api, layout }) => {
+        answerAll(api);
+
+        await page.goto('/status');
+        await expect(await cell(page, 'network', 'Is alive?')).toHaveText('Yes');
+
+        // On a phone the table scrolls on its own instead of widening the page and the top bar.
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+        const account = await openAccountMenu(page, layout);
+        await expect(account.getByRole('link', { name: 'Login', exact: true })).toBeVisible();
+    });
+
     test('every service shows that it is alive, its version and round trip, with links to its releases', async ({ page, api }) => {
         answerAll(api);
         api.on('GET events /healthcheck', healthy('events', '3.1.0'));

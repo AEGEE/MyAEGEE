@@ -2,7 +2,7 @@
 // core, which files it in the issue tracker. Visitors and members.
 import type { Page } from '@playwright/test';
 
-import { toast } from '../support/shell.ts';
+import { openAccountMenu, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 // A one-pixel PNG: what a screenshot is doesn't matter here, only that one is sent.
@@ -19,6 +19,17 @@ const describeBug = async (page: Page): Promise<void> => {
 
 test.describe('reporting a bug as a visitor', () => {
     test.use({ session: 'anonymous' });
+
+    test('the page keeps the screen\'s width, so the account menu stays in reach', async ({ page, layout }) => {
+        await page.goto('/bug_report');
+        await page.getByLabel('Screenshot 1', { exact: true }).setInputFiles(shot('a-screenshot-with-a-long-name.png'));
+        await expect(page.getByText('a-screenshot-with-a-long-name.png')).toBeVisible();
+
+        // On a phone the remove button goes under the file field instead of widening the page.
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+        const account = await openAccountMenu(page, layout);
+        await expect(account.getByRole('link', { name: 'Login', exact: true })).toBeVisible();
+    });
 
     test('sends the description, the email and two screenshots, and empties the form', async ({ page, api }) => {
         api.on('POST core /bug-report', REPORTED);
