@@ -3,6 +3,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
+const config = require('../../config');
 
 const unauthorizedMocks = {
     core: { unauthorized: true },
@@ -558,6 +560,28 @@ describe('Events status, publication, periods and deletion', () => {
             await event.reload();
             expect(event.open_call).toEqual(false);
             expect(event.max_participants).toEqual(1);
+        });
+
+        test('should answer 503 and change nothing while another change holds the event', async () => {
+            const event = await generator.createEvent({ open_call: false });
+            const lockTimeout = config.lock_timeout;
+            config.lock_timeout = 100;
+
+            const t = await sequelize.transaction();
+            try {
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.UPDATE });
+
+                const res = await put(event, '/open_call', { open_call: true });
+
+                expect(res.statusCode).toEqual(503);
+                expect(res.body.message).toEqual('Another change to this event is in progress. Please try again.');
+            } finally {
+                await t.rollback();
+                config.lock_timeout = lockTimeout;
+            }
+
+            await event.reload();
+            expect(event.open_call).toEqual(false);
         });
 
         test('should return 422 and change nothing without open_call', async () => {

@@ -2,6 +2,9 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { Event, Application } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
+const config = require('../../config');
 const coreUser = require('../assets/oms-core-valid.json').data;
 
 const unauthorizedMocks = {
@@ -42,6 +45,7 @@ describe('Applications status changes', () => {
     });
 
     afterEach(async () => {
+        jest.restoreAllMocks();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -213,6 +217,17 @@ describe('Applications status changes', () => {
             expect(res.statusCode).toEqual(403);
         });
 
+        test('should not cancel the application if counting the accepted participants fails', async () => {
+            await application.update({ status: 'accepted' });
+            jest.spyOn(Event.prototype, 'update').mockRejectedValueOnce(new Error('Could not save the event'));
+
+            const res = await put('/cancelled', { cancelled: true });
+
+            expect(res.statusCode).toEqual(500);
+            await application.reload();
+            expect(application.cancelled).toEqual(false);
+        });
+
         test('should return 422 on a non-boolean value', async () => {
             const res = await put('/cancelled', { cancelled: 'yes' });
 
@@ -266,6 +281,16 @@ describe('Applications status changes', () => {
 
             expect(res.statusCode).toEqual(403);
             expect(res.body.message).toEqual('You are not allowed to accept or reject participants');
+        });
+
+        test('should not change the status if counting the accepted participants fails', async () => {
+            jest.spyOn(Event.prototype, 'update').mockRejectedValueOnce(new Error('Could not save the event'));
+
+            const res = await put('/status', { status: 'accepted' });
+
+            expect(res.statusCode).toEqual(500);
+            await application.reload();
+            expect(application.status).toEqual('pending');
         });
 
         test('should return 500 and roll back if the mailer fails', async () => {
@@ -548,6 +573,79 @@ describe('Applications status changes', () => {
             expect(res.statusCode).toEqual(200);
             await own.reload();
             expect(own.cancelled).toEqual(true);
+        });
+    });
+
+    // Changes that can take a spot run one after the other: each locks the event first.
+    describe('requests at the same time', () => {
+        // Each race runs three times, with four requests at once.
+        const ROUNDS = [1, 2, 3];
+        const PARALLEL = 4;
+
+        const acceptedCount = () => Application.count({ where: { event_id: event.id, status: 'accepted', cancelled: false } });
+
+        test.each(ROUNDS)('should accept at most max_participants applications and count them (round %i)', async () => {
+            await generator.clearAll();
+            event = await generator.createEvent({ max_participants: 1, accepted_participants: 0 });
+            const applications = await Promise.all([...Array(PARALLEL).keys()].map((index) => generator.createApplication(event, { user_id: 10 + index })));
+
+            const results = await Promise.all(applications.map((one) => put('/status', { status: 'accepted' }, one.id)));
+
+            expect(results.map((res) => res.statusCode).sort()).toEqual([200, 422, 422, 422]);
+            expect(await acceptedCount()).toEqual(1);
+            await event.reload();
+            expect(event.accepted_participants).toEqual(1);
+        });
+
+        test.each(ROUNDS)('should take back at most max_participants cancellations of accepted applications (round %i)', async () => {
+            await generator.clearAll();
+            event = await generator.createEvent({ max_participants: 1, accepted_participants: 0 });
+            const applications = await Promise.all([...Array(PARALLEL).keys()].map((index) => generator.createApplication(event, { user_id: 10 + index, status: 'accepted', cancelled: true })));
+
+            const results = await Promise.all(applications.map((one) => put('/cancelled', { cancelled: false }, one.id)));
+
+            expect(results.map((res) => res.statusCode).sort()).toEqual([200, 422, 422, 422]);
+            expect(await acceptedCount()).toEqual(1);
+            await event.reload();
+            expect(event.accepted_participants).toEqual(1);
+        });
+
+        test.each(ROUNDS)('should count every acceptance made at the same time (round %i)', async () => {
+            await generator.clearAll();
+            event = await generator.createEvent({ max_participants: null, accepted_participants: 0 });
+            const applications = await Promise.all([...Array(PARALLEL).keys()].map((index) => generator.createApplication(event, { user_id: 10 + index })));
+
+            const results = await Promise.all(applications.map((one) => put('/status', { status: 'accepted' }, one.id)));
+
+            expect(results.map((res) => res.statusCode)).toEqual([200, 200, 200, 200]);
+            await event.reload();
+            expect(event.accepted_participants).toEqual(PARALLEL);
+        });
+
+        test.each([
+            ['/status', { status: 'accepted' }],
+            ['/cancelled', { cancelled: true }]
+        ])('PUT %s should answer 503 and change nothing while another change holds the event', async (subpath, body) => {
+            const lockTimeout = config.lock_timeout;
+            config.lock_timeout = 100;
+
+            const t = await sequelize.transaction();
+            try {
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.UPDATE });
+
+                const res = await put(subpath, body);
+
+                expect(res.statusCode).toEqual(503);
+                expect(res.body.message).toEqual('Another change to this event is in progress. Please try again.');
+            } finally {
+                await t.rollback();
+                config.lock_timeout = lockTimeout;
+            }
+
+            await application.reload();
+            expect(application.status).toEqual('pending');
+            expect(application.cancelled).toEqual(false);
+            expect(mails.length).toEqual(0);
         });
     });
 });
