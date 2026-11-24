@@ -1324,8 +1324,8 @@ describe('Memberslist uploading', () => {
             ends: new Date('2031-07-25T10:00:00.000Z')
         });
 
-        const upload = (event) => request({
-            path: '/events/' + event.id + '/memberslists/' + bodyId,
+        const upload = (event, toBodyId = bodyId) => request({
+            path: '/events/' + event.id + '/memberslists/' + toBodyId,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { currency: 'EU', members: sentMembers }
@@ -1420,6 +1420,43 @@ describe('Memberslist uploading', () => {
                     expect(res.body).toEqual({ success: false, message: 'You are not allowed to edit memberslist.' });
                     expect(await membersInDb()).toEqual([['stored']]);
                 }
+            });
+        });
+
+        // The board of a local holds manage_memberslist:agora in its own body only, so the late
+        // permission and the open periods count for that body, never for another one.
+        describe('of another body', () => {
+            const OTHER_BODY_ID = 1337;
+
+            test.each([
+                ['while the submission is open', [], PERIOD_STARTS],
+                [`with ${LATE_GLOBAL} after the submission deadline`, [LATE_GLOBAL], ms(SUBMISSION_DEADLINE, 1)]
+            ])('refuses a first members list from the board of another local %s', async (_, permissions, date) => {
+                mock.mockAll(callers.board.mocks(permissions));
+                const event = await createAgora();
+
+                tk.freeze(date);
+                const res = await upload(event, OTHER_BODY_ID);
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual({ success: false, message: 'You are not allowed to upload memberslist.' });
+                expect(await membersInDb()).toEqual([]);
+            });
+
+            test.each([
+                ['while the submission is open', [], PERIOD_STARTS],
+                [`with ${LATE_GLOBAL} after the edit deadline`, [LATE_GLOBAL], ms(EDIT_DEADLINE, 1)]
+            ])('refuses an edit from the board of another local %s', async (_, permissions, date) => {
+                mock.mockAll(callers.board.mocks(permissions));
+                const event = await createAgora();
+                await generator.createMembersList({ body_id: OTHER_BODY_ID, members: storedMembers }, event);
+
+                tk.freeze(date);
+                const res = await upload(event, OTHER_BODY_ID);
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual({ success: false, message: 'You are not allowed to edit memberslist.' });
+                expect(await membersInDb()).toEqual([['stored']]);
             });
         });
     });
