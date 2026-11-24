@@ -84,7 +84,6 @@ export default {
         quota_period: 'month',
         quota_amount: 1
       },
-      permissions: [],
       errors: {},
       isLoading: false,
       isSaving: false

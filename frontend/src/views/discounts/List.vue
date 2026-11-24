@@ -56,16 +56,6 @@ export default {
     }
   },
   computed: {
-    queryObject () {
-      const queryObj = {
-        limit: this.limit,
-        offset: this.offset
-      }
-
-      if (this.query) queryObj.query = this.query
-      if (this.type) queryObj.filter = { type: this.type }
-      return queryObj
-    },
     // The same check as the discounts service's: a permission that ends in manage:discounts.
     can () {
       return {
@@ -75,11 +65,6 @@ export default {
     ...mapGetters(['services', 'permissions'])
   },
   methods: {
-    refetch () {
-      this.integrations = []
-      this.canLoadMore = true
-      this.fetchData()
-    },
     fetchData () {
       this.isLoading = true
 

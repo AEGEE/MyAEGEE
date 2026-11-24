@@ -55,11 +55,7 @@ export default {
       codes: [],
       integrations: [],
       selectedIntegration: null,
-      isLoading: false,
-      permissions: [],
-      can: {
-        create: false
-      }
+      isLoading: false
     }
   },
   computed: {
@@ -79,11 +75,6 @@ export default {
         response.data.data.integration = integration
         this.codes.unshift(response.data.data)
       }).catch((err) => this.$root.showError('Could not claim code', err))
-    },
-    refetch () {
-      this.integrations = []
-      this.canLoadMore = true
-      this.fetchData()
     },
     fetchData () {
       this.isLoading = true

@@ -75,8 +75,7 @@ import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
-      categories: [],
-      isLoading: false
+      categories: []
     }
   },
   computed: {
@@ -89,8 +88,6 @@ export default {
     ...mapGetters(['services', 'permissions'])
   },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['discounts'] + '/categories').then((response) => {
       for (const category of response.data.data) {
         for (const discount of category.discounts) {
@@ -99,7 +96,6 @@ export default {
       }
 
       this.categories = response.data.data
-      this.isLoading = false
     }).catch((err) => {
       this.$root.showError('Could not fetch categories list', err)
     })

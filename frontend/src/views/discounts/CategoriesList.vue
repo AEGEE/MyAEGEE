@@ -75,10 +75,6 @@ export default {
         this.categories.splice(index, 1)
       }).catch((err) => this.$root.showError('Could not delete category', err))
     },
-    refetch () {
-      this.integrations = []
-      this.fetchData()
-    },
     fetchData () {
       this.isLoading = true
 

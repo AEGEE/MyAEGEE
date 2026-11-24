@@ -85,7 +85,6 @@ export default {
         name: '',
         discounts: []
       },
-      permissions: [],
       errors: {},
       isLoading: false,
       isSaving: false
