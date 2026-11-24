@@ -597,7 +597,7 @@ export default {
           // for global and local permissions for users' bodies check the following:
           // set the permission to true if at least one set of permissions have
           // the required permission (either first for global, or others for local).
-          this.can.setActive = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('update_active:user')))
+          this.can.setActive = responses.some((list) => list.data.data.some((permission) => permission.combined === 'global:update_active:user'))
           this.can.setEventApplicationBan = responses.some((list) => list.data.data.some((permission) => permission.combined === 'global:update_application_ban:member'))
           this.can.viewEventApplicationBan = this.isOwnProfile || this.can.setEventApplicationBan
           this.can.setSuperadmin = responses.some((list) => list.data.data.some((permission) => permission.combined.endsWith('update_superadmin:member')))

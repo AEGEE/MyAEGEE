@@ -321,8 +321,8 @@ exports.setUserPassword = async (req, res) => {
 };
 
 exports.setUserActive = async (req, res) => {
-    if (!req.permissions.hasPermission('update_active:user')) {
-        return errors.makeForbiddenError(res, 'Permission update_active:user is required, but not present.');
+    if (!req.permissions.hasPermission('global:update_active:user')) {
+        return errors.makeForbiddenError(res, 'Permission global:update_active:user is required, but not present.');
     }
 
     await req.currentUser.update({ active: req.body.active });
