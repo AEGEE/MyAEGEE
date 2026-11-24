@@ -80,7 +80,7 @@ export default {
           canCancel: '[escape, button, outside]',
           confirmText: 'Event page',
           type: 'is-info',
-          onConfirm: () => window.open(info.event.url, '_self')
+          onConfirm: () => this.$router.push(info.event.url)
         })
       } else { // If there is no link
         this.$buefy.dialog.alert({
