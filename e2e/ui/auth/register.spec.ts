@@ -201,7 +201,7 @@ test.describe('signup page', () => {
     test('core\'s validation errors appear under their fields, with a toast', async ({ page, api }) => {
         api.json('GET core /campaigns/:id', ok(DEFAULT_CAMPAIGN));
         // What core's model sends for these fields (a taken username or email is the database's
-        // own message).
+        // own message; gender and phone are columns of at most 255 characters).
         const errors = {
             username: ['username must be unique'],
             email: ['email must be unique'],
@@ -209,7 +209,8 @@ test.describe('signup page', () => {
             first_name: ['First name should only contain letters, spaces and dashes.'],
             last_name: ['Last name should only contain letters, spaces and dashes.'],
             date_of_birth: ['Birthday should be in the past.'],
-            gender: ['Gender should be set.']
+            gender: ['Gender should be at most 255 characters long.'],
+            phone: ['Phone should be at most 255 characters long.']
         };
         api.on('POST core /signup/:id', { status: 422, json: validationError(errors) });
         await page.goto('/signup/default');
