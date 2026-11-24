@@ -1,19 +1,23 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <p class="subtitle">Campaign submissions</p>
+      <h2 class="subtitle">Campaign submissions</h2>
 
       <div class="field">
-        <label class="label">Search by name or surname</label>
+        <label class="label" for="campaign-members-search">Search by name or surname</label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()" />
+            <input id="campaign-members-search" class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()" />
           </div>
         </div>
       </div>
 
       <b-table
         :data="members"
+        ariaNextLabel="Next page"
+        ariaPreviousLabel="Previous page"
+        ariaPageLabel="Page"
+        ariaCurrentLabel="Current page"
         paginated
         :per-page="limit"
         default-sort="id"
