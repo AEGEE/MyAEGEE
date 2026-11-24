@@ -69,8 +69,9 @@ test.describe('creating a body', () => {
         await field(page, 'Email').fill('itwg@example.com');
         await field(page, 'Founded at (if applicable)').fill('1985-04-15');
         await field(page, 'Founded at (if applicable)').blur();
-        await field(page, 'Google Workspace account').fill('itwg@example.org');
-        await field(page, 'Google Group').fill('itwg-group@example.org');
+        // Only holders of the global right to update bodies may set them, and that is decided per body.
+        await expect(field(page, 'Google Workspace account')).toBeDisabled();
+        await expect(field(page, 'Google Group')).toBeDisabled();
         await save(page).click();
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
@@ -83,8 +84,8 @@ test.describe('creating a body', () => {
             id: null,
             code: 'ITW',
             email: 'itwg@example.com',
-            gsuite_id: 'itwg@example.org',
-            google_group: 'itwg-group@example.org',
+            gsuite_id: null,
+            google_group: null,
             phone: null,
             address: null,
             postal_address: null,
