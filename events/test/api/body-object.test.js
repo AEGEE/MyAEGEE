@@ -70,6 +70,106 @@ describe('Request bodies', () => {
         expect(mails).toEqual([]);
     });
 
+    // Postgres refuses the character U+0000 in a JSON column (500), and a deeply nested body
+    // made the validation run out of stack. Both are checked before any route runs, by walking
+    // the body without recursion.
+    const nested = (depth, bottom) => {
+        let body = bottom;
+        for (let level = 0; level < depth; level++) {
+            body = [body];
+        }
+        return body;
+    };
+    const BAD_BODIES = [
+        ['U+0000 in a string', { questions: [{ description: 'a\u0000b' }] }, 'The body should not contain the character U+0000.'],
+        ['U+0000 in a key', { locations: [{ 'name\u0000': 'x' }] }, 'The body should not contain the character U+0000.'],
+        ['65 levels', { name: nested(64, 'x') }, 'The body is nested too deeply.']
+    ];
+
+    test.each(jsonWrites.flatMap((op) => BAD_BODIES.map(([name, body, message]) => [`${op.method} ${op.template}`, name, op, body, message])))('%s answers 400 for a body with %s', async (_, _name, op, body, message) => {
+        const fixtures = await table.createFixtures();
+
+        const res = await request({ method: op.method, path: table.paths[op.operationId](fixtures), headers: { 'X-Auth-Token': 'foobar' }, body });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message });
+        await table.unchanged[op.operationId](fixtures);
+        expect(mails).toEqual([]);
+    });
+
+    test('takes a body nested 64 levels deep to the route', async () => {
+        const event = await generator.createEvent();
+
+        const res = await request({ method: 'PUT', path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' }, body: { name: nested(63, 'x') } });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['name']);
+    });
+
+    test.each([
+        ['POST', '/', 'x'],
+        ['PUT', '/single/:id', 'x'],
+        ['PUT', '/single/:id', 'a\u0000b']
+    ])('%s %s answers 400 for a body nested 10,000 levels deep (bottom %j), without running out of stack', async (method, template, bottom) => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            method,
+            path: template.replace(':id', event.id),
+            headers: { 'X-Auth-Token': 'foobar', 'Content-Type': 'application/json' },
+            rawBody: `{"name": ${'['.repeat(10000)}${JSON.stringify(bottom)}${']'.repeat(10000)}}`
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('The body is nested too deeply.');
+        expect(JSON.stringify(res.body)).not.toContain('Maximum call stack');
+    });
+
+    // Body-parser refuses these; they answered 500 with its message.
+    const UNREADABLE = [
+        ['over 1 MB', 413, { 'Content-Type': 'application/json' }, () => JSON.stringify({ description: 'a'.repeat(1024 * 1024) })],
+        ['in another charset', 415, { 'Content-Type': 'application/json; charset=latin1' }, () => '{"description": "Changed"}']
+    ];
+
+    test.each(jsonWrites.flatMap((op) => UNREADABLE.map(([name, status, headers, body]) => [`${op.method} ${op.template}`, name, op, status, headers, body])))('%s answers its 4xx for a body %s', async (_, _name, op, status, headers, body) => {
+        const fixtures = await table.createFixtures();
+
+        const res = await request({ method: op.method, path: table.paths[op.operationId](fixtures), headers: { 'X-Auth-Token': 'foobar', ...headers }, rawBody: body() });
+
+        expect(res.statusCode).toEqual(status);
+        expect(res.body).toEqual({ success: false, message: 'The request body could not be read.' });
+        await table.unchanged[op.operationId](fixtures);
+        expect(mails).toEqual([]);
+    });
+
+    test.each([
+        ['an unknown encoding', 415, 'br2', Buffer.from('{}')],
+        ['broken gzip', 400, 'gzip', Buffer.from('not gzip at all')]
+    ])('a body in %s answers %i', async (_name, status, encoding, body) => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            method: 'PUT',
+            path: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar', 'Content-Type': 'application/json', 'Content-Encoding': encoding },
+            rawBody: body
+        });
+
+        expect(res.statusCode).toEqual(status);
+        expect(res.body).toEqual({ success: false, message: 'The request body could not be read.' });
+    });
+
+    // The edit forms send every long text of an event in one request.
+    test('takes an edit of 300 kB', async () => {
+        const event = await generator.createEvent();
+        const description = 'Long description. '.repeat(17000);
+
+        const res = await request({ method: 'PUT', path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' }, body: { description } });
+
+        expect(res.statusCode).toEqual(200);
+        expect((await Event.findByPk(event.id)).description).toEqual(description);
+    });
+
     // The routes read the body without checking that there is one (POST / answered 500).
     test.each([
         ['POST', '/', 403, 'User creating the event should be the organizers.'],
