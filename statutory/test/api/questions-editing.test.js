@@ -366,12 +366,12 @@ describe('Questions editing', () => {
             ['an empty text', '', 'Question text should be set.'],
             ['a text of spaces only', '   ', 'Question text should be set.'],
             ['no text (null)', null, 'question.text cannot be null'],
-            ['a list as text', ['Changed'], 'text cannot be an array or an object']
+            ['a list as text', ['Changed'], ['text cannot be an array or an object', 'The value should be a text.']]
         ])('answers 422 for %s and changes nothing', async (description, text, message) => {
             const res = await edit({ text });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body).toEqual({ success: false, errors: { text: [message] } });
+            expect(res.body).toEqual({ success: false, errors: { text: [].concat(message) } });
             expect((await Question.findByPk(myQuestion.id)).text).toEqual('My question');
         });
     });

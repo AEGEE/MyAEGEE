@@ -195,17 +195,16 @@ describe('Question lines listing', () => {
             expect(res.body).toEqual(FORBIDDEN);
         });
 
-        // BUG: an application that was confirmed and then cancelled keeps `confirmed`, and only
-        // `confirmed` is looked at. Expected: 403, as for a member without an application.
-        test('lets a member whose confirmed application was cancelled see them', async () => {
+        // As for a member without an application.
+        test('refuses a member whose confirmed application was cancelled', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const application = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
             await application.update({ cancelled: true });
 
             const res = await list();
 
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.map((line) => line.id)).toEqual([questionLine.id]);
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual(FORBIDDEN);
         });
     });
 

@@ -383,10 +383,6 @@ describe('Applications status', () => {
                 expect(res.body.data.length).toEqual(1);
                 return res.body.data[0].applications[0].status;
             }, 'accepted'],
-            // BUG: the statistics count an accepted application as pending for those who manage
-            // the applications too. getStats asks for the permission to change statuses, which
-            // only the routes of a single application work out. Expected: "accepted", as on the
-            // two routes above.
             ['GET /events/:event_id/applications/stats', async () => {
                 const res = await get('/events/' + event.id + '/applications/stats');
                 expect(res.statusCode).toEqual(200);
@@ -394,7 +390,7 @@ describe('Applications status', () => {
                 const { accepted, pending } = res.body.data.numbers;
                 expect(accepted + pending).toEqual(1);
                 return accepted === 1 ? 'accepted' : 'pending';
-            }, 'pending']
+            }, 'accepted']
         ];
 
         const moments = [

@@ -29,7 +29,8 @@ describe('Outside tests', () => {
         expect(notify).toHaveBeenCalledWith(err);
         expect(errorLog).toHaveBeenCalledWith({ err });
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Something broke' });
+        // The error is in the log; the answer has a fixed text.
+        expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Internal server error.' });
     });
 
     test('stopping the server should close the database', async () => {

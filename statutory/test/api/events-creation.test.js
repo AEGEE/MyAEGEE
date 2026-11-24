@@ -1530,9 +1530,7 @@ describe('Events creation', () => {
             expect(await Event.count()).toEqual(0);
         });
 
-        // BUG: the event is refused, but the message is the text of a crash in the validation.
-        // Expected: "Question 1: should be an object.", as for a question that is a text.
-        test('should refuse null as a question, with the message of a crash', async () => {
+        test('should refuse null as a question, as for a question that is a text', async () => {
             const res = await request({
                 path: '/',
                 method: 'POST',
@@ -1541,7 +1539,7 @@ describe('Events creation', () => {
             });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toEqual({ questions: ['Cannot read properties of null (reading \'description\')'] });
+            expect(res.body.errors).toEqual({ questions: ['Question 1: should be an object.'] });
             expect(await Event.count()).toEqual(0);
         });
 

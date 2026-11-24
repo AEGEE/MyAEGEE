@@ -1353,9 +1353,10 @@ describe('Memberslist uploading', () => {
                 row('accepts', 'board', [], 'exactly at the submission deadline (inclusive)', SUBMISSION_DEADLINE),
                 row('refuses', 'board', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
                 row('refuses', 'board', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
-                row('accepts', 'board', [LATE_LOCAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                // The late permission is a global one: in another scope it counts nothing.
+                row('refuses', 'board', [LATE_LOCAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
                 row('accepts', 'board', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
-                row('accepts', 'board', [LATE_LOCAL], 'after the event started', ms(EVENT_STARTS, 1)),
+                row('accepts', 'board', [LATE_GLOBAL], 'after the event started', ms(EVENT_STARTS, 1)),
                 row('refuses', 'member', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
                 row('accepts', 'manager', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
                 row('accepts', 'manager', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
@@ -1387,13 +1388,14 @@ describe('Memberslist uploading', () => {
                 row('refuses', 'board', [], 'exactly at the edit deadline', EDIT_DEADLINE),
                 row('accepts', 'board', [BETWEEN], 'exactly at the edit deadline (inclusive)', EDIT_DEADLINE),
                 row('refuses', 'board', [BETWEEN], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
-                row('accepts', 'board', [LATE_LOCAL], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
+                // The late permission is a global one: in another scope it counts nothing.
+                row('refuses', 'board', [LATE_LOCAL], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
                 row('accepts', 'board', [LATE_GLOBAL], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
                 // BUG: the late permission lets a board edit after the edit deadline, but not in the days before it:
                 // between the deadlines it still needs the permission for that period. Expected: accepted.
-                row('refuses', 'board', [LATE_LOCAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
-                row('refuses', 'board', [LATE_LOCAL], 'exactly at the edit deadline', EDIT_DEADLINE),
-                row('accepts', 'board', [LATE_LOCAL, BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'board', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'board', [LATE_GLOBAL], 'exactly at the edit deadline', EDIT_DEADLINE),
+                row('accepts', 'board', [LATE_GLOBAL, BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
                 row('refuses', 'member', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
                 row('accepts', 'manager', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
                 row('accepts', 'manager', [], 'exactly at the submission deadline (inclusive)', SUBMISSION_DEADLINE),

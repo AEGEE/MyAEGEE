@@ -299,19 +299,17 @@ describe('Events status editing', () => {
             expect((await Event.findByPk(event.id)).publication_date).toEqual(again);
         });
 
-        // BUG: asking to publish an event that is published already changes its publication
-        // date. Expected: the date of the moment it became published stays.
-        test('should move when a published event is published once more', async () => {
+        test('should stay when a published event is published once more', async () => {
             const event = await generator.createEvent({ status: 'draft' });
-            tk.freeze(new Date('2029-06-01T12:00:00.000Z'));
+            const published = new Date('2029-06-01T12:00:00.000Z');
+            tk.freeze(published);
             await setStatus(event, 'published');
 
-            const again = new Date('2029-06-03T12:00:00.000Z');
-            tk.freeze(again);
+            tk.freeze(new Date('2029-06-03T12:00:00.000Z'));
             const res = await setStatus(event, 'published');
 
             expect(res.statusCode).toEqual(200);
-            expect((await Event.findByPk(event.id)).publication_date).toEqual(again);
+            expect((await Event.findByPk(event.id)).publication_date).toEqual(published);
         });
     });
 });

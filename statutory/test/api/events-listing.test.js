@@ -558,11 +558,9 @@ describe('Events listing', () => {
             expect(res.body.data).toEqual([]);
         });
 
-        // BUG: "%" and "_" in the search are wildcards: searching for "50%" also finds
-        // "500 members". Expected: the text is searched as it was typed.
-        test('should read % and _ in the search as wildcards', async () => {
+        test('should search for % and _ as they are written', async () => {
             const first = await generator.createEvent({ name: 'A discount of 50% for members', description: 'other' });
-            const second = await generator.createEvent({ name: 'An Agora for 500 members', description: 'other' });
+            await generator.createEvent({ name: 'An Agora for 500 members', description: 'other' });
 
             const res = await request({
                 path: '/',
@@ -572,7 +570,7 @@ describe('Events listing', () => {
             });
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.map((e) => e.id).sort()).toEqual([first.id, second.id].sort());
+            expect(res.body.data.map((e) => e.id)).toEqual([first.id]);
         });
     });
 

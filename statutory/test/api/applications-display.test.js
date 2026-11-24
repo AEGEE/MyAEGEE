@@ -271,11 +271,8 @@ describe('Applications displaying', () => {
             }
         });
 
-        // BUG: those who approve the members of all bodies read this application, board comment
-        // included, in the board view of its body and may set its participant type, but the
-        // application itself is refused: only the board of the applicant's body is let through.
-        // Expected: 200 with the whole application.
-        test('global:approve_members:agora alone answers 403 on an Agora', async () => {
+        // As in the board view of the body, where they read it, board comment included.
+        test('global:approve_members:agora alone gets the whole application on an Agora', async () => {
             mock.mockAll({ mainPermissions: { permissions: ['global:approve_members:agora'] } });
 
             const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -287,8 +284,9 @@ describe('Applications displaying', () => {
                 headers: { 'X-Auth-Token': 'blablabla' }
             });
 
-            expect(res.statusCode).toEqual(403);
-            expect(res.body).not.toHaveProperty('data');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(application.id);
+            expect(res.body.data.board_comment).toEqual(application.board_comment);
 
             const boardview = await request({
                 path: '/events/' + event.id + '/applications/boardview/1337',
@@ -361,10 +359,8 @@ describe('Applications displaying', () => {
             });
         });
 
-        // BUG: before the event reveals the statuses the answer gets "status": "pending", for an
-        // application that is only displayed because it is accepted. The field is not part of
-        // the organisers' list. Expected: no status, as from the participants list deadline on.
-        test('should add the status "pending" before the participants list deadline', async () => {
+        // The status is not part of the organisers' list, also before the event reveals the statuses.
+        test('should leave the status out before the participants list deadline', async () => {
             const application = await generator.createApplication({ user_id: 2, body_id: 1337, status: 'accepted' }, event);
 
             tk.freeze(moment(event.participants_list_publish_deadline).subtract(1, 'ms').toDate());
@@ -372,8 +368,7 @@ describe('Applications displaying', () => {
             const res = await display(application);
 
             expect(res.statusCode).toEqual(200);
-            expect(Object.keys(res.body.data).sort()).toEqual([...incomingFields, 'status'].sort());
-            expect(res.body.data.status).toEqual('pending');
+            expect(Object.keys(res.body.data).sort()).toEqual([...incomingFields].sort());
         });
 
         test.each([

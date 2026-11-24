@@ -254,16 +254,15 @@ describe('Questions creation', () => {
             expect(await Question.count()).toEqual(0);
         });
 
-        // BUG: an application that was confirmed and then cancelled keeps `confirmed`, and only
-        // `confirmed` is looked at. Expected: 403, as for a member without an application.
-        test('lets a member whose confirmed application was cancelled ask', async () => {
+        // As for a member without an application.
+        test('refuses a member whose confirmed application was cancelled', async () => {
             const application = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
             await application.update({ cancelled: true });
 
             const res = await ask();
 
-            expect(res.statusCode).toEqual(200);
-            expect(await Question.count({ where: { application_id: application.id } })).toEqual(1);
+            expect(res.statusCode).toEqual(403);
+            expect(await Question.count({ where: { application_id: application.id } })).toEqual(0);
         });
     });
 
@@ -310,12 +309,12 @@ describe('Questions creation', () => {
         test.each([
             ['an empty text', '', 'Question text should be set.'],
             ['a text of spaces only', '   ', 'Question text should be set.'],
-            ['a list as text', ['What about the budget?'], 'text cannot be an array or an object']
+            ['a list as text', ['What about the budget?'], ['text cannot be an array or an object', 'The value should be a text.']]
         ])('answers 422 for %s and stores nothing', async (description, text, message) => {
             const res = await ask({ text });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body).toEqual({ success: false, errors: { text: [message] } });
+            expect(res.body).toEqual({ success: false, errors: { text: [].concat(message) } });
             expect(await Question.count()).toEqual(0);
         });
     });

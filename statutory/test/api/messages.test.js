@@ -102,7 +102,7 @@ describe('Messages', () => {
     });
 
     test('a route that does not exist is named without its query', async () => {
-        const res = await send({ path: '/no-such-route?token=' + encodeURIComponent(MARKER), method: 'GET' });
+        const res = await send({ path: '/no-such-route?token=' + encodeURIComponent(MARKER), method: 'GET', skipOpenApi: 'the not-found handler' });
 
         expect(res.statusCode).toEqual(404);
         expect(res.body).toEqual({ success: false, message: 'No such API endpoint: GET /no-such-route' });

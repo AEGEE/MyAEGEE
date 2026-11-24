@@ -171,12 +171,12 @@ describe('Question line creation', () => {
         test.each([
             ['an empty name', '', 'Question line name should be set.'],
             ['a name of spaces only', '   ', 'Question line name should be set.'],
-            ['a list as name', ['Questions'], 'name cannot be an array or an object']
+            ['a list as name', ['Questions'], ['name cannot be an array or an object', 'The value should be a text.']]
         ])('answers 422 for %s and stores nothing', async (description, name, message) => {
             const res = await create({ name });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body).toEqual({ success: false, errors: { name: [message] } });
+            expect(res.body).toEqual({ success: false, errors: { name: [].concat(message) } });
             expect(await QuestionLine.count()).toEqual(0);
         });
     });

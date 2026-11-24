@@ -8,6 +8,9 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
 const { Attendance } = require('../../models');
 
+// Only the delegates and envoys whose application is accepted and not cancelled take part.
+const createApplication = (fields, event) => generator.createApplication({ status: 'accepted', ...fields }, event);
+
 describe('Plenary attendance marking', () => {
     beforeAll(async () => {
         await startServer();
@@ -31,7 +34,7 @@ describe('Plenary attendance marking', () => {
     test.each(['epm', 'spm'])('answers 400 for an %s event and stores nothing', async (type) => {
         const event = await generator.createEvent({ type, applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
         const res = await request({
             path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
@@ -50,7 +53,7 @@ describe('Plenary attendance marking', () => {
     test('should fail if no permissions', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -126,7 +129,7 @@ describe('Plenary attendance marking', () => {
     ])('should fail if application ID is %s', async (description, makeId) => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -148,7 +151,7 @@ describe('Plenary attendance marking', () => {
     test('should fail if applicant is not a delegate', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'visitor',
             participant_order: 1
         }, event);
@@ -172,7 +175,7 @@ describe('Plenary attendance marking', () => {
             starts: moment().subtract(2, 'days').toDate(),
             ends: moment().subtract(1, 'days').toDate()
         }, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -194,7 +197,7 @@ describe('Plenary attendance marking', () => {
     test('should succeed and create new plenary attendance if there is none', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -226,7 +229,7 @@ describe('Plenary attendance marking', () => {
     test('should succeed and create new plenary attendance if there are some', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -260,7 +263,7 @@ describe('Plenary attendance marking', () => {
     test('should succeed and update existing attendance if it exists', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -298,7 +301,7 @@ describe('Plenary attendance marking', () => {
     test('should fail if ends < starts', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -327,7 +330,7 @@ describe('Plenary attendance marking', () => {
     test('should find application by statutory_id', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({
+        const application = await createApplication({
             participant_type: 'delegate',
             status: 'accepted',
             participant_order: 1
@@ -380,7 +383,7 @@ describe('Plenary attendance marking', () => {
 
         beforeEach(async () => {
             ({ event, plenary } = await createAgoraWithPlenary());
-            delegate = await generator.createApplication({
+            delegate = await createApplication({
                 first_name: 'Delegate',
                 last_name: 'Example',
                 body_name: 'Example body',
@@ -433,7 +436,7 @@ describe('Plenary attendance marking', () => {
 
         test('refuses a delegate who marks their own application, and stores nothing', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
-            const own = await generator.createApplication({
+            const own = await createApplication({
                 user_id: regularUser.id,
                 status: 'accepted',
                 confirmed: true,
@@ -456,7 +459,7 @@ describe('Plenary attendance marking', () => {
         beforeEach(async () => {
             mock.mockAll({ mainPermissions: { permissions: ['global:mark_attendance:agora'] } });
             ({ event, plenary } = await createAgoraWithPlenary());
-            delegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+            delegate = await createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
         });
 
         test('opens an attendance on the first mark, closes it on the second and opens a new one on the third', async () => {
@@ -510,7 +513,7 @@ describe('Plenary attendance marking', () => {
         });
 
         test('keeps the attendances of two delegates apart', async () => {
-            const otherDelegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 2 }, event);
+            const otherDelegate = await createApplication({ participant_type: 'delegate', participant_order: 2 }, event);
 
             tk.freeze(new Date('2030-03-01T10:05:00.000Z'));
             const mine = await mark(event, plenary, delegate.id);
@@ -555,8 +558,8 @@ describe('Plenary attendance marking', () => {
             ['its id as a string of digits', (application) => String(application.id)],
             ['its statutory id', (application) => application.statutory_id]
         ])('finds the application by %s', async (description, pick) => {
-            const delegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
-            await generator.createApplication({ participant_type: 'delegate', participant_order: 2 }, event);
+            const delegate = await createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+            await createApplication({ participant_type: 'delegate', participant_order: 2 }, event);
 
             const res = await mark(event, plenary, pick(delegate));
 
@@ -567,7 +570,7 @@ describe('Plenary attendance marking', () => {
         });
 
         test.each(['delegate', 'envoy'])('lets an %s be marked', async (type) => {
-            const application = await generator.createApplication({ participant_type: type, participant_order: 1 }, event);
+            const application = await createApplication({ participant_type: type, participant_order: 1 }, event);
 
             const res = await mark(event, plenary, application.id);
 
@@ -581,7 +584,7 @@ describe('Plenary attendance marking', () => {
             ['a visitor', 'visitor', 1],
             ['an applicant without a participant type', null, null]
         ])('refuses %s and stores nothing', async (description, type, order) => {
-            const application = await generator.createApplication({ participant_type: type, participant_order: order }, event);
+            const application = await createApplication({ participant_type: type, participant_order: order }, event);
 
             const res = await mark(event, plenary, application.id);
 
@@ -595,7 +598,7 @@ describe('Plenary attendance marking', () => {
             ['statutory id', (application) => application.statutory_id]
         ])('answers 404 for the %s of a delegate of another event, and stores nothing', async (description, pick) => {
             const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
-            const delegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, otherEvent);
+            const delegate = await createApplication({ participant_type: 'delegate', participant_order: 1 }, otherEvent);
 
             const res = await mark(event, plenary, pick(delegate));
 
@@ -607,7 +610,7 @@ describe('Plenary attendance marking', () => {
         test.each([
             [2147483647], [2147483648], [-1], [1.5], [''], ['abc'], [null], [true], [[]], [{}]
         ])('answers 404 for the application id %j, and stores nothing', async (applicationId) => {
-            await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+            await createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
 
             const res = await mark(event, plenary, applicationId);
 
@@ -616,10 +619,8 @@ describe('Plenary attendance marking', () => {
             expect(await Attendance.count()).toEqual(0);
         });
 
-        // BUG: only the participant type is looked at. A delegate whose application is rejected
-        // and cancelled is marked as attending. Expected: 403, as for somebody who is no delegate.
-        test('lets a delegate whose application is rejected and cancelled be marked', async () => {
-            const application = await generator.createApplication({
+        test('refuses a delegate whose application is rejected and cancelled', async () => {
+            const application = await createApplication({
                 participant_type: 'delegate',
                 participant_order: 1,
                 status: 'rejected',
@@ -628,8 +629,9 @@ describe('Plenary attendance marking', () => {
 
             const res = await mark(event, plenary, application.id);
 
-            expect(res.statusCode).toEqual(200);
-            expect(await Attendance.count({ where: { application_id: application.id } })).toEqual(1);
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'The application is not accepted, or it is cancelled.' });
+            expect(await Attendance.count({ where: { application_id: application.id } })).toEqual(0);
         });
     });
 
@@ -643,7 +645,7 @@ describe('Plenary attendance marking', () => {
         beforeEach(async () => {
             mock.mockAll({ mainPermissions: { permissions: ['global:mark_attendance:agora'] } });
             ({ event, plenary } = await createAgoraWithPlenary());
-            delegate = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+            delegate = await createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
         });
 
         test.each([

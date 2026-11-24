@@ -219,7 +219,7 @@ describe('Memberslist fee_paid editing', () => {
         });
 
         test.each([
-            ['a word', 'abc', 'Fee paid should be a number.'],
+            ['a word', 'abc', ['Fee paid should be a number.', 'The value should be an amount with at most 10 digits before the decimal point and 4 after it.']],
             ['an empty string', '', 'Fee paid should be a number.'],
             ['a boolean', true, 'Fee paid should be a number.'],
             ['a negative number', -1, 'Fee paid should be positive.'],
@@ -228,7 +228,8 @@ describe('Memberslist fee_paid editing', () => {
             const res = await setFeePaid({ fee_paid: value });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body).toEqual({ success: false, errors: { fee_paid: [message] } });
+            expect(res.body).toEqual({ success: false, errors: { fee_paid: expect.any(Array) } });
+            expect(res.body.errors.fee_paid.sort()).toEqual([].concat(message).sort());
             expect(await storedFeePaid()).toEqual(12);
         });
 

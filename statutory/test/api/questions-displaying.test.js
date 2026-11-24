@@ -248,18 +248,16 @@ describe('Questions displaying', () => {
             expect(res.body).toEqual(NOT_ALLOWED);
         });
 
-        // BUG: seeing a question needs a confirmed application, editing and deleting only that
-        // the question is the caller's own. A member whose application is not confirmed any
-        // more can change and delete their question but not read it. Expected: 200.
-        test('refuses the member who asked the question once their application is not confirmed any more', async () => {
+        // As they can edit and delete it.
+        test('lets the member who asked the question read it once their application is not confirmed any more', async () => {
             const application = await generator.createApplication({ user_id: regularUser.id, status: 'accepted', confirmed: true }, event);
             const ownQuestion = await generator.createQuestion({ application_id: application.id }, questionLine);
             await application.update({ confirmed: false });
 
             const res = await show(event, questionLine, ownQuestion);
 
-            expect(res.statusCode).toEqual(403);
-            expect(res.body).toEqual(NOT_ALLOWED);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(ownQuestion.id);
         });
     });
 });

@@ -168,10 +168,7 @@ describe('Path parameters', () => {
         const res = await requestFor(operation, fixtures, { pathValues: { prefix: value } });
 
         expect(res.statusCode).toEqual(400);
-        expect(res.body).toEqual({
-            success: false,
-            message: 'Prefix should be one of these: "all", "incoming", but received everything'
-        });
+        expect(res.body).toEqual({ success: false, message: 'The prefix should be "all" or "incoming".' });
     });
 
     // The sweeps above encode their values; a path can also come with an encoding that is broken.
