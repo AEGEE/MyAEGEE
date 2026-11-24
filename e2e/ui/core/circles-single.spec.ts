@@ -45,9 +45,9 @@ test.describe('circle page', () => {
         await expect(fact(page, 'Child circles')).toHaveText('This circle does not have child circles.');
         await expect(fact(page, 'Attached permissions')).toHaveText('No permissions directly attached.');
         await expect(fact(page, 'Inherited permissions')).toHaveText('No permissions inherited.');
-        expect(api.callsTo('GET core /circles/:id').map((call) => call.params.id)).toEqual(['5']);
-        expect(api.callsTo('GET core /circles/:id/my_permissions').map((call) => call.params.id)).toEqual(['5']);
-        expect(api.callsTo('GET core /circles/:id/permissions').map((call) => call.params.id)).toEqual(['5']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id').map((call) => call.params.id)).toEqual(['5']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id/my_permissions').map((call) => call.params.id)).toEqual(['5']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id/permissions').map((call) => call.params.id)).toEqual(['5']);
     });
 
     test('shows a bound circle with links to its body, parent, children and permissions', async ({ page, api }) => {
@@ -163,8 +163,8 @@ test.describe('circle page', () => {
         await expect(page).toHaveURL('/circles/8');
         await expect(page.getByRole('heading', { name: 'IT team' })).toBeVisible();
         await expect(fact(page, 'Parent circle').getByRole('link', { name: 'Comité Directeur' })).toBeVisible();
-        expect(api.callsTo('GET core /circles/:id').map((call) => call.params.id)).toEqual(['5', '8']);
-        expect(api.callsTo('GET core /circles/:id/permissions').map((call) => call.params.id)).toEqual(['5', '8']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id').map((call) => call.params.id)).toEqual(['5', '8']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id/permissions').map((call) => call.params.id)).toEqual(['5', '8']);
     });
 
     test('says so when the circle does not exist', async ({ page, api }) => {
@@ -203,7 +203,7 @@ test.describe('circle page', () => {
 
             await expect(toast(page, 'Circle is deleted.')).toBeVisible();
             await expect(page).toHaveURL('/circles');
-            expect(api.callsTo('DELETE core /circles/:id').map((call) => call.params.id)).toEqual(['5']);
+            await expect.poll(() => api.callsTo('DELETE core /circles/:id').map((call) => call.params.id)).toEqual(['5']);
         });
 
         test('does nothing when the member changes their mind', async ({ page, api }) => {
@@ -247,7 +247,7 @@ test.describe('circle page', () => {
             await expect(button(page, 'Leave circle')).toHaveCount(0);
             // Joining a circle is not something the page offers.
             await expect(button(page, 'Join circle')).toHaveCount(0);
-            expect(api.callsTo('DELETE core /circles/:id/members').map((call) => call.params.id)).toEqual(['5']);
+            await expect.poll(() => api.callsTo('DELETE core /circles/:id/members').map((call) => call.params.id)).toEqual(['5']);
         });
 
         test('the circle is not offered to leave again when the member comes back to it', async ({ page, api, me }) => {
@@ -337,8 +337,8 @@ test.describe('circle page', () => {
             await expect(toast(page, 'Member is added.')).toBeVisible();
             await expect(dialog(page, 'Add member')).toBeHidden();
             // Only the search the member typed: choosing doesn't search for everyone.
-            expect(api.callsTo('GET core /bodies/:body_id/members').map((call) => [call.params.body_id, Object.fromEntries(call.query)])).toEqual([['1', { query: 'ali' }]]);
-            expect(api.callsTo('POST core /circles/:id/members').map((call) => [call.params.id, call.body])).toEqual([['6', { user_id: 77 }]]);
+            await expect.poll(() => api.callsTo('GET core /bodies/:body_id/members').map((call) => [call.params.body_id, Object.fromEntries(call.query)])).toEqual([['1', { query: 'ali' }]]);
+            await expect.poll(() => api.callsTo('POST core /circles/:id/members').map((call) => [call.params.id, call.body])).toEqual([['6', { user_id: 77 }]]);
         });
 
         test('searches all members for a free circle', async ({ page, api }) => {
@@ -352,8 +352,8 @@ test.describe('circle page', () => {
             await dialog(page, 'Add member').getByRole('button', { name: 'Alice Example' }).click();
 
             await expect(toast(page, 'Member is added.')).toBeVisible();
-            expect(api.callsTo('GET core /members').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'ali' }]);
-            expect(api.callsTo('POST core /circles/:id/members').map((call) => [call.params.id, call.body])).toEqual([['5', { user_id: 77 }]]);
+            await expect.poll(() => api.callsTo('GET core /members').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'ali' }]);
+            await expect.poll(() => api.callsTo('POST core /circles/:id/members').map((call) => [call.params.id, call.body])).toEqual([['5', { user_id: 77 }]]);
         });
 
         test('an emptied search field searches for nothing', async ({ page, api }) => {
@@ -367,7 +367,7 @@ test.describe('circle page', () => {
             await search(page).fill('');
 
             await expect(dialog(page, 'Add member').getByRole('button', { name: 'Alice Example' })).toBeHidden();
-            expect(api.callsTo('GET core /members').map((call) => call.query.get('query'))).toEqual(['ali']);
+            await expect.poll(() => api.callsTo('GET core /members').map((call) => call.query.get('query'))).toEqual(['ali']);
         });
 
         test('shows only the members of the last search while typing', async ({ page, api }) => {

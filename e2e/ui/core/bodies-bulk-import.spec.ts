@@ -99,7 +99,7 @@ test.describe('bulk import of members', () => {
 
         const table = membersTable(page);
         await expect(await cellOf(table, rowOf(page, 'jane@example.com'), 'Status')).toHaveText('Saving...');
-        expect(api.callsTo('POST core /bodies/:id/create-member')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member')).toHaveLength(1);
         await expect(await cellOf(table, rowOf(page, 'anna@example.com'), 'Status')).toHaveText('Successfully saved.');
         await expect(await cellOf(table, rowOf(page, 'jane@example.com'), 'Status')).toHaveText('Successfully saved.');
         await expect(toast(page, 'User is created.').first()).toBeVisible();
@@ -131,7 +131,7 @@ test.describe('bulk import of members', () => {
 
         await createMembers(page).click();
         await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member').length).toBe(4);
-        expect(api.callsTo('POST core /bodies/:id/create-member').at(-1)!.body).toMatchObject({ username: 'john.smith' });
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member').at(-1)!.body).toMatchObject({ username: 'john.smith' });
     });
 
     test('says why the service failed', async ({ page, api }) => {

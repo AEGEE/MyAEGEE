@@ -66,7 +66,7 @@ test.describe('the join requests of a body', () => {
         await page.getByRole('button', { name: 'Display all join requests' }).click();
 
         await expect(tableRows(table)).toHaveCount(2);
-        expect(api.callsTo('GET core /bodies/:id/join-requests').at(-1)!.query.has('status')).toBe(false);
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/join-requests').at(-1)!.query.has('status')).toBe(false);
         await expect(page.getByRole('button', { name: 'Display only pending join requests' })).toBeVisible();
     });
 
@@ -100,7 +100,7 @@ test.describe('the join requests of a body', () => {
         await expect(toast(page, 'Join request is approved.')).toBeVisible();
         await expect(jane).toBeVisible();
         await expect(jane.getByRole('button')).toHaveCount(0);
-        expect(api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => [call.params, call.body]))
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => [call.params, call.body]))
             .toEqual([[{ id: '1', request_id: '61' }, { status: 'approved' }]]);
     });
 
@@ -118,7 +118,7 @@ test.describe('the join requests of a body', () => {
         await expect(toast(page, 'Join request is rejected.')).toBeVisible();
         await expect(tableRows(table)).toHaveCount(1);
         await expect(tableRows(table).filter({ hasText: 'Jane Doe' })).toHaveCount(0);
-        expect(api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => [call.params, call.body]))
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => [call.params, call.body]))
             .toEqual([[{ id: '1', request_id: '61' }, { status: 'rejected' }]]);
     });
 
@@ -159,7 +159,7 @@ test.describe('the join requests of a body', () => {
 
         await expect(toast(page, 'Could not process join request: The mail could not be sent, so nothing was saved. Please try again later.')).toBeVisible();
         await expect(jane.getByRole('button', { name: 'Approve' })).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => call.body)).toEqual([{ status: 'approved' }]);
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => call.body)).toEqual([{ status: 'approved' }]);
     });
 
     test('a full page offers more requests and appends them', async ({ page, api }) => {

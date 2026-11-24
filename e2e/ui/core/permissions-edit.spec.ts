@@ -49,7 +49,7 @@ test.describe('creating a permission', () => {
 
         await expect(toast(page, 'Permission is saved.')).toBeVisible();
         await expect(page).toHaveURL('/permissions/71');
-        expect(api.callsTo('POST core /permissions').map((call) => call.body)).toEqual([{
+        await expect.poll(() => api.callsTo('POST core /permissions').map((call) => call.body)).toEqual([{
             scope: 'local', action: 'view', object: 'thing', description: 'View the things', filters: ['name', 'description']
         }]);
     });
@@ -169,7 +169,7 @@ test.describe('creating a permission', () => {
 
         await expect(save(page)).toBeDisabled();
         await expect(page).toHaveURL('/permissions/71');
-        expect(api.callsTo('POST core /permissions')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /permissions')).toHaveLength(1);
     });
 });
 
@@ -195,7 +195,7 @@ test.describe('editing a permission', () => {
         await expect(toast(page, 'Permission is saved.')).toBeVisible();
         await expect(page).toHaveURL('/permissions/32');
         // Only what can be changed, not the circles or the code made of the three parts.
-        expect(api.callsTo('PUT core /permissions/:id').map((call) => [call.params.id, call.body])).toEqual([['32', {
+        await expect.poll(() => api.callsTo('PUT core /permissions/:id').map((call) => [call.params.id, call.body])).toEqual([['32', {
             scope: 'local', action: 'update', object: 'body', description: 'Edit the details of the body', filters: ['description', 'phone']
         }]]);
     });

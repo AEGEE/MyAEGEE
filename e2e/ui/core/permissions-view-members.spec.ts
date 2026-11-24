@@ -23,8 +23,8 @@ test.describe('members who have a permission', () => {
         await expect(table(page).getByRole('link', { name: 'Alex Member' })).toHaveAttribute('href', '/members/alex.member');
         // Without a username the link goes to the id.
         await expect(table(page).getByRole('link', { name: 'Una Named' })).toHaveAttribute('href', '/members/22');
-        expect(api.callsTo('GET core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
-        expect(api.callsTo('GET core /permissions/:id/members').map((call) => [call.params.id, Object.fromEntries(call.query)])).toEqual([['31', {}]]);
+        await expect.poll(() => api.callsTo('GET core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
+        await expect.poll(() => api.callsTo('GET core /permissions/:id/members').map((call) => [call.params.id, Object.fromEntries(call.query)])).toEqual([['31', {}]]);
     });
 
     test('says so when nobody has the permission', async ({ page, api }) => {

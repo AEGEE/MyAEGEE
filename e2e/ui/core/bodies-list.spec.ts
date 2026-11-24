@@ -107,7 +107,7 @@ test.describe('bodies list for a member', () => {
 
         await expect(tableRows(table)).toHaveCount(1);
         await expect(page.getByRole('button', { name: 'Also show deleted bodies' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies').at(-1)!.query.has('all')).toBe(false);
+        await expect.poll(() => api.callsTo('GET core /bodies').at(-1)!.query.has('all')).toBe(false);
         await expect(table.getByText('Status', { exact: true })).toHaveCount(0);
     });
 
@@ -146,7 +146,7 @@ test.describe('bodies list for a member', () => {
         await page.getByRole('textbox', { name: 'Search by name, body code or abbreviation' }).fill('');
 
         await expect(tableRows(table).filter({ hasText: 'AEGEE-Antenna' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies').at(-1)!.query.has('query')).toBe(false);
+        await expect.poll(() => api.callsTo('GET core /bodies').at(-1)!.query.has('query')).toBe(false);
     });
 
     test('asks for the permissions once, not again for every search', async ({ page, api }) => {
@@ -160,7 +160,7 @@ test.describe('bodies list for a member', () => {
 
         await expect.poll(() => api.callsTo('GET core /bodies').length).toBe(3);
         await expect(tableRows(bodiesTable(page))).toHaveCount(1);
-        expect(api.callsTo('GET core /my_permissions')).toHaveLength(2);
+        await expect.poll(() => api.callsTo('GET core /my_permissions')).toHaveLength(2);
     });
 
     test('filtering by body types asks for those types', async ({ page, api }) => {
@@ -182,7 +182,7 @@ test.describe('bodies list for a member', () => {
 
         await expect(filter).toContainText('2 types selected');
         await expect(tableRows(bodiesTable(page)).filter({ hasText: 'IT Working Group' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies').at(-1)!.query.get('offset')).toBe('0');
+        await expect.poll(() => api.callsTo('GET core /bodies').at(-1)!.query.get('offset')).toBe('0');
     });
 
     test('one chosen type reads as one type', async ({ page, api }) => {
@@ -210,7 +210,7 @@ test.describe('bodies list for a member', () => {
 
         await expect(tableRows(table)).toHaveCount(31);
         await expect(tableRows(table).filter({ hasText: 'AEGEE-Zagreb' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies').at(-1)!.query.get('offset')).toBe('30');
+        await expect.poll(() => api.callsTo('GET core /bodies').at(-1)!.query.get('offset')).toBe('30');
         await expect(loadMore(page)).toBeHidden();
     });
 
@@ -272,7 +272,7 @@ test.describe('bodies list for a member', () => {
         await expect(tableRows(table).first()).toContainText('AEGEE-Aachen');
         await sortBy(table, 'Body code', layout, 'desc');
         await expect(tableRows(table).first()).toContainText('AEGEE-Zagreb');
-        expect(api.callsTo('GET core /bodies')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('GET core /bodies')).toHaveLength(1);
     });
 
     test('showing deleted bodies without the right says why', async ({ page, api, myPermissions }) => {

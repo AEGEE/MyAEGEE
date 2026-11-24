@@ -73,7 +73,7 @@ test.describe('creating a campaign', () => {
 
         await expect(toast(page, 'Campaign is saved.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns/42');
-        expect(api.callsTo('POST core /campaigns').map((call) => call.body)).toEqual([{
+        await expect.poll(() => api.callsTo('POST core /campaigns').map((call) => call.body)).toEqual([{
             id: null,
             name: 'Autumn recruitment',
             description_long: 'Join **us** this autumn',
@@ -98,7 +98,7 @@ test.describe('creating a campaign', () => {
         await expect(page.getByText('Not set.')).toBeVisible();
         await save(page).click();
         await expect(toast(page, 'Campaign is saved.')).toBeVisible();
-        expect(api.callsTo('POST core /campaigns')[0].body).toMatchObject({ autojoin_body_id: null, autojoin_body: null });
+        await expect.poll(() => api.callsTo('POST core /campaigns')[0].body).toMatchObject({ autojoin_body_id: null, autojoin_body: null });
     });
 
     test('sends nothing while a required field is empty', async ({ page, api }) => {
@@ -168,7 +168,7 @@ test.describe('creating a campaign', () => {
         await expect(save(page)).toBeDisabled();
         await expect(toast(page, 'Could not save campaign: Database is down')).toBeVisible();
         await expect(save(page)).toBeEnabled();
-        expect(api.callsTo('POST core /campaigns')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /campaigns')).toHaveLength(1);
     });
 
     test('says why the bodies could not be loaded', async ({ page, api }) => {
@@ -218,8 +218,8 @@ test.describe('editing a campaign', () => {
 
         await expect(toast(page, 'Campaign is saved.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns/7');
-        expect(api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
-        expect(api.callsTo('PUT core /campaigns/:id').map((call) => [call.params, call.body]))
+        await expect.poll(() => api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
+        await expect.poll(() => api.callsTo('PUT core /campaigns/:id').map((call) => [call.params, call.body]))
             .toEqual([[{ id: '7' }, { ...campaignNow, name: 'Winter recruitment', active: true }]]);
     });
 
@@ -263,7 +263,7 @@ test.describe('the campaigns of one body', () => {
 
         await expect(toast(page, 'Campaign is saved.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/5/campaigns/42');
-        expect(api.callsTo('GET core /bodies/:id')[0].params).toEqual({ id: '5' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id')[0].params).toEqual({ id: '5' });
         const [created] = api.callsTo('POST core /bodies/:id/campaigns');
         expect(created.params).toEqual({ id: '5' });
         expect(created.body).toMatchObject({ name: 'Autumn recruitment', description_long: 'Join **us** this autumn', url: 'autumn', active: true, autojoin_body_id: 5 });
@@ -308,8 +308,8 @@ test.describe('the campaigns of one body', () => {
 
         await expect(toast(page, 'Campaign is saved.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/5/campaigns/7');
-        expect(api.callsTo('GET core /bodies/:id/campaigns/:campaign_id')[0].params).toEqual({ id: '5', campaign_id: '7' });
-        expect(api.callsTo('PUT core /bodies/:id/campaigns/:campaign_id').map((call) => [call.params, call.body]))
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/campaigns/:campaign_id')[0].params).toEqual({ id: '5', campaign_id: '7' });
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/campaigns/:campaign_id').map((call) => [call.params, call.body]))
             .toEqual([[{ id: '5', campaign_id: '7' }, { ...loaded, url: 'autumn-2027' }]]);
         expect(api.callsTo('GET core /bodies')).toHaveLength(0);
     });

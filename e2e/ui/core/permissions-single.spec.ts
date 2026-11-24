@@ -30,7 +30,7 @@ test.describe('permission page', () => {
         await expect(fact(page, 'Filters').getByRole('listitem')).toHaveText(['first_name', 'last_name']);
         await expect(fact(page, 'Directly attached to:').getByRole('link')).toHaveText(['General board circle', 'Network Commission']);
         await expect(fact(page, 'Directly attached to:').getByRole('link', { name: 'Network Commission' })).toHaveAttribute('href', '/circles/11');
-        expect(api.callsTo('GET core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
+        await expect.poll(() => api.callsTo('GET core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
     });
 
     test('says when the permission has no filters and is attached to no circle', async ({ page, api }) => {
@@ -104,7 +104,7 @@ test.describe('permission page', () => {
 
             await expect(toast(page, 'Permission is deleted.')).toBeVisible();
             await expect(page).toHaveURL('/permissions');
-            expect(api.callsTo('DELETE core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
+            await expect.poll(() => api.callsTo('DELETE core /permissions/:id').map((call) => call.params.id)).toEqual(['31']);
         });
 
         test('does nothing when the member changes their mind', async ({ page, api }) => {

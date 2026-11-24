@@ -49,7 +49,7 @@ test.describe('changing the password', () => {
         await expect(toast(page, 'Password is updated.')).toBeVisible();
         await expect(page).toHaveURL('/members/me');
         await expect(page.getByText(me!.first_name, { exact: true })).toBeVisible();
-        expect(api.callsTo('PUT core /members/:id/password').map((call) => [call.params.id, call.body]))
+        await expect.poll(() => api.callsTo('PUT core /members/:id/password').map((call) => [call.params.id, call.body]))
             .toEqual([['me', { old_password: 'the old one', password: 'a new password' }]]);
     });
 

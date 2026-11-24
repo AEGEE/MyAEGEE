@@ -124,7 +124,7 @@ test.describe('unconfirmed members', () => {
 
         await expect(toast(page, 'User is confirmed.')).toBeVisible();
         await expect(tableRows(table(page))).toHaveText([/Nina New/]);
-        expect(api.callsTo('POST core /members/:id/confirm').map((call) => [call.params.id, call.body])).toEqual([['32', undefined]]);
+        await expect.poll(() => api.callsTo('POST core /members/:id/confirm').map((call) => [call.params.id, call.body])).toEqual([['32', undefined]]);
     });
 
     test('a refused confirmation keeps the member in the list', async ({ page, api }) => {

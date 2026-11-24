@@ -54,7 +54,7 @@ test.describe('creating a member for a body', () => {
 
         await expect(toast(page, 'User is created.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/1/members');
-        expect(api.callsTo('POST core /bodies/:id/create-member').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
             first_name: 'Jane',
             last_name: 'Doe',
             date_of_birth: '1990-05-14',
@@ -80,7 +80,7 @@ test.describe('creating a member for a body', () => {
         await save(page).click();
 
         await expect(toast(page, 'Could not create user: Database is down')).toBeVisible();
-        expect(api.callsTo('POST core /bodies/:id/create-member')[0].body).toMatchObject({ date_of_birth: '' });
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member')[0].body).toMatchObject({ date_of_birth: '' });
     });
 
     test('cannot be sent twice while saving', async ({ page, api }) => {

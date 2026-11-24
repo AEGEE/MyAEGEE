@@ -51,9 +51,9 @@ test.describe('circle members', () => {
         await expect(await cellOf(table(page), tableRows(table(page)).filter({ hasText: 'Bea Board' }), 'Position')).toHaveText('');
         await expect(loadMore(page)).toBeHidden();
 
-        expect(api.callsTo('GET core /circles/:id/members').map((call) => call.params.id)).toEqual(['5']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id/members').map((call) => call.params.id)).toEqual(['5']);
         expect(queries(api)).toEqual([{ limit: '30', offset: '0' }]);
-        expect(api.callsTo('GET core /circles/:id/my_permissions').map((call) => call.params.id)).toEqual(['5']);
+        await expect.poll(() => api.callsTo('GET core /circles/:id/my_permissions').map((call) => call.params.id)).toEqual(['5']);
     });
 
     test('links to the id of a member without a username', async ({ page, api }) => {
@@ -195,7 +195,7 @@ test.describe('circle members', () => {
             await expect(toast(page, 'Member is deleted.')).toBeVisible();
             await expect(tableRows(table(page))).toHaveText([/Bea Board/]);
             await expect(page.getByText('Total members: 1')).toBeVisible();
-            expect(api.callsTo('DELETE core /circles/:id/members/:membership_id').map((call) => call.params)).toEqual([{ id: '5', membership_id: '301' }]);
+            await expect.poll(() => api.callsTo('DELETE core /circles/:id/members/:membership_id').map((call) => call.params)).toEqual([{ id: '5', membership_id: '301' }]);
         });
 
         test('shows a name with markup as it is written', async ({ page, api }) => {
@@ -250,7 +250,7 @@ test.describe('circle members', () => {
             await expect(toast(page, 'Membership is updated')).toBeVisible();
             await expect(dialog(page, 'Edit user membership')).toBeHidden();
             await expect(await cellOf(table(page), row, 'Position')).toHaveText('President');
-            expect(api.callsTo('PUT core /circles/:id/members/:membership_id').map((call) => [call.params, call.body]))
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/members/:membership_id').map((call) => [call.params, call.body]))
                 .toEqual([[{ id: '5', membership_id: '301' }, { position: 'President' }]]);
         });
 
@@ -265,7 +265,7 @@ test.describe('circle members', () => {
 
             await expect(saveChanges(page)).toBeDisabled();
             await expect(dialog(page, 'Edit user membership')).toBeHidden();
-            expect(api.callsTo('PUT core /circles/:id/members/:membership_id')).toHaveLength(1);
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/members/:membership_id')).toHaveLength(1);
         });
 
         test('says why the position could not be saved and keeps the dialog open', async ({ page, api }) => {

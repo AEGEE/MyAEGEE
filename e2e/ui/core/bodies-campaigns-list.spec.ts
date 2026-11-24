@@ -33,7 +33,7 @@ test.describe('the campaigns of a body', () => {
         const [list] = api.callsTo('GET core /bodies/:id/campaigns');
         expect(list.params).toEqual({ id: '1' });
         expect([...list.query.keys()]).toEqual([]);
-        expect(api.callsTo('GET core /bodies/:id/my_permissions')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/my_permissions')).toHaveLength(1);
     });
 
     test('those who may create campaigns for the body get a link to the form', async ({ page, api }) => {

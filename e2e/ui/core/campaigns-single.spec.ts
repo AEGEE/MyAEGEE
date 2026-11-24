@@ -48,7 +48,7 @@ test.describe('the page of a campaign', () => {
         await expect(page.getByRole('link', { name: 'View members' })).toHaveCount(0);
         await expect(page.getByRole('button', { name: 'Delete campaign' })).toHaveCount(0);
 
-        expect(api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
+        await expect.poll(() => api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
         // Once by the menu, once by the page; no body: the answer doesn't say which one.
         await expect.poll(() => api.callsTo('GET core /my_permissions').length).toBe(2);
         expect(api.callsTo('GET core /bodies/:id/my_permissions')).toHaveLength(0);
@@ -73,7 +73,7 @@ test.describe('the page of a campaign', () => {
         await expect(page.getByRole('link', { name: 'Edit campaign details' })).toHaveAttribute('href', '/campaigns/7/edit');
         await expect(page.getByRole('link', { name: 'View members' })).toHaveAttribute('href', '/campaigns/7/members');
         await expect(page.getByRole('button', { name: 'Delete campaign' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies/:id/my_permissions').map((call) => call.path)).toEqual(['/bodies/1/my_permissions']);
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/my_permissions').map((call) => call.path)).toEqual(['/bodies/1/my_permissions']);
     });
 
     test('a manager deletes the campaign after confirming', async ({ page, api, myPermissions }) => {
@@ -95,7 +95,7 @@ test.describe('the page of a campaign', () => {
 
         await expect(toast(page, 'Campaign is deleted.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns');
-        expect(api.callsTo('DELETE core /campaigns/:id').map((call) => call.params)).toEqual([{ id: '7' }]);
+        await expect.poll(() => api.callsTo('DELETE core /campaigns/:id').map((call) => call.params)).toEqual([{ id: '7' }]);
     });
 
     test('a refused delete says why and stays on the campaign', async ({ page, api, myPermissions }) => {
@@ -174,7 +174,7 @@ test.describe('the page of a campaign of a body', () => {
 
         await expect(toast(page, 'Campaign is deleted.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/5/campaigns');
-        expect(api.callsTo('DELETE core /bodies/:id/campaigns/:campaign_id').map((call) => call.params)).toEqual([{ id: '5', campaign_id: '7' }]);
+        await expect.poll(() => api.callsTo('DELETE core /bodies/:id/campaigns/:campaign_id').map((call) => call.params)).toEqual([{ id: '5', campaign_id: '7' }]);
         expect(api.callsTo('DELETE core /campaigns/:id')).toHaveLength(0);
     });
 

@@ -163,7 +163,7 @@ test.describe('completing the profile', () => {
         await page.getByRole('button', { name: 'Change email' }).click();
 
         await expect(toast(page, 'An email change is triggered. Check your new inbox for a confirmation.')).toBeVisible();
-        expect(api.callsTo('PUT core /members/:id/email').map((call) => [call.params.id, call.body])).toEqual([['me', { new_email: 'alex@example.org' }]]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/email').map((call) => [call.params.id, call.body])).toEqual([['me', { new_email: 'alex@example.org' }]]);
     });
 
     test('a refused email change says why', async ({ page, api, me }) => {
@@ -202,7 +202,7 @@ test.describe('completing the profile', () => {
             await prompt.getByRole('button', { name: 'OK' }).click();
 
             await expect(toast(page, 'Join request is sent. Please wait until a board members accepts it.')).toBeVisible();
-            expect(api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params.id, call.body])).toEqual([['1', { motivation: 'I like it' }]]);
+            await expect.poll(() => api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params.id, call.body])).toEqual([['1', { motivation: 'I like it' }]]);
             // The member is still asked for a local until the board accepts, and is told so.
             await expect(page.getByRole('status').filter({ hasText: 'Your request to join AEGEE-Antenna is waiting for its board' })).toBeVisible();
             await expect(page.getByRole('main').getByRole('listitem')).toHaveText(['You should be a member of at least 1 local.']);
@@ -223,7 +223,7 @@ test.describe('completing the profile', () => {
 
             await expect(toast(page, 'Join request is sent. Please wait until a board members accepts it.')).toBeVisible();
             // Without a motivation it is empty.
-            expect(api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params.id, call.body])).toEqual([['2', { motivation: '' }]]);
+            await expect.poll(() => api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params.id, call.body])).toEqual([['2', { motivation: '' }]]);
         });
 
         test('a pending join request is mentioned when the page opens', async ({ page, api, me }) => {

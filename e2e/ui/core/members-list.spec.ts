@@ -48,7 +48,7 @@ test.describe('members list', () => {
         await expect(await cellOf(table(page), row, 'Registration date')).toHaveText('2026-01-15 10:30');
 
         // The first 30 members, by id.
-        expect(api.callsTo('GET core /bodies')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('GET core /bodies')).toHaveLength(1);
         expect(Object.fromEntries(api.callsTo('GET core /members')[0].query)).toEqual({ limit: '30', offset: '0', sort: 'id', direction: 'asc' });
     });
 

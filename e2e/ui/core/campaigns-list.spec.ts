@@ -115,7 +115,7 @@ test.describe('campaigns list', () => {
         await search(page).fill('');
 
         await expect(tableRows(table).filter({ hasText: 'Spring recruitment' })).toBeVisible();
-        expect(api.callsTo('GET core /campaigns').at(-1)!.query.has('query')).toBe(false);
+        await expect.poll(() => api.callsTo('GET core /campaigns').at(-1)!.query.has('query')).toBe(false);
     });
 
     test('asks for the permissions once, not again for every search', async ({ page, api }) => {
@@ -130,7 +130,7 @@ test.describe('campaigns list', () => {
 
         await expect.poll(() => api.callsTo('GET core /campaigns').length).toBe(3);
         await expect(tableRows(campaignsTable(page))).toHaveCount(1);
-        expect(api.callsTo('GET core /my_permissions')).toHaveLength(2);
+        await expect.poll(() => api.callsTo('GET core /my_permissions')).toHaveLength(2);
     });
 
     test('a failing list says why and can be tried again', async ({ page, api }) => {
@@ -171,6 +171,6 @@ test.describe('campaigns list', () => {
         await expect(tableRows(table).first()).toContainText('Aachen welcome');
         await sortBy(table, '#', layout, 'desc');
         await expect(tableRows(table).first()).toContainText('Aachen welcome');
-        expect(api.callsTo('GET core /campaigns')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('GET core /campaigns')).toHaveLength(1);
     });
 });

@@ -50,7 +50,7 @@ test.describe('creating a circle', () => {
 
         await expect(toast(page, 'Circle is saved.')).toBeVisible();
         await expect(page).toHaveURL('/circles/61');
-        expect(api.callsTo('POST core /circles').map((call) => call.body)).toEqual([{ name: 'Summer Team', description: 'Organises the summer' }]);
+        await expect.poll(() => api.callsTo('POST core /circles').map((call) => call.body)).toEqual([{ name: 'Summer Team', description: 'Organises the summer' }]);
     });
 
     test('has only the name and the description', async ({ page }) => {
@@ -116,7 +116,7 @@ test.describe('creating a circle', () => {
 
         await expect(save(page)).toBeDisabled();
         await expect(page).toHaveURL('/circles/61');
-        expect(api.callsTo('POST core /circles')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /circles')).toHaveLength(1);
     });
 });
 
@@ -135,7 +135,7 @@ test.describe('editing a circle', () => {
 
         await expect(toast(page, 'Circle is saved.')).toBeVisible();
         await expect(page).toHaveURL('/circles/5');
-        expect(api.callsTo('PUT core /circles/:id').map((call) => [call.params.id, call.body])).toEqual([['5', { name: 'Comité Directeur', description: 'The board' }]]);
+        await expect.poll(() => api.callsTo('PUT core /circles/:id').map((call) => [call.params.id, call.body])).toEqual([['5', { name: 'Comité Directeur', description: 'The board' }]]);
     });
 
     test('has no setting for joining the circle', async ({ page, api }) => {
@@ -204,8 +204,8 @@ test.describe('editing a circle', () => {
 
             await expect(toast(page, 'Parent circle is set.')).toBeVisible();
             await expect(page.getByRole('button', { name: 'Network Commission (Click to unset)' })).toBeVisible();
-            expect(api.callsTo('GET core /circles').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'net' }]);
-            expect(api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['5', { parent_circle_id: 7 }]]);
+            await expect.poll(() => api.callsTo('GET core /circles').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'net' }]);
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['5', { parent_circle_id: 7 }]]);
         });
 
         test('is unset with its button', async ({ page, api }) => {
@@ -217,7 +217,7 @@ test.describe('editing a circle', () => {
 
             await expect(toast(page, 'Parent circle is unset.')).toBeVisible();
             await expect(page.getByText('Not set.')).toBeVisible();
-            expect(api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['5', { parent_circle_id: null }]]);
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['5', { parent_circle_id: null }]]);
         });
 
         test('says why it could not be set', async ({ page, api }) => {
@@ -295,7 +295,7 @@ test.describe('editing a circle', () => {
             await parentField(page).fill('');
 
             await expect(parentField(page)).toHaveValue('');
-            expect(api.callsTo('GET core /circles').map((call) => call.query.get('query'))).toEqual(['net']);
+            await expect.poll(() => api.callsTo('GET core /circles').map((call) => call.query.get('query'))).toEqual(['net']);
         });
     });
 
@@ -330,7 +330,7 @@ test.describe('editing a circle', () => {
             await expect(page.getByRole('button', { name: 'Remove child circle IT Committee' })).toBeVisible();
             await expect(page.getByText('No child circles attached.')).toHaveCount(0);
             // The child gets this circle as its parent.
-            expect(api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['8', { parent_circle_id: 5 }]]);
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['8', { parent_circle_id: 5 }]]);
         });
 
         test('show a circle that is added again only once', async ({ page, api }) => {
@@ -380,7 +380,7 @@ test.describe('editing a circle', () => {
 
             await expect(toast(page, 'Child circle is removed')).toBeVisible();
             await expect(page.getByText('No child circles attached.')).toBeVisible();
-            expect(api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['8', { parent_circle_id: null }]]);
+            await expect.poll(() => api.callsTo('PUT core /circles/:id/parent').map((call) => [call.params.id, call.body])).toEqual([['8', { parent_circle_id: null }]]);
         });
 
         test('say why a circle could not be removed', async ({ page, api }) => {
@@ -409,8 +409,8 @@ test.describe('editing a circle', () => {
             await expect(toast(page, 'Permission is added.')).toBeVisible();
             await expect(page.getByRole('button', { name: 'Remove permission global:view:member' })).toBeVisible();
             await expect(page.getByText('No permissions attached.')).toHaveCount(0);
-            expect(api.callsTo('GET core /permissions').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'view' }]);
-            expect(api.callsTo('POST core /circles/:id/permissions').map((call) => [call.params.id, call.body])).toEqual([['5', { permission_id: 31 }]]);
+            await expect.poll(() => api.callsTo('GET core /permissions').map((call) => Object.fromEntries(call.query))).toEqual([{ query: 'view' }]);
+            await expect.poll(() => api.callsTo('POST core /circles/:id/permissions').map((call) => [call.params.id, call.body])).toEqual([['5', { permission_id: 31 }]]);
         });
 
         test('say so when the circle has the permission already', async ({ page, api }) => {
@@ -449,7 +449,7 @@ test.describe('editing a circle', () => {
             await expect(toast(page, 'Permission is deleted.')).toBeVisible();
             await expect(page.getByRole('button', { name: 'Remove permission global:view:member' })).toHaveCount(0);
             await expect(page.getByRole('button', { name: 'Remove permission global:create:event' })).toBeVisible();
-            expect(api.callsTo('DELETE core /circles/:id/permissions/:permission_id').map((call) => call.params)).toEqual([{ id: '5', permission_id: '31' }]);
+            await expect.poll(() => api.callsTo('DELETE core /circles/:id/permissions/:permission_id').map((call) => call.params)).toEqual([{ id: '5', permission_id: '31' }]);
         });
 
         test('say why a permission could not be removed', async ({ page, api }) => {

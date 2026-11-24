@@ -61,7 +61,7 @@ test.describe('changing the picture', () => {
         // The page is loaded again, with the new picture. (Its toast goes with the old page.)
         await expect.poll(() => memberLoads(api)).toBe(2);
         await expect(page.getByRole('heading', { name: 'Alex', level: 1 })).toBeVisible();
-        expect(api.callsTo('POST core /members/:id/upload').map((call) => [call.params.id, call.parts.map(({ name, filename, contentType }) => ({ name, filename, contentType }))]))
+        await expect.poll(() => api.callsTo('POST core /members/:id/upload').map((call) => [call.params.id, call.parts.map(({ name, filename, contentType }) => ({ name, filename, contentType }))]))
             .toEqual([['42', [{ name: 'head_image', filename: 'picture.png', contentType: 'image/png' }]]]);
     });
 
@@ -93,7 +93,7 @@ test.describe('changing the picture', () => {
 
         // The page is loaded again, without the picture.
         await expect.poll(() => memberLoads(api)).toBe(2);
-        expect(api.callsTo('DELETE core /members/:id/image').map((call) => call.params.id)).toEqual(['42']);
+        await expect.poll(() => api.callsTo('DELETE core /members/:id/image').map((call) => call.params.id)).toEqual(['42']);
     });
 
     test('a picture that cannot be deleted stays, and the dialog closes with ×', async ({ page, api, me }) => {
@@ -135,7 +135,7 @@ test.describe('setting the primary body', () => {
         await expect(fact(page, 'Primary body').getByRole('link', { name: 'AEGEE-Brussels' })).toHaveAttribute('href', '/bodies/7');
         const brussels = page.getByRole('row').filter({ has: page.getByRole('link', { name: 'BRU', exact: true }) });
         await expect(brussels).toContainText('Primary');
-        expect(api.callsTo('PUT core /members/:id/primary-body').map((call) => [call.params.id, call.body])).toEqual([['42', { primary_body_id: 7 }]]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/primary-body').map((call) => [call.params.id, call.body])).toEqual([['42', { primary_body_id: 7 }]]);
     });
 
     test('a body that is no antenna is no primary body on the page', async ({ page, api, me }) => {
@@ -150,7 +150,7 @@ test.describe('setting the primary body', () => {
 
         await expect(toast(page, 'Primary body is updated')).toBeVisible();
         await expect(fact(page, 'Primary body')).toHaveText('Not set.');
-        expect(api.callsTo('PUT core /members/:id/primary-body').map((call) => call.body)).toEqual([{ primary_body_id: 8 }]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/primary-body').map((call) => call.body)).toEqual([{ primary_body_id: 8 }]);
     });
 
     test('"Not set" removes the primary body', async ({ page, api, me }) => {
@@ -166,7 +166,7 @@ test.describe('setting the primary body', () => {
         await expect(toast(page, 'Primary body is updated')).toBeVisible();
         await expect(fact(page, 'Primary body')).toHaveText('Not set.');
         await expect(page.getByText('Primary', { exact: true })).toHaveCount(0);
-        expect(api.callsTo('PUT core /members/:id/primary-body').map((call) => call.body)).toEqual([{ primary_body_id: null }]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/primary-body').map((call) => call.body)).toEqual([{ primary_body_id: null }]);
     });
 
     test('a member without a primary body starts at "Not set"', async ({ page, api, me }) => {
@@ -197,7 +197,7 @@ test.describe('setting the primary body', () => {
         await page.getByRole('button', { name: 'Set primary body' }).click();
         await dialog(page, 'Edit primary body').getByRole('button', { name: 'Close' }).click();
         await expect(dialog(page, 'Edit primary body')).toBeHidden();
-        expect(api.callsTo('PUT core /members/:id/primary-body')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/primary-body')).toHaveLength(1);
     });
 });
 
@@ -219,7 +219,7 @@ test.describe('setting the primary email', () => {
 
         await expect(toast(page, 'Primary email is updated')).toBeVisible();
         await expect(modal).toBeHidden();
-        expect(api.callsTo('PUT core /members/:id').map((call) => [call.params.id, call.body])).toEqual([['42', { primary_email: 'gsuite' }]]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id').map((call) => [call.params.id, call.body])).toEqual([['42', { primary_email: 'gsuite' }]]);
 
         // Opened again, it shows the new choice.
         await page.getByRole('button', { name: 'Set primary email' }).click();
@@ -250,6 +250,6 @@ test.describe('setting the primary email', () => {
         await expect(modal).toBeVisible();
         await modal.getByRole('button', { name: 'Cancel' }).click();
         await expect(modal).toBeHidden();
-        expect(api.callsTo('PUT core /members/:id').map((call) => call.body)).toEqual([{ primary_email: 'gsuite' }]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id').map((call) => call.body)).toEqual([{ primary_email: 'gsuite' }]);
     });
 });

@@ -90,7 +90,7 @@ test.describe('the page of a body', () => {
         for (const name of ['Add member', 'Add bound circle', 'Change board', 'Delete body', 'Restore body']) {
             await expect(page.getByRole('button', { name }), name).toHaveCount(0);
         }
-        expect(api.callsTo('GET network /bodies/:id/boards/current')[0].params).toEqual({ id: '1' });
+        await expect.poll(() => api.callsTo('GET network /bodies/:id/boards/current')[0].params).toEqual({ id: '1' });
     });
 
     test('shows the abbreviation of other bodies and leaves out what is not set', async ({ page, api }) => {
@@ -169,7 +169,7 @@ test.describe('the page of a body', () => {
         await expect(row('Secretary')).toContainText('Sam Secretary');
         await expect(row('Treasurer')).toContainText('Tom Treasurer');
         await expect(row('Vice-president')).toContainText('Val Vice');
-        expect(api.callsTo('GET core /bodies/:id/members')[0].params).toEqual({ id: '1' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/members')[0].params).toEqual({ id: '1' });
     });
 
     test('a board without a name has no name row and shows its full term', async ({ page, api }) => {
@@ -318,7 +318,7 @@ test.describe('joining and leaving a body', () => {
         await expect(toast(page, 'Join request is sent.')).toBeVisible();
         await expect(page.getByText('Join request sent')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Ask to join body' })).toHaveCount(0);
-        expect(api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params, call.body])).toEqual([[{ id: '5' }, { motivation: 'I like it' }]]);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/join-requests').map((call) => [call.params, call.body])).toEqual([[{ id: '5' }, { motivation: 'I like it' }]]);
     });
 
     test('the join message leaves out a missing website', async ({ page, api }) => {
@@ -354,7 +354,7 @@ test.describe('joining and leaving a body', () => {
 
         await expect(toast(page, 'You\'ve already requested to join this body.')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Ask to join body' })).toBeVisible();
-        expect(api.callsTo('POST core /bodies/:id/join-requests')[0].body).toEqual({ motivation: '' });
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/join-requests')[0].body).toEqual({ motivation: '' });
     });
 
     test('says why the join request was not sent', async ({ page, api }) => {
@@ -386,7 +386,7 @@ test.describe('joining and leaving a body', () => {
         await expect(toast(page, 'You are not the member anymore.')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Ask to join body' })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Leave body' })).toHaveCount(0);
-        expect(api.callsTo('DELETE core /bodies/:id/members').map((call) => call.params)).toEqual([{ id: '1' }]);
+        await expect.poll(() => api.callsTo('DELETE core /bodies/:id/members').map((call) => call.params)).toEqual([{ id: '1' }]);
     });
 
     test('says why leaving failed', async ({ page, api }) => {
@@ -422,7 +422,7 @@ test.describe('deleting and restoring a body', () => {
         await expect(toast(page, 'Body is deleted.')).toBeVisible();
         await expect(dialog(page, 'Deleting a body')).toBeHidden();
         await expect(page.getByRole('button', { name: 'Restore body' })).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id/status').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { status: 'deleted' }]]);
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/status').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { status: 'deleted' }]]);
     });
 
     test('restores a deleted body', async ({ page, api }) => {
@@ -438,7 +438,7 @@ test.describe('deleting and restoring a body', () => {
         await expect(toast(page, 'Body is restored.')).toBeVisible();
         await expect(dialog(page, 'Restoring a body')).toBeHidden();
         await expect(page.getByRole('button', { name: 'Delete body' })).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id/status')[0].body).toEqual({ status: 'active' });
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/status')[0].body).toEqual({ status: 'active' });
     });
 
     test('says why the status could not be changed', async ({ page, api }) => {
@@ -469,8 +469,8 @@ test.describe('adding to a body from its page', () => {
 
         await expect.poll(() => api.callsTo('GET core /bodies/:id').length).toBe(2);
         await expect(toast(page, 'Could not add member')).toHaveCount(0);
-        expect(api.callsTo('GET core /members_search')[0].query.get('query')).toBe('jan');
-        expect(api.callsTo('POST core /bodies/:id/members').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { user_id: 55 }]]);
+        await expect.poll(() => api.callsTo('GET core /members_search')[0].query.get('query')).toBe('jan');
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/members').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { user_id: 55 }]]);
     });
 
     test('adds a bound circle and lists it', async ({ page, api }) => {
@@ -488,7 +488,7 @@ test.describe('adding to a body from its page', () => {
         await expect(toast(page, 'Bound circle is created.')).toBeVisible();
         await expect(modal).toBeHidden();
         await expect(page.getByRole('link', { name: 'Fundraising team' })).toHaveAttribute('href', '/circles/63');
-        expect(api.callsTo('POST core /bodies/:id/circles').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { name: 'Fundraising team', description: 'Finds sponsors' }]]);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/circles').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { name: 'Fundraising team', description: 'Finds sponsors' }]]);
     });
 
     test('shows what is wrong with a bound circle', async ({ page, api }) => {
@@ -522,7 +522,7 @@ test.describe('adding to a body from its page', () => {
         await page.getByRole('button', { name: 'Add bound circle' }).click();
         await dialog(page, 'Add circle').getByRole('button', { name: 'close' }).click();
         await expect(dialog(page, 'Add circle')).toBeHidden();
-        expect(api.callsTo('POST core /bodies/:id/circles')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/circles')).toHaveLength(1);
     });
 });
 
@@ -572,11 +572,11 @@ test.describe('adding a board from the body page', () => {
         // The page is loaded again to show the new board.
         await expect.poll(() => api.callsTo('GET core /bodies/:id').length).toBe(2);
         // Picking a person searches once more for the whole name (the box shows it after the pick).
-        expect(api.callsTo('GET core /bodies/:id/members').map((call) => call.query.get('query'))).toEqual(expect.arrayContaining(['Pia', 'Sam', 'Tom', 'Val']));
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/members').map((call) => call.query.get('query'))).toEqual(expect.arrayContaining(['Pia', 'Sam', 'Tom', 'Val']));
         const [details] = api.callsTo('PUT core /bodies/:id');
         expect(details.params).toEqual({ id: '1' });
         expect(details.body).toMatchObject({ email: 'antenna@example.com', phone: '+32 2 111 11 11', address: 'Main street 1' });
-        expect(api.callsTo('POST network /bodies/:id/boards').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
+        await expect.poll(() => api.callsTo('POST network /bodies/:id/boards').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
             body_id: 1,
             elected_date: '2026-12-01',
             start_date: '2027-01-01',
@@ -605,7 +605,7 @@ test.describe('adding a board from the body page', () => {
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
         await expect(toast(page, 'Something went wrong: You are not allowed to manage the boards of this body.')).toBeVisible();
-        expect(api.callsTo('POST network /bodies/:id/boards')[0].body).toMatchObject({ other_members: [] });
+        await expect.poll(() => api.callsTo('POST network /bodies/:id/boards')[0].body).toMatchObject({ other_members: [] });
     });
 
     test('says why the people could not be searched', async ({ page, api }) => {

@@ -41,9 +41,9 @@ test.describe('members of a body', () => {
         await expect(await cellOf(table, tableRows(table).nth(0), 'Comment')).toHaveText('Treasurer');
         await expect(page.getByRole('region', { name: 'Members of the body' })).toHaveAttribute('aria-busy', 'false');
 
-        expect(api.callsTo('GET core /bodies/:id')[0].params).toEqual({ id: '1' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id')[0].params).toEqual({ id: '1' });
         expect([...api.callsTo('GET core /bodies/:id/members')[0].query.keys()]).toEqual([]);
-        expect(api.callsTo('GET core /bodies/:id/my_permissions')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/my_permissions')).toHaveLength(1);
     });
 
     test('without rights the names are plain text and there is nothing to change', async ({ page, api }) => {
@@ -89,7 +89,7 @@ test.describe('members of a body', () => {
 
         await expect(page.getByText('Total members: 1')).toBeVisible();
         await expect(tableRows(table)).toHaveCount(1);
-        expect(api.callsTo('GET core /bodies/:id/members').at(-1)!.query.get('query')).toBe('Bo');
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/members').at(-1)!.query.get('query')).toBe('Bo');
         await expect.poll(() => api.callsTo('GET core /bodies/:id').length).toBeGreaterThanOrEqual(2);
         await expect.poll(() => api.callsTo('GET core /bodies/:id/my_permissions').length).toBeGreaterThanOrEqual(2);
         await expect(toast(page, 'Could not fetch members')).toHaveCount(0);
@@ -153,7 +153,7 @@ test.describe('members of a body', () => {
         await expect(toast(page, 'Member is deleted.')).toBeVisible();
         await expect(tableRows(table)).toHaveCount(1);
         await expect(tableRows(table).first()).toContainText('Bob Bee');
-        expect(api.callsTo('DELETE core /bodies/:id/members/:membership_id').map((call) => call.params)).toEqual([{ id: '1', membership_id: '71' }]);
+        await expect.poll(() => api.callsTo('DELETE core /bodies/:id/members/:membership_id').map((call) => call.params)).toEqual([{ id: '1', membership_id: '71' }]);
     });
 
     test('keeps the member when removing fails', async ({ page, api }) => {
@@ -189,7 +189,7 @@ test.describe('members of a body', () => {
 
         await expect(toast(page, 'Comment is set.')).toBeVisible();
         await expect(await cellOf(table, row, 'Comment')).toHaveText('Treasurer');
-        expect(api.callsTo('PUT core /bodies/:id/members/:membership_id').map((call) => [call.params, call.body]))
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/members/:membership_id').map((call) => [call.params, call.body]))
             .toEqual([[{ id: '1', membership_id: '71' }, { comment: 'Treasurer' }]]);
     });
 
@@ -205,7 +205,7 @@ test.describe('members of a body', () => {
 
         await expect(toast(page, 'Comment is set.')).toBeVisible();
         await expect(await cellOf(membersTable(page), row, 'Comment')).toHaveText('');
-        expect(api.callsTo('PUT core /bodies/:id/members/:membership_id').map((call) => call.body)).toEqual([{ comment: '' }]);
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id/members/:membership_id').map((call) => call.body)).toEqual([{ comment: '' }]);
     });
 
     test('says why a comment could not be changed', async ({ page, api }) => {
@@ -251,8 +251,8 @@ test.describe('adding an existing member to a body', () => {
 
         // The page is loaded again to show the new member.
         await expect.poll(() => api.callsTo('GET core /bodies/:id').length).toBe(2);
-        expect(api.callsTo('POST core /bodies/:id/members').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { user_id: 55 }]]);
-        expect(api.callsTo('GET core /members_search').map((call) => call.query.get('query'))).toEqual(['jan']);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/members').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, { user_id: 55 }]]);
+        await expect.poll(() => api.callsTo('GET core /members_search').map((call) => call.query.get('query'))).toEqual(['jan']);
     });
 
     test('closes without adding anyone', async ({ page, api }) => {
@@ -307,7 +307,7 @@ test.describe('adding an existing member to a body', () => {
         await dialog(page, 'Add member').getByRole('button', { name: 'Jane Doe' }).click();
 
         await expect(toast(page, 'Could not add member: The mail could not be sent, so nothing was saved. Please try again later.')).toBeVisible();
-        expect(api.callsTo('POST core /bodies/:id/members').map((call) => call.body)).toEqual([{ user_id: 55 }]);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/members').map((call) => call.body)).toEqual([{ user_id: 55 }]);
     });
 
     test('says why the search failed', async ({ page, api }) => {

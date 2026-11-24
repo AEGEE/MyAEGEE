@@ -46,7 +46,7 @@ test.describe('membership fees of a body', () => {
         await expect(await cellOf(table, rowOf(page, 'Bob Bee'), 'Last payment exp. date')).toHaveText('');
         await expect(rowOf(page, 'Ann Able').getByRole('button', { name: 'View or manage payments' })).toBeVisible();
         await expect(rowOf(page, 'Ann Able').getByRole('button', { name: 'Add fee payment' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies/:id/payments')[0].params).toEqual({ id: '1' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/payments')[0].params).toEqual({ id: '1' });
     });
 
     test('sorts the members by when their last payment expires', async ({ page, api, layout }) => {
@@ -149,7 +149,7 @@ test.describe('membership fees of a body', () => {
 
         await expect(toast(page, 'Fee is deleted.')).toBeVisible();
         await expect(tableRows(modal.getByRole('table'))).toHaveCount(1);
-        expect(api.callsTo('DELETE core /bodies/:id/payments/:payment_id').map((call) => call.params)).toEqual([{ id: '1', payment_id: '502' }]);
+        await expect.poll(() => api.callsTo('DELETE core /bodies/:id/payments/:payment_id').map((call) => call.params)).toEqual([{ id: '1', payment_id: '502' }]);
         await modal.getByRole('button', { name: 'close' }).click();
         await expect(await cellOf(membersTable(page), memberRow, 'Last payment exp. date')).toHaveText('2026-01-01');
     });
@@ -193,7 +193,7 @@ test.describe('adding a fee payment', () => {
         await expect(toast(page, 'Payment is added.')).toBeVisible();
         await expect(modal).toBeHidden();
         await expect(await cellOf(membersTable(page), rowOf(page, 'Ann Able'), 'Last payment exp. date')).toHaveText('2028-03-10');
-        expect(api.callsTo('POST core /bodies/:id/payments').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/payments').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
             starts: '2027-03-10',
             expires: '2028-03-10',
             currency: 'EU',
@@ -228,7 +228,7 @@ test.describe('adding a fee payment', () => {
         await modal.getByRole('button', { name: 'Add fee payment' }).click();
 
         await expect(toast(page, 'Payment is added.')).toBeVisible();
-        expect(api.callsTo('POST core /bodies/:id/payments')[0].body).toMatchObject({ invoice_address: '0123', invoice_name: '007' });
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/payments')[0].body).toMatchObject({ invoice_address: '0123', invoice_name: '007' });
     });
 
     test('clearing the start keeps the expiry date', async ({ page, api }) => {
@@ -256,7 +256,7 @@ test.describe('adding a fee payment', () => {
 
         await expect(modal.getByRole('button', { name: 'Add fee payment' })).toBeDisabled();
         await expect(toast(page, 'Payment is added.')).toBeVisible();
-        expect(api.callsTo('POST core /bodies/:id/payments')).toHaveLength(1);
+        await expect.poll(() => api.callsTo('POST core /bodies/:id/payments')).toHaveLength(1);
     });
 
     test('shows what the service objects to', async ({ page, api }) => {

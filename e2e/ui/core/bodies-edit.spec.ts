@@ -33,7 +33,7 @@ test.describe('creating a body', () => {
         await expect(field(page, 'Abbreviation (if applicable)')).toBeVisible();
         await expect(field(page, 'Founded at (if applicable)')).toBeVisible();
         await expect(field(page, 'Shadow circle')).toHaveCount(0);
-        expect(api.callsTo('* core *').map((call) => call.path)).not.toContain('/bodies/new');
+        await expect.poll(() => api.callsTo('* core *').map((call) => call.path)).not.toContain('/bodies/new');
     });
 
     test('an antenna needs a founding date and has no abbreviation', async ({ page, api }) => {
@@ -75,7 +75,7 @@ test.describe('creating a body', () => {
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/42');
-        expect(api.callsTo('POST core /bodies').map((call) => call.body)).toEqual([{
+        await expect.poll(() => api.callsTo('POST core /bodies').map((call) => call.body)).toEqual([{
             name: 'IT Working Group',
             abbreviation: 'ITWG',
             description: 'We do **IT**',
@@ -239,7 +239,7 @@ test.describe('editing a body', () => {
         await save(page).click();
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ shadow_circle_id: 52 });
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ shadow_circle_id: 52 });
     });
 
     test('unsetting the shadow circle sends none', async ({ page, api }) => {
@@ -254,7 +254,7 @@ test.describe('editing a body', () => {
         await expect(page.getByText('Not set.')).toBeVisible();
         await save(page).click();
         await expect(toast(page, 'Body is saved.')).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ shadow_circle_id: null, shadow_circle: null });
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ shadow_circle_id: null, shadow_circle: null });
     });
 
     test('a shadow circle of another body is refused', async ({ page, api }) => {
@@ -303,7 +303,7 @@ test.describe('editing a body', () => {
         await save(page).click();
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
-        expect(api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ founded_at: null });
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ founded_at: null });
     });
 
     test('shows the service\'s objections under the fields', async ({ page, api }) => {

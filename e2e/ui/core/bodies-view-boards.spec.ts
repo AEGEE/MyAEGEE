@@ -68,7 +68,7 @@ test.describe('the boards of a body', () => {
         const [list] = api.callsTo('GET network /bodies/:id/boards');
         expect(list.params).toEqual({ id: '1' });
         expect(Object.fromEntries(list.query)).toEqual({ sort: 'start_date', direction: 'desc' });
-        expect(api.callsTo('GET core /bodies/:id/members')[0].params).toEqual({ id: '1' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/members')[0].params).toEqual({ id: '1' });
     });
 
     test('shows an open-ended term', async ({ page, api }) => {
@@ -184,7 +184,7 @@ test.describe('editing a board', () => {
         await dialog(page, 'Deleting a board').getByRole('button', { name: 'Delete board' }).click();
 
         await expect.poll(() => api.callsTo('GET network /bodies/:id/boards').length).toBe(2);
-        expect(api.callsTo('DELETE network /bodies/:id/boards/:board_id').map((call) => call.params)).toEqual([{ id: '1', board_id: '81' }]);
+        await expect.poll(() => api.callsTo('DELETE network /bodies/:id/boards/:board_id').map((call) => call.params)).toEqual([{ id: '1', board_id: '81' }]);
     });
 
     test('says why a board could not be deleted', async ({ page, api }) => {

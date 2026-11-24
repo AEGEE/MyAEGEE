@@ -44,7 +44,7 @@ test.describe('the members of a campaign', () => {
         await expect(await cellOf(table, tableRows(table).filter({ hasText: 'John Roe' }), 'Email confirmed?')).toHaveText('No');
         await expect(page.getByRole('button', { name: /^Page 2\b/ })).toHaveCount(0);
 
-        expect(api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
+        await expect.poll(() => api.callsTo('GET core /campaigns/:id')[0].params).toEqual({ id: '7' });
         const [members] = api.callsTo('GET core /campaigns/:id/members');
         expect(members.params).toEqual({ id: '7' });
         expect(Object.fromEntries(members.query)).toEqual({ limit: '30', offset: '0', sort: 'id', direction: 'desc' });
@@ -78,7 +78,7 @@ test.describe('the members of a campaign', () => {
         await search(page).fill('');
 
         await expect(tableRows(table)).toHaveCount(2);
-        expect(api.callsTo('GET core /campaigns/:id/members').at(-1)!.query.has('query')).toBe(false);
+        await expect.poll(() => api.callsTo('GET core /campaigns/:id/members').at(-1)!.query.has('query')).toBe(false);
     });
 
     test('more than one page of submissions is shown page by page', async ({ page, api }) => {
@@ -146,7 +146,7 @@ test.describe('the members of a campaign of a body', () => {
         await expect(page).toHaveTitle('MyAEGEE | View members of a body campaign');
         await expect(page.getByRole('heading', { name: 'Autumn recruitment' })).toBeVisible();
         await expect(tableRows(membersTable(page)).filter({ hasText: 'Jane Doe' })).toBeVisible();
-        expect(api.callsTo('GET core /bodies/:id/campaigns/:campaign_id')[0].params).toEqual({ id: '5', campaign_id: '7' });
+        await expect.poll(() => api.callsTo('GET core /bodies/:id/campaigns/:campaign_id')[0].params).toEqual({ id: '5', campaign_id: '7' });
         const [members] = api.callsTo('GET core /bodies/:id/campaigns/:campaign_id/members');
         expect(members.params).toEqual({ id: '5', campaign_id: '7' });
         expect(Object.fromEntries(members.query)).toEqual({ limit: '30', offset: '0', sort: 'id', direction: 'desc' });

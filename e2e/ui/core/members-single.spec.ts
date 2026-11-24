@@ -134,7 +134,7 @@ test.describe('member page', () => {
         await page.goto('/members/alex.member');
 
         await expect(page.getByRole('img', { name: 'Profile picture of Alex Member' })).toHaveAttribute('src', '/media/core/headimages/alex.png');
-        expect(api.callsTo('GET url /media/core/headimages/*').map((call) => new URL(call.path).pathname)).toEqual(['/media/core/headimages/alex.png']);
+        await expect.poll(() => api.callsTo('GET url /media/core/headimages/*').map((call) => new URL(call.path).pathname)).toEqual(['/media/core/headimages/alex.png']);
     });
 
     test('lists the bodies with the primary body first, and the circles', async ({ page, api, me }) => {
@@ -290,7 +290,7 @@ test.describe('member page', () => {
 
         await expect(toast(page, 'User is deleted.')).toBeVisible();
         await expect(page).toHaveURL('/members');
-        expect(api.callsTo('DELETE core /members/:id').map((call) => [call.params.id, call.body])).toEqual([['42', undefined]]);
+        await expect.poll(() => api.callsTo('DELETE core /members/:id').map((call) => [call.params.id, call.body])).toEqual([['42', undefined]]);
     });
 
     test('a refused delete says why and stays', async ({ page, api, me }) => {
@@ -330,7 +330,7 @@ test.describe('member page', () => {
         await expect(toast(page, 'User is activated.')).toBeVisible();
         await expect(fact(page, 'Login suspended?')).toHaveText('No');
         await expect(page.getByRole('button', { name: 'Suspend user' })).toBeEnabled();
-        expect(api.callsTo('PUT core /members/:id/active').map((call) => [call.params.id, call.body])).toEqual([['42', { active: false }], ['42', { active: true }]]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/active').map((call) => [call.params.id, call.body])).toEqual([['42', { active: false }], ['42', { active: true }]]);
     });
 
     test('a refused suspension says why and changes nothing', async ({ page, api, me }) => {
@@ -371,7 +371,7 @@ test.describe('member page', () => {
         await expect(remove).toBeHidden();
         await expect(toast(page, 'User has no superadmin powers')).toBeVisible();
         await expect(fact(page, 'Is superadmin?')).toHaveText('No');
-        expect(api.callsTo('PUT core /members/:id/superadmin').map((call) => [call.params.id, call.body])).toEqual([['42', { superadmin: true }], ['42', { superadmin: false }]]);
+        await expect.poll(() => api.callsTo('PUT core /members/:id/superadmin').map((call) => [call.params.id, call.body])).toEqual([['42', { superadmin: true }], ['42', { superadmin: false }]]);
     });
 
     test('a refused superadmin change says why', async ({ page, api, me }) => {
@@ -438,9 +438,9 @@ test.describe('member page', () => {
             await expect(fact(page, 'Event application ban')).toHaveText('Until 2027-03-15 01:00');
             await expect(page.getByRole('button', { name: 'Lift event application ban' })).toBeEnabled();
             for (const service of ['events', 'statutory', 'summeruniversity']) {
-                expect(api.callsTo(`GET ${service} /applications/future/:user_id`).map((call) => call.params.user_id)).toEqual(['42']);
+                await expect.poll(() => api.callsTo(`GET ${service} /applications/future/:user_id`).map((call) => call.params.user_id)).toEqual(['42']);
             }
-            expect(api.callsTo('PUT core /members/:id/event-application-ban').map((call) => [call.params.id, call.body])).toEqual([['42', { ban_until: '2027-03-15' }]]);
+            await expect.poll(() => api.callsTo('PUT core /members/:id/event-application-ban').map((call) => [call.params.id, call.body])).toEqual([['42', { ban_until: '2027-03-15' }]]);
         });
 
         test('a date more than three months away is not accepted', async ({ page, api, me }) => {
@@ -516,7 +516,7 @@ test.describe('member page', () => {
             await expect(toast(page, 'Event application ban is lifted.')).toBeVisible();
             await expect(fact(page, 'Event application ban')).toHaveText('No active ban');
             await expect(page.getByRole('button', { name: 'Ban event applications' })).toBeEnabled();
-            expect(api.callsTo('DELETE core /members/:id/event-application-ban').map((call) => call.params.id)).toEqual(['42']);
+            await expect.poll(() => api.callsTo('DELETE core /members/:id/event-application-ban').map((call) => call.params.id)).toEqual(['42']);
         });
 
         test('a ban that cannot be lifted stays', async ({ page, api, me }) => {
@@ -553,7 +553,7 @@ test.describe('member page', () => {
             await askChange(page, 'alex.new@example.org');
 
             await expect(toast(page, 'The email change was requested. It takes effect after it is confirmed from the new address.')).toBeVisible();
-            expect(api.callsTo('PUT core /members/:id/email').map((call) => [call.params.id, call.body])).toEqual([['42', { new_email: 'alex.new@example.org' }]]);
+            await expect.poll(() => api.callsTo('PUT core /members/:id/email').map((call) => [call.params.id, call.body])).toEqual([['42', { new_email: 'alex.new@example.org' }]]);
         });
 
         test('a board member is told that the current address has to confirm too', async ({ page, api, me }) => {
@@ -578,7 +578,7 @@ test.describe('member page', () => {
             await askChange(page, 'alex.new@example.org');
 
             await expect(toast(page, /The mail could not be sent, so nothing was saved\. Please try again later\./)).toBeVisible();
-            expect(api.callsTo('PUT core /members/:id/email').map((call) => call.body)).toEqual([{ new_email: 'alex.new@example.org' }]);
+            await expect.poll(() => api.callsTo('PUT core /members/:id/email').map((call) => call.body)).toEqual([{ new_email: 'alex.new@example.org' }]);
         });
 
         test('the own email change gets the general message when the server sends none', async ({ page, api, me }) => {
@@ -589,7 +589,7 @@ test.describe('member page', () => {
             await askChange(page, 'alex.new@example.org');
 
             await expect(toast(page, 'An email change is triggered. Check your new inbox for a confirmation.')).toBeVisible();
-            expect(api.callsTo('PUT core /members/:id/email').map((call) => call.params.id)).toEqual([String(me!.id)]);
+            await expect.poll(() => api.callsTo('PUT core /members/:id/email').map((call) => call.params.id)).toEqual([String(me!.id)]);
         });
 
         test('a refused change says why; cancelling sends nothing', async ({ page, api, me }) => {
