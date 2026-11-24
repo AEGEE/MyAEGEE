@@ -100,7 +100,7 @@
                   <li v-show="statutory.can_apply && new Date() > new Date(statutory.application_period_starts)">
                     <strong>
                       <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: statutory.url || statutory.id, application_id: 'me' } }">
-                        {{ statutory.can_apply ? 'Manage my application' : 'Update my application' }}
+                        Manage my application
                       </router-link>
                     </strong>
                   </li>
@@ -195,9 +195,6 @@ export default {
         bodies: sortBodies(this.loginUser.bodies, this.loginUser.primary_body_id),
         circles: [...this.loginUser.circles].sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
       }
-    },
-    isAnythingLoading () {
-      return Object.keys(this.isLoading).some(key => this.isLoading[key])
     },
     hasAnyBodies () {
       return this.user.primary_body || this.user.bodies.length > 0

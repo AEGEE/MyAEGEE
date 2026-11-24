@@ -106,7 +106,7 @@ export default {
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
-          backgroundColor: this.colors[event.type] || '#1468C5',
+          backgroundColor: this.colors[event.type],
           borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           url: '/events/' + (event.url || event.id),
@@ -141,7 +141,7 @@ export default {
           backgroundColor: '#1468C5',
           borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
-          url: '/statutory/' + (event.url || event.id),
+          url: '/statutory/' + event.url,
           description: event.description
         }))
       }).catch((err) => {
