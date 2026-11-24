@@ -123,6 +123,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventCreatedResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not create events, or is not one of the organizers.
@@ -334,6 +335,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not edit this event.
@@ -387,6 +389,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not make this transition (also to the current status).
@@ -450,6 +453,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not change the European status of events of this type.
@@ -500,7 +504,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationSavedResponse'}
         '400':
-          description: The caller is not a member of the body in `body_id`.
+          description: The caller is not a member of the body in `body_id`, or the body is not an object ("The body should be an object.").
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -578,7 +582,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationSavedResponse'}
-        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not edit this application, or the applicant is not a member of the new body.
@@ -613,7 +617,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
-        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not change this application.
@@ -648,7 +652,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
-        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not change this application.
@@ -683,7 +687,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
-        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller may not accept or reject applicants.
@@ -718,7 +722,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
-        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403':
           description: The caller is not on the board of the application's body.
@@ -800,6 +804,8 @@ components:
           schema: {$ref: '#/components/schemas/ApplicationInput'}
   responses:
     BadApplicationId: {description: 'The application id is neither a number nor `me`.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadApplicationIdOrBody: {description: 'The application id is neither a number nor `me`, or the body is not an object ("The body should be an object.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyNotObject: {description: 'The body is not an object ("The body should be an object."), for example a list.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}

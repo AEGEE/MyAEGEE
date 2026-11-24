@@ -8,11 +8,36 @@ const { Event, Application } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
 const constants = require('./constants');
+const { isPlainObject } = require('./validators');
 
 const packageInfo = require('../package.json');
 
 // What core answers to a request without a token, so that ensureAuthorized() rejects it.
 const ANONYMOUS = { statusCode: 401, body: { success: false } };
+
+// Keys that JSON.parse makes own keys of a body, which Sequelize would read as setters.
+const PROTOTYPE_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+// A request body is an object. A request without JSON has an empty one, which the routes read
+// like any other. Express also parses a JSON array as a body, which no route reads.
+exports.checkBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    if (!isPlainObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    for (const key of PROTOTYPE_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+            delete req.body[key];
+        }
+    }
+
+    return next();
+};
 
 exports.authenticateUser = async (req, res, next) => {
     // Without a token core can only answer 401: the caller is anonymous, and public routes
