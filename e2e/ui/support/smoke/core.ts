@@ -2,6 +2,7 @@
 import type { ApiMock } from '../api-mock.ts';
 import { ok, okList } from '../factories/base.ts';
 import { body, member, type Member } from '../factories/core.ts';
+import { bodyCampaign, campaignDetail } from '../factories/core-campaigns.ts';
 import { circleDetail, permissionDetail } from '../factories/core-circles.ts';
 
 export const smoke = (api: ApiMock): void => {
@@ -12,6 +13,8 @@ export const smoke = (api: ApiMock): void => {
     api.json('GET core /members/unconfirmed', okList([]));
     api.json('GET core /circles/:id', ok(circleDetail({ id: 1 })));
     api.json('GET core /permissions/:id', ok(permissionDetail('global:view:member', { id: 1 })));
+    api.json('GET core /campaigns/:id', ok(campaignDetail({ id: 1, autojoin_body_id: 1 })));
+    api.json('GET core /bodies/:id/campaigns/:campaign_id', ok(bodyCampaign({ id: 1, autojoin_body: body({ id: 1 }) })));
 };
 
 // Route name -> values for the parameters of its path (the default is '1').
