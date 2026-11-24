@@ -53,8 +53,9 @@ services:
     # For reading only: "Try it out" cannot reach the APIs from this host.
     volumes:
       - ./discounts/openapi.yaml:/usr/share/nginx/html/specs/discounts.yaml:ro
+      - ./network/openapi.yaml:/usr/share/nginx/html/specs/network.yaml:ro
     environment:
-      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}]"
+      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger

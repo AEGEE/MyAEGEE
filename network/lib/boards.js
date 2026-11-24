@@ -1,3 +1,4 @@
+const lodash = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
 
@@ -11,17 +12,25 @@ const config = require('../config');
 const constants = require('./constants');
 const logger = require('./logger');
 
+// The fields a board manager sets; the rest (id, the body, the welcome mail mark,
+// timestamps) belongs to the service.
+const BOARD_FIELDS = ['elected_date', 'start_date', 'end_date', 'name', 'president', 'secretary', 'treasurer', 'other_members', 'message', 'image_id'];
+const pickBoardFields = (input) => lodash.pick(input || {}, BOARD_FIELDS);
+
 const OFFICERS = [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']];
 
 // Looks up the members of a valid board in core: every member on creation, and on an edit
 // those the edit adds or changes (see changedMembers). Returns the positions with the
-// members' names, and the errors of the fields whose member core does not know.
+// members' names, and the errors of the fields whose member core does not know or does
+// not let the caller see.
 const lookUpMembers = async (boardData, token) => {
     const positions = [];
     const fieldErrors = {};
     for (const [field, position] of OFFICERS.filter(([officer]) => officer in boardData)) {
         const member = await core.fetchUser(boardData[field], token);
-        if (member) {
+        if (member === core.FORBIDDEN) {
+            fieldErrors[field] = ['You are not allowed to see this member.'];
+        } else if (member) {
             positions.push({ function: position, name: member.name });
         } else {
             fieldErrors[field] = ['The member is not found.'];
@@ -30,7 +39,9 @@ const lookUpMembers = async (boardData, token) => {
 
     for (const other of boardData.other_members || []) {
         const member = await core.fetchUser(other.user_id, token);
-        if (member) {
+        if (member === core.FORBIDDEN) {
+            fieldErrors.other_members = ['You are not allowed to see the member of the position ' + other.function + '.'];
+        } else if (member) {
             positions.push({ function: other.function, name: member.name });
         } else {
             fieldErrors.other_members = ['The member of the position ' + other.function + ' is not found.'];
@@ -65,10 +76,14 @@ exports.createBoard = async (req, res) => {
         return errors.makeBadRequestError(res, 'Body ID is invalid.');
     }
 
-    const boardData = { ...req.body, body_id: Number(req.params.body_id) };
+    const boardData = { ...pickBoardFields(req.body), body_id: Number(req.params.body_id) };
 
     if (!req.permissions.manage_boards[boardData.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
+    }
+
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
     }
 
     // Check the input before asking core about the body and the members.
@@ -137,18 +152,9 @@ exports.listAllBoards = async (req, res) => {
     });
 };
 
-// A date (2021-01-10) or a full ISO 8601 timestamp with a time zone, such as an Agora's
-// end (2021-01-10T16:00:00.000Z). A timestamp counts by the day it was written with.
-const ENDS_FORMAT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2}))?$/;
-const parseEndsDay = (value) => {
-    // The format check leaves out partial forms (2021, 20210110); the strict parse, values
-    // that are no real date or time (2021-13-45, T25:00).
-    if (typeof value !== 'string' || !ENDS_FORMAT.test(value) || !moment.parseZone(value, moment.ISO_8601, true).isValid()) {
-        return null;
-    }
-
-    return moment(value.slice(0, 10), 'YYYY-MM-DD', true);
-};
+// The day of a date or a timestamp, such as an Agora's end (2021-01-10T16:00:00.000Z),
+// as it is written.
+const parseEndsDay = (value) => (helpers.isDateOrTimestamp(value) ? moment(value.slice(0, 10), 'YYYY-MM-DD', true) : null);
 
 exports.listMostRecentBoardsElected = async (req, res) => {
     if (!req.permissions.view_board) {
@@ -277,10 +283,14 @@ exports.updateBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
     }
 
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
     // The board as it would be stored is checked as a whole; then the members the edit
     // adds or changes are looked up in core, as on creation.
     const stored = req.board.get({ clone: true });
-    req.board.set({ ...req.body, body_id: req.board.body_id });
+    req.board.set(pickBoardFields(req.body));
     await req.board.validate();
 
     const { fieldErrors } = await lookUpMembers(changedMembers(stored, req.board.get()), req.headers['x-auth-token']);
@@ -289,6 +299,8 @@ exports.updateBoard = async (req, res) => {
     }
 
     await req.board.save();
+    // Answer with the stored row, not with what was sent ("7" is stored as 7).
+    await req.board.reload();
 
     return res.json({
         success: true,

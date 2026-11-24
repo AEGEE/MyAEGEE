@@ -1,4 +1,10 @@
+const path = require('path');
+
+// Root-level shared helper; becomes a workspace package after the pnpm restructure.
+const { createRequestHook } = require('../../../packages/backend-test-utils/openapi');
 const config = require('../../config');
+
+const checkResponse = createRequestHook({ serviceRoot: path.join(__dirname, '..', '..') });
 
 const baseUrl = 'http://localhost:' + config.port;
 
@@ -43,12 +49,14 @@ const request = async (options) => {
         }
     }
 
-    return {
+    const result = {
         statusCode: response.status,
         statusMessage: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
         body
     };
+    checkResponse(options, fetchOptions, result);
+    return result;
 };
 
 exports.request = request;

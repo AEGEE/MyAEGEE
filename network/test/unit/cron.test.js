@@ -15,6 +15,18 @@ describe('Cron Job Tests', () => {
         cron.job.stop();
     });
 
+    test('should not start the job when lib/cron.js is loaded', () => {
+        expect(cron.job.isActive).toEqual(false);
+    });
+
+    test('should run sendAllEmails on each tick', async () => {
+        Board.findAll.mockResolvedValue([]);
+
+        await cron.job.fireOnTick();
+
+        expect(Board.findAll).toHaveBeenCalledTimes(1);
+    });
+
     test('should schedule the board email job daily at 10:00 Brussels time', () => {
         expect(cron.job.cronTime.source).toEqual('0 10 * * *');
         expect(cron.job.cronTime.timeZone).toEqual('Europe/Brussels');

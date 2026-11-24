@@ -26,7 +26,6 @@ server.use(morgan);
 
 const GeneralRouter = express.Router({ mergeParams: true });
 
-/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
@@ -79,15 +78,14 @@ async function startServer() {
             job.start();
             return res();
         });
-        /* istanbul ignore next */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
 
 async function stopServer() {
     log.info('Stopping server...');
+    job.stop();
     app.close();
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }

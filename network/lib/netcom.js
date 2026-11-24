@@ -1,3 +1,5 @@
+const lodash = require('lodash');
+
 const { Netcom } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
@@ -20,7 +22,16 @@ exports.setNetcomAssignment = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to set NetCom assignment.');
     }
 
-    const result = await Netcom.upsert(req.body);
+    if (!helpers.isBodyObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    // Only the assignment's fields; the timestamps belong to the service. upsert checks
+    // only the fields it gets, so the whole row is checked first.
+    const assignment = lodash.pick(req.body || {}, ['body_id', 'netcom_id']);
+    await Netcom.build(assignment).validate();
+
+    const result = await Netcom.upsert(assignment);
 
     return res.json({
         success: true,

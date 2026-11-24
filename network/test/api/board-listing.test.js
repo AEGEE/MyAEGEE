@@ -1,5 +1,4 @@
 const moment = require('moment');
-const { faker } = require('@faker-js/faker');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -150,7 +149,7 @@ describe('Board listing', () => {
     });
 
     test('should list current board on', async () => {
-        await generator.createBoard({ body_id: 1, start_date: faker.date.past(), end_date: faker.date.future() });
+        await generator.createBoard({ body_id: 1, start_date: moment().subtract(30, 'days').format('YYYY-MM-DD'), end_date: moment().add(30, 'days').format('YYYY-MM-DD') });
 
         const res = await request({
             path: '/bodies/1/boards/current',
@@ -165,7 +164,7 @@ describe('Board listing', () => {
     });
 
     test('should list current board if no end date is set', async () => {
-        await generator.createBoard({ body_id: 1, start_date: faker.date.past() });
+        await generator.createBoard({ body_id: 1, start_date: moment().subtract(30, 'days').format('YYYY-MM-DD') });
 
         const res = await request({
             path: 'bodies/1/boards/current',
@@ -193,7 +192,7 @@ describe('Board listing', () => {
     });
 
     test('should fail if current board does not exist', async () => {
-        await generator.createBoard({ body_id: 1, start_date: faker.date.future() });
+        await generator.createBoard({ body_id: 1, start_date: moment().add(30, 'days').format('YYYY-MM-DD') });
 
         const res = await request({
             path: 'bodies/1/boards/current',
@@ -209,13 +208,13 @@ describe('Board listing', () => {
 
     test('should sort boards properly on / GET', async () => {
         const first = await generator.createBoard({
-            start_date: moment().add(2, 'years').toDate()
+            start_date: moment().add(2, 'years').format('YYYY-MM-DD')
         });
         const third = await generator.createBoard({
-            start_date: moment().toDate()
+            start_date: moment().format('YYYY-MM-DD')
         });
         const second = await generator.createBoard({
-            start_date: moment().add(1, 'year').toDate()
+            start_date: moment().add(1, 'year').format('YYYY-MM-DD')
         });
 
         const res = await request({
@@ -254,15 +253,15 @@ describe('Board listing', () => {
     test('should sort boards properly on /:body_id GET', async () => {
         const first = await generator.createBoard({
             body_id: 1,
-            start_date: moment().add(2, 'years').toDate()
+            start_date: moment().add(2, 'years').format('YYYY-MM-DD')
         });
         const third = await generator.createBoard({
             body_id: 1,
-            start_date: moment().toDate()
+            start_date: moment().format('YYYY-MM-DD')
         });
         const second = await generator.createBoard({
             body_id: 1,
-            start_date: moment().add(1, 'year').toDate()
+            start_date: moment().add(1, 'year').format('YYYY-MM-DD')
         });
         await generator.createBoard({ body_id: 2 });
 
@@ -285,11 +284,11 @@ describe('Board listing', () => {
     test('should list only most recently elected board', async () => {
         await generator.createBoard({
             body_id: 1,
-            elected_date: moment().subtract(2, 'weeks').toDate()
+            elected_date: moment().subtract(2, 'weeks').format('YYYY-MM-DD')
         });
         const mostRecentBoard = await generator.createBoard({
             body_id: 1,
-            elected_date: moment().subtract(1, 'weeks').toDate()
+            elected_date: moment().subtract(1, 'weeks').format('YYYY-MM-DD')
         });
 
         const res = await request({
@@ -308,11 +307,11 @@ describe('Board listing', () => {
     test('should not list boards elected in the future', async () => {
         const formerBoard = await generator.createBoard({
             body_id: 1,
-            elected_date: moment().subtract(2, 'weeks').toDate()
+            elected_date: moment().subtract(2, 'weeks').format('YYYY-MM-DD')
         });
         await generator.createBoard({
             body_id: 1,
-            elected_date: moment().toDate()
+            elected_date: moment().format('YYYY-MM-DD')
         });
 
         const ends = moment().subtract(1, 'weeks').toISOString();
@@ -337,7 +336,7 @@ describe('Board listing', () => {
         '/bodies/34/boards/current'
     ])('should show %s to members holding only the global view permission', async (path) => {
         mock.mockAll({ mainPermissions: { viewOnly: true }, managePermissions: { noPermissions: true } });
-        await generator.createBoard({ body_id: 34, elected_date: moment().subtract(1, 'week').toDate(), start_date: moment().subtract(1, 'day').toDate() });
+        await generator.createBoard({ body_id: 34, elected_date: moment().subtract(1, 'week').format('YYYY-MM-DD'), start_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
         const res = await request({
             path,

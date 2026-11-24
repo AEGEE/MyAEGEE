@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const Netcom = sequelize.define('netcom', {
     body_id: {
@@ -6,15 +7,17 @@ const Netcom = sequelize.define('netcom', {
         primaryKey: true,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Body should be set.' },
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            ...helpers.idValidators('Body ID')
         }
     },
     netcom_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         validate: {
-            isInt: { msg: 'Netcom ID should be a number.' }
+            notNull: { msg: 'NetCom should be set.' },
+            ...helpers.idValidators('NetCom ID')
         }
     }
 }, {

@@ -196,6 +196,43 @@ describe('Board editing', () => {
         expect(boardFromDB.message).toEqual('some text');
     });
 
+    test('should change only the board fields of the request', async () => {
+        const board = await generator.createBoard({ body_id: body.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { id: 999999, new_board_email_sent_at: '2020-01-01T00:00:00.000Z', message: 'a new text' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(board.id);
+        expect(res.body.data.new_board_email_sent_at).toEqual(null);
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB.new_board_email_sent_at).toEqual(null);
+        expect(boardFromDB.message).toEqual('a new text');
+        expect(await Board.findByPk(999999)).toEqual(null);
+    });
+
+    test('should fail if end_date is before start_date', async () => {
+        const board = await generator.createBoard({ body_id: body.id, start_date: '2026-01-10' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { start_date: '2026-01-10', end_date: '2026-01-09' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('end_date');
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB.end_date).toEqual(null);
+    });
+
     describe('members of the board', () => {
         test('should save a board whose officer core no longer knows, if the request leaves it in place', async () => {
             mock.mockAll({ member: { notFound: [404] } });
@@ -265,6 +302,43 @@ describe('Board editing', () => {
 
             expect(res.statusCode).toEqual(422);
             expect(res.body.errors).toEqual({ other_members: ['The member of the position Comms is not found.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.other_members).toEqual(null);
+        });
+
+        test('should fail with 422 if the caller may not see the officer the request sets', async () => {
+            mock.mockAll({ member: { forbidden: [403] } });
+            const board = await generator.createBoard({ president: 1, secretary: 2, treasurer: 3, message: 'some text' });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { president: 403, message: 'a new text' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ president: ['You are not allowed to see this member.'] });
+
+            const boardFromDB = await Board.findByPk(board.id);
+            expect(boardFromDB.president).toEqual(1);
+            expect(boardFromDB.message).toEqual('some text');
+        });
+
+        test('should fail with 422 if the caller may not see the member of another position', async () => {
+            mock.mockAll({ member: { forbidden: [99] } });
+            const board = await generator.createBoard({ president: 1, secretary: 2, treasurer: 3 });
+
+            const res = await request({
+                path: '/bodies/' + board.body_id + '/boards/' + board.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { other_members: [{ function: 'Comms', user_id: 99 }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ other_members: ['You are not allowed to see the member of the position Comms.'] });
 
             const boardFromDB = await Board.findByPk(board.id);
             expect(boardFromDB.other_members).toEqual(null);
@@ -404,6 +478,16 @@ describe('Board editing', () => {
 
             expect(res.statusCode).toEqual(200);
             expect((await Board.findByPk(board.id)).secretary).toEqual(5);
+        });
+
+        test('should refuse a secretary replaced by a member the caller may not see', async () => {
+            const board = await createOldBoard();
+
+            const res = await edit(board, { secretary: FORMER });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ secretary: ['You are not allowed to see this member.'] });
+            expect((await Board.findByPk(board.id)).secretary).toEqual(2);
         });
 
         test('should refuse an unknown member added to another position', async () => {

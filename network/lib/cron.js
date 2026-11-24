@@ -29,6 +29,7 @@ module.exports.sendAllEmails = async () => {
     }
 };
 
+// Started by startServer, so that loading this file (tests, scripts) schedules nothing.
 module.exports.job = new CronJob('0 10 * * *', async () => {
     await module.exports.sendAllEmails();
-}, null, true, 'Europe/Brussels');
+}, null, false, 'Europe/Brussels');

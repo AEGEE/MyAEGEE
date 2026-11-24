@@ -1,5 +1,4 @@
 const http = require('http');
-const { faker } = require('@faker-js/faker');
 const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server');
@@ -8,8 +7,8 @@ const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const { Board } = require('../../models');
 const mailer = require('../../lib/mailer');
-const cron = require('../../lib/cron');
 const config = require('../../config');
+const cron = require('../../lib/cron');
 const logger = require('../../lib/logger');
 const body = require('../assets/core-local.json').data;
 const user = require('../assets/core-valid.json').data;
@@ -104,6 +103,27 @@ describe('Board creation', () => {
         expect(boardFromDB.body_id).toEqual(body.id);
     });
 
+    test('should store only the board fields of the request', async () => {
+        const board = generator.generateBoard({
+            id: 999999,
+            start_date: moment().add(1, 'week').format('YYYY-MM-DD'),
+            new_board_email_sent_at: '2020-01-01T00:00:00.000Z',
+            created_at: '2020-01-01T00:00:00.000Z'
+        });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).not.toEqual(999999);
+        expect(res.body.data.new_board_email_sent_at).toEqual(null);
+        expect(res.body.data.created_at).not.toEqual('2020-01-01T00:00:00.000Z');
+    });
+
     test('should fail if elected_date is not set', async () => {
         const board = generator.generateBoard({ elected_date: null });
 
@@ -122,7 +142,7 @@ describe('Board creation', () => {
     });
 
     test('should fail if elected_date is in the future', async () => {
-        const board = generator.generateBoard({ elected_date: faker.date.future() });
+        const board = generator.generateBoard({ elected_date: moment().add(30, 'days').format('YYYY-MM-DD') });
 
         const res = await request({
             path: '/bodies/' + body.id + '/boards',
@@ -186,7 +206,7 @@ describe('Board creation', () => {
     });
 
     test('should fail if end_date is in the past', async () => {
-        const board = generator.generateBoard({ end_date: faker.date.past() });
+        const board = generator.generateBoard({ start_date: '2026-01-10', end_date: '2026-01-09' });
 
         const res = await request({
             path: '/bodies/' + body.id + '/boards',
@@ -233,6 +253,19 @@ describe('Board creation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body.errors).toHaveProperty(field);
         expect(await Board.count()).toEqual(0);
+    });
+
+    test('should list every message of a field that fails two rules', async () => {
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: generator.generateBoard({ president: '' }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body.errors)).toEqual(['president']);
+        expect(res.body.errors.president.sort()).toEqual(['President should be a number.', 'President should be selected.']);
     });
 
     test('should fail with 422 if the president is not a number', async () => {
@@ -316,6 +349,38 @@ describe('Board creation', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(Object.keys(res.body.errors)).toEqual(['other_members']);
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if the caller may not see an officer', async () => {
+        mock.mockAll({ member: { forbidden: [403] } });
+        const board = generator.generateBoard({ president: 403, secretary: 1, treasurer: 2 });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ president: ['You are not allowed to see this member.'] });
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should fail with 422 if the caller may not see one of the other members', async () => {
+        mock.mockAll({ member: { forbidden: [99] } });
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: 99 }] });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            body: board,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ other_members: ['You are not allowed to see the member of the position Comms.'] });
         expect(await Board.count()).toEqual(0);
     });
 
@@ -473,6 +538,53 @@ describe('Board creation', () => {
         expect(res.body.data).toHaveProperty('other_members');
         expect(res.body.data.other_members[0].function).toEqual('Test');
         expect(res.body.data.other_members[0].user_id).toEqual(user.id);
+    });
+
+    test('should fail with 422 if the request has no body', async () => {
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('president');
+        expect(await Board.count()).toEqual(0);
+    });
+
+    test('should tell NetCom about the new board', async () => {
+        const sendMailSpy = jest.spyOn(mailer, 'sendMail');
+        const board = generator.generateBoard({ other_members: [{ function: 'Comms', user_id: user.id }] });
+
+        try {
+            const res = await request({
+                path: '/bodies/' + body.id + '/boards',
+                method: 'POST',
+                body: board,
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const notifications = sendMailSpy.mock.calls.filter(([options]) => options.template === 'network_new_board.html');
+            expect(notifications.length).toEqual(1);
+            const name = user.first_name + ' ' + user.last_name;
+            expect(notifications[0][0]).toMatchObject({
+                to: config.new_board_notifications,
+                parameters: {
+                    body_name: body.name,
+                    positions: [
+                        { function: 'President', name },
+                        { function: 'Secretary', name },
+                        { function: 'Treasurer', name },
+                        { function: 'Comms', name }
+                    ]
+                }
+            });
+            expect(notifications[0][0].parameters.board).toMatchObject({ body_id: body.id, president: board.president });
+        } finally {
+            sendMailSpy.mockRestore();
+        }
     });
 
     describe('welcome mail', () => {

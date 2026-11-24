@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const AntennaCriterion = sequelize.define('antennaCriterion', {
     agora_id: {
@@ -6,8 +7,9 @@ const AntennaCriterion = sequelize.define('antennaCriterion', {
         primaryKey: true,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Agora should be set.' },
             notEmpty: { msg: 'Agora should be set.' },
-            isInt: { msg: 'Agora ID should be a number.' }
+            ...helpers.idValidators('Agora ID')
         }
     },
     body_id: {
@@ -15,8 +17,9 @@ const AntennaCriterion = sequelize.define('antennaCriterion', {
         primaryKey: true,
         type: Sequelize.INTEGER,
         validate: {
+            notNull: { msg: 'Body should be set.' },
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            ...helpers.idValidators('Body ID')
         }
     },
     antenna_criterion: {
@@ -24,20 +27,15 @@ const AntennaCriterion = sequelize.define('antennaCriterion', {
         primaryKey: true,
         type: Sequelize.ENUM('communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report'),
         validate: {
-            isIn: {
-                args: [['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report']],
-                msg: 'Antenna criterion must be one of these: "communication", "board election", "members list", "membership fee", "events", "agora attendance", "development plan", "fulfilment report".'
-            }
+            notNull: { msg: 'Antenna criterion should be set.' },
+            isOneOf: helpers.oneOf(['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report'], 'Antenna criterion must be one of these: "communication", "board election", "members list", "membership fee", "events", "agora attendance", "development plan", "fulfilment report".')
         }
     },
     value: {
         allowNull: true,
         type: Sequelize.ENUM('true', 'false', 'exception'),
         validate: {
-            isIn: {
-                args: [['true', 'false', 'exception']],
-                msg: 'Value must be one of these: "true", "false", "exception", or null.'
-            }
+            isOneOf: helpers.oneOf(['true', 'false', 'exception'], 'Value must be one of these: "true", "false", "exception", or null.')
         }
     },
     comment: {

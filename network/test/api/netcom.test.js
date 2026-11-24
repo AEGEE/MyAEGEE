@@ -100,6 +100,19 @@ describe('Netcom', () => {
         expect(res.body.errors).toHaveProperty('netcom_id');
     });
 
+    test('should fail creating Netcom assignment if netcom_id is not a number', async () => {
+        const res = await request({
+            path: '/netcom',
+            method: 'PUT',
+            body: { body_id: 34, netcom_id: 'x' },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('netcom_id');
+    });
+
     test('should create new Netcom assignment if everything is okay', async () => {
         const netcom = generator.generateNetcom();
 
