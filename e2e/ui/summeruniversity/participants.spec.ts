@@ -310,6 +310,17 @@ test.describe('participants of a Summer University', () => {
         await expect(toast(page, 'Could not export participants: You are not allowed to export participants.')).toBeVisible();
     });
 
+    test('a failed export without a message from the service says what failed', async ({ page, api }) => {
+        showParticipants(api, [alex()]);
+        // A gateway in between answers with a page of its own.
+        api.on('GET summeruniversity /single/:id/applications/export', { status: 502, body: '<html><body>Bad gateway</body></html>', contentType: 'text/html' });
+
+        await page.goto('/summeruniversity/mountains/participants');
+        await page.getByRole('button', { name: 'Export pending and accepted participants' }).click();
+
+        await expect(toast(page, 'Could not export participants: Request failed with status code 502')).toBeVisible();
+    });
+
     test('without applications the table says "Nothing here."', async ({ page, api }) => {
         showParticipants(api, []);
 

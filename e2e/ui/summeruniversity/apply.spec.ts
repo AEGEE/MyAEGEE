@@ -106,6 +106,17 @@ test.describe('applying to a Summer University', () => {
         }]]);
     });
 
+    test('after applying to an SU without an address of its own, its page is reached by its id', async ({ page, api }) => {
+        newApplication(api, mountains({ url: null }));
+        api.json('POST summeruniversity /single/:id/applications', { success: true, message: 'Application is created.', data: suApplication() });
+
+        await page.goto('/summeruniversity/21/applications/me');
+        await fillRequired(page);
+        await page.getByRole('button', { name: 'Save application!' }).click();
+
+        await expect(page).toHaveURL('/summeruniversity/21');
+    });
+
     test('only antennae and contacts can be applied from, the primary body first', async ({ page, api, me }) => {
         me!.bodies = [
             body({ id: 1, name: 'AEGEE-Antenna', type: 'antenna' }),
