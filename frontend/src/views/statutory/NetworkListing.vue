@@ -2,74 +2,77 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Network Director listing</div>
+        <h1 class="title">Network Director listing</h1>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="network-search">Search by name, surname or statutory ID</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+              <input id="network-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
             </div>
           </div>
         </div>
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            v-bind="paginationLabels"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
-            {{ props.row.first_name | beautify }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
-            {{ props.row.last_name | beautify }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+              {{ props.row.last_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="participant_type" label="Participant type" centered sortable v-slot="props">
-            {{ props.row.participant_type | capitalize }}
-          </b-table-column>
+            <b-table-column field="participant_type" label="Participant type" centered sortable v-slot="props">
+              {{ props.row.participant_type | capitalize }}
+            </b-table-column>
 
-          <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable v-slot="props">
-            <span :class="calculateClassForMemberslist(props.row)">
-              {{ props.row.is_on_memberslist | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable v-slot="props">
+              <span :class="calculateClassForMemberslist(props.row)">
+                {{ props.row.is_on_memberslist | beautify }}
+              </span>
+            </b-table-column>
 
-          <b-table-column label="Set memberslist status" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingOnMemberslist }">
-              <select v-model="props.row.newIsOnMemberslist" @change="switchPaxRegistered(props.row)">
-                <option :value="true">Is on memberslist</option>
-                <option :value="false">Is not on memberslist</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column label="Set memberslist status" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingOnMemberslist }">
+                <select v-model="props.row.newIsOnMemberslist" :aria-label="'Members list status of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)">
+                  <option :value="true">Is on memberslist</option>
+                  <option :value="false">Is not on memberslist</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -82,6 +85,13 @@ export default {
   name: 'NetworkDirectorView',
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
         questions: []
