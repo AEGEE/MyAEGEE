@@ -572,6 +572,28 @@ test.describe('sending the members list of a local', () => {
         await expect(button(page, 'Save!')).toBeEnabled();
     });
 
+    test('a list statutory couldn\'t save without the currency rates stays in the form, to be sent again', async ({ page, api }) => {
+        mockPage(api);
+        mockCore(api);
+        api.on('POST statutory /events/:id/memberslists/:body_id', {
+            status: 503,
+            json: { success: false, message: 'The currency rates could not be fetched, so nothing was saved. Please try again later.' }
+        });
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await fetchFromBody(page);
+
+        await button(page, 'Save!').click();
+
+        await expect(toast(page, 'Could not save memberslist: The currency rates could not be fetched, so nothing was saved. Please try again later.')).toBeVisible();
+        await expect(tableRows(members(page))).toHaveCount(2);
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('30');
+        await expect(page.getByLabel('Currency')).toHaveValue('EU');
+
+        await button(page, 'Save!').click();
+        await expect.poll(() => saveCalls(api).length).toBe(2);
+        expect(saveCalls(api)[1].body).toEqual(saveCalls(api)[0].body);
+    });
+
     test('a list that may not be changed says why', async ({ page, api }) => {
         mockPage(api, { list: STORED });
         api.on('POST statutory /events/:id/memberslists/:body_id', { status: 403, json: forbidden('You are not allowed to edit memberslist.') });
