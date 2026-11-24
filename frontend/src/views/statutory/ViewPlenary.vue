@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Plenary details</div>
+        <h1 class="title">Plenary details</h1>
 
         <div class="content">
           <ul>
@@ -14,10 +14,10 @@
 
         <form v-on:submit.prevent="addAttendance">
           <div class="field">
-            <label class="label">Search by name or description</label>
+            <label class="label" for="plenary-application-id">Application ID or statutory ID</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="text" v-model="applicationId" placeholder="Application ID" />
+                <input id="plenary-application-id" class="input" type="text" v-model="applicationId" placeholder="Application ID" />
               </div>
               <div class="control">
                 <input type="submit" class="button is-primary" value="Add attendance info" />
