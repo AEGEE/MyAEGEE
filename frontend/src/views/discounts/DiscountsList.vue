@@ -1,24 +1,31 @@
 <template>
   <div class='tile is-ancestor discounts'>
     <div class='tile is-parent is-vertical'>
-      <section v-for="block in categories" v-bind:key="block.name">
-        <div class="title">{{ block.name }}</div>
+      <section v-for="(block, blockIndex) in categories" v-bind:key="block.name" :aria-labelledby="'discounts-category-' + blockIndex">
+        <h2 class="title" :id="'discounts-category-' + blockIndex">{{ block.name }}</h2>
 
         <div class="collapse is-fullwidth">
-          <div class="discounts-item" v-for="discount in block.discounts" v-bind:key="discount.name">
+          <div class="discounts-item" v-for="(discount, discountIndex) in block.discounts" v-bind:key="discount.name">
             <div class="card collapse-item" :class="{ 'is-active': discount.expanded }">
-              <header role="tab" class="card-header touchable" @click="discount.expanded = !discount.expanded">
-                <div class="card-header-icon">
-                  <font-awesome-icon :icon="['fa', discount.icon]" />
-                </div>
-                <div class="card-header-title">
-                  <span> {{ discount.name }}: <span class="not-bold">{{ discount.shortDescription }}</span></span>
-                </div>
-                <span class="card-header-icon">
-                  <font-awesome-icon :icon="['fa', discount.expanded ? 'angle-down' : 'angle-up']" />
-                </span>
+              <header class="card-header">
+                <button
+                  type="button"
+                  class="card-header-toggle touchable"
+                  :aria-expanded="discount.expanded ? 'true' : 'false'"
+                  :aria-controls="'discount-' + blockIndex + '-' + discountIndex"
+                  @click="discount.expanded = !discount.expanded">
+                  <span class="card-header-icon">
+                    <font-awesome-icon :icon="['fa', discount.icon]" />
+                  </span>
+                  <span class="card-header-title">
+                    <span> {{ discount.name }}: <span class="not-bold">{{ discount.shortDescription }}</span></span>
+                  </span>
+                  <span class="card-header-icon">
+                    <font-awesome-icon :icon="['fa', discount.expanded ? 'angle-down' : 'angle-up']" />
+                  </span>
+                </button>
               </header>
-              <div class="card-content" v-show="discount.expanded">
+              <div class="card-content" :id="'discount-' + blockIndex + '-' + discountIndex" v-show="discount.expanded">
                 <div class="card-content-box" v-html="$options.filters.markdown(discount.longDescription)" />
               </div>
             </div>
@@ -47,7 +54,17 @@
   font-weight: normal;
 }
 
-.discounts .card-header {
+/* A button, so the keyboard reaches it, that looks like the card's header. */
+.discounts .card-header-toggle {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 }
 </style>
