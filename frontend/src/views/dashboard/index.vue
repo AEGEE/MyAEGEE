@@ -9,8 +9,8 @@
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
-                  <li v-for="body in addStyle" v-bind:key="body.id">
-                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }" :class="body.class">{{ body.name }}</router-link>
+                  <li v-for="body in user.bodies" v-bind:key="body.id">
+                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }" :class="bodyClass(body)">{{ body.name }}</router-link>
                   </li>
                 </ul>
                 <p v-if="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
@@ -218,18 +218,14 @@ export default {
     },
     hasAnyBodies () {
       return this.user.primary_body || this.user.bodies.length > 0
-    },
-    addStyle () {
-      for (const item of this.user.bodies) {
-        item.class = []
-        if (this.user.primary_body && item.name === this.user.primary_body.name) {
-          item.class.push('bold')
-        }
-        if (item.name === 'Information Technology Committee') {
-          item.class.push('rainbow-text')
-        }
+    }
+  },
+  methods: {
+    bodyClass (body) {
+      return {
+        bold: Boolean(this.user.primary_body) && body.name === this.user.primary_body.name,
+        'rainbow-text': body.name === 'Information Technology Committee'
       }
-      return this.user.bodies
     }
   }
 }
