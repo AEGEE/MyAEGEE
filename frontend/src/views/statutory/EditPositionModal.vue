@@ -1,23 +1,24 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Add position</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">Add position</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Name</label>
+        <label class="label" for="statutory-position-name">Name</label>
         <div class="control">
-          <input class="input" type="text" required v-model="position.name" />
+          <input id="statutory-position-name" class="input" type="text" required v-model="position.name" />
         </div>
         <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
       </div>
 
       <div class="field">
-        <label class="label">Application period starts</label>
+        <label class="label" for="statutory-position-starts">Application period starts</label>
         <div class="control">
           <flat-pickr
+            id="statutory-position-starts"
             placeholder="Select date"
             class="input"
             required
@@ -28,9 +29,10 @@
       </div>
 
       <div class="field">
-        <label class="label">Application period ends</label>
+        <label class="label" for="statutory-position-ends">Application period ends</label>
         <div class="control">
           <flat-pickr
+            id="statutory-position-ends"
             placeholder="Select date"
             class="input"
             :config="dateConfig"
@@ -40,26 +42,27 @@
       </div>
 
       <div class="field">
-        <label class="label">Places available</label>
+        <label class="label" for="statutory-position-places">Places available</label>
         <div class="control">
-          <input type="number" class="input" v-model.number="position.places" min="1">
+          <input id="statutory-position-places" type="number" class="input" v-model.number="position.places" min="1">
         </div>
         <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
 
       <div class="field">
-        <label class="label">Associated body</label>
+        <label class="label" for="statutory-position-body">Associated body</label>
         <div class="select">
-          <select v-model="position.body_id">
+          <select id="statutory-position-body" v-model="position.body_id">
             <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
           </select>
         </div>
       </div>
 
       <div class="field">
-        <label class="label">Position term starts</label>
+        <label class="label" for="statutory-position-start-term">Position term starts</label>
         <div class="control">
           <flat-pickr
+            id="statutory-position-start-term"
             placeholder="Select date"
             class="input"
             required
@@ -74,8 +77,8 @@
         <p>yyyy-mm-dd</p>
       </b-message>
 
-      <b-field label="Position term ends" id="term_ends">
-        <b-input type="text" required v-model="position.end_term" />
+      <b-field label="Position term ends" label-for="statutory-position-end-term">
+        <b-input id="statutory-position-end-term" type="text" required v-model="position.end_term" />
       </b-field>
 
       <b-message type="is-success" v-if="dateFound">
@@ -83,11 +86,11 @@
       </b-message>
 
       <div class="field">
-        <label class="label">Requirements for the position</label>
+        <label class="label" for="statutory-position-requirements">Requirements for the position</label>
         <div class="control">
-          <b-input type="textarea" v-model="position.requirements" />
+          <b-input id="statutory-position-requirements" type="textarea" v-model="position.requirements" />
         </div>
-        <label class="label">Preview <MarkdownTooltip /></label>
+        <p class="label">Preview <MarkdownTooltip /></p>
         <div class="content">
           <span v-html="$options.filters.markdown(position.requirements)" />
         </div>
@@ -95,8 +98,8 @@
     </section>
 
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="savePosition()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="savePosition()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -117,12 +120,17 @@ export default {
   data () {
     return {
       errors: {},
+      // Typed dates are accepted, and phones get the same picker.
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        allowInput: true,
+        disableMobile: true
       },
       dayConfig: {
-        enableTime: false
+        enableTime: false,
+        allowInput: true,
+        disableMobile: true
       },
       dates: {
         starts: null,

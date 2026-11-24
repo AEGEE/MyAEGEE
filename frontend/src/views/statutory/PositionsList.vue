@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Positions list</div>
+        <h1 class="title">Positions list</h1>
 
         <div class="notification is-warning">
           <div class="content">
@@ -22,150 +22,160 @@
           </div>
         </div>
 
-        <b-table :data="positions" :loading="isLoading" :selected.sync="selectedPosition" narrowed>
-          <b-table-column field="id" label="#" numeric v-slot="props">
-            {{ props.row.id }}
-          </b-table-column>
+        <section aria-label="Positions" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table :data="positions" :loading="isLoading" :selected.sync="selectedPosition" narrowed>
+            <b-table-column field="id" label="#" numeric v-slot="props">
+              {{ props.row.id }}
+            </b-table-column>
 
-          <b-table-column field="name" label="Name" v-slot="props">
-            {{ props.row.name }}
-          </b-table-column>
+            <b-table-column field="name" label="Name" v-slot="props">
+              {{ props.row.name }}
+            </b-table-column>
 
-          <b-table-column field="starts" label="Application period starts" centered v-slot="props">
-            {{ props.row.starts | datetime }}
-          </b-table-column>
+            <b-table-column field="starts" label="Application period starts" centered v-slot="props">
+              {{ props.row.starts | datetime }}
+            </b-table-column>
 
-          <b-table-column field="starts" label="Application period ends" centered v-slot="props">
-            {{ props.row.ends | datetime }}
-          </b-table-column>
+            <b-table-column field="starts" label="Application period ends" centered v-slot="props">
+              {{ props.row.ends | datetime }}
+            </b-table-column>
 
-          <b-table-column field="places" label="Places available" centered numeric v-slot="props">
-            {{ props.row.places }}
-          </b-table-column>
+            <b-table-column field="places" label="Places available" centered numeric v-slot="props">
+              {{ props.row.places }}
+            </b-table-column>
 
-          <b-table-column field="places" label="Applications" centered numeric v-slot="props">
-            {{ props.row.candidates.length }}
-          </b-table-column>
+            <b-table-column field="places" label="Applications" centered numeric v-slot="props">
+              {{ props.row.candidates.length }}
+            </b-table-column>
 
-          <b-table-column field="starts" label="Status" centered v-slot="props">
-            <span
-              class="tag"
-              v-if="prefix !== 'all'"
-              :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
-              {{ props.row.status }}
-            </span>
-            <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPositionStatus(props.row)">
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="starts" label="Status" centered v-slot="props">
+              <span
+                class="tag"
+                v-if="prefix !== 'all'"
+                :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
+                {{ props.row.status }}
+              </span>
+              <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" :aria-label="'Status of ' + props.row.name" @change="switchPositionStatus(props.row)">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column label="Edit" centered :visible="!!can.manage_candidates" v-slot="props">
-            <a href="#" class="button is-primary is-small" @click.prevent="openEditPositionModal(props.row)">Edit</a>
-          </b-table-column>
+            <b-table-column label="Edit" centered :visible="!!can.manage_candidates" v-slot="props">
+              <button type="button" class="button is-primary is-small" :aria-label="'Edit position ' + props.row.name" @click="openEditPositionModal(props.row)">Edit</button>
+            </b-table-column>
 
-          <b-table-column label="Apply" centered v-slot="props">
-            <router-link
-              :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }"
-              class="button is-small"
-              v-if="props.row.status === 'open' && !props.row.myCandidate">
-              Apply!
-            </router-link>
-            <span v-if="props.row.status !== 'open' && !props.row.myCandidate">You cannot apply.</span>
+            <b-table-column label="Apply" centered v-slot="props">
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }"
+                class="button is-small"
+                v-if="props.row.status === 'open' && !props.row.myCandidate">
+                Apply!
+              </router-link>
+              <span v-if="props.row.status !== 'open' && !props.row.myCandidate">You cannot apply.</span>
 
-            <router-link
-              :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: props.row.id, candidate_id: props.row.myCandidate.id } }"
-              class="button is-small is-warning"
-              v-if="props.row.myCandidate && props.row.myCandidate.status === 'pending'">
-              Edit my application!
-            </router-link>
-            <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
-          </b-table-column>
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: props.row.id, candidate_id: props.row.myCandidate.id } }"
+                class="button is-small is-warning"
+                v-if="props.row.myCandidate && props.row.myCandidate.status === 'pending'">
+                Edit my application!
+              </router-link>
+              <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
+            </b-table-column>
 
-          <b-table-column label="" centered :visible="!!can.manage_candidates" v-slot="props">
-            <a href="#" class="button is-danger is-small" @click.prevent="askDeletePosition(props.row)">
-              <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
-            </a>
-          </b-table-column>
+            <b-table-column label="" centered :visible="!!can.manage_candidates" v-slot="props">
+              <button type="button" class="button is-danger is-small" :aria-label="'Delete position ' + props.row.name" @click="askDeletePosition(props.row)">
+                <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
+              </button>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
 
         <hr v-if="selectedPosition" />
 
-        <div class="subtitle" v-if="selectedPosition">Information about selected position</div>
+        <h2 class="subtitle" v-if="selectedPosition">Information about selected position</h2>
         <p class="content" v-if="selectedPosition">The term for this position starts on <strong>{{ startTerm }}</strong> and ends on <strong>{{ this.selectedPosition.end_term }}</strong>.</p>
         <p class="content" v-if="selectedPosition && requirementsIsSet">This position has the following requirements associated with it:</p>
         <p class="content" v-if="selectedPosition && requirementsIsSet" v-html="$options.filters.markdown(this.selectedPosition.requirements)" />
 
         <hr v-if="selectedPosition" />
 
-        <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
+        <h2 class="subtitle" v-if="selectedPosition">Description of selected position</h2>
         <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(taskDescription)" />
 
         <hr v-if="selectedPosition" />
 
-        <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
+        <h2 class="subtitle" id="statutory-position-candidates" v-if="selectedPosition">Applications for selected position</h2>
 
-        <b-table :data.sync="selectedPosition.candidates" v-if="selectedPosition" narrowed>
-          <b-table-column field="id" label="#" numeric v-slot="props">
-            {{ props.row.id }}
-          </b-table-column>
+        <section aria-labelledby="statutory-position-candidates" v-if="selectedPosition">
+          <b-table :data.sync="selectedPosition.candidates" narrowed>
+            <b-table-column field="id" label="#" numeric v-slot="props">
+              {{ props.row.id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" v-slot="props">
-            {{ props.row.first_name }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" v-slot="props">
+              {{ props.row.first_name }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" v-slot="props">
-            {{ props.row.last_name }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" v-slot="props">
+              {{ props.row.last_name }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="created_at" label="Applied on" v-slot="props">
-            {{ props.row.created_at | datetimeseconds }}
-          </b-table-column>
+            <b-table-column field="created_at" label="Applied on" v-slot="props">
+              {{ props.row.created_at | datetimeseconds }}
+            </b-table-column>
 
-          <b-table-column field="email" label="Email" :visible="prefix === 'all'" v-slot="props">
-            {{ props.row.notification_email }}
-          </b-table-column>
+            <b-table-column field="email" label="Email" :visible="prefix === 'all'" v-slot="props">
+              {{ props.row.notification_email }}
+            </b-table-column>
 
-          <b-table-column label="View" v-slot="props">
-            <a
-              v-if="props.row.status === 'approved' || prefix === 'all'"
-              href="#"
-              @click.prevent="openViewCandidateModal(props.row, selectedPosition)">
-              View
-            </a>
-          </b-table-column>
+            <b-table-column label="View" v-slot="props">
+              <button
+                v-if="props.row.status === 'approved' || prefix === 'all'"
+                type="button"
+                class="button is-small"
+                :aria-label="'View candidature of ' + props.row.first_name + ' ' + props.row.last_name"
+                @click="openViewCandidateModal(props.row, selectedPosition)">
+                View
+              </button>
+            </b-table-column>
 
-          <b-table-column label="Edit" :visible="prefix === 'all'" v-slot="props">
-            <router-link
-              :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: selectedPosition.id, candidate_id: props.row.id } }">
-              Edit
-            </router-link>
-          </b-table-column>
+            <b-table-column label="Edit" :visible="prefix === 'all'" v-slot="props">
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: selectedPosition.id, candidate_id: props.row.id } }"
+                :aria-label="'Edit candidature of ' + props.row.first_name + ' ' + props.row.last_name">
+                Edit
+              </router-link>
+            </b-table-column>
 
-          <b-table-column label="Update status" :visible="prefix === 'all'" v-slot="props">
-            <div class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchCandidateStatus(props.row, selectedPosition)">
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column label="Update status" :visible="prefix === 'all'" v-slot="props">
+              <div class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+                <select
+                  v-model="props.row.newStatus"
+                  :aria-label="'Status of ' + props.row.first_name + ' ' + props.row.last_name"
+                  @change="switchCandidateStatus(props.row, selectedPosition)">
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -232,6 +242,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPositionModal,
         hasModalCard: true,
+        ariaLabel: 'Add position',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -257,6 +268,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPositionModal,
         hasModalCard: true,
+        ariaLabel: 'Edit position',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -276,6 +288,7 @@ export default {
       this.$buefy.modal.open({
         component: ViewCandidateModal,
         hasModalCard: true,
+        ariaLabel: 'View candidature',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
