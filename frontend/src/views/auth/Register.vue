@@ -252,6 +252,7 @@ export default {
     register () {
       this.errors = {}
 
+      /* istanbul ignore if -- the checkbox is required: the browser doesn't send the form without it */
       if (!this.agreedToPrivacyPolicy) {
         this.errors.agreedToPrivacyPolicy = ['You need to agree with our Privacy Policy.']
         return
@@ -300,13 +301,11 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
     this.axios
       .get(this.services['core'] + '/campaigns/' + this.$route.params.id)
       .then((response) => {
         this.campaign = response.data.data
       })
-      .then((this.isLoading = false))
       .catch((err) => {
         if (err.response && err.response.status === 404) {
           this.$root.showError('Campaign is not found')

@@ -38,25 +38,11 @@ export default {
       error: null
     }
   },
-  created () {
-    this.redirectIfAuthenticated()
-  },
   methods: {
-    redirectIfAuthenticated () {
-      if (!this.$store.state.login.isLoggedIn) {
-        return
-      }
-
-      if (this.$route.query.to) {
-        this.$router.replace(this.$route.query.to)
-      } else {
-        this.$router.replace('/dashboard')
-      }
-    },
     login () {
       this.error = null
       this.$auth.login(this.data).then(() => {
-        this.redirectIfAuthenticated()
+        this.$router.replace(this.$route.query.to || '/dashboard')
       }).catch((err) => {
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message

@@ -16,7 +16,6 @@
                   placeholder="Type the email you've registered with."
                 />
               </div>
-              <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
 
             <hr />
@@ -42,15 +41,12 @@ export default {
   name: 'PasswordReset',
   data () {
     return {
-      email: '',
-      error: ''
+      email: ''
     }
   },
   computed: mapGetters(['services']),
   methods: {
     resetPassword () {
-      this.error = ''
-
       this.axios
         .post(this.services['core'] + '/password_reset', {
           email: this.email

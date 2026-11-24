@@ -16,7 +16,6 @@
                   placeholder="Type the token you've received at your mailbox here."
                 />
               </div>
-              <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
 
             <hr />
@@ -37,15 +36,12 @@ export default {
   name: 'ConfirmToken',
   data () {
     return {
-      token: '',
-      error: ''
+      token: ''
     }
   },
   computed: mapGetters(['services']),
   methods: {
     confirmToken () {
-      this.error = ''
-
       this.axios
         .post(this.services['core'] + '/confirm-email', { token: this.token })
         .then(() => {
