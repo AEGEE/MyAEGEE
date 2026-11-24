@@ -99,6 +99,60 @@ describe('API requests', () => {
         });
     });
 
+    describe('a request body with the character U+0000', () => {
+        const REFUSED = { success: false, message: 'Texts in the request body cannot contain the character U+0000.' };
+
+        test('should be refused in a text field, and nothing stored', async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'body' });
+
+            const res = await request({
+                path: '/bodies',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: generator.generateBody({ name: 'a\u0000b' })
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual(REFUSED);
+            expect(await Body.count()).toEqual(0);
+        });
+
+        test('should be refused in a list and in a nested object', async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
+
+            for (const body of [
+                { scope: 'global', action: 'a', object: 'b', description: 'c', filters: ['\u0000'] },
+                { scope: 'global', action: 'a', object: 'b', description: 'c', nested: { deeper: ['x', 'y\u0000'] } },
+                { scope: 'global', action: 'a', object: 'b', description: 'c', 'key\u0000': 'value' }
+            ]) {
+                const res = await request({
+                    path: '/permissions',
+                    method: 'POST',
+                    headers: { 'X-Auth-Token': token.value },
+                    body
+                });
+
+                expect(res.statusCode).toEqual(400);
+                expect(res.body).toEqual(REFUSED);
+            }
+        });
+
+        test('should be refused on a route without a login', async () => {
+            const res = await request({
+                path: '/login',
+                method: 'POST',
+                body: { username: 'x\u0000', password: 'x' }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual(REFUSED);
+        });
+    });
+
     describe('an error that the server did not expect', () => {
         const SERVER_ERROR = { success: false, message: 'Something went wrong on the server.' };
 
