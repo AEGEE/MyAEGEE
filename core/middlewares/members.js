@@ -330,6 +330,15 @@ exports.setUserActive = async (req, res) => {
     }
 
     if (req.currentUser.id === req.user.id) {
+        // A suspended member is not logged in, so whoever reaches this route is active:
+        // activating yourself changes nothing.
+        if (req.body.active === true) {
+            return res.json({
+                success: true,
+                data: req.currentUser
+            });
+        }
+
         return errors.makeValidationError(res, 'You cannot suspend yourself.');
     }
 
