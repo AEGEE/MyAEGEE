@@ -286,7 +286,7 @@
             class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
+            {{ body.body ? body.body.name : body.body_name }}
             <button type="button" class="delete is-small" :aria-label="'Remove ' + (body.body ? body.body.name : body.body_name)" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
           </span>
           <span class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</span>
