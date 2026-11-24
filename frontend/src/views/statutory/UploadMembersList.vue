@@ -63,8 +63,12 @@
 
         <article
           class="message is-warning"
-          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isBetweenMemberslistDeadlines">
-          <div class="message-body">
+          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isAfterSubmissionDeadline">
+          <div class="message-body" v-if="isAfterEditDeadline">
+            The edit deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
+            <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
+          </div>
+          <div class="message-body" v-else>
             The upload deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
             <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
           </div>
@@ -138,7 +142,7 @@
 
         <article
           class="message is-warning"
-          v-if="selectedBody && !memberslist && isBetweenMemberslistDeadlines">
+          v-if="selectedBody && !memberslist && !canEditMemberslist(selectedBody) && isAfterSubmissionDeadline">
           <div class="message-body">
             The submission deadline has passed. If your local still needs to submit a members list, reach out to the Network Director at
             <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
@@ -187,13 +191,13 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
-    isBetweenMemberslistDeadlines () {
-      if (!this.event.memberslist_submission_deadline || !this.event.memberslist_edit_deadline) {
-        return false
-      }
-
-      const now = moment()
-      return now.isAfter(this.event.memberslist_submission_deadline) && now.isSameOrBefore(this.event.memberslist_edit_deadline)
+    // Only an Agora has these deadlines; without them nothing is said about them.
+    isAfterSubmissionDeadline () {
+      return Boolean(this.event.memberslist_submission_deadline) && moment().isAfter(this.event.memberslist_submission_deadline)
+    },
+    // Read after the submission deadline only, so the event has its edit deadline.
+    isAfterEditDeadline () {
+      return moment().isAfter(this.event.memberslist_edit_deadline)
     }
   },
   methods: {
