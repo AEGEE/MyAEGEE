@@ -180,6 +180,11 @@ export default {
       this.axios.delete(this.services['core'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully left circle.')
         this.isMember = false
+        // The member's circles as the rest of the app knows them.
+        this.$store.dispatch('setUser', {
+          ...this.loginUser,
+          circles: this.loginUser.circles.filter(circle => circle.id !== this.circle.id)
+        })
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
