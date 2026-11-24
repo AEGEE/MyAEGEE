@@ -740,10 +740,7 @@ export default {
         this.isSaving = false
 
         if (err.response && err.response.status === 422) { // validation errors
-          if (!err.response.data.errors) {
-            return this.$root.showError('Some of the event data is invalid', err)
-          }
-
+          // statutory always says per field what it refuses.
           this.errors = err.response.data.errors
           return this.$root.showError('Some of the event data is invalid.')
         }

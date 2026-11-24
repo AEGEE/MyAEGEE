@@ -273,6 +273,25 @@ import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 import sortBodies from '../../methods/sort-bodies'
 
+// The fields that show statutory's reasons under them.
+const FIELDS_WITH_ERRORS = [
+  'date_of_birth',
+  'member_since',
+  'nationality',
+  'languages',
+  'studies',
+  'attended_agorae',
+  'attended_epm',
+  'attended_conferences',
+  'european_experience',
+  'local_experience',
+  'related_experience',
+  'external_experience',
+  'motivation',
+  'program',
+  'agreed_to_privacy_policy'
+]
+
 export default {
   components: {
     flatPickr,
@@ -357,11 +376,14 @@ export default {
         this.isSaving = false
 
         if (err.response && err.response.status === 422) { // validation errors
-          if (!err.response.data.errors) {
+          this.$set(this, 'errors', err.response.data.errors)
+
+          // Reasons for none of the fields (a second candidature for the position) are only
+          // in the message.
+          if (!Object.keys(this.errors).some((key) => FIELDS_WITH_ERRORS.includes(key))) {
             return this.$root.showError('Some of the candidate data is invalid', err)
           }
 
-          this.$set(this, 'errors', err.response.data.errors)
           return this.$root.showError('Some of the candidate data is invalid.')
         }
 
