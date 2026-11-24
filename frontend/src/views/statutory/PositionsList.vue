@@ -349,7 +349,7 @@ export default {
         this.$root.showSuccess(`Successfully updated status of application for position "${position.name}" to ${position.status}.`)
       }).catch((err) => {
         position.isSaving = false
-        this.$root.showError('Could not update participant status', err)
+        this.$root.showError('Could not update position status', err)
       })
     }
   },
