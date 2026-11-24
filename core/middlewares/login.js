@@ -2,7 +2,7 @@ const moment = require('moment');
 const bcrypt = require('bcrypt');
 
 const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
-const { sequelize } = require('../lib/sequelize');
+const { sequelize, Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const logger = require('../lib/logger');
@@ -206,11 +206,22 @@ const sendPasswordReset = async (email) => {
         }
 
         await sequelize.transaction(async (t) => {
+            // A change of the login email that is being confirmed finishes first, and the
+            // reset only goes out if the account still has the address it was asked for.
+            await helpers.lockMailChanges(user.id, t);
+            const current = await User.findOne({
+                where: { [Sequelize.Op.and]: [{ id: user.id }, helpers.equalsIgnoreCase('email', email)] },
+                transaction: t
+            });
+            if (!current) {
+                return;
+            }
+
             await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
             const currentReset = await PasswordReset.createForUser(user.id, t);
 
             await mailer.sendMail({
-                to: user.email,
+                to: current.email,
                 subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
                 template: 'password_reset.html',
                 parameters: {

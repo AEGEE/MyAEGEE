@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { Sequelize } = require('./sequelize');
+const { sequelize, Sequelize } = require('./sequelize');
 const constants = require('./constants');
 
 // A helper to traverse indirect circles (so if a person is a member
@@ -222,6 +222,15 @@ const isRestrictedEmail = (email) => {
     return constants.RESTRICTED_EMAILS.some((domain) => normalized.endsWith('@' + domain) || normalized.endsWith('.' + domain));
 };
 
+// Email changes and password resets of one member are processed one by one. An advisory
+// lock does that without locking the member's row, which every request of that member
+// writes to (last_active), so the member is not held up while the mails are sent.
+const MAIL_CHANGE_LOCK_NAMESPACE = 1;
+const lockMailChanges = (userId, transaction) => sequelize.query(
+    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
+    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
+);
+
 module.exports = {
     isNumber,
     traverseIndirectCircles,
@@ -234,5 +243,6 @@ module.exports = {
     getMailText,
     addGaugeData,
     equalsIgnoreCase,
-    isRestrictedEmail
+    isRestrictedEmail,
+    lockMailChanges
 };

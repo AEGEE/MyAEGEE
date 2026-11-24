@@ -463,15 +463,6 @@ exports.setPrimaryBody = async (req, res) => {
     });
 };
 
-// Email changes of one member are processed one by one. An advisory lock does that without
-// locking the member's row, which every request of that member writes to (last_active), so
-// the member is not held up while the mails are sent.
-const MAIL_CHANGE_LOCK_NAMESPACE = 1;
-const lockMailChanges = (userId, transaction) => sequelize.query(
-    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
-    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
-);
-
 // Requests a change of the login email. The new address always has to confirm it. If somebody
 // else requests it for the member, the member's current address has to confirm it as well,
 // unless the requester has global:update:member.
@@ -519,7 +510,7 @@ exports.triggerEmailChange = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
         // Requests for one member at the same time are processed one by one.
-        await lockMailChanges(req.currentUser.id, t);
+        await helpers.lockMailChanges(req.currentUser.id, t);
 
         // There's at most one pending change per member and requester: a new request replaces the earlier one.
         await MailChange.destroy({
@@ -590,7 +581,7 @@ exports.confirmEmailChange = async (req, res) => {
     const result = await sequelize.transaction(async (t) => {
         // Confirmations at the same time (from both addresses, or of several changes
         // of one member) are processed one by one.
-        await lockMailChanges(found.user_id, t);
+        await helpers.lockMailChanges(found.user_id, t);
         const user = await User.findByPk(found.user_id, { transaction: t });
         const mailChange = await MailChange.findOne({
             where: { id: found.id, ...tokenMatches },
