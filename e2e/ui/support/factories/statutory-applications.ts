@@ -182,3 +182,47 @@ export const incomingApplication = (overrides: Partial<IncomingApplication> = {}
     const picked = Object.fromEntries(INCOMING_FIELDS.map((field) => [field, full[field]])) as Pick<StatutoryApplication, typeof INCOMING_FIELDS[number]>;
     return { ...picked, notification_email: overrides.notification_email ?? `member${full.user_id}@example.com` };
 };
+
+const pick = <K extends keyof StatutoryApplication>(application: StatutoryApplication, fields: readonly K[]): Pick<StatutoryApplication, K> =>
+    Object.fromEntries(fields.map((field) => [field, application[field]])) as Pick<StatutoryApplication, K>;
+
+// The fields of the participants list (constants.ALLOWED_PARTICIPANTS_LIST_FIELDS).
+const PARTICIPANTS_LIST_FIELDS = [
+    'id', 'statutory_id', 'user_id', 'body_id', 'body_name', 'participant_type', 'participant_order',
+    'cancelled', 'confirmed', 'attended', 'registered', 'departed', 'first_name', 'last_name', 'created_at', 'updated_at'
+] as const;
+
+// An accepted, not cancelled application as the participants list
+// (GET /events/:id/applications/accepted) has it. By default delegate 1 of its body.
+export type AcceptedApplication = Pick<StatutoryApplication, typeof PARTICIPANTS_LIST_FIELDS[number]>;
+
+export const acceptedApplication = (overrides: Partial<AcceptedApplication> = {}): AcceptedApplication =>
+    pick(statutoryApplication({ status: 'accepted', participant_type: 'delegate', participant_order: 1, ...overrides }), PARTICIPANTS_LIST_FIELDS);
+
+// The fields the juridical commission gets (constants.ALLOWED_JURIDICAL_LIST_FIELDS).
+const JURIDICAL_FIELDS = [
+    'id', 'statutory_id', 'user_id', 'body_id', 'body_name', 'participant_type', 'participant_order',
+    'cancelled', 'confirmed', 'attended', 'registered', 'departed', 'first_name', 'last_name', 'status',
+    'created_at', 'updated_at'
+] as const;
+
+// An application as the juridical list (GET /events/:id/applications/juridical) has it: that
+// list only has accepted, confirmed and not cancelled ones. By default delegate 1 of its body.
+export type JuridicalApplication = Pick<StatutoryApplication, typeof JURIDICAL_FIELDS[number]>;
+
+export const juridicalApplication = (overrides: Partial<JuridicalApplication> = {}): JuridicalApplication =>
+    pick(statutoryApplication({ status: 'accepted', confirmed: true, participant_type: 'delegate', participant_order: 1, ...overrides }), JURIDICAL_FIELDS);
+
+// The fields the network director gets (constants.ALLOWED_NETWORK_LIST_FIELDS).
+const NETWORK_FIELDS = [
+    'id', 'statutory_id', 'user_id', 'body_id', 'body_name', 'participant_type', 'participant_order',
+    'first_name', 'last_name', 'is_on_memberslist'
+] as const;
+
+// An application as the members list status page (GET /events/:id/applications/network) has
+// it: every application that is not cancelled. By default delegate 1 of its body, not on the
+// members list.
+export type NetworkApplication = Pick<StatutoryApplication, typeof NETWORK_FIELDS[number]>;
+
+export const networkApplication = (overrides: Partial<NetworkApplication> = {}): NetworkApplication =>
+    pick(statutoryApplication({ participant_type: 'delegate', participant_order: 1, ...overrides }), NETWORK_FIELDS);

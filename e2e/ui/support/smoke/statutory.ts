@@ -5,6 +5,7 @@ import { ok } from '../factories/base.ts';
 import { body } from '../factories/core.ts';
 import { singleStatutoryApplication } from '../factories/statutory-applications.ts';
 import { allStatutoryPermissions, statutoryEvent } from '../factories/statutory-events.ts';
+import { applicationFields, incomingApplicationFields, statutoryStats } from '../factories/statutory-stats.ts';
 
 export const smoke = (api: ApiMock): void => {
     // statutory puts the permissions inside `data`: here every permission, as a superadmin has.
@@ -22,21 +23,10 @@ export const smoke = (api: ApiMock): void => {
         editable_bodies: [body({ id: 1 })]
     }, allStatutoryPermissions())));
     // The statistics page draws its charts from these.
-    api.json('GET statutory /events/:id/applications/stats', ok({
-        numbers: { total: 3, cancelled: 0, pending: 1, waiting_list: 0, rejected: 0, accepted: 2, confirmed: 1, attended: 0, registered: 0, departed: 0 },
-        by_date: [{ date: '2027-01-10', value: 2 }, { date: '2027-01-11', value: 1 }],
-        by_date_cumulative: [{ date: '2027-01-10', value: 2 }, { date: '2027-01-11', value: 3 }],
-        by_body: [{ type: 1, value: 3 }],
-        by_type: [{ type: 'delegate', value: 2 }, { type: 'visitor', value: 1 }],
-        by_gender: [{ type: 'Female', value: 2 }, { type: 'male', value: 1 }],
-        by_meal: [{ type: 'Vegetarian', value: 3 }],
-        by_number_of_events_visited: [{ type: '0', value: 3 }],
-        quorum: { accepted_only: false, body_ids: [1] }
-    }));
+    api.json('GET statutory /events/:id/applications/stats', ok(statutoryStats()));
     // The export page offers one checkbox per field of an application.
-    const fields = { first_name: 'First name', last_name: 'Last name', body_name: 'Body', participant_type: 'Participant type' };
-    api.json('GET statutory /events/:id/fields/applications/all', ok(fields));
-    api.json('GET statutory /events/:id/fields/applications/incoming', ok(fields));
+    api.json('GET statutory /events/:id/fields/applications/all', ok(applicationFields()));
+    api.json('GET statutory /events/:id/fields/applications/incoming', ok(incomingApplicationFields()));
 };
 
 // Route name -> values for the parameters of its path (the default is '1').

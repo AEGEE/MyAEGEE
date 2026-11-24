@@ -6,9 +6,12 @@ import { test, expectStatus } from '../support/api.ts';
 import { expectShape } from '../support/contract.ts';
 import { body } from '../ui/support/factories/core.ts';
 import {
+    acceptedApplication,
     applicationPermissions,
     incomingApplication,
+    juridicalApplication,
     listedApplication,
+    networkApplication,
     singleStatutoryApplication,
     statutoryApplication
 } from '../ui/support/factories/statutory-applications.ts';
@@ -94,5 +97,19 @@ test.describe('statutory application factories match the real API', () => {
         expectShape('incomingApplication', incomingApplication(), incoming.body.data[0], {
             gaps: Object.fromEntries(Object.entries(unfilled).filter(([path]) => path !== '$.email'))
         });
+
+        const accepted = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/accepted`);
+        expectStatus(accepted, 200);
+        expectShape('acceptedApplication', acceptedApplication(), accepted.body.data[0]);
+
+        const network = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/network`);
+        expectStatus(network, 200);
+        expectShape('networkApplication', networkApplication(), network.body.data[0]);
+
+        // The juridical list has the participants who paid only.
+        expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/applications/${applied.id}/confirmed`, { confirmed: true }), 200);
+        const juridical = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/statutory/events/${event.id}/applications/juridical`);
+        expectStatus(juridical, 200);
+        expectShape('juridicalApplication', juridicalApplication(), juridical.body.data[0]);
     });
 });
