@@ -237,4 +237,19 @@ describe('Types of the fields', () => {
             expect(res.body.data.body_id).toEqual(null);
         });
     });
+
+    describe('body ids', () => {
+        test('an event of the body -1 answers 422', async () => {
+            const res = await send('PUT', '/events/' + event.id, { body_id: -1 });
+
+            expectRefused(res, 'body_id', 'Body ID cannot be negative.');
+            expect((await Event.findByPk(event.id)).body_id).toEqual(event.body_id);
+        });
+
+        test('a participants limit of the body -1 answers 422', async () => {
+            const res = await send('POST', '/limits/agora', { body_id: -1, delegate: 1, envoy: 0, observer: 0, visitor: 0 });
+
+            expectRefused(res, 'body_id', 'Body ID cannot be negative.');
+        });
+    });
 });
