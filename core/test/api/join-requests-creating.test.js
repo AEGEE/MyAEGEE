@@ -343,7 +343,7 @@ describe('Join request creating', () => {
             await createProcessor(body, [board, secretaries], { email: 'president@example.com' });
             await createProcessor(body, [secretaries], {
                 email: 'secretary@example.com',
-                gsuite_id: 'secretary@aegee.eu',
+                gsuite_id: 'example-secretary@aegee.eu',
                 primary_email: 'gsuite'
             });
 
@@ -363,7 +363,7 @@ describe('Join request creating', () => {
             const [mail] = mails;
             expect(mail.to[0]).toEqual('board@somewhere.example.com');
             expect({ ...mail, to: [...mail.to].sort() }).toEqual({
-                to: ['board@somewhere.example.com', 'president@example.com', 'secretary@aegee.eu'],
+                to: ['board@somewhere.example.com', 'example-secretary@aegee.eu', 'president@example.com'],
                 subject: constants.MAIL_SUBJECTS.NEW_JOIN_REQUEST,
                 template: 'member_joined.html',
                 parameters: {

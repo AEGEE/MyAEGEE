@@ -305,7 +305,7 @@ describe('Body memberships list wth permission', () => {
                 first_name: 'Bert',
                 last_name: 'Workspace',
                 email: 'bert@example.com',
-                gsuite_id: 'bert@aegee.eu',
+                gsuite_id: 'example-bert@aegee.eu',
                 primary_email: 'gsuite'
             })
         ];
@@ -329,7 +329,7 @@ describe('Body memberships list wth permission', () => {
             notification_email: membership.user.notification_email
         }))).toEqual([
             { user_id: members[0].id, first_name: 'Anna', last_name: 'Personal', notification_email: 'anna@example.com' },
-            { user_id: members[1].id, first_name: 'Bert', last_name: 'Workspace', notification_email: 'bert@aegee.eu' }
+            { user_id: members[1].id, first_name: 'Bert', last_name: 'Workspace', notification_email: 'example-bert@aegee.eu' }
         ]);
     });
 });

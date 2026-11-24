@@ -321,12 +321,12 @@ describe('Users list', () => {
 
             const withAccount = await generator.createUser({
                 email: 'some.one@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
             const withUnusedAccount = await generator.createUser({
                 email: 'other.one@example.com',
-                gsuite_id: 'other.one@aegee.eu',
+                gsuite_id: 'example-other.one@aegee.eu',
                 primary_email: 'personal'
             });
 
@@ -342,7 +342,7 @@ describe('Users list', () => {
             expect(res.body.meta).toEqual({ count: 3 });
             expect([...res.body.data].sort((a, b) => a.id - b.id)).toEqual([
                 { id: user.id, notification_email: 'admin@example.com' },
-                { id: withAccount.id, notification_email: 'some.one@aegee.eu' },
+                { id: withAccount.id, notification_email: 'example-some.one@aegee.eu' },
                 { id: withUnusedAccount.id, notification_email: 'other.one@example.com' }
             ]);
         });

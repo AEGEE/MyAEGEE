@@ -182,7 +182,7 @@ describe('Users list', () => {
     });
 
     test('should return contact fields to view:member holders (with GSuite ID)', async () => {
-        const user = await generator.createUser({ superadmin: true, gsuite_id: 'test@aegee.eu' });
+        const user = await generator.createUser({ superadmin: true, gsuite_id: 'example-test@aegee.eu' });
         const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });

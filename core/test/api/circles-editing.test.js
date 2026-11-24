@@ -141,7 +141,7 @@ describe('Circle editing', () => {
             headers: { 'X-Auth-Token': token.value },
             body: {
                 name: 'New name',
-                gsuite_id: 'circle@aegee.eu',
+                gsuite_id: 'example-circle@aegee.eu',
                 body_id: body.id,
                 parent_circle_id: parentCircle.id
             }
@@ -152,7 +152,7 @@ describe('Circle editing', () => {
 
         const circleFromDb = await Circle.findByPk(circle.id);
         expect(circleFromDb.name).toEqual('New name');
-        expect(circleFromDb.gsuite_id).toEqual('circle@aegee.eu');
+        expect(circleFromDb.gsuite_id).toEqual('example-circle@aegee.eu');
         expect(circleFromDb.body_id).toBeNull();
         expect(circleFromDb.parent_circle_id).toBeNull();
     });
@@ -166,8 +166,8 @@ describe('Circle editing', () => {
             token = await generator.createAccessToken(user);
             await generator.createPermission({ scope: 'global', action: 'update', object: 'circle' });
 
-            await generator.createCircle({ gsuite_id: 'board@aegee.eu' });
-            circle = await generator.createCircle({ gsuite_id: 'members@aegee.eu' });
+            await generator.createCircle({ gsuite_id: 'example-board@aegee.eu' });
+            circle = await generator.createCircle({ gsuite_id: 'example-members@aegee.eu' });
         });
 
         const update = (fields) => request({
@@ -179,8 +179,8 @@ describe('Circle editing', () => {
 
         test.each([
             ['is not an email address', 'x', 'GSuite ID should be a valid email.'],
-            ['is the one of another circle', 'board@aegee.eu', 'gsuite_id must be unique'],
-            ['is the one of another circle in another case', ' Board@AEGEE.eu ', 'gsuite_id must be unique']
+            ['is the one of another circle', 'example-board@aegee.eu', 'gsuite_id must be unique'],
+            ['is the one of another circle in another case', ' example-Board@AEGEE.eu ', 'gsuite_id must be unique']
         ])('should not be changed to one that %s', async (name, value, message) => {
             const res = await update({ gsuite_id: value, name: 'Other name' });
 
@@ -188,25 +188,25 @@ describe('Circle editing', () => {
             expect(res.body).toEqual({ success: false, errors: { gsuite_id: [message] } });
 
             const circleFromDb = await Circle.findByPk(circle.id);
-            expect(circleFromDb.gsuite_id).toEqual('members@aegee.eu');
+            expect(circleFromDb.gsuite_id).toEqual('example-members@aegee.eu');
             expect(circleFromDb.name).toEqual(circle.name);
         });
 
         test('should be stored in lowercase and without spaces around it', async () => {
-            const res = await update({ gsuite_id: ' Committee@AEGEE.eu ' });
+            const res = await update({ gsuite_id: ' example-Committee@AEGEE.eu ' });
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.gsuite_id).toEqual('committee@aegee.eu');
-            expect((await Circle.findByPk(circle.id)).gsuite_id).toEqual('committee@aegee.eu');
+            expect(res.body.data.gsuite_id).toEqual('example-committee@aegee.eu');
+            expect((await Circle.findByPk(circle.id)).gsuite_id).toEqual('example-committee@aegee.eu');
         });
 
         test('should stay when it is sent back unchanged with other fields', async () => {
-            const res = await update({ gsuite_id: 'members@aegee.eu', name: 'Other name' });
+            const res = await update({ gsuite_id: 'example-members@aegee.eu', name: 'Other name' });
 
             expect(res.statusCode).toEqual(200);
 
             const circleFromDb = await Circle.findByPk(circle.id);
-            expect(circleFromDb.gsuite_id).toEqual('members@aegee.eu');
+            expect(circleFromDb.gsuite_id).toEqual('example-members@aegee.eu');
             expect(circleFromDb.name).toEqual('Other name');
         });
 

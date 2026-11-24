@@ -171,7 +171,7 @@ describe('Mail change confirm', () => {
         test('should also tell the notification address if it is another one', async () => {
             const user = await generator.createUser({
                 email: 'current@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
             const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
@@ -182,7 +182,7 @@ describe('Mail change confirm', () => {
             expect(res.body.data).toEqual({ changed: true });
 
             expect(mails.length).toEqual(1);
-            expect(mails[0].to).toEqual(['current@example.com', 'some.one@aegee.eu']);
+            expect(mails[0].to).toEqual(['current@example.com', 'example-some.one@aegee.eu']);
             expect(mails[0].template).toEqual('mail_change_notice.html');
         });
 

@@ -121,7 +121,7 @@ describe('Body memberships deleting own', () => {
             const user = await generator.createUser({
                 first_name: 'Some',
                 last_name: 'One',
-                gsuite_id: 'some.one@aegee.eu'
+                gsuite_id: 'example-some.one@aegee.eu'
             });
             const token = await generator.createAccessToken(user);
             await generator.createBodyMembership(body, user);
@@ -137,7 +137,7 @@ describe('Body memberships deleting own', () => {
                     member_firstname: 'Some',
                     member_lastname: 'One',
                     user_id: user.id,
-                    member_workspace_email: 'some.one@aegee.eu'
+                    member_workspace_email: 'example-some.one@aegee.eu'
                 }
             }]);
         });

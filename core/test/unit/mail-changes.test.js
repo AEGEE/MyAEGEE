@@ -58,7 +58,7 @@ describe('Mail changes', () => {
     test('should fail with invalid new_email (aegee.eu)', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange(user, { new_email: 'test@aegee.eu' });
+            await generator.createMailChange(user, { new_email: 'example-test@aegee.eu' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -70,7 +70,7 @@ describe('Mail changes', () => {
     test('should fail with invalid new_email (aegee.org)', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange(user, { new_email: 'test@aegee.org' });
+            await generator.createMailChange(user, { new_email: 'example-test@aegee.org' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');

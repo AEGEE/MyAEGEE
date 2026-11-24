@@ -499,7 +499,7 @@ describe('Password reset', () => {
             const mails = mock.captureMails();
             await generator.createUser({
                 email: 'some.one@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
 
@@ -519,11 +519,11 @@ describe('Password reset', () => {
             await generator.createUser({
                 username: 'someone',
                 email: 'some.one@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
 
-            for (const email of ['some.one@aegee.eu', 'someone']) {
+            for (const email of ['example-some.one@aegee.eu', 'someone']) {
                 const res = await request({
                     path: '/password_reset',
                     method: 'POST',

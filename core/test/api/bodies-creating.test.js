@@ -160,8 +160,8 @@ describe('Bodies creating', () => {
             await generator.createBody({
                 code: 'ABC',
                 abbreviation: 'AEGEE-Somewhere',
-                gsuite_id: 'somewhere@aegee.eu',
-                google_group: 'somewhere-l@aegee.eu'
+                gsuite_id: 'example-somewhere@aegee.eu',
+                google_group: 'example-somewhere-l@aegee.eu'
             });
         });
 
@@ -175,9 +175,9 @@ describe('Bodies creating', () => {
             ['an abbreviation that another body has', { abbreviation: 'AEGEE-Somewhere' }, { abbreviation: ['abbreviation must be unique'] }],
             ['an abbreviation that another body has, with spaces around it', { abbreviation: ' AEGEE-Somewhere ' }, { abbreviation: ['abbreviation must be unique'] }],
             ['a Workspace account that is not an email address', { gsuite_id: 'x' }, { gsuite_id: ['GSuite ID must be a valid email.'] }],
-            ['a Workspace account that another body has', { gsuite_id: 'Somewhere@AEGEE.eu' }, { gsuite_id: ['gsuite_id must be unique'] }],
+            ['a Workspace account that another body has', { gsuite_id: 'example-Somewhere@AEGEE.eu' }, { gsuite_id: ['gsuite_id must be unique'] }],
             ['a Google group that is not an email address', { google_group: 'x' }, { google_group: ['Google Group must be a valid email.'] }],
-            ['a Google group that another body has', { google_group: 'Somewhere-L@aegee.eu' }, { google_group: ['google_group must be unique'] }]
+            ['a Google group that another body has', { google_group: 'example-Somewhere-L@aegee.eu' }, { google_group: ['google_group must be unique'] }]
         ])('should fail for %s', async (name, fields, errors) => {
             const res = await request({
                 path: '/bodies/',

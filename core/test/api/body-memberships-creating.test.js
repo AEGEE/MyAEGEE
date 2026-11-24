@@ -277,7 +277,7 @@ describe('Body membership creating', () => {
         test('should welcome a member on their Workspace address if that is their primary one', async () => {
             const member = await generator.createUser({
                 email: 'some.one@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
 
@@ -285,7 +285,7 @@ describe('Body membership creating', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(mails.map((mail) => [mail.template, mail.to])).toEqual([
-                ['new_member.html', 'some.one@aegee.eu'],
+                ['new_member.html', 'example-some.one@aegee.eu'],
                 ['workspace_new_member.html', config.google_workspace_notifications]
             ]);
             expect(mails[1].parameters.member_email).toEqual('some.one@example.com');

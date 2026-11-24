@@ -206,13 +206,13 @@ describe('Authorization', () => {
     });
 
     test('should find by the Google Workspace account', async () => {
-        const user = await generator.createUser({ password: 'testtest', gsuite_id: 'member@aegee.eu' });
+        const user = await generator.createUser({ password: 'testtest', gsuite_id: 'example-member@aegee.eu' });
         const res = await request({
             path: '/login/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                username: 'Member@aegee.eu',
+                username: 'example-Member@aegee.eu',
                 password: 'testtest'
             }
         });
@@ -336,14 +336,14 @@ describe('Authorization', () => {
             await generator.createUser({
                 username: 'someone',
                 email: 'someone@example.com',
-                gsuite_id: 'someone@aegee.eu',
+                gsuite_id: 'example-someone@aegee.eu',
                 password: 'testtest'
             });
 
             const querySpy = jest.spyOn(sequelize, 'query');
             try {
                 for (const password of ['testtest', 'wrong-password']) {
-                    for (const username of ['someone@example.com', 'someone', 'someone@aegee.eu', 'nobody', 'nobody@example.com', '']) {
+                    for (const username of ['someone@example.com', 'someone', 'example-someone@aegee.eu', 'nobody', 'nobody@example.com', '']) {
                         querySpy.mockClear();
                         await login(username, password);
 

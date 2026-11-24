@@ -98,8 +98,8 @@ describe('Users testing', () => {
     });
 
     test('should return gsuite id', async () => {
-        const user = await generator.createUser({ gsuite_id: 'test@aegee.eu', primary_email: 'gsuite' });
-        expect(user.notification_email).toEqual('test@aegee.eu');
+        const user = await generator.createUser({ gsuite_id: 'example-test@aegee.eu', primary_email: 'gsuite' });
+        expect(user.notification_email).toEqual('example-test@aegee.eu');
     });
 
     test('should fail with a gsuite id that is not an email', async () => {
@@ -136,11 +136,11 @@ describe('Users testing', () => {
     });
 
     test('should accept a gsuite id on both AEGEE domains', async () => {
-        const first = await generator.createUser({ gsuite_id: 'first@aegee.eu' });
-        const second = await generator.createUser({ gsuite_id: 'Second@AEGEE.org' });
+        const first = await generator.createUser({ gsuite_id: 'example-first@aegee.eu' });
+        const second = await generator.createUser({ gsuite_id: 'example-Second@AEGEE.org' });
 
-        expect(first.gsuite_id).toEqual('first@aegee.eu');
-        expect(second.gsuite_id).toEqual('second@aegee.org');
+        expect(first.gsuite_id).toEqual('example-first@aegee.eu');
+        expect(second.gsuite_id).toEqual('example-second@aegee.org');
     });
 
     test('should accept no gsuite id', async () => {
@@ -150,7 +150,7 @@ describe('Users testing', () => {
 
     test('should fail with not valid email (aegee.eu)', async () => {
         try {
-            await generator.createUser({ email: 'test@aegee.eu' });
+            await generator.createUser({ email: 'example-test@aegee.eu' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -162,7 +162,7 @@ describe('Users testing', () => {
 
     test('should fail with not valid email (aegee.org)', async () => {
         try {
-            await generator.createUser({ email: 'test@aegee.org' });
+            await generator.createUser({ email: 'example-test@aegee.org' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -266,7 +266,7 @@ describe('Users testing', () => {
             ['email', 'not-an-email', ['Email should be valid.']],
             ['email', 'some.one@', ['Email should be valid.']],
             ['email', 'some one@example.com', ['Email should be valid.']],
-            ['email', 'some.one@aegee.eu', ['Email can not be in one of the following domains: aegee.org, aegee.eu.']],
+            ['email', 'example-some.one@aegee.eu', ['Email can not be in one of the following domains: aegee.org, aegee.eu.']],
             ['password', '', ['Password should be at least 8 characters long.', 'Password should be set.']],
             ['password', null, ['Password should be set.']],
             ['password', '1234567', ['Password should be at least 8 characters long.']],
@@ -323,11 +323,11 @@ describe('Users testing', () => {
         });
 
         test.each([
-            ['the same', 'taken@aegee.eu'],
-            ['in another case', 'Taken@AEGEE.eu'],
-            ['with spaces around it', '\t taken@aegee.eu ']
+            ['the same', 'example-taken@aegee.eu'],
+            ['in another case', 'example-Taken@AEGEE.eu'],
+            ['with spaces around it', '\t example-taken@aegee.eu ']
         ])('should refuse a Google Workspace account that another member has (%s)', async (name, value) => {
-            await generator.createUser({ gsuite_id: 'taken@aegee.eu' });
+            await generator.createUser({ gsuite_id: 'example-taken@aegee.eu' });
 
             expect(await validationErrors({ gsuite_id: value })).toEqual({ gsuite_id: ['gsuite_id must be unique'] });
             expect(await User.count()).toEqual(1);
@@ -386,7 +386,7 @@ describe('Users testing', () => {
 
     describe('notification email', () => {
         test('should be the login email by default', async () => {
-            const user = await generator.createUser({ email: 'some.one@example.com', gsuite_id: 'some.one@aegee.eu' });
+            const user = await generator.createUser({ email: 'some.one@example.com', gsuite_id: 'example-some.one@aegee.eu' });
 
             expect(user.primary_email).toEqual('personal');
             expect(user.notification_email).toEqual('some.one@example.com');

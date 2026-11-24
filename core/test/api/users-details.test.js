@@ -293,7 +293,7 @@ describe('User details', () => {
         const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'lookup', object: 'member' });
-        const otherUser = await generator.createUser({ gsuite_id: 'organizer@aegee.eu' });
+        const otherUser = await generator.createUser({ gsuite_id: 'example-organizer@aegee.eu' });
 
         const res = await request({
             path: '/members/' + otherUser.id + '/lookup',
@@ -374,7 +374,7 @@ describe('User details', () => {
 
             const otherUser = await generator.createUser({
                 email: 'some.one@example.com',
-                gsuite_id: 'some.one@aegee.eu',
+                gsuite_id: 'example-some.one@aegee.eu',
                 primary_email: 'gsuite'
             });
 
@@ -387,7 +387,7 @@ describe('User details', () => {
             expect(res.statusCode).toEqual(200);
             expect(Object.keys(res.body.data).sort()).toEqual(['email', 'first_name', 'id', 'last_name', 'notification_email']);
             expect(res.body.data.email).toEqual('some.one@example.com');
-            expect(res.body.data.notification_email).toEqual('some.one@aegee.eu');
+            expect(res.body.data.notification_email).toEqual('example-some.one@aegee.eu');
         });
 
         test('should be given to a holder of the local permission for a member of that body', async () => {
@@ -645,7 +645,7 @@ describe('User details', () => {
             const token = await generator.createAccessToken(user);
 
             await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
-            const otherUser = await generator.createUser({ gsuite_id: 'organizer@aegee.eu', primary_email: 'gsuite' });
+            const otherUser = await generator.createUser({ gsuite_id: 'example-organizer@aegee.eu', primary_email: 'gsuite' });
 
             const res = await request({
                 path: '/members/' + otherUser.id + '/lookup',
@@ -660,8 +660,8 @@ describe('User details', () => {
                 last_name: otherUser.last_name,
                 username: otherUser.username,
                 email: otherUser.email,
-                gsuite_id: 'organizer@aegee.eu',
-                notification_email: 'organizer@aegee.eu'
+                gsuite_id: 'example-organizer@aegee.eu',
+                notification_email: 'example-organizer@aegee.eu'
             });
         });
 

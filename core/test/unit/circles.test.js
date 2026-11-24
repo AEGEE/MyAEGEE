@@ -87,9 +87,9 @@ describe('Cirrcle testing', () => {
     });
 
     test('should fail with the gsuite_id of another circle in another case', async () => {
-        await generator.createCircle({ gsuite_id: 'test@aegee.eu' });
+        await generator.createCircle({ gsuite_id: 'example-test@aegee.eu' });
 
-        await expect(generator.createCircle({ gsuite_id: '\t Test@AEGEE.eu ' })).rejects.toMatchObject({
+        await expect(generator.createCircle({ gsuite_id: '\t example-Test@AEGEE.eu ' })).rejects.toMatchObject({
             name: 'SequelizeUniqueConstraintError',
             errors: [expect.objectContaining({ path: 'gsuite_id', type: 'unique violation' })]
         });
@@ -97,9 +97,9 @@ describe('Cirrcle testing', () => {
     });
 
     test('should normalize the gsuite_id', async () => {
-        const circle = await generator.createCircle({ gsuite_id: '\t Test@AEGEE.eu ' });
+        const circle = await generator.createCircle({ gsuite_id: '\t example-Test@AEGEE.eu ' });
 
-        expect(circle.gsuite_id).toEqual('test@aegee.eu');
+        expect(circle.gsuite_id).toEqual('example-test@aegee.eu');
     });
 
     test('should succeed for several circles without a gsuite_id', async () => {

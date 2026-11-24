@@ -187,25 +187,25 @@ describe('User editing', () => {
         };
 
         test('should be ignored on an own edit without the global permission', async () => {
-            const user = await generator.createUser({ gsuite_id: 'own@aegee.eu' });
+            const user = await generator.createUser({ gsuite_id: 'example-own@aegee.eu' });
             const token = await generator.createAccessToken(user);
 
             const res = await request({
                 path: '/members/' + user.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
-                body: { first_name: 'Changed', gsuite_id: 'other@aegee.eu' }
+                body: { first_name: 'Changed', gsuite_id: 'example-other@aegee.eu' }
             });
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body.data.first_name).toEqual('Changed');
-            expect(res.body.data.gsuite_id).toEqual('own@aegee.eu');
+            expect(res.body.data.gsuite_id).toEqual('example-own@aegee.eu');
 
             const userFromDb = await User.findByPk(user.id);
             expect(userFromDb.first_name).toEqual('Changed');
-            expect(userFromDb.gsuite_id).toEqual('own@aegee.eu');
+            expect(userFromDb.gsuite_id).toEqual('example-own@aegee.eu');
         });
 
         test('should not be set on an own edit without the global permission', async () => {
@@ -216,7 +216,7 @@ describe('User editing', () => {
                 path: '/members/' + user.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
-                body: { gsuite_id: 'new@aegee.eu' }
+                body: { gsuite_id: 'example-new@aegee.eu' }
             });
 
             expect(res.statusCode).toEqual(200);
@@ -228,7 +228,7 @@ describe('User editing', () => {
         });
 
         test('should not be removed on an own edit without the global permission', async () => {
-            const user = await generator.createUser({ gsuite_id: 'own@aegee.eu' });
+            const user = await generator.createUser({ gsuite_id: 'example-own@aegee.eu' });
             const token = await generator.createAccessToken(user);
 
             const res = await request({
@@ -242,7 +242,7 @@ describe('User editing', () => {
             expect(res.body.success).toEqual(true);
 
             const userFromDb = await User.findByPk(user.id);
-            expect(userFromDb.gsuite_id).toEqual('own@aegee.eu');
+            expect(userFromDb.gsuite_id).toEqual('example-own@aegee.eu');
         });
 
         test('should be ignored for a holder of the local permission', async () => {
@@ -261,7 +261,7 @@ describe('User editing', () => {
                 path: '/members/' + otherUser.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
-                body: { first_name: 'Changed', gsuite_id: 'new@aegee.eu' }
+                body: { first_name: 'Changed', gsuite_id: 'example-new@aegee.eu' }
             });
 
             expect(res.statusCode).toEqual(200);
@@ -282,15 +282,15 @@ describe('User editing', () => {
                 path: '/members/' + otherUser.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
-                body: { gsuite_id: 'New@AEGEE.eu' }
+                body: { gsuite_id: 'example-New@AEGEE.eu' }
             });
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body.data.gsuite_id).toEqual('new@aegee.eu');
+            expect(res.body.data.gsuite_id).toEqual('example-new@aegee.eu');
 
             const userFromDb = await User.findByPk(otherUser.id);
-            expect(userFromDb.gsuite_id).toEqual('new@aegee.eu');
+            expect(userFromDb.gsuite_id).toEqual('example-new@aegee.eu');
         });
 
         test('should fail if it is not a valid email', async () => {
@@ -336,13 +336,13 @@ describe('User editing', () => {
             const manager = await createGlobalManager();
             const token = await generator.createAccessToken(manager);
             const otherUser = await generator.createUser();
-            await generator.createUser({ gsuite_id: 'taken@aegee.eu' });
+            await generator.createUser({ gsuite_id: 'example-taken@aegee.eu' });
 
             const res = await request({
                 path: '/members/' + otherUser.id,
                 method: 'PUT',
                 headers: { 'X-Auth-Token': token.value },
-                body: { gsuite_id: 'taken@aegee.eu' }
+                body: { gsuite_id: 'example-taken@aegee.eu' }
             });
 
             expect(res.statusCode).toEqual(422);
@@ -411,7 +411,7 @@ describe('User editing', () => {
                 await generator.createBodyMembership(body, otherUser);
 
                 // The account in the request is ignored without the global permission.
-                const res = await updateMember(token, otherUser, { gsuite_id: 'new@aegee.eu', primary_email: 'gsuite' });
+                const res = await updateMember(token, otherUser, { gsuite_id: 'example-new@aegee.eu', primary_email: 'gsuite' });
                 expectPrimaryEmailRefused(res);
 
                 const userFromDb = await User.findByPk(otherUser.id);
@@ -433,7 +433,7 @@ describe('User editing', () => {
             });
 
             test('should be saved on an own edit of a member with a Google Workspace account', async () => {
-                const user = await generator.createUser({ gsuite_id: 'own@aegee.eu' });
+                const user = await generator.createUser({ gsuite_id: 'example-own@aegee.eu' });
                 const token = await generator.createAccessToken(user);
 
                 const res = await updateMember(token, user, { primary_email: 'gsuite' });
@@ -441,7 +441,7 @@ describe('User editing', () => {
                 expect(res.statusCode).toEqual(200);
                 expect(res.body.success).toEqual(true);
                 expect(res.body.data.primary_email).toEqual('gsuite');
-                expect(res.body.data.notification_email).toEqual('own@aegee.eu');
+                expect(res.body.data.notification_email).toEqual('example-own@aegee.eu');
 
                 const userFromDb = await User.findByPk(user.id);
                 expect(userFromDb.primary_email).toEqual('gsuite');
@@ -452,23 +452,23 @@ describe('User editing', () => {
                 const token = await generator.createAccessToken(manager);
                 const otherUser = await generator.createUser();
 
-                const res = await updateMember(token, otherUser, { gsuite_id: 'new@aegee.eu', primary_email: 'gsuite' });
+                const res = await updateMember(token, otherUser, { gsuite_id: 'example-new@aegee.eu', primary_email: 'gsuite' });
 
                 expect(res.statusCode).toEqual(200);
                 expect(res.body.success).toEqual(true);
-                expect(res.body.data.notification_email).toEqual('new@aegee.eu');
+                expect(res.body.data.notification_email).toEqual('example-new@aegee.eu');
             });
 
             test('should keep the Google Workspace account from being removed while it is the primary email', async () => {
                 const manager = await createGlobalManager();
                 const token = await generator.createAccessToken(manager);
-                const otherUser = await generator.createUser({ gsuite_id: 'member@aegee.eu', primary_email: 'gsuite' });
+                const otherUser = await generator.createUser({ gsuite_id: 'example-member@aegee.eu', primary_email: 'gsuite' });
 
                 const res = await updateMember(token, otherUser, { gsuite_id: null });
                 expectPrimaryEmailRefused(res);
 
                 const userFromDb = await User.findByPk(otherUser.id);
-                expect(userFromDb.gsuite_id).toEqual('member@aegee.eu');
+                expect(userFromDb.gsuite_id).toEqual('example-member@aegee.eu');
                 expect(userFromDb.primary_email).toEqual('gsuite');
             });
 
@@ -477,7 +477,7 @@ describe('User editing', () => {
                 const token = await generator.createAccessToken(manager);
                 const otherUser = await generator.createUser({
                     email: 'member@example.com',
-                    gsuite_id: 'member@aegee.eu',
+                    gsuite_id: 'example-member@aegee.eu',
                     primary_email: 'gsuite'
                 });
 
@@ -811,7 +811,7 @@ describe('User editing', () => {
             ['on another domain', 'some.one@example.com', ['GSuite ID should be in one of the following domains: aegee.org, aegee.eu.']],
             ['a domain without a name', '@aegee.eu', ['GSuite ID should be a valid email.']]
         ])('should name the rule if it is %s, and keep the stored one', async (name, value, messages) => {
-            const member = await generator.createUser({ gsuite_id: 'stored@aegee.eu' });
+            const member = await generator.createUser({ gsuite_id: 'example-stored@aegee.eu' });
 
             const res = await setAccount(member, value);
 
@@ -822,15 +822,15 @@ describe('User editing', () => {
             expect([...res.body.errors.gsuite_id].sort()).toEqual([...messages].sort());
 
             const fromDb = await User.findByPk(member.id);
-            expect(fromDb.gsuite_id).toEqual('stored@aegee.eu');
+            expect(fromDb.gsuite_id).toEqual('example-stored@aegee.eu');
         });
 
         test.each([
-            ['the same', 'taken@aegee.eu'],
-            ['in another case', 'Taken@AEGEE.eu'],
-            ['with spaces around it', ' taken@aegee.eu ']
+            ['the same', 'example-taken@aegee.eu'],
+            ['in another case', 'example-Taken@AEGEE.eu'],
+            ['with spaces around it', ' example-taken@aegee.eu ']
         ])('should fail if another member has it (%s), and keep both as they are', async (name, value) => {
-            const owner = await generator.createUser({ gsuite_id: 'taken@aegee.eu' });
+            const owner = await generator.createUser({ gsuite_id: 'example-taken@aegee.eu' });
             const member = await generator.createUser();
 
             const res = await setAccount(member, value);
@@ -839,16 +839,16 @@ describe('User editing', () => {
             expect(res.body).toEqual({ success: false, errors: { gsuite_id: ['gsuite_id must be unique'] } });
 
             expect((await User.findByPk(member.id)).gsuite_id).toBeNull();
-            expect((await User.findByPk(owner.id)).gsuite_id).toEqual('taken@aegee.eu');
+            expect((await User.findByPk(owner.id)).gsuite_id).toEqual('example-taken@aegee.eu');
         });
 
         test('should accept the account the member has already, in another case', async () => {
-            const member = await generator.createUser({ gsuite_id: 'some.one@aegee.eu' });
+            const member = await generator.createUser({ gsuite_id: 'example-some.one@aegee.eu' });
 
-            const res = await setAccount(member, 'Some.One@AEGEE.eu');
+            const res = await setAccount(member, 'example-Some.One@AEGEE.eu');
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.data.gsuite_id).toEqual('some.one@aegee.eu');
+            expect(res.body.data.gsuite_id).toEqual('example-some.one@aegee.eu');
         });
     });
 

@@ -234,7 +234,7 @@ describe('Users list', () => {
         const user = await generator.createUser({
             superadmin: true,
             email: 'some.one@example.com',
-            gsuite_id: 'some.one@aegee.eu',
+            gsuite_id: 'example-some.one@aegee.eu',
             primary_email: 'gsuite',
             password: 'a-secret-password'
         });
@@ -255,9 +255,9 @@ describe('Users list', () => {
             first_name: user.first_name,
             last_name: user.last_name,
             email: 'some.one@example.com',
-            gsuite_id: 'some.one@aegee.eu',
+            gsuite_id: 'example-some.one@aegee.eu',
             primary_email: 'gsuite',
-            notification_email: 'some.one@aegee.eu',
+            notification_email: 'example-some.one@aegee.eu',
             superadmin: true,
             active: true
         }));
@@ -272,7 +272,7 @@ describe('Users list', () => {
         const token = await generator.createAccessToken(user);
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
-        const withAccount = await generator.createUser({ first_name: 'Ccc', last_name: 'Ddd', gsuite_id: 'zzz.account@aegee.eu' });
+        const withAccount = await generator.createUser({ first_name: 'Ccc', last_name: 'Ddd', gsuite_id: 'example-zzz.account@aegee.eu' });
         const named = await generator.createUser({ first_name: 'Some', last_name: 'One' });
 
         const byAccount = await request({

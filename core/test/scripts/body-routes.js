@@ -96,8 +96,8 @@ const bodyFields = () => ({
     pays_fees: true,
     country: 'Netherlands',
     website: 'https://example.com',
-    gsuite_id: 'body@aegee.eu',
-    google_group: 'group@aegee.eu'
+    gsuite_id: 'example-body@aegee.eu',
+    google_group: 'example-group@aegee.eu'
 });
 
 const campaignFields = () => ({
@@ -176,7 +176,7 @@ exports.ROUTES = [
         path: (d) => `/members/${d.member.id}`,
         body: () => {
             const { email, password, mail_confirmed_at: confirmed, ...fields } = userFields();
-            return { ...fields, gsuite_id: 'member@aegee.eu', primary_email: 'gsuite' };
+            return { ...fields, gsuite_id: 'example-member@aegee.eu', primary_email: 'gsuite' };
         },
         noBody: 200
     },
@@ -236,7 +236,7 @@ exports.ROUTES = [
         method: 'PUT',
         name: '/circles/:circle_id',
         path: (d) => `/circles/${d.circle.id}`,
-        body: () => ({ name: 'Circle', description: 'Description', gsuite_id: 'circle@aegee.eu' }),
+        body: () => ({ name: 'Circle', description: 'Description', gsuite_id: 'example-circle@aegee.eu' }),
         noBody: 200
     },
     {

@@ -561,8 +561,8 @@ describe('Bodies editing', () => {
         const own = {
             code: 'OWN',
             abbreviation: 'AEGEE-Own',
-            gsuite_id: 'own@aegee.eu',
-            google_group: 'own-l@aegee.eu'
+            gsuite_id: 'example-own@aegee.eu',
+            google_group: 'example-own-l@aegee.eu'
         };
         let token;
         let body;
@@ -575,8 +575,8 @@ describe('Bodies editing', () => {
             await generator.createBody({
                 code: 'ABC',
                 abbreviation: 'AEGEE-Somewhere',
-                gsuite_id: 'somewhere@aegee.eu',
-                google_group: 'somewhere-l@aegee.eu'
+                gsuite_id: 'example-somewhere@aegee.eu',
+                google_group: 'example-somewhere-l@aegee.eu'
             });
             body = await generator.createBody({ ...own });
         });
@@ -591,8 +591,8 @@ describe('Bodies editing', () => {
         test.each([
             ['code', 'abc', 'code must be unique'],
             ['abbreviation', 'AEGEE-Somewhere', 'abbreviation must be unique'],
-            ['gsuite_id', 'Somewhere@AEGEE.eu', 'gsuite_id must be unique'],
-            ['google_group', 'Somewhere-L@aegee.eu', 'google_group must be unique']
+            ['gsuite_id', 'example-Somewhere@AEGEE.eu', 'gsuite_id must be unique'],
+            ['google_group', 'example-Somewhere-L@aegee.eu', 'google_group must be unique']
         ])('should fail for the %s, and keep the body as it was', async (field, value, message) => {
             const res = await update({ [field]: value, name: 'Other name' });
 

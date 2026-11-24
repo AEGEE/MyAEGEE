@@ -141,7 +141,7 @@ describe('Body circles creating', () => {
 
         const body = await generator.createBody();
         const parentCircle = await generator.createCircle();
-        const circle = generator.generateCircle({ parent_circle_id: parentCircle.id, gsuite_id: 'circle@aegee.eu' });
+        const circle = generator.generateCircle({ parent_circle_id: parentCircle.id, gsuite_id: 'example-circle@aegee.eu' });
 
         const res = await request({
             path: '/bodies/' + body.id + '/circles/',

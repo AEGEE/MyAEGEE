@@ -123,7 +123,7 @@ describe('Resources testing', () => {
         test.each([
             'javascript:alert(1)', // eslint-disable-line no-script-url
             'JavaScript:alert(1)', // eslint-disable-line no-script-url
-            'mailto:info@aegee.org',
+            'mailto:example-info@aegee.org',
             'ftp://aegee.org',
             'data:text/html,<script>alert(1)</script>',
             '//evil.example.com',
