@@ -436,4 +436,33 @@ describe('Candidates editing', () => {
             expect(await storedName(candidate)).toEqual('Before');
         });
     });
+
+    test('should refuse a new body when core gives the candidate without their bodies', async () => {
+        // Core gives a member without the list of bodies to a caller who may only see part of the profile.
+        const otherUser = { ...regularUser, id: 1337 };
+        delete otherUser.bodies;
+        mock.mockAll({ member: { user: otherUser } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate(),
+            candidates: [
+                generator.generateCandidate({ user_id: otherUser.id, body_id: 1337, body_name: 'AEGEE-Elsewhere' })
+            ]
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
+            method: 'PUT',
+            body: { body_id: regularUser.bodies[0].id },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('The candidate is not a member of this body.');
+
+        const candidate = await Candidate.findByPk(position.candidates[0].id);
+        expect(candidate.body_id).toEqual(1337);
+    });
 });
