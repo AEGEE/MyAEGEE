@@ -2061,17 +2061,18 @@ export interface components {
         EventType: "agora" | "epm" | "spm";
         /** @enum {string} */
         EventStatus: "draft" | "published";
-        /** @description One question of the application form. */
+        /** @description One question of the application form. Events stored before the questions were checked can have a question without `required`, or with it as text. */
         EventQuestion: {
             /** @enum {string} */
             type: "string" | "text" | "number" | "checkbox" | "select";
             description: string;
-            required: boolean;
+            required?: boolean | string;
             /** @description The options of a `select` question. */
             values?: string[];
         };
+        /** @description Events stored before the locations were checked can have a location without a name. */
         EventLocation: {
-            name: string;
+            name?: string;
             position: {
                 lat: number;
                 lng: number;
@@ -2305,18 +2306,20 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description A new or changed list of questions needs `required` as true or false in each (422 otherwise). The form sends the stored questions back, and an unchanged list is not checked, also when an older event stored a question without it. */
         EventQuestionInput: {
             /** @enum {string} */
             type: "string" | "text" | "number" | "checkbox" | "select";
             description: string;
-            required: boolean;
+            required?: boolean | string;
             /** @description Required for a `select` question. */
             values?: string[];
         } & {
             [key: string]: unknown;
         };
+        /** @description A new or changed list of locations needs a name in each (422 otherwise); an unchanged list is not checked, also when an older event stored a location without a name. */
         EventLocationInput: {
-            name: string;
+            name?: string;
             position: {
                 lat: number;
                 lng: number;
@@ -3028,6 +3031,7 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description Only the fields that change are checked. The form sends the stored position back, also an empty `end_term` that an older position stored; a changed `end_term` needs a text. */
         PositionUpdateInput: {
             name?: string;
             /** @description A whole number from 1, or a string of digits, which is stored as a number. */
@@ -3462,7 +3466,7 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
-        /** @description Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body) for longer than the lock timeout of 5 seconds: "The server is busy, please try again." Nothing was changed. */
+        /** @description Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body, the application) for longer than the lock timeout of 5 seconds, or Postgres ended the wait as a deadlock: "The server is busy, please try again." Nothing was changed. */
         Busy: {
             headers: {
                 [name: string]: unknown;
@@ -5287,7 +5291,15 @@ export interface operations {
             413: components["responses"]["BodyTooLarge"];
             415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
-            503: components["responses"]["Busy"];
+            /** @description The currency rates server failed or did not answer within 10 seconds ("The currency rates could not be fetched, so nothing was saved. Please try again later."), or the votes of the body were locked for longer than the lock timeout ("The server is busy, please try again."). Nothing was saved. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     setMemberslistFeePaid: {

@@ -1279,7 +1279,11 @@ paths:
         '413': {$ref: '#/components/responses/BodyTooLarge'}
         '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
-        '503': {$ref: '#/components/responses/Busy'}
+        '503':
+          description: 'The currency rates server failed or did not answer within 10 seconds ("The currency rates could not be fetched, so nothing was saved. Please try again later."), or the votes of the body were locked for longer than the lock timeout ("The server is busy, please try again."). Nothing was saved.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
   /events/{event_id}/memberslists/{body_id}/fee_paid:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -2216,7 +2220,7 @@ components:
     UnreadableBody: {description: 'The body could not be read ("The request body could not be read." for a broken compression or a body nested more than 32 levels deep, "Invalid JSON." for text that is not JSON), holds a text or a key with characters that cannot be stored ("The request body contains characters that cannot be stored.": NUL, an unpaired surrogate), or is not an object ("The body should be an object."). Checked before the route, so also without a token.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     BodyTooLarge: {description: 'The body is larger than 1 MB ("The request body could not be read."). Checked before the route.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     BodyUnsupported: {description: 'The body is in a charset or a content encoding that is not supported ("The request body could not be read."). Checked before the route.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
-    Busy: {description: 'Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body) for longer than the lock timeout of 5 seconds: "The server is busy, please try again." Nothing was changed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Busy: {description: 'Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body, the application) for longer than the lock timeout of 5 seconds, or Postgres ended the wait as a deadlock: "The server is busy, please try again." Nothing was changed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   schemas:
     ErrorResponse:
@@ -2364,21 +2368,22 @@ components:
       type: string
       enum: [draft, published]
     EventQuestion:
-      description: One question of the application form.
+      description: One question of the application form. Events stored before the questions were checked can have a question without `required`, or with it as text.
       type: object
-      required: [type, description, required]
+      required: [type, description]
       properties:
         type: {type: string, enum: [string, text, number, checkbox, select]}
         description: {type: string}
-        required: {type: boolean}
+        required: {type: [boolean, string]}
         values:
           description: The options of a `select` question.
           type: array
           items: {type: string}
       additionalProperties: false
     EventLocation:
+      description: Events stored before the locations were checked can have a location without a name.
       type: object
-      required: [name, position]
+      required: [position]
       properties:
         name: {type: string}
         position:
@@ -2765,20 +2770,22 @@ components:
         vegetarian: {type: boolean}
       additionalProperties: true
     EventQuestionInput:
+      description: A new or changed list of questions needs `required` as true or false in each (422 otherwise). The form sends the stored questions back, and an unchanged list is not checked, also when an older event stored a question without it.
       type: object
-      required: [type, description, required]
+      required: [type, description]
       properties:
         type: {type: string, enum: [string, text, number, checkbox, select]}
         description: {type: string, minLength: 1}
-        required: {type: boolean}
+        required: {type: [boolean, string]}
         values:
           description: Required for a `select` question.
           type: array
           items: {type: string, minLength: 1}
       additionalProperties: true
     EventLocationInput:
+      description: A new or changed list of locations needs a name in each (422 otherwise); an unchanged list is not checked, also when an older event stored a location without a name.
       type: object
-      required: [name, position]
+      required: [position]
       properties:
         name: {type: string, minLength: 1}
         position:
@@ -3909,6 +3916,7 @@ components:
         requirements: {type: [string, 'null']}
       additionalProperties: true
     PositionUpdateInput:
+      description: Only the fields that change are checked. The form sends the stored position back, also an empty `end_term` that an older position stored; a changed `end_term` needs a text.
       type: object
       properties:
         name: {type: string, minLength: 1, maxLength: 255}
@@ -3920,7 +3928,7 @@ components:
         starts: {$ref: '#/components/schemas/DateInput'}
         ends: {$ref: '#/components/schemas/DateInput'}
         start_term: {type: string}
-        end_term: {type: string, minLength: 1, maxLength: 255}
+        end_term: {type: string, maxLength: 255}
         body_id: {type: [integer, 'null']}
         requirements: {type: [string, 'null']}
       additionalProperties: true
