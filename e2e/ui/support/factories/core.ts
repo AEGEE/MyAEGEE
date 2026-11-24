@@ -241,7 +241,7 @@ export const payment = (overrides: Partial<Payment> = {}): Payment => ({
     starts: date(-30),
     expires: date(335),
     amount: 12.5,
-    currency: 'EUR',
+    currency: 'EU',
     comment: null,
     invoice_name: null,
     invoice_address: null,
