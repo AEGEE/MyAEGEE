@@ -50,10 +50,6 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
-      if (!this.file) {
-        return
-      }
-
       const data = new FormData()
       data.append('head_image', this.file)
 

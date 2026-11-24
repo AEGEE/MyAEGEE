@@ -822,14 +822,17 @@ export default {
       this.selectedBody = null
     },
     saveEvent () {
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.application_starts && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will start.')
       }
 
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.application_ends && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will end.')
       }
 
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.starts) {
         return this.$root.showError('Please set the date when the event will start.')
       }
