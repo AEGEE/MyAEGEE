@@ -207,6 +207,8 @@ router.afterEach((to) => {
 axios.interceptors.request.use(config => {
   const token = window.localStorage.getItem('access-token')
   config.headers['X-Auth-Token'] = token
+  // The page the request belongs to, for when its session turns out to be over.
+  config.sentFrom = router.currentRoute.name
   return config
 })
 
@@ -214,15 +216,20 @@ let renewalPromise = null
 
 // The session is over: there is no refresh token, or core refused to renew it. The member is
 // forgotten, so the login page doesn't send them straight back as someone still logged in.
-// Returns whether the app leaves the page for the login page: not for the guard's own request
-// (`X-For-Auth`), which decides itself where to go, and not on the login page, where there is
-// nowhere else to go.
+// Returns whether the page the request was sent from is left for the login page: not for the
+// guard's own request (`X-For-Auth`), which decides itself where to go, and not for a request
+// of the login page, where there is nowhere else to go. The app goes to the login page once,
+// however many requests of the page are refused, also when one arrives after the login page is
+// shown.
+let leaving = null
 const endSession = (request) => {
   store.dispatch('logout')
-  if (request.headers['X-For-Auth'] || app.$route.name === 'oms.login') {
+  if (request.headers['X-For-Auth'] || request.sentFrom === 'oms.login') {
     return false
   }
-  router.push(loginFor(app.$route))
+  if (!leaving && app.$route.name !== 'oms.login') {
+    leaving = router.push(loginFor(app.$route)).catch(() => {}).finally(() => { leaving = null })
+  }
   return true
 }
 
