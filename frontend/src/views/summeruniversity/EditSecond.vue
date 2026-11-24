@@ -1,13 +1,13 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-child">
-      <div class="subtitle">Update event logo</div>
+      <h2 class="subtitle">Update event logo</h2>
 
       <div class="field is-grouped">
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -43,13 +43,13 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Event details</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Event details</h2>
         <hr />
 
         <div class="field" v-if="can.editEventType">
-          <label class="label">Event type <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-type">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.type">
+            <select id="su-type" v-model="event.type">
               <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
             </select>
           </div>
@@ -57,9 +57,9 @@
         </div>
 
         <div class="field" v-if="managedTypes.includes(event.type)">
-          <label class="label">Season <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-season">Season <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.season">
+            <select id="su-season" v-model="event.season">
               <option v-for="season in seasons" :key="season.year" :value="season.year">{{ season.name }}</option>
             </select>
           </div>
@@ -75,17 +75,17 @@
         </div>
 
         <div class="field">
-          <label class="label">List of activities <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-activities-list">List of activities <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list" />
+            <textarea id="su-activities-list" class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list" />
           </div>
           <p class="help is-danger" v-if="errors.activities_list">{{ errors.activities_list.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Course level <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-course-level">Course level <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.course_level" required>
+            <select id="su-course-level" v-model="event.course_level" required>
               <option v-for="(name, course_level) in courseLevels" v-bind:key="course_level" v-bind:value="course_level">{{ name }}</option>
             </select>
           </div>
@@ -93,28 +93,28 @@
         </div>
 
         <div class="field">
-          <label class="label">Courses</label>
+          <label class="label" for="su-courses">Courses</label>
           <div class="control">
-            <textarea class="textarea" placeholder="List your courses here." v-model="event.courses" />
+            <textarea id="su-courses" class="textarea" placeholder="List your courses here." v-model="event.courses" />
           </div>
           <p class="help is-danger" v-if="errors.courses">{{ errors.courses.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Trainers <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-trainers">Trainers <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." required v-model="event.trainers" />
+            <textarea id="su-trainers" class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." required v-model="event.trainers" />
           </div>
           <p class="help is-danger" v-if="errors.trainers">{{ errors.trainers.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Contact information & promotion</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Contact information & promotion</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Website <URLTooltip /></label>
+          <label class="label" for="su-website">Website <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.website" />
+            <input id="su-website" class="input" type="url" v-model="event.website" />
           </div>
           <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ') }}</p>
         </div>
@@ -125,24 +125,24 @@
             <tbody>
               <tr v-for="(social_medium, index) in event.social_media" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="social_medium.description" />
+                  <input class="input" type="url" required v-model="social_medium.description" :aria-label="'Social media link ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deleteSocialMedia(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete social media link ' + (index + 1)" @click="deleteSocialMedia(index)">Delete</button>
                 </td>
                 <td v-if="event.social_media.length < 3">
-                  <a class="button is-primary" @click="addSocialMedia()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add social media link" @click="addSocialMedia()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length === 0">
-                <td>No social media links are set.</td>
+              <tr v-if="event.social_media.length === 0">
+                <td colspan="3">No social media links are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length >= 3">
-                <td><strong>At most 3 social media links can be set.</strong></td>
+              <tr v-if="event.social_media.length >= 3">
+                <td colspan="3"><strong>At most 3 social media links can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addSocialMedia()">Add social media link</a>
+              <tr v-if="event.social_media.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addSocialMedia()">Add social media link</button>
                 </td>
               </tr>
             </tbody>
@@ -162,24 +162,24 @@
             <tbody>
               <tr v-for="(photo, index) in event.photos" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="photo.description" />
+                  <input class="input" type="url" required v-model="photo.description" :aria-label="'Photo link ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deletePhotos(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete photo link ' + (index + 1)" @click="deletePhotos(index)">Delete</button>
                 </td>
                 <td v-if="event.photos.length < 6">
-                  <a class="button is-primary" @click="addPhotos()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add link to photo" @click="addPhotos()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length === 0">
-                <td>No links to photos are set.</td>
+              <tr v-if="event.photos.length === 0">
+                <td colspan="3">No links to photos are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length >= 6">
-                <td><strong>At most 6 links to photos can be set.</strong></td>
+              <tr v-if="event.photos.length >= 6">
+                <td colspan="3"><strong>At most 6 links to photos can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addPhotos()">Add link to photo</a>
+              <tr v-if="event.photos.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addPhotos()">Add link to photo</button>
                 </td>
               </tr>
             </tbody>
@@ -188,14 +188,14 @@
         <p class="help is-danger" v-if="errors.photos">{{ errors.photos.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">Video <URLTooltip /></label>
+          <label class="label" for="su-video">Video <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.video" />
+            <input id="su-video" class="input" type="url" v-model="event.video" />
           </div>
           <p class="help is-danger" v-if="errors.video">{{ errors.video.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></h2>
         <hr />
 
         <div class="notification is-info">
@@ -223,14 +223,14 @@
 
             <b-table-column field="role" label="Role" v-slot="props">
               <div class="select">
-                <select v-model="props.row.role">
+                <select v-model="props.row.role" :aria-label="'Role of ' + organizerName(props.row)">
                   <option v-for="(name, role) in roles" v-bind:key="role" v-bind:value="role">{{ name }}</option>
                 </select>
               </div>
             </b-table-column>
 
             <b-table-column label="Delete" v-slot="props">
-              <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
+              <button class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete ' + organizerName(props.row)" @click="deleteOrganizer(props.index)">
                 Delete
               </button>
             </b-table-column>
@@ -246,10 +246,11 @@
           <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
 
           <div class="field">
-            <label class="label">Add organiser</label>
+            <label class="label" for="su-add-organizer">Add organiser</label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
+                  id="su-add-organizer"
                   v-model="autoComplete.members.name"
                   :data="autoComplete.members.values"
                   open-on-focus="true"
@@ -271,7 +272,7 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Locations <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Locations <span class="has-text-danger">*</span></h2>
         <hr />
 
         <div class="notification is-info">
@@ -282,7 +283,7 @@
           </div>
         </div>
 
-        <div class="tile" style="position: relative; height: 400px">
+        <div class="tile" role="region" aria-label="Map" style="position: relative; height: 400px">
           <MglMap
             :accessToken="accessToken"
             :mapStyle="map.style"
@@ -318,40 +319,40 @@
               <td>{{ marker.position.lat }}</td>
               <td>{{ marker.position.lng }}</td>
               <td>
-                <input type="text" class="input" required v-model="marker.name" />
+                <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
               </td>
               <td>
-                <textarea class="textarea" v-model="marker.description" />
+                <textarea class="textarea" v-model="marker.description" :aria-label="'Location ' + (index + 1) + ' description'" />
               </td>
               <td>
-                <input type="radio" name="start_loc" v-model="marker.start" :value="true" />
+                <input type="radio" name="start_loc" v-model="marker.start" :value="true" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
               </td>
               <td>
-                <input type="radio" name="end_loc" v-model="marker.end" :value="true" />
+                <input type="radio" name="end_loc" v-model="marker.end" :value="true" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
               </td>
               <td>
-                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
+                <button class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
               </td>
             </tr>
-            <tr colspan="5" v-if="event.locations.length === 0">
-              <td>No locations added.</td>
+            <tr v-if="event.locations.length === 0">
+              <td colspan="5">No locations added.</td>
             </tr>
           </tbody>
         </table>
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addLocation()">Add new location</a>
+            <button type="button" class="button is-primary" @click="addLocation()">Add new location</button>
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Participant info</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Participant info</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Confirmation needed <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-pax-confirmation">Confirmation needed <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.pax_confirmation">
+            <select id="su-pax-confirmation" v-model="event.pax_confirmation">
               <option v-for="(name, pax_confirmation) in paxConfirmations" v-bind:key="pax_confirmation" v-bind:value="pax_confirmation">{{ name }}</option>
             </select>
           </div>
@@ -359,22 +360,22 @@
         </div>
 
         <div class="field">
-          <label class="label">Ideal participant <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-pax-description">Ideal participant <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain what should participants of your SU look like." required v-model="event.pax_description" />
+            <textarea id="su-pax-description" class="textarea" placeholder="Explain what should participants of your SU look like." required v-model="event.pax_description" />
           </div>
           <p class="help is-danger" v-if="errors.pax_description">{{ errors.pax_description.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Special equipment needed</label>
+          <label class="label" for="su-special-equipment">Special equipment needed</label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment" />
+            <textarea id="su-special-equipment" class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment" />
           </div>
           <p class="help is-danger" v-if="errors.special_equipment">{{ errors.special_equipment.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Questions</h2>
         <hr />
 
         <div class="notification is-info">
@@ -387,24 +388,24 @@
             <tbody>
               <tr v-for="(question, index) in event.questions" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="question.description" />
+                  <input class="input" type="text" required v-model="question.description" :aria-label="'Question ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deleteQuestion(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete question ' + (index + 1)" @click="deleteQuestion(index)">Delete</button>
                 </td>
                 <td v-if="event.questions.length < 3">
-                  <a class="button is-primary" @click="addQuestion()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add question" @click="addQuestion()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length === 0">
-                <td>No questions are set.</td>
+              <tr v-if="event.questions.length === 0">
+                <td colspan="3">No questions are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length >= 3">
-                <td><strong>At most 3 questions can be set.</strong></td>
+              <tr v-if="event.questions.length >= 3">
+                <td colspan="3"><strong>At most 3 questions can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addQuestion()">Add question</a>
+              <tr v-if="event.questions.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addQuestion()">Add question</button>
                 </td>
               </tr>
             </tbody>
@@ -412,7 +413,7 @@
         </div>
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
-        <div class="subtitle is-fullwidth has-text-centered">SUCT approval fields</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">SUCT approval fields</h2>
         <hr />
 
         <div class="notification is-info">
@@ -433,18 +434,18 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary budget <span class="has-text-danger">*</span> <URLTooltip /></label>
+          <label class="label" for="su-budget">Link to preliminary budget <span class="has-text-danger">*</span> <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.budget" required />
+            <input id="su-budget" class="input" type="url" v-model="event.budget" required />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip /></label>
+          <label class="label" for="su-programme-suct">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.programme_suct" required />
+            <input id="su-programme-suct" class="input" type="url" v-model="event.programme_suct" required />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.programme_suct">{{ errors.programme_suct.join(', ') }}</p>
@@ -592,6 +593,10 @@ export default {
         first_name: organizer.first_name,
         last_name: organizer.last_name
       })
+    },
+    // The name of an organiser for the labels of their row, once core has given it.
+    organizerName (organizer) {
+      return [organizer.first_name, organizer.last_name].filter(Boolean).join(' ')
     },
     deleteOrganizer (index) {
       this.event.organizers.splice(index, 1)
