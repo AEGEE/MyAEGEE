@@ -341,7 +341,7 @@ export default {
       this.axios.put(url, { status: questionLine.newStatus }).then(() => {
         questionLine.status = questionLine.newStatus
         questionLine.isSaving = false
-        this.$root.showSuccess(`Successfully updated status of application for question line "${questionLine.name}" to ${questionLine.status}.`)
+        this.$root.showSuccess(`Successfully updated the status of question line "${questionLine.name}" to ${questionLine.status}.`)
       }).catch((err) => {
         questionLine.isSaving = false
         this.$root.showError('Could not update question line status', err)
