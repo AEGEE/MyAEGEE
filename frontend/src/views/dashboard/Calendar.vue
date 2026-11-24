@@ -149,7 +149,10 @@ export default {
         return []
       })
 
-      const onlinePromise = fetch(onlineEventsUrl).then(res => res.text()).then((result) => {
+      const onlinePromise = fetch(onlineEventsUrl).then((res) => {
+        if (!res.ok) throw new Error(`the calendar answered ${res.status} ${res.statusText}`.trim())
+        return res.text()
+      }).then((result) => {
         /* Loading the online events Google calendar */
         // The calendar also holds its time zones; only its events are shown.
         const onlineEventsData = Object.values(ical.parseICS(result)).filter((item) => item.type === 'VEVENT')
