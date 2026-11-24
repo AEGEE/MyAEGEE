@@ -30,7 +30,6 @@
           </b-table-column>
 
           <b-table-column label="Additional info" v-slot="props">
-            <span class="tag is-info" v-if="props.row.always_assigned">Always assigned</span>
             <span class="tag is-warning" v-if="props.row.filters.length > 0">Has filters</span>
           </b-table-column>
 

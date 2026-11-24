@@ -16,10 +16,6 @@
                   <td>{{ permission.description }}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Always assigned?</th>
-                  <td>{{ permission.always_assigned ? 'Yes' : 'No' }}</td>
-                </tr>
-                <tr>
                   <th scope="row">Filters</th>
                   <td v-if="permission.filters.length === 0"><i>Not set</i></td>
                   <td v-if="permission.filters.length > 0">
@@ -74,7 +70,6 @@ export default {
       permission: {
         combined: null,
         description: null,
-        always_assigned: null,
         filters: [],
         circles: []
       },

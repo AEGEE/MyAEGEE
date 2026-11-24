@@ -43,13 +43,6 @@
         </div>
 
         <div class="field">
-          <label class="label">Always assigned?
-            <input type="checkbox" v-model="permission.always_assigned" />
-          </label>
-          <p class="help is-danger" v-if="errors.always_assigned">{{ errors.always_assigned.join(', ')}}</p>
-        </div>
-
-        <div class="field">
           <label class="label">Filters</label>
           <div class="control" v-if="permission.filters.length > 0">
             <span v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
@@ -92,7 +85,6 @@ export default {
         action: '',
         scope: '',
         object: null,
-        always_assigned: false,
         filters: []
       },
       errors: {},
