@@ -64,9 +64,10 @@ exports.listEvents = async (req, res) => {
 
     // If search is set, searching for event by name or description case-insensitive.
     if (req.query.search) {
+        const pattern = helpers.toLikePattern(req.query.search);
         query.where[Sequelize.Op.or] = [
-            { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
-            { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
+            { name: { [Sequelize.Op.iLike]: pattern } },
+            { description: { [Sequelize.Op.iLike]: pattern } }
         ];
     }
 

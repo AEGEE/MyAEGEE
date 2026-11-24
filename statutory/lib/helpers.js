@@ -138,6 +138,10 @@ exports.isNumber = (value) => {
     return false;
 };
 
+// A text to search for with LIKE: the text as it is written, matched anywhere. The
+// characters that LIKE reads as wildcards (% and _) and its escape character are escaped.
+exports.toLikePattern = (text) => '%' + String(text).replace(/[\\%_]/g, '\\$&') + '%';
+
 // A helper to whilelist object's properties.
 exports.whitelistObject = (object, allowedFields) => {
     const newObject = {};
