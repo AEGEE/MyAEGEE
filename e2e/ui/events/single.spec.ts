@@ -5,8 +5,9 @@ import { FIXED_NOW, forbidden, iso, notFound, ok } from '../support/factories/ba
 import {
     eqacPermissions, europeanStatusPermissions, event, eventOrganizerPermissions, eventPermissions, organizedEvent, organizerPermissions, type Event, type EventPermissions
 } from '../support/factories/events.ts';
-import { mockMap } from '../support/map.ts';
+import { delayMapLibrary, mockMap } from '../support/map.ts';
 import { freezeTime, openAccountMenu, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 // The value next to a label in the event's facts table.
@@ -299,7 +300,7 @@ test.describe('event page', () => {
         await page.getByRole('button', { name: 'Ask for approval' }).click();
 
         await expect(toast(page, 'Please set the program for the event in the event settings.')).toBeVisible();
-        await expect(toast(page, 'Please set the budget for the event in the event settings.')).toHaveCount(0);
+        expect(await toast(page, 'Please set the budget for the event in the event settings.').count()).toBe(0);
         await expect(page.getByRole('alertdialog')).toHaveCount(0);
     });
 
@@ -458,6 +459,22 @@ test.describe('event page', () => {
 
         await expect(page.getByRole('region', { name: 'Map' })).toBeVisible();
         await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
+    });
+
+    test('leaving the page before the map library has loaded breaks nothing', async ({ page, api }) => {
+        mockMap(api);
+        const arrived = delayMapLibrary(page, api);
+        showEvent(api, event({ url: 'map-3', name: 'Map Event', locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }] }));
+        api.fallback(mockEverything);
+        await page.goto('/events/map-3');
+        await expect(page.getByRole('heading', { name: 'Map Event', level: 1 })).toBeVisible();
+
+        await fact(page, 'Organising bodies').getByRole('link', { name: 'AEGEE-Antenna' }).click();
+        await expect(page).toHaveURL('/bodies/1');
+
+        // The library arrives after the map is gone (an uncaught error would fail the test).
+        await arrived;
+        await expect(page).toHaveURL('/bodies/1');
     });
 
     test('an event without locations has no map', async ({ page, api }) => {

@@ -4,7 +4,7 @@ import type { ApiMock } from '../support/api-mock.ts';
 import { badRequest, forbidden, iso, notFound, ok, validationError } from '../support/factories/base.ts';
 import { body } from '../support/factories/core.ts';
 import { application, event, eventPermissions, question, type Application, type Event } from '../support/factories/events.ts';
-import { cellOf, toast } from '../support/shell.ts';
+import { cellOf, openAccountMenu, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const QUESTIONS = [
@@ -356,6 +356,32 @@ test.describe('applying to an event', () => {
 
             await expect(toast(page, 'Please select a body.')).toBeVisible();
             expect(api.callsTo('POST events /single/:id/applications')).toHaveLength(0);
+        });
+    });
+    test('after applying to an event without a URL, its page opens by its id', async ({ page, api }) => {
+        api.on('GET events /single/:id', { json: ok(event({ id: 5, url: '', name: 'No Url', questions: [] }), { permissions: eventPermissions() }) });
+        api.on('GET events /single/:id/applications/:application_id', { status: 404, json: notFound('Application with id me not found') });
+        api.on('POST events /single/:id/applications', ({ body: sent }) => ({ json: ok(application({ ...(sent as object), id: 77 })) }));
+        await page.goto('/events/5/applications/me');
+
+        await page.getByRole('checkbox', { name: PRIVACY }).check();
+        await page.getByRole('button', { name: 'Save application!' }).click();
+
+        await expect(page).toHaveURL('/events/5');
+        await expect(page.getByRole('heading', { name: 'No Url', level: 1 })).toBeVisible();
+        expect(api.callsTo('POST events /single/:id/applications').map((call) => call.params.id)).toEqual(['5']);
+    });
+
+    test.describe('logging out', () => {
+        test('logging out on the application form goes to the login page without errors', async ({ page, api, layout }) => {
+            mockEvent(api, event({ url: 'spring', questions: QUESTIONS }));
+            await page.goto('/events/spring/applications/me');
+            await expect(page.getByRole('button', { name: 'Save application!' })).toBeVisible();
+
+            await (await openAccountMenu(page, layout)).getByRole('button', { name: 'Logout' }).click();
+
+            await expect(page).toHaveURL(/\/login/);
+            expect(api.callsTo('POST core /logout')).toHaveLength(1);
         });
     });
 });

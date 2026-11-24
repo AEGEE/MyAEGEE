@@ -188,6 +188,16 @@ test.describe('participants of an event', () => {
         await expect(toast(page, 'Could not export participants: You are not allowed to see statistics.')).toBeVisible();
     });
 
+    test('a failed export whose answer is not JSON still says it failed', async ({ page, api }) => {
+        showParticipants(api);
+        api.on('GET events /single/:id/applications/export', { status: 502, body: Buffer.from('<html>Bad Gateway</html>'), contentType: 'text/html' });
+        await page.goto('/events/spring/participants');
+
+        await page.getByRole('button', { name: 'Export' }).click();
+
+        await expect(toast(page, 'Could not export participants: Request failed with status code 502')).toBeVisible();
+    });
+
     test('an event without applications says there is nothing', async ({ page, api }) => {
         showParticipants(api, []);
         await page.goto('/events/spring/participants');
