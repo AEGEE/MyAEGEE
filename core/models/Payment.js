@@ -11,7 +11,7 @@ const Payment = sequelize.define('payment', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Starts date should be set.' },
-            isDate: { msg: 'Starts date should be valid.' }
+            isDate: validators.isDate('Starts date should be valid.')
         }
     },
     expires: {
@@ -21,7 +21,7 @@ const Payment = sequelize.define('payment', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Expiration date should be set.' },
-            isDate: { msg: 'Expiration date should be valid.' },
+            isDate: validators.isDate('Expiration date should be valid.'),
             laterThanStarts(val) {
                 if (moment(val).isSameOrBefore(this.starts)) {
                     throw new Error('Expiration date should be after the start date.');
