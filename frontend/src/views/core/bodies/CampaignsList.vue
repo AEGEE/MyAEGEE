@@ -9,25 +9,27 @@
           </div>
         </div>
 
-        <b-table :data="campaigns">
-          <b-table-column field="name" label="Campaign name" v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.campaigns.view', params: { body_id: $route.params.id, id: props.row.id } }">
-              {{ props.row.name }}
-            </router-link>
-          </b-table-column>
+        <div role="region" aria-label="Campaigns of the body" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table :data="campaigns" :loading="isLoading">
+            <b-table-column field="name" label="Campaign name" v-slot="props">
+              <router-link :to="{ name: 'oms.bodies.campaigns.view', params: { body_id: $route.params.id, id: props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
 
-          <b-table-column field="description_long" label="Description" v-slot="props">
-            <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
-          </b-table-column>
+            <b-table-column field="description_long" label="Description" v-slot="props">
+              <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
+            </b-table-column>
 
-          <b-table-column label="Link" v-slot="props">
-            {{ '/signup/' + props.row.url }}
-          </b-table-column>
+            <b-table-column label="Link" v-slot="props">
+              {{ '/signup/' + props.row.url }}
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </div>
 
         <div class="field">
           <button
