@@ -2,7 +2,7 @@
   <div class="tile is-ancestor legal">
     <div class="tile is-parent is-vertical">
       <div class="tile is-child">
-        <div class="title">MyAEGEE - Online Membership System</div>
+        <h1 class="title">MyAEGEE - Online Membership System</h1>
 
         <hr />
 
