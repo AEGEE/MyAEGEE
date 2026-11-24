@@ -58,7 +58,7 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
     }
 
     // Fetching pax limits for this body for this event.
-    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type);
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type, transaction);
 
     // Second, get from database how many people we have for this event
     // from this body with this pax type.

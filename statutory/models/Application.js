@@ -58,11 +58,8 @@ const Application = sequelize.define('application', {
                     throw new Error('Answers should be an array of strings.');
                 }
 
-                const event = await Event.findOne({ where: { id: this.event_id } });
-                /* istanbul ignore next */
-                if (!event) {
-                    throw new Error('Could not find event.');
-                }
+                // Loaded by the beforeValidate hook, within the transaction of the save.
+                const event = this.eventForValidation;
 
                 if (event.questions.length !== value.length) {
                     throw new Error(`Expected ${event.questions.length} answers, but got ${value.length}.`);
@@ -472,9 +469,15 @@ Application.findWithParams = ({ where, attributes, query }) => {
     return Application.findAndCountAll(findAllObject);
 };
 
-Application.beforeValidate(async (application) => {
+// The event of the application, for the validators and the hooks below. Every query of the
+// validation runs in the transaction of the save (if any): a query outside of it would
+// wait for a second connection while the transaction holds one.
+Application.beforeValidate(async (application, options) => {
+    const event = await Event.findByPk(application.event_id, { transaction: options.transaction });
+    // Not an attribute: kept on the instance for the answers validator, which gets no options.
+    application.eventForValidation = event;
+
     // Skipping if not event not fully vegetarian
-    const event = await Event.findByPk(application.event_id);
     if (event.vegetarian !== true) {
         return;
     }
@@ -490,22 +493,28 @@ Application.beforeValidate(async (application) => {
 // Updating the users' inclusion in memberslist for this body.
 Application.afterValidate(async (application, options) => {
     // Skipping if not Agora.
-    const event = await Event.findByPk(application.event_id);
+    const event = application.eventForValidation;
     if (event.type !== 'agora') {
         return;
     }
 
-    const currentMemberslistForBody = await MembersList.findOne({ where: {
-        body_id: application.body_id,
-        event_id: application.event_id
-    } });
+    const currentMemberslistForBody = await MembersList.findOne({
+        where: {
+            body_id: application.body_id,
+            event_id: application.event_id
+        },
+        transaction: options.transaction
+    });
     options.fields.push('is_on_memberslist');
     application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(currentMemberslistForBody, application));
 
-    const previousMemberslistForBody = await MembersList.findOne({ where: {
-        body_id: application.body_id,
-        event_id: event.previous_agora_id
-    } });
+    const previousMemberslistForBody = await MembersList.findOne({
+        where: {
+            body_id: application.body_id,
+            event_id: event.previous_agora_id
+        },
+        transaction: options.transaction
+    });
     options.fields.push('is_on_previous_memberslist');
     application.setDataValue('is_on_previous_memberslist', helpers.memberslistHasMember(previousMemberslistForBody, application));
 });
