@@ -3,7 +3,7 @@
     <div class="columns is-vcentered">
       <div class="column is-6 is-offset-3">
         <div class="box">
-          <div class="notification is-info" v-if="notice">{{ notice }}</div>
+          <div class="notification is-info is-light" role="status" v-if="notice">{{ notice }}</div>
           <form v-on:submit.prevent="confirmToken">
             <div class="field">
               <label class="label" for="mail-change-token">Token</label>

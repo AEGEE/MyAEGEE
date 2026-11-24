@@ -51,7 +51,7 @@
           </form>
         </div>
 
-        <div class="notification is-info">
+        <div class="notification is-info is-light">
           Please make up your mind for a second why a
           <a
             href="https://howsecureismypassword.net/"
