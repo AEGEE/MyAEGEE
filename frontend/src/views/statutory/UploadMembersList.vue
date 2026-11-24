@@ -45,11 +45,11 @@
               </div>
             </div> -->
 
-            <div class="control">
+            <div class="control" v-if="memberslist">
               <button type="button" class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
               <button type="button" class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
             </div>
-            <div class="control">
+            <div class="control" v-if="memberslist">
               <button
                 type="button"
                 class="button is-warning"
