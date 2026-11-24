@@ -34,6 +34,12 @@ const request = async (options) => {
         fetchOptions.body = JSON.stringify(options.body);
     }
 
+    // A body sent as it is (a string or a Buffer), for bodies that are not valid JSON.
+    if (options.rawBody !== undefined) {
+        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        fetchOptions.body = options.rawBody;
+    }
+
     if (options.files) {
         const entries = Object.entries(options.files);
         const formData = new FormData();
