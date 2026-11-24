@@ -1,4 +1,25 @@
 {
   "gate": "pending",
-  "templateExceptions": []
+  "templateExceptions": [
+    {
+      "file": "views/statutory/QuestionLinesList.vue",
+      "condition": "_vm.$route.params.id === 'spring-agora-novi-sad-2022'",
+      "reason": "only reachable for the Agorae of 2022 to 2024, whose question lines are closed: the rules are kept for their history"
+    },
+    {
+      "file": "views/statutory/QuestionLinesList.vue",
+      "condition": "_vm.$route.params.id === 'spring-agora-enschede-2023'",
+      "reason": "only reachable for the Agorae of 2022 to 2024, whose question lines are closed: the rules are kept for their history"
+    },
+    {
+      "file": "views/statutory/QuestionLinesList.vue",
+      "condition": "_vm.$route.params.id === 'spring-agora-novi-sad-2024'",
+      "reason": "only reachable for the Agorae of 2022 to 2024, whose question lines are closed: the rules are kept for their history"
+    },
+    {
+      "file": "views/statutory/EditQuestionModal.vue",
+      "condition": "_vm.event.url === 'spring-agora-novi-sad-2022'",
+      "reason": "only reachable for the Agorae of 2022 to 2024, whose question lines are closed: the rules are kept for their history"
+    }
+  ]
 }
