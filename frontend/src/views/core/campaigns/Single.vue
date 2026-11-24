@@ -3,26 +3,26 @@
     <div class="tile is-vertical">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ campaign.name }}</p>
+          <h1 class="title">{{ campaign.name }}</h1>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Name</th>
+                  <th scope="row">Name</th>
                   <td>{{ campaign.name}}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>
                     <span v-html="$options.filters.markdown(campaign.description_long)" />
                   </td>
                 </tr>
                 <tr>
-                  <th>URL</th>
+                  <th scope="row">URL</th>
                   <td>/signup/{{ campaign.url }}</td>
                 </tr>
                 <tr>
-                  <th>Body</th>
+                  <th scope="row">Body</th>
                   <td v-if="campaign.autojoin_body">
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: campaign.autojoin_body.id } }">
                       {{ campaign.autojoin_body.name }}
@@ -31,7 +31,7 @@
                   <td v-if="!campaign.autojoin_body">This campaign will not create a join request to a body after signup </td>
                 </tr>
                 <tr>
-                  <th>Status</th>
+                  <th scope="row">Status</th>
                   <td v-if="campaign.active">Active</td>
                   <td v-if="!campaign.active">Inactive</td>
                 </tr>
