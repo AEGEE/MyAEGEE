@@ -55,7 +55,7 @@
               type="button"
               @click="askToJoinBody()"
               v-if="!isRequestingMembership"
-              :class="['button', 'is-fullwidth', 'is-info']"
+              :class="['button', 'is-fullwidth', 'is-primary']"
             >
               <span class="field-icon icon"
               ><font-awesome-icon :icon="['fas', 'user-plus']"
