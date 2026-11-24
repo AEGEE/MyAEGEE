@@ -322,7 +322,7 @@ describe('Campaign submission', () => {
         expect(requestsMock.mailer.isDone()).toEqual(true);
     });
 
-    test('should fail when mailer fails', async () => {
+    test('should answer 503 and create nobody when the mail cannot be sent', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const campaign = await generator.createCampaign({});
@@ -335,7 +335,8 @@ describe('Campaign submission', () => {
             body: user
         });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(503);
+        expect(res.body.message).toEqual('The mail could not be sent, so nothing was saved. Please try again later.');
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');

@@ -15,7 +15,7 @@ const {
     PasswordReset
 } = require('../../models');
 
-const SERVER_ERROR = { success: false, message: 'Something went wrong on the server.' };
+const MAIL_ERROR = { success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' };
 
 // What each route that sends a mail does when the mailer fails. A mailer that takes longer
 // than the timeout fails like any other mailer error, so the routes are tested with a mailer
@@ -39,12 +39,13 @@ describe('A mailer that fails', () => {
         await generator.clearAll();
     });
 
-    const expectServerError = (res) => {
-        expect(res.statusCode).toEqual(500);
-        expect(res.body).toEqual(SERVER_ERROR);
+    // The routes that roll back when their mail fails say so, and that trying again may work.
+    const expectMailError = (res) => {
+        expect(res.statusCode).toEqual(503);
+        expect(res.body).toEqual(MAIL_ERROR);
     };
 
-    test('signing up answers 500 and creates no member', async () => {
+    test('signing up answers 503 and creates no member', async () => {
         const campaign = await generator.createCampaign({ active: true });
 
         const res = await request({
@@ -53,11 +54,11 @@ describe('A mailer that fails', () => {
             body: generator.generateUser()
         });
 
-        expectServerError(res);
+        expectMailError(res);
         expect(await User.count()).toEqual(0);
     });
 
-    test('requesting an email change answers 500 and keeps no request', async () => {
+    test('requesting an email change answers 503 and keeps no request', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
@@ -68,11 +69,11 @@ describe('A mailer that fails', () => {
             body: { new_email: 'new@example.com' }
         });
 
-        expectServerError(res);
+        expectMailError(res);
         expect(await MailChange.count()).toEqual(0);
     });
 
-    test('confirming an email change answers 500 and changes nothing', async () => {
+    test('confirming an email change answers 503 and changes nothing', async () => {
         const user = await generator.createUser({ email: 'current@example.com' });
         const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
 
@@ -82,7 +83,7 @@ describe('A mailer that fails', () => {
             body: { token: mailChange.value }
         });
 
-        expectServerError(res);
+        expectMailError(res);
         expect((await User.findByPk(user.id)).email).toEqual('current@example.com');
         expect(await MailChange.count()).toEqual(1);
     });
@@ -102,7 +103,7 @@ describe('A mailer that fails', () => {
         expect(await PasswordReset.count()).toEqual(0);
     });
 
-    test('adding a member to their first body answers 500 and adds nobody', async () => {
+    test('adding a member to their first body answers 503 and adds nobody', async () => {
         const admin = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(admin);
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'body' });
@@ -116,7 +117,7 @@ describe('A mailer that fails', () => {
             body: { user_id: member.id }
         });
 
-        expectServerError(res);
+        expectMailError(res);
         expect(await BodyMembership.count()).toEqual(0);
     });
 
@@ -150,7 +151,7 @@ describe('A mailer that fails', () => {
         }
     });
 
-    test('approving a join request answers 500 and leaves it pending', async () => {
+    test('approving a join request answers 503 and leaves it pending', async () => {
         const admin = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(admin);
         await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
@@ -165,7 +166,7 @@ describe('A mailer that fails', () => {
             body: { status: 'approved' }
         });
 
-        expectServerError(res);
+        expectMailError(res);
         expect((await JoinRequest.findByPk(joinRequest.id)).status).toEqual('pending');
         expect(await BodyMembership.count()).toEqual(0);
     });
@@ -252,7 +253,7 @@ describe('A mailer that fails', () => {
             await silentMailer.close();
         });
 
-        test('signing up answers 500 and creates no member', async () => {
+        test('signing up answers 503 and creates no member', async () => {
             const campaign = await generator.createCampaign({ active: true });
 
             const res = await request({
@@ -261,7 +262,7 @@ describe('A mailer that fails', () => {
                 body: generator.generateUser()
             });
 
-            expectServerError(res);
+            expectMailError(res);
             expect(silentMailer.requests).toEqual(1);
             expect(await User.count()).toEqual(0);
         });

@@ -55,6 +55,19 @@ describe('Mailer', () => {
         }
     });
 
+    // The error handler answers a mail error with 503, as the route rolled back.
+    test('should fail with a mail error', async () => {
+        for (const mailerMock of [{ netError: true }, { badResponse: true }, { unsuccessfulResponse: true }]) {
+            mock.mockAll({ mailer: mailerMock });
+            await expect(mailer.sendMail({
+                to: 'test@test.io',
+                subject: 'test',
+                template: 'custom.html',
+                parameters: {}
+            })).rejects.toMatchObject({ name: 'MailError' });
+        }
+    });
+
     test('should not fail if there are no errors', async () => {
         await mailer.sendMail({
             to: 'test@test.io',

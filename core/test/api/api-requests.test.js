@@ -75,8 +75,8 @@ describe('API requests', () => {
                 body: generator.generateUser()
             });
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body).toEqual(SERVER_ERROR);
+            expect(res.statusCode).toEqual(503);
+            expect(res.body).toEqual({ success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' });
         });
 
         test('should not pass on what the mailing list server answered', async () => {
