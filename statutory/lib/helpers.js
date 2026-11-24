@@ -216,11 +216,7 @@ exports.filterObject = (object, targetObject) => {
     return true;
 };
 
-exports.shouldHideApplicationStatus = (event, permissions = {}) => {
-    if (!event) {
-        return false;
-    }
-
+exports.shouldHideApplicationStatus = (event, permissions) => {
     if (permissions.change_status) {
         return false;
     }
