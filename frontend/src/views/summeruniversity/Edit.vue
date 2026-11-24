@@ -590,10 +590,10 @@
                 <textarea class="textarea" v-model="marker.description" :aria-label="'Location ' + (index + 1) + ' description'" />
               </td>
               <td>
-                <input type="radio" name="start_loc" v-model="marker.start" :value="true" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
+                <input type="radio" name="start_loc" v-model="marker.start" :value="true" @change="chooseCity(index, 'start')" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
               </td>
               <td>
-                <input type="radio" name="end_loc" v-model="marker.end" :value="true" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
+                <input type="radio" name="end_loc" v-model="marker.end" :value="true" @change="chooseCity(index, 'end')" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
               </td>
               <td>
                 <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
@@ -977,6 +977,15 @@ export default {
     },
     deleteLocation (index) {
       this.event.locations.splice(index, 1)
+    },
+    // An SU starts in one location and ends in one: choosing another one unsets the one
+    // chosen before. Each row has its own value, so the radios alone would keep both.
+    chooseCity (index, key) {
+      this.event.locations.forEach((location, other) => {
+        if (other !== index && location[key] !== undefined) {
+          location[key] = false
+        }
+      })
     },
     setMarkerPosition (event, index) {
       const newCoords = event.marker.getLngLat()
