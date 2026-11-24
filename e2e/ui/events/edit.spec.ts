@@ -159,6 +159,8 @@ test.describe('event editor', () => {
             api.on('POST events /', { status: 201, json: created({ method: 'online', has_applications: false }) });
             eventPage(api, organizedEvent({ id: 30, url: 'spring-training', method: 'online', has_applications: false, status: 'draft' }));
             await page.goto('/events/new');
+            // The map of the in-person form has to have started before it is taken away again.
+            await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
 
             await page.getByRole('combobox', { name: /^How will the event take place/ }).selectOption({ label: 'Online' });
             await page.getByRole('combobox', { name: /^Do you want people to apply/ }).selectOption({ label: 'No' });
