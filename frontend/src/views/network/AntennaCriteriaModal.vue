@@ -206,7 +206,7 @@ export default {
           this.can[permission]
           && (
             (this.antennaCriteria[criterion] !== null && this.antennaCriteria[criterion] !== this.local.antennaCriteria[criterion])
-            || (this.comments[criterion] !== '' && this.comments[criterion] !== this.local.comments[criterion])
+            || this.comments[criterion] !== (this.local.comments[criterion] ?? '')
           )
         ) {
           changed.push(criterion)
