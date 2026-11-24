@@ -228,7 +228,7 @@ test.describe('participants of a Summer University', () => {
         }), { permissions: suOrganizerPermissions() }));
 
         await page.goto('/summeruniversity/mountains/participants');
-        await tableRows(page.getByRole('table')).filter({ hasText: 'Alex Member' }).getByRole('button', { name: 'View' }).click();
+        await page.getByRole('button', { name: 'View the application of Alex Member' }).click();
 
         const modal = dialog(page, 'View participant');
         await expect(detail(modal, 'First Name')).toHaveText('Alex');
@@ -254,7 +254,7 @@ test.describe('participants of a Summer University', () => {
         }), { permissions: suOrganizerPermissions() }));
 
         await page.goto('/summeruniversity/mountains/participants');
-        await page.getByRole('button', { name: 'View' }).click();
+        await page.getByRole('button', { name: 'View the application of Alex Member' }).click();
 
         const modal = dialog(page, 'View participant');
         await expect(detail(modal, 'Gender')).toHaveText('neutral');
@@ -272,7 +272,7 @@ test.describe('participants of a Summer University', () => {
             ));
 
             await page.goto('/summeruniversity/mountains/participants');
-            await page.getByRole('button', { name: 'View' }).click();
+            await page.getByRole('button', { name: 'View the application of Alex Member' }).click();
 
             const modal = dialog(page, 'View participant');
             await expect(detail(modal, 'Visa required?')).toHaveText('Yes');
@@ -290,7 +290,7 @@ test.describe('participants of a Summer University', () => {
         api.json('GET summeruniversity /single/:id/applications/:application_id', ok(suApplication({ id: 31, board_comment: null }), { permissions: suOrganizerPermissions() }));
 
         await page.goto('/summeruniversity/mountains/participants');
-        await page.getByRole('button', { name: 'View' }).click();
+        await page.getByRole('button', { name: 'View the application of Alex Member' }).click();
         const modal = dialog(page, 'View participant');
         await expect(modal).toBeVisible();
         await modal.getByRole('button', { name: 'close' }).click();
@@ -303,7 +303,7 @@ test.describe('participants of a Summer University', () => {
         api.on('GET summeruniversity /single/:id/applications/:application_id', { status: 403, json: forbidden('You are not allowed to see this application.') });
 
         await page.goto('/summeruniversity/mountains/participants');
-        await page.getByRole('button', { name: 'View' }).click();
+        await page.getByRole('button', { name: 'View the application of Alex Member' }).click();
 
         await expect(toast(page, 'Could not fetch the application: You are not allowed to see this application.')).toBeVisible();
         await expect(dialog(page, 'View participant')).toHaveCount(0);
