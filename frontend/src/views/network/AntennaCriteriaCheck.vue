@@ -559,15 +559,23 @@ export default {
       }
     },
     async fetchNetcom (context) {
+      const notSet = { 'user_id': 0, 'first_name': 'Not set', 'email': '' }
       try {
         const netcomBodyResponse = await this.axios.get(this.services['core'] + '/bodies?query=network%20commission')
-        const netcomMembersResponse = await this.axios.get(this.services['core'] + '/bodies/' + netcomBodyResponse.data.data[0].id + '/members')
+        const [netcomBody] = netcomBodyResponse.data.data
+        // Without a Network Commission body nobody can be assigned.
+        if (!netcomBody) {
+          context.netcommies = [notSet]
+          return
+        }
+
+        const netcomMembersResponse = await this.axios.get(this.services['core'] + '/bodies/' + netcomBody.id + '/members')
         context.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
           user_id: netcommie.user_id,
           first_name: netcommie.user.first_name,
           email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
         }))
-        context.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
+        context.netcommies.push(notSet)
       } catch (err) {
         context.showError('Could not fetch NetCom data', err)
       }
