@@ -263,6 +263,27 @@ test.describe('applying for a position', () => {
         await expect(page.getByRole('button', { name: 'Save candidature' })).toBeEnabled();
     });
 
+    test('says the reasons for no field also when fields have reasons, and the body\'s at the body', async ({ page, api }) => {
+        answerPosition(api);
+        // The member's profile has no first name, which the form doesn't ask for.
+        api.on('POST statutory /events/:id/positions/:position_id/candidates', {
+            status: 422,
+            json: validationError({
+                first_name: ['First name should be set.'],
+                body_id: ['Body ID should be a number.'],
+                motivation: ['Please fill in your motivation.']
+            })
+        });
+        await page.goto(NEW);
+
+        await fillForm(page);
+        await save(page);
+
+        await expect(toast(page, 'Some of the candidate data is invalid: First name should be set.')).toBeVisible();
+        await expect(page.getByText('Body ID should be a number.', { exact: true })).toBeVisible();
+        await expect(page.getByText('Please fill in your motivation.', { exact: true })).toBeVisible();
+    });
+
     test('says when the candidature may not be submitted', async ({ page, api }) => {
         answerPosition(api);
         api.on('POST statutory /events/:id/positions/:position_id/candidates', { status: 403, json: forbidden('You cannot submit candidature.') });

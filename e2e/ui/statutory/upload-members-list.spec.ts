@@ -8,7 +8,7 @@ import { date, FIXED_NOW, forbidden, iso, notFound, ok, validationError } from '
 import { body, bodyMembership, payment, type BodyMembership, type Payment } from '../support/factories/core.ts';
 import { statutoryEvent, statutoryEventPermissions, type StatutoryEvent, type StatutoryEventPermissions } from '../support/factories/statutory-events.ts';
 import { membersList, membersListMember, type MembersList } from '../support/factories/statutory-memberslists.ts';
-import { cellOf, dialog, freezeTime, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, freezeTime, openMenu, tableRows, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -90,6 +90,28 @@ const fetchFromBody = async (page: Page): Promise<void> => {
     await button(page, 'Fetch members list from a body').click();
     await expect(tableRows(members(page)).first()).toBeVisible();
 };
+
+// The board of bodies 1 and 3.
+const TWO_BOARDS = statutoryEventPermissions({
+    see_memberslist: { global: false, 1: true, 3: true },
+    upload_memberslist: { global: false, 1: true, 3: true },
+    edit_memberslist: { global: false, 1: true, 3: true }
+});
+// An answer the test holds back until it calls `release()`.
+const holdBack = (): { held: Promise<void>; release: () => void } => {
+    let release = (): void => undefined;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    return { held, release };
+};
+// Lets the page handle an answer it has just received (two turns of its event loop).
+const afterPageHandled = async (page: Page): Promise<void> => {
+    await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+};
+const leaveForBodies = async (page: Page, layout: Parameters<typeof openMenu>[1]): Promise<void> => {
+    await (await openMenu(page, layout)).getByRole('link', { name: 'Bodies', exact: true }).click();
+    await expect(page).toHaveURL('/bodies');
+};
+const SERVER_ERROR = { status: 500, json: { success: false, message: 'Internal server error.' } };
 
 test.describe('sending the members list of a local', () => {
     // The deadlines and the payments are dated from FIXED_NOW.
@@ -267,33 +289,226 @@ test.describe('sending the members list of a local', () => {
         await expect(page.getByText('Some payments are in another currency (Euro): their fees are not filled in, check them.')).toBeVisible();
     });
 
-    test('a quickly switched local shows the list of that local, not of the one before', async ({ page, api }) => {
-        const twoBoards = statutoryEventPermissions({
-            see_memberslist: { global: false, 1: true, 3: true },
-            upload_memberslist: { global: false, 1: true, 3: true },
-            edit_memberslist: { global: false, 1: true, 3: true }
-        });
-        mockPage(api, { event: agora(twoBoards) });
-        // The antenna's list (asked for on load) is held back until Utrecht's is shown.
-        let release = (): void => undefined;
-        const released = new Promise<void>((resolve) => { release = resolve; });
+    test('the local can\'t be switched while its list loads', async ({ page, api }) => {
+        mockPage(api, { event: agora(TWO_BOARDS) });
+        const loading = holdBack();
         api.on('GET statutory /events/:id/memberslists/:body_id', async ({ params }) => {
-            if (params.body_id !== '1') return { json: ok(membersList({ body_id: 3, members: [membersListMember({ user_id: 7, first_name: 'Jan', last_name: 'Jansen', fee: 25 })] })) };
-            await released;
-            return { json: ok(STORED) };
+            if (params.body_id === '1') await loading.held;
+            return { json: ok(membersList({ body_id: Number(params.body_id) })) };
         });
-        const late = page.waitForResponse((response) => response.url().endsWith('/memberslists/1'));
+        const asked = page.waitForRequest((request) => request.url().endsWith('/memberslists/1'));
         await page.goto('/statutory/agora-spring/memberslist/upload');
+        await asked;
+
+        await expect(page.getByLabel('Select the body to manage members list for:')).toBeDisabled();
+        loading.release();
+
+        await expect(page.getByText('Total members: 2')).toBeVisible();
+        await expect(page.getByLabel('Select the body to manage members list for:')).toBeEnabled();
+        await page.getByLabel('Select the body to manage members list for:').selectOption('AEGEE-Utrecht');
+        await expect.poll(() => api.callsTo('GET statutory /events/:id/memberslists/:body_id').map((call) => call.params.body_id)).toEqual(['1', '3']);
+    });
+    test('the local can\'t be switched while its list is saved', async ({ page, api }) => {
+        mockPage(api, { event: agora(TWO_BOARDS) });
+        mockCore(api);
+        const saving = holdBack();
+        api.on('POST statutory /events/:id/memberslists/:body_id', async () => {
+            await saving.held;
+            return { json: ok(membersList({ body_id: 1 })) };
+        });
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await fetchFromBody(page);
+
+        await button(page, 'Save!').click();
+        await expect(page.getByLabel('Select the body to manage members list for:')).toBeDisabled();
+        saving.release();
+
+        await expect(toast(page, 'Members list is uploaded.')).toBeVisible();
+        await expect(page.getByLabel('Select the body to manage members list for:')).toBeEnabled();
+    });
+
+    for (const [what, answer, message] of [
+        ['saved', { json: ok(membersList({ body_id: 1 })) }, 'Members list is uploaded.'],
+        ['refused', SERVER_ERROR, 'Could not save memberslist: Internal server error.']
+    ] as const) {
+        test(`a list ${what} after the page was left still says so, and the page stays left`, async ({ page, api, layout }) => {
+            api.fallback(mockEverything);
+            mockPage(api);
+            mockCore(api);
+            const saving = holdBack();
+            api.on('POST statutory /events/:id/memberslists/:body_id', async () => {
+                await saving.held;
+                return answer;
+            });
+            const late = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/memberslists/'));
+            await page.goto('/statutory/agora-spring/memberslist/upload');
+            await fetchFromBody(page);
+            const asked = page.waitForRequest((request) => request.method() === 'POST' && request.url().includes('/memberslists/'));
+            await button(page, 'Save!').click();
+            await asked;
+
+            await leaveForBodies(page, layout);
+            saving.release();
+            await (await late).finished();
+
+            await expect(toast(page, message)).toBeVisible();
+            await expect(page).toHaveURL('/bodies');
+        });
+    }
+
+    test('another local after fetching from a body shows that local\'s list', async ({ page, api }) => {
+        mockPage(api, { event: agora(TWO_BOARDS) });
+        mockCore(api);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await fetchFromBody(page);
 
         await page.getByLabel('Select the body to manage members list for:').selectOption('AEGEE-Utrecht');
-        await expect(page.getByText('Total members: 1')).toBeVisible();
-        release();
-        await (await late).finished();
-        // Lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
-        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
 
-        await expect(page.getByText('Total members: 1')).toBeVisible();
-        await expect(tableRows(members(page))).toHaveText([/Jansen/]);
+        await expect(page.getByText('This local hasn\'t submitted a members list for this event yet.')).toBeVisible();
+        await expect(page.getByRole('table', { name: 'Members' })).toHaveCount(0);
+    });
+
+    for (const [first, late] of [
+        ['members', { json: ok([ALEX]) }],
+        ['members', SERVER_ERROR],
+        ['payments', { json: ok([ALEX_PAID]) }],
+        ['payments', SERVER_ERROR]
+    ] as const) {
+        test(`a second fetch wins over a first one whose ${first} come late${'status' in late ? ', failing' : ''}`, async ({ page, api }) => {
+            mockPage(api);
+            const slow = holdBack();
+            let membersAsked = 0;
+            let paymentsAsked = 0;
+            api.on('GET core /bodies/:id/members', async () => {
+                membersAsked++;
+                if (membersAsked === 1 && first === 'members') {
+                    await slow.held;
+                    return late;
+                }
+                return { json: ok(membersAsked === 1 ? [ALEX] : [JAN]) };
+            });
+            api.on('GET core /bodies/:id/payments', async () => {
+                paymentsAsked++;
+                if (paymentsAsked === 1 && first === 'payments') {
+                    await slow.held;
+                    return late;
+                }
+                return { json: ok([]) };
+            });
+            const firstAsked = page.waitForRequest((request) => request.url().endsWith(`/bodies/1/${first}`));
+            const firstLate = page.waitForResponse((response) => response.url().endsWith(`/bodies/1/${first}`));
+            await page.goto('/statutory/agora-spring/memberslist/upload');
+
+            await button(page, 'Fetch members list from a body').click();
+            await firstAsked;
+            await button(page, 'Fetch members list from a body').click();
+            await expect(tableRows(members(page))).toHaveText([/Jansen/]);
+            slow.release();
+            await (await firstLate).finished();
+            await afterPageHandled(page);
+
+            // Counted at once: a toast goes away by itself, so waiting for none would always pass.
+            expect(await toast(page, /Internal server error/).count()).toBe(0);
+            await expect(tableRows(members(page))).toHaveText([/Jansen/]);
+        });
+    }
+
+    for (const [what, route, answer] of [
+        ['its members load, failing', 'GET core /bodies/:id/members', SERVER_ERROR],
+        ['its stored list loads, failing', 'GET statutory /events/:id/memberslists/:body_id', SERVER_ERROR],
+        ['its stored list loads', 'GET statutory /events/:id/memberslists/:body_id', { json: ok(STORED) }]
+    ] as const) {
+        test(`a page left while ${what}, shows no late answer`, async ({ page, api, layout }) => {
+            api.fallback(mockEverything);
+            mockPage(api);
+            const slow = holdBack();
+            api.on(route, async () => {
+                await slow.held;
+                return answer;
+            });
+            const asked = page.waitForRequest((request) => request.url().includes(route.endsWith('members') ? '/members' : '/memberslists/'));
+            const late = page.waitForResponse((response) => response.url().includes(route.endsWith('members') ? '/members' : '/memberslists/'));
+            await page.goto('/statutory/agora-spring/memberslist/upload');
+            if (route.endsWith('members')) await button(page, 'Fetch members list from a body').click();
+            await asked;
+
+            await leaveForBodies(page, layout);
+            slow.release();
+            await (await late).finished();
+            await afterPageHandled(page);
+
+            expect(await toast(page, /Internal server error/).count()).toBe(0);
+            await expect(page).toHaveURL('/bodies');
+        });
+    }
+
+    test('a currency chosen while the payments load is kept', async ({ page, api }) => {
+        mockPage(api);
+        api.json('GET core /bodies/:id/members', ok([ALEX, JAN]));
+        const slow = holdBack();
+        api.on('GET core /bodies/:id/payments', async () => {
+            await slow.held;
+            return { json: ok([{ ...ALEX_PAID, currency: 'PL' }]) };
+        });
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await button(page, 'Fetch members list from a body').click();
+        await expect(tableRows(members(page))).toHaveCount(2);
+
+        await page.getByLabel('Currency').selectOption('Euro');
+        slow.release();
+
+        await expect(page.getByText('Some payments are in another currency (Zloty (PL)): their fees are not filled in, check them.')).toBeVisible();
+        await expect(page.getByLabel('Currency')).toHaveValue('EU');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('0');
+    });
+
+    test('a payment currency the page doesn\'t know is named, not taken', async ({ page, api }) => {
+        mockPage(api);
+        mockCore(api, [ALEX], [{ ...ALEX_PAID, currency: 'EUR' }]);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+
+        await fetchFromBody(page);
+
+        await expect(page.getByLabel('Currency')).toHaveValue('');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('0');
+        await expect(page.getByText('Some payments are in another currency (EUR): their fees are not filled in, check them.')).toBeVisible();
+    });
+
+    test('a member with current payments in two currencies gets the one in the list\'s currency', async ({ page, api }) => {
+        mockPage(api);
+        mockCore(api, [ALEX, JAN], [
+            payment({ user_id: 2, body_id: 1, amount: 120, currency: 'PL', starts: date(-30, NOW), expires: date(300, NOW) }),
+            ALEX_PAID,
+            payment({ user_id: 7, body_id: 1, amount: 25, currency: 'EU', starts: date(-30, NOW), expires: date(300, NOW) })
+        ]);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await fetchFromBody(page);
+        await expect(page.getByText('Some payments are in another currency (Euro, Zloty (PL)): their fees are not filled in, check them.')).toBeVisible();
+
+        await page.getByLabel('Currency').selectOption('Euro');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('30');
+        await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee')).toHaveText('25');
+        await expect(page.getByText('Some payments are in another currency (Zloty (PL)): their fees are not filled in, check them.')).toBeVisible();
+
+        await page.getByLabel('Currency').selectOption('Zloty (PL)');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('120');
+        await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee')).toHaveText('0');
+    });
+
+    test('a fee typed by hand is kept when the currency changes', async ({ page, api }) => {
+        mockPage(api);
+        const JAN_PAID = payment({ user_id: 7, body_id: 1, amount: 120, currency: 'PL', starts: date(-30, NOW), expires: date(300, NOW) });
+        mockCore(api, [ALEX, JAN], [ALEX_PAID, JAN_PAID]);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+        await fetchFromBody(page);
+        await page.getByLabel('Currency').selectOption('Euro');
+        await button(page, 'Edit').click();
+        await page.getByLabel('Fee of member 1').fill('35');
+
+        await page.getByLabel('Currency').selectOption('Zloty (PL)');
+
+        await expect(page.getByLabel('Fee of member 1')).toHaveValue('35');
+        await expect(page.getByLabel('Fee of member 2')).toHaveValue('120');
     });
 
     test('a payment whose amount is no number counts as no fee', async ({ page, api }) => {

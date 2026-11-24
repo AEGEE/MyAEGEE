@@ -7,7 +7,7 @@ import type { ApiMock, MockRequest } from '../support/api-mock.ts';
 import { forbidden, notFound, ok, okList } from '../support/factories/base.ts';
 import { listedApplication, type ListedApplication } from '../support/factories/statutory-applications.ts';
 import { statutoryEvent, statutoryManagerPermissions, type StatutoryEvent } from '../support/factories/statutory-events.ts';
-import { cellOf, expectEmptyTable, sortBy, tableRows, toast } from '../support/shell.ts';
+import { cellOf, expectEmptyTable, openMenu, sortBy, tableRows, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -380,6 +380,61 @@ test.describe('managing the applications to a statutory event', () => {
         await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
 
         await expect(tableRows(applicationsTable(page))).toHaveText([/Jansen/]);
+    });
+
+    test('a late failure of an earlier search shows no error', async ({ page, api }) => {
+        mockPage(api);
+        let release = (): void => undefined;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET statutory /events/:id/applications/all', async ({ query }) => {
+            if (query.get('query') === 'Ja') {
+                await released;
+                return { status: 500, json: { success: false, message: 'Internal server error.' } };
+            }
+            return { json: okList(query.get('query') === 'Jan' ? [JAN] : [ALEX, JAN]) };
+        });
+        const late = page.waitForResponse((response) => new URL(response.url()).searchParams.get('query') === 'Ja');
+        await page.goto('/statutory/agora-spring/applications');
+        await expect(tableRows(applicationsTable(page))).toHaveCount(2);
+
+        await page.getByRole('textbox', { name: 'Search by name, surname or statutory ID' }).fill('Ja');
+        await page.getByRole('textbox', { name: 'Search by name, surname or statutory ID' }).fill('Jan');
+        await expect(tableRows(applicationsTable(page))).toHaveCount(1);
+        release();
+        await (await late).finished();
+        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+
+        // Counted at once: a toast goes away by itself, so waiting for none would always pass.
+        expect(await toast(page, /Internal server error/).count()).toBe(0);
+        await expect(page).toHaveURL('/statutory/agora-spring/applications');
+        await expect(tableRows(applicationsTable(page))).toHaveText([/Jansen/]);
+    });
+
+    test('a page left while its search runs shows no late error and stays left', async ({ page, api, layout }) => {
+        api.fallback(mockEverything);
+        mockPage(api);
+        let release = (): void => undefined;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET statutory /events/:id/applications/all', async ({ query }) => {
+            if (query.get('query') !== 'Ja') return { json: okList([ALEX, JAN]) };
+            await released;
+            return { status: 500, json: { success: false, message: 'Internal server error.' } };
+        });
+        const asked = page.waitForRequest((request) => new URL(request.url()).searchParams.get('query') === 'Ja');
+        const late = page.waitForResponse((response) => new URL(response.url()).searchParams.get('query') === 'Ja');
+        await page.goto('/statutory/agora-spring/applications');
+        await expect(tableRows(applicationsTable(page))).toHaveCount(2);
+        await page.getByRole('textbox', { name: 'Search by name, surname or statutory ID' }).fill('Ja');
+        await asked;
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Bodies', exact: true }).click();
+        await expect(page).toHaveURL('/bodies');
+        release();
+        await (await late).finished();
+        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+
+        expect(await toast(page, /Internal server error/).count()).toBe(0);
+        await expect(page).toHaveURL('/bodies');
     });
 
     test('cancelled applications are shown on request', async ({ page, api }) => {

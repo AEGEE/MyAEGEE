@@ -10,7 +10,7 @@ import { listedApplication, type ListedApplication } from '../support/factories/
 import {
     defaultPaxLimit, statutoryEvent, statutoryEventPermissions, type PaxLimit, type StatutoryEvent, type StatutoryEventPermissions
 } from '../support/factories/statutory-events.ts';
-import { cellOf, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
+import { cellOf, expectEmptyTable, openMenu, tableRows, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -76,6 +76,19 @@ const expectCells = async (table: Locator, row: Locator, cells: [string, string 
         await test.step(`cell under "${column}"`, async () => expect(await cellOf(table, row, column)).toHaveText(text));
     }
 };
+
+// An answer the test holds back until it calls `release()`.
+const holdBack = (): { held: Promise<void>; release: () => void } => {
+    let release = (): void => undefined;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    return { held, release };
+};
+// Lets the page handle an answer it has just received (two turns of its event loop).
+const afterPageHandled = async (page: Page): Promise<void> => {
+    await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+};
+const TWO_BODIES = boardPermissions({ see_boardview: { global: true, 1: true }, set_board_comment_and_participant_type: { global: true, 1: true } });
+const UTRECHT_JAN = { ...JAN, body_id: 3, body_name: 'AEGEE-Utrecht' };
 
 test.describe('the board view of a statutory event', () => {
     test('the board of a body sees what it may send, and who has which place', async ({ page, api }) => {
@@ -327,6 +340,24 @@ test.describe('the board view of a statutory event', () => {
         expect(api.callsTo('GET statutory /events/:id/applications/boardview/:body_id')).toHaveLength(1);
     });
 
+    test('a question named like a field is its own entry in the picker, and adds only its own column', async ({ page, api }) => {
+        mockPage(api, { event: agora({ questions: [{ type: 'string', description: 'Gender', required: false }] }) });
+        await page.goto('/statutory/agora-spring/boardview');
+        await page.getByRole('tab', { name: 'View applications' }).click();
+        const table = applicationsTable(page);
+        const alex = tableRows(table).filter({ hasText: 'Alex Member' });
+        await expect(alex).toHaveCount(1);
+        const cellsBefore = await alex.getByRole('cell').count();
+
+        await fieldsPicker(page).click();
+        await page.getByRole('listbox').getByRole('option', { name: /^Gender \(question 1\)/ }).click();
+        await fieldsPicker(page).press('Escape');
+
+        await expect(page.getByText('1 fields selected')).toBeVisible();
+        await expect(alex.getByRole('cell')).toHaveCount(cellsBefore + 1);
+        await expect(await cellOf(table, alex, 'Gender')).toHaveText('To meet the network');
+    });
+
     test('every cell stays under its header after picking fields, a question among them', async ({ page, api }) => {
         mockPage(api);
         await page.goto('/statutory/agora-spring/boardview');
@@ -492,7 +523,101 @@ test.describe('the board view of a statutory event', () => {
         await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Alex Member' })).toHaveCount(0);
         await page.getByRole('tab', { name: 'View applications' }).click();
         await expect(tableRows(applicationsTable(page))).toHaveText([/Jan/]);
-        expect(api.callsTo('GET statutory /limits/:event_type/:body_id').map((call) => call.params.body_id)).toEqual(['3']);
+        expect(api.callsTo('GET statutory /limits/:event_type/:body_id').map((call) => call.params.body_id)).toContain('3');
+    });
+
+    test('places of another body can only be given once its places are there, and are saved for it', async ({ page, api }) => {
+        mockPage(api, { event: agora({ permissions: TWO_BODIES }) });
+        api.json('GET core /bodies', okList([body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 3, name: 'AEGEE-Utrecht' })]));
+        api.on('GET statutory /events/:id/applications/boardview/:body_id', ({ params }) => ({ json: ok(params.body_id === '1' ? [ALEX] : [UTRECHT_JAN]) }));
+        const utrechtLimits = holdBack();
+        api.on('GET statutory /limits/:event_type/:body_id', async ({ params }) => {
+            if (params.body_id === '3') await utrechtLimits.held;
+            return { json: ok(paxLimit({ body_id: Number(params.body_id) })) };
+        });
+        api.json('POST statutory /events/:id/applications/boardview/:body_id', ok([]));
+        await page.goto('/statutory/agora-spring/boardview');
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Alex Member' })).toHaveCount(1);
+
+        await page.getByRole('combobox', { name: 'Select the body to view application from:' }).selectOption('AEGEE-Utrecht');
+        // Neither the antenna's places nor Utrecht's applicants without its places.
+        await expect(userOf(page, 'delegate 1')).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Save!' })).toBeDisabled();
+        utrechtLimits.release();
+
+        await userOf(page, 'delegate 1').selectOption({ label: 'Jan Jansen' });
+        await commentOf(page, 'delegate 1').fill('Our most active member');
+        await page.getByRole('button', { name: 'Save!' }).click();
+
+        await expect(toast(page, 'Participants info is successfully updated.')).toBeVisible();
+        expect(posts(api).map((call) => [call.params.body_id, call.body])).toEqual([['3', [
+            { participant_type: 'delegate', participant_order: 1, user_id: 7, board_comment: 'Our most active member' }
+        ]]]);
+    });
+
+    test('a body that can\'t be loaded leaves nothing of the body before to give or save', async ({ page, api }) => {
+        mockPage(api, { event: agora({ permissions: TWO_BODIES }) });
+        api.json('GET core /bodies', okList([body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 3, name: 'AEGEE-Utrecht' })]));
+        api.on('GET statutory /events/:id/applications/boardview/:body_id', ({ params }) => (params.body_id === '1'
+            ? { json: ok([ALEX]) }
+            : { status: 500, json: { success: false, message: 'Internal server error.' } }));
+        await page.goto('/statutory/agora-spring/boardview');
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Alex Member' })).toHaveCount(1);
+
+        await page.getByRole('combobox', { name: 'Select the body to view application from:' }).selectOption('AEGEE-Utrecht');
+
+        await expect(toast(page, 'Could not fetch boardview: Internal server error.')).toBeVisible();
+        await expect(userOf(page, 'delegate 1')).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Save!' })).toBeDisabled();
+        await page.getByRole('tab', { name: 'View applications' }).click();
+        await expectEmptyTable(applicationsTable(page));
+    });
+
+    test('a late failure for the body chosen before shows no error', async ({ page, api }) => {
+        mockPage(api, { event: agora({ permissions: TWO_BODIES }) });
+        api.json('GET core /bodies', okList([body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 3, name: 'AEGEE-Utrecht' })]));
+        const antenna = holdBack();
+        api.on('GET statutory /events/:id/applications/boardview/:body_id', async ({ params }) => {
+            if (params.body_id !== '1') return { json: ok([UTRECHT_JAN]) };
+            await antenna.held;
+            return { status: 500, json: { success: false, message: 'Internal server error.' } };
+        });
+        const late = page.waitForResponse((response) => response.url().endsWith('/applications/boardview/1'));
+        await page.goto('/statutory/agora-spring/boardview');
+
+        await page.getByRole('combobox', { name: 'Select the body to view application from:' }).selectOption('AEGEE-Utrecht');
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Jan Jansen' })).toHaveCount(1);
+        antenna.release();
+        await (await late).finished();
+        await afterPageHandled(page);
+
+        // Counted at once: a toast goes away by itself, so waiting for none would always pass.
+        expect(await toast(page, /Internal server error/).count()).toBe(0);
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Jan Jansen' })).toHaveCount(1);
+    });
+
+    test('a page left while its body loads shows no late error', async ({ page, api, layout }) => {
+        api.fallback(mockEverything);
+        api.json('GET statutory /events/:id', ok(agora()));
+        const answer = holdBack();
+        api.on('GET statutory /events/:id/applications/boardview/:body_id', async () => {
+            await answer.held;
+            return { status: 500, json: { success: false, message: 'Internal server error.' } };
+        });
+        const asked = page.waitForRequest((request) => request.url().includes('/applications/boardview/'));
+        const late = page.waitForResponse((response) => response.url().includes('/applications/boardview/'));
+        await page.goto('/statutory/agora-spring/boardview');
+        await asked;
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Bodies', exact: true }).click();
+        await expect(page).toHaveURL('/bodies');
+        answer.release();
+        await (await late).finished();
+        await afterPageHandled(page);
+
+        await expect(page).toHaveURL('/bodies');
+        // Counted at once: a toast goes away by itself, so waiting for none would always pass.
+        expect(await toast(page, /Internal server error/).count()).toBe(0);
     });
 
     test('shows why the bodies could not be loaded', async ({ page, api }) => {
@@ -505,6 +630,8 @@ test.describe('the board view of a statutory event', () => {
 
     test('shows why the board view of a body could not be loaded', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(agora()));
+        // The places are asked for together with the applicants.
+        api.json('GET statutory /limits/:event_type/:body_id', ok(paxLimit()));
         api.on('GET statutory /events/:id/applications/boardview/:body_id', { status: 403, json: forbidden('You are not allowed to see the boardview of this body.') });
         await page.goto('/statutory/agora-spring/boardview');
 

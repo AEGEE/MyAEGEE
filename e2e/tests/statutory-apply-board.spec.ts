@@ -44,7 +44,8 @@ test.describe('applying to an Agora', () => {
                 await page.goto(`/statutory/${event.url}/boardview`);
                 const bodySelect = page.getByRole('combobox', { name: 'Select the body to view application from:' });
                 await bodySelect.selectOption(body.name);
-                await expect(bodySelect).toHaveValue(String(body.id));
+                // The applicants and the places of the body come together.
+                await expect(page.getByRole('combobox', { name: 'User for delegate 1', exact: true }).getByRole('option', { name: applicant })).toHaveCount(1);
 
                 await expect(page.getByRole('listitem').filter({ hasText: /^3 delegates$/ })).toBeVisible();
                 await expect(page.getByRole('tab', { name: 'Edit boardview' })).toHaveAttribute('aria-selected', 'true');
