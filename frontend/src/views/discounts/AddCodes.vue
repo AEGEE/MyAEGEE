@@ -1,13 +1,13 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <h4 class="title">Add codes for {{ integration.name }}</h4>
+      <h1 class="title" id="add-codes-title">Add codes for {{ integration.name }}</h1>
 
-      <form @submit.prevent="addCodes()">
+      <form @submit.prevent="addCodes()" aria-labelledby="add-codes-title" :aria-busy="isLoading">
         <div class="field">
-          <label class="label">Please enter each code on a separate line, without any spaces or tabs.</label>
+          <label class="label" for="add-codes-codes">Please enter each code on a separate line, without any spaces or tabs.</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" rows="20" required v-model="codesRaw" />
+            <textarea class="textarea" id="add-codes-codes" placeholder="e.g. Hello world" rows="20" required v-model="codesRaw" />
           </div>
         </div>
 
