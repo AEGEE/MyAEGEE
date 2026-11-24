@@ -1,9 +1,12 @@
 // Summer University lists (/summeruniversity, /summeruniversity/participating,
 // /summeruniversity/organizing): the seasons, the filters, the two views and what a member may do.
+import type { Page } from '@playwright/test';
+
 import { FIXED_NOW, iso, ok } from '../support/factories/base.ts';
 import { permission } from '../support/factories/core.ts';
 import { suEvent, suEventFull, suEventMinimal, suParticipatingEvent, suSeason } from '../support/factories/summeruniversity.ts';
 import { freezeTime, openMenu, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 // What the service answers when its database can't be reached.
@@ -13,6 +16,28 @@ const DATABASE_DOWN = 'connect ECONNREFUSED 127.0.0.1:5432';
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
 
 const now = Date.parse(FIXED_NOW);
+
+// An answer the test lets through when it wants to: the handler waits until `release()`.
+const held = () => {
+    let release!: () => void;
+    const released = new Promise<void>((resolve) => { release = resolve; });
+    return { release, released };
+};
+
+// Two frames: the page has handled an answer that arrived by then.
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+// A request of the page to this path of the API (the mock records a call only once it has
+// answered it, so a test waits for the request itself).
+const isTo = (path: string) => (request: { url: () => string }) => new URL(request.url()).pathname.replace(/\/$/, '') === `/api${path}`;
+
+// The member goes to the list of all events (another area's page) through the menu.
+const goToAllEvents = async (page: Page, layout: 'desktop' | 'phone') => {
+    const menu = await openMenu(page, layout);
+    await menu.getByRole('button', { name: 'Events listing' }).click();
+    await menu.getByRole('link', { name: 'All events' }).click();
+    await expect(page).toHaveURL('/events');
+};
 
 const mountains = () => suEventFull({
     id: 11,
@@ -364,5 +389,143 @@ test.describe('Summer University list', () => {
         await page.getByText('Display classic list view').click();
         await expect(minimal.getByText('Applications are open!')).toBeVisible();
         await expect(minimal.getByRole('link', { name: 'Apply' })).toHaveCount(0);
+    });
+
+    test.describe('while a request is still running', () => {
+        test('a member who goes on to all events sees no error from the list they left', async ({ page, api, layout }) => {
+            api.json('GET summeruniversity /seasons', ok([]));
+            const list = held();
+            api.on('GET summeruniversity /', async () => {
+                await list.released;
+                return { json: ok([mountains()]) };
+            });
+            api.fallback(mockEverything);
+
+            const asked = page.waitForRequest(isTo('/summeruniversity'));
+            await page.goto('/summeruniversity');
+            await asked;
+            await goToAllEvents(page, layout);
+
+            const late = page.waitForResponse((response) => isTo('/summeruniversity')(response.request()));
+            list.release();
+            await late;
+            await settle(page);
+
+            // Counted at once: a retrying matcher would only wait until a toast has gone.
+            expect(await toast(page, /Could not fetch events list/).count()).toBe(0);
+            await expect(page).toHaveURL('/events');
+        });
+
+        test('a member who leaves before the seasons have loaded is not followed by the list', async ({ page, api, layout }) => {
+            const seasons = held();
+            api.on('GET summeruniversity /seasons', async () => {
+                await seasons.released;
+                return { json: ok([suSeason({ year: 2027, active: true })]) };
+            });
+            api.fallback(mockEverything);
+
+            const asked = page.waitForRequest(isTo('/summeruniversity/seasons'));
+            await page.goto('/summeruniversity');
+            await asked;
+            await goToAllEvents(page, layout);
+
+            const late = page.waitForResponse((response) => isTo('/summeruniversity/seasons')(response.request()));
+            seasons.release();
+            await late;
+            await settle(page);
+
+            // The list it left is not asked for any more.
+            expect(api.callsTo('GET summeruniversity /')).toEqual([]);
+            expect(await toast(page, /Could not fetch events list/).count()).toBe(0);
+            await expect(page).toHaveURL('/events');
+        });
+
+        test('a member who leaves before the seasons have loaded sees no error for them', async ({ page, api, layout }) => {
+            const seasons = held();
+            api.on('GET summeruniversity /seasons', async () => {
+                await seasons.released;
+                return { status: 500, json: { success: false, message: DATABASE_DOWN } };
+            });
+            api.fallback(mockEverything);
+
+            const asked = page.waitForRequest(isTo('/summeruniversity/seasons'));
+            await page.goto('/summeruniversity');
+            await asked;
+            await goToAllEvents(page, layout);
+
+            const late = page.waitForResponse((response) => isTo('/summeruniversity/seasons')(response.request()));
+            seasons.release();
+            await late;
+            await settle(page);
+
+            // Counted at once: a retrying matcher would only wait until a toast has gone.
+            expect(await toast(page, /Could not fetch seasons/).count()).toBe(0);
+            expect(api.callsTo('GET summeruniversity /')).toEqual([]);
+            await expect(page).toHaveURL('/events');
+        });
+
+        test('a member who leaves while the permissions load sees no warning for them', async ({ page, api, layout, myPermissions }) => {
+            api.json('GET summeruniversity /seasons', ok([]));
+            api.json('GET summeruniversity /', ok([mountains()]));
+            // The app asks for the permissions when it starts too: only the list's own request waits.
+            const permissions = held();
+            let calls = 0;
+            api.on('GET core /my_permissions', async () => {
+                calls += 1;
+                if (calls !== 2) return { json: ok(myPermissions) };
+                await permissions.released;
+                return { status: 500, json: { success: false, message: DATABASE_DOWN } };
+            });
+            api.fallback(mockEverything);
+
+            await page.goto('/summeruniversity');
+            await expect(page.getByRole('article', { name: 'Mountains and Languages' })).toBeVisible();
+            await expect.poll(() => calls).toBe(2);
+            await goToAllEvents(page, layout);
+
+            const late = page.waitForResponse((response) => isTo('/core/my_permissions')(response.request()) && response.status() === 500);
+            permissions.release();
+            await late;
+            await settle(page);
+
+            expect(await toast(page, /Could not fetch permissions/).count()).toBe(0);
+            await expect(page).toHaveURL('/events');
+        });
+
+        test('the list keeps loading, and says nothing about "no events", while a later search runs', async ({ page, api }) => {
+            api.json('GET summeruniversity /seasons', ok([]));
+            const earlier = held();
+            const later = held();
+            api.on('GET summeruniversity /', async ({ query }) => {
+                if (query.get('search') === 'm') {
+                    await earlier.released;
+                    return { json: ok([seaside()]) };
+                }
+                if (query.get('search') === 'mo') {
+                    await later.released;
+                    return { json: ok([mountains()]) };
+                }
+                return { json: ok([]) };
+            });
+
+            await page.goto('/summeruniversity');
+            await expect(page.getByText('No events found.')).toBeVisible();
+            const search = page.getByRole('textbox', { name: 'Search by name or description' });
+            const givenUp = page.waitForEvent('requestfailed', (request) => new URL(request.url()).searchParams.get('search') === 'm');
+            const asked = page.waitForRequest((request) => new URL(request.url()).searchParams.get('search') === 'mo');
+            await search.fill('m');
+            await search.fill('mo');
+            await asked;
+            await givenUp;
+            await settle(page);
+
+            // The search the page gave up doesn't end the loading of the one that runs.
+            await expect(page.getByText('No events found.')).toBeHidden();
+            await expect(page.getByRole('button', { name: 'Load more events' })).toBeDisabled();
+
+            later.release();
+            await expect(page.getByRole('article', { name: 'Mountains and Languages' })).toBeVisible();
+            earlier.release();
+        });
     });
 });
