@@ -43,11 +43,16 @@ function canSeeBoardComment(req, application) {
     );
 }
 
-// The application as the caller may see it: the applicant does not get the board comment.
+// The application as the caller may see it: the applicant does not get the board comment,
+// and reads the status "pending" until the event reveals the statuses.
 function presentApplication(req, application) {
     const presented = application.toJSON();
     if (!canSeeBoardComment(req, application)) {
         delete presented.board_comment;
+    }
+
+    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+        presented.status = 'pending';
     }
 
     return presented;
@@ -410,10 +415,6 @@ exports.getApplication = async (req, res) => {
     }
 
     application.permissions = req.permissions;
-
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
-        application.status = 'pending';
-    }
 
     return res.json({
         success: true,
