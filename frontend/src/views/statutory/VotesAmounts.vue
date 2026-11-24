@@ -2,19 +2,19 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Votes amount</div>
+        <h1 class="title">Votes amount</h1>
 
-        <div class="subtitle">By antenna</div>
+        <h2 id="votes-by-antenna" class="subtitle">By antenna</h2>
 
         <div class="field">
           <div class="control">
-            <a :href="exportVotesTXT.content" :download="exportVotesTXT.filename"><button class="button is-primary">
+            <a v-if="exportVotesTXT.content" class="button is-primary" :href="exportVotesTXT.content" :download="exportVotesTXT.filename">
               Export list of votes
-            </button></a>
+            </a>
           </div>
         </div>
 
-        <table class="table is-narrow is-fullwidth">
+        <table class="table is-narrow is-fullwidth" aria-labelledby="votes-by-antenna">
           <thead>
             <tr>
               <th>Body Code</th>
@@ -33,17 +33,17 @@
               <td>{{ vote.votes }}</td>
             </tr>
             <tr v-if="antennae.length == 0 && !isLoading">
-              <td colspan="2">No votes yet!</td>
+              <td colspan="3">No votes yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td colspan="2">Loading...</td>
+              <td colspan="3">Loading...</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="subtitle">By delegate</div>
+        <h2 id="votes-by-delegate" class="subtitle">By delegate</h2>
 
-        <table class="table is-narrow is-fullwidth">
+        <table class="table is-narrow is-fullwidth" aria-labelledby="votes-by-delegate">
           <thead>
             <tr>
               <th>Application ID</th>
@@ -66,10 +66,10 @@
               <td>{{ vote.votes }}</td>
             </tr>
             <tr v-if="delegates.length == 0 && !isLoading">
-              <td colspan="4">No votes yet!</td>
+              <td colspan="5">No votes yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td colspan="4">Loading...</td>
+              <td colspan="5">Loading...</td>
             </tr>
           </tbody>
         </table>
