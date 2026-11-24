@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Services statuses</h4>
+        <h1 class="title">Services statuses</h1>
 
         <table class="table is-bordered is-striped is-narrow is-fullwidth">
           <thead>
