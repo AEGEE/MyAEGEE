@@ -248,7 +248,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionLineModal,
         hasModalCard: true,
-        ariaLabel: 'Add question line',
+        ariaLabel: 'Edit question line',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -289,7 +289,7 @@ export default {
       this.$buefy.modal.open({
         component: EditQuestionModal,
         hasModalCard: true,
-        ariaLabel: 'Ask a question',
+        ariaLabel: 'Edit question',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why

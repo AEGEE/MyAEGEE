@@ -1,7 +1,7 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <h2 class="modal-card-title">Add plenary</h2>
+      <h2 class="modal-card-title">{{ isNew ? 'Add plenary' : 'Edit plenary' }}</h2>
       <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
@@ -96,7 +96,7 @@ export default {
         : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
 
       action.then(() => {
-        this.showSuccess('Plenary is created.')
+        this.showSuccess(this.isNew ? 'Plenary is created.' : 'Plenary is updated.')
 
         this.isLoading = false
         this.router.go(0) // Reloading the page.

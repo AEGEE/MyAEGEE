@@ -73,7 +73,8 @@ export default {
   },
   methods: {
     openEditPlenaryModal (plenary) {
-      if (!plenary) {
+      const isNew = !plenary
+      if (isNew) {
         plenary = {
           starts: new Date(),
           ends: new Date(),
@@ -83,7 +84,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPlenaryModal,
         hasModalCard: true,
-        ariaLabel: 'Add plenary',
+        ariaLabel: isNew ? 'Add plenary' : 'Edit plenary',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
