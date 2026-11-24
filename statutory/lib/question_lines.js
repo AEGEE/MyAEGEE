@@ -27,9 +27,12 @@ exports.listAllQuestionLines = async (req, res) => {
 
     const questionLines = await QuestionLine.findAll({
         where: { event_id: req.event.id },
+        // By ID for rows that were created in the same millisecond.
         order: [
             ['created_at', 'ASC'],
-            [Question, 'created_at', 'ASC']
+            ['id', 'ASC'],
+            [Question, 'created_at', 'ASC'],
+            [Question, 'id', 'ASC']
         ],
         include: [{
             model: Question,

@@ -41,7 +41,8 @@ exports.listAllPlenaries = async (req, res) => {
 
     const plenaries = await Plenary.findAll({
         where: { event_id: req.event.id },
-        order: [['created_at', 'ASC']]
+        // By ID for rows that were created in the same millisecond.
+        order: [['created_at', 'ASC'], ['id', 'ASC']]
     });
     return res.json({
         success: true,
