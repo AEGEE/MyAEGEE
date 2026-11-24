@@ -1,5 +1,4 @@
 const moment = require('moment');
-const lodash = require('lodash');
 
 const errors = require('./errors');
 const constants = require('./constants');
@@ -7,22 +6,13 @@ const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
 const { Event, Image, Application } = require('../models');
 
-function hasManageApplicationPermission(corePermissions, eventType) {
-    if (!Array.isArray(corePermissions)) {
-        return false;
-    }
-
-    return corePermissions.some((permission) => permission.combined.endsWith('manage_applications:' + eventType));
-}
-
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event[req.body.type]) {
         return errors.makeForbiddenError(res, 'You are not allowed to create events of this type.');
     }
 
-    delete req.body.status;
-    delete req.body.id;
-    delete req.body.image_id;
+    // Only the fields of the event form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, [...constants.EVENT_FORM_FIELDS, 'type']);
 
     if (req.body.type === 'agora') {
         const previousAgora = await Event.findOne({
@@ -122,10 +112,8 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update events of this type.');
     }
 
-    delete req.body.type;
-    delete req.body.status;
-    delete req.body.image_id;
-    delete req.body.application_status_revealed_at;
+    // Only the fields of the event form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.EVENT_FORM_FIELDS);
 
     if (!req.event.application_status_revealed_at
         && req.event.participants_list_publish_deadline
@@ -216,23 +204,24 @@ exports.getCandidatesFields = async (req, res) => {
 };
 
 exports.listUserAppliedEvents = async (req, res) => {
-    const defaultQueryObj = {
-        where: {},
-        order: [['starts', 'ASC']],
-        select: constants.EVENT_PUBLIC_FIELDS
-    };
-
-    const queryObj = lodash.merge(defaultQueryObj, {
+    // Drafts are only listed for those who manage events of their type.
+    const queryObj = {
         where: {
-            '$applications.user_id$': req.user.id
+            '$applications.user_id$': req.user.id,
+            [Sequelize.Op.or]: [
+                { status: 'published' },
+                { type: { [Sequelize.Op.in]: helpers.getManagedEventTypes(req.corePermissions) } }
+            ]
         },
+        order: [['starts', 'ASC']],
+        select: constants.EVENT_PUBLIC_FIELDS,
         subQuery: false,
         include: [{
             model: Application,
             attributes: ['user_id', 'cancelled', 'status'], // pass along user_id, as well as the status of the application
             required: true
         }]
-    });
+    };
 
     const events = await Event.findAll(queryObj);
 
@@ -242,7 +231,7 @@ exports.listUserAppliedEvents = async (req, res) => {
         }
 
         if (helpers.shouldHideApplicationStatus(event, {
-            change_status: hasManageApplicationPermission(req.corePermissions, event.type)
+            change_status: helpers.hasPermission(req.corePermissions, 'global:manage_applications:' + event.type)
         })) {
             event.applications[0].status = 'pending';
         }

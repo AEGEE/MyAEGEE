@@ -1,5 +1,7 @@
 const core = require('./core');
 const errors = require('./errors');
+const constants = require('./constants');
+const helpers = require('./helpers');
 const { PaxLimit } = require('../models');
 
 exports.checkEventType = async (req, res, next) => {
@@ -55,8 +57,9 @@ exports.updateLimit = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change limits.');
     }
 
+    // Only the fields of the limit are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.PAX_LIMIT_FORM_FIELDS);
     req.body.event_type = req.params.event_type;
-    delete req.body.id;
 
     let limit = await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } });
     if (!limit) {

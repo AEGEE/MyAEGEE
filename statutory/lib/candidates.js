@@ -34,8 +34,9 @@ exports.findCandidate = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
     }
 
+    // Only a candidate of the position in the URL.
     const candidate = await Candidate.findOne({
-        where: { id: Number(req.params.candidate_id) },
+        where: { id: Number(req.params.candidate_id), position_id: req.position.id },
         include: [Image]
     });
     if (!candidate) {

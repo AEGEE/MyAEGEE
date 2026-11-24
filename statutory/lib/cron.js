@@ -4,6 +4,8 @@ const moment = require('moment');
 const logger = require('./logger');
 const { Position, Candidate, Plenary } = require('../models');
 
+// The jobs log the id of the record they worked on, not the record itself:
+// a position comes with its candidates.
 const JobCallbacks = {
     CLOSE_ATTENDANCES: async ({ id }) => {
         const plenary = await Plenary.findByPk(id);
@@ -14,7 +16,7 @@ const JobCallbacks = {
         }
 
         await plenary.closeAttendances();
-        logger.info({ plenary }, 'Closing attendances for plenary: Successfully closed attendances for plenary');
+        logger.info({ plenary_id: plenary.id }, 'Closing attendances for plenary: Successfully closed attendances for plenary');
     },
     OPEN_POSITION_APPLICATIONS: async ({ id }) => {
         const position = await Position.findByPk(id);
@@ -24,12 +26,12 @@ const JobCallbacks = {
         }
 
         if (position.status !== 'closed') {
-            logger.warn({ position }, 'Opening applications for position: Position status is not closed.');
+            logger.warn({ position_id: position.id, status: position.status }, 'Opening applications for position: Position status is not closed.');
             return;
         }
 
         await position.update({ status: 'open' }, { hooks: false });
-        logger.info({ position }, 'Opening applications for position: Successfully opened deadline for position');
+        logger.info({ position_id: position.id }, 'Opening applications for position: Successfully opened deadline for position');
     },
     CLOSE_POSITION_APPLICATIONS: async ({ id }) => {
         const position = await Position.findByPk(id, {
@@ -42,12 +44,12 @@ const JobCallbacks = {
         }
 
         if (position.status === 'closed') {
-            logger.warn({ position }, 'Closing applications for position: Position status is not open.');
+            logger.warn({ position_id: position.id, status: position.status }, 'Closing applications for position: Position status is not open.');
             return;
         }
 
         await position.update({ status: 'closed' }, { hooks: false });
-        logger.info({ position }, 'Closing applications for position: Successfully closed deadline for position');
+        logger.info({ position_id: position.id }, 'Closing applications for position: Successfully closed deadline for position');
     }
 };
 

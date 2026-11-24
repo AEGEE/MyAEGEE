@@ -15,7 +15,10 @@ exports.findPlenary = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
-    const plenary = await Plenary.findByPk(Number(req.params.plenary_id));
+    // Only a plenary of the event in the URL.
+    const plenary = await Plenary.findOne({
+        where: { id: Number(req.params.plenary_id), event_id: req.event.id }
+    });
     if (!plenary) {
         return errors.makeNotFoundError(res, 'Plenary is not found.');
     }
@@ -44,6 +47,8 @@ exports.createPlenary = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage plenaries.');
     }
 
+    // Only the fields of the plenary form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
     req.body.event_id = req.event.id;
 
     const newPlenary = await Plenary.create(req.body);
@@ -59,6 +64,8 @@ exports.editPlenary = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage plenaries.');
     }
 
+    // Only the fields of the plenary form are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
     await req.plenary.update(req.body);
 
     return res.json({
@@ -78,7 +85,7 @@ exports.findPlenaryWithAttendances = async (req, res) => {
 
     // Preloading values.
     const plenary = await Plenary.findOne({
-        where: { id: Number(req.params.plenary_id) },
+        where: { id: Number(req.params.plenary_id), event_id: req.event.id },
         include: [{
             model: Attendance,
             include: [{

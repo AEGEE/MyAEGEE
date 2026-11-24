@@ -70,7 +70,8 @@ describe('Events previous_agora_id setting', () => {
     test('should not set previous Agora if it was not published', async () => {
         await generator.createEvent({
             id: 1,
-            type: 'agora'
+            type: 'agora',
+            status: 'draft'
         });
 
         const event = generator.generateEvent({

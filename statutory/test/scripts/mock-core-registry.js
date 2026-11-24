@@ -135,6 +135,20 @@ exports.mockCoreMainPermissions = (options) => {
             .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
+    // An explicit list of combined permissions, such as ['global:manage_event:agora'].
+    if (options.permissions) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/my_permissions')
+            .reply(200, {
+                success: true,
+                data: options.permissions.map((combined) => {
+                    const [scope, action, object] = combined.split(':');
+                    return { scope, action, object, combined };
+                })
+            });
+    }
+
     if (options.applicationBanPermission) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()

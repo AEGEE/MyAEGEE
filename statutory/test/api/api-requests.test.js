@@ -12,6 +12,8 @@ describe('API requests', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+        // Other files count rows, so nothing is left behind.
+        await generator.clearAll();
     });
 
     test('should fail if core returns net error while fetching user', async () => {

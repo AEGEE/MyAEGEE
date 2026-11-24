@@ -12,6 +12,8 @@ describe('Metrics requests', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+        // Other files count rows, so nothing is left behind.
+        await generator.clearAll();
     });
 
     test('should return data correctly on /metrics', async () => {
@@ -31,6 +33,30 @@ describe('Metrics requests', () => {
         });
 
         expect(res.statusCode).toEqual(200);
+    });
+
+    test('should name only published events and their positions on /metrics', async () => {
+        const createEventWithData = async (name, status) => {
+            const event = await generator.createEvent({ type: 'agora', name, status });
+            await generator.createApplication({}, event);
+            await generator.createMembersList({}, event);
+            const position = await generator.createPosition({ name: name + ' position' }, event);
+            await generator.createCandidate({ user_id: 1, status: 'pending' }, position);
+        };
+
+        await createEventWithData('Published event of the metrics', 'published');
+        await createEventWithData('Draft event of the metrics', 'draft');
+
+        const res = await request({
+            path: '/metrics',
+            method: 'GET',
+            responseType: 'text'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toContain('Published event of the metrics');
+        expect(res.body).toContain('Published event of the metrics position');
+        expect(res.body).not.toContain('Draft event of the metrics');
     });
 
     test('should return data correctly on /metrics/requests', async () => {

@@ -297,13 +297,18 @@ exports.getApplicationFields = (event) => {
     return fields;
 };
 
-// A helper to determine if user has permission.
+// A helper to determine if user has permission, given in full ('global:manage_event:agora').
 function hasPermission(permissionsList, combinedPermission) {
     if (!Array.isArray(permissionsList)) {
         return false;
     }
 
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    return permissionsList.some((permission) => permission.combined === combinedPermission);
+}
+
+// Uploading and editing a memberslist after the deadline.
+function hasMemberslistLatePermission(permissionsList, eventType) {
+    return hasPermission(permissionsList, 'global:memberslist_late:' + eventType);
 }
 
 // A helper to get bodies list where I have some permission
@@ -319,17 +324,29 @@ function getBodiesListFromPermissions(result) {
         .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
+// The event types whose events the user manages.
+exports.hasPermission = hasPermission;
+
+exports.getManagedEventTypes = (corePermissions) => {
+    return constants.EVENT_TYPES.filter((type) => hasPermission(corePermissions, 'global:manage_event:' + type));
+};
+
+// A draft event is only visible to those who manage events of its type.
+exports.canSeeEvent = (event, corePermissions) => {
+    return event.status === 'published' || exports.getManagedEventTypes(corePermissions).includes(event.type);
+};
+
 exports.getPermissions = (user, corePermissions) => {
     return {
         create_event: {
-            agora: hasPermission(corePermissions, 'manage_event:agora'),
-            epm: hasPermission(corePermissions, 'manage_event:epm'),
-            spm: hasPermission(corePermissions, 'manage_event:spm')
+            agora: hasPermission(corePermissions, 'global:manage_event:agora'),
+            epm: hasPermission(corePermissions, 'global:manage_event:epm'),
+            spm: hasPermission(corePermissions, 'global:manage_event:spm')
         },
         edit_pax_limits: {
-            agora: hasPermission(corePermissions, 'manage_event:agora'),
-            epm: hasPermission(corePermissions, 'manage_event:epm'),
-            spm: hasPermission(corePermissions, 'manage_event:spm')
+            agora: hasPermission(corePermissions, 'global:manage_event:agora'),
+            epm: hasPermission(corePermissions, 'global:manage_event:epm'),
+            spm: hasPermission(corePermissions, 'global:manage_event:spm')
         },
         see_background_tasks: hasPermission(corePermissions, 'global:see_background_tasks:statutory')
     };
@@ -356,9 +373,12 @@ exports.getEventPermissions = (data) => {
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.delete_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.apply = event.can_apply
+    // Nobody can apply to a draft event.
+    permissions.apply = event.status === 'published' && (
+        event.can_apply
         || hasPermission(corePermissions, 'global:manage_applications:' + event.type)
-        || hasPermission(corePermissions, 'global:apply:' + event.type);
+        || hasPermission(corePermissions, 'global:apply:' + event.type)
+    );
 
     permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
 
@@ -418,8 +438,8 @@ exports.getEventPermissions = (data) => {
     for (const body of bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
-        permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasMemberslistLatePermission(corePermissions, event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasMemberslistLatePermission(corePermissions, event.type)) && memberslistBodiesList.includes(body.id) && exports.isLocal(body);
         if (isBetweenMemberslistDeadlines) {
             permissions.edit_memberslist[body.id] = permissions.edit_memberslist[body.id] && hasMemberslistEditBetweenDeadlinesPermission;
         }
@@ -434,29 +454,31 @@ exports.getEventPermissions = (data) => {
 
     permissions.manage_question_lines = hasPermission(corePermissions, 'global:manage_question_lines:' + event.type);
     permissions.see_question_lines = hasPermission(corePermissions, 'global:see_question_lines:' + event.type);
-    permissions.see_questions = permissions.manage_question_lines || permissions.see_question_lines || (myApplication ? myApplication.confirmed : false);
-    permissions.submit_questions = myApplication ? myApplication.confirmed : false;
+    // Without a permission for question lines, an application that is confirmed and not cancelled is needed.
+    const hasConfirmedApplication = Boolean(myApplication && myApplication.confirmed && !myApplication.cancelled);
+    permissions.see_questions = permissions.manage_question_lines || permissions.see_question_lines || hasConfirmedApplication;
+    permissions.submit_questions = hasConfirmedApplication;
 
     return permissions;
 };
 
 exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine, application }) => {
     // Apply disregard the application period
-    const canApply = hasPermission(corePermissions, 'apply:' + event.type);
+    const canApply = hasPermission(corePermissions, 'global:apply:' + event.type);
 
     // Basically do everything with applications.
-    const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
+    const canManage = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
 
     // See pax list and change 'confirmed', 'incoming' and 'attended' attribute only.
-    const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
+    const isIncoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
 
     // See JC list and change 'registered' and 'departed' attributes only.
-    const isJuridical = hasPermission(corePermissions, 'manage_juridical:' + event.type);
+    const isJuridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
 
     // Update is_on_memberslist attribute (Network Director).
-    const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
+    const updateMemberslistStatus = hasPermission(corePermissions, 'global:update_memberslist_status:' + event.type);
 
-    permissions.see_application = mine || canManage || permissions.see_boardview[application.body_id];
+    permissions.see_application = mine || canManage || permissions.see_boardview.global || permissions.see_boardview[application.body_id];
     permissions.see_application_incoming = isIncoming;
 
     // User can edit application if it's his application, it's within the deadline (or he can apply regardless of it)

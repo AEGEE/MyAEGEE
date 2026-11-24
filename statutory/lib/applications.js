@@ -33,6 +33,56 @@ function canListFutureApplicationsForBan(corePermissions) {
         && corePermissions.some((permission) => permission.combined === 'global:update_application_ban:member');
 }
 
+// The board comment is for those who select the participants: the board of the applicant's
+// body, those who approve members of all bodies and those who manage applications.
+function canSeeBoardComment(req, application) {
+    return Boolean(
+        req.permissions.manage_applications
+        || req.permissions.see_boardview.global
+        || req.permissions.see_boardview[application.body_id]
+    );
+}
+
+// The application as the caller may see it: the applicant does not get the board comment,
+// and reads the status "pending" until the event reveals the statuses.
+function presentApplication(req, application) {
+    const presented = application.toJSON();
+    if (!canSeeBoardComment(req, application)) {
+        delete presented.board_comment;
+    }
+
+    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+        presented.status = 'pending';
+    }
+
+    return presented;
+}
+
+// What the officers who can set one flag of an application see of it in their own listing.
+const INCOMING_OFFICER_FIELDS = [...constants.ALLOWED_INCOMING_FIELDS, 'notification_email'];
+const FLAG_OFFICER_FIELDS = {
+    confirmed: INCOMING_OFFICER_FIELDS,
+    incoming: INCOMING_OFFICER_FIELDS,
+    attended: INCOMING_OFFICER_FIELDS,
+    registered: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+    departed: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+    is_on_memberslist: constants.ALLOWED_NETWORK_LIST_FIELDS
+};
+
+// The application as the caller may see it after setting one of its flags: the whole
+// application for the applicant and for those who manage applications, and the fields
+// of their own listing for the incoming, juridical and network officers.
+function presentApplicationAfterFlag(req, application, key) {
+    const presented = presentApplication(req, application);
+    const officerFields = FLAG_OFFICER_FIELDS[key];
+
+    if (!officerFields || req.permissions.manage_applications || application.user_id === req.user.id) {
+        return presented;
+    }
+
+    return helpers.whitelistObject(presented, officerFields);
+}
+
 function isApplicationBanActive(user) {
     return user.event_application_ban && new Date(user.event_application_ban.ban_until) > new Date();
 }
@@ -353,7 +403,7 @@ exports.getApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
-    const application = req.application.toJSON();
+    const application = presentApplication(req, req.application);
     application.editable_bodies = [];
 
     if (req.permissions.edit_application) {
@@ -365,10 +415,6 @@ exports.getApplication = async (req, res) => {
     }
 
     application.permissions = req.permissions;
-
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
-        application.status = 'pending';
-    }
 
     return res.json({
         success: true,
@@ -461,7 +507,7 @@ exports.updateApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.application
+        data: presentApplication(req, req.application)
     });
 };
 
@@ -493,7 +539,7 @@ function setApplicationBoolean(key) {
 
         return res.json({
             success: true,
-            data: dbResult
+            data: presentApplicationAfterFlag(req, dbResult, key)
         });
     };
 }
@@ -724,6 +770,10 @@ exports.setBoardForBody = async (req, res) => {
 };
 
 exports.postApplication = async (req, res) => {
+    if (req.event.status !== 'published') {
+        return errors.makeForbiddenError(res, 'You cannot apply to this event, as it is not published yet.');
+    }
+
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.');
     }
@@ -798,7 +848,7 @@ exports.postApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: newApplication
+        data: presentApplication(req, newApplication)
     });
 };
 

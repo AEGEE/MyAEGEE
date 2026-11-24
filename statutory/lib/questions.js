@@ -1,14 +1,16 @@
 const errors = require('./errors');
 const { Question, Application } = require('../models');
 const constants = require('./constants');
+const helpers = require('./helpers');
 
 exports.findQuestion = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.question_id))) {
         return errors.makeBadRequestError(res, 'The question ID is invalid.');
     }
 
+    // Only a question of the question line in the URL.
     const question = await Question.findOne({
-        where: { id: Number(req.params.question_id) },
+        where: { id: Number(req.params.question_id), question_line_id: req.questionLine.id },
         include: [{
             model: Application,
             attributes: constants.ALLOWED_QUESTION_LINE_APPLICATION_FIELDS
@@ -34,7 +36,8 @@ exports.submitQuestion = async (req, res) => {
         return errors.makeForbiddenError(res, 'The question line is closed, you cannot ask questions now.');
     }
 
-    delete req.body.status;
+    // Only the text is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_FORM_FIELDS);
 
     req.body.application_id = req.myApplication.id;
     req.body.question_line_id = req.questionLine.id;
@@ -48,7 +51,8 @@ exports.submitQuestion = async (req, res) => {
 };
 
 exports.getQuestion = async (req, res) => {
-    if (!req.permissions.see_questions) {
+    // The member who asked the question can always read it, as they can edit and delete it.
+    if (!req.permissions.see_questions && req.question.application.user_id !== req.user.id) {
         return errors.makeForbiddenError(res, 'You cannot see this question.');
     }
 
@@ -63,13 +67,13 @@ exports.editQuestion = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this question.');
     }
 
-    if (req.questionLine.status !== 'open') {
+    // Once the question line is closed, only those who manage question lines can edit its questions.
+    if (req.questionLine.status !== 'open' && !req.permissions.manage_question_lines) {
         return errors.makeForbiddenError(res, 'The question line is closed, you cannot edit questions now.');
     }
 
-    delete req.body.status;
-    delete req.body.application_id;
-    delete req.body.question_line_id;
+    // Only the text is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_FORM_FIELDS);
 
     await req.question.update(req.body);
 
@@ -82,6 +86,11 @@ exports.editQuestion = async (req, res) => {
 exports.deleteQuestion = async (req, res) => {
     if (!req.permissions.edit_question) {
         return errors.makeForbiddenError(res, 'You cannot delete this question.');
+    }
+
+    // Once the question line is closed, only those who manage question lines can delete its questions.
+    if (req.questionLine.status !== 'open' && !req.permissions.manage_question_lines) {
+        return errors.makeForbiddenError(res, 'The question line is closed, you cannot delete questions now.');
     }
 
     await req.question.destroy();

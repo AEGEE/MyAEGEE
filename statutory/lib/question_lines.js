@@ -8,7 +8,10 @@ exports.findQuestionLine = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The question line ID is invalid.');
     }
 
-    const questionLine = await QuestionLine.findByPk(Number(req.params.question_line_id));
+    // Only a question line of the event in the URL.
+    const questionLine = await QuestionLine.findOne({
+        where: { id: Number(req.params.question_line_id), event_id: req.event.id }
+    });
     if (!questionLine) {
         return errors.makeNotFoundError(res, 'Question line is not found.');
     }
@@ -48,7 +51,8 @@ exports.createQuestionLine = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage question lines.');
     }
 
-    delete req.body.status;
+    // Only the name is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_LINE_FORM_FIELDS);
     req.body.event_id = req.event.id;
 
     const newQuestionLine = await QuestionLine.create(req.body);
@@ -64,9 +68,8 @@ exports.editQuestionLine = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage question lines.');
     }
 
-    delete req.body.status;
-    delete req.body.id;
-    delete req.body.event_id;
+    // Only the name is saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.QUESTION_LINE_FORM_FIELDS);
 
     await req.questionLine.update(req.body);
 

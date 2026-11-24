@@ -195,7 +195,7 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('data');
     });
 
-    test('should succeed if user has local late permission for his body on uploading new memberslist and the deadline has passed', async () => {
+    test('should succeed if user has the late permission on uploading new memberslist for his body and the deadline has passed', async () => {
         mock.mockAll({ mainPermissions: { latePermissions: true } });
 
         const event = await generator.createEvent({
@@ -220,7 +220,32 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('data');
     });
 
-    test('should succeed if user has local late permission for his body on updating memberslist and the deadline has passed', async () => {
+    test('should return 403 if user has the late permission in another scope than global and the deadline has passed', async () => {
+        mock.mockAll({ mainPermissions: { permissions: ['local:memberslist_late:agora'] } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(7, 'days'),
+            application_period_ends: moment().subtract(6, 'days'),
+            board_approve_deadline: moment().subtract(5, 'days'),
+            participants_list_publish_deadline: moment().subtract(4, 'days'),
+            memberslist_submission_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days')
+        });
+        const res = await request({
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should succeed if user has the late permission on updating memberslist for his body and the deadline has passed', async () => {
         mock.mockAll({ mainPermissions: { latePermissions: true } });
 
         const event = await generator.createEvent({

@@ -4,6 +4,8 @@ const core = require('./core');
 const errors = require('./errors');
 const mailer = require('./mailer');
 const config = require('../config');
+const constants = require('./constants');
+const helpers = require('./helpers');
 const { MembersList, VotesPerAntenna } = require('../models');
 
 exports.checkIfAgora = async (req, res, next) => {
@@ -124,11 +126,11 @@ exports.uploadMembersList = async (req, res) => {
     // Fetching body. We'll need that for calculating votes per antenna.
     const body = await core.getBody(req, req.params.body_id);
 
+    // Only the currency and the members are saved, anything else in the request is ignored.
+    req.body = helpers.whitelistObject(req.body, constants.MEMBERSLIST_FORM_FIELDS);
     req.body.body_id = req.params.body_id;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-
-    delete req.body.fee_paid;
 
     const existingMembersList = await MembersList.findOne({ where: {
         event_id: req.event.id,

@@ -69,6 +69,8 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.fee)) options.fee = faker.number.int({ min: 0, max: 100 });
     if (notSet(options.body_id)) options.body_id = nextBodyId();
     if (notSet(options.type)) options.type = faker.helpers.arrayElement(['agora', 'epm']);
+    // Published unless a test asks for a draft: a draft is only visible to those who manage events of its type.
+    if (notSet(options.status)) options.status = 'published';
 
     if (notSet(options.questions)) {
         const questionsCount = faker.number.int({ min: 1, max: 6 });

@@ -71,11 +71,8 @@ exports.sendAll = async (req, res) => {
 
         // Using the custom mailer template, it accepts only email_body as a parameter
         // and sends the body as it was passed.
-        const notificationEmail = user.notification_email;
-        to.push(notificationEmail);
+        to.push(user.notification_email);
         bodies.push({ email_body: text });
-
-        logger.info({ notificationEmail }, 'Prepared email');
     }
 
     logger.info({ count: bodies.length }, 'Prepared letters');
