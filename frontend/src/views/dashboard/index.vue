@@ -148,33 +148,28 @@ export default {
     this.isLoading.events = true
     this.isLoading.statutory = true
 
-    this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
-      this.axios.get(this.services['statutory'] + '/mine').then((statutoryResponse) => {
-        this.axios.get(this.services['summeruniversity'] + '/mine/participating').then((summeruniversityResponse) => {
-          const input = eventsResponse.data.data.concat(statutoryResponse.data.data, summeruniversityResponse.data.data)
-          for (const event of input) {
-            if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
-              if (moment().isSameOrBefore(event.starts)) {
-                this.events.future.push(event)
-              } else {
-                this.events.past.push(event)
-              }
-            }
+    // The three lists are fetched side by side; one that fails leaves the others shown.
+    const lists = [
+      { url: this.services['events'] + '/mine/participating', error: 'Could not fetch events list' },
+      { url: this.services['statutory'] + '/mine', error: 'Could not fetch statutory events list' },
+      { url: this.services['summeruniversity'] + '/mine/participating', error: 'Could not fetch summer university events list' }
+    ]
+    Promise.all(lists.map(({ url, error }) => this.axios.get(url).then((response) => response.data.data).catch((err) => {
+      this.$root.showError(error, err)
+      return []
+    }))).then((results) => {
+      for (const event of [].concat(...results)) {
+        if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
+          if (moment().isSameOrBefore(event.starts)) {
+            this.events.future.push(event)
+          } else {
+            this.events.past.push(event)
           }
-          this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
-          this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
-          this.isLoading.events = false
-        }).catch((err) => {
-          this.isLoading.events = false
-          this.$root.showError('Could not fetch summer university events list', err)
-        })
-      }).catch((err) => {
-        this.isLoading.events = false
-        this.$root.showError('Could not fetch statutory events list', err)
-      })
-    }).catch((err) => {
+        }
+      }
+      this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
+      this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
       this.isLoading.events = false
-      this.$root.showError('Could not fetch events list', err)
     })
 
     this.axios.get(this.services['statutory'] + '/events/latest').then((response) => {
