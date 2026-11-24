@@ -24,7 +24,11 @@
           </div>
 
           <hr />
-          <form v-on:submit.prevent="register">
+          <div v-if="campaign.active === false">
+            <p class="notification is-warning">This registration campaign is closed.</p>
+            <router-link :to="{ name: 'oms.login' }" class="button">Login</router-link>
+          </div>
+          <form v-else v-on:submit.prevent="register">
             <div class="field">
               <label class="label" for="register-username">Username <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
