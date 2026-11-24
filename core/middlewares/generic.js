@@ -89,7 +89,8 @@ exports.healthcheck = (req, res) => {
 };
 
 /* eslint-disable no-unused-vars */
-exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+// The query is left out: it is the client's input, and can carry a token.
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl.split('?')[0]);
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {

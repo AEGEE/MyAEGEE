@@ -90,7 +90,7 @@ const User = sequelize.define('user', {
             notNull: { msg: 'First name should be set.' },
             isValid(value) {
                 if (!NAME_REGEX.test(value)) {
-                    throw new Error(`First name should only contain letters, spaces and dashes, got "${value}".`);
+                    throw new Error('First name should only contain letters, spaces and dashes.');
                 }
             }
         }
@@ -103,7 +103,7 @@ const User = sequelize.define('user', {
             notNull: { msg: 'Last name should be set.' },
             isValid(value) {
                 if (!NAME_REGEX.test(value)) {
-                    throw new Error(`Last name should only contain letters, spaces and dashes, got "${value}".`);
+                    throw new Error('Last name should only contain letters, spaces and dashes.');
                 }
             }
         }
