@@ -81,13 +81,10 @@ Vue.use(Toast)
 // Buefy has no global default for the role of the dialogs and modals opened from code, so
 // they all get it here. Call sites only add what names them: `title` for dialogs, `ariaLabel`
 // for modals.
-const withDefaults = (programmatic, method, defaults, textOption, afterOpen) => {
+const withDefaults = (programmatic, method, defaults, afterOpen) => {
   const original = programmatic[method]
   programmatic[method] = params => {
-    const opened = original.call(programmatic, {
-      ...defaults,
-      ...(typeof params === 'string' ? { [textOption]: params } : params)
-    })
+    const opened = original.call(programmatic, { ...defaults, ...params })
     if (afterOpen) afterOpen(opened)
     return opened
   }
@@ -98,10 +95,8 @@ const withDefaults = (programmatic, method, defaults, textOption, afterOpen) => 
 // its title and described by its message; a dialog without a title is labelled by its message.
 let dialogCount = 0
 const nameDialog = (dialog) => {
-  if (!dialog || typeof dialog.$nextTick !== 'function') return
   dialog.$nextTick(() => {
     const root = dialog.$el
-    if (!root || typeof root.querySelector !== 'function') return
     const id = `dialog-${++dialogCount}`
     const title = root.querySelector('.modal-card-title')
     const message = root.querySelector('.media-content > p')
@@ -117,9 +112,9 @@ const nameDialog = (dialog) => {
 }
 
 for (const method of ['alert', 'confirm', 'prompt']) {
-  withDefaults(Vue.prototype.$buefy.dialog, method, { ariaRole: 'alertdialog', ariaModal: true }, 'message', nameDialog)
+  withDefaults(Vue.prototype.$buefy.dialog, method, { ariaRole: 'alertdialog', ariaModal: true }, nameDialog)
 }
-withDefaults(Vue.prototype.$buefy.modal, 'open', { ariaRole: 'dialog', ariaModal: true }, 'content')
+withDefaults(Vue.prototype.$buefy.modal, 'open', { ariaRole: 'dialog', ariaModal: true })
 Vue.use(Vue2TouchEvents)
 Vue.use(VTooltip)
 Vue.component('select-or-custom', SelectOrCustom)
