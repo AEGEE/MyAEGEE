@@ -10,7 +10,7 @@ import {
 } from '../support/factories/summeruniversity.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { delayMapLibrary, mockMap } from '../support/map.ts';
-import { openMenu, toast } from '../support/shell.ts';
+import { openAccountMenu, openMenu, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const SEASONS = [suSeason({ year: 2027, name: 'Summer University 2027', active: true }), suSeason({ year: 2026, name: 'Summer University 2026', active: false })];
@@ -555,5 +555,18 @@ test.describe('Summer University second submission editor', () => {
         // Two frames: the page has run the library by then.
         await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
         await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('logging out from the second-submission editor leads to the login page', async ({ page, api, layout, me }) => {
+        showForm(api, me);
+        await page.goto('/summeruniversity/lake-su/edit_second');
+        await loaded(page);
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
 });

@@ -9,7 +9,7 @@ import {
 } from '../support/factories/summeruniversity.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { delayMapLibrary, mockMap } from '../support/map.ts';
-import { fillDate, openMenu, toast } from '../support/shell.ts';
+import { fillDate, openAccountMenu, openMenu, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const BODIES = [body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 4, name: 'AEGEE-Partner' }), body({ id: 5, name: 'AEGEE-Third' })];
@@ -951,5 +951,31 @@ test.describe('Summer University editor', () => {
         // Two frames: the page has run the library by then.
         await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
         await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('logging out from the editor leads to the login page', async ({ page, api, layout, me }) => {
+        showEdit(api, me);
+        await page.goto('/summeruniversity/mountain-su/edit');
+        await expect(page.getByLabel('Title')).toHaveValue('Mountain SU');
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
+    });
+
+    test('logging out while creating an SU leads to the login page', async ({ page, api, layout }) => {
+        showForm(api);
+        await page.goto('/summeruniversity/new');
+        await expect(page.getByRole('combobox', { name: 'Add organising body' })).toBeVisible();
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
 });

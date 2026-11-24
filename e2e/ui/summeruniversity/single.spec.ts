@@ -9,7 +9,7 @@ import {
     type SuEventMinimal, type SuPermissions, type SuStatus
 } from '../support/factories/summeruniversity.ts';
 import { delayMapLibrary, mockMap } from '../support/map.ts';
-import { dialog, openMenu, toast } from '../support/shell.ts';
+import { dialog, openAccountMenu, openMenu, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -646,5 +646,18 @@ test.describe('Summer University page', () => {
         // Two frames: the page has run the library by then.
         await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
         await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('logging out from the SU page leads to the login page', async ({ page, api, layout }) => {
+        showSu(api, suEventFull({ url: 'mountains', name: 'Mountains', locations: [] }));
+        await page.goto('/summeruniversity/mountains');
+        await expect(page.getByRole('heading', { name: 'Mountains', level: 1 })).toBeVisible();
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
 });

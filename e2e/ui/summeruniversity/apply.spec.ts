@@ -10,7 +10,7 @@ import {
     suApplication, suApplicationPermissions, suEventFull, suPermissions, VISA_DETAILS,
     type SuApplication, type SuApplicationPermissions, type SuEventFull, type SuPermissions
 } from '../support/factories/summeruniversity.ts';
-import { dialog, openMenu, toast } from '../support/shell.ts';
+import { dialog, openAccountMenu, openMenu, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -551,5 +551,18 @@ test.describe('applying to a Summer University', () => {
         // Counted at once: a retrying matcher would only wait until a toast has gone.
         expect(await toast(page, /Event is not found/).count()).toBe(0);
         await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('logging out from the application form leads to the login page', async ({ page, api, layout }) => {
+        newApplication(api);
+        await page.goto('/summeruniversity/mountains/applications/me');
+        await expect(page.getByRole('checkbox', { name: PRIVACY })).toBeVisible();
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
 });

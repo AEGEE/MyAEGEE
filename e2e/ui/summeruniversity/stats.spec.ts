@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 
 import { forbidden, ok } from '../support/factories/base.ts';
 import { suSeason, suStats, type SuStats } from '../support/factories/summeruniversity.ts';
-import { openMenu, tableRows, toast } from '../support/shell.ts';
+import { openAccountMenu, openMenu, tableRows, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -264,5 +264,19 @@ test.describe('Summer University statistics', () => {
         // Counted at once: a retrying matcher would only wait until a toast has gone.
         expect(await toast(page, /Could not fetch statistics/).count()).toBe(0);
         await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('logging out from the statistics leads to the login page', async ({ page, api, layout }) => {
+        api.json('GET summeruniversity /seasons', ok(SEASONS));
+        api.json('GET summeruniversity /applications', ok(suStats()));
+        await page.goto('/summeruniversity/stats');
+        await expect(page.getByRole('table', { name: 'Applicants by body' })).toBeVisible();
+
+        const account = await openAccountMenu(page, layout);
+        await account.getByRole('button', { name: 'Logout' }).click();
+
+        await expect(page).toHaveURL('/login');
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
 });
