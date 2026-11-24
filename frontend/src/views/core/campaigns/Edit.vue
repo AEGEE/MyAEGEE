@@ -3,19 +3,19 @@
     <div class="tile is-child">
       <form @submit.prevent="saveCampaign()">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="campaign-name">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="campaign.name" />
+            <input id="campaign-name" class="input" type="text" required v-model="campaign.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="campaign-description">Description</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long" />
+            <textarea id="campaign-description" class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(campaign.description_long)" />
           </div>
@@ -23,14 +23,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Campaign URL</label>
+          <label class="label" for="campaign-url">Campaign URL</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
-                <a class="button is-static">/signup/</a>
+                <span class="button is-static">/signup/</span>
               </div>
               <div class="control">
-                <input class="input" type="text" required v-model="campaign.url" />
+                <input id="campaign-url" class="input" type="text" required v-model="campaign.url" />
               </div>
             </div>
           </div>
@@ -38,9 +38,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Autojoin body</label>
-          <p class="control" /><div class="field has-addons">
+          <label class="label" for="campaign-autojoin-body">Autojoin body</label>
+          <div class="field has-addons">
             <b-autocomplete
+              id="campaign-autojoin-body"
               v-model="autocompleteCampaign"
               :data="bodies"
               :disabled="$route.params.body_id"
@@ -57,16 +58,17 @@
               </template>
             </b-autocomplete>
             <p class="control">
-              <a
+              <button
+                type="button"
                 class="button is-danger"
                 @click="campaign.autojoin_body_id = null; campaign.autojoin_body = null"
                 v-if="campaign.autojoin_body && !$route.params.body_id">
                 {{ campaign.autojoin_body.name }} (Click to unset)
-              </a>
-              <a class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
+              </button>
+              <span class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
                 {{ campaign.autojoin_body.name }}
-              </a>
-              <a class="button is-static" v-if="!campaign.autojoin_body">Not set.</a>
+              </span>
+              <span class="button is-static" v-if="!campaign.autojoin_body">Not set.</span>
             </p>
           </div>
           <p class="help is-danger" v-if="errors.autojoin_body_id">{{ errors.autojoin_body_id.join(', ')}}</p>
