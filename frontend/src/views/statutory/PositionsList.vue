@@ -261,8 +261,10 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router,
           bodies: this.bodies
+        },
+        events: {
+          saved: () => this.refreshPositions()
         }
       })
     },
@@ -281,8 +283,10 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router,
           bodies: this.bodies
+        },
+        events: {
+          saved: () => this.refreshPositions()
         }
       })
     },
@@ -341,6 +345,47 @@ export default {
         this.$root.showError('Could not update candidature status', err)
       })
     },
+    fetchPositions () {
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix).then((positionResponse) => {
+        for (const position of positionResponse.data.data) {
+          position.isSaving = false
+          position.newStatus = position.status
+
+          for (const candidate of position.candidates) {
+            candidate.isSaving = false
+            candidate.newStatus = candidate.status
+          }
+        }
+
+        this.positions = positionResponse.data.data
+
+        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
+      }).then((myCandidates) => {
+        this.myCandidates = myCandidates.data.data
+
+        for (const candidate of this.myCandidates) {
+          const position = this.positions.find(pos => pos.id === candidate.position_id)
+          if (position) {
+            this.$set(position, 'myCandidate', candidate)
+          }
+        }
+
+        // The selected position is shown as it is now.
+        if (this.selectedPosition) {
+          this.selectedPosition = this.positions.find(pos => pos.id === this.selectedPosition.id)
+        }
+      })
+    },
+    // After a position was created or edited.
+    refreshPositions () {
+      this.isLoading = true
+      this.fetchPositions().then(() => {
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not fetch positions', err)
+      })
+    },
     switchPositionStatus (position) {
       position.isSaving = true
       const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/status'
@@ -373,43 +418,19 @@ export default {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix)
-    }).then((positionResponse) => {
-      for (const position of positionResponse.data.data) {
-        position.isSaving = false
-        position.newStatus = position.status
-
-        for (const candidate of position.candidates) {
-          candidate.isSaving = false
-          candidate.newStatus = candidate.status
-        }
-      }
-
-      this.positions = positionResponse.data.data
-
-      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
-    }).then((myCandidates) => {
-      this.myCandidates = myCandidates.data.data
-
-      for (const candidate of this.myCandidates) {
-        const position = this.positions.find(pos => pos.id === candidate.position_id)
-        if (position) {
-          this.$set(position, 'myCandidate', candidate)
-        }
-      }
-
+      return this.fetchPositions()
+    }).then(() => {
       this.isLoading = false
-    })
-      .catch((err) => {
-        this.isLoading = false
-        if (err.response && err.response.status === 404) {
-          this.$root.showError('Event is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
+    }).catch((err) => {
+      this.isLoading = false
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-        this.$router.push({ name: 'oms.statutory.list.all' })
-      })
+      this.$router.push({ name: 'oms.statutory.list.all' })
+    })
   }
 }
 </script>

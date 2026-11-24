@@ -120,7 +120,7 @@ export default {
     MarkdownTooltip
   },
   name: 'EditPositionModal',
-  props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router', 'bodies'],
+  props: ['event', 'position', 'services', 'showSuccess', 'showError', 'bodies'],
   data () {
     return {
       // The form works on a copy of the position's own fields: what isn't saved stays out of
@@ -188,7 +188,9 @@ export default {
         this.showSuccess(this.isNew ? 'Position is created.' : 'Position is updated.')
 
         this.isLoading = false
-        this.router.go(0) // Reloading the page.
+        // The list shows the saved position once it is fetched again.
+        this.$emit('saved')
+        this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
         if (err.response && err.response.status === 422) {
