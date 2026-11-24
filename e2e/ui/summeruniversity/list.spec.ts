@@ -338,13 +338,17 @@ test.describe('Summer University list', () => {
         await page.goto('/summeruniversity');
         await expect(page.getByText('No events found.')).toBeVisible();
         const search = page.getByRole('textbox', { name: 'Search by name or description' });
+        // The page gives the earlier search up, so its late answer can't arrive.
+        const givenUp = page.waitForEvent('requestfailed', (request) => new URL(request.url()).searchParams.get('search') === 'm');
         await search.fill('m');
         await search.fill('mo');
 
         await expect(page.getByRole('article', { name: 'Mountains and Languages' })).toBeVisible();
+        await givenUp;
         release();
-        // The earlier request was cancelled: no error for it, and its answer is not shown.
-        await expect(toast(page, 'Could not fetch events list')).toHaveCount(0);
+        // No error for the earlier request (counted at once: a retrying matcher would only wait
+        // until a toast has gone), and its answer is not shown.
+        expect(await toast(page, 'Could not fetch events list').count()).toBe(0);
         await expect(page.getByRole('article', { name: 'Stale answer' })).toHaveCount(0);
     });
 

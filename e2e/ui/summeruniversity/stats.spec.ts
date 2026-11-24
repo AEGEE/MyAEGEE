@@ -138,7 +138,8 @@ test.describe('Summer University statistics', () => {
         release();
         await late;
         await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
-        await expect(toast(page, 'Could not fetch statistics')).toHaveCount(0);
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, 'Could not fetch statistics').count()).toBe(0);
         await expect(section(page, 'Applicants by body')).toContainText('AEGEE-Current');
     });
 

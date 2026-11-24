@@ -284,7 +284,8 @@ test.describe('Summer University board view', () => {
             await late;
             await settle(page);
 
-            await expect(toast(page, /Error fetching board view data/)).toHaveCount(0);
+            // Counted at once: a retrying matcher would only wait until a toast has gone.
+            expect(await toast(page, /Error fetching board view data/).count()).toBe(0);
             await expect(tableRows(table)).toHaveText([/Dana Other/]);
             // Nothing is left loading over the table: the board can save its comment.
             await page.getByRole('textbox', { name: 'Board comment for Dana Other' }).fill('Active member');
@@ -314,7 +315,8 @@ test.describe('Summer University board view', () => {
         await late;
         await settle(page);
 
-        await expect(toast(page, /Error fetching board view data/)).toHaveCount(0);
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Error fetching board view data/).count()).toBe(0);
         await expect(page).toHaveURL('/dashboard');
     });
 
@@ -337,7 +339,8 @@ test.describe('Summer University board view', () => {
         await late;
         await settle(page);
 
-        await expect(toast(page, /Could not fetch your board bodies/)).toHaveCount(0);
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Could not fetch your board bodies/).count()).toBe(0);
         await expect(page).toHaveURL('/dashboard');
     });
 });

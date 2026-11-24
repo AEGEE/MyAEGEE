@@ -489,12 +489,16 @@ test.describe('Summer University second submission editor', () => {
         await page.goto('/summeruniversity/lake-su/edit_second');
         await loaded(page);
 
+        // The page gives the earlier search up, so its late answer can't arrive.
+        const givenUp = page.waitForEvent('requestfailed', (request) => new URL(request.url()).searchParams.get('query') === 'Lo');
         await page.getByRole('textbox', { name: 'Add organiser' }).fill('Lo');
         await page.getByRole('textbox', { name: 'Add organiser' }).fill('Lov');
 
         await expect(page.getByRole('main').getByRole('button', { name: 'Ada Lovelace', exact: true })).toBeVisible();
-        await expect.poll(() => api.callsTo('GET core /members_search').map((call) => call.query.get('query')).sort()).toEqual(['Lo', 'Lov']);
+        await givenUp;
+        expect(api.callsTo('GET core /members_search').map((call) => call.query.get('query')).sort()).toEqual(['Lo', 'Lov']);
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, 'Could not fetch members').count()).toBe(0);
         await expect(page.getByRole('main').getByRole('button', { name: 'Lo Late' })).toHaveCount(0);
-        await expect(toast(page, 'Could not fetch members')).toHaveCount(0);
     });
 });
