@@ -9,8 +9,9 @@ import { cellOf, dialog, expectEmptyTable, sortBy, tableRows, toast } from '../s
 import { test, expect } from '../support/test.ts';
 
 const table = (page: Page) => page.getByRole('table');
-// The numbered button of a page in the pager: the one in the list of pages, not the "next" arrow,
-// which Buefy names after the page it goes to as well.
+// The numbered button of a page in the pager, in the list of pages. Once the page has changed,
+// Buefy 0.9 names the "next" and "previous" arrows after the page they go to ("Page 3."), so
+// the name alone isn't enough.
 const pageButton = (page: Page, number: number) => page.getByRole('listitem').getByRole('button', { name: `Page ${number}.`, exact: true });
 const search = (page: Page) => page.getByRole('textbox', { name: 'Search by name or surname' });
 const queries = (api: ApiMock) => api.callsTo('GET core /members/unconfirmed').map((call) => Object.fromEntries(call.query));
