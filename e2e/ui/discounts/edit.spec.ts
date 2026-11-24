@@ -90,7 +90,7 @@ test.describe('discount integration form', () => {
             json: validationError({
                 name: ['Integration name should be set.'],
                 code: ['Integration code is already taken.'],
-                description: ['Integration description should be at most 10000 characters long.']
+                quota_amount: ['Integration quota amount cannot be negative or null.']
             })
         });
 
@@ -103,7 +103,7 @@ test.describe('discount integration form', () => {
         await expect(toast(page, 'Some of the integration data is invalid.')).toBeVisible();
         await expect(edit.getByText('Integration name should be set.')).toBeVisible();
         await expect(edit.getByText('Integration code is already taken.')).toBeVisible();
-        await expect(edit.getByText('Integration description should be at most 10000 characters long.')).toBeVisible();
+        await expect(edit.getByText('Integration quota amount cannot be negative or null.')).toBeVisible();
         await expect(page).toHaveURL(/\/discounts\/integrations\/7\/edit$/);
     });
 
