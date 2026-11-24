@@ -8,7 +8,7 @@ import {
     suctPermissions, suEvent, suEventFull, suEventMinimal, suLocation, suOrganizerPermissions, suPermissions,
     type SuEventMinimal, type SuPermissions, type SuStatus
 } from '../support/factories/summeruniversity.ts';
-import { mockMap } from '../support/map.ts';
+import { delayMapLibrary, mockMap } from '../support/map.ts';
 import { dialog, openMenu, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
@@ -627,6 +627,24 @@ test.describe('Summer University page', () => {
 
         // Counted at once: a retrying matcher would only wait until a toast has gone.
         expect(await toast(page, /Event is not found/).count()).toBe(0);
+        await expect(page).toHaveURL('/dashboard');
+    });
+
+    test('leaving before the map library has loaded throws nothing', async ({ page, api, layout }) => {
+        showSu(api, suEventFull({ url: 'mountains', name: 'Mountains', locations: [suLocation({ name: 'Brussels' })] }));
+        // The page the member goes to belongs to another area: any answer will do for it. The
+        // map's style is only asked for when the map starts before the member leaves.
+        api.fallback(() => { mockEverything(api); mockMap(api); });
+        // As on a slow connection: the map is taken away before mapbox-gl has arrived.
+        const arrived = delayMapLibrary(page, api);
+        await page.goto('/summeruniversity/mountains');
+        await expect(page.getByRole('region', { name: 'Map' })).toBeVisible();
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Dashboard' }).click();
+        await expect(page).toHaveURL('/dashboard');
+
+        await arrived;
+        // Two frames: the page has run the library by then.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
         await expect(page).toHaveURL('/dashboard');
     });
 });
