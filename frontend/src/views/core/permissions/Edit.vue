@@ -76,6 +76,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import pick from 'lodash/pick'
 
 export default {
   name: 'EditPermission',
@@ -98,9 +99,12 @@ export default {
       this.isSaving = true
       this.errors = {}
 
+      // What can be set: not the code made of the three parts, or the circles.
+      const body = pick(this.permission, ['scope', 'action', 'object', 'description', 'filters'])
+
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['core'] + '/permissions/' + this.$route.params.id, this.permission)
-        : this.axios.post(this.services['core'] + '/permissions/', this.permission)
+        ? this.axios.put(this.services['core'] + '/permissions/' + this.$route.params.id, body)
+        : this.axios.post(this.services['core'] + '/permissions/', body)
 
       promise.then((response) => {
         this.isSaving = false
