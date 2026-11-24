@@ -20,6 +20,12 @@
         <div v-if="$route.params.candidate_id">
           <h2 class="subtitle">Update candidature image</h2>
 
+          <figure class="image is-128x128 field" v-if="candidate.image">
+            <img
+              :src="services['statutory-static'] + candidate.image.frontend_path"
+              :alt="'Photo of ' + candidate.first_name + ' ' + candidate.last_name">
+          </figure>
+
           <div class="field is-grouped">
             <div class="control">
               <div class="file has-name">
@@ -323,8 +329,11 @@ export default {
         + '/candidates/' + this.$route.params.candidate_id
         + '/image',
         data
-      ).then(() => {
+      ).then((response) => {
         this.$root.showSuccess('Image is updated.')
+        // The service answers with the candidature and its new picture.
+        this.$set(this.candidate, 'image_id', response.data.data.image_id)
+        this.$set(this.candidate, 'image', response.data.data.image)
         this.file = null
       }).catch((err) => this.$root.showError('Could not update image', err))
     },
