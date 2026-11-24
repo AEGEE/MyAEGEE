@@ -3,19 +3,13 @@
     "color-contrast": 1
   },
   "oms.summeruniversity.create": {
-    "color-contrast": 36,
-    "label": 12,
-    "select-name": 7
+    "color-contrast": 36
   },
   "oms.summeruniversity.edit": {
-    "color-contrast": 23,
-    "label": 12,
-    "select-name": 6
+    "color-contrast": 22
   },
   "oms.summeruniversity.edit_second": {
-    "color-contrast": 22,
-    "label": 6,
-    "select-name": 5
+    "color-contrast": 21
   },
   "oms.summeruniversity.list.all": {
     "color-contrast": 5
@@ -31,14 +25,5 @@
   },
   "oms.summeruniversity.seasons": {
     "color-contrast": 1
-  },
-  "oms.summeruniversity.seasons.create": {
-    "label": 5
-  },
-  "oms.summeruniversity.seasons.edit": {
-    "label": 5
-  },
-  "oms.summeruniversity.stats": {
-    "select-name": 1
   }
 }
