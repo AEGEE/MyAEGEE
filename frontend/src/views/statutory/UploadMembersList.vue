@@ -9,7 +9,7 @@
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select id="memberslist-body" v-model="selectedBody">
+                <select id="memberslist-body" v-model="selectedBody" :disabled="isLoading">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -319,15 +319,20 @@ export default {
         }))
       }
 
+      // The list is saved for the local it was made for; its answer only shows if the page is
+      // still on that list.
+      const bodyId = this.selectedBody
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.isEditing = false
-      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + bodyId, body).then((response) => {
         this.$root.showSuccess('Members list is uploaded.')
+        if (request !== this.memberslistRequest) return
         this.memberslist = response.data.data
         this.feesFromPayments = null
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request === this.memberslistRequest) this.isLoading = false
         this.$root.showError('Could not save memberslist', err)
       })
     },
