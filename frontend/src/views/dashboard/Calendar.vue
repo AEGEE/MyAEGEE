@@ -129,7 +129,7 @@ export default {
           description: event.description
         }))
       }).catch((err) => {
-        this.$root.showError('Could not load events list', err)
+        this.$root.showError('Could not load Summer Universities list', err)
         return []
       })
 
