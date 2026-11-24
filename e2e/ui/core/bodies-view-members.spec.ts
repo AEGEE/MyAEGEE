@@ -296,6 +296,20 @@ test.describe('adding an existing member to a body', () => {
         await expect(toast(page, 'Could not add member: User is not found')).toBeVisible();
     });
 
+    test('says so when the welcome mail could not be sent and nobody was added', async ({ page, api }) => {
+        answer(api, [], creating);
+        api.json('GET core /members_search', ok([memberSearchResult({ id: 55, first_name: 'Jane', last_name: 'Doe' })]));
+        api.on('POST core /bodies/:id/members', { status: 503, json: { success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' } });
+
+        await page.goto('/bodies/1/members');
+        await page.getByRole('button', { name: 'Add member' }).click();
+        await dialog(page, 'Add member').getByRole('textbox', { name: 'Search by name or email' }).fill('jan');
+        await dialog(page, 'Add member').getByRole('button', { name: 'Jane Doe' }).click();
+
+        await expect(toast(page, 'Could not add member: The mail could not be sent, so nothing was saved. Please try again later.')).toBeVisible();
+        expect(api.callsTo('POST core /bodies/:id/members').map((call) => call.body)).toEqual([{ user_id: 55 }]);
+    });
+
     test('says why the search failed', async ({ page, api }) => {
         answer(api, [], creating);
         api.on('GET core /members_search', { status: 403, json: forbidden('Permission global:search:member is required to search without body_id.') });

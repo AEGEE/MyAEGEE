@@ -148,6 +148,20 @@ test.describe('the join requests of a body', () => {
         await expect(jane.getByRole('button', { name: 'Approve' })).toBeVisible();
     });
 
+    test('an approval whose mail could not be sent keeps the request', async ({ page, api }) => {
+        answer(api);
+        api.on('PUT core /bodies/:id/join-requests/:request_id/status', { status: 503, json: { success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' } });
+
+        await page.goto('/bodies/1/join_requests');
+        const jane = tableRows(requestsTable(page)).filter({ hasText: 'Jane Doe' });
+        await jane.getByRole('button', { name: 'Approve' }).click();
+        await dialog(page, 'Approve Jane Doe').getByRole('button', { name: 'Approve Jane Doe' }).click();
+
+        await expect(toast(page, 'Could not process join request: The mail could not be sent, so nothing was saved. Please try again later.')).toBeVisible();
+        await expect(jane.getByRole('button', { name: 'Approve' })).toBeVisible();
+        expect(api.callsTo('PUT core /bodies/:id/join-requests/:request_id/status').map((call) => call.body)).toEqual([{ status: 'approved' }]);
+    });
+
     test('a full page offers more requests and appends them', async ({ page, api }) => {
         api.on('GET core /bodies/:id/join-requests', ({ query }) => ({ json: okList(query.get('offset') === '0' ? fullPage() : [JANE], 31) }));
 
