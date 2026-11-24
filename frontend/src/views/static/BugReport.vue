@@ -8,8 +8,8 @@
         You can attach up to {{ maxFiles }} screenshots of at most {{ maxFileSize / 1024 / 1024 }} MB each.
       </div>
 
-      <div class="field is-grouped" v-for="(file, index) in files" v-bind:key="`${resetCount}-${index}`">
-        <div class="control">
+      <div class="field is-grouped is-grouped-multiline" v-for="(file, index) in files" v-bind:key="`${resetCount}-${index}`">
+        <div class="control screenshot-control">
           <div class="file has-name">
             <label class="file-label">
               <input class="file-input" type="file" name="resume" :aria-label="`Screenshot ${index + 1}`" @change="setFile($event, index)">
@@ -162,3 +162,16 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* On a narrow screen the file's name gets shorter (it ends in "…") instead of widening the page. */
+.screenshot-control {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.screenshot-control .file-label,
+.screenshot-control .file-name {
+  min-width: 0;
+}
+</style>
