@@ -123,8 +123,9 @@
                 :options="fields"
                 placeholder="Select application fields"
                 aria-label="Application fields"
-                track-by="name"
-                label="name">
+                track-by="key"
+                label="name"
+                :custom-label="optionLabel">
                 <template
                   slot="selection"
                   slot-scope="{ values, isOpen }">
@@ -172,7 +173,7 @@
               <span v-if="props.row.status === 'pending'">Pending</span>
             </b-table-column>
 
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" v-slot="props">
+            <b-table-column v-for="field in selectedFields" v-bind:key="field.key" :label="field.name" v-slot="props">
               {{ field.get(props.row) | beautify }}
             </b-table-column>
 
@@ -257,14 +258,14 @@ export default {
       errors: {},
       selectedFields: [],
       fields: [
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name },
-        { name: 'Gender', get: (pax) => pax.gender },
-        { name: 'Email', get: (pax) => pax.notification_email },
-        { name: 'Created at', get: (pax) => pax.created_at },
-        { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
+        { key: 'first_name', name: 'First name', get: (pax) => pax.first_name },
+        { key: 'last_name', name: 'Last name', get: (pax) => pax.last_name },
+        { key: 'gender', name: 'Gender', get: (pax) => pax.gender },
+        { key: 'email', name: 'Email', get: (pax) => pax.notification_email },
+        { key: 'created_at', name: 'Created at', get: (pax) => pax.created_at },
+        { key: 'updated_at', name: 'Updated at', get: (pax) => pax.updated_at },
+        { key: 'participant_type', name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
+        { key: 'board_comment', name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       isLoading: false,
       isSaving: false,
@@ -302,6 +303,9 @@ export default {
     }
   },
   methods: {
+    optionLabel (field) {
+      return field.option || field.name
+    },
     calculateClassForApplication (pax) {
       switch (pax.status) {
       case 'accepted':
@@ -450,7 +454,10 @@ export default {
 
       for (const index in this.event.questions) {
         this.fields.push({
+          key: `question:${index}`,
           name: this.event.questions[index].description,
+          // In the picker a question is told apart from a field of the same name.
+          option: `${this.event.questions[index].description} (question ${Number(index) + 1})`,
           get: pax => pax.answers[index]
         })
       }
