@@ -76,7 +76,7 @@ export default {
         this.services['network'] + '/antennaCriteria/sendFulfilmentMail',
         data
       ).then(() => {
-        this.showSuccess('Mail sent succesfully.')
+        this.showSuccess('Mail sent successfully.')
         this.$parent.close()
       }).catch((err) => {
         // showError lists the field messages of a 422.
