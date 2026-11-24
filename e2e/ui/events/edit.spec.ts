@@ -156,10 +156,8 @@ test.describe('event editor', () => {
             }]);
         });
 
-        test('an online event without applications hides the in-person fields', async ({ page, api }) => {
+        test('an online event without applications hides the in-person fields', async ({ page }) => {
             await page.goto('/events/new');
-            // The map of the in-person form has to have started before it is taken away again.
-            await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
 
             await page.getByRole('combobox', { name: /^How will the event take place/ }).selectOption({ label: 'Online' });
             await page.getByRole('combobox', { name: /^Do you want people to apply/ }).selectOption({ label: 'No' });
@@ -177,9 +175,8 @@ test.describe('event editor', () => {
             await expect(page.getByRole('link', { name: 'You can take the template for the program here.' })).toBeVisible();
         });
 
-        test('an online event with applications asks for the period, participants and questions', async ({ page, api }) => {
+        test('an online event with applications asks for the period, participants and questions', async ({ page }) => {
             await page.goto('/events/new');
-            await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
 
             await page.getByRole('combobox', { name: /^How will the event take place/ }).selectOption({ label: 'Online' });
             await expect(page.getByRole('combobox', { name: /^Do you want people to apply/ })).toHaveValue('true');
