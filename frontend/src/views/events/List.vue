@@ -44,8 +44,8 @@
               <div class="media">
                 <div class="media-left">
                   <figure class="image is-96x96">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" style="max-height: 96px; object-fit: contain">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" :alt="event.name" style="max-height: 96px; object-fit: contain">
                   </figure>
                 </div>
                 <div class="media-content">
@@ -105,8 +105,8 @@
               <article class="card" :aria-labelledby="'event-title-' + event.id">
                 <div class="card-content">
                   <figure class="image is-square">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" style="object-fit: contain; margin: auto">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" :alt="event.name" style="object-fit: contain; margin: auto">
                   </figure>
 
                   <div class="content" style="padding-top: 1rem">
@@ -267,6 +267,7 @@ export default {
       if (this.$route.name === 'oms.events.list.participating') return 'participating'
       if (this.$route.name === 'oms.events.list.organizing') return 'organizing'
 
+      /* istanbul ignore next -- only the three events list routes mount this view */
       throw new Error('Unknown scope: ' + this.$route.name)
     },
     isLoadingSomething () {
