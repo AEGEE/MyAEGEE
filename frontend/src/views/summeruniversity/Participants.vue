@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Applications</div>
+        <div class="title" role="heading" aria-level="1">Applications</div>
 
         <div class="notification is-info">
           <div class="content">
@@ -45,7 +45,7 @@
 
           <b-table-column label="Cancelled?" field="cancelled" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingCancelled }">
-              <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled">
+              <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled" :aria-label="'Cancelled? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -54,7 +54,7 @@
 
           <b-table-column label="Confirmed?" field="confirmed" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
-              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended" :aria-label="'Confirmed? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -63,7 +63,7 @@
 
           <b-table-column label="Attended?" field="attended" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed" :aria-label="'Attended? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -72,7 +72,7 @@
 
           <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)" :aria-label="'Status of ' + props.row.first_name + ' ' + props.row.last_name">
                 <option value="pending">Pending</option>
                 <option value="accepted">Accepted</option>
                 <option value="rejected">Rejected</option>
@@ -81,7 +81,7 @@
           </b-table-column>
 
           <b-table-column label="View" v-slot="props">
-            <a href="#" @click.prevent="showModal(props.row.id)">View</a>
+            <button type="button" class="button is-small" @click="showModal(props.row.id)">View</button>
           </b-table-column>
 
           <template slot="empty">
@@ -202,6 +202,7 @@ export default {
         this.$buefy.modal.open({
           component: ViewParticipantModal,
           hasModalCard: true,
+          ariaLabel: 'View participant',
           props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
