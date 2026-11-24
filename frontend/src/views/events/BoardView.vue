@@ -91,6 +91,9 @@ export default {
       applications: [],
       boardBodies: [],
       boardBodiesLoaded: false,
+      // Counts the requests for a body's applications, so only the latest one is shown.
+      boardviewRequest: 0,
+      left: false,
       isLoading: false,
       selectedBody: null
     }
@@ -120,17 +123,25 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
 
+      /* istanbul ignore if -- only the watcher calls it, once a body is chosen */
       if (!this.selectedBody) {
         return
       }
 
+      const request = ++this.boardviewRequest
+      const bodyId = this.selectedBody
+      // Nothing of the body chosen before stays on the page while the next one loads.
+      this.applications = []
       this.isLoading = true
-      this.axios.get(this.services['events'] + '/boardview/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['events'] + '/boardview/' + bodyId).then((response) => {
+        if (request !== this.boardviewRequest) return
+
         this.applications = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request !== this.boardviewRequest) return
 
+        this.isLoading = false
         this.$root.showError('Error fetching board view data', err)
       })
     }
@@ -162,8 +173,15 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
     }).catch((err) => {
+      if (this.left) return
+
       this.$root.showError('Could not fetch your board bodies', err)
     })
+  },
+  beforeDestroy () {
+    // Answers that come in after the member left the page are dropped.
+    this.left = true
+    this.boardviewRequest++
   }
 }
 </script>
