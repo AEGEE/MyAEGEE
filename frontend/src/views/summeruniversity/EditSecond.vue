@@ -24,7 +24,7 @@
         </div>
 
         <div class="control">
-          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+          <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
         </div>
       </div>
 
