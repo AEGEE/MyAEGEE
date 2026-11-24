@@ -267,9 +267,7 @@ test.describe('adding a fee payment', () => {
                 starts: ['Starts date should be set.'],
                 expires: ['Expiration date should be set.'],
                 currency: ['Currency should be set.'],
-                amount: ['Amount cannot be negative.'],
-                invoice_address: ['Invoice address is too long.'],
-                invoice_name: ['Invoice name is too long.']
+                amount: ['Amount cannot be negative.']
             })
         });
 
@@ -281,7 +279,7 @@ test.describe('adding a fee payment', () => {
         await expect(toast(page, 'Some fields were not set')).toBeVisible();
         await expect(modal.getByText('Currency should be set.')).toBeVisible();
         await expect(modal.getByText('Amount cannot be negative.')).toBeVisible();
-        for (const message of ['Starts date should be set.', 'Expiration date should be set.', 'Invoice address is too long.', 'Invoice name is too long.']) {
+        for (const message of ['Starts date should be set.', 'Expiration date should be set.']) {
             await expect(modal.getByText(message), message).toBeVisible();
         }
         await expect(modal.getByRole('button', { name: 'Add fee payment' })).toBeEnabled();
@@ -289,14 +287,14 @@ test.describe('adding a fee payment', () => {
 
     test('says why the payment could not be added and stays open', async ({ page, api }) => {
         answer(api);
-        api.on('POST core /bodies/:id/payments', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST core /bodies/:id/payments', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1/members');
         await rowOf(page, 'Ann Able').getByRole('button', { name: 'Add fee payment' }).click();
         const modal = dialog(page, 'Add fee payment for Ann Able');
         await modal.getByRole('button', { name: 'Add fee payment' }).click();
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Something went wrong on the server.')).toBeVisible();
         await expect(modal).toBeVisible();
     });
 

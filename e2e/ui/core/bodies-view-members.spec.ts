@@ -210,7 +210,7 @@ test.describe('members of a body', () => {
 
     test('says why a comment could not be changed', async ({ page, api }) => {
         answer(api, [membership('Ann', 'Able', { comment: 'New member' })], ['local:update_member:body']);
-        api.on('PUT core /bodies/:id/members/:membership_id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('PUT core /bodies/:id/members/:membership_id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1/members');
         const row = tableRows(membersTable(page)).first();
@@ -218,7 +218,7 @@ test.describe('members of a body', () => {
         await dialog(page, 'Change comment').getByRole('textbox').fill('Treasurer');
         await dialog(page, 'Change comment').getByRole('button', { name: 'Save comment' }).click();
 
-        await expect(toast(page, 'Error updating user comment: Database is down')).toBeVisible();
+        await expect(toast(page, 'Error updating user comment: Something went wrong on the server.')).toBeVisible();
         await expect(await cellOf(membersTable(page), row, 'Comment')).toHaveText('New member');
     });
 });
@@ -273,7 +273,7 @@ test.describe('adding an existing member to a body', () => {
     test('says when the person is a member already', async ({ page, api }) => {
         answer(api, [], creating);
         api.json('GET core /members_search', ok([memberSearchResult({ id: 55, first_name: 'Jane', last_name: 'Doe' })]));
-        api.on('POST core /bodies/:id/members', { status: 422, json: validationError({ user_id: ['This user is already a member of this body.'] }) });
+        api.on('POST core /bodies/:id/members', { status: 422, json: validationError({ body_id: ['body_id must be unique'], user_id: ['user_id must be unique'] }) });
 
         await page.goto('/bodies/1/members');
         await page.getByRole('button', { name: 'Add member' }).click();

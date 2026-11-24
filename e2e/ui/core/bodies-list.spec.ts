@@ -238,11 +238,11 @@ test.describe('bodies list for a member', () => {
     });
 
     test('a failing list says why and can be tried again', async ({ page, api }) => {
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies');
 
-        await expect(toast(page, 'Could not fetch bodies list: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies list: Something went wrong on the server.')).toBeVisible();
         await expect(loadMore(page)).toBeEnabled();
     });
 
@@ -252,11 +252,11 @@ test.describe('bodies list for a member', () => {
         let asked = 0;
         api.on('GET core /my_permissions', () => (++asked === 1
             ? { json: ok(myPermissions) }
-            : { status: 500, json: { success: false, message: 'Database is down' } }));
+            : { status: 500, json: { success: false, message: 'Something went wrong on the server.' } }));
 
         await page.goto('/bodies');
 
-        await expect(toast(page, 'Could not fetch bodies list: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies list: Something went wrong on the server.')).toBeVisible();
         await expect(tableRows(bodiesTable(page))).toHaveCount(30);
         await expect(loadMore(page)).toBeEnabled();
     });

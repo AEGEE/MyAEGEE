@@ -88,7 +88,7 @@ test.describe('the join requests of a body', () => {
 
     test('approving a request asks first and keeps it without its actions', async ({ page, api }) => {
         answer(api);
-        api.json('PUT core /bodies/:id/join-requests/:request_id/status', { success: true, message: 'Successfully approved.' });
+        api.json('PUT core /bodies/:id/join-requests/:request_id/status', { success: true, message: 'The join request was changed to "approved".' });
 
         await page.goto('/bodies/1/join_requests');
         const jane = tableRows(requestsTable(page)).filter({ hasText: 'Jane Doe' });
@@ -106,7 +106,7 @@ test.describe('the join requests of a body', () => {
 
     test('rejecting a request asks first and removes it', async ({ page, api }) => {
         answer(api);
-        api.json('PUT core /bodies/:id/join-requests/:request_id/status', { success: true, message: 'Successfully rejected.' });
+        api.json('PUT core /bodies/:id/join-requests/:request_id/status', { success: true, message: 'The join request was changed to "rejected".' });
 
         await page.goto('/bodies/1/join_requests');
         const table = requestsTable(page);
