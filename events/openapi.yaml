@@ -1076,7 +1076,7 @@ components:
           additionalProperties: false
       additionalProperties: false
     DateInput:
-      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999.
+      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a whole number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999.
       type: [string, number]
     DecimalInput:
       description: "A number, or its text: digits with an optional sign, decimal point and exponent ('5', '+5', '.5', '2.50', '1e2'), at most 308 digits before the point and 16383 after it."

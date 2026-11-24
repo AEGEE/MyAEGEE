@@ -74,8 +74,8 @@ function isDecimal(msg) {
 }
 
 // The date input the API takes: a Date (set by the server), a string with a date and
-// optionally a time, as the frontend sends it ('2026-12-01 15:00') or as ISO 8601, or a number
-// of milliseconds (the edit form sends the application end of an event without applications as
+// optionally a time, as the frontend sends it ('2026-12-01 15:00') or as ISO 8601, or a whole
+// number of milliseconds (the edit form sends the application end of an event without applications as
 // one). The date lies within the years 0001 to 9999: Postgres has no year 0, and refused one
 // with a 500. The summeruniversity service has the same range.
 const DATE_FORMATS = [moment.ISO_8601, 'YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss'];
@@ -88,7 +88,7 @@ function isDateInput(value) {
     }
 
     if (typeof value === 'number') {
-        return isInDateRange(value);
+        return Number.isInteger(value) && isInDateRange(value);
     }
 
     return typeof value === 'string'
