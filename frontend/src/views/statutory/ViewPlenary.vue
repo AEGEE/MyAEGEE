@@ -20,7 +20,7 @@
                 <input id="plenary-application-id" class="input" type="text" v-model="applicationId" placeholder="Application ID" />
               </div>
               <div class="control">
-                <input type="submit" class="button is-primary" value="Add attendance info" />
+                <input type="submit" class="button is-primary" value="Add attendance info" :disabled="isSaving" />
               </div>
             </div>
           </div>
@@ -91,7 +91,8 @@ export default {
   },
   methods: {
     addAttendance () {
-      this.isSaving = false
+      // The button is disabled meanwhile, so Enter doesn't mark the same member in and out.
+      this.isSaving = true
       this.axios.post(
         this.services['statutory']
           + '/events/' + this.$route.params.id
