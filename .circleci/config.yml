@@ -104,8 +104,10 @@ jobs:
           name: Check the OpenAPI files against the service conventions (closed schemas, no Todo)
           command: node packages/backend-test-utils/spec-lint.js
       - run:
+          # Generates the types and fails on any difference to the committed files.
+          # openapi-typescript --check stops at the first API in redocly.yaml that is up to date.
           name: Check that the generated types are up to date
-          command: npx openapi-typescript --check
+          command: npm run openapi:types:check
       - run:
           name: Test the shared backend test helpers
           command: node --test packages/backend-test-utils/test/
