@@ -21,7 +21,7 @@
       </div> -->
     </section>
     <footer class="modal-card-foot">
-      <button type="button" class="button is-primary" @click="updateMembership()">Save changes</button>
+      <button type="button" class="button is-primary" :disabled="isLoading" @click="updateMembership()">Save changes</button>
       <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -35,6 +35,7 @@ export default {
     return {
       // A copy: the list shows the position of the membership, which changes only once it is saved.
       position: this.membership.position,
+      isLoading: false,
       userErrors: {}
     }
   },
