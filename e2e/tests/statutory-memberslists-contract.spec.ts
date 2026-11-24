@@ -2,9 +2,9 @@
 // (ui/support/factories/statutory-memberslists.ts) against what statutory really answers. See
 // tests/core-contract.spec.ts for how the comparison works.
 //
-// Saving a members list asks the currency conversion rates from a host that statutory only
-// takes from its configuration (CONVERSION_RATE_API_HOST) since statutory PR #2405: the second
-// test can only pass once that is merged.
+// Saving a members list makes statutory ask the currency conversion rates. Statutory takes their
+// host from CONVERSION_RATE_API_HOST, the stand-in of support/fake-currency.ts, once statutory
+// PR #2405 is merged; until then the second test depends on the European Commission's server.
 import type { Envelope } from '../support/api.ts';
 import { test, expectStatus } from '../support/api.ts';
 import { expectShape } from '../support/contract.ts';
