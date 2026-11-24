@@ -15,14 +15,15 @@ exports.isBoolean = (message) => function isBoolean(value) {
 };
 
 // For a DATE or DATEONLY field. Sequelize has made a date of the value by now, which is
-// an invalid one (or the text 'Invalid date') if the value was not a date.
+// an invalid one (or the text 'Invalid date') if the value was not a date. The year has
+// to be 1 or later: Postgres takes no year 0, and Sequelize sends a timestamp in UTC.
 exports.isDate = (message) => function isDate(value) {
     if (!isSet(value)) {
         return;
     }
 
-    const date = value instanceof Date ? moment(value) : moment(value, moment.ISO_8601, true);
-    if (!date.isValid()) {
+    const date = value instanceof Date ? moment.utc(value) : moment.utc(value, moment.ISO_8601, true);
+    if (!date.isValid() || date.year() < 1) {
         throw new Error(message);
     }
 };
