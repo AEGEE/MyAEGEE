@@ -13,6 +13,8 @@ const config = {
         core: {
             url: 'http://core',
             port: 8084,
+            // Milliseconds to wait for an answer of core.
+            timeout: 10000,
             user: {
                 login: process.env.CORE_LOGIN || 'admin@example.com',
                 password: process.env.CORE_PASSWORD || '5ecr3t5ecr3t'

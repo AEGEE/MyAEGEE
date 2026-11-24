@@ -509,23 +509,22 @@ exports.updateApplication = async (req, res) => {
     // Keeping old body, as apparently next line is changing req.application as well.
     const oldBody = req.application.body_id;
 
-    await sequelize.transaction(async (t) => {
-        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        // returning: the answer has the values as they were stored, not as they were sent.
-        await req.application.update(fields, { transaction: t, returning: true });
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.application.update(fields, { returning: true });
 
-        // Sending the mail to a user.
-        await mailer.sendMail({
-            to: user.notification_email,
-            subject: `Your application for ${req.event.name} was updated`,
-            template: 'statutory_edited.html',
-            parameters: {
-                application: req.application,
-                event: req.event
-            }
-        });
+    // The edit is saved: the mails about it are sent afterwards, and a failure does not undo it.
+    const ids = { application_id: req.application.id, event_id: req.event.id };
+    await mailer.sendMailAfterSave({ template: 'statutory_edited.html', ids }, () => mailer.sendMail({
+        to: user.notification_email,
+        subject: `Your application for ${req.event.name} was updated`,
+        template: 'statutory_edited.html',
+        parameters: {
+            application: req.application,
+            event: req.event
+        }
+    }));
 
-        // Sending emails to board members of this body.
+    await mailer.sendMailAfterSave({ template: 'statutory_board_edited.html', ids }, async () => {
         const boardMembers = await core.getBodyUsersForPermission({
             action: 'approve_members',
             object: req.event.type
@@ -862,26 +861,24 @@ exports.postApplication = async (req, res) => {
     fields.body_name = req.user.bodies.find((b) => fields.body_id === b.id).name;
     fields.date_of_birth = req.user.date_of_birth;
 
-    let newApplication;
+    // In a transaction for the lock of the statutory ID (see the model).
+    const newApplication = await sequelize.transaction((t) => Application.create(fields, { transaction: t }));
 
-    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
-    await sequelize.transaction(async (t) => {
-        newApplication = await Application.create(fields, { transaction: t });
+    // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-        // We don't need to recalculate the votes amount, as the pax type is not set here.
+    // The application is saved: the mails about it are sent afterwards, and a failure does not undo it.
+    const ids = { application_id: newApplication.id, event_id: req.event.id };
+    await mailer.sendMailAfterSave({ template: 'statutory_applied.html', ids }, () => mailer.sendMail({
+        to: req.user.notification_email,
+        subject: `You've successfully applied for ${req.event.name}`,
+        template: 'statutory_applied.html',
+        parameters: {
+            application: newApplication,
+            event: req.event
+        }
+    }));
 
-        // Sending the mail to a user.
-        await mailer.sendMail({
-            to: req.user.notification_email,
-            subject: `You've successfully applied for ${req.event.name}`,
-            template: 'statutory_applied.html',
-            parameters: {
-                application: newApplication,
-                event: req.event
-            }
-        });
-
-        // Sending emails to board members of this body.
+    await mailer.sendMailAfterSave({ template: 'statutory_board_applied.html', ids }, async () => {
         const boardMembers = await core.getBodyUsersForPermission({
             action: 'approve_members',
             object: req.event.type

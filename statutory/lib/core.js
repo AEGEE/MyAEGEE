@@ -12,7 +12,8 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'statutory'
         },
-        fullResponse: options.fullResponse || false
+        fullResponse: options.fullResponse || false,
+        timeout: config.core.timeout
     };
 
     if (options.body) {
