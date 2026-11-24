@@ -244,7 +244,7 @@ export default {
               }
 
               // get member's current payment
-              const currentPayment = this.payments.find(payment => payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+              const currentPayment = this.payments.find(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
 
               // if there's no payment, do nothing, so it'd default to zero
               // if there is one, setting it for the user.
