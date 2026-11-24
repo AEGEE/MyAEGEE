@@ -103,6 +103,12 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, err.message);
     }
 
+    // Handling a mail that could not be sent: the route rolled back, so trying again may work
+    if (errors.isMailError(err)) {
+        logger.error({ err }, 'Could not send a mail');
+        return errors.makeMailError(res);
+    }
+
     // Handling a request that gave up waiting for another one (see helpers.setLockTimeout)
     if (errors.isLockTimeout(err)) {
         return errors.makeBusyError(res);

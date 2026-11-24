@@ -8,6 +8,15 @@ class BadRequestError extends Error {
 
 exports.BadRequestError = BadRequestError;
 
+// For a mail that could not be sent. The routes that send one inside their transaction
+// roll back, and the error handler answers 503.
+exports.createMailError = (message, cause) => {
+    const err = new Error(message, { cause });
+    err.name = 'MailError';
+    return err;
+};
+exports.isMailError = (err) => err.name === 'MailError';
+
 exports.makeError = (res, statusCode, err) => {
     // 4 cases:
     // 1) 'err' is a string
@@ -66,6 +75,9 @@ exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
 
 // For a request that gave up waiting for another request that locks the same data.
 exports.makeBusyError = (res) => exports.makeError(res, 503, 'Another request for the same data is being processed. Please try again in a moment.');
+
+// For a request that rolled back because its mail could not be sent.
+exports.makeMailError = (res) => exports.makeError(res, 503, 'The mail could not be sent, so nothing was saved. Please try again later.');
 
 // What Postgres answers when a statement waited for a lock for longer than `lock_timeout`.
 exports.isLockTimeout = (err) => Boolean(err && err.parent && err.parent.code === '55P03');
