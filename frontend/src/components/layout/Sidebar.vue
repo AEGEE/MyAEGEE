@@ -44,18 +44,6 @@ export default {
   props: {
     show: Boolean
   },
-  data () {
-    return {
-      isReady: false
-    }
-  },
-  mounted () {
-    const route = this.$route
-    if (route.name) {
-      this.isReady = true
-      this.shouldExpandMatchItem(route)
-    }
-  },
   computed: {
     ...mapGetters({
       menu: 'menuitems',
@@ -140,49 +128,21 @@ export default {
         expanded: !item.expanded
       })
     },
-    shouldExpandMatchItem (route) {
-      const matched = route.matched
-      if (matched.length === 0) {
-        return
-      }
-
-      const lastMatched = matched[matched.length - 1]
-      let parent = lastMatched.parent || lastMatched
-      const isParent = parent === lastMatched
-
-      if (isParent) {
-        const p = this.findParentFromMenu(route)
-        if (p) {
-          parent = p
-        }
-      }
-
-      if ('expanded' in parent && !isParent) {
-        this.expandMenu({
-          item: parent,
-          expanded: true
-        })
-      }
-    },
-    findParentFromMenu (route) {
-      const menu = this.menu
-      for (let i = 0, l = menu.length; i < l; i++) {
-        const item = menu[i]
-        const k = item.children && item.children.length
-        if (k) {
-          for (let j = 0; j < k; j++) {
-            if (item.children[j].name === route.name) {
-              return item
-            }
+    // Opens the group of the menu that holds the page that is shown, so its link can be seen.
+    // (The first page counts too: the router only gets to it after the sidebar is mounted.)
+    expandGroupOf (route) {
+      this.menu.forEach((category, categoryIndex) => {
+        category.components.forEach((component, index) => {
+          if (!component.expanded && (component.children || []).some(child => child.name === route.name)) {
+            this.expandMenu({ index, categoryIndex, expanded: true })
           }
-        }
-      }
+        })
+      })
     }
   },
   watch: {
     $route (route) {
-      this.isReady = true
-      this.shouldExpandMatchItem(route)
+      this.expandGroupOf(route)
       if (this.device.isMobile) {
         this.toggleSidebar({ opened: false })
         this.toggleNavbarMenu({ opened: false })
