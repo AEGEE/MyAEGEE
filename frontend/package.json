@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/eslint-parser": "^7.25.9",
+    "@babel/eslint-parser": "^8.1.2",
     "@babel/types": "^7.29.0",
     "@fontsource/open-sans": "^5.3.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
