@@ -8,7 +8,7 @@
           :data="members"
           :loading="isLoading">
           <b-table-column field="first_name" label="Name and surname" sortable v-slot="props">
-            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
               {{ props.row.first_name }} {{ props.row.last_name }}
             </router-link>
           </b-table-column>
