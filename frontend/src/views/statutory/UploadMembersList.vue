@@ -201,6 +201,7 @@ export default {
       const request = ++this.memberslistRequest
       this.isLoading = true
       this.memberslist = null
+      this.feesFromPayments = null
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
         if (request !== this.memberslistRequest) return
@@ -377,7 +378,7 @@ export default {
   watch: {
     // Another currency for a list fetched from a body fills in the fees of the payments in it.
     'memberslist.currency': function () {
-      if (this.feesFromPayments) this.fillFeesFromPayments()
+      if (this.feesFromPayments && this.memberslist) this.fillFeesFromPayments()
     },
     selectedBody () {
       this.fetchMembersList()
