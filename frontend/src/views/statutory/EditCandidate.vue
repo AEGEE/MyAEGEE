@@ -301,8 +301,6 @@ export default {
         allowInput: true,
         disableMobile: true
       },
-      options: [],
-      newValue: '',
       bodies: [],
       file: null,
       errors: {},
@@ -315,10 +313,6 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
-      if (!this.file) {
-        return
-      }
-
       const data = new FormData()
       data.append('image', this.file)
 
@@ -405,7 +399,6 @@ export default {
       return
     }
 
-    this.candidate.body = this.loginUser.bodies.find(body => body.id === this.candidate.body_id)
     this.isLoading = true
 
     this.axios.get(

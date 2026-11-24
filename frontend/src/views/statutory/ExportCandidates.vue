@@ -50,7 +50,6 @@ export default {
   name: 'ExportStatutoryData',
   data () {
     return {
-      applications: [],
       fields: {},
       selectedFields: {},
       event: {
@@ -66,8 +65,7 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     exportAll () {
@@ -119,8 +117,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
@@ -128,7 +124,6 @@ export default {
       return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/fields/candidates')
     }).then((response) => {
       this.fields = response.data.data
-      this.isLoading = false
 
       // To not copypaste stuff.
       // Selecting all answers by default.
@@ -136,7 +131,6 @@ export default {
         this.$set(this.selectedFields, field, true)
       }
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {

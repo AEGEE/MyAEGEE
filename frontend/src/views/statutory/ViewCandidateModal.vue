@@ -128,9 +128,6 @@
 <script>
 export default {
   name: 'ViewCandidateModal',
-  props: ['event', 'position', 'candidate', 'services'],
-  data () {
-    return {}
-  }
+  props: ['position', 'candidate', 'services']
 }
 </script>

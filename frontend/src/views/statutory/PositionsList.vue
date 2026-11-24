@@ -194,7 +194,6 @@ export default {
     return {
       positions: [],
       myCandidates: [],
-      selected: null,
       event: {},
       selectedPosition: null,
       can: {
@@ -206,8 +205,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     prefix () {
       // There are two lists: the one of the Juridical Commission and the one every member sees,
@@ -215,7 +213,8 @@ export default {
       return this.$route.params.prefix === 'all' ? 'all' : 'approved'
     },
     taskDescription () {
-      if (!this.selectedPosition || !this.selectedPosition.body_id) {
+      // Only shown for a selected position.
+      if (!this.selectedPosition.body_id) {
         return 'A description for this position has not been set.'
       }
 
@@ -302,7 +301,6 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           position,
           candidate,
-          event: this.event,
           services: this.services
         }
       })
