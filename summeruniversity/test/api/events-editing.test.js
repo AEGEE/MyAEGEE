@@ -264,6 +264,162 @@ describe('Events editing', () => {
         expect(mails[0].to).toEqual(Array(4).fill(user.notification_email));
     });
 
+    describe('type and fee permissions', () => {
+        test('should not let an organizer without edit:su_type change the type', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', type: 'regular' });
+
+            const res = await editEvent(event, { type: 'pilot' });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            await event.reload();
+            expect(event.type).toEqual('regular');
+            expect(mails).toHaveLength(0);
+        });
+
+        test('should not let a manager without edit:su_type change the type', async () => {
+            const event = await generator.createEvent({ status: 'second approval', type: 'regular' });
+
+            const res = await editEvent(event, { type: 'pilot' });
+
+            expect(res.statusCode).toEqual(403);
+            await event.reload();
+            expect(event.type).toEqual('regular');
+        });
+
+        test('should let an organizer send the type unchanged', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', type: 'regular' });
+
+            const res = await editEvent(event, { type: 'regular', name: 'Changed' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.name).toEqual('Changed');
+        });
+
+        test('should let an organizer with edit:su_type change the type', async () => {
+            mockAndCapture({ mainPermissions: { permissions: ['global:edit:su_type'] } });
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', type: 'regular' });
+
+            const res = await editEvent(event, { type: 'pilot' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.type).toEqual('pilot');
+        });
+
+        test('should not let an organizer without edit:su_fee change the fee after the first submission', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', fee: 50 });
+
+            const res = await editEvent(event, { fee: 60 });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            await event.reload();
+            expect(Number(event.fee)).toEqual(50);
+        });
+
+        test('should not let a manager without edit:su_fee change the fee', async () => {
+            const event = await generator.createEvent({ status: 'second approval', fee: 50 });
+
+            const res = await editEvent(event, { fee: 60 });
+
+            expect(res.statusCode).toEqual(403);
+            await event.reload();
+            expect(Number(event.fee)).toEqual(50);
+        });
+
+        test('should let an organizer send the fee unchanged', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', fee: 50 });
+
+            const res = await editEvent(event, { fee: '50.00', name: 'Changed' });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.name).toEqual('Changed');
+        });
+
+        test('should let an organizer change the fee of a first draft', async () => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first draft', published: 'none', fee: 50 });
+
+            const res = await editEvent(event, { fee: 60 });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(Number(event.fee)).toEqual(60);
+        });
+
+        test('should let an organizer with edit:su_fee change the fee after the first submission', async () => {
+            mockAndCapture({ mainPermissions: { permissions: ['global:edit:su_fee'] } });
+            const event = await generator.createEvent({ status: 'first approval', published: 'none', fee: 50 });
+
+            const res = await editEvent(event, { fee: 60 });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(Number(event.fee)).toEqual(60);
+        });
+
+        test.each([
+            ['an array', ['pilot']],
+            ['an object', { type: 'pilot' }],
+            ['a number', 1],
+            ['an unknown type', 'garbage']
+        ])('should answer 422 for a type that is %s, also without edit:su_type', async (_name, type) => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', type: 'regular' });
+
+            const res = await editEvent(event, { type });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('type');
+            await event.reload();
+            expect(event.type).toEqual('regular');
+            expect(mails).toHaveLength(0);
+        });
+
+        test.each([
+            ['null', null],
+            ['empty', ''],
+            ['not a number', 'abc'],
+            ['negative', -5]
+        ])('should answer 422 for a fee that is %s, also without edit:su_fee', async (_name, fee) => {
+            mockAndCapture(organizerMocks);
+            const event = await generator.createEvent({ status: 'first submission', published: 'none', fee: 50 });
+
+            const res = await editEvent(event, { fee });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('fee');
+            await event.reload();
+            expect(Number(event.fee)).toEqual(50);
+            expect(mails).toHaveLength(0);
+        });
+    });
+
+    test.each([
+        ['theme_category', 'sports'],
+        ['pax_confirmation', 'payment'],
+        ['course_level', 'beginner']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        const event = await generator.createEvent({ status: 'second approval' });
+        const stored = event.toJSON()[field];
+
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await editEvent(event, { [field]: sent });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        await event.reload();
+        expect(event[field]).toEqual(stored);
+    });
+
     test('should return 422 on an empty body', async () => {
         const event = await generator.createEvent();
 

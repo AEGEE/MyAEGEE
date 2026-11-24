@@ -90,6 +90,11 @@ exports.listMostRecentEvents = async (req, res) => {
     });
 };
 
+const BOARDVIEW_EVENT_FIELDS = [
+    ...constants.EVENT_MINIMAL_FIELDS.filter((field) => field !== 'application_status'),
+    'questions'
+];
+
 // All applications for bodies, including events.
 exports.listBodyApplications = async (req, res) => {
     const bodyId = Number(req.params.body_id);
@@ -102,9 +107,12 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
 
+    // A board needs to know which event an application is for and its questions (to read
+    // the answers), not its internal fields. application_status is left out: it is
+    // computed from the application period, which this list does not load.
     const applications = await Application.findAll({
         where: { body_id: bodyId },
-        include: [Event]
+        include: [{ model: Event, attributes: BOARDVIEW_EVENT_FIELDS }]
     });
 
     return res.json({
@@ -238,6 +246,24 @@ async function checkOrganizers({ organizers, bodies, existingOrganizers = [], ca
     return `Organizers should be members of one of the organizing or cooperation bodies (user ID ${ids}).`;
 }
 
+// The type can only be chosen by holders of edit:su_type: on create, anything but the
+// default type, and on edit, any value other than the stored type.
+const DEFAULT_TYPE = 'regular';
+const changesType = (newType, currentType) => typeof newType !== 'undefined' && newType !== currentType;
+
+// The fee is free for the organizers until the Summer University is submitted. After that,
+// changing it needs edit:su_fee. The stored fee is a DECIMAL string, so compare as numbers.
+const changesFee = (newFee, currentFee) => typeof newFee !== 'undefined' && Number(newFee) !== Number(currentFee);
+
+// The type and the fee are validated before their permissions are checked, so a value that
+// is not valid answers 422 (as the model would) whoever sends it.
+const validateTypeAndFee = async (data) => {
+    const fields = ['type', 'fee'].filter((field) => typeof data[field] !== 'undefined');
+    if (fields.length > 0) {
+        await Event.build(Object.fromEntries(fields.map((field) => [field, data[field]]))).validate({ fields });
+    }
+};
+
 const makeOrganizersError = (res, message) => res.status(422).json({
     success: false,
     errors: { organizers: [message] }
@@ -253,6 +279,11 @@ exports.addEvent = async (req, res) => {
     removeBlockedFields(data);
 
     data.status = 'first submission';
+
+    await validateTypeAndFee(data);
+    if (changesType(data.type, DEFAULT_TYPE) && !req.permissions.edit_su_type) {
+        return errors.makeForbiddenError(res, 'You are not allowed to set the type of this Summer University.');
+    }
 
     const event = new Event(data);
 
@@ -370,6 +401,15 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
+    await validateTypeAndFee(data);
+    if (changesType(data.type, event.type) && !req.permissions.edit_su_type) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the type of this Summer University.');
+    }
+
+    if (event.status !== 'first draft' && changesFee(data.fee, event.fee) && !req.permissions.edit_su_fee) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the fee of this Summer University.');
+    }
+
     if (Array.isArray(data.organizing_bodies)) {
         data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
@@ -475,7 +515,14 @@ exports.setApprovalStatus = async (req, res) => {
         event.organizers = await Promise.all(event.organizers.map((organizer) =>
             core.fetchUser(organizer, adminToken)));
 
-        await req.event.update({ status: req.body.status }, { transaction: t });
+        // Moving back from an approval to the submission stage also unpublishes the event.
+        const isRegression = (oldStatus === 'first approval' && req.body.status === 'first submission')
+            || (oldStatus === 'second approval' && req.body.status === 'second submission');
+        const changes = isRegression
+            ? { status: req.body.status, published: 'none' }
+            : { status: req.body.status };
+
+        await req.event.update(changes, { transaction: t });
 
         // Send the mail to all organizers.
         await mailer.sendMail({

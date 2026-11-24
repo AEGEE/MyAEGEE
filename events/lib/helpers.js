@@ -136,13 +136,16 @@ exports.getApplicationFields = (event) => {
     return fields;
 };
 
-// A helper to determine if user has permission.
-function hasPermission(permissionsList, combinedPermission) {
+// A helper to determine if the user holds the global permission `action:object`.
+// Only global permissions grant these rights: body-bound (local) permissions come
+// from POST /my_permissions and are handled separately.
+function hasPermission(permissionsList, permission) {
     if (!Array.isArray(permissionsList)) {
         return false;
     }
 
-    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+    const combined = 'global:' + permission;
+    return permissionsList.some((held) => held.combined === combined);
 }
 
 // A helpers to determine if the user is member of a body.
@@ -211,7 +214,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.edit_event = (event.status === 'draft' && exports.isOrganizer(event, user)) || permissions.manage_event[event.type];
     permissions.delete_event = permissions.manage_event[event.type];
 
-    permissions.apply = event.application_status === 'open' && event.status === 'published';
+    permissions.apply = event.application_status === 'open' && event.status === 'published' && !event.deleted;
 
     permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
@@ -234,6 +237,22 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     };
 
     return permissions;
+};
+
+// The board comment is written by the board of the applicant's body about the applicant.
+// It is returned to the boards and to those who may list the event's applications, but
+// not to the applicant, unless they may set board comments for that body themselves.
+exports.applicationForCaller = (application, { user, permissions }) => {
+    const data = application.toJSON();
+    const isApplicant = Boolean(user) && data.user_id === user.id;
+    const maySeeBoardComment = permissions.list_applications
+        || (permissions.set_board_comment && permissions.set_board_comment[data.body_id]);
+
+    if (isApplicant && !maySeeBoardComment) {
+        delete data.board_comment;
+    }
+
+    return data;
 };
 
 exports.getApplicationPermissions = ({ permissions, user, application }) => {

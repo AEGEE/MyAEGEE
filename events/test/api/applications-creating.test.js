@@ -69,6 +69,33 @@ describe('Events application creating', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should not accept applications to a deleted event', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            deleted: true,
+            questions: [],
+            applications: []
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [],
+                agreed_to_privacy_policy: true
+            }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(await Application.count({ where: { event_id: event.id } })).toEqual(0);
+    });
+
     it('should disallow application for online events without application process', async () => {
         const event = await generator.createEvent({
             status: 'published',

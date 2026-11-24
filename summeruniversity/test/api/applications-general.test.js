@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const constants = require('../../lib/constants');
 
 const unauthorizedMocks = {
     core: { unauthorized: true },
@@ -77,6 +78,31 @@ describe('Cross-event application endpoints', () => {
             expect(res.body.data.length).toEqual(1);
             expect(res.body.data[0].id).toEqual(application.id);
             expect(res.body.data[0].event.name).toEqual('Boardview SU');
+        });
+
+        test('should return only the fields of the event a board needs', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                name: 'Boardview SU',
+                budget: 'https://example.org/budget',
+                programme_suct: 'https://example.org/programme',
+                organizers: generator.generateOrganizers(9999)
+            });
+            await generator.createApplication(event, { user_id: 10, body_id: 34 });
+
+            const res = await get('/boardview/34');
+
+            expect(res.statusCode).toEqual(200);
+            const returned = res.body.data[0].event;
+            expect(returned.id).toEqual(event.id);
+            expect(returned.name).toEqual('Boardview SU');
+            expect(returned.url).toEqual(event.url);
+            expect(returned.questions).toEqual(event.questions);
+            for (const field of ['budget', 'programme_suct', 'organizers', 'deleted', 'status']) {
+                expect(returned).not.toHaveProperty(field);
+            }
+            const allowed = [...constants.EVENT_MINIMAL_FIELDS, 'questions'];
+            expect(Object.keys(returned).filter((field) => !allowed.includes(field))).toEqual([]);
         });
 
         test('should list the applications of any body with the global permission', async () => {

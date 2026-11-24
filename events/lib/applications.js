@@ -91,7 +91,7 @@ exports.getApplication = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.application,
+        data: helpers.applicationForCaller(req.application, req),
     });
 };
 
@@ -141,7 +141,7 @@ exports.createApplication = async (req, res) => {
     return res.json({
         success: true,
         message: 'Application is created.',
-        data: newApplication,
+        data: helpers.applicationForCaller(newApplication, req),
     });
 };
 
@@ -188,7 +188,7 @@ exports.updateApplication = async (req, res) => {
     return res.json({
         success: true,
         message: 'Application is updated',
-        data: req.application,
+        data: helpers.applicationForCaller(req.application, req),
     });
 };
 

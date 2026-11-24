@@ -4,6 +4,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
 
 describe('Events creation', () => {
@@ -826,6 +827,24 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    it.each([
+        ['type', 'training'],
+        ['method', 'online']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await request({
+                path: '/',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'POST',
+                body: generator.generateEvent({ [field]: sent })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        expect(await Event.count()).toEqual(0);
     });
 
     it('should return 422 if fee is not a number', async () => {

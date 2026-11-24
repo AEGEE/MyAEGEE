@@ -72,9 +72,10 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
 
+    // A board needs to know which event an application is for, not its internal fields.
     const applications = await Application.findAll({
         where: { body_id: bodyId },
-        include: [Event]
+        include: [{ model: Event, attributes: constants.EVENT_PUBLIC_FIELDS }]
     });
 
     return res.json({
@@ -158,12 +159,14 @@ const canManageTypes = (permissions, types) => types
 
 // Fetches the organizers from core and checks that they are members of one of the
 // organizing bodies. Only organizers that aren't in `existingOrganizers` are checked,
-// so events created before this rule can still be edited. People who can manage this
-// event type may add anyone.
+// so events created before this rule can still be edited. When `checkBodies` is set
+// (the organizers or the organizing bodies change), at least one organizer must also be
+// a member of one of the organizing bodies. People who can manage this event type may
+// add anyone.
 // Only ids, names and comments are stored on the event: anyone can make anyone an
 // organizer of an event they create, so contact details must not end up in it.
 // Returns { organizers } on success or { error } with a message for the user.
-async function resolveOrganizers({ organizers, organizingBodies, existingOrganizers = [], canManage }) {
+async function resolveOrganizers({ organizers, organizingBodies, existingOrganizers = [], canManage, checkBodies = false }) {
     const isValidOrganizer = (organizer) => typeof organizer === 'object'
         && organizer !== null
         && Number.isSafeInteger(organizer.user_id)
@@ -194,6 +197,11 @@ async function resolveOrganizers({ organizers, organizingBodies, existingOrganiz
             const ids = outside.map((organizer) => organizer.user_id).join(', ');
             return { error: `Organizers should be members of one of the organizing bodies (user ID ${ids}).` };
         }
+
+        const anyInBody = fetched.some((organizer) => organizer.body_ids.some((id) => bodyIds.includes(id)));
+        if (checkBodies && !anyInBody) {
+            return { error: 'At least one organizer should be a member of one of the organizing bodies.' };
+        }
     }
 
     return {
@@ -212,6 +220,12 @@ async function fetchOrganizerEmails(organizers) {
     const fetched = await Promise.all(organizers.map((organizer) => core.fetchUser(organizer, adminToken)));
     return fetched.map((organizer) => organizer.notification_email);
 }
+
+const sameIds = (a, b) => {
+    const left = [...new Set(a)].sort();
+    const right = [...new Set(b)].sort();
+    return left.length === right.length && left.every((id, index) => id === right[index]);
+};
 
 const makeOrganizersError = (res, message) => res.status(422).json({
     success: false,
@@ -339,19 +353,30 @@ exports.editEvent = async (req, res) => {
             core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
-    if (Array.isArray(data.organizers)) {
+    const newBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : null;
+    const newOrganizers = Array.isArray(data.organizers) ? data.organizers : null;
+    // Invalid entries are left to resolveOrganizers and the model validation.
+    const bodiesChange = newBodies !== null && newBodies.every((body) => body && typeof body === 'object')
+        && !sameIds(newBodies.map((body) => body.body_id), event.organizing_bodies.map((body) => body.body_id));
+    const organizersChange = newOrganizers !== null && newOrganizers.every((organizer) => organizer && typeof organizer === 'object')
+        && !sameIds(newOrganizers.map((organizer) => organizer.user_id), event.organizers.map((organizer) => organizer.user_id));
+
+    if (newOrganizers !== null || bodiesChange) {
         const result = await resolveOrganizers({
-            organizers: data.organizers,
-            organizingBodies: Array.isArray(data.organizing_bodies) ? data.organizing_bodies : event.organizing_bodies,
+            organizers: newOrganizers !== null ? newOrganizers : event.organizers,
+            organizingBodies: newBodies !== null ? newBodies : event.organizing_bodies,
             existingOrganizers: event.organizers,
             // When the type changes, the override needs both the old and the new type.
-            canManage: canManageTypes(req.permissions, [event.type, data.type])
+            canManage: canManageTypes(req.permissions, [event.type, data.type]),
+            checkBodies: bodiesChange || organizersChange
         });
         if (result.error) {
             return makeOrganizersError(res, result.error);
         }
 
-        data.organizers = result.organizers;
+        if (newOrganizers !== null) {
+            data.organizers = result.organizers;
+        }
     }
 
     await sequelize.transaction(async (t) => {

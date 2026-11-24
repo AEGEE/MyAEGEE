@@ -119,6 +119,27 @@ describe('Events editing', () => {
         expect(res.body.errors).toHaveProperty('ends');
     });
 
+    it.each([
+        ['type', 'training'],
+        ['method', 'online']
+    ])('should answer 422 for a %s that is not a string', async (field, value) => {
+        const stored = event.toJSON()[field];
+
+        for (const sent of [[value], { [field]: value }, 1]) {
+            const res = await request({
+                path: '/single/' + event.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { [field]: sent }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+        }
+        await event.reload();
+        expect(event[field]).toEqual(stored);
+    });
+
     it('should fail if no organizers are set', async () => {
         const res = await request({
             path: '/single/' + event.id,
@@ -304,6 +325,77 @@ describe('Events editing', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.organizers.map((organizer) => organizer.user_id)).toEqual([user.id, 4242]);
+        });
+
+        it('should not let organizers replace the organizing bodies with bodies none of them is in', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: {
+                    organizing_bodies: [{ body_id: coOrganizingBody.id }],
+                    organizers: [{ user_id: user.id }]
+                }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty('organizers');
+
+            await cultural.reload();
+            expect(cultural.organizing_bodies.map((body) => body.body_id)).toEqual([555]);
+        });
+
+        it('should check the organizing bodies also when the organizers are not sent', async () => {
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizing_bodies: [{ body_id: coOrganizingBody.id }] }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('organizers');
+
+            await cultural.reload();
+            expect(cultural.organizing_bodies.map((body) => body.body_id)).toEqual([555]);
+        });
+
+        it('should let managers of the type change the organizing bodies freely', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event', 'global:manage_event:cultural'] },
+                member: { bodies: [{ id: 999, name: 'Other body' }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: {
+                    organizing_bodies: [{ body_id: coOrganizingBody.id }],
+                    organizers: [{ user_id: user.id }]
+                }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizing_bodies.map((body) => body.body_id)).toEqual([coOrganizingBody.id]);
+        });
+
+        it('should let organizers change the organizing bodies if one of them is in a new one', async () => {
+            mock.mockAll({
+                mainPermissions: { combined: ['global:create:event'] },
+                member: { bodies: [{ id: coOrganizingBody.id, name: coOrganizingBody.name }] }
+            });
+
+            const res = await request({
+                path: '/single/' + cultural.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { organizing_bodies: [{ body_id: coOrganizingBody.id }] }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.organizing_bodies.map((body) => body.body_id)).toEqual([coOrganizingBody.id]);
         });
 
         it('should accept new organizers who are in an organizing body', async () => {
