@@ -223,7 +223,7 @@ test.describe('events board view', () => {
         test('finding the member\'s boards failing after the member left the page shows no error', async ({ page, api, layout }) => {
             api.on('POST core /my_permissions', { status: 500, json: { success: false, message: 'connect ECONNREFUSED 127.0.0.1:5432' }, delayMs: 1500 });
             api.fallback(mockEverything);
-            const late = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().endsWith('/api/core/my_permissions'));
+            const late = page.waitForResponse((response) => response.request().method() === 'POST' && /\/api\/core\/my_permissions\/?$/.test(response.url()));
             await page.goto('/events/boardview');
             await expect(page.getByRole('heading', { name: 'Board view', level: 1 })).toBeVisible();
 

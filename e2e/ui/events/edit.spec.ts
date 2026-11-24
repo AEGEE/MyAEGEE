@@ -598,7 +598,8 @@ test.describe('event editor', () => {
         });
 
         test('the map centres on the only location, and dragging its marker moves it', async ({ page, api }) => {
-            api.json('GET events /single/:id', ok(stored({ locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }] }), { permissions: eventOrganizerPermissions('draft') }));
+            // The event comes after the map has loaded.
+            api.on('GET events /single/:id', { json: ok(stored({ locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }] }), { permissions: eventOrganizerPermissions('draft') }), delayMs: 1500 });
             await page.goto('/events/spring-training/edit');
             await expect(textbox(page, 'Location 1 name')).toHaveValue('Brussels');
             await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
@@ -625,6 +626,11 @@ test.describe('event editor', () => {
             api.json('GET events /single/:id', ok(stored({
                 locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }, { name: 'Utrecht', position: { lat: 52.09, lng: 5.12 } }]
             }), { permissions: eventOrganizerPermissions('draft') }));
+            // The map loads after the event.
+            api.url('GET', 'https://api.maptiler.com/maps/basic/style.json*', {
+                json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#e8e8e8' } }] },
+                delayMs: 1500
+            });
             await page.goto('/events/spring-training/edit');
             await expect(textbox(page, 'Location 2 name')).toHaveValue('Utrecht');
             await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
