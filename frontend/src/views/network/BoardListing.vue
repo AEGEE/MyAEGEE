@@ -133,10 +133,7 @@ export default {
       ],
       query: '',
       includeDeleted: false,
-      typesOpen: false,
-      can: {
-        viewDeleted: false
-      }
+      typesOpen: false
     }
   },
   computed: {
@@ -155,10 +152,14 @@ export default {
       const today = moment().format('YYYY-MM-DD')
       return this.bodies.filter(x => !x.board || moment(x.board.end_date).isBefore(today, 'date'))
     },
-    ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
-    })
+    // Whether the member may list deleted bodies, from the permissions the app got when it
+    // started.
+    can () {
+      return {
+        viewDeleted: this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
+      }
+    },
+    ...mapGetters(['services', 'permissions'])
   },
   methods: {
     toggleIncludeDeleted () {
@@ -191,14 +192,6 @@ export default {
             if (recentBoard) this.$set(body, 'board', recentBoard)
           }
 
-          if (this.loginUser) {
-            return this.axios.get(this.services['core'] + '/my_permissions').then((permissionsResponse) => {
-              this.permissions = permissionsResponse.data.data
-
-              this.can.viewDeleted = this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
-              this.isLoading = false
-            })
-          }
           this.isLoading = false
         }).catch((err) => {
           this.$root.showError('Could not fetch boards list', err)
