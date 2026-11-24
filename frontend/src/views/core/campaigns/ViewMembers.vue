@@ -20,9 +20,14 @@
         ariaPageLabel="Page"
         ariaCurrentLabel="Current page"
         paginated
+        backend-pagination
+        backend-sorting
+        :total="total"
         :per-page="limit"
-        default-sort="id"
-        default-sort-direction="desc">
+        :current-page.sync="page"
+        @page-change="onPageChange"
+        :default-sort="[sortField, sortOrder]"
+        @sort="onSort">
         <b-table-column field="id" label="#" numeric sortable v-slot="props">
           {{ props.row.id }}
         </b-table-column>
@@ -61,8 +66,11 @@ export default {
       isLoading: false,
       query: '',
       limit: 30,
-      offset: 0,
-      canLoadMore: true,
+      // The page of the pager, from 1.
+      page: 1,
+      total: 0,
+      sortField: 'id',
+      sortOrder: 'desc',
       source: null
     }
   },
@@ -70,7 +78,9 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.offset
+        offset: (this.page - 1) * this.limit,
+        sort: this.sortField,
+        direction: this.sortOrder
       }
 
       if (this.query) queryObj.query = this.query
@@ -87,8 +97,18 @@ export default {
   methods: {
     refetch () {
       this.members = []
-      this.offset = 0
-      this.canLoadMore = true
+      this.page = 1
+      this.total = 0
+      this.fetchMembers()
+    },
+    onPageChange (page) {
+      this.page = page
+      this.fetchMembers()
+    },
+    onSort (field, order) {
+      this.sortField = field
+      this.sortOrder = order
+      this.page = 1
       this.fetchMembers()
     },
     async fetchMembers () {
@@ -102,9 +122,8 @@ export default {
           cancelToken: this.source.token
         })
 
-        this.members = this.members.concat(response.data.data)
-        this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
+        this.members = response.data.data
+        this.total = response.data.meta.count
         this.isLoading = false
       } catch (err) {
         if (this.axios.isCancel(err)) {
