@@ -4,10 +4,11 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png" />
+            <img v-if="!event.image" src="/images/logo.png" alt="" />
             <img
               v-if="event.image"
               :src="services['events-static'] + '/headimages/' + event.image"
+              :alt="event.name"
             />
           </figure>
         </article>
@@ -297,6 +298,8 @@
           <div
             class="tile"
             style="position: relative; height: 400px"
+            role="region"
+            aria-label="Map"
             v-if="this.event.locations.length > 0"
           >
             <MglMap
@@ -402,6 +405,7 @@ export default {
       this.$buefy.modal.open({
         component: PictureModal,
         hasModalCard: true,
+        ariaLabel: 'Change picture',
         props: {
           event: this.event,
           permissions: this.permissions,
