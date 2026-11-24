@@ -106,11 +106,11 @@ export default {
         if (existingAttendance) {
           // 1) there is unclosed attendance, then updating it
           existingAttendance.ends = response.data.data.ends
-          this.$root.showSuccess(`Successfully marked application ${existingAttendance.application.id} as NOT presented.`)
+          this.$root.showSuccess(`Successfully marked application ${existingAttendance.application.id} as left.`)
         } else {
           // 2) if either there's no attendances for this application or all of them are closed
           this.plenary.attendances.unshift(response.data.data)
-          this.$root.showSuccess(`Successfully marked application ${response.data.data.application.id} as presented.`)
+          this.$root.showSuccess(`Successfully marked application ${response.data.data.application.id} as present.`)
         }
         this.isSaving = false
         this.applicationId = ''
