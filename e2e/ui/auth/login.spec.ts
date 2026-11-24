@@ -53,6 +53,50 @@ test.describe('login page', () => {
         expect(api.callsTo('POST core /login').map((call) => call.body)).toEqual([{ username: 'member@example.com', password: '5ecr3t5ecr3t' }]);
     });
 
+    test('double-clicking Login logs in once, without an error', async ({ page, api }) => {
+        answerLogin(api);
+        api.fallback(mockEverything);
+        await page.goto('/login');
+
+        await page.getByLabel('Email / Username').fill('member');
+        await page.getByLabel('Password', { exact: true }).fill('5ecr3t5ecr3t');
+        await page.getByRole('button', { name: 'Login', exact: true }).dblclick();
+
+        await expect(page).toHaveURL('/dashboard');
+        await expect(page).toHaveTitle('MyAEGEE | Dashboard');
+        expect(api.callsTo('POST core /login')).toHaveLength(1);
+    });
+
+    test('the Login button is off while core is asked', async ({ page, api }) => {
+        const { tokens } = answerLogin(api);
+        api.on('POST core /login', { json: tokens, delayMs: 1000 });
+        api.fallback(mockEverything);
+        await page.goto('/login');
+        const login = page.getByRole('button', { name: 'Login', exact: true });
+
+        await page.getByLabel('Email / Username').fill('member');
+        await page.getByLabel('Password', { exact: true }).fill('5ecr3t5ecr3t');
+        await login.click();
+
+        await expect(login).toBeDisabled();
+        await expect(page).toHaveURL('/dashboard');
+        expect(api.callsTo('POST core /login')).toHaveLength(1);
+    });
+
+    test('the Login button is on again after core refused', async ({ page, api }) => {
+        api.on('POST core /login', { status: 403, json: forbidden(INVALID_CREDENTIALS), delayMs: 300 });
+        await page.goto('/login');
+        const login = page.getByRole('button', { name: 'Login', exact: true });
+
+        await page.getByLabel('Email / Username').fill('member');
+        await page.getByLabel('Password', { exact: true }).fill('not-the-password');
+        await login.click();
+        await expect(login).toBeDisabled();
+
+        await expect(page.getByRole('alert').filter({ hasText: INVALID_CREDENTIALS })).toBeVisible();
+        await expect(login).toBeEnabled();
+    });
+
     test('a member whose profile is incomplete goes on to complete it', async ({ page, api }) => {
         answerLogin(api, { member: member({ id: 2, username: 'member', privacy_consent: null }) });
         api.fallback(mockEverything);
