@@ -111,10 +111,16 @@ const columnIndex = async (table: Locator, column: string | RegExp): Promise<num
 };
 
 // The cell of `row` in the column with this header, on both viewports. `row` is one of
-// tableRows(table). The position of the column is read once the row is shown: a page that
-// adds columns when its data arrives has its final columns by then.
+// tableRows(table). The position of the column is read once the row is shown and has a cell
+// under every header: a page that adds columns when its data arrives, or after its rows, has
+// its final columns by then.
 export const cellOf = async (table: Locator, row: Locator, column: string | RegExp): Promise<Locator> => {
     await expect(row.first()).toBeVisible();
+    // eslint-disable-next-line no-restricted-syntax -- the helpers are where column headers are looked up
+    const headers = table.getByRole('columnheader', { includeHidden: true });
+    await expect(async () => {
+        expect(await row.first().getByRole('cell').count(), 'a cell under every column header').toBe(await headers.count());
+    }).toPass({ timeout: 5000 });
     return row.getByRole('cell').nth(await columnIndex(table, column));
 };
 
