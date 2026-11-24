@@ -290,8 +290,8 @@
                 </tr>
                 <tr>
                   <th>Starts in</th>
-                  <td v-if="event.startLocation">{{ event.startLocation }}</td>
-                  <td v-if="!event.startLocation"><i>Not specified</i></td>
+                  <td v-if="startLocation">{{ startLocation }}</td>
+                  <td v-if="!startLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Ends <timezone-tooltip /></th>
@@ -299,8 +299,8 @@
                 </tr>
                 <tr>
                   <th>Ends in</th>
-                  <td v-if="event.endLocation">{{ event.endLocation }}</td>
-                  <td v-if="!event.endLocation"><i>Not specified</i></td>
+                  <td v-if="endLocation">{{ endLocation }}</td>
+                  <td v-if="!endLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -763,18 +763,6 @@ export default {
       .then((response) => {
         this.event = response.data.data
         this.can = response.data.permissions
-
-        const startLocation = this.event.locations.find((location) => location.start === 'true')
-          || this.event.locations.find((location) => location.start === true)
-        if (startLocation) {
-          this.event.startLocation = startLocation.name
-        }
-        const endLocation = this.event.locations.find((location) => location.end === 'true')
-          || this.event.locations.find((location) => location.end === true)
-        if (endLocation) {
-          this.event.endLocation = endLocation.name
-        }
-
         this.isLoading = false
 
         if (this.map.actions) {
@@ -799,6 +787,15 @@ export default {
     }),
     isOrganizer () {
       return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
+    },
+    // The city where the SU starts or ends: the edit forms used to store the flag as the text 'true'.
+    startLocation () {
+      const location = this.event.locations.find((item) => item.start === 'true' || item.start === true)
+      return location ? location.name : null
+    },
+    endLocation () {
+      const location = this.event.locations.find((item) => item.end === 'true' || item.end === true)
+      return location ? location.name : null
     },
     activeEventApplicationBan () {
       return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
