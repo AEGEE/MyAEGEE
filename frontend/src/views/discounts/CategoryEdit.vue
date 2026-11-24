@@ -5,7 +5,7 @@
 
       <form class="is-relative" @submit.prevent="saveCategory()" aria-labelledby="category-edit-title" :aria-busy="isLoading">
         <div class="field">
-          <label class="label" for="category-name">Name</label>
+          <label class="label" for="category-name">Category name</label>
           <div class="control">
             <input class="input" id="category-name" type="text" required v-model="category.name" />
           </div>
