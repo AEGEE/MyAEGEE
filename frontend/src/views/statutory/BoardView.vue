@@ -267,7 +267,9 @@ export default {
         { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       isLoading: false,
-      isSaving: false
+      isSaving: false,
+      // Counts the board view requests, so a late answer for another body is dropped.
+      boardviewRequest: 0
     }
   },
   computed: {
@@ -354,12 +356,18 @@ export default {
       })
     },
     fetchBoardview () {
+      // Only the answers for the body chosen last count: a late answer for a body chosen before
+      // is dropped.
+      const bodyId = this.selectedBody
+      const request = ++this.boardviewRequest
       this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + bodyId).then((application) => {
+        if (request !== this.boardviewRequest) return null
         this.applications = application.data.data
 
-        return this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
+        return this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + bodyId)
       }).then((limitResponse) => {
+        if (request !== this.boardviewRequest) return
         this.limits = limitResponse.data.data
 
         // setting the selected body statuses to send to the endpoint
@@ -393,6 +401,7 @@ export default {
 
         this.isLoading = false
       }).catch((err) => {
+        if (request !== this.boardviewRequest) return
         this.isLoading = false
 
         this.$root.showError('Could not fetch boardview', err)
