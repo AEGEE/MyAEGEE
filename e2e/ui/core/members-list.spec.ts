@@ -176,7 +176,10 @@ test.describe('members list', () => {
         await page.goto('/members');
         await expect.poll(() => api.callsTo('GET core /members').length).toBe(1);
 
-        // The list starts sorted by number, so one click turns it round.
+        // The list starts sorted by number. Sorted by another column first, the table's own idea of
+        // its sort column doesn't depend on when the default sort was applied.
+        await sortBy(table(page), 'Registration date', layout);
+        await expect.poll(() => lastQuery(api).sort).toBe('created_at');
         await sortBy(table(page), '#', layout, 'desc');
 
         await expect.poll(() => lastQuery(api)).toEqual({ limit: '30', offset: '0', sort: 'id', direction: 'desc' });

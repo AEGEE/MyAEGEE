@@ -68,7 +68,8 @@ test.describe('completing the profile', () => {
             address: me!.address,
             phone: me!.phone,
             date_of_birth: me!.date_of_birth,
-            privacy_consent: '2027-03-01T10:00:00+01:00'
+            // The moment of agreeing: the frozen clock runs on from 10:00.
+            privacy_consent: expect.stringMatching(/^2027-03-01T10:0\d:\d\d\+01:00$/)
         }]]);
     });
 
