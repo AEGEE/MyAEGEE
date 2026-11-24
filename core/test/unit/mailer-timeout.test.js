@@ -36,6 +36,7 @@ describe('Mailer client timeout', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('No response from mailer within 500 ms');
+        expect(err.template).toEqual('custom.html');
         expect(silentMailer.requests).toEqual(1);
         expect(Date.now() - started).toBeLessThan(5000);
     });

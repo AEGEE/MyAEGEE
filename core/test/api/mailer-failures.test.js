@@ -32,12 +32,19 @@ describe('A mailer that fails', () => {
         await stopServer();
     });
 
+    let notifySpy;
+    let errorSpy;
+
     beforeEach(async () => {
         mock.mockAll({ mailer: { netError: true } });
+        notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+        errorSpy = jest.spyOn(logger, 'error');
     });
 
     afterEach(async () => {
         await login.waitForPasswordResets();
+        notifySpy.mockRestore();
+        errorSpy.mockRestore();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -46,6 +53,19 @@ describe('A mailer that fails', () => {
     const expectMailError = (res) => {
         expect(res.statusCode).toEqual(503);
         expect(res.body).toEqual(MAIL_ERROR);
+    };
+
+    // A failure is logged with the template and the ids that are known, and no address, and
+    // the error tracker gets the same fields.
+    const expectReported = (message, fields) => {
+        expect(errorSpy).toHaveBeenCalledWith({ err: expect.any(Error), ...fields }, message);
+
+        expect(notifySpy).toHaveBeenCalledTimes(1);
+        const [err, onError] = notifySpy.mock.calls[0];
+        expect(err.template).toEqual(fields.template);
+        const event = { addMetadata: jest.fn() };
+        onError(event);
+        expect(event.addMetadata).toHaveBeenCalledWith('mail', fields);
     };
 
     test('signing up answers 503 and creates no member', async () => {
@@ -59,48 +79,46 @@ describe('A mailer that fails', () => {
 
         expectMailError(res);
         expect(await User.count()).toEqual(0);
+        expectReported('Could not send the confirmation of a signup', {
+            template: 'confirm_email.html',
+            user_id: expect.any(Number),
+            campaign_id: campaign.id
+        });
     });
 
     // The member is stored and committed before the confirmation is mailed. When the mail
     // fails, all of the signup is deleted again, so the same member can sign up once more.
     test('signing up leaves nothing behind, and the same member can sign up again', async () => {
-        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
-        const errorSpy = jest.spyOn(logger, 'error');
-        try {
-            const body = await generator.createBody();
-            const shadowCircle = await generator.createCircle({ body_id: body.id });
-            await body.update({ shadow_circle_id: shadowCircle.id });
-            const campaign = await generator.createCampaign({ active: true, autojoin_body_id: body.id });
-            const member = generator.generateUser();
-            const failuresBefore = (await metrics.signupMailFailures.get()).values[0].value;
+        const body = await generator.createBody();
+        const shadowCircle = await generator.createCircle({ body_id: body.id });
+        await body.update({ shadow_circle_id: shadowCircle.id });
+        const campaign = await generator.createCampaign({ active: true, autojoin_body_id: body.id });
+        const member = generator.generateUser();
+        const failuresBefore = (await metrics.signupMailFailures.get()).values[0].value;
 
-            const res = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
+        const res = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
 
-            expectMailError(res);
-            expect(await User.count()).toEqual(0);
-            expect(await MailConfirmation.count()).toEqual(0);
-            expect(await BodyMembership.count()).toEqual(0);
-            expect(await CircleMembership.count()).toEqual(0);
-            expect((await metrics.signupMailFailures.get()).values[0].value).toEqual(failuresBefore + 1);
-            expect(notifySpy).toHaveBeenCalledTimes(1);
-            expect(errorSpy).toHaveBeenCalledWith(
-                expect.objectContaining({ campaign_id: campaign.id, user_id: expect.any(Number), err: expect.any(Error) }),
-                'Could not send the confirmation of a signup'
-            );
+        expectMailError(res);
+        expect(await User.count()).toEqual(0);
+        expect(await MailConfirmation.count()).toEqual(0);
+        expect(await BodyMembership.count()).toEqual(0);
+        expect(await CircleMembership.count()).toEqual(0);
+        expect((await metrics.signupMailFailures.get()).values[0].value).toEqual(failuresBefore + 1);
+        expect(notifySpy).toHaveBeenCalledTimes(1);
+        expect(errorSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ campaign_id: campaign.id, user_id: expect.any(Number), err: expect.any(Error) }),
+            'Could not send the confirmation of a signup'
+        );
 
-            mock.cleanAll();
-            mock.mockAll();
-            const again = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
+        mock.cleanAll();
+        mock.mockAll();
+        const again = await request({ path: '/signup/' + campaign.url, method: 'POST', body: member });
 
-            expect(again.statusCode).toEqual(200);
-            expect(again.body.data.username).toEqual(member.username.toLowerCase());
-            expect(await User.count()).toEqual(1);
-            expect(await MailConfirmation.count()).toEqual(1);
-            expect(await BodyMembership.count()).toEqual(1);
-        } finally {
-            notifySpy.mockRestore();
-            errorSpy.mockRestore();
-        }
+        expect(again.statusCode).toEqual(200);
+        expect(again.body.data.username).toEqual(member.username.toLowerCase());
+        expect(await User.count()).toEqual(1);
+        expect(await MailConfirmation.count()).toEqual(1);
+        expect(await BodyMembership.count()).toEqual(1);
     });
 
     test('requesting an email change answers 503 and keeps no request', async () => {
@@ -116,6 +134,7 @@ describe('A mailer that fails', () => {
 
         expectMailError(res);
         expect(await MailChange.count()).toEqual(0);
+        expectReported('Could not send a mail', { template: 'mail_change.html', user_id: user.id, member_id: user.id });
     });
 
     test('confirming an email change answers 503 and changes nothing', async () => {
@@ -131,6 +150,7 @@ describe('A mailer that fails', () => {
         expectMailError(res);
         expect((await User.findByPk(user.id)).email).toEqual('current@example.com');
         expect(await MailChange.count()).toEqual(1);
+        expectReported('Could not send a mail', { template: 'mail_change_notice.html' });
     });
 
     test('requesting a password reset answers as always and keeps no reset', async () => {
@@ -146,6 +166,11 @@ describe('A mailer that fails', () => {
 
         await login.waitForPasswordResets();
         expect(await PasswordReset.count()).toEqual(0);
+        expectReported('Could not send a password reset', {
+            template: 'password_reset.html',
+            user_id: user.id,
+            password_reset_id: expect.any(Number)
+        });
     });
 
     test('adding a member to their first body answers 503 and adds nobody', async () => {
@@ -164,36 +189,31 @@ describe('A mailer that fails', () => {
 
         expectMailError(res);
         expect(await BodyMembership.count()).toEqual(0);
+        expectReported('Could not send a mail', { template: 'new_member.html', user_id: admin.id, body_id: body.id });
     });
 
     // The mail to the board carries no token: the request is kept and the failure reported.
     test('requesting to join a body answers 200, keeps the request and reports the failure', async () => {
-        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
-        const errorSpy = jest.spyOn(logger, 'error');
-        try {
-            const user = await generator.createUser();
-            const token = await generator.createAccessToken(user);
-            const body = await generator.createBody();
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        const body = await generator.createBody();
 
-            const res = await request({
-                path: '/bodies/' + body.id + '/join-requests',
-                method: 'POST',
-                headers: { 'X-Auth-Token': token.value },
-                body: { motivation: 'Motivation' }
-            });
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'Motivation' }
+        });
 
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.user_id).toEqual(user.id);
-            expect(await JoinRequest.count()).toEqual(1);
-            expect(notifySpy).toHaveBeenCalledTimes(1);
-            expect(errorSpy).toHaveBeenCalledWith(
-                expect.objectContaining({ body_id: body.id, err: expect.any(Error) }),
-                'Could not tell the board about a join request'
-            );
-        } finally {
-            notifySpy.mockRestore();
-            errorSpy.mockRestore();
-        }
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.user_id).toEqual(user.id);
+        expect(await JoinRequest.count()).toEqual(1);
+        expectReported('Could not tell the board about a join request', {
+            template: 'member_joined.html',
+            user_id: user.id,
+            body_id: body.id,
+            join_request_id: res.body.data.id
+        });
     });
 
     test('approving a join request answers 503 and leaves it pending', async () => {
@@ -214,32 +234,21 @@ describe('A mailer that fails', () => {
         expectMailError(res);
         expect((await JoinRequest.findByPk(joinRequest.id)).status).toEqual('pending');
         expect(await BodyMembership.count()).toEqual(0);
+        expectReported('Could not send a mail', {
+            template: 'new_member.html',
+            user_id: admin.id,
+            body_id: body.id,
+            join_request_id: joinRequest.id
+        });
     });
 
     // The two removals tell the Workspace administrators after the membership is gone. That
     // notice is best effort: the removal answers as usual and the failure is logged.
     describe('removing a membership', () => {
-        let notifySpy;
-        let errorSpy;
-
-        beforeEach(() => {
-            notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
-            errorSpy = jest.spyOn(logger, 'error');
-        });
-
-        afterEach(() => {
-            notifySpy.mockRestore();
-            errorSpy.mockRestore();
-        });
-
-        const expectReportedFailure = (userId) => {
-            expect(notifySpy).toHaveBeenCalledTimes(1);
-            expect(notifySpy.mock.calls[0][0]).toBeInstanceOf(Error);
-            expect(errorSpy).toHaveBeenCalledWith(
-                expect.objectContaining({ user_id: userId, err: expect.any(Error) }),
-                'Could not tell the Workspace administrators about a member without a body'
-            );
-        };
+        const expectReportedFailure = (userId) => expectReported(
+            'Could not tell the Workspace administrators about a member without a body',
+            { template: 'workspace_deleted_member.html', user_id: userId }
+        );
 
         test('removing a member from their last body answers 200 and reports the failure', async () => {
             const admin = await generator.createUser({ superadmin: true });
