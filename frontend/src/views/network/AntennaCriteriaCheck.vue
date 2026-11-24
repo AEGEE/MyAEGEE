@@ -383,7 +383,8 @@ export default {
         promises.push(this.checkBoardCriterium())
         promises.push(this.checkMembersListAndFeeCriteria())
         promises.push(this.checkEventsCriterium())
-        promises.push(this.fetchMailComponents())
+        // network lets only the holders of the fulfilment mail permission read the mail texts.
+        if (this.can.sendFulfilmentEmails) promises.push(this.fetchMailComponents())
 
         // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
         await Promise.allSettled(promises)
