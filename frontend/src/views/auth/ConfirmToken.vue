@@ -46,7 +46,8 @@ export default {
         .post(this.services['core'] + '/confirm-email', { token: this.token })
         .then(() => {
           this.$root.showSuccess('Your email is verified.')
-          return this.$router.push({ name: 'oms.login' })
+          // A member who is logged in is sent on to the dashboard instead: that is no error.
+          this.$router.push({ name: 'oms.login' }).catch(() => {})
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {

@@ -59,7 +59,8 @@ export default {
           }
 
           this.$root.showSuccess(response.data.message || 'Your email is changed.')
-          return this.$router.push({ name: 'oms.members.view', params: { id: 'me' } })
+          // Somebody who is logged out is sent to log in first: that is no error.
+          this.$router.push({ name: 'oms.members.view', params: { id: 'me' } }).catch(() => {})
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {
