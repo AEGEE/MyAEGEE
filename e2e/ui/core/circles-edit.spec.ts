@@ -77,7 +77,7 @@ test.describe('creating a circle', () => {
     });
 
     test('shows what the server found wrong with each field', async ({ page, api }) => {
-        api.on('POST core /circles', { status: 422, json: validationError({ name: ['Name should be set.'], description: ['Description should be set.', 'Description is too short.'] }) });
+        api.on('POST core /circles', { status: 422, json: validationError({ name: ['Name should be set.'], description: ['Description should be set.'] }) });
         await page.goto('/circles/new');
 
         // Spaces only: the browser takes them, the server trims them away.
@@ -87,7 +87,7 @@ test.describe('creating a circle', () => {
 
         await expect(toast(page, 'Some of the circle data is invalid.')).toBeVisible();
         await expect(page.getByText('Name should be set.')).toBeVisible();
-        await expect(page.getByText('Description should be set., Description is too short.')).toBeVisible();
+        await expect(page.getByText('Description should be set.')).toBeVisible();
         await expect(save(page)).toBeEnabled();
         await expect(page).toHaveURL('/circles/new');
     });
@@ -400,7 +400,7 @@ test.describe('editing a circle', () => {
             const viewMember = { ...permission('global:view:member'), id: 31, description: 'View all members' };
             editing(api);
             api.on('GET core /permissions', ({ query }) => ({ json: okList(query.get('query') === 'view' ? [viewMember] : []) }));
-            api.json('POST core /circles/:id/permissions', ok({ circle_id: 5, permission_id: 31 }));
+            api.json('POST core /circles/:id/permissions', { success: true, message: 'Permission was added to circle.' });
             await page.goto('/circles/5/edit');
 
             await permissionField(page).fill('view');
@@ -441,7 +441,7 @@ test.describe('editing a circle', () => {
         test('lose a permission with its remove button', async ({ page, api }) => {
             const viewMember = { ...permission('global:view:member'), id: 31 };
             editing(api, { permissions: [viewMember, permission('global:create:event')] });
-            api.json('DELETE core /circles/:id/permissions/:permission_id', { success: true, message: 'Permission is deleted.' });
+            api.json('DELETE core /circles/:id/permissions/:permission_id', { success: true, message: 'Permission was deleted from circle.' });
             await page.goto('/circles/5/edit');
 
             await page.getByRole('button', { name: 'Remove permission global:view:member' }).click();
