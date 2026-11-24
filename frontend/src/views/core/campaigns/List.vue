@@ -4,9 +4,9 @@
       <article class="tile is-child">
         <h4 class="title">Recruitment campaigns list</h4>
         <div class="field">
-          <label class="label">Search</label>
+          <label class="label" for="campaigns-search">Search</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            <input id="campaigns-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
           </div>
         </div>
 
@@ -30,7 +30,7 @@
           </b-table-column>
 
           <b-table-column field="description_long" label="Description" v-slot="props">
-            <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
+            <div class="description" v-html="$options.filters.markdown(props.row.description_long)" />
           </b-table-column>
 
           <b-table-column label="Link" v-slot="props">
