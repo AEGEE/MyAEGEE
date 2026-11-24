@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const constants = require('./constants');
+const { INT4_MAX } = require('./validators');
 const { Sequelize } = require('./sequelize');
 
 // Dates are YYYY-MM-DD, or an ISO 8601 timestamp (the frontend sends one to /recents), read
@@ -62,10 +63,11 @@ exports.getDefaultQuery = (req) => {
     if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
     queryObj.where[Sequelize.Op.and] = dateQuery;
 
-    // If offset is set and is valid, use it.
+    // If offset is set and is valid, use it. Like other invalid values, numbers above
+    // 2147483647 are ignored (Postgres refused the largest with a 500); the same for limit.
     if (req.query.offset) {
         const offset = parseInt(req.query.offset, 10);
-        if (!Number.isNaN(offset) && offset >= 0) {
+        if (!Number.isNaN(offset) && offset >= 0 && offset <= INT4_MAX) {
             queryObj.offset = offset;
         }
     }
@@ -73,7 +75,7 @@ exports.getDefaultQuery = (req) => {
     // If limit is set and is valid, use it.
     if (req.query.limit) {
         const limit = parseInt(req.query.limit, 10);
-        if (!Number.isNaN(limit) && limit > 0) {
+        if (!Number.isNaN(limit) && limit > 0 && limit <= INT4_MAX) {
             queryObj.limit = limit;
         }
     }

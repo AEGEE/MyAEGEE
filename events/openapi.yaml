@@ -735,8 +735,8 @@ components:
       name: X-Auth-Token
       description: Access token issued by core. Other services check it against core on every request.
   parameters:
-    Limit: {name: limit, in: query, description: 'Ignored unless a positive integer.', schema: {type: integer, minimum: 1}}
-    Offset: {name: offset, in: query, description: 'Ignored unless a non-negative integer.', schema: {type: integer, minimum: 0}}
+    Limit: {name: limit, in: query, description: 'Ignored unless an integer from 1 to 2147483647.', schema: {type: integer, minimum: 1, maximum: 2147483647}}
+    Offset: {name: offset, in: query, description: 'Ignored unless an integer from 0 to 2147483647.', schema: {type: integer, minimum: 0, maximum: 2147483647}}
     Search:
       name: search
       in: query
