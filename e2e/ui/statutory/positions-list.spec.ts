@@ -235,10 +235,10 @@ test.describe('the positions of an Agora', () => {
 
         test('says when the bodies can\'t be loaded, and shows the default description', async ({ page, api }) => {
             mockPositions(api);
-            api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Core is down' } });
+            api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
             await page.goto('/statutory/agora-spring/positions/approved');
 
-            await expect(toast(page, 'Could not fetch bodies: Core is down')).toBeVisible();
+            await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
             await selectPosition(page, 'Comité Directeur');
             await expect(page.getByText('A description for this position has not been set.')).toBeVisible();
             await expect(page).toHaveURL('/statutory/agora-spring/positions/approved');
@@ -306,13 +306,13 @@ test.describe('the positions of an Agora', () => {
 
         test('says why a candidature\'s status could not be changed', async ({ page, api }) => {
             manage(api);
-            api.on('PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id/status', { status: 500, json: { success: false, message: 'Database is down' } });
+            api.on('PUT statutory /events/:id/positions/:position_id/candidates/:candidate_id/status', { status: 500, json: { success: false, message: 'Internal server error.' } });
             await page.goto('/statutory/agora-spring/positions/all');
             await selectPosition(page, 'Comité Directeur');
 
             await page.getByRole('combobox', { name: 'Status of Piet Pieters' }).selectOption('Rejected');
 
-            await expect(toast(page, 'Could not update candidature status: Database is down')).toBeVisible();
+            await expect(toast(page, 'Could not update candidature status: Internal server error.')).toBeVisible();
             await expect(page.getByRole('combobox', { name: 'Status of Piet Pieters' })).toBeEnabled();
         });
 
@@ -368,13 +368,13 @@ test.describe('the positions of an Agora', () => {
 
         test('says why a position could not be removed', async ({ page, api }) => {
             manage(api);
-            api.on('DELETE statutory /events/:id/positions/:position_id', { status: 500, json: { success: false, message: 'Database is down' } });
+            api.on('DELETE statutory /events/:id/positions/:position_id', { status: 500, json: { success: false, message: 'Internal server error.' } });
             await page.goto('/statutory/agora-spring/positions/all');
 
             await positionRow(page, 'Juridical Commission').getByRole('button', { name: 'Delete position Juridical Commission' }).click();
             await dialog(page, 'Removing position').getByRole('button', { name: 'Remove position' }).click();
 
-            await expect(toast(page, 'Could not remove position: Database is down')).toBeVisible();
+            await expect(toast(page, 'Could not remove position: Internal server error.')).toBeVisible();
             await expect(tableRows(positionsTable(page))).toHaveCount(2);
         });
     });
@@ -415,10 +415,10 @@ test.describe('the positions of an Agora', () => {
         test('candidatures that can\'t be loaded go back to the list of statutory events', async ({ page, api }) => {
             api.fallback(mockEverything);
             mockPositions(api);
-            api.on('GET statutory /events/:id/positions/candidates/mine', { status: 500, json: { success: false, message: 'Database is down' } });
+            api.on('GET statutory /events/:id/positions/candidates/mine', { status: 500, json: { success: false, message: 'Internal server error.' } });
             await page.goto('/statutory/agora-spring/positions/approved');
 
-            await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+            await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
             await expect(page).toHaveURL('/statutory');
         });
 

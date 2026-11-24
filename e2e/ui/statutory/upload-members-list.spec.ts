@@ -149,10 +149,10 @@ test.describe('sending the members list of a local', () => {
 
     test('locals that can\'t be loaded are said so', async ({ page, api }) => {
         mockPage(api);
-        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
-        await expect(toast(page, 'Could not fetch bodies: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
     });
 
     test('the Network Director picks any local', async ({ page, api }) => {
@@ -176,10 +176,10 @@ test.describe('sending the members list of a local', () => {
 
     test('locals that can\'t be loaded for the Network Director are said so', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(agora(ND)));
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
-        await expect(toast(page, 'Could not fetch bodies: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
     });
 
     test('the members come from core with their current fees, and the list is saved', async ({ page, api }) => {
@@ -310,7 +310,7 @@ test.describe('sending the members list of a local', () => {
     test('payments that can\'t be loaded leave the fees empty, with a warning', async ({ page, api }) => {
         mockPage(api);
         api.json('GET core /bodies/:id/members', ok([ALEX, JAN]));
-        api.on('GET core /bodies/:id/payments', { status: 403, json: forbidden('You are not permitted to perform this action.') });
+        api.on('GET core /bodies/:id/payments', { status: 403, json: forbidden('Permission view:payment is required, but not present.') });
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
         await fetchFromBody(page);
@@ -322,12 +322,12 @@ test.describe('sending the members list of a local', () => {
 
     test('members that can\'t be loaded are said so', async ({ page, api }) => {
         mockPage(api);
-        api.on('GET core /bodies/:id/members', { status: 403, json: forbidden('You are not permitted to perform this action.') });
+        api.on('GET core /bodies/:id/members', { status: 403, json: forbidden('Permission view_members:body is required, but not present.') });
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
         await button(page, 'Fetch members list from a body').click();
 
-        await expect(toast(page, 'Some error happened: You are not permitted to perform this action.')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Permission view_members:body is required, but not present.')).toBeVisible();
         await expect(page.getByText('This local hasn\'t submitted a members list for this event yet.')).toBeVisible();
     });
 
@@ -562,13 +562,13 @@ test.describe('sending the members list of a local', () => {
 
     test('a list statutory refuses says why', async ({ page, api }) => {
         mockPage(api, { list: STORED });
-        api.on('POST statutory /events/:id/memberslists/:body_id', { status: 422, json: validationError({ currency: ['The currency "AL" is not known.'] }) });
+        api.on('POST statutory /events/:id/memberslists/:body_id', { status: 422, json: validationError({ currency: ['The currency is not known.'] }) });
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
         await page.getByLabel('Currency').selectOption('Lek (AL)');
         await button(page, 'Save!').click();
 
-        await expect(toast(page, 'Could not save memberslist: The currency "AL" is not known.')).toBeVisible();
+        await expect(toast(page, 'Could not save memberslist: The currency is not known.')).toBeVisible();
         await expect(button(page, 'Save!')).toBeEnabled();
     });
 
@@ -616,11 +616,11 @@ test.describe('sending the members list of a local', () => {
         api.fallback(mockEverything);
         let asked = 0;
         api.on('GET statutory /events/:id', () => (asked++ === 0
-            ? { status: 500, json: { success: false, message: 'Database is down' } }
+            ? { status: 500, json: { success: false, message: 'Internal server error.' } }
             : { json: ok(agora(statutoryEventPermissions())) }));
         await page.goto('/statutory/agora-spring/memberslist/upload');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring');
     });
 });

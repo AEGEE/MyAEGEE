@@ -181,10 +181,10 @@ test.describe('the application statistics of a statutory event', () => {
     test('bodies that can\'t be loaded leave the statistics with the ids of the bodies', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(statutoryEvent({ url: 'agora-spring' })));
         api.json('GET statutory /events/:id/applications/stats', ok(statutoryStats()));
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/applications/stats');
 
-        await expect(toast(page, 'Could not load the bodies: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not load the bodies: Something went wrong on the server.')).toBeVisible();
         await expect(rowsOf(page, 'Applications by body')).toHaveText([/1 \(3\)\s*3/, /2 \(1\)\s*1/]);
         await expect(page.getByRole('table', { name: 'Numbers of applications' }).getByRole('row', { name: 'Total applications: 5' })).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring/applications/stats');
@@ -202,10 +202,10 @@ test.describe('the application statistics of a statutory event', () => {
     test('statistics that can\'t be loaded send the viewer back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
         api.json('GET statutory /events/:id', ok(statutoryEvent({ url: 'agora-spring' })));
-        api.on('GET statutory /events/:id/applications/stats', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/applications/stats', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/applications/stats');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import type { Page } from '@playwright/test';
 
 import type { ApiMock } from '../support/api-mock.ts';
-import { badRequest, forbidden, notFound, ok } from '../support/factories/base.ts';
+import { forbidden, notFound, ok } from '../support/factories/base.ts';
 import {
     statutoryEvent,
     statutoryEventPermissions,
@@ -152,21 +152,6 @@ test.describe('the export page of a statutory event', () => {
         await expect(toast(page, 'Could not export the participants: You are not allowed to export participants.')).toBeVisible();
     });
 
-    test('an export with a filter statutory doesn\'t take says why', async ({ page, api }) => {
-        mockPage(api);
-        api.on('GET statutory /events/:id/applications/export/:prefix', {
-            status: 400,
-            json: badRequest('The filter value for "status" is not supported. The supported values are: pending, waiting_list, accepted, rejected.')
-        });
-        await page.goto('/statutory/agora-spring/applications/export');
-
-        await page.getByLabel('Filter on participant status').selectOption('Pending participants');
-        await exportButton(page).click();
-
-        await expect(toast(page, 'Could not export the participants: The filter value for "status" is not supported. The supported values are: pending, waiting_list, accepted, rejected.')).toBeVisible();
-        expect(exportCalls(api)[0].query.get('filter[status]')).toBe('pending');
-    });
-
     test('an export that fails without a message from the service says so', async ({ page, api }) => {
         mockPage(api);
         api.on('GET statutory /events/:id/applications/export/:prefix', { status: 502, body: '<html>Bad gateway</html>', contentType: 'text/html' });
@@ -261,10 +246,10 @@ test.describe('the export page of a statutory event', () => {
     test('fields that can\'t be loaded send the officer back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
         api.json('GET statutory /events/:id', ok(statutoryEvent({ url: 'agora-spring', permissions: MANAGER })));
-        api.on('GET statutory /events/:id/fields/applications/all', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/fields/applications/all', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/applications/export');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

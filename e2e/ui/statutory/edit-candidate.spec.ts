@@ -217,7 +217,7 @@ test.describe('applying for a position', () => {
         answerPosition(api);
         const errors = {
             date_of_birth: ['The value should be a date with a YYYY-MM-DD format.'],
-            member_since: ['The member since date should be a date.'],
+            member_since: ['The value should be a date with a YYYY-MM-DD format.'],
             nationality: ['Nationality should be set.'],
             languages: ['Please specify at least 1 language.'],
             studies: ['Studies should be set.'],
@@ -239,21 +239,27 @@ test.describe('applying for a position', () => {
         await save(page);
 
         await expect(toast(page, 'Some of the candidate data is invalid.')).toBeVisible();
+        // The two dates have the same message, each under its own field.
+        await expect(page.getByText(errors.date_of_birth[0], { exact: true })).toHaveCount(2);
         for (const [message] of Object.values(errors)) {
-            await expect(page.getByText(message, { exact: true })).toBeVisible();
+            await expect(page.getByText(message, { exact: true }).first()).toBeVisible();
         }
         await expect(page).toHaveURL(NEW);
     });
 
     test('says why the service refused the candidature as a whole', async ({ page, api }) => {
         answerPosition(api);
-        api.on('POST statutory /events/:id/positions/:position_id/candidates', { status: 422, json: unprocessable('There\'s already an application with such user ID for this position.') });
+        // A second candidature for the same position, refused by the database.
+        api.on('POST statutory /events/:id/positions/:position_id/candidates', {
+            status: 422,
+            json: validationError({ position_id: ['position_id must be unique'], user_id: ['There\'s already an application with such user ID for this position.'] })
+        });
         await page.goto(NEW);
 
         await fillForm(page);
         await save(page);
 
-        await expect(toast(page, 'Some of the candidate data is invalid: There\'s already an application with such user ID for this position.')).toBeVisible();
+        await expect(toast(page, 'Some of the candidate data is invalid: position_id must be unique; There\'s already an application with such user ID for this position.')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Save candidature' })).toBeEnabled();
     });
 
@@ -299,10 +305,10 @@ test.describe('applying for a position', () => {
     });
 
     test('names no position when the positions can\'t be loaded', async ({ page, api }) => {
-        api.on('GET statutory /events/:id/positions', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/positions', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto(NEW);
 
-        await expect(toast(page, 'Could not fetch the position: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch the position: Internal server error.')).toBeVisible();
         await expect(page.getByRole('heading', { name: 'Apply for a position' })).toBeVisible();
         await expect(page.getByLabel('Body')).toHaveValue('1');
     });

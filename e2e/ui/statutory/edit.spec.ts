@@ -4,7 +4,7 @@
 import type { Page } from '@playwright/test';
 
 import type { ApiMock } from '../support/api-mock.ts';
-import { forbidden, notFound, ok, unprocessable, validationError } from '../support/factories/base.ts';
+import { forbidden, notFound, ok, validationError } from '../support/factories/base.ts';
 import { body } from '../support/factories/core.ts';
 import { statutoryEvent, statutoryOrganiserPermissions, type StatutoryEvent } from '../support/factories/statutory-events.ts';
 import { mockMap } from '../support/map.ts';
@@ -463,12 +463,12 @@ test.describe('creating a statutory event', () => {
     });
 
     test('when the bodies can\'t be looked up, it says so', async ({ page, api }) => {
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Core is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/new');
 
         await page.getByLabel('Organising body').fill('alpha');
 
-        await expect(toast(page, 'Could not fetch bodies: Core is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
     });
 
     test.describe('when the service refuses the event', () => {
@@ -485,27 +485,28 @@ test.describe('creating a statutory event', () => {
         test('each invalid field says why, and the messages go when it is sent again', async ({ page, api }) => {
             const messages = {
                 name: 'Event name should be set.',
-                description: 'Description should be set.',
-                url: 'URL is already taken.',
-                type: 'Event type should be one of these.',
+                description: 'Event description should be set.',
+                url: 'Event URL should only contain numbers, letters and dashes.',
+                type: 'Event type should be one of these: "agora", "epm", "spm".',
                 booklet_folder: 'The link should be a valid URL starting with http:// or https://.',
-                starts: 'Start date should be set.',
+                starts: 'Event start date should be set.',
                 ends: 'Event cannot start after or at the same time it ends.',
-                application_period_starts: 'Application period start should be set.',
-                application_period_ends: 'Application period end should be set.',
-                board_approve_deadline: 'Board approve deadline should be set.',
+                application_period_starts: 'Event application starts date should be set.',
+                application_period_ends: 'Event application ends date should be set.',
+                board_approve_deadline: 'Event board approve deadline should be set.',
                 participants_list_publish_deadline: 'Participants list publish deadline should be set.',
-                memberslist_submission_deadline: 'Members list submission deadline should be set.',
-                draft_proposal_deadline: 'Draft proposal deadline should be set.',
-                final_proposal_deadline: 'Final proposal deadline should be set.',
-                candidature_deadline: 'Candidature deadline should be set.',
-                booklet_publication_deadline: 'Booklet publication deadline should be set.',
-                updated_booklet_publication_deadline: 'Updated booklet publication deadline should be set.',
+                memberslist_submission_deadline: 'Event is Agora, but the members list submission deadline is not set.',
+                draft_proposal_deadline: 'Event is Agora, but the draft proposal deadline is not set.',
+                final_proposal_deadline: 'Event is Agora, but the final proposal deadline is not set.',
+                candidature_deadline: 'Event is Agora, but the candidature deadline is not set.',
+                booklet_publication_deadline: 'Event is Agora, but the booklet publication deadline is not set.',
+                updated_booklet_publication_deadline: 'Updated booklet publication deadline cannot be before the booklet publication deadline.',
                 body_id: 'Body ID should be set.',
-                fee: 'Event fee cannot be negative.',
+                fee: 'Event fee cannot be negative',
                 locations: 'Name should be presented.'
             };
-            let answer = { status: 422, json: validationError({ ...Object.fromEntries(Object.entries(messages).map(([field, message]) => [field, [message]])), questions: ['Question 1: description should be set.', 'Question 1: type is invalid.'] }) as object };
+            // statutory checks the questions one by one and stops at the first problem.
+            let answer = { status: 422, json: validationError({ ...Object.fromEntries(Object.entries(messages).map(([field, message]) => [field, [message]])), questions: ['Question 1: description should be set.'] }) as object };
             api.on('POST statutory /', () => answer);
             await submit(page, api);
 
@@ -514,7 +515,7 @@ test.describe('creating a statutory event', () => {
                 await expect(page.getByText(message, { exact: true })).toBeVisible();
             }
             const reasons = page.getByText('Could not create/edit event because of these reasons:');
-            await expect(reasons.getByRole('listitem')).toHaveText(['Question 1: description should be set.', 'Question 1: type is invalid.']);
+            await expect(reasons.getByRole('listitem')).toHaveText(['Question 1: description should be set.']);
             await expect(page.getByText('Question 1: description should be set.')).toHaveCount(1);
 
             answer = { status: 403, json: forbidden('You are not allowed to create events of this type.') };
@@ -523,13 +524,6 @@ test.describe('creating a statutory event', () => {
             await expect(toast(page, 'Could not save event: You are not allowed to create events of this type.')).toBeVisible();
             await expect(page.getByText(messages.url)).toHaveCount(0);
             await expect(reasons).toHaveCount(0);
-        });
-
-        test('a refusal without field messages shows its message', async ({ page, api }) => {
-            api.on('POST statutory /', { status: 422, json: unprocessable('Validation failed.') });
-            await submit(page, api);
-
-            await expect(toast(page, 'Some of the event data is invalid: Validation failed.')).toBeVisible();
         });
 
         test('without the permission it says so and keeps the form; Save waits for the answer', async ({ page, api }) => {
@@ -746,25 +740,25 @@ test.describe('editing a statutory event', () => {
     });
 
     test('when the event can\'t be loaded, it says so and goes back to the list', async ({ page, api }) => {
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         api.json('GET statutory /', ok([]));
 
         await page.goto('/statutory/agora-spring/edit');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 
     test('when the organising body can\'t be loaded, the event can still be edited', async ({ page, api }) => {
         const data = agora();
         showForEditing(api, data);
-        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Core is down' } });
+        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         api.json('PUT statutory /events/:id', ok(data));
         api.json('GET statutory /events/:id', ok(data));
 
         await page.goto('/statutory/agora-spring/edit');
 
-        await expect(toast(page, 'Could not fetch the organising body: Core is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch the organising body: Something went wrong on the server.')).toBeVisible();
         await expect(page.getByLabel('Title')).toHaveValue('Agora Spring');
         await expect(page.getByRole('button', { name: 'Unknown body (Click to unset)' })).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring/edit');

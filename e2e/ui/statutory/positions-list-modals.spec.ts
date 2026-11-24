@@ -268,10 +268,10 @@ test.describe('creating and editing a position', () => {
                 starts: ['Position start date should be valid.'],
                 ends: ['Position cannot start after or at the same time it ends.'],
                 places: ['Places amount should be at least 1'],
-                body_id: ['Body ID should be a number.'],
+                body_id: ['The value should be a whole number between -2147483648 and 2147483647.'],
                 start_term: ['Position start term date should be valid.'],
                 end_term: ['Position end term date should be set.'],
-                requirements: ['Requirements are too long.']
+                requirements: ['The value should be a text.']
             })
         });
         await page.goto('/statutory/agora-spring/positions/all');
@@ -285,10 +285,10 @@ test.describe('creating and editing a position', () => {
             'Position start date should be valid.',
             'Position cannot start after or at the same time it ends.',
             'Places amount should be at least 1',
-            'Body ID should be a number.',
+            'The value should be a whole number between -2147483648 and 2147483647.',
             'Position start term date should be valid.',
             'Position end term date should be set.',
-            'Requirements are too long.'
+            'The value should be a text.'
         ]) {
             // Each one once, under its own field.
             await expect(modal.getByText(message, { exact: true })).toHaveCount(1);
@@ -298,14 +298,14 @@ test.describe('creating and editing a position', () => {
 
     test('says when the position could not be saved, and keeps what was typed', async ({ page, api }) => {
         manage(api);
-        api.on('POST statutory /events/:id/positions', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST statutory /events/:id/positions', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/positions/all');
 
         const modal = await openCreate(page);
         await modal.getByLabel('Name').fill('Network Director');
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(modal.getByLabel('Name')).toHaveValue('Network Director');
         await expect(modal.getByRole('button', { name: 'Save changes' })).toBeEnabled();
     });
@@ -399,7 +399,7 @@ test.describe('creating and editing a position', () => {
         manage(api);
         let fails = false;
         api.on('GET statutory /events/:id/positions/all', () => (fails
-            ? { status: 500, json: { success: false, message: 'Database is down' } }
+            ? { status: 500, json: { success: false, message: 'Internal server error.' } }
             : { json: ok([CD()]) }));
         api.on('POST statutory /events/:id/positions', () => {
             fails = true;
@@ -411,7 +411,7 @@ test.describe('creating and editing a position', () => {
         await modal.getByLabel('Name').fill('Network Director');
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(toast(page, 'Could not fetch positions: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch positions: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring/positions/all');
         await expect(tableRows(positionsTable(page))).toHaveCount(1);
     });

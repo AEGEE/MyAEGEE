@@ -223,27 +223,29 @@ test.describe('the members lists of an Agora', () => {
 
     test('a refused fee paid says why, and the row stays as it was', async ({ page, api }) => {
         mockPage(api);
-        api.on('PUT statutory /events/:id/memberslists/:body_id/fee_paid', { status: 422, json: validationError({ fee_paid: ['Fee paid should be a number.'] }) });
+        api.on('PUT statutory /events/:id/memberslists/:body_id/fee_paid', {
+            status: 422, json: validationError({ fee_paid: ['The value should be an amount with at most 10 digits before the decimal point and 4 after it.'] })
+        });
         await page.goto('/statutory/agora-spring/memberslist/list');
 
         await askFeePaid(page, 'AEGEE-Antenna');
-        await feePaidPrompt(page).getByRole('spinbutton', { name: 'Fee paid (in EUR)' }).fill('3');
+        await feePaidPrompt(page).getByRole('spinbutton', { name: 'Fee paid (in EUR)' }).fill('12345678901');
         await feePaidPrompt(page).getByRole('button', { name: 'OK' }).click();
 
-        await expect(toast(page, 'Could not set fee paid: Fee paid should be a number.')).toBeVisible();
+        await expect(toast(page, 'Could not set fee paid: The value should be an amount with at most 10 digits before the decimal point and 4 after it.')).toBeVisible();
         await expect(await cellOf(table(page), rowOf(page, 'AEGEE-Antenna'), 'Fee paid')).toHaveText('2.25 EUR');
     });
 
-    test('a fee paid that can\'t be stored says why', async ({ page, api }) => {
+    test('a fee paid that may not be set says why', async ({ page, api }) => {
         mockPage(api);
-        api.on('PUT statutory /events/:id/memberslists/:body_id/fee_paid', { status: 403, json: forbidden('You are not allowed to see this memberslist.') });
+        api.on('PUT statutory /events/:id/memberslists/:body_id/fee_paid', { status: 403, json: forbidden('You are not allowed to set the paid fee of this memberslist.') });
         await page.goto('/statutory/agora-spring/memberslist/list');
 
         await askFeePaid(page, 'AEGEE-Antenna');
         await feePaidPrompt(page).getByRole('spinbutton', { name: 'Fee paid (in EUR)' }).fill('3');
         await feePaidPrompt(page).getByRole('button', { name: 'OK' }).click();
 
-        await expect(toast(page, 'Could not set fee paid: You are not allowed to see this memberslist.')).toBeVisible();
+        await expect(toast(page, 'Could not set fee paid: You are not allowed to set the paid fee of this memberslist.')).toBeVisible();
     });
 
     test('a list is shown with its members and their fees', async ({ page, api }) => {
@@ -307,9 +309,9 @@ test.describe('the members lists of an Agora', () => {
 
     test('bodies that can\'t be loaded are said so', async ({ page, api }) => {
         mockPage(api);
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/memberslist/list');
 
-        await expect(toast(page, 'Could not fetch members lists: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch members lists: Something went wrong on the server.')).toBeVisible();
     });
 });

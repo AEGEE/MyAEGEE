@@ -432,14 +432,14 @@ test.describe('question lines', () => {
 
     test('a failure to save a question line says why', async ({ page, api }) => {
         showLines(api);
-        api.on('POST statutory /events/:id/question-lines', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST statutory /events/:id/question-lines', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory/agora-spring/question-lines');
         await page.getByRole('button', { name: 'Create a question line' }).click();
         await dialog(page, 'Add question line').getByLabel('Name').fill('Budget');
         await dialog(page, 'Add question line').getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(dialog(page, 'Add question line')).toBeVisible();
     });
 
@@ -466,13 +466,13 @@ test.describe('question lines', () => {
 
         await page.goto('/statutory/agora-spring/question-lines');
         await expectEmptyTable(linesTable(page));
-        api.on('GET statutory /events/:id/question-lines', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/question-lines', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.getByRole('button', { name: 'Create a question line' }).click();
         await dialog(page, 'Add question line').getByLabel('Name').fill('Budget');
         await dialog(page, 'Add question line').getByRole('button', { name: 'Save changes' }).click();
 
         await expect(toast(page, 'Question line is created.')).toBeVisible();
-        await expect(toast(page, 'Could not load the question lines: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not load the question lines: Internal server error.')).toBeVisible();
     });
 
     test('a line is closed and opened again', async ({ page, api }) => {
@@ -494,13 +494,13 @@ test.describe('question lines', () => {
 
     test('a refused status change says why and shows the stored status', async ({ page, api }) => {
         showLines(api);
-        api.on('PUT statutory /events/:id/question-lines/:question_line_id/status', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('PUT statutory /events/:id/question-lines/:question_line_id/status', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory/agora-spring/question-lines');
         const status = page.getByRole('combobox', { name: 'Status of CD candidates' });
         await status.selectOption('Closed');
 
-        await expect(toast(page, 'Could not update question line status: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not update question line status: Internal server error.')).toBeVisible();
         await expect(status).toHaveValue('open');
     });
 
@@ -551,13 +551,13 @@ test.describe('question lines', () => {
 
     test('a question line that can\'t be deleted stays, and the reason is shown', async ({ page, api }) => {
         showLines(api);
-        api.on('DELETE statutory /events/:id/question-lines/:question_line_id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('DELETE statutory /events/:id/question-lines/:question_line_id', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory/agora-spring/question-lines');
         await lineRow(page, 'Elections').getByRole('button', { name: 'Delete' }).click();
         await dialog(page, 'Deleting a question line').getByRole('button', { name: 'Delete question line' }).click();
 
-        await expect(toast(page, 'Could not delete question line: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not delete question line: Internal server error.')).toBeVisible();
         await expect(tableRows(linesTable(page))).toHaveCount(3);
     });
 

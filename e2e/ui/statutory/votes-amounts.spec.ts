@@ -140,10 +140,10 @@ test.describe('the votes of an Agora', () => {
 
     test('bodies that can\'t be loaded are said so, and there is nothing to export', async ({ page, api }) => {
         mockVotes(api);
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/votes');
 
-        await expect(toast(page, 'Could not fetch bodies: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
         await expect(await cellOf(byAntenna(page), tableRows(byAntenna(page)).filter({ hasText: '3' }), 'Body')).toHaveText('Unknown body (#3)');
         await expect(exportLink(page)).toHaveCount(0);
     });
@@ -169,10 +169,10 @@ test.describe('the votes of an Agora', () => {
     test('votes of the delegates that can\'t be loaded go back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
         api.json('GET statutory /events/:id/votes-amounts/antenna', ok([ANTENNA_VOTES]));
-        api.on('GET statutory /events/:id/votes-amounts/delegate', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/votes-amounts/delegate', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/votes');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

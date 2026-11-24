@@ -163,11 +163,9 @@ test.describe('the board view of a statutory event', () => {
         api.on('POST statutory /events/:id/applications/boardview/:body_id', {
             status: 422,
             json: validationError({
-                participant_type: ['Participant type should be one of these: delegate, envoy, observer, visitor.'],
-                participant_order: ['Participant order should be a number.'],
-                participantTypeShouldBeSetWithOrder: ['Participant type should be set together with participant order.'],
-                board_comment: ['Board comment is too long.'],
-                user_id: ['There\'s no application of this user for this body.']
+                participant_type: ['Participant type should be one of these: "delegate", "observer", "envoy", "visitor".'],
+                participant_order: ['Participant order cannot be negative'],
+                board_comment: ['The value should be a text.']
             })
         });
         await page.goto('/statutory/agora-spring/boardview');
@@ -177,12 +175,35 @@ test.describe('the board view of a statutory event', () => {
         const errors = editPanel(page).getByRole('listitem');
         await expect(page.getByText('These errors occurred while trying to update the participant:')).toBeVisible();
         await expect(errors).toHaveText([
-            'Participant type: Participant type should be one of these: delegate, envoy, observer, visitor.',
-            'Participant order: Participant order should be a number.',
-            'Participant type should be set together with participant order.',
-            'Board comment: Board comment is too long.',
-            'There\'s no application of this user for this body.'
+            'Participant type: Participant type should be one of these: "delegate", "observer", "envoy", "visitor".',
+            'Participant order: Participant order cannot be negative',
+            'Board comment: The value should be a text.'
         ]);
+    });
+
+    test('a reason about another field than the places is shown as it is', async ({ page, api }) => {
+        mockPage(api);
+        // The event became vegetarian after a member of the body applied with meat.
+        api.on('POST statutory /events/:id/applications/boardview/:body_id', {
+            status: 422, json: validationError({ meals: ['Meat-eater is not allowed for this event.'] })
+        });
+        await page.goto('/statutory/agora-spring/boardview');
+
+        await page.getByRole('button', { name: 'Save!' }).click();
+
+        await expect(editPanel(page).getByRole('listitem')).toHaveText(['Meat-eater is not allowed for this event.']);
+    });
+
+    test('a place for someone without an application of the body is refused', async ({ page, api }) => {
+        mockPage(api);
+        api.on('POST statutory /events/:id/applications/boardview/:body_id', {
+            status: 403, json: forbidden('Entry 1: this user has no application from this body.')
+        });
+        await page.goto('/statutory/agora-spring/boardview');
+
+        await page.getByRole('button', { name: 'Save!' }).click();
+
+        await expect(toast(page, 'Could not update participants info: Entry 1: this user has no application from this body.')).toBeVisible();
     });
 
     test('a body over its limit is refused', async ({ page, api }) => {
@@ -431,10 +452,10 @@ test.describe('the board view of a statutory event', () => {
     test('another body starts without the errors and search of the one before', async ({ page, api }) => {
         mockPage(api, { event: agora({ permissions: boardPermissions({ see_boardview: { global: true, 1: true }, set_board_comment_and_participant_type: { global: true, 1: true } }) }) });
         api.json('GET core /bodies', okList([body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 3, name: 'AEGEE-Utrecht' })]));
-        api.on('POST statutory /events/:id/applications/boardview/:body_id', { status: 422, json: validationError({ board_comment: ['Board comment is too long.'] }) });
+        api.on('POST statutory /events/:id/applications/boardview/:body_id', { status: 422, json: validationError({ board_comment: ['The value should be a text.'] }) });
         await page.goto('/statutory/agora-spring/boardview');
         await page.getByRole('button', { name: 'Save!' }).click();
-        await expect(page.getByText('Board comment: Board comment is too long.')).toBeVisible();
+        await expect(page.getByText('Board comment: The value should be a text.')).toBeVisible();
         await page.getByRole('tab', { name: 'View applications' }).click();
         await page.getByRole('textbox', { name: 'Search by name, surname or email' }).fill('jans');
 
@@ -476,10 +497,10 @@ test.describe('the board view of a statutory event', () => {
 
     test('shows why the bodies could not be loaded', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(agora({ permissions: boardPermissions({ see_boardview: { global: true, 1: false } }) })));
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Core is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/statutory/agora-spring/boardview');
 
-        await expect(toast(page, 'Could not fetch bodies: Core is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies: Something went wrong on the server.')).toBeVisible();
     });
 
     test('shows why the board view of a body could not be loaded', async ({ page, api }) => {
@@ -493,10 +514,10 @@ test.describe('the board view of a statutory event', () => {
     test('shows why the limits of a body could not be loaded', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(agora()));
         api.json('GET statutory /events/:id/applications/boardview/:body_id', ok([ALEX]));
-        api.on('GET statutory /limits/:event_type/:body_id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /limits/:event_type/:body_id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/boardview');
 
-        await expect(toast(page, 'Could not fetch boardview: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch boardview: Internal server error.')).toBeVisible();
     });
 
     test('the slots keep their order', {
@@ -535,10 +556,10 @@ test.describe('the board view of a statutory event', () => {
 
     test('a failing service goes back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/boardview');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

@@ -194,11 +194,11 @@ test.describe('a plenary and its attendances', () => {
 
     test('when the event can\'t be loaded, it says so and goes back to the list', async ({ page, api }) => {
         api.fallback(mockEverything);
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory/agora-spring/plenaries/2');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

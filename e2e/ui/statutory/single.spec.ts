@@ -394,22 +394,22 @@ test.describe('statutory event page', () => {
         });
 
         test('a failing service goes back to the list', async ({ page, api }) => {
-            api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+            api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
             api.json('GET statutory /', ok([]));
 
             await page.goto('/statutory/agora-spring');
 
-            await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+            await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
             await expect(page).toHaveURL('/statutory');
         });
 
         test('an event whose body can\'t be loaded is shown all the same', async ({ page, api }) => {
             showEvent(api, agora());
-            api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Core is down' } });
+            api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
             await page.goto('/statutory/agora-spring');
 
-            await expect(toast(page, 'Could not fetch the organising body: Core is down')).toBeVisible();
+            await expect(toast(page, 'Could not fetch the organising body: Something went wrong on the server.')).toBeVisible();
             await expect(fact(page, 'Organising body')).toHaveText('Unknown body');
             await expect(page.getByRole('heading', { name: 'Agora Spring', level: 1 })).toBeVisible();
             await expect(page).toHaveURL('/statutory/agora-spring');

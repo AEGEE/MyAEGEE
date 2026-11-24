@@ -232,14 +232,19 @@ test.describe('participants limits', () => {
         await expect(page.getByRole('img', { name: 'Loading' })).toBeHidden();
     });
 
-    for (const [failing, route] of [['limits', 'GET statutory /limits/:type'], ['default limits', 'GET statutory /limits/:type/defaults'], ['bodies', 'GET core /bodies']] as const) {
+    // Each service's own text for a failure.
+    for (const [failing, route, message] of [
+        ['limits', 'GET statutory /limits/:type', 'Internal server error.'],
+        ['default limits', 'GET statutory /limits/:type/defaults', 'Internal server error.'],
+        ['bodies', 'GET core /bodies', 'Something went wrong on the server.']
+    ] as const) {
         test(`when the ${failing} can't be loaded, it says so`, async ({ page, api }) => {
             answerLimits(api);
-            api.on(route, { status: 500, json: { success: false, message: 'Database is down' } });
+            api.on(route, { status: 500, json: { success: false, message } });
 
             await page.goto('/statutory/limits');
 
-            await expect(toast(page, 'Could not fetch participants limits: Database is down')).toBeVisible();
+            await expect(toast(page, `Could not fetch participants limits: ${message}`)).toBeVisible();
             await expect(page.getByRole('img', { name: 'Loading' })).toBeHidden();
         });
     }

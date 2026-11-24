@@ -113,7 +113,12 @@ test.describe('statutory mass mailer', () => {
 
     for (const [status, answer, message] of [
         [400, badRequest('No users match this filter.'), 'Error using massmailer: No users match this filter.'],
-        [403, forbidden('You cannot access massmailer.'), 'Error using massmailer: You cannot access massmailer.']
+        [403, forbidden('You cannot access massmailer.'), 'Error using massmailer: You cannot access massmailer.'],
+        [
+            500,
+            { success: false, message: 'The mailer did not take the mails. Some of them may have been sent.' },
+            'Error using massmailer: The mailer did not take the mails. Some of them may have been sent.'
+        ]
     ] as const) {
         test(`a refused mail (${status}) says why`, async ({ page, api }) => {
             showEvent(api);
@@ -149,12 +154,12 @@ test.describe('statutory mass mailer', () => {
     });
 
     test('a failing service goes back to the list', async ({ page, api }) => {
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         api.json('GET statutory /', ok([]));
 
         await page.goto('/statutory/agora-spring/massmailer');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 

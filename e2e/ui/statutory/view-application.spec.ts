@@ -54,9 +54,10 @@ const JANS = singleStatutoryApplication({
 
 const mockPage = (api: ApiMock, application: SingleStatutoryApplication | null, event: StatutoryEvent = agora()) => {
     api.json('GET statutory /events/:id', ok(event));
-    api.on('GET statutory /events/:id/applications/:application_id', application
+    // Without an application, statutory answers for "me" and for someone else in its own words.
+    api.on('GET statutory /events/:id/applications/:application_id', ({ params }) => (application
         ? { json: ok(application) }
-        : { status: 404, json: notFound('You haven\'t applied to this event yet.') });
+        : { status: 404, json: notFound(`${params.application_id === 'me' ? 'You' : 'This user'} haven't applied to this event yet.`) }));
 };
 
 // The value next to a row header in the details.

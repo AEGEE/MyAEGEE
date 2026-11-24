@@ -110,9 +110,9 @@ test.describe('the locals whose members list has no fee', () => {
 
     test('a list that can\'t be loaded is said so', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(EVENT));
-        api.on('GET statutory /events/:id/memberslists/without_fee', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/memberslists/without_fee', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/memberslist/list/without_fee');
 
-        await expect(toast(page, 'Could not fetch members lists: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch members lists: Internal server error.')).toBeVisible();
     });
 });

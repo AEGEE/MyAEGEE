@@ -180,10 +180,10 @@ test.describe('exporting the candidatures of an Agora', () => {
     test('columns that can\'t be loaded go back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
         mockPage(api);
-        api.on('GET statutory /events/:id/fields/candidates', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/fields/candidates', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/positions/export');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

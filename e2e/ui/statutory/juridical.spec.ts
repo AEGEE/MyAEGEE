@@ -128,7 +128,7 @@ test.describe('the juridical commission\'s page', () => {
     test('a refused change is shown, and the select goes back to what is stored', async ({ page, api }) => {
         mockPage(api);
         api.on('PUT statutory /events/:id/applications/:application_id/registered', { status: 403, json: forbidden('You don\'t have permissions to change the "registered" attribute of this application.') });
-        api.on('PUT statutory /events/:id/applications/:application_id/departed', { status: 422, json: validationError({ departed: ['You should set user as registered first.'] }) });
+        api.on('PUT statutory /events/:id/applications/:application_id/departed', { status: 422, json: validationError({ departed: ['You should set user as attended first.'] }) });
         await page.goto('/statutory/agora-spring/juridical');
 
         await select(page, 'JC registered', 'Alex Member').selectOption('Yes');
@@ -137,7 +137,7 @@ test.describe('the juridical commission\'s page', () => {
         await expect(select(page, 'Departed', 'Alex Member')).toBeDisabled();
 
         await select(page, 'Departed', 'Jan Jansen').selectOption('Yes');
-        await expect(toast(page, /^Could not update participant departure info: /)).toBeVisible();
+        await expect(toast(page, 'Could not update participant departure info: You should set user as attended first.')).toBeVisible();
         await expect(select(page, 'Departed', 'Jan Jansen')).toHaveValue(/false/);
         await expect(select(page, 'JC registered', 'Jan Jansen')).toBeEnabled();
     });

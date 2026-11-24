@@ -124,11 +124,11 @@ test.describe('the incoming team\'s page', () => {
         mockPage(api);
         api.on('PUT statutory /events/:id/applications/:application_id/attended', { status: 422, json: validationError({ attended: ['You should set user as confirmed first.'] }) });
         api.on('PUT statutory /events/:id/applications/:application_id/confirmed', { status: 403, json: forbidden('You don\'t have permissions to change the "confirmed" attribute of this application.') });
-        api.on('PUT statutory /events/:id/applications/:application_id/incoming', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('PUT statutory /events/:id/applications/:application_id/incoming', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/incoming');
 
         await select(page, 'Attended', 'Jan Jansen').selectOption('Yes');
-        await expect(toast(page, /^Could not update participant attendance info: /)).toBeVisible();
+        await expect(toast(page, 'Could not update participant attendance info: You should set user as confirmed first.')).toBeVisible();
         await expect(select(page, 'Attended', 'Jan Jansen')).toHaveValue(/false/);
 
         await select(page, 'Confirmed', 'Alex Member').selectOption('Yes');
@@ -137,7 +137,7 @@ test.describe('the incoming team\'s page', () => {
         await expect(select(page, 'Attended', 'Alex Member')).toBeDisabled();
 
         await select(page, 'Incoming form filled', 'Alex Member').selectOption('Yes');
-        await expect(toast(page, 'Could not update participant incoming info: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not update participant incoming info: Internal server error.')).toBeVisible();
         await expect(select(page, 'Incoming form filled', 'Alex Member')).toHaveValue(/false/);
     });
 

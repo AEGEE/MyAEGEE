@@ -142,7 +142,7 @@ test.describe('applying to a statutory event', () => {
     test('a failing subscription still saves the application', async ({ page, api }) => {
         mockEvent(api, agora({ questions: [] }));
         api.on('POST statutory /events/:id/applications', { json: ok(statutoryApplication({ id: 77 })) });
-        api.on('POST core /members/:id/listserv', { status: 500, json: { success: false, message: 'Listserv is down' } });
+        api.on('POST core /members/:id/listserv', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         mockApplication(api, singleStatutoryApplication({ id: 77 }));
         await page.goto('/statutory/agora-spring/applications/new');
 
@@ -208,15 +208,17 @@ test.describe('applying to a statutory event', () => {
     });
 
     test('a reason about the answers alone is listed on its own', async ({ page, api }) => {
-        mockEvent(api, agora({ questions: [] }));
-        api.on('POST statutory /events/:id/applications', { status: 422, json: validationError({ answers: ['Answer number 1 ("Why?") is empty.'] }) });
+        mockEvent(api);
+        api.on('POST statutory /events/:id/applications', { status: 422, json: validationError({ answers: ['Answer number 1 ("Tell us about yourself") is empty.'] }) });
         await page.goto('/statutory/agora-spring/applications/new');
 
-        await field(page, 'combobox', 'Nationality').selectOption('Belgian');
+        // Spaces are enough for the browser, not for statutory.
+        await fillRequired(page);
+        await field(page, 'textbox', 'Tell us about yourself').fill('   ');
         await saveButton(page).click();
 
         await expect(toast(page, 'Some of the application data is invalid.')).toBeVisible();
-        await expect(page.getByRole('listitem').filter({ hasText: 'Answer number 1 ("Why?") is empty.' })).toHaveCount(1);
+        await expect(page.getByRole('listitem').filter({ hasText: 'Answer number 1 ("Tell us about yourself") is empty.' })).toHaveCount(1);
         await expect(page.getByRole('link', { name: 'your profile.' })).toHaveCount(0);
     });
 
@@ -274,17 +276,15 @@ test.describe('applying to a statutory event', () => {
 
     test('shows why statutory refused the application', async ({ page, api }) => {
         mockEvent(api, agora({ questions: [] }));
+        // A profile without a gender and a birthday (statutory copies both from it), and no
+        // nationality or meals chosen.
         api.on('POST statutory /events/:id/applications', {
             status: 422,
             json: validationError({
-                answers: ['Answer number 1 ("Tell us about yourself") is empty.'],
-                body_id: ['Body should be set.'],
+                date_of_birth: ['application.date_of_birth cannot be null'],
                 gender: ['Gender should be set.'],
-                date_of_birth: ['Date of birth should be set.'],
                 nationality: ['Nationality should be set.'],
-                meals: ['Meals should be one of these: Meat-eater, Vegetarian, Vegan.'],
-                number_of_events_visited: ['Number of events visited should be set.'],
-                user_id: ['There\'s already an application with such user ID for this event.']
+                meals: ['Meals should be one of these: Meat-eater, Vegetarian, Vegan.']
             })
         });
         await page.goto('/statutory/agora-spring/applications/new');
@@ -293,21 +293,36 @@ test.describe('applying to a statutory event', () => {
 
         await expect(toast(page, 'Some of the application data is invalid.')).toBeVisible();
         await expect(page.getByText('Could not apply because of these reasons:')).toBeVisible();
-        for (const reason of [
-            'Answer number 1 ("Tell us about yourself") is empty.',
-            'Body should be set.',
-            'Please set the gender in your profile.',
-            'Please set the date of birth in your profile.',
-            'Number of events visited should be set.',
-            'There\'s already an application with such user ID for this event.'
-        ]) {
+        for (const reason of ['Please set the gender in your profile.', 'Please set the date of birth in your profile.']) {
             await expect(page.getByRole('listitem').filter({ hasText: reason })).toBeVisible();
         }
+        await expect(page.getByText('application.date_of_birth cannot be null')).toHaveCount(0);
         await expect(page.getByRole('link', { name: 'your profile.' })).toHaveCount(2);
         await expect(page.getByRole('link', { name: 'your profile.' }).first()).toHaveAttribute('href', '/members/me');
         await expect(page.getByText('Nationality should be set.')).toBeVisible();
         await expect(page.getByText('Meals should be one of these: Meat-eater, Vegetarian, Vegan.')).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring/applications/new');
+    });
+
+    test('a second application is refused with the reasons of the database', async ({ page, api }) => {
+        mockEvent(api, agora({ questions: [] }));
+        api.on('POST statutory /events/:id/applications', {
+            status: 422,
+            json: validationError({
+                event_id: ['event_id must be unique'],
+                user_id: ['There\'s already an application with such user ID for this event.']
+            })
+        });
+        await page.goto('/statutory/agora-spring/applications/new');
+
+        await field(page, 'combobox', 'Nationality').selectOption('Belgian');
+        await saveButton(page).click();
+
+        await expect(toast(page, 'Some of the application data is invalid.')).toBeVisible();
+        for (const reason of ['event_id must be unique', 'There\'s already an application with such user ID for this event.']) {
+            await expect(page.getByRole('listitem').filter({ hasText: reason })).toBeVisible();
+        }
+        await expect(page.getByRole('link', { name: 'your profile.' })).toHaveCount(0);
     });
 
     test('after the deadline statutory refuses the application', async ({ page, api }) => {
@@ -369,10 +384,10 @@ test.describe('applying to a statutory event', () => {
 
     test('a failing service goes back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/applications/new');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });
@@ -469,10 +484,10 @@ test.describe('editing an application to a statutory event', () => {
     test('an application that can\'t be loaded goes back to the event', async ({ page, api }) => {
         api.fallback(mockEverything);
         mockEvent(api);
-        api.on('GET statutory /events/:id/applications/:application_id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/applications/:application_id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/applications/12/edit');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory/agora-spring');
     });
 
@@ -502,7 +517,7 @@ test.describe('editing an application to a statutory event', () => {
             mockApplication(api, singleStatutoryApplication({ ...OWN, user_id: 7 }, { ...statutoryManagerPermissions(boardPermissions) }));
             api.on('PUT statutory /events/:id/applications/:application_id/board', {
                 status: 422,
-                json: validationError({ participantTypeShouldBeSetWithOrder: ['Participant type should be set together with participant order.'] })
+                json: validationError({ participantTypeShouldBeSetWithOrder: ['Participant type is set, but participant order is not.'] })
             });
             await page.goto('/statutory/agora-spring/applications/12/edit');
 
@@ -510,7 +525,7 @@ test.describe('editing an application to a statutory event', () => {
             await page.getByRole('button', { name: 'Save board information' }).click();
 
             await expect(toast(page, 'Some of the application data is invalid.')).toBeVisible();
-            await expect(page.getByText('Participant type should be set together with participant order.')).toBeVisible();
+            await expect(page.getByText('Participant type is set, but participant order is not.')).toBeVisible();
         });
 
         test('a body over its limit is refused', async ({ page, api }) => {

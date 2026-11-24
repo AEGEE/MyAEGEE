@@ -164,13 +164,13 @@ test.describe('managing the applications to a statutory event', () => {
     test('a status the service refuses is shown, and the select goes back to the stored status', async ({ page, api }) => {
         mockPage(api);
         api.on('PUT statutory /events/:id/applications/:application_id/status', {
-            status: 403, json: forbidden('You don\'t have permissions to change the status of this application.')
+            status: 403, json: forbidden('You don\'t have permissions to change the "status" attribute of this application.')
         });
         await page.goto('/statutory/agora-spring/applications');
 
         await page.getByRole('combobox', { name: 'Status of Alex Member' }).selectOption('Rejected');
 
-        await expect(toast(page, 'Could not update participant status: You don\'t have permissions to change the status of this application.')).toBeVisible();
+        await expect(toast(page, 'Could not update participant status: You don\'t have permissions to change the "status" attribute of this application.')).toBeVisible();
         await expect(page.getByRole('combobox', { name: 'Status of Alex Member' })).toHaveValue('pending');
     });
 
@@ -476,10 +476,10 @@ test.describe('managing the applications to a statutory event', () => {
 
     test('a failing service goes back to the list of statutory events', async ({ page, api }) => {
         api.fallback(mockEverything);
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.goto('/statutory/agora-spring/applications');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });

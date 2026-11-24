@@ -199,11 +199,11 @@ test.describe('statutory events list', () => {
     });
 
     test('when the events can\'t be loaded, it says so', async ({ page, api }) => {
-        api.on('GET statutory /', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory');
 
-        await expect(toast(page, 'Could not fetch statutory events list: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch statutory events list: Internal server error.')).toBeVisible();
         await expect(page.getByText('No events found.')).toBeVisible();
     });
 

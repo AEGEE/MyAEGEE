@@ -141,14 +141,13 @@ test.describe('plenaries of an Agora', () => {
     test('what the service refuses is shown at the fields, and the modal stays open', async ({ page, api }) => {
         await freezeTime(page);
         showPlenaries(api);
-        api.on('POST statutory /events/:id/plenaries', {
+        // An emptied start is refused as not set, a start after the end at the end.
+        api.on('POST statutory /events/:id/plenaries', ({ body }) => ({
             status: 422,
-            json: validationError({
-                name: ['Plenary name should be set.'],
-                starts: ['Plenary start date should be valid.'],
-                ends: ['Plenary cannot start after or at the same time it ends.']
-            })
-        });
+            json: validationError((body as { starts: string | null }).starts === null
+                ? { starts: ['plenary.starts cannot be null'], name: ['Plenary name should be set.'] }
+                : { name: ['Plenary name should be set.'], ends: ['Plenary cannot start after or at the same time it ends.'] })
+        }));
 
         await page.goto('/statutory/agora-spring/plenaries');
         await page.getByRole('button', { name: 'Create a plenary' }).click();
@@ -159,25 +158,32 @@ test.describe('plenaries of an Agora', () => {
 
         await expect(toast(page, 'Some fields were not set')).toBeVisible();
         await expect(form.getByText('Plenary name should be set.')).toBeVisible();
-        await expect(form.getByText('Plenary start date should be valid.')).toBeVisible();
-        await expect(form.getByText('Plenary cannot start after or at the same time it ends.')).toBeVisible();
+        await expect(form.getByText('plenary.starts cannot be null')).toBeVisible();
         await expect(form.getByRole('button', { name: 'Save changes' })).toBeEnabled();
+
+        await fillDate(form.getByLabel('Starts'), '2027-03-01 15:00');
+        await form.getByRole('button', { name: 'Save changes' }).click();
+
+        await expect(form.getByText('Plenary cannot start after or at the same time it ends.')).toBeVisible();
+        await expect(form.getByText('plenary.starts cannot be null')).toHaveCount(0);
+        await expect(form.getByText('Plenary name should be set.')).toBeVisible();
         // An emptied date is sent as not set; the untouched end is the default, now.
         expect(api.callsTo('POST statutory /events/:id/plenaries').map((call) => call.body)).toEqual([
-            { name: '', starts: null, ends: expect.stringMatching(/^2027-03-01T09:00:\d\d\.\d{3}Z$/) }
+            { name: '', starts: null, ends: expect.stringMatching(/^2027-03-01T09:00:\d\d\.\d{3}Z$/) },
+            { name: '', starts: '2027-03-01T14:00:00.000Z', ends: expect.stringMatching(/^2027-03-01T09:00:\d\d\.\d{3}Z$/) }
         ]);
     });
 
     test('a failure to save says why', async ({ page, api }) => {
         showPlenaries(api);
-        api.on('POST statutory /events/:id/plenaries', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST statutory /events/:id/plenaries', { status: 500, json: { success: false, message: 'Internal server error.' } });
 
         await page.goto('/statutory/agora-spring/plenaries');
         await page.getByRole('button', { name: 'Create a plenary' }).click();
         await modal(page).getByLabel('Name').fill('Closing plenary');
         await modal(page).getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(modal(page)).toBeVisible();
     });
 
@@ -231,13 +237,13 @@ test.describe('plenaries of an Agora', () => {
 
         await page.goto('/statutory/agora-spring/plenaries');
         await expectEmptyTable(plenariesTable(page));
-        api.on('GET statutory /events/:id/plenaries', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id/plenaries', { status: 500, json: { success: false, message: 'Internal server error.' } });
         await page.getByRole('button', { name: 'Create a plenary' }).click();
         await modal(page).getByLabel('Name').fill('Plenary 1');
         await modal(page).getByRole('button', { name: 'Save changes' }).click();
 
         await expect(toast(page, 'Plenary is created.')).toBeVisible();
-        await expect(toast(page, 'Could not load the plenaries: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not load the plenaries: Internal server error.')).toBeVisible();
     });
 
     test('the attendance statistics are downloaded as a spreadsheet', async ({ page, api }) => {

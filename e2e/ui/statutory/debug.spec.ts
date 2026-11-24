@@ -51,12 +51,12 @@ test.describe('statutory event service page', () => {
     });
 
     test('a failing service goes back to the list', async ({ page, api }) => {
-        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET statutory /events/:id', { status: 500, json: { success: false, message: 'Internal server error.' } });
         api.json('GET statutory /', ok([]));
 
         await page.goto('/statutory/agora-spring/debug');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Internal server error.')).toBeVisible();
         await expect(page).toHaveURL('/statutory');
     });
 });
