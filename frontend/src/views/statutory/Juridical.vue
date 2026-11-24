@@ -2,19 +2,19 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">JC listing form</div>
+        <h1 class="title">JC listing form</h1>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="juridical-search">Search by name, surname or statutory ID</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+              <input id="juridical-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
             </div>
           </div>
 
           <div class="field is-grouped">
             <div class="control">
-              <a @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</a>
+              <button type="button" @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</button>
             </div>
             <div class="control">
               <router-link :to="{ name: 'oms.statutory.votes', params: { id: this.$route.params.id } }" class="button is-primary">View amount of votes</router-link>
@@ -24,68 +24,71 @@
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            v-bind="paginationLabels"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
-            {{ props.row.first_name | beautify }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
-            {{ props.row.last_name | beautify }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+              {{ props.row.last_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="participant_type" label="Participant type and order" centered sortable v-slot="props">
-            {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
-          </b-table-column>
+            <b-table-column field="participant_type" label="Participant type and order" centered sortable v-slot="props">
+              {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed" centered sortable v-slot="props">
-            {{ props.row.confirmed | beautify }}
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed" centered sortable v-slot="props">
+              {{ props.row.confirmed | beautify }}
+            </b-table-column>
 
-          <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
-              <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
+                <select v-model="props.row.newRegistered" :aria-label="'JC registered of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="departed" label="Departed?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
-              <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="departed" label="Departed?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
+                <select v-model="props.row.newDeparted" :aria-label="'Departed of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -98,6 +101,13 @@ export default {
   name: 'JuridicalView',
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
         questions: []
