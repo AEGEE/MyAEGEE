@@ -93,13 +93,15 @@ const fitsInStringColumn = (length) => (value) => {
 };
 
 // A validator for a whole number column: the value is a whole number that the column holds.
-// No value, or an empty text, is left to the validators that say that the value should be set.
-const fitsInIntegerColumn = (value) => {
-    if (value === null || value === undefined || value === '') {
+// No value is left to the validators that say that the value should be set, and so is an empty
+// text where a value is required. Where the column may be empty, an empty text is no number:
+// the database would refuse it.
+const fitsInIntegerColumn = (allowNull) => (value) => {
+    if (value === null || value === undefined || (value === '' && !allowNull)) {
         return;
     }
 
-    const number = ['number', 'string'].includes(typeof value) ? Number(value) : NaN;
+    const number = ['number', 'string'].includes(typeof value) && value !== '' ? Number(value) : NaN;
     if (!Number.isInteger(number) || number < MIN_INTEGER || number > MAX_INTEGER) {
         throw new Error(`The value should be a whole number between ${MIN_INTEGER} and ${MAX_INTEGER}.`);
     }
@@ -197,7 +199,7 @@ for (const model of models) {
             attribute.set = setAsSent(name);
             attribute.validate = { ...attribute.validate, isBoolean };
         } else if (attribute.type instanceof Sequelize.INTEGER) {
-            attribute.validate = { ...attribute.validate, fitsInColumn: fitsInIntegerColumn };
+            attribute.validate = { ...attribute.validate, fitsInColumn: fitsInIntegerColumn(attribute.allowNull !== false) };
         } else if (attribute.type instanceof Sequelize.DATE || attribute.type instanceof Sequelize.DATEONLY) {
             attribute.set = setDate(name, attribute.type instanceof Sequelize.DATEONLY);
             attribute.validate = { ...attribute.validate, isWrittenAsDate: isDate };
