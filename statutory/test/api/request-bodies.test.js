@@ -195,4 +195,13 @@ describe('Request bodies', () => {
             expect((await MembersList.findOne()).members.length).toEqual(2000);
         });
     });
+
+    describe('a path that cannot be read', () => {
+        test.each(['/events/%E0%A4%A', '/events/%ED%A0%80', '/limits/agora/%E0'])('%s answers 400', async (path) => {
+            const res = await request({ path, method: 'GET', headers: { 'X-Auth-Token': 'blablabla' } });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The path could not be read.' });
+        });
+    });
 });
