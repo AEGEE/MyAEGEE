@@ -52,11 +52,7 @@ export default {
   data () {
     return {
       integrations: [],
-      isLoading: false,
-      permissions: [],
-      can: {
-        create: false
-      }
+      isLoading: false
     }
   },
   computed: {
@@ -70,7 +66,13 @@ export default {
       if (this.type) queryObj.filter = { type: this.type }
       return queryObj
     },
-    ...mapGetters(['services'])
+    // The same check as the discounts service's: a permission that ends in manage:discounts.
+    can () {
+      return {
+        create: this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
+      }
+    },
+    ...mapGetters(['services', 'permissions'])
   },
   methods: {
     refetch () {
@@ -83,12 +85,6 @@ export default {
 
       this.axios.get(this.services['discounts'] + '/integrations').then((response) => {
         this.integrations = response.data.data
-
-        return this.axios.get(this.services['core'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
         this.isLoading = false
       }).catch((err) => {
         this.$root.showError('Could not fetch integrations list', err)
