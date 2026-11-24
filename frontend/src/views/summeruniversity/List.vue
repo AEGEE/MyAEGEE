@@ -265,6 +265,8 @@ export default {
       },
       canLoadMore: true,
       source: null,
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       can: {
         createEvent: false,
         apply: false
@@ -314,6 +316,8 @@ export default {
       this.fetchData()
     },
     fetchData () {
+      // The list asked for, also when the answer arrives on another route.
+      const scope = this.scope
       this.isLoading.events = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
@@ -324,10 +328,10 @@ export default {
         participating: this.services['summeruniversity'] + '/mine/participating'
       }
 
-      this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(urls[scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
-        this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
+        this.canLoadMore = scope === 'all' && response.data.data.length === this.limit
 
         this.isLoading.events = false
       }).catch((err) => {
@@ -355,6 +359,7 @@ export default {
       }).catch((err) => {
         this.isLoading.permissions = false
 
+        if (this.left) return
         this.$root.showWarning('Could not fetch permissions', err)
       })
     }
@@ -371,11 +376,17 @@ export default {
       const active = this.seasons.find((item) => item.active)
       this.season = active ? active.year : null
     }).catch((err) => {
+      if (this.left) return
       this.$root.showError('Could not fetch seasons', err)
     }).finally(() => {
-      this.refetch()
+      if (!this.left) this.refetch()
     })
     this.fetchPermissions()
+  },
+  beforeDestroy () {
+    // The member left: the list isn't asked for any more, and nothing still on its way is shown.
+    this.left = true
+    if (this.source) this.source.cancel()
   }
 }
 </script>
