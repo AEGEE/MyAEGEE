@@ -212,4 +212,29 @@ describe('Types of the fields', () => {
             expect((await Candidate.findByPk(candidate.id))[field]).toEqual(candidate[field]);
         });
     });
+
+    describe('whole numbers that may be empty', () => {
+        test('a position for the body "" answers 422', async () => {
+            const res = await send('POST', '/events/' + event.id + '/positions', generator.generatePosition({ body_id: '' }));
+
+            expectRefused(res, 'body_id', 'The value should be a whole number between -2147483648 and 2147483647.');
+            expect(await Position.count()).toEqual(0);
+        });
+
+        test('editing a position with the body "" answers 422', async () => {
+            const position = await generator.createPosition({ body_id: 34 }, event);
+
+            const res = await send('PUT', '/events/' + event.id + '/positions/' + position.id, { body_id: '' });
+
+            expectRefused(res, 'body_id', 'The value should be a whole number between -2147483648 and 2147483647.');
+            expect((await Position.findByPk(position.id)).body_id).toEqual(34);
+        });
+
+        test('a position for no body takes null', async () => {
+            const res = await send('POST', '/events/' + event.id + '/positions', generator.generatePosition({ body_id: null }));
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.body_id).toEqual(null);
+        });
+    });
 });
