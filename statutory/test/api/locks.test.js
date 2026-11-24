@@ -7,13 +7,14 @@ const generator = require('../scripts/generator');
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
 const { sequelize } = require('../../lib/sequelize');
-const { Application, VotesPerAntenna, VotesPerDelegate } = require('../../models');
+const { Application, Attendance, VotesPerAntenna, VotesPerDelegate } = require('../../models');
 
 const BUSY = { success: false, message: 'The server is busy, please try again.' };
 
 // Requests that change the same rows at the same time run one after the other: the
-// statutory ID of the applications to an event, the votes of the delegates of a body. A request waits for such a lock at most
-// postgres.lock_timeout, then answers 503 and changes nothing.
+// statutory ID of the applications to an event and the votes of the delegates of a body.
+// A request waits for such a lock at most postgres.lock_timeout, then answers 503 and
+// changes nothing. A member has at most one open attendance at a plenary.
 describe('Locks', () => {
     beforeAll(async () => {
         await startServer();
@@ -131,5 +132,43 @@ describe('Locks', () => {
             expect(unchanged.confirmed).toEqual(false);
             expect(await VotesPerDelegate.count()).toEqual(0);
         }, 20000);
+    });
+
+    describe('the attendance of a member at a plenary', () => {
+        test('marking a delegate twice at the same time leaves one attendance', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(1, 'hour').toDate(),
+                ends: moment().add(1, 'hour').toDate()
+            }, event);
+
+            // Two open attendances came out in about a third of the rounds without the guard.
+            for (let round = 0; round < 10; round++) {
+                await Attendance.destroy({ where: {} });
+                await Application.destroy({ where: {} });
+                const application = await generator.createApplication({
+                    participant_type: 'delegate',
+                    participant_order: 1,
+                    status: 'accepted'
+                }, event);
+
+                const responses = await Promise.all([1, 2].map(() => request({
+                    path: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+                    method: 'POST',
+                    headers: { 'X-Auth-Token': 'blablabla' },
+                    body: { application_id: application.id }
+                })));
+
+                // One attendance: open when both marks met, closed when one came after the
+                // other. A mark that would close it in the millisecond it was opened answers 422.
+                const attendances = await Attendance.findAll({ where: { plenary_id: plenary.id, application_id: application.id } });
+                expect(attendances.length).toEqual(1);
+
+                const answered = responses.filter((res) => res.statusCode === 200);
+                expect(answered.length).toBeGreaterThanOrEqual(1);
+                expect(responses.every((res) => [200, 422].includes(res.statusCode))).toEqual(true);
+                expect(answered.map((res) => res.body.data.id)).toEqual(answered.map(() => attendances[0].id));
+            }
+        });
     });
 });
