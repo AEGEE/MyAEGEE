@@ -220,7 +220,7 @@ test.describe('managing the applications to a statutory event', () => {
             visa_passport_issue_authority: 'City of Brussels',
             visa_place_of_birth: 'Leuven',
             visa_embassy: 'Brussels',
-            visa_street_and_house: 'Rue de la Loi 1',
+            visa_street_and_house: 'Example Street 12',
             visa_postal_code: '1000',
             visa_city: 'Brussels',
             visa_country: 'Belgium'
@@ -247,7 +247,7 @@ test.describe('managing the applications to a statutory event', () => {
             ['Visa passport issue authority', 'City of Brussels'],
             ['Place of birth', 'Leuven'],
             ['Embassy', 'Brussels'],
-            ['Street and house number', 'Rue de la Loi 1'],
+            ['Street and house number', 'Example Street 12'],
             ['Postal code', '1000'],
             ['City', 'Brussels'],
             ['Country', 'Belgium'],
@@ -271,9 +271,9 @@ test.describe('managing the applications to a statutory event', () => {
         mockPage(api, { event: agora({ questions: [{ type: 'string', description: 'Gender', required: false }] }) });
         await page.goto('/statutory/agora-spring/applications');
 
-        // The field comes first in the picker, the question last.
+        // The picker tells the question apart from the field.
         await fieldsPicker(page).click();
-        await page.getByRole('listbox').getByRole('option', { name: /^Gender/ }).last().click();
+        await page.getByRole('listbox').getByRole('option', { name: /^Gender \(question 1\)/ }).click();
         await fieldsPicker(page).press('Escape');
 
         await expect(page.getByText('5 fields selected')).toBeVisible();

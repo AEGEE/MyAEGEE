@@ -582,3 +582,39 @@ test.describe('question lines', () => {
         await expect(page).toHaveURL('/statutory');
     });
 });
+
+// Rules written for three past Agorae, kept with their pages (recognised by the event's URL).
+test.describe('question lines of the Agorae of 2022 to 2024', () => {
+    for (const [url, rule] of [
+        ['spring-agora-novi-sad-2022', 'In case you are a visitor, your submitted question line place request will be considered as a request for speaking rights as well.'],
+        ['spring-agora-enschede-2023', 'Online question lines will be used only for candidates.'],
+        ['spring-agora-novi-sad-2024', 'B - one yes or no question to few candidates']
+    ] as const) {
+        test(`the question lines of ${url} show its rules`, async ({ page, api }) => {
+            api.json('GET statutory /events/:id', ok(statutoryEvent({ id: 5, url, permissions: PARTICIPANT })));
+            answerLines(api, [activities()]);
+            await page.goto(`/statutory/${url}/question-lines`);
+
+            await expect(page.getByText(rule)).toBeVisible();
+        });
+    }
+
+    test('asking a question at the Agora of Novi Sad 2022 shows its letters', async ({ page, api }) => {
+        api.json('GET statutory /events/:id', ok(statutoryEvent({ id: 5, url: 'spring-agora-novi-sad-2022', permissions: PARTICIPANT })));
+        answerLines(api, [activities()]);
+        await page.goto('/statutory/spring-agora-novi-sad-2022/question-lines');
+
+        await lineRow(page, 'Activity plan').getByRole('button', { name: 'Ask a question!' }).click();
+
+        await expect(dialog(page, 'Ask a question')).toContainText('3 - a yes or no question to more candidates');
+    });
+
+    test('other Agorae have no such rules', async ({ page, api }) => {
+        showLines(api, PARTICIPANT, [activities()]);
+        await page.goto('/statutory/agora-spring/question-lines');
+
+        await expect(tableRows(linesTable(page))).toHaveCount(1);
+        await expect(page.getByText('Online question lines will be used only for candidates.')).toHaveCount(0);
+        await expect(page.getByText(/speaking rights/)).toHaveCount(0);
+    });
+});

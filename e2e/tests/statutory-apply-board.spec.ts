@@ -42,10 +42,9 @@ test.describe('applying to an Agora', () => {
             await test.step('the board of the antenna gives the application delegate 1', async () => {
                 await loginInBrowser(page, api, 'board');
                 await page.goto(`/statutory/${event.url}/boardview`);
-                // The places of the antenna are there once its limits are.
-                const limits = page.waitForResponse((response) => response.url().endsWith(`/api/statutory/limits/agora/${body.id}`));
-                await page.getByRole('combobox', { name: 'Select the body to view application from:' }).selectOption(body.name);
-                await limits;
+                const bodySelect = page.getByRole('combobox', { name: 'Select the body to view application from:' });
+                await bodySelect.selectOption(body.name);
+                await expect(bodySelect).toHaveValue(String(body.id));
 
                 await expect(page.getByRole('listitem').filter({ hasText: /^3 delegates$/ })).toBeVisible();
                 await expect(page.getByRole('tab', { name: 'Edit boardview' })).toHaveAttribute('aria-selected', 'true');

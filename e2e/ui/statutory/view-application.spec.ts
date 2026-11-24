@@ -204,6 +204,23 @@ test.describe('an application to a statutory event', () => {
         await expect(page.getByText(/You can still edit it/)).toHaveCount(0);
     });
 
+    test('a manager who may cancel someone else\'s application gets the button, without applying', async ({ page, api }) => {
+        mockPage(api, { ...JANS, permissions: { ...JANS.permissions, apply: false, set_application_cancelled: true } }, agora({ permissions: statutoryManagerPermissions({ apply: false }) }));
+        await page.goto('/statutory/agora-spring/applications/001-0002');
+
+        await expect(page.getByText('Application from the body:')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Cancel application', exact: true })).toBeVisible();
+    });
+
+    test('who may apply but not cancel this application gets no cancel button', async ({ page, api }) => {
+        mockPage(api, { ...JANS, permissions: { ...JANS.permissions, apply: true, set_application_cancelled: false } }, agora({ permissions: statutoryManagerPermissions() }));
+        await page.goto('/statutory/agora-spring/applications/001-0002');
+
+        await expect(page.getByText('Application from the body:')).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Edit application', exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: /cancel application/i })).toHaveCount(0);
+    });
+
     test('a board member without any action gets no buttons', async ({ page, api }) => {
         mockPage(api, { ...JANS, permissions: { ...JANS.permissions, ...statutoryEventPermissions({ apply: false }), edit_application: false, set_application_cancelled: false } });
         await page.goto('/statutory/agora-spring/applications/001-0002');

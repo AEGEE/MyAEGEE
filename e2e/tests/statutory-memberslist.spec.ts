@@ -9,6 +9,7 @@
 // PR #2405 is merged; until then this flow depends on the European Commission's server.
 import { test, expect, expectStatus, loginInBrowser } from '../support/api.ts';
 import { asAdmin, grantPermission, type Cleanup } from '../support/core-data.ts';
+import { cellOf, tableRows } from '../ui/support/shell.ts';
 
 const day = (offset: number): string => new Date(Date.now() + offset * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
@@ -22,7 +23,7 @@ test.describe('the members list of an Agora', () => {
                 cleanups.push((await grantPermission(api, member.username, permission, { bodyId: body.id }))[1]);
             }
             // The member paid 40 euro to the antenna this year.
-            await asAdmin(api, 'POST', `/bodies/${body.id}/payments`, { user_id: member.id, starts: day(-30), expires: day(300), amount: 40, currency: 'EUR' });
+            await asAdmin(api, 'POST', `/bodies/${body.id}/payments`, { user_id: member.id, starts: day(-30), expires: day(300), amount: 40, currency: 'EU' });
             const event = await api.createStatutoryEvent();
             expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/status`, { status: 'published' }), 200);
 
@@ -33,10 +34,11 @@ test.describe('the members list of an Agora', () => {
                 await expect(page.getByText('This local hasn\'t submitted a members list for this event yet.')).toBeVisible();
 
                 await page.getByRole('button', { name: 'Fetch members list from a body' }).click();
-                const row = page.getByRole('table', { name: 'Members' }).getByRole('row').filter({ hasText: member.last_name });
-                // The fee comes from the member's payment.
-                await expect(row.getByRole('cell').nth(4)).toHaveText('40');
-                await page.getByLabel('Currency').selectOption('Euro');
+                const members = page.getByRole('table', { name: 'Members' });
+                const row = tableRows(members).filter({ hasText: member.last_name });
+                // The fee and the currency come from the member's payment.
+                await expect(await cellOf(members, row, 'Fee')).toHaveText('40');
+                await expect(page.getByLabel('Currency')).toHaveValue('EU');
                 await page.getByRole('button', { name: 'Save!', exact: true }).click();
 
                 await expect(page.getByRole('alert').filter({ hasText: 'Members list is uploaded.' })).toBeVisible();
@@ -47,7 +49,8 @@ test.describe('the members list of an Agora', () => {
             await test.step('the Network Director sets the fee paid', async () => {
                 await loginInBrowser(page, api, 'nd');
                 await page.goto(`/statutory/${event.url}/memberslist/list`);
-                const row = page.getByRole('region', { name: 'Members lists' }).getByRole('row').filter({ hasText: body.name });
+                const lists = page.getByRole('region', { name: 'Members lists' }).getByRole('table');
+                const row = tableRows(lists).filter({ hasText: body.name });
                 await expect(row).toContainText('4.25 EUR');
 
                 await page.getByRole('button', { name: `Set fee paid of ${body.name}` }).click();
@@ -57,16 +60,16 @@ test.describe('the members list of an Agora', () => {
 
                 await expect(page.getByRole('alert').filter({ hasText: 'Fee paid is set.' })).toBeVisible();
                 await page.reload();
-                await expect(row.getByRole('cell').nth(6)).toHaveText('4.25 EUR');
-                await expect(row.getByRole('cell').nth(7)).toHaveText('0.00 EUR');
+                await expect(await cellOf(lists, row, 'Fee paid')).toHaveText('4.25 EUR');
+                await expect(await cellOf(lists, row, 'Fee not paid')).toHaveText('0.00 EUR');
             });
 
             await test.step('the antenna has a vote, which every member sees', async () => {
                 await loginInBrowser(page, api, 'member');
                 await page.goto(`/statutory/${event.url}/votes`);
-                const row = page.getByRole('table', { name: 'By antenna' }).getByRole('row').filter({ hasText: body.name });
+                const votes = page.getByRole('table', { name: 'By antenna' });
                 // One vote for up to 20 members.
-                await expect(row.getByRole('cell').nth(2)).toHaveText('1');
+                await expect(await cellOf(votes, tableRows(votes).filter({ hasText: body.name }), 'Votes')).toHaveText('1');
             });
 
             await test.step('the antenna is no longer among the locals without a list', async () => {
@@ -74,7 +77,7 @@ test.describe('the members list of an Agora', () => {
                 await page.goto(`/statutory/${event.url}/memberslist/list/missing`);
                 const missing = page.getByRole('region', { name: 'Missing members lists' });
                 // The seeded antenna sent none.
-                await expect(missing.getByRole('row').nth(1)).toBeVisible();
+                await expect(tableRows(missing.getByRole('table')).first()).toBeVisible();
                 await expect(missing.getByRole('link', { name: body.name })).toHaveCount(0);
             });
         } finally {

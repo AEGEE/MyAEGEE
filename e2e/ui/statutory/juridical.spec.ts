@@ -112,6 +112,19 @@ test.describe('the juridical commission\'s page', () => {
         await expect(select(page, 'JC registered', 'Jan Jansen')).toBeDisabled();
     });
 
+    test('a departure can be taken back', async ({ page, api }) => {
+        mockPage(api, () => okList([ALEX, { ...JAN, registered: true, departed: true }]));
+        api.json('PUT statutory /events/:id/applications/:application_id/departed', ok({ ...JAN, registered: true, departed: false }));
+        await page.goto('/statutory/agora-spring/juridical');
+
+        await select(page, 'Departed', 'Jan Jansen').selectOption('No');
+
+        await expect(toast(page, 'Successfully updated departure info of application for user #7')).toBeVisible();
+        expect(api.callsTo('PUT statutory /events/:id/applications/:application_id/departed').map((call) => [call.params.application_id, call.body]))
+            .toEqual([['13', { departed: false }]]);
+        await expect(select(page, 'JC registered', 'Jan Jansen')).toBeEnabled();
+    });
+
     test('a refused change is shown, and the select goes back to what is stored', async ({ page, api }) => {
         mockPage(api);
         api.on('PUT statutory /events/:id/applications/:application_id/registered', { status: 403, json: forbidden('You don\'t have permissions to change the "registered" attribute of this application.') });

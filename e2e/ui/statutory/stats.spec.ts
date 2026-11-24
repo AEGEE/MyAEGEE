@@ -108,9 +108,10 @@ test.describe('the application statistics of a statutory event', () => {
         await expect(tags).toHaveCount(26);
         await expect(rowsOf(page, 'Applications by body')).toHaveCount(26);
         // The 25th colour, with white text on it.
-        await expect(tags.nth(24)).toHaveAttribute('style', /background-color: rgb\(22, 62, 122\); color: rgb\(255, 255, 255\)/);
+        await expect(tags.nth(24)).toHaveCSS('background-color', 'rgb(22, 62, 122)');
+        await expect(tags.nth(24)).toHaveCSS('color', 'rgb(255, 255, 255)');
         await expect(tags.nth(25)).toHaveText('AEGEE-Body 26 (1)');
-        await expect(tags.nth(25)).not.toHaveAttribute('style', /color/);
+        await expect(tags.nth(25)).toHaveCSS('background-color', 'rgb(197, 198, 198)');
     });
 
     test('the quorum counts the antennae only', async ({ page, api }) => {

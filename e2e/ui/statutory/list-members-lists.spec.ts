@@ -106,6 +106,23 @@ test.describe('the members lists of an Agora', () => {
         await expect(tableRows(table(page)).nth(1)).toContainText('AEGEE-Utrecht');
     });
 
+    test('the column of the buttons can\'t be sorted by', {
+        tag: '@desktop-only',
+        annotation: { type: 'desktop-only', description: 'the phone has the sort select instead of clickable headers (covered by the next test)' }
+    }, async ({ page, api }) => {
+        mockPage(api, { lists: [UTRECHT_LIST, ANTENNA_LIST] });
+        await page.goto('/statutory/agora-spring/memberslist/list');
+        await expect(tableRows(table(page)).nth(0)).toContainText('AEGEE-Utrecht');
+
+        // eslint-disable-next-line no-restricted-syntax -- clicking a header is what this desktop test is about
+        await table(page).getByRole('columnheader', { name: 'Set fee paid' }).click();
+        await expect(tableRows(table(page)).nth(0)).toContainText('AEGEE-Utrecht');
+        // A header that sorts does change the order.
+        // eslint-disable-next-line no-restricted-syntax -- clicking a header is what this desktop test is about
+        await table(page).getByRole('columnheader', { name: 'Body name' }).click();
+        await expect(tableRows(table(page)).nth(0)).toContainText('AEGEE-Antenna');
+    });
+
     test('the sort control doesn\'t offer the column of the buttons', { tag: '@phone-only' }, async ({ page, api }) => {
         mockPage(api);
         await page.goto('/statutory/agora-spring/memberslist/list');
