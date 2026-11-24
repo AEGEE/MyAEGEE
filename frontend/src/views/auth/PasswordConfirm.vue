@@ -16,7 +16,6 @@
                   placeholder="Type the token you've received by your email."
                 />
               </div>
-              <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
             </div>
 
             <password-toggle

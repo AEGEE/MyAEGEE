@@ -94,9 +94,6 @@
                   placeholder="Repeat your password."
                 />
               </div>
-              <p class="help is-danger" v-if="errors.password_copy">
-                {{ errors.password_copy.join(', ') }}
-              </p>
             </div>
 
             <hr />
@@ -171,7 +168,6 @@
               <div class="control">
                 <input id="register-address" class="input" type="text" v-model="user.address" />
               </div>
-              <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ') }}</p>
             </div>
 
             <div class="field">
@@ -179,7 +175,6 @@
               <div class="control">
                 <input id="register-about-me" class="input" type="text" v-model="user.about_me" />
               </div>
-              <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ') }}</p>
             </div>
 
             <div class="field">
