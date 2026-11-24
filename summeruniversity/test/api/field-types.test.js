@@ -206,8 +206,14 @@ describe('Field types', () => {
     });
 
     describe('dates', () => {
-        const values = [['a number', 5], ['a boolean', true], ['an array', ['2027-07-01']], ['an object', { date: '2027-07-01' }],
-            ['a lone number as text', '1'], ['a day that does not exist', '2027-02-30'], ['a text', 'garbage']];
+        // A number is milliseconds since 1970, but only within the years 0001-9999 (Postgres
+        // has no year 0000).
+        const values = [['a number after the year 9999', 1e20], ['a number before the year 0001', -1e16],
+            ['one millisecond after the year 9999', 253402300800000], ['one millisecond before the year 0001', -62135596800001],
+            ['a day in the year 0000', '0000-07-01'], ['a timestamp that is in the year 0000 in UTC', '0001-01-01T00:30:00+01:00'],
+            ['a boolean', true], ['an array', ['2027-07-01']], ['an object', { date: '2027-07-01' }],
+            ['a lone number as text', '1'], ['a number as text', '1798761600000'], ['NaN as text', 'NaN'], ['Infinity as text', 'Infinity'],
+            ['a day that does not exist', '2027-02-30'], ['a text', 'garbage']];
         const rows = (fields) => fields.flatMap(([field, message]) => values.map(([name, value]) => [field, name, value, message]));
         const EVENT_DATES = [['starts', 'Event start date should be valid.'], ['ends', 'Event end date should be valid.']];
         const PERIOD_DATES = [['application_starts', 'Event application starts date should be valid.'], ['application_ends', 'Event application end date should be valid.']];
@@ -253,6 +259,78 @@ describe('Field types', () => {
 
             expectFieldError(res, field, message);
             expect((await Season.findOne({ where: { year: 2026 } }))[field]).toEqual(null);
+        });
+
+        // JSON has no Infinity, but body-parser reads a number too large for a double as one.
+        test.each([
+            ['creating', 'POST', () => '/', () => JSON.stringify(generator.generateEventBody()).replace(/"starts":"[^"]*"/, '"starts":1e400')],
+            ['editing', 'PUT', (event) => `/single/${event.id}`, () => '{"starts":1e400}']
+        ])('%s a Summer University refuses a start that is an infinite number', async (_name, method, path, body) => {
+            const event = await generator.createEvent();
+
+            const res = await request({ method, path: path(event), headers: { 'X-Auth-Token': 'foobar', 'Content-Type': 'application/json' }, rawBody: body() });
+
+            expectFieldError(res, 'starts', 'Event start date should be valid.');
+            expect(await Event.count()).toEqual(1);
+            expect((await Event.findByPk(event.id)).starts).toEqual(event.starts);
+        });
+
+        const STARTS = Date.UTC(2027, 6, 1, 10, 30);
+        const ENDS = Date.UTC(2027, 6, 11);
+
+        test('creating a Summer University takes dates in milliseconds', async () => {
+            const res = await call('POST', '/', generator.generateEventBody({ starts: STARTS, ends: ENDS }));
+
+            expect(res.statusCode).toEqual(201);
+            const event = await Event.findByPk(res.body.data.id);
+            expect(event.starts.toISOString()).toEqual('2027-07-01T10:30:00.000Z');
+            expect(event.ends.toISOString()).toEqual('2027-07-11T00:00:00.000Z');
+        });
+
+        test('editing a Summer University takes dates in milliseconds', async () => {
+            const event = await generator.createEvent();
+
+            const res = await call('PUT', `/single/${event.id}`, { starts: STARTS, ends: ENDS });
+
+            expect(res.statusCode).toEqual(200);
+            const stored = await Event.findByPk(event.id);
+            expect(stored.starts.toISOString()).toEqual('2027-07-01T10:30:00.000Z');
+            expect(stored.ends.toISOString()).toEqual('2027-07-11T00:00:00.000Z');
+        });
+
+        test('the application period takes dates in milliseconds', async () => {
+            const event = await generator.createEvent();
+            const applicationStarts = Date.now() - 1000;
+            const applicationEnds = Date.now() + 5 * 24 * 60 * 60 * 1000;
+
+            const res = await call('PUT', `/single/${event.id}/application_period`, { application_starts: applicationStarts, application_ends: applicationEnds });
+
+            expect(res.statusCode).toEqual(200);
+            const stored = await Event.findByPk(event.id);
+            expect(stored.application_starts.getTime()).toEqual(applicationStarts);
+            expect(stored.application_ends.getTime()).toEqual(applicationEnds);
+        });
+
+        test.each([
+            ['creating', 'POST', '/seasons', { year: 2040, name: 'Summer University 2040' }, 2040],
+            ['editing', 'PUT', '/seasons/2026', {}, 2026]
+        ])('%s a season takes dates in milliseconds', async (_name, method, path, body, year) => {
+            const res = await call(method, path, { ...body, event_submission_deadline: STARTS, application_period_starts: STARTS, application_period_ends: ENDS });
+
+            expect(res.statusCode).toBeLessThan(300);
+            const season = await Season.findOne({ where: { year } });
+            expect(season.event_submission_deadline.toISOString()).toEqual('2027-07-01T10:30:00.000Z');
+            expect(season.application_period_ends.toISOString()).toEqual('2027-07-11T00:00:00.000Z');
+        });
+
+        test.each([
+            ['the first millisecond of the year 0001', -62135596800000, '0001-01-01T00:00:00.000Z'],
+            ['the last millisecond of the year 9999', 253402300799999, '9999-12-31T23:59:59.999Z']
+        ])('a season takes %s', async (_name, value, stored) => {
+            const res = await call('PUT', '/seasons/2026', { event_submission_deadline: value });
+
+            expect(res.statusCode).toEqual(200);
+            expect((await Season.findOne({ where: { year: 2026 } })).event_submission_deadline.toISOString()).toEqual(stored);
         });
 
         test.each([
