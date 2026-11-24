@@ -180,6 +180,24 @@ describe('Campaign submission', () => {
         expect(res.body).not.toHaveProperty('errors');
     });
 
+    test('should refuse a password that is not a text', async () => {
+        const campaign = await generator.createCampaign();
+
+        for (const password of [12345678, 12345678901, 2147483648, 1e300]) {
+            const res = await request({
+                path: '/signup/' + campaign.url,
+                method: 'POST',
+                body: generator.generateUser({ password })
+            });
+
+            expect({ password, status: res.statusCode, fields: Object.keys(res.body.errors || {}) })
+                .toEqual({ password, status: 422, fields: ['password'] });
+            expect(res.body.errors.password).toContain('Password should be a text.');
+        }
+
+        expect(await User.count()).toEqual(0);
+    });
+
     test('should fail if the password is not set', async () => {
         const campaign = await generator.createCampaign();
         const user = generator.generateUser({ password: null });
