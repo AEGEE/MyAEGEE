@@ -48,7 +48,6 @@ const LOCAL_PERMISSIONS = {
     lookupMember: 'lookup:member',
     updateMember: 'update:member',
     deleteMember: 'delete:member',
-    setMemberActive: 'update_active:user',
     setPrimaryBody: 'update:member',
     requestEmailChange: 'update:member',
     setMemberPassword: 'update:member',
@@ -109,8 +108,9 @@ describe('Local permissions and other bodies', () => {
 
     test('covers every route that a local permission opens', () => {
         // The other routes with a permission ask for it in the global scope, or for none.
+        // Two routes answer differently with a local permission; they are tested below.
         expect(rows.length).toEqual(Object.keys(LOCAL_PERMISSIONS).length);
-        expect(rows.length).toEqual(37);
+        expect(rows.length).toEqual(36);
     });
 
     test.each(rows)('$title answers 403 with $permission in another body', async ({ operation, permission }) => {
@@ -149,5 +149,60 @@ describe('Local permissions and other bodies', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body).toEqual({ success: false, message: `Permission ${permission} is required, but not present.` });
         expect(await snapshot()).toEqual(before);
+    });
+
+    // Two routes where a local permission changes the answer, not whether there is one.
+    describe('a deleted body', () => {
+        const getBody = () => request({
+            path: '/bodies/' + data.body.id,
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        beforeEach(async () => {
+            await data.body.update({ status: 'deleted' });
+        });
+
+        test('answers 403 with view_deleted:body in another body', async () => {
+            await grant(data.otherBody, 'view_deleted:body');
+
+            const res = await getBody();
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'Permission view_deleted:body is required, but not present.' });
+        });
+
+        test('is shown with view_deleted:body in the same body', async () => {
+            await grant(data.body, 'view_deleted:body');
+
+            const res = await getBody();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(data.body.id);
+        });
+    });
+
+    describe('the short profile of a member', () => {
+        const getMember = () => request({
+            path: '/members/' + data.member.id,
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        test('answers 403 with view_members:body in another body', async () => {
+            await grant(data.otherBody, 'view_members:body');
+
+            const res = await getMember();
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'Permission view:member is required, but not present.' });
+        });
+
+        test('is shown with view_members:body in the body of the member', async () => {
+            await grant(data.body, 'view_members:body');
+
+            const res = await getMember();
+
+            expect(res.statusCode).toEqual(200);
+            expect(Object.keys(res.body.data).sort()).toEqual(['email', 'first_name', 'id', 'last_name', 'notification_email']);
+        });
     });
 });
