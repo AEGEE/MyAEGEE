@@ -1,7 +1,7 @@
 <template>
-  <div class="manage-resources">
+  <div class="manage-resources" role="region" aria-labelledby="manage-resources-title" :aria-busy="isLoading || isSaving">
     <div class="manage-header">
-      <h1 class="title">Manage resources</h1>
+      <h1 id="manage-resources-title" class="title">Manage resources</h1>
       <div class="buttons">
         <router-link class="button" :to="{ name: 'oms.resources' }">View the Resources page</router-link>
         <router-link v-if="canManage" class="button is-primary" :to="{ name: 'oms.resources.categories.create' }">Add section</router-link>
@@ -118,7 +118,7 @@
         </li>
       </ul>
 
-      <p v-else class="has-text-grey">This section has no links yet.</p>
+      <p v-else class="manage-no-links">This section has no links yet.</p>
 
       <router-link
         v-if="canManage"
@@ -315,9 +315,13 @@ $grey-background: #ebecec;
   min-width: 0;
 }
 
+.manage-link-url,
+.manage-no-links {
+  color: #6b6b6b; // 5.34:1 on white
+}
+
 .manage-link-url {
   font-size: 13px;
-  color: #6b6b6b; // 5.34:1 on white
   overflow-wrap: anywhere;
 }
 
