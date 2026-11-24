@@ -25,7 +25,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^2.0.10",
-    "@fullcalendar/core": "^6.1.9",
+    "@fullcalendar/core": "^7.1.5",
     "@fullcalendar/daygrid": "^6.1.22",
     "@fullcalendar/vue": "^6.1.22",
     "@gfx/zopfli": "^1.0.15",
