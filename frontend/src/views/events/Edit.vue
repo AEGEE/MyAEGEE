@@ -711,7 +711,9 @@ export default {
       selectedBody: null,
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        allowInput: true,
+        disableMobile: true
       },
       can: {
         edit_application_status: false
