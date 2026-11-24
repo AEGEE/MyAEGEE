@@ -241,7 +241,7 @@
         <div class="content">
           <h2 class="subtitle">Board</h2>
           <div class="content" v-for="board in boards" v-bind:key="board.id">
-            <table class="table is-narrow">
+            <table class="table is-narrow" aria-label="Current board">
               <tbody>
                 <tr v-if="board.name">
                   <th>Name</th>
