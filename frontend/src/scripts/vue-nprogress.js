@@ -69,6 +69,9 @@ function install (Vue, options = {}) {
 
       this._nprogress = np
       np.init(this)
+      // A request that will never be answered (see sessionEnded in app.js) has ended all the
+      // same: it must not keep the bar on screen.
+      np.requestEnded = increase
 
       if (applyOnHttp) {
         const http = Vue.http

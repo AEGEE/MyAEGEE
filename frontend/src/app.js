@@ -228,9 +228,12 @@ const endSession = (request) => {
 
 // What a request whose session ended gives the page that sent it. A page that is being left
 // for the login page gets no answer at all: its own error handling would only show an error
-// over the login page, or navigate away from it.
+// over the login page, or navigate away from it. The progress bar counts the request as ended
+// here, because its own interceptor never sees an answer that never comes (and it can't be
+// registered before this one: the guard's first request is made while the app starts).
 const sessionEnded = (request, error, leftPage) => {
   if (leftPage && !request.headers['X-For-Auth']) {
+    if (request.showProgressBar) nprogress.requestEnded()
     return new Promise(() => {})
   }
   return Promise.reject(error)
