@@ -69,8 +69,9 @@ test.describe('creating a body', () => {
         await field(page, 'Email').fill('itwg@example.com');
         await field(page, 'Founded at (if applicable)').fill('1985-04-15');
         await field(page, 'Founded at (if applicable)').blur();
-        await field(page, 'Google Workspace account').fill('itwg@aegee.eu');
-        await field(page, 'Google Group').fill('itwg-group@aegee.eu');
+        // Only holders of the global right to update bodies may set them, and that is decided per body.
+        await expect(field(page, 'Google Workspace account')).toBeDisabled();
+        await expect(field(page, 'Google Group')).toBeDisabled();
         await save(page).click();
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
@@ -83,8 +84,8 @@ test.describe('creating a body', () => {
             id: null,
             code: 'ITW',
             email: 'itwg@example.com',
-            gsuite_id: 'itwg@aegee.eu',
-            google_group: 'itwg-group@aegee.eu',
+            gsuite_id: null,
+            google_group: null,
             phone: null,
             address: null,
             postal_address: null,
@@ -304,6 +305,25 @@ test.describe('editing a body', () => {
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
         await expect.poll(() => api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ founded_at: null });
+    });
+
+    test('clearing the optional fields sends none, which core accepts', async ({ page, api }) => {
+        // Core refuses an empty text for these ("Phone must be set.", "GSuite ID must be a valid email.").
+        editing(api, bodyDetail({
+            id: 1, code: 'ANT', type: 'working group', phone: '+32 000 00 00 00', address: 'Example Street 1', gsuite_id: 'example-wg@aegee.eu', google_group: 'example-wg-group@aegee.eu'
+        }));
+        api.json('PUT core /bodies/:id', ok(body({ id: 1 })));
+        answerBodyPage(api);
+
+        await page.goto('/bodies/1/edit');
+        for (const name of ['Phone', /^Address/, 'Google Workspace account', 'Google Group']) {
+            await expect(field(page, name)).toBeEnabled();
+            await field(page, name).fill('');
+        }
+        await save(page).click();
+
+        await expect(toast(page, 'Body is saved.')).toBeVisible();
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id')[0].body).toMatchObject({ phone: null, address: null, gsuite_id: null, google_group: null });
     });
 
     test('shows the service\'s objections under the fields', async ({ page, api }) => {
