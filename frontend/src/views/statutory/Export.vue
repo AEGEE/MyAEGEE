@@ -79,7 +79,7 @@
 
             <div class="field">
               <div class="control">
-                <button type="button" @click="exportAll()" class="button is-primary">
+                <button type="button" @click="exportAll()" class="button is-primary" :disabled="filterKeys().length === 0">
                   Export participants data
                 </button>
               </div>
