@@ -13,6 +13,7 @@
         </div>
 
         <h2 class="title">Discounts</h2>
+        <p class="help is-danger" v-if="errors.discounts">{{ errors.discounts.join(', ') }}</p>
 
         <div class="subtitle" v-if="category.discounts.length === 0">You didn't add any discounts.</div>
 
