@@ -133,6 +133,9 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
       }).catch((err) => this.showExportError('Could not export the OpenSlides data', err))
     },
     exportAll () {
@@ -157,6 +160,9 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
       }).catch((err) => this.showExportError('Could not export the participants', err))
     },
     async showExportError (message, err) {
