@@ -603,6 +603,17 @@ test.describe('Summer University editor', () => {
     });
 
     test.describe('editing', () => {
+        test('the locations table scrolls on its own: the page is never wider than the screen', async ({ page, api, me }) => {
+            showEdit(api, me);
+            await page.goto('/summeruniversity/mountain-su/edit');
+            await expect(page.getByRole('textbox', { name: 'Location 2 name' })).toHaveValue('Ghent');
+
+            // The width of the page's content against the width of the screen it is laid out for. Not
+            // `innerWidth`: a phone zooms out to content that is too wide, and that grows with it.
+            const width = await page.evaluate(() => ({ page: document.documentElement.scrollWidth, screen: document.documentElement.clientWidth }));
+            expect(width.page).toBeLessThanOrEqual(width.screen);
+        });
+
         test('loads the SU with the organisers\' names and saves it with PUT', async ({ page, api, me }) => {
             showEdit(api, me);
             answerSave(api, 'PUT summeruniversity /single/:id');
