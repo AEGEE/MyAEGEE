@@ -667,7 +667,8 @@ export default {
 
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
-      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, role: org.role }))
+      // Without the names; an organiser's body, when the SU has one for them, is kept.
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, role: org.role, ...(org.body_id ? { body_id: org.body_id } : {}) }))
 
       this.axios.put(this.services['summeruniversity'] + '/single/' + this.$route.params.id, eventToSave).then((response) => {
         this.isSaving = false
