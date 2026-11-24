@@ -42,7 +42,7 @@
               {{ props.row.fee_not_paid.toFixed(2) }} EUR
             </b-table-column>
 
-            <b-table-column label="Set fee paid" sortable :visible="can.set_memberslists_fee_paid" v-slot="props">
+            <b-table-column label="Set fee paid" :visible="can.set_memberslists_fee_paid" v-slot="props">
               <button type="button" class="button is-small is-primary" :aria-label="'Set fee paid of ' + bodyName(props.row)" @click="askToSetFeePaid(props.row)">Set fee paid</button>
             </b-table-column>
 
