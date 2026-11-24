@@ -128,7 +128,7 @@ test.describe('creating a permission', () => {
         api.on('POST core /permissions', {
             status: 422,
             json: validationError({
-                scope: ['Scope should be one of "global", "local" or "join_request".'],
+                scope: ['Permission scope should be one of these: "global", "local", "join_request.'],
                 action: ['Action should be set.'],
                 object: ['Object should be set.'],
                 description: ['Description should be set.']
@@ -140,7 +140,7 @@ test.describe('creating a permission', () => {
         await save(page).click();
 
         await expect(toast(page, 'Some of the permission data is invalid.')).toBeVisible();
-        await expect(page.getByText('Scope should be one of "global", "local" or "join_request".')).toBeVisible();
+        await expect(page.getByText('Permission scope should be one of these: "global", "local", "join_request.')).toBeVisible();
         await expect(page.getByText('Action should be set.')).toBeVisible();
         await expect(page.getByText('Object should be set.')).toBeVisible();
         await expect(page.getByText('Description should be set.')).toBeVisible();
