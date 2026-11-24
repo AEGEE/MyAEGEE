@@ -2,10 +2,10 @@
   <aside class="menu app-sidebar" :class="{ 'is-visible': show, 'is-hidden': !show, 'is-menu-opened': navbar.menuOpened }">
     <nav aria-label="Main menu">
       <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
-        <p class="menu-label">
+        <h2 class="menu-label" :id="`menu-category-${category.index}`">
           {{ category.categoryName }}
-        </p>
-        <ul class="menu-list">
+        </h2>
+        <ul class="menu-list" :aria-labelledby="`menu-category-${category.index}`">
           <li v-for="item in category.components" v-bind:key="item.name">
             <router-link :to="{ name: item.name, params: item.params }" exact v-if="item.name && !item.link">
               <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
