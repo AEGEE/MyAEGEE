@@ -329,8 +329,10 @@ test.describe('event editor', () => {
                 await page.getByRole('button', { name: 'Add new location' }).click();
                 await textbox(page, `Location ${index + 1} name`).fill(name);
             }
-            // The rows don't make the page wider than the screen.
-            expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
+            // The rows don't make the page wider than the screen (on a phone the window grows with
+            // the page, so the page is compared with the width the screen shows).
+            const width = await page.evaluate(() => ({ page: document.documentElement.scrollWidth, screen: document.documentElement.clientWidth }));
+            expect(width.page).toBeLessThanOrEqual(width.screen);
 
             // The first of two rows: its button stays on the page when the row goes.
             await page.getByRole('button', { name: 'Delete question 1' }).click();
