@@ -138,6 +138,8 @@ export default {
         this.$root.showSuccess(`Successfully updated memberslist status of application for application #${pax.id}`)
       }).catch((err) => {
         pax.isSavingOnMemberslist = false
+        // Showing what is still stored.
+        pax.newIsOnMemberslist = pax.is_on_memberslist
         this.$root.showError('Could not update participant memberslist info', err)
       })
     },
