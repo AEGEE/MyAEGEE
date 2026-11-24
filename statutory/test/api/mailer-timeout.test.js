@@ -68,6 +68,48 @@ describe('Mailer that does not answer', () => {
         expect(await Application.count()).toEqual(1);
     });
 
+    test('should send the two mails of an application at once, so the answer waits one timeout', async () => {
+        Object.assign(config.mailer, { timeout: 1500 });
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate(),
+            applications: []
+        });
+
+        const started = Date.now();
+        const res = await request({
+            path: '/events/' + event.id + '/applications',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateApplication({ body_id: regularUser.bodies[0].id }, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        const elapsed = Date.now() - started;
+        expect(elapsed).toBeGreaterThanOrEqual(1500);
+        expect(elapsed).toBeLessThan(2700);
+    });
+
+    test('should send the two mails of an edit at once, so the answer waits one timeout', async () => {
+        Object.assign(config.mailer, { timeout: 1500 });
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const application = await generator.createApplication({ body_id: regularUser.bodies[0].id }, event);
+
+        const started = Date.now();
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { allergies: 'None' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        const elapsed = Date.now() - started;
+        expect(elapsed).toBeGreaterThanOrEqual(1500);
+        expect(elapsed).toBeLessThan(2700);
+    });
+
     test('should give up on core after core.timeout', async () => {
         const originalCore = { ...config.core };
         Object.assign(config.core, { url: 'http://127.0.0.1', port: silentMailer.address().port, timeout: 200 });
