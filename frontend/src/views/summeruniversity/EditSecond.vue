@@ -230,7 +230,7 @@
             </b-table-column>
 
             <b-table-column label="Delete" v-slot="props">
-              <button class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete ' + organizerName(props.row)" @click="deleteOrganizer(props.index)">
+              <button type="button" class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete ' + organizerName(props.row)" @click="deleteOrganizer(props.index)">
                 Delete
               </button>
             </b-table-column>
@@ -331,7 +331,7 @@
                 <input type="radio" name="end_loc" v-model="marker.end" :value="true" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
               </td>
               <td>
-                <button class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
               </td>
             </tr>
             <tr v-if="event.locations.length === 0">
