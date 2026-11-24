@@ -3,6 +3,7 @@ const moment = require('moment');
 const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
+const { isWrittenAsDate, notBeforeTheYear1 } = require('./dates');
 const { Sequelize } = require('./sequelize');
 const { Event, Image, Application } = require('../models');
 
@@ -40,6 +41,20 @@ exports.addEvent = async (req, res) => {
     });
 };
 
+// Parses a date filter of a list: a day (YYYY-MM-DD), or a full timestamp, of which the
+// day is taken (the network pages pass the end of an Agora as they got it).
+// Returns null for anything else.
+function parseDateFilter(value) {
+    if (!isWrittenAsDate(value)) {
+        return null;
+    }
+
+    // Strict: the day as it is written, not whatever the value can be read as.
+    return moment(value.slice(0, 10), 'YYYY-MM-DD', true);
+}
+
+const invalidDateMessage = (field) => `The "${field}" date is invalid, it should be in the YYYY-MM-DD format.`;
+
 exports.listEvents = async (req, res) => {
     const query = {
         where: { status: 'published' },
@@ -49,23 +64,45 @@ exports.listEvents = async (req, res) => {
 
     // If search is set, searching for event by name or description case-insensitive.
     if (req.query.search) {
+        const pattern = helpers.toLikePattern(req.query.search);
         query.where[Sequelize.Op.or] = [
-            { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
-            { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
+            { name: { [Sequelize.Op.iLike]: pattern } },
+            { description: { [Sequelize.Op.iLike]: pattern } }
         ];
     }
 
     // If event type is set, filter on it.
     if (req.query.type) {
-        query.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
+        const types = helpers.toList(req.query.type);
+        if (!Array.isArray(types) || !types.every((type) => constants.EVENT_TYPES.includes(type))) {
+            return errors.makeBadRequestError(res, `The event type should be one of these: ${constants.EVENT_TYPES.join(', ')}.`);
+        }
+
+        query.where.type = { [Sequelize.Op.in]: types };
     }
 
     // Filtering by event start and end dates.
     // The events are not inclusive, so when the event starts on 2018-01-02 and ends on 2018-01-17, querying
     // from 2018-01-05 to 2018-01-10 won't return it.
     const dateQuery = [];
-    if (req.query.starts) dateQuery.push({ starts: { [Sequelize.Op.gte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
-    if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
+    if (req.query.starts) {
+        const starts = parseDateFilter(req.query.starts);
+        if (!starts) {
+            return errors.makeBadRequestError(res, invalidDateMessage('starts'));
+        }
+
+        dateQuery.push({ starts: { [Sequelize.Op.gte]: notBeforeTheYear1(starts.startOf('day').toDate()) } });
+    }
+
+    if (req.query.ends) {
+        const ends = parseDateFilter(req.query.ends);
+        if (!ends) {
+            return errors.makeBadRequestError(res, invalidDateMessage('ends'));
+        }
+
+        dateQuery.push({ ends: { [Sequelize.Op.lte]: ends.endOf('day').toDate() } });
+    }
+
     query.where[Sequelize.Op.and] = dateQuery;
 
     const events = await Event.findAll(query);
@@ -86,7 +123,14 @@ exports.listMostRecentEvents = async (req, res) => {
         ]
     };
 
-    if (req.query.ends) queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } };
+    if (req.query.ends) {
+        const ends = parseDateFilter(req.query.ends);
+        if (!ends) {
+            return errors.makeBadRequestError(res, invalidDateMessage('ends'));
+        }
+
+        queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: ends.endOf('day').toDate() } };
+    }
 
     const events = await Event.findAll(queryObj);
 
@@ -122,7 +166,11 @@ exports.editEvent = async (req, res) => {
         req.body.application_status_revealed_at = new Date();
     }
 
-    const dbResult = await req.event.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    const dbResult = await req.event.update(req.body, {
+        returning: true,
+        fields: helpers.changedFields(req.event, req.body, constants.EVENT_DATE_FIELDS)
+    });
 
     return res.json({
         success: true,
@@ -138,7 +186,7 @@ exports.updateEventImage = async (req, res) => {
         // doing it the other way around would violate the foreign key constraint.
         const oldImageId = req.event.image_id;
         await req.event.update({ image_id: req.image.id });
-        await Image.destroy({
+        await Image.unscoped().destroy({
             where: { id: oldImageId },
             limit: 1,
             individualHooks: true
@@ -165,11 +213,13 @@ exports.changeEventStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change status for events of this type.');
     }
 
-    await req.event.update({ status: req.body.status });
-
-    if (req.event.status === 'published') {
-        await req.event.update({ publication_date: new Date() });
+    // The publication date is the moment a draft became published.
+    const fields = { status: req.body.status };
+    if (req.event.status !== 'published' && req.body.status === 'published') {
+        fields.publication_date = new Date();
     }
+
+    await req.event.update(fields);
 
     return res.json({
         success: true,

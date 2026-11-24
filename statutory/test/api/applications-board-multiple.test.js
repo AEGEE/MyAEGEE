@@ -349,4 +349,25 @@ describe('Applications pax type/board comment for a body', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test.each([
+        [1, [{ participant_type: 'delegate', participant_order: 1 }], 'Entry 1: user ID is not a number.'],
+        [2, [{ user_id: 1, participant_type: 'delegate', participant_order: 1 }, 'second'], 'Entry 2: is not an object.'],
+        [3, [
+            { user_id: 1, participant_type: 'delegate', participant_order: 1 },
+            { user_id: 2, participant_type: 'delegate', participant_order: 2 },
+            { user_id: 3, participant_type: 'delegate' }
+        ], 'Entry 3: participant order is not a number.']
+    ])('should name entry %i in the message when that entry is invalid', async (number, body, message) => {
+        const res = await request({
+            path: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(message);
+    });
 });

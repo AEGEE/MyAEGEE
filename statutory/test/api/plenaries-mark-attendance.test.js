@@ -46,6 +46,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
 
@@ -121,6 +122,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
 
@@ -166,6 +168,7 @@ describe('Plenary attendance marking', () => {
         }, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
 
@@ -187,6 +190,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
 
@@ -218,6 +222,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
         await generator.createAttendance({
@@ -251,6 +256,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
         await generator.createAttendance({
@@ -288,6 +294,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
         await generator.createAttendance({
@@ -316,6 +323,7 @@ describe('Plenary attendance marking', () => {
         const plenary = await generator.createPlenary({}, event);
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1
         }, event);
 

@@ -115,7 +115,7 @@ describe('Plenaries exports', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await generator.createApplication({ participant_type: 'delegate', status: 'accepted', participant_order: 1 }, event);
 
         // second attendance in list, all the time should be tracked
         const secondAttendance = await generator.createAttendance({
@@ -177,7 +177,7 @@ describe('Plenaries exports', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await generator.createApplication({ participant_type: 'delegate', status: 'accepted', participant_order: 1 }, event);
 
         // second attendance in list, all the time should be tracked
         const attendance = await generator.createAttendance({
@@ -215,7 +215,7 @@ describe('Plenaries exports', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await generator.createApplication({ participant_type: 'delegate', status: 'accepted', participant_order: 1 }, event);
 
         // second attendance in list, all the time should be tracked
         const attendance = await generator.createAttendance({
@@ -253,7 +253,7 @@ describe('Plenaries exports', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await generator.createApplication({ participant_type: 'delegate', status: 'accepted', participant_order: 1 }, event);
 
         // not tracked
         await generator.createAttendance({
@@ -338,7 +338,7 @@ describe('Plenaries exports', () => {
             starts: moment().add(2, 'week').toDate(),
             ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
         }, event);
-        const application = await generator.createApplication({ participant_type: 'delegate', participant_order: 1 }, event);
+        const application = await generator.createApplication({ participant_type: 'delegate', status: 'accepted', participant_order: 1 }, event);
 
         // first plenary is fully attended
         await generator.createAttendance({
@@ -411,6 +411,7 @@ describe('Plenaries exports', () => {
         // 3 applications from body, one attended everything, 2nd and 3rd - nothing
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1,
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id
@@ -418,6 +419,7 @@ describe('Plenaries exports', () => {
 
         await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 2,
             user_id: 1337,
             body_id: regularUser.bodies[0].id
@@ -425,6 +427,7 @@ describe('Plenaries exports', () => {
 
         await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 3,
             user_id: 1338,
             body_id: regularUser.bodies[0].id
@@ -490,6 +493,7 @@ describe('Plenaries exports', () => {
 
         const application = await generator.createApplication({
             participant_type: 'delegate',
+            status: 'accepted',
             participant_order: 1,
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id
@@ -571,5 +575,154 @@ describe('Plenaries exports', () => {
         expect(row[3]).toEqual(regularUser.bodies[0].type);
         expect(row[4]).toEqual(0); // 3 delegates
         expect(row[5]).toEqual(0.0.toFixed(2) + '%'); // avg% for all
+    });
+
+    describe('envoys and events without plenaries', () => {
+        const getStats = async (event) => {
+            const res = await request({
+                path: '/events/' + event.id + '/plenaries/stats',
+                method: 'GET',
+                responseType: 'buffer', // make response body to Buffer.
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return xlsx.parse(res.body);
+        };
+
+        test('should include an envoy who attended a plenary', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                name: 'First',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(1, 'week').add(1, 'hour').toDate()
+            }, event);
+            const envoy = await generator.createApplication({
+                participant_type: 'envoy',
+                status: 'accepted',
+                participant_order: 1,
+                first_name: 'Eve',
+                last_name: 'Envoy',
+                body_id: regularUser.bodies[0].id
+            }, event);
+            await generator.createAttendance({
+                application_id: envoy.id,
+                starts: plenary.starts,
+                ends: plenary.ends
+            }, plenary);
+
+            const [general, bodies, plenarySheet] = await getStats(event);
+
+            // header and the envoy
+            expect(general.data.length).toEqual(2);
+            expect(general.data[1][0]).toEqual(envoy.id);
+            expect(general.data[1][1]).toEqual('Eve Envoy');
+            expect(general.data[1][5]).toEqual('100.00%');
+
+            const bodyRow = bodies.data.find((row) => row[0] === regularUser.bodies[0].id);
+            expect(bodyRow[4]).toEqual(1); // 1 envoy
+            expect(bodyRow[5]).toEqual('100.00%');
+            expect(bodyRow[6]).toEqual('100.00%');
+
+            // 5 lines of plenary details, the header and the attendance
+            expect(plenarySheet.data.length).toEqual(7);
+            expect(plenarySheet.data[6][0]).toEqual(envoy.id);
+            expect(plenarySheet.data[6][1]).toEqual('Eve Envoy');
+            expect(plenarySheet.data[6][6]).toEqual('100.00%');
+        });
+
+        test('should list the attendance of somebody who is not a delegate or an envoy any more', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                name: 'First',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(1, 'week').add(1, 'hour').toDate()
+            }, event);
+            // Was a delegate when the attendance was marked.
+            const visitor = await generator.createApplication({
+                participant_type: 'visitor',
+                participant_order: 1,
+                first_name: 'Vic',
+                last_name: 'Visitor'
+            }, event);
+            await generator.createAttendance({
+                application_id: visitor.id,
+                starts: plenary.starts,
+                ends: plenary.ends
+            }, plenary);
+
+            const [general, , plenarySheet] = await getStats(event);
+
+            // The general stats are about delegates and envoys.
+            expect(general.data.length).toEqual(1);
+
+            expect(plenarySheet.data.length).toEqual(7);
+            expect(plenarySheet.data[6][0]).toEqual(visitor.id);
+            expect(plenarySheet.data[6][1]).toEqual('Vic Visitor');
+        });
+
+        test('should display 0% for an event without plenaries', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const delegate = await generator.createApplication({
+                participant_type: 'delegate',
+                status: 'accepted',
+                participant_order: 1,
+                body_id: regularUser.bodies[0].id
+            }, event);
+
+            const data = await getStats(event);
+            expect(data.length).toEqual(2); // general and bodies
+
+            const [general, bodies] = data;
+            expect(general.data[1][0]).toEqual(delegate.id);
+            expect(general.data[1][3]).toEqual('0.00%'); // total percent
+
+            const bodyRow = bodies.data.find((row) => row[0] === regularUser.bodies[0].id);
+            expect(bodyRow[4]).toEqual(1);
+            expect(bodyRow[5]).toEqual('0.00%');
+            expect(bodyRow[6]).toEqual('0.00%');
+        });
+    });
+
+    describe('sheet names', () => {
+        const getSheetNames = async (event) => {
+            const res = await request({
+                path: '/events/' + event.id + '/plenaries/stats',
+                method: 'GET',
+                responseType: 'buffer', // make response body to Buffer.
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return xlsx.parse(res.body).map((sheet) => sheet.name);
+        };
+
+        test('should shorten the name of a plenary to what a sheet name can hold', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createPlenary({
+                name: 'Opening plenary and reports of the Comité Directeur',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate()
+            }, event);
+
+            const names = await getSheetNames(event);
+
+            // A sheet name holds 31 characters.
+            expect(names[2]).toEqual('1 - Opening plenary and reports');
+            expect(names[2].length).toBeLessThanOrEqual(31);
+        });
+
+        test('should replace the characters a sheet name cannot hold', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createPlenary({
+                name: 'Q&A: CD/JC [part 1]?*\\',
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate()
+            }, event);
+
+            const names = await getSheetNames(event);
+
+            expect(names[2]).toEqual('1 - Q&A- CD-JC -part 1----');
+        });
     });
 });

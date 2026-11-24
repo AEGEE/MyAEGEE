@@ -83,4 +83,29 @@ describe('Export OpenSlides', () => {
 
         expect(res.statusCode).toEqual(403);
     });
+
+    test('should escape quotes in the values and keep one line per participant', async () => {
+        await generator.createApplication({
+            user_id: regularUser.id,
+            status: 'accepted',
+            first_name: 'Anna "Annie"',
+            last_name: 'Smith, Jr.',
+            body_name: 'AEGEE-"Test"'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/openslides',
+            method: 'GET',
+            responseType: 'text',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const lines = res.body.split('\n').filter((l) => l.length > 0);
+        expect(lines.length).toEqual(2);
+        // A quote inside a value is doubled, so the value stays one CSV field.
+        expect(lines[1]).toContain('"Anna ""Annie""","Smith, Jr."');
+        expect(lines[1]).toContain('(AEGEE-""Test"").');
+    });
 });

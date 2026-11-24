@@ -40,5 +40,8 @@ exports.makeUnauthorizedError = (res, err) => exports.makeError(res, 401, err);
 exports.makeValidationError = (res, err) => exports.makeError(res, 422, err);
 exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);
 exports.makeNotFoundError = (res, err) => exports.makeError(res, 404, err);
-exports.makeInternalError = (res, err) => exports.makeError(res, 500, err);
+// A 500 has a fixed text, or one that the code chose: the details of an error are in the log only.
+exports.INTERNAL_ERROR_MESSAGE = 'Internal server error.';
+exports.makeInternalError = (res, message = exports.INTERNAL_ERROR_MESSAGE) => exports.makeError(res, 500, message);
 exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
+exports.makeServiceUnavailableError = (res, err) => exports.makeError(res, 503, err);

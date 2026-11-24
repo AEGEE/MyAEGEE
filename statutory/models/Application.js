@@ -1,13 +1,8 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const helpers = require('../lib/helpers');
+const { limitLockWait } = require('../lib/locks');
 const Event = require('./Event');
 const MembersList = require('./MembersList');
-
-function isBoolean(val) {
-    if (typeof val !== 'boolean') {
-        throw new Error('The value should be true or false.');
-    }
-}
 
 const Application = sequelize.define('application', {
     event_id: {
@@ -41,9 +36,6 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     board_comment: {
         type: Sequelize.TEXT
@@ -58,11 +50,8 @@ const Application = sequelize.define('application', {
                     throw new Error('Answers should be an array of strings.');
                 }
 
-                const event = await Event.findOne({ where: { id: this.event_id } });
-                /* istanbul ignore next */
-                if (!event) {
-                    throw new Error('Could not find event.');
-                }
+                // Loaded by the beforeValidate hook, within the transaction of the save.
+                const event = this.eventForValidation;
 
                 if (event.questions.length !== value.length) {
                     throw new Error(`Expected ${event.questions.length} answers, but got ${value.length}.`);
@@ -82,12 +71,12 @@ const Application = sequelize.define('application', {
                         break;
                     case 'number':
                         if (Number.isNaN(Number(value[index]))) {
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`);
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number.`);
                         }
                         break;
                     case 'select':
                         if (!event.questions[index].values.includes(value[index])) {
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(', ')}, but got "${value[index]}".`);
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(', ')}.`);
                         }
                         break;
                     case 'checkbox':
@@ -135,8 +124,10 @@ const Application = sequelize.define('application', {
     },
     status: {
         type: Sequelize.ENUM('pending', 'waiting_list', 'accepted', 'rejected'),
+        allowNull: false,
         defaultValue: 'pending',
         validate: {
+            notNull: { msg: 'Participant status should be set.' },
             isIn: {
                 args: [['pending', 'waiting_list', 'accepted', 'rejected']],
                 msg: 'Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".'
@@ -147,16 +138,12 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     confirmed: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfCancelled(value) {
                 if (this.cancelled && value) {
                     throw new Error('This application is cancelled, you cannot mark it as confirmed.');
@@ -174,7 +161,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfCancelled(value) {
                 if (this.cancelled && value) {
                     throw new Error('This application is cancelled, you cannot mark it as incoming.');
@@ -192,7 +178,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotConfirmed(value) {
                 if (!this.confirmed && value) {
                     throw new Error('You should set user as confirmed first.');
@@ -205,7 +190,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotConfirmed(value) {
                 if (!this.confirmed && value) {
                     throw new Error('You should set user as confirmed first.');
@@ -223,7 +207,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotRegistered(value) {
                 if (!this.registered && value) {
                     throw new Error('You should set user as attended first.');
@@ -352,17 +335,11 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     is_on_previous_memberslist: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     statutory_id: {
         // no validation because it's set automatically in pre-create hook
@@ -452,10 +429,11 @@ Application.findWithParams = ({ where, attributes, query }) => {
     // Trying to apply filtering.
     // Only filtering by first name, last name is supported. Email should be added again later, but fetched from the notification emails of the applied users
     if (query.query) {
+        const pattern = helpers.toLikePattern(query.query);
         findAllObject.where[Sequelize.Op.or] = {
-            first_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
-            last_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
-            statutory_id: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
+            first_name: { [Sequelize.Op.iLike]: pattern },
+            last_name: { [Sequelize.Op.iLike]: pattern },
+            statutory_id: { [Sequelize.Op.iLike]: pattern },
             // TODO: this should be searching through the emails in the database and the notification emails of the users that have applied
             // email: { [Sequelize.Op.iLike]: '%' + query.query + '%' }
         };
@@ -470,36 +448,52 @@ Application.findWithParams = ({ where, attributes, query }) => {
     return Application.findAndCountAll(findAllObject);
 };
 
-Application.beforeValidate(async (application) => {
+// The event of the application, for the validators and the hooks below. Every query of the
+// validation runs in the transaction of the save (if any): a query outside of it would
+// wait for a second connection while the transaction holds one.
+Application.beforeValidate(async (application, options) => {
+    const event = await Event.findByPk(application.event_id, { transaction: options.transaction });
+    // Not an attribute: kept on the instance for the answers validator, which gets no options.
+    application.eventForValidation = event;
+
     // Skipping if not event not fully vegetarian
-    const event = await Event.findByPk(application.event_id);
     if (event.vegetarian !== true) {
         return;
     }
     if (application.meals === 'Meat-eater') {
-        throw new Error('Meat-eater is not allowed for this event.');
+        // A validation error on the meals field, so the client gets it like the other ones.
+        const message = 'Meat-eater is not allowed for this event.';
+        throw new Sequelize.ValidationError(message, [
+            new Sequelize.ValidationErrorItem(message, 'Validation error', 'meals', application.meals)
+        ]);
     }
 });
 
 // Updating the users' inclusion in memberslist for this body.
 Application.afterValidate(async (application, options) => {
     // Skipping if not Agora.
-    const event = await Event.findByPk(application.event_id);
+    const event = application.eventForValidation;
     if (event.type !== 'agora') {
         return;
     }
 
-    const currentMemberslistForBody = await MembersList.findOne({ where: {
-        body_id: application.body_id,
-        event_id: application.event_id
-    } });
+    const currentMemberslistForBody = await MembersList.findOne({
+        where: {
+            body_id: application.body_id,
+            event_id: application.event_id
+        },
+        transaction: options.transaction
+    });
     options.fields.push('is_on_memberslist');
     application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(currentMemberslistForBody, application));
 
-    const previousMemberslistForBody = await MembersList.findOne({ where: {
-        body_id: application.body_id,
-        event_id: event.previous_agora_id
-    } });
+    const previousMemberslistForBody = await MembersList.findOne({
+        where: {
+            body_id: application.body_id,
+            event_id: event.previous_agora_id
+        },
+        transaction: options.transaction
+    });
     options.fields.push('is_on_previous_memberslist');
     application.setDataValue('is_on_previous_memberslist', helpers.memberslistHasMember(previousMemberslistForBody, application));
 });
@@ -508,6 +502,7 @@ Application.afterValidate(async (application, options) => {
 Application.beforeCreate(async (application, options) => {
     // Locking per event until the transaction ends, so concurrent applications
     // to the same event can't get the same statutory ID.
+    await limitLockWait(options.transaction);
     await sequelize.query('SELECT pg_advisory_xact_lock(hashtext(\'applications.statutory_id\'), :eventId)', {
         replacements: { eventId: application.event_id },
         transaction: options.transaction

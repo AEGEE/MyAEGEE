@@ -9,8 +9,9 @@ const { Application, VotesPerAntenna, PaxLimit, Event } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const getQuorumStats = require('./quorum');
-const { sequelize, Sequelize } = require('./sequelize');
+const { Sequelize } = require('./sequelize');
 const logger = require('./logger');
+const locks = require('./locks');
 
 async function getEditableBodiesForUser(req, user) {
     const limits = await Promise.all(
@@ -51,7 +52,8 @@ function presentApplication(req, application) {
         delete presented.board_comment;
     }
 
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+    // Only where the caller gets the status: the local organisers' fields have none.
+    if ('status' in presented && helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
         presented.status = 'pending';
     }
 
@@ -81,6 +83,33 @@ function presentApplicationAfterFlag(req, application, key) {
     }
 
     return helpers.whitelistObject(presented, officerFields);
+}
+
+// Checks the sorting and paging parameters of a list of applications.
+// A list can be sorted by the fields it returns: all of them, unless a list of fields is given.
+// Returns the error message, or null if the parameters are fine.
+function getListQueryError(query, fields = Object.keys(Application.rawAttributes)) {
+    for (const key of ['limit', 'offset']) {
+        const value = query[key];
+        if (helpers.isDefined(value) && (typeof value !== 'string' || !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)))) {
+            return `The "${key}" parameter should be a whole number, zero or higher.`;
+        }
+    }
+
+    if (!helpers.isObject(query.sort)) {
+        return null;
+    }
+
+    // The supported fields are listed in the description of the API.
+    if (helpers.isDefined(query.sort.field) && (typeof query.sort.field !== 'string' || !fields.includes(query.sort.field))) {
+        return 'Sorting by this field is not supported.';
+    }
+
+    if (helpers.isDefined(query.sort.order) && (typeof query.sort.order !== 'string' || !['asc', 'desc'].includes(query.sort.order.toLowerCase()))) {
+        return 'The sorting order should be "asc" or "desc".';
+    }
+
+    return null;
 }
 
 function isApplicationBanActive(user) {
@@ -132,6 +161,11 @@ exports.listAllApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
+    const queryError = getListQueryError(req.query);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
+    }
+
     const applications = await Application.findWithParams({
         where: { event_id: req.event.id },
         query: req.query
@@ -165,6 +199,11 @@ exports.listAllApplications = async (req, res) => {
 exports.listIncomingApplications = async (req, res) => {
     if (!req.permissions.see_applications_incoming) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const queryError = getListQueryError(req.query, constants.ALLOWED_INCOMING_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
     }
 
     const applications = await Application.findWithParams({
@@ -224,6 +263,11 @@ exports.listJCApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
+    const queryError = getListQueryError(req.query, constants.ALLOWED_JURIDICAL_LIST_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
+    }
+
     const applications = await Application.findWithParams({
         where: { event_id: req.event.id, cancelled: false, status: 'accepted', confirmed: true },
         attributes: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
@@ -242,6 +286,11 @@ exports.listJCApplications = async (req, res) => {
 exports.listNetworkApplications = async (req, res) => {
     if (!req.permissions.see_applications_network) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const queryError = getListQueryError(req.query, constants.ALLOWED_NETWORK_LIST_FIELDS);
+    if (queryError) {
+        return errors.makeBadRequestError(res, queryError);
     }
 
     const applications = await Application.findWithParams({
@@ -271,7 +320,8 @@ exports.getStats = async (req, res) => {
         where: { event_id: req.event.id }
     });
 
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+    // Those who manage applications see the statuses, as on a single application.
+    if (helpers.shouldHideApplicationStatus(req.event, { change_status: req.permissions.manage_applications })) {
         statsObject.numbers = {
             total: applications.length,
             accepted: 0,
@@ -346,7 +396,7 @@ exports.getStats = async (req, res) => {
 };
 
 exports.listBoardView = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
 
@@ -356,7 +406,7 @@ exports.listBoardView = async (req, res) => {
 
     // 'zzzzz' is used to be last, 'unset' won't do
     const applications = await Application.findAll({
-        where: { event_id: req.event.id, body_id: parseInt(req.params.body_id, 10) },
+        where: { event_id: req.event.id, body_id: Number(req.params.body_id) },
     });
 
     if (applications.length > 0) {
@@ -464,12 +514,29 @@ exports.updateApplication = async (req, res) => {
     // Keeping old body, as apparently next line is changing req.application as well.
     const oldBody = req.application.body_id;
 
-    await sequelize.transaction(async (t) => {
-        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
-        await req.application.update(fields, { transaction: t });
+    // The edit and the votes per delegate of the old and the new body change together.
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await locks.transaction(async (t) => {
+        await req.application.update(fields, { transaction: t, returning: true });
 
-        // Sending the mail to a user.
-        await mailer.sendMail({
+        // The votes of the two bodies are locked in the order of their ids, as by every request,
+        // so that two edits that move in opposite directions wait for each other instead of
+        // locking each other.
+        if (fields.body_id && fields.body_id !== oldBody) {
+            for (const bodyId of [oldBody, fields.body_id].sort((a, b) => a - b)) {
+                await VotesPerAntenna.recalculateVotesForDelegates(req.event, bodyId, t);
+            }
+        }
+    });
+
+    // The edit is saved: the mails about it are sent afterwards, and a failure does not undo it.
+    const ids = { application_id: req.application.id, event_id: req.event.id };
+    // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
+    await Promise.all([
+        mailer.sendMailAfterSave({
+            template: 'statutory_edited.html',
+            ids
+        }, () => mailer.sendMail({
             to: user.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'statutory_edited.html',
@@ -477,33 +544,29 @@ exports.updateApplication = async (req, res) => {
                 application: req.application,
                 event: req.event
             }
-        });
+        })),
+        mailer.sendMailAfterSave({
+            template: 'statutory_board_edited.html',
+            ids
+        }, async () => {
+            const boardMembers = await core.getBodyUsersForPermission({
+                action: 'approve_members',
+                object: req.event.type
+            }, req.application.body_id);
 
-        // Sending emails to board members of this body.
-        const boardMembers = await core.getBodyUsersForPermission({
-            action: 'approve_members',
-            object: req.event.type
-        }, req.application.body_id);
-
-        if (boardMembers.length > 0) {
-            await mailer.sendMail({
-                to: boardMembers.map((member) => member.user.notification_email),
-                subject: `One of your body members changed the application to ${req.event.name}`,
-                template: 'statutory_board_edited.html',
-                parameters: {
-                    application: req.application,
-                    event: req.event
-                }
-            });
-        }
-    });
-
-    // Recalculating votes per delegate for this antenna, if user changed the body.
-    // Both for new and old body.
-    if (fields.body_id && fields.body_id !== oldBody) {
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, fields.body_id);
-    }
+            if (boardMembers.length > 0) {
+                await mailer.sendMail({
+                    to: boardMembers.map((member) => member.user.notification_email),
+                    subject: `One of your body members changed the application to ${req.event.name}`,
+                    template: 'statutory_board_edited.html',
+                    parameters: {
+                        application: req.application,
+                        event: req.event
+                    }
+                });
+            }
+        })
+    ]);
 
     return res.json({
         success: true,
@@ -529,13 +592,16 @@ function setApplicationBoolean(key) {
         const toUpdate = {};
         toUpdate[key] = req.body[key];
 
-        const dbResult = await req.application.update(
-            toUpdate,
-            { returning: ['*'], hooks: false }
-        );
+        // The flag and the votes per delegate for this antenna change together, or not at all.
+        const dbResult = await locks.transaction(async (t) => {
+            const updated = await req.application.update(
+                toUpdate,
+                { returning: ['*'], hooks: false, transaction: t }
+            );
 
-        // Recalculating votes per delegate for this antenna.
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
+            return updated;
+        });
 
         return res.json({
             success: true,
@@ -565,13 +631,16 @@ exports.setApplicationStatus = async (req, res) => {
         );
     }
 
-    const dbResult = await req.application.update(
-        { status: req.body.status },
-        { returning: ['*'] }
-    );
+    // The status and the votes per delegate for this antenna change together, or not at all.
+    const dbResult = await locks.transaction(async (t) => {
+        const updated = await req.application.update(
+            { status: req.body.status },
+            { returning: ['*'], transaction: t }
+        );
 
-    // Recalculating votes per delegate for this antenna.
-    await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
+        return updated;
+    });
 
     return res.json({
         success: true,
@@ -598,6 +667,9 @@ exports.setApplicationBoard = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.application.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     const toUpdate = {};
     if (helpers.isDefined(req.body.participant_type)) toUpdate.participant_type = req.body.participant_type;
@@ -610,12 +682,13 @@ exports.setApplicationBoard = async (req, res) => {
     // against the limit for this body. If something goes wrong or there's a
     // calculation error, rollback everything. Advantages: don't need to worry
     // about validations, they'll fail the transaction.
+    let application;
     try {
-        await sequelize.transaction(async (t) => {
+        application = await locks.transaction(async (t) => {
             // First, saving the application.
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
-            const application = await req.application.update(toUpdate, { returning: ['*'], transaction: t });
+            const updated = await req.application.update(toUpdate, { returning: ['*'], transaction: t });
 
             // Recalculating votes per delegate for this antenna.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
@@ -624,32 +697,33 @@ exports.setApplicationBoard = async (req, res) => {
             await helpers.checkApplicationBoardviewValidity({
                 body,
                 event: req.event,
-                application,
+                application: updated,
                 transaction: t
             });
 
-            // If we got here, everything is okay.
-            return res.json({
-                success: true,
-                data: application
-            });
+            return updated;
         });
     } catch (err) {
-        // Here we go only when the transaction has failed and rolled back.
-
-        // If validation error, throw it further so general error handler can handle it.
-        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
-            throw err;
+        // The transaction was rolled back. What the participants limits of the body do not
+        // allow is refused; any other error (validation, a lock, the database) is answered as such.
+        if (err instanceof helpers.BoardChangeRefused) {
+            return errors.makeForbiddenError(res, err.message);
         }
 
-        return errors.makeForbiddenError(res, err.message);
+        throw err;
     }
+
+    // The change is committed.
+    return res.json({
+        success: true,
+        data: application
+    });
 };
 
 // WARNING: This will reset all of the pax types and orders and board comments
 // and will set it only for those specified in the input.
 exports.setBoardForBody = async (req, res) => {
-    if (Number.isNaN(Number(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body ID is invalid.');
     }
 
@@ -668,8 +742,7 @@ exports.setBoardForBody = async (req, res) => {
         return errors.makeBadRequestError(res, 'The body is not an array.');
     }
 
-    for (const index in req.body) {
-        const entry = req.body[index];
+    for (const [index, entry] of req.body.entries()) {
         if (!helpers.isObject(entry)) {
             return errors.makeBadRequestError(res, `Entry ${index + 1}: is not an object.`);
         }
@@ -689,10 +762,13 @@ exports.setBoardForBody = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Same as in above.
     try {
-        await sequelize.transaction(async (t) => {
+        await locks.transaction(async (t) => {
             // First, resetting all applications' pax type, order and board comment.
             // (will re-set them later).
             await Application.update(
@@ -712,7 +788,7 @@ exports.setBoardForBody = async (req, res) => {
             );
 
             // Then iterating through entries.
-            for (const entry of req.body) {
+            for (const [index, entry] of req.body.entries()) {
                 // Finding the application required.
                 const application = await Application.findOne({
                     where: {
@@ -724,7 +800,7 @@ exports.setBoardForBody = async (req, res) => {
                 });
 
                 if (!application) {
-                    throw new Error(`Application with user ID #${entry.user_id} from body ID #${body.id} is not found.`);
+                    throw new helpers.BoardChangeRefused(`Entry ${index + 1}: this user has no application from this body.`);
                 }
 
                 const toUpdate = {
@@ -752,14 +828,13 @@ exports.setBoardForBody = async (req, res) => {
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.params.body_id, t);
         });
     } catch (err) {
-        // Here we go only when the transaction has failed and rolled back.
-
-        // If validation error, throw it further so general error handler can handle it.
-        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
-            throw err;
+        // The transaction was rolled back. What the participants limits of the body do not
+        // allow is refused; any other error (validation, a lock, the database) is answered as such.
+        if (err instanceof helpers.BoardChangeRefused) {
+            return errors.makeForbiddenError(res, err.message);
         }
 
-        return errors.makeForbiddenError(res, err.message);
+        throw err;
     }
 
     // If we got here, everything is okay.
@@ -788,6 +863,9 @@ exports.postApplication = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.body.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Do not allow applying if the limit for a body is not set.
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.event.type);
@@ -808,16 +886,19 @@ exports.postApplication = async (req, res) => {
     fields.body_name = req.user.bodies.find((b) => fields.body_id === b.id).name;
     fields.date_of_birth = req.user.date_of_birth;
 
-    let newApplication;
+    // In a transaction for the lock of the statutory ID (see the model).
+    const newApplication = await locks.transaction((t) => Application.create(fields, { transaction: t }));
 
-    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
-    await sequelize.transaction(async (t) => {
-        newApplication = await Application.create(fields, { transaction: t });
+    // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-        // We don't need to recalculate the votes amount, as the pax type is not set here.
-
-        // Sending the mail to a user.
-        await mailer.sendMail({
+    // The application is saved: the mails about it are sent afterwards, and a failure does not undo it.
+    const ids = { application_id: newApplication.id, event_id: req.event.id };
+    // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
+    await Promise.all([
+        mailer.sendMailAfterSave({
+            template: 'statutory_applied.html',
+            ids
+        }, () => mailer.sendMail({
             to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
@@ -825,26 +906,29 @@ exports.postApplication = async (req, res) => {
                 application: newApplication,
                 event: req.event
             }
-        });
+        })),
+        mailer.sendMailAfterSave({
+            template: 'statutory_board_applied.html',
+            ids
+        }, async () => {
+            const boardMembers = await core.getBodyUsersForPermission({
+                action: 'approve_members',
+                object: req.event.type
+            }, newApplication.body_id);
 
-        // Sending emails to board members of this body.
-        const boardMembers = await core.getBodyUsersForPermission({
-            action: 'approve_members',
-            object: req.event.type
-        }, newApplication.body_id);
-
-        if (boardMembers.length > 0) {
-            await mailer.sendMail({
-                to: boardMembers.map((member) => member.user.notification_email),
-                subject: `One of your body members has applied to ${req.event.name}`,
-                template: 'statutory_board_applied.html',
-                parameters: {
-                    application: newApplication,
-                    event: req.event
-                }
-            });
-        }
-    });
+            if (boardMembers.length > 0) {
+                await mailer.sendMail({
+                    to: boardMembers.map((member) => member.user.notification_email),
+                    subject: `One of your body members has applied to ${req.event.name}`,
+                    template: 'statutory_board_applied.html',
+                    parameters: {
+                        application: newApplication,
+                        event: req.event
+                    }
+                });
+            }
+        })
+    ]);
 
     return res.json({
         success: true,
@@ -869,7 +953,8 @@ exports.exportOpenslides = async (req, res) => {
         where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
     });
 
-    const wrap = (string) => '"' + string + '"';
+    // A CSV field in quotes; a quote inside the value is doubled.
+    const wrap = (value) => '"' + String(value).replace(/"/g, '""') + '"';
 
     const headers = [
         'Title',
@@ -915,7 +1000,7 @@ exports.exportOpenslides = async (req, res) => {
             1, // Is present
             0, // Is committee
             password,
-            user.notification_email
+            user ? user.notification_email : ''
         ].map(wrap).join(',');
     }));
 
@@ -931,13 +1016,14 @@ exports.exportOpenslides = async (req, res) => {
 exports.exportAll = async (req, res) => {
     // Exporting users as XLSX for LOs/Chair/CD/whoever.
     if (!['all', 'incoming'].includes(req.params.prefix)) {
-        return errors.makeBadRequestError(res, `Prefix should be one of these: "all", "incoming", but received ${req.params.prefix}`);
+        return errors.makeBadRequestError(res, 'The prefix should be "all" or "incoming".');
     }
 
     if (!req.permissions.export[req.params.prefix]) {
         return errors.makeForbiddenError(res, 'You are not allowed to export participants.');
     }
 
+    req.query.select = helpers.toList(req.query.select);
     if (!Array.isArray(req.query.select)) {
         return errors.makeBadRequestError(res, 'Filters are not provided or are invalid.');
     }
@@ -1030,16 +1116,18 @@ exports.exportDelegatesJc = async (req, res) => {
     const exportString = await Promise.all(applications.map(async (application) => {
         const user = mails.find((m) => application.user_id === m.id);
         const body = bodies.find((b) => application.body_id === b.id);
-        const regex = /[^a-zA-z\-\ ]/; // eslint-disable-line
+        // The import of this file takes plain letters, dashes and spaces in names;
+        // everything else, the field separator included, is replaced.
+        const regex = /[^a-zA-Z\- ]/g;
         application.first_name = application.first_name.replace(regex, '?');
         application.last_name = application.last_name.replace(regex, '?');
 
         return [
             application.statutory_id,
-            user.notification_email,
+            user ? user.notification_email : '',
             application.first_name,
             application.last_name,
-            body.code,
+            body ? body.code : '',
             application.participant_type
         ].join(';');
     }));

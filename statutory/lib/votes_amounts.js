@@ -1,5 +1,6 @@
 const errors = require('./errors');
 const constants = require('./constants');
+const helpers = require('./helpers');
 const { VotesPerAntenna, VotesPerDelegate, Application } = require('../models');
 
 // Every logged-in member can see the votes, so only these fields
@@ -30,16 +31,16 @@ exports.getAllVotesPerDelegate = async (req, res) => {
 };
 
 exports.getVotesPerAntenna = async (req, res) => {
-    if (Number.isNaN(Number(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body ID is malformed.');
     }
 
     const votesPerAntenna = await VotesPerAntenna.findOne({
-        where: { event_id: req.event.id, body_id: Number(req.params.body_id, 10) }
+        where: { event_id: req.event.id, body_id: Number(req.params.body_id) }
     });
 
     const votesPerDelegate = await VotesPerDelegate.findAll({
-        where: { event_id: req.event.id, body_id: Number(req.params.body_id, 10) },
+        where: { event_id: req.event.id, body_id: Number(req.params.body_id) },
         include: [delegateApplication]
     });
 

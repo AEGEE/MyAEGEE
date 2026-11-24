@@ -3,6 +3,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const bodies = require('../assets/core-bodies.json').data;
+const mails = require('../assets/core-notification-mails.json').data;
 
 describe('Export Delegates JC', () => {
     let event;
@@ -83,5 +85,37 @@ describe('Export Delegates JC', () => {
         });
 
         expect(res.statusCode).toEqual(403);
+    });
+
+    test('should replace every character of a name that is not a letter, a dash or a space', async () => {
+        const application = await generator.createApplication({
+            user_id: regularUser.id,
+            status: 'accepted',
+            participant_type: 'delegate',
+            body_id: regularUser.bodies[0].id,
+            first_name: 'Zoë-Añna; [x]',
+            last_name: 'O\'Neil_^`\\ Jr'
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/delegates_jc',
+            method: 'GET',
+            responseType: 'text',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const lines = res.body.split('\n').filter((l) => l.length > 0);
+        expect(lines.length).toEqual(1);
+        // Six fields, whatever the name holds.
+        expect(lines[0].split(';')).toEqual([
+            application.statutory_id,
+            mails.find((mail) => mail.id === regularUser.id).notification_email,
+            'Zo?-A?na? ?x?',
+            'O?Neil???? Jr',
+            bodies.find((body) => body.id === regularUser.bodies[0].id).code,
+            'delegate'
+        ]);
     });
 });

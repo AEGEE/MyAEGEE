@@ -2,12 +2,77 @@ const core = require('./core');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
-const constants = require('./constants');
-const { Event, Application, Image, PaxLimit } = require('../models');
 const { Sequelize } = require('./sequelize');
+const constants = require('./constants');
+const { Event, Application, Image, PaxLimit, MembersList } = require('../models');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
 const cron = require('./cron');
+const { isLockTimeout } = require('./locks');
+
+// The only route that takes a list as its body: the board view of a body.
+const LIST_BODY_ROUTE = /^\/events\/[^/]+\/applications\/boardview\/[^/]+\/?$/;
+
+// What JSON can hold and the database cannot: the NUL character and unpaired surrogates.
+// eslint-disable-next-line no-control-regex -- the NUL character is what is looked for
+const UNSTORABLE = /\u0000|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+// Deeper bodies are not read: no route takes more than a few levels.
+const MAX_DEPTH = 32;
+
+// Whether a parsed body is too deep, or holds a text or key with characters that cannot be stored.
+// Walked without recursion, so that a deep body cannot exhaust the stack.
+const inspectBody = (body) => {
+    const stack = [{ value: body, depth: 0 }];
+    while (stack.length > 0) {
+        const { value, depth } = stack.pop();
+        if (typeof value === 'string') {
+            if (UNSTORABLE.test(value)) {
+                return 'unstorable';
+            }
+        } else if (helpers.isObject(value)) {
+            if (depth >= MAX_DEPTH) {
+                return 'too deep';
+            }
+
+            for (const [key, item] of Object.entries(value)) {
+                if (UNSTORABLE.test(key)) {
+                    return 'unstorable';
+                }
+
+                stack.push({ value: item, depth: depth + 1 });
+            }
+        }
+    }
+
+    return null;
+};
+
+// Every route that takes a body takes an object, apart from the board view of a body, which
+// takes a list. A request without a body is handled like one with an empty object, so that a
+// route answers as it does for missing fields.
+exports.checkRequestBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    const problem = inspectBody(req.body);
+    if (problem === 'too deep') {
+        return errors.makeBadRequestError(res, 'The request body could not be read.');
+    }
+
+    if (problem === 'unstorable') {
+        return errors.makeBadRequestError(res, 'The request body contains characters that cannot be stored.');
+    }
+
+    const takesList = req.method === 'POST' && LIST_BODY_ROUTE.test(req.path);
+    if (!takesList && (!helpers.isObject(req.body) || Array.isArray(req.body))) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    return next();
+};
 
 exports.authenticateUser = async (req, res, next) => {
     try {
@@ -45,7 +110,8 @@ exports.authenticateUser = async (req, res, next) => {
 
         return next();
     } catch (err) {
-        return errors.makeInternalError(res, err);
+        logger.error({ err }, 'Could not fetch the user and the permissions from core');
+        return errors.makeInternalError(res);
     }
 };
 
@@ -64,10 +130,13 @@ exports.ensureAuthorized = async (req, res, next) => {
 };
 
 exports.fetchEvent = async (req, res, next) => {
+    // The URL as it is written, in any case. Both sides are compared in lower case:
+    // the URLs of older events are stored with the capitals they were written with.
     let query = {
-        where: {
-            url: { [Sequelize.Op.iLike]: req.params.event_id },
-        }
+        where: Sequelize.where(
+            Sequelize.fn('lower', Sequelize.col('event.url')),
+            req.params.event_id.toLowerCase()
+        )
     };
 
     // If event_id is not an integer, assuming it's the event URL.
@@ -104,7 +173,7 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (!Number.isNaN(Number(req.params.event_id))) {
+    } else if (helpers.isNumber(req.params.event_id)) {
         query = {
             where: { id: Number(req.params.event_id) }
         };
@@ -193,10 +262,10 @@ exports.fetchSingleApplication = async (req, res, next) => {
         return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
     }
 
-    const mail = await core.getMails(req, application.user_id);
+    const [mail] = await core.getMails(req, application.user_id);
 
     if (mail) {
-        application.dataValues.notification_email = mail[0].notification_email;
+        application.dataValues.notification_email = mail.notification_email;
     }
 
     req.application = application;
@@ -224,7 +293,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
         }
 
         if (mail) {
-            incomingApplication.dataValues.notification_email = mail[0].notification_email;
+            incomingApplication.dataValues.notification_email = mail.notification_email;
         }
 
         req.application = incomingApplication;
@@ -258,7 +327,7 @@ exports.getTasksList = (req, res) => {
 };
 
 /* eslint-disable no-unused-vars */
-exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl.split('?')[0]);
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
@@ -267,9 +336,31 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // A path whose encoding is broken (%E0): Express cannot decode its parameters.
+    if (err instanceof URIError && err.status === 400) {
+        return errors.makeBadRequestError(res, 'The path could not be read.');
+    }
+
+    // The other errors of reading the body (too large, a charset or an encoding that is not
+    // supported, a broken compression) answer with their own status.
+    if (err.expose === true && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
+    }
+
     // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
+    }
+
+    // The currency rates server did not answer in time or failed: nothing was saved.
+    if (err instanceof MembersList.RatesUnavailable) {
+        logger.warn({ err }, 'Could not fetch the currency rates');
+        return errors.makeServiceUnavailableError(res, 'The currency rates could not be fetched, so nothing was saved. Please try again later.');
+    }
+
+    // A lock that other requests held for longer than the lock timeout: nothing was changed.
+    if (isLockTimeout(err)) {
+        return errors.makeServiceUnavailableError(res, 'The server is busy, please try again.');
     }
 
     /* istanbul ignore next */
@@ -280,5 +371,5 @@ exports.errorHandler = (err, req, res, next) => {
     /* istanbul ignore next */
     logger.error({ err });
     /* istanbul ignore next */
-    return errors.makeInternalError(res, err);
+    return errors.makeInternalError(res);
 };

@@ -331,4 +331,31 @@ describe('Positions listing', () => {
         expect(res.body.data[0].candidates[1].id).toEqual(secondCandidate.id);
         expect(res.body.data[0].candidates[2].id).toEqual(thirdCandidate.id);
     });
+
+    test('should return only my candidatures of the event in the URL on /mine', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({ name: 'President' }, event);
+        const deletedPosition = await generator.createPosition({ deleted: true }, event);
+        const mine = await generator.createCandidate({ user_id: regularUser.id }, position);
+        await generator.createCandidate({ user_id: regularUser.id }, deletedPosition);
+        await generator.createCandidate({ user_id: 1337 }, position);
+
+        // A candidature of the same member at another Agora.
+        const otherEvent = await generator.createEvent({ type: 'agora', applications: [] });
+        const otherPosition = await generator.createPosition({}, otherEvent);
+        await generator.createCandidate({ user_id: regularUser.id }, otherPosition);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/candidates/mine',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((candidate) => candidate.id)).toEqual([mine.id]);
+        expect(res.body.data[0].position.id).toEqual(position.id);
+        expect(res.body.data[0].position.name).toEqual('President');
+    });
 });

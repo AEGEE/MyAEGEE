@@ -588,4 +588,89 @@ describe('Applications listing', () => {
             expect(res.body.data.length).toEqual(1);
         });
     });
+
+    describe('invalid sorting and paging', () => {
+        const lists = ['all', 'juridical', 'incoming', 'network'];
+
+        const list = (event, name, query) => request({
+            path: '/events/' + event.id + '/applications/' + name,
+            query,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        const expectBadRequest = (res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+            expect(res.body).not.toHaveProperty('data');
+        };
+
+        test.each(lists)('should return 400 on /%s for a sorting field that does not exist', async (name) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await list(event, name, { sort: { field: 'nonexistent' } });
+
+            expectBadRequest(res);
+            expect(res.body.message).toEqual('Sorting by this field is not supported.');
+        });
+
+        // The officers' lists can only be sorted by the fields they return.
+        test.each([
+            ['juridical', 'visa_passport_number'],
+            ['juridical', 'board_comment'],
+            ['incoming', 'board_comment'],
+            ['incoming', 'answers'],
+            ['network', 'date_of_birth'],
+            ['network', 'visa_passport_number']
+        ])('should return 400 on /%s when sorting by %s, which the list does not return', async (name, field) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createApplication({ status: 'accepted', confirmed: true }, event);
+            await generator.createApplication({ status: 'accepted', confirmed: true }, event);
+
+            const res = await list(event, name, { sort: { field } });
+
+            expectBadRequest(res);
+        });
+
+        test.each(lists)('should return 400 on /%s for a sorting order that does not exist', async (name) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await list(event, name, { sort: { order: 'sideways' } });
+
+            expectBadRequest(res);
+            expect(res.body.message).toEqual('The sorting order should be "asc" or "desc".');
+        });
+
+        test.each([
+            ['limit', 'abc'],
+            ['limit', '-1'],
+            ['limit', '1.5'],
+            ['offset', 'abc'],
+            ['offset', '-1']
+        ])('should return 400 on /all if %s is "%s"', async (key, value) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+            const res = await list(event, 'all', { [key]: value });
+
+            expectBadRequest(res);
+            expect(res.body.message).toEqual(`The "${key}" parameter should be a whole number, zero or higher.`);
+        });
+
+        test('should still sort every list by a field it returns, in either order', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const first = await generator.createApplication({ status: 'accepted', confirmed: true, first_name: 'Aaa' }, event);
+            const second = await generator.createApplication({ status: 'accepted', confirmed: true, first_name: 'Bbb' }, event);
+
+            for (const name of lists) {
+                const ascending = await list(event, name, { sort: { field: 'first_name', order: 'ASC' }, limit: '2', offset: '0' });
+                expect(ascending.statusCode).toEqual(200);
+                expect(ascending.body.data.map((application) => application.id)).toEqual([first.id, second.id]);
+
+                const descending = await list(event, name, { sort: { field: 'first_name', order: 'desc' } });
+                expect(descending.statusCode).toEqual(200);
+                expect(descending.body.data.map((application) => application.id)).toEqual([second.id, first.id]);
+            }
+        });
+    });
 });

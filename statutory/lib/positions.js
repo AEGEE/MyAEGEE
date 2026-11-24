@@ -8,7 +8,7 @@ const constants = require('./constants');
 const logger = require('./logger');
 
 exports.findPosition = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.position_id))) {
+    if (!helpers.isNumber(req.params.position_id)) {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }
 
@@ -158,7 +158,11 @@ exports.editPosition = async (req, res) => {
 
     // Only the fields of the position form are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.POSITION_FORM_FIELDS);
-    await req.position.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.position.update(req.body, {
+        returning: true,
+        fields: helpers.changedFields(req.position, req.body, constants.PERIOD_FIELDS)
+    });
 
     return res.json({
         success: true,
@@ -200,6 +204,7 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to export candidates.');
     }
 
+    req.query.select = helpers.toList(req.query.select);
     if (!Array.isArray(req.query.select)) {
         req.query.select = Object.keys(constants.CANDIDATE_FIELDS);
     }

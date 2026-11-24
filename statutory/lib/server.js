@@ -42,7 +42,10 @@ const QuestionsRouter = express.Router({ mergeParams: true });
 
 const server = express();
 server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
-server.use(bodyParser.json());
+// Up to 1 MB: a members list of a few thousand members. Not strict, so that a body that is
+// valid JSON but no object gets the message of checkRequestBody.
+server.use(bodyParser.json({ limit: '1mb', strict: false }));
+server.use(middlewares.checkRequestBody);
 server.use(queryBoolean());
 server.use(morgan);
 
@@ -127,12 +130,7 @@ MembersListsRouter.get('/missing', memberslists.getMissingMemberslists);
 MembersListsRouter.get('/without_fee', memberslists.getMemberslistsWithoutFee);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
-
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
-MembersListsRouter.get('/', memberslists.getAllMemberslists);
-MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.put('/:body_id/fee_paid', memberslists.setMemberslistFeePaid);
-MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
 MassMailerRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 MassMailerRouter.post('/', massmailer.sendAll);

@@ -30,7 +30,7 @@ const CANDIDATE_FIELDS = [
 ];
 
 exports.findCandidate = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.candidate_id))) {
+    if (!helpers.isNumber(req.params.candidate_id)) {
         return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
     }
 
@@ -55,9 +55,13 @@ exports.findCandidate = async (req, res, next) => {
 };
 
 exports.getMyCandidatures = async (req, res) => {
+    // The user's candidatures for the positions of this event.
     const candidatures = await Candidate.findAll({
         where: { user_id: req.user.id },
-        include: [Position, Image]
+        include: [
+            { model: Position, where: { event_id: req.event.id, deleted: false }, required: true },
+            Image
+        ]
     });
 
     return res.json({
@@ -84,8 +88,11 @@ exports.submitYourCandidature = async (req, res) => {
         position_id: req.position.id
     });
 
-    // Send email to JC when a new application is submitted
-    await mailer.sendMail({
+    // The candidature is saved: the mail to the JC is sent afterwards, and a failure does not undo it.
+    await mailer.sendMailAfterSave({
+        template: 'candidate_applied.html',
+        ids: { candidate_id: newCandidate.id, position_id: req.position.id, event_id: req.event.id }
+    }, () => mailer.sendMail({
         to: config.application_notification,
         subject: 'A new application was submitted',
         template: 'candidate_applied.html',
@@ -93,7 +100,7 @@ exports.submitYourCandidature = async (req, res) => {
             position: req.position,
             candidate: newCandidate
         }
-    });
+    }));
 
     return res.json({
         success: true,
@@ -134,7 +141,8 @@ exports.editCandidature = async (req, res) => {
         candidate.body_name = body.name;
     }
 
-    await req.candidate.update(candidate);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.candidate.update(candidate, { returning: true });
 
     return res.json({
         success: true,
@@ -150,7 +158,7 @@ exports.updateCandidateImage = async (req, res) => {
         // doing it the other way around would violate the foreign key constraint.
         const oldImageId = req.candidate.image_id;
         await req.candidate.update({ image_id: req.image.id });
-        await Image.destroy({
+        await Image.unscoped().destroy({
             where: { id: oldImageId },
             limit: 1,
             individualHooks: true

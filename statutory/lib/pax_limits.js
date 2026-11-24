@@ -44,6 +44,9 @@ exports.listAllDefaultLimits = async (req, res) => {
 exports.getSingleLimit = async (req, res) => {
     // Fetching bodies list
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.params.event_type);
 
     return res.json({
@@ -61,11 +64,15 @@ exports.updateLimit = async (req, res) => {
     req.body = helpers.whitelistObject(req.body, constants.PAX_LIMIT_FORM_FIELDS);
     req.body.event_type = req.params.event_type;
 
-    let limit = await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } });
+    // Without a valid body ID there is nothing to look up; creating the limit then fails its validation.
+    let limit = helpers.isNumber(req.body.body_id)
+        ? await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } })
+        : null;
     if (!limit) {
         limit = await PaxLimit.create(req.body);
     } else {
-        await limit.update(req.body);
+        // returning: the answer has the values as they were stored, not as they were sent.
+        await limit.update(req.body, { returning: true });
     }
 
     return res.json({
@@ -79,10 +86,11 @@ exports.deleteSingleLimit = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change limits.');
     }
 
-    const bodyId = Number(req.params.body_id);
-    if (Number.isNaN(bodyId)) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
+
+    const bodyId = Number(req.params.body_id);
 
     const affectedRows = await PaxLimit.destroy({ where: { body_id: bodyId, event_type: req.params.event_type } });
     if (affectedRows > 0) {

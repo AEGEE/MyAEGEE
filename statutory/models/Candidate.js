@@ -1,13 +1,12 @@
-const moment = require('moment');
-
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { isWrittenAsDay } = require('../lib/dates');
 
 function isValidDate(value) {
     if (typeof value !== 'string') {
         throw new Error('The value should be a string.');
     }
 
-    if (!moment(value, 'YYYY-MM-DD').isValid()) {
+    if (!isWrittenAsDay(value)) {
         throw new Error('The value should be a date with a YYYY-MM-DD format.');
     }
 }

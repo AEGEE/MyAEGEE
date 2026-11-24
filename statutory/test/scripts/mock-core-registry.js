@@ -359,6 +359,14 @@ exports.mockCoreBody = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    // Core does not know the body.
+    if (options.notFound) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/^\/bodies\/[0-9a-zA-Z].*$/)
+            .reply(404, { success: false, message: 'Body is not found.' });
+    }
+
     if (options.type) {
         const body = regularUser.bodies[0];
         body.type = options.type;
@@ -431,22 +439,25 @@ exports.mockCoreMailer = (options) => {
         .reply(200, { success: true });
 };
 
+// Read on every call: a test can point the configuration at another host.
+const conversionRateApiHost = () => config.conversion_rate_api.host;
+
 exports.mockConversionApi = (options) => {
     if (options.netError) {
-        return nock(constants.CONVERSION_RATE_API.host)
+        return nock(conversionRateApiHost())
             .persist()
             .get(constants.CONVERSION_RATE_API.path)
             .reply(500, 'Some random error.');
     }
 
     if (options.badResponse) {
-        return nock(constants.CONVERSION_RATE_API.host)
+        return nock(conversionRateApiHost())
             .persist()
             .get(constants.CONVERSION_RATE_API.path)
             .reply(500, 'Some error happened.');
     }
 
-    return nock(constants.CONVERSION_RATE_API.host)
+    return nock(conversionRateApiHost())
         .persist()
         .get(constants.CONVERSION_RATE_API.path)
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'conversion-rates-api.json'));
@@ -542,6 +553,22 @@ exports.mockCoreMails = (options) => {
             .persist()
             .get(/\/members_email\?query=[0-9,].*/)
             .reply(500, { success: false, message: 'Some error' });
+    }
+
+    // Core refuses the lookup, as it does when the caller may not read the addresses.
+    if (options.forbidden) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(403, { success: false, message: 'Permission global:mail:member is required, but not present.' });
+    }
+
+    // Core knows none of the users.
+    if (options.empty) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(200, { success: true, data: [] });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)

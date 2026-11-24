@@ -1136,7 +1136,7 @@ describe('Memberslist uploading', () => {
             expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
         });
 
-        test('should return 500 if the currency is not in a list', async () => {
+        test('should return 422 if the currency is not in a list', async () => {
             const event = await generator.createEvent({
                 type: 'agora',
                 application_period_starts: moment().subtract(1, 'week').toDate(),
@@ -1151,13 +1151,36 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'TEST' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
-            expect(res.body).toHaveProperty('message');
+            expect(res.body.errors.currency).toEqual(['The currency is not known.']);
+            expect(await MembersList.count()).toEqual(0);
         });
 
-        test('should return 500 on conversion rate API\'s net error ', async () => {
+        test('should return 422 when changing the currency of a memberslist to one that is not in a list', async () => {
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+            await generator.createMembersList({ body_id: regularUser.bodies[0].id, currency: 'EU' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'TEST' }, event)
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.currency).toEqual(['The currency is not known.']);
+
+            const memberslistFromDb = await MembersList.findOne({ where: { event_id: event.id } });
+            expect(memberslistFromDb.currency).toEqual('EU');
+        });
+
+        test('should return 503 on conversion rate API\'s net error', async () => {
             mock.mockAll({ conversion: { netError: true } });
 
             const event = await generator.createEvent({
@@ -1174,13 +1197,13 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'HU' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
             expect(res.body).toHaveProperty('message');
         });
 
-        test('should return 500 on conversion rate API\'s bad response ', async () => {
+        test('should return 503 on conversion rate API\'s bad response', async () => {
             mock.mockAll({ conversion: { badResponse: true } });
 
             const event = await generator.createEvent({
@@ -1197,10 +1220,48 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'HU' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
             expect(res.body).toHaveProperty('message');
         });
+    });
+
+    test('should store the fee and the user ID of a member as numbers and trim the names', async () => {
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+        const application = await generator.createApplication({ user_id: 7, body_id: regularUser.bodies[0].id }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                currency: 'EU',
+                members: [
+                    { first_name: ' Anna ', last_name: ' Member ', user_id: '7', fee: '0' },
+                    { first_name: 'Bob', last_name: 'Member', fee: '20.5' }
+                ]
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.members).toMatchObject([
+            { first_name: 'Anna', last_name: 'Member', user_id: 7, fee: 0 },
+            { first_name: 'Bob', last_name: 'Member', fee: 20.5 }
+        ]);
+
+        const memberslistFromDb = await MembersList.findOne({ where: { event_id: event.id } });
+        expect(memberslistFromDb.getDataValue('members')).toEqual([
+            { first_name: 'Anna', last_name: 'Member', user_id: 7, fee: 0 },
+            { first_name: 'Bob', last_name: 'Member', fee: 20.5 }
+        ]);
+
+        // The member with that user ID is on the list.
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.is_on_memberslist).toEqual(true);
     });
 });

@@ -9,9 +9,16 @@ const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { Plenary, Attendance, Application } = require('../models');
+const { Sequelize } = require('./sequelize');
+
+// A sheet name holds at most 31 characters and none of \ / ? * [ ] :
+const toSheetName = (name) => name.replace(/[\\/?*[\]:]/g, '-').slice(0, 31).trim();
+
+// The average of the numbers, 0 if there are none.
+const average = (numbers) => (numbers.length > 0 ? numbers.reduce((acc, val) => acc + val, 0) / numbers.length : 0);
 
 exports.findPlenary = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.plenary_id))) {
+    if (!helpers.isNumber(req.params.plenary_id)) {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
@@ -66,7 +73,11 @@ exports.editPlenary = async (req, res) => {
 
     // Only the fields of the plenary form are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.PLENARY_FORM_FIELDS);
-    await req.plenary.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.plenary.update(req.body, {
+        returning: true,
+        fields: helpers.changedFields(req.plenary, req.body, constants.PERIOD_FIELDS)
+    });
 
     return res.json({
         success: true,
@@ -79,7 +90,7 @@ exports.findPlenaryWithAttendances = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot see this plenary.');
     }
 
-    if (Number.isNaN(Number(req.params.plenary_id))) {
+    if (!helpers.isNumber(req.params.plenary_id)) {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
@@ -122,12 +133,23 @@ exports.listPlenariesStats = async (req, res) => {
         include: [Attendance]
     });
 
+    // The statistics are about those who can be marked as attending: delegates and envoys
+    // whose application is accepted and not cancelled.
     const applications = await Application.findAll({
         where: {
             event_id: req.event.id,
-            participant_type: 'delegate'
+            participant_type: { [Sequelize.Op.in]: ['delegate', 'envoy'] },
+            status: 'accepted',
+            cancelled: false
         },
         order: [['id', 'ASC']],
+        attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
+    });
+
+    // Everybody who was marked at a plenary, also if their participant type has changed since.
+    const attendeeIds = plenaries.flatMap((plenary) => plenary.attendances.map((attendance) => attendance.application_id));
+    const attendees = await Application.findAll({
+        where: { event_id: req.event.id, id: { [Sequelize.Op.in]: attendeeIds } },
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
 
@@ -169,9 +191,7 @@ exports.listPlenariesStats = async (req, res) => {
                     });
 
                 // aaaand the average percent
-                const avgPercentPerApplication = plenariesAttendanceInPercents
-                    .reduce((acc, val) => acc + val, 0)
-                    / plenariesAttendanceInPercents.length;
+                const avgPercentPerApplication = average(plenariesAttendanceInPercents);
 
                 return [
                     application.id,
@@ -206,28 +226,25 @@ exports.listPlenariesStats = async (req, res) => {
                 .filter((body) => ['antenna', 'contact antenna'].includes(body.type))
                 .map((body) => {
                     // Getting applications for body.
-                    // TODO: refactor (at some point, this is super ugly).
-                    const applicationsForBody = applications.filter((a) => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
+                    const applicationsForBody = applications.filter((a) => a.body_id === body.id);
 
                     // Calculating avg% of visiting for each local.
                     const applicationsAttendances = applicationsForBody
                         .map((application) => {
                             // Calculate avg% per each plenary per each delegate/envoy,
                             // then calculating avg% for all of them to display the avg% per local.
-                            return plenaries.map((plenary) => {
+                            return average(plenaries.map((plenary) => {
                                 const plenaryAttendancesForBody = plenary.attendances.filter((a) => a.application_id === application.id);
 
                                 // Return array of avg% per each plenary.
                                 return (plenaryAttendancesForBody
                                     .map((attendance) => helpers.calculateTimeForPlenary(attendance, plenary))
                                     .reduce((acc, val) => acc + val, 0) * 100) / plenary.duration;
-                            }).reduce((acc, val) => acc + val, 0) / plenaries.length;
+                            }));
                         });
 
                     // Calculating avg% of the whole body.
-                    // Math.max() is for the cases when there are 0 delegates/envoys
-                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0)
-                        / Math.max(applicationsAttendances.length, 1);
+                    const totalAverageAttendance = average(applicationsAttendances);
 
                     return [
                         body.id,
@@ -244,7 +261,8 @@ exports.listPlenariesStats = async (req, res) => {
 
     const plenariesSheets = plenaries.map((plenary, index) => {
         return {
-            name: `${index + 1} - ${plenary.name}`, // to prevent duplicate sheets when there's 2 plenaries with the same name
+            // The number prevents duplicate sheets when there's 2 plenaries with the same name.
+            name: toSheetName(`${index + 1} - ${plenary.name}`),
             data: [
                 ['Name', plenary.name],
                 ['Starts at', helpers.beautify(plenary.starts)],
@@ -264,7 +282,7 @@ exports.listPlenariesStats = async (req, res) => {
                 // attendances data
                 ...plenary.attendances.map((attendance) => {
                     const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
-                    const application = applications.find((a) => a.id === attendance.application_id);
+                    const application = attendees.find((a) => a.id === attendance.application_id);
 
                     return [
                         application.id,
@@ -312,19 +330,26 @@ exports.markPlenaryAttendance = async (req, res) => {
     }
 
     // First, fetch application.
-    const application = await Application.findOne({
+    const found = await Application.findOne({
         where: whereClause,
-        attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
+        attributes: [...constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS, 'status', 'cancelled']
     });
 
-    if (!application) {
+    if (!found) {
         return errors.makeNotFoundError(res, 'The application is not found.');
     }
 
     // Only delegates and envoys (of CAs) are allowed.
-    if (!['delegate', 'envoy'].includes(application.participant_type)) {
+    if (!['delegate', 'envoy'].includes(found.participant_type)) {
         return errors.makeForbiddenError(res, 'The applicant is not a delegate or envoy.');
     }
+
+    // Who takes part: the application is accepted and not cancelled.
+    if (found.status !== 'accepted' || found.cancelled) {
+        return errors.makeForbiddenError(res, 'The application is not accepted, or it is cancelled.');
+    }
+
+    const application = helpers.whitelistObject(found.toJSON(), constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS);
 
     // Second, there can be 2 cases:
     // 1) there is the attendance for this user where ends = null, if so, updating it (marking user as left)
@@ -342,12 +367,18 @@ exports.markPlenaryAttendance = async (req, res) => {
         // case 1.
         await attendance.update({ ends: new Date() });
     } else {
-        // case 2.
-        attendance = await Attendance.create({
-            starts: new Date(),
-            ends: null,
+        // case 2. A member has at most one open attendance at a plenary (a unique index): when
+        // another mark of the same member opened one at the same moment, nothing is added and
+        // this mark answers with that attendance (or with it closed, when a third mark closed
+        // it in the meantime).
+        const ofThisMember = {
             application_id: application.id,
             plenary_id: req.plenary.id
+        };
+        await Attendance.bulkCreate([{ ...ofThisMember, ends: null, starts: new Date() }], { ignoreDuplicates: true });
+        attendance = await Attendance.findOne({
+            where: ofThisMember,
+            order: [['ends', 'DESC NULLS FIRST'], ['id', 'DESC']]
         });
     }
 

@@ -7,6 +7,7 @@ const { Application } = require('../../models');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { MAIL_FAILURES, spyOnMailFailures, countFailedMails } = require('../scripts/mail-failures');
 
 describe('Applications editing', () => {
     beforeAll(async () => {
@@ -22,6 +23,7 @@ describe('Applications editing', () => {
     });
 
     afterEach(async () => {
+        jest.restoreAllMocks();
         await generator.clearAll();
         mock.cleanAll();
     });
@@ -584,8 +586,11 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 500 and not save application if mailer returns net error', async () => {
-        mock.mockAll({ mailer: { netError: true } });
+    // The edit is saved first. The mails about it are sent afterwards: when one cannot be
+    // sent, the edit stays and the failure is logged with the ids and the template and counted.
+    test.each(MAIL_FAILURES)('should save the edit and answer 200 when %s', async (description, failure) => {
+        mock.mockAll(failure);
+        const log = spyOnMailFailures();
 
         const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ visa_required: true }, event);
@@ -601,65 +606,24 @@ describe('Applications editing', () => {
 
         tk.reset();
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.visa_required).toEqual(false);
 
-        const applicationFromDb = await Application.findByPk(application.id);
-        expect(applicationFromDb.visa_required).not.toEqual(false);
-    });
+        const updated = await Application.findByPk(application.id);
+        expect(updated.visa_required).toEqual(false);
 
-    test('should return 500 and not save application if mailer returns bad response', async () => {
-        mock.mockAll({ mailer: { badResponse: true } });
+        const templates = failure.mailer
+            ? ['statutory_board_edited.html', 'statutory_edited.html']
+            : ['statutory_board_edited.html'];
+        expect(log.entries().map((entry) => entry.template).sort()).toEqual(templates);
+        for (const entry of log.entries()) {
+            expect(entry).toMatchObject({ application_id: application.id, event_id: event.id });
+        }
+        expect(log.text()).not.toContain('@');
 
-        const event = await generator.createEvent({ applications: [] });
-        const application = await generator.createApplication({ visa_required: true }, event);
-
-        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
-
-        const res = await request({
-            path: '/events/' + event.id + '/applications/' + application.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { visa_required: false }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-
-        const applicationFromDb = await Application.findByPk(application.id);
-        expect(applicationFromDb.visa_required).not.toEqual(false);
-    });
-
-    test('should return 500 and not save application if mailer returns unsuccessful response', async () => {
-        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
-
-        const event = await generator.createEvent({ applications: [] });
-        const application = await generator.createApplication({ visa_required: true }, event);
-
-        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
-
-        const res = await request({
-            path: '/events/' + event.id + '/applications/' + application.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { visa_required: false }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-
-        const applicationFromDb = await Application.findByPk(application.id);
-        expect(applicationFromDb.visa_required).not.toEqual(false);
+        for (const template of templates) {
+            expect(await countFailedMails(template)).toBeGreaterThanOrEqual(1);
+        }
     });
 
     test('should skip mailing the board if no board', async () => {

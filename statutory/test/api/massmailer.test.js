@@ -285,7 +285,8 @@ describe('Massmailer', () => {
 
         expect(res.statusCode).toEqual(400);
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toMatch(/event_id/);
+        expect(res.body.message).toMatch(/^Filtering by this field is not supported\./);
+        expect(res.body.message).not.toMatch(/event_id/);
     });
 
     test('should fail if a filter value is not a plain value or a list of them', async () => {
@@ -381,5 +382,35 @@ describe('Massmailer', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
         expect(res.body.meta.sent).toEqual(3);
+    });
+
+    test.each([0, 'all', [], true, null])('should answer 400 for the filter %j and send nothing', async (filter) => {
+        const { mailerStub } = mock.mockAll();
+
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { subject: 'Testing', text: 'Testing mail sending.', filter }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The filter should be an object.' });
+        expect(mailerStub.isDone()).toEqual(false);
+    });
+
+    test.each([0, ['a@example.org'], true, null])('should answer 400 for the reply-to address %j and send nothing', async (replyTo) => {
+        const { mailerStub } = mock.mockAll();
+
+        const res = await request({
+            path: '/events/' + event.id + '/massmailer',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { subject: 'Testing', text: 'Testing mail sending.', reply_to: replyTo }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The reply-to address should be a text.' });
+        expect(mailerStub.isDone()).toEqual(false);
     });
 });

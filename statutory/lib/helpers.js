@@ -33,8 +33,32 @@ exports.isObject = (value) => typeof value === 'object' && value !== null;
 // A helper to check if the value is set.
 exports.isDefined = (value) => typeof value !== 'undefined';
 
+// The fields to check and save on an edit: the ones that were sent, and, when one of them
+// is a date whose rules compare it with other dates, those other dates as well.
+// The fields an edit changes, to save and to check: the forms send the whole record back,
+// and a stored value that today's checks would refuse is not checked when it stays as it is.
+// A changed date comes with the other dates of the record, which it is checked against.
+exports.changedFields = (instance, values, dateFields) => {
+    instance.set(values);
+    const changed = instance.changed() || [];
+    return exports.withRelatedDates(Object.fromEntries(changed.map((field) => [field, true])), dateFields);
+};
+
+exports.withRelatedDates = (fields, dateFields) => {
+    const sent = Object.keys(fields);
+    return sent.some((field) => dateFields.includes(field)) ? [...new Set([...sent, ...dateFields])] : sent;
+};
+
+// A list parameter of the query string: one value comes without brackets and is not a list yet.
+exports.toList = (value) => (typeof value === 'string' ? [value] : value);
+
 // A helper to check if the value is truthy.
 exports.isTruthy = (value) => exports.isDefined(value) && value !== null;
+
+// A change of the board that the participants limits or the orders of a body do not allow.
+// The board routes refuse it with 403.
+class BoardChangeRefused extends Error {}
+exports.BoardChangeRefused = BoardChangeRefused;
 
 // A helper to check if the boardview update for application was okay.
 // It's run within a transaction, so if this will throw an error, the transaction will be rolled back.
@@ -48,7 +72,7 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
     }
 
     // Fetching pax limits for this body for this event.
-    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type);
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type, transaction);
 
     // Second, get from database how many people we have for this event
     // from this body with this pax type.
@@ -69,7 +93,7 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
         // that means setting the pax order for this user was a mistake and
         // this needs to be rolled back.
         if (limit[application.participant_type] < applicationsCount) {
-            throw new Error(`Too much applications \
+            throw new BoardChangeRefused(`Too much applications \
 for body #${application.body_id} for type "${application.participant_type}": \
 expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
         }
@@ -77,8 +101,8 @@ expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
         // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
         // then rolling back as well.
         if (application.participant_order > limit[application.participant_type]) {
-            throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
-got participant type ${application.participant_order}`);
+            throw new BoardChangeRefused(`Expected a participant order from 1 to ${limit[application.participant_type]}, \
+got ${application.participant_order}.`);
         }
     }
 };
@@ -128,6 +152,10 @@ exports.isNumber = (value) => {
     return false;
 };
 
+// A text to search for with LIKE: the text as it is written, matched anywhere. The
+// characters that LIKE reads as wildcards (% and _) and its escape character are escaped.
+exports.toLikePattern = (text) => '%' + String(text).replace(/[\\%_]/g, '\\$&') + '%';
+
 // A helper to whilelist object's properties.
 exports.whitelistObject = (object, allowedFields) => {
     const newObject = {};
@@ -161,7 +189,7 @@ exports.getFilterError = (filter, allowedFields) => {
 
     for (const [field, value] of Object.entries(filter)) {
         if (!Object.prototype.hasOwnProperty.call(allowedFields, field)) {
-            return `Filtering by "${field}" is not supported. The supported filter fields are: ${fieldNames.join(', ')}.`;
+            return `Filtering by this field is not supported. The supported filter fields are: ${fieldNames.join(', ')}.`;
         }
 
         const isBoolean = allowedFields[field] === 'boolean';

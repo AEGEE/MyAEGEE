@@ -41,7 +41,8 @@ const PaxLimit = sequelize.define('PaxLimit', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Body ID should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInt: { msg: 'Body ID should be a number.' },
+            min: { args: [0], msg: 'Body ID cannot be negative.' }
         }
     },
     event_type: {

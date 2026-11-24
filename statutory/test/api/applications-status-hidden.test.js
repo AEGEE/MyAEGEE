@@ -101,4 +101,23 @@ describe('Application status before it is revealed', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.status).toEqual('accepted');
     });
+
+    test('the local organisers get no status before it is revealed, as their list has none', async () => {
+        mock.mockAll({ mainPermissions: { permissions: ['global:manage_incoming:agora'] } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({ user_id: 2, body_id: 1337, status: 'accepted' }, event);
+
+        duringApplicationPeriod(event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data).not.toHaveProperty('status');
+    });
 });

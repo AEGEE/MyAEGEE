@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { Application } = require('../../models');
 
 describe('Applications pax type/board comment', () => {
     let event;
@@ -463,5 +464,29 @@ describe('Applications pax type/board comment', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should say which participant orders the limit of the body allows', async () => {
+        // An antenna sends at most 3 delegates.
+        const agora = await generator.createEvent({ type: 'agora', applications: [] });
+        const other = await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id,
+            participant_type: null,
+            participant_order: null
+        }, agora);
+
+        const res = await request({
+            path: '/events/' + agora.id + '/applications/' + other.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', participant_order: 4 }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Expected a participant order from 1 to 3, got 4.' });
+
+        const applicationFromDb = await Application.findByPk(other.id);
+        expect(applicationFromDb.participant_order).toEqual(null);
     });
 });

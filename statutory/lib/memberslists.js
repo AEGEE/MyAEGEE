@@ -7,6 +7,7 @@ const config = require('../config');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { MembersList, VotesPerAntenna } = require('../models');
+const locks = require('./locks');
 
 exports.checkIfAgora = async (req, res, next) => {
     if (req.event.type !== 'agora') {
@@ -29,7 +30,7 @@ exports.getAllMemberslists = async (req, res) => {
 };
 
 exports.getMemberslist = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
@@ -39,7 +40,7 @@ exports.getMemberslist = async (req, res) => {
 
     const memberslist = await MembersList.findOne({ where: {
         event_id: req.event.id,
-        body_id: parseInt(req.params.body_id, 10)
+        body_id: Number(req.params.body_id)
     } });
 
     if (!memberslist) {
@@ -93,24 +94,24 @@ exports.getMemberslistsWithoutFee = async (req, res) => {
 };
 
 exports.setMemberslistFeePaid = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
     if (!req.permissions.set_memberslists_fee_paid) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see this memberslist.');
+        return errors.makeForbiddenError(res, 'You are not allowed to set the paid fee of this memberslist.');
     }
 
     const memberslist = await MembersList.findOne({ where: {
         event_id: req.event.id,
-        body_id: parseInt(req.params.body_id, 10)
+        body_id: Number(req.params.body_id)
     } });
 
     if (!memberslist) {
         return errors.makeNotFoundError(res, 'Members list is not found.');
     }
 
-    await memberslist.update({ fee_paid: req.body.fee_paid }, { hooks: false });
+    await memberslist.update({ fee_paid: req.body.fee_paid }, { hooks: false, returning: true });
 
     return res.json({
         success: true,
@@ -119,16 +120,19 @@ exports.setMemberslistFeePaid = async (req, res) => {
 };
 
 exports.uploadMembersList = async (req, res) => {
-    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+    if (!helpers.isNumber(req.params.body_id)) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
     // Fetching body. We'll need that for calculating votes per antenna.
     const body = await core.getBody(req, req.params.body_id);
+    if (!body) {
+        return errors.makeNotFoundError(res, 'Body is not found.');
+    }
 
     // Only the currency and the members are saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.MEMBERSLIST_FORM_FIELDS);
-    req.body.body_id = req.params.body_id;
+    req.body.body_id = Number(req.params.body_id);
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
 
@@ -137,12 +141,28 @@ exports.uploadMembersList = async (req, res) => {
         body_id: req.params.body_id
     } });
 
+    // The conversion rate of the currency the list will have, fetched before the transaction
+    // starts: no database connection waits for the rates server. A currency that is no text
+    // is refused by the validation, before the rate would be needed.
+    const fetchRate = (currency) => (typeof currency === 'string' && currency !== ''
+        ? MembersList.fetchConversionRate(currency)
+        : undefined);
+
     if (existingMembersList) {
         if (!req.permissions.edit_memberslist.global && !req.permissions.edit_memberslist[req.params.body_id]) {
             return errors.makeForbiddenError(res, 'You are not allowed to edit memberslist.');
         }
 
-        const result = await existingMembersList.update(req.body);
+        // An edit without a currency keeps the stored one.
+        const conversionRate = await fetchRate(req.body.currency === undefined ? existingMembersList.currency : req.body.currency);
+
+        // The members list and the votes of the body change together, or not at all.
+        // returning: the answer has the values as they were stored, not as they were sent.
+        const result = await locks.transaction(async (t) => {
+            const updated = await existingMembersList.update(req.body, { returning: true, transaction: t, conversionRate });
+            await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
+            return updated;
+        });
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -156,9 +176,6 @@ exports.uploadMembersList = async (req, res) => {
             }
         });
 
-        // Recalculating votes per antenna.
-        await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
-
         return res.json({
             success: true,
             data: result
@@ -169,7 +186,14 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
-    const newMembersList = await MembersList.create(req.body);
+    const conversionRate = await fetchRate(req.body.currency);
+
+    // The members list and the votes of the body change together, or not at all.
+    const newMembersList = await locks.transaction(async (t) => {
+        const created = await MembersList.create(req.body, { transaction: t, conversionRate });
+        await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
+        return created;
+    });
 
     // Sending the mail to a user.
     await mailer.sendMail({
@@ -182,9 +206,6 @@ exports.uploadMembersList = async (req, res) => {
             membership_fee: newMembersList.fee_to_aegee
         }
     });
-
-    // Calculating votes per antenna.
-    await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
     return res.json({
         success: true,

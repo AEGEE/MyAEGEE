@@ -9,10 +9,15 @@ const config = {
             username: process.env.DB_USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'statutory',
+            // Milliseconds a request waits for a lock (Postgres lock_timeout) before it
+            // answers 503. Each waiting request holds a database connection.
+            lock_timeout: 5000
         },
         core: {
             url: 'http://core',
             port: 8084,
+            // Milliseconds to wait for an answer of core.
+            timeout: 10000,
             user: {
                 login: process.env.CORE_LOGIN || 'admin@example.com',
                 password: process.env.CORE_PASSWORD || '5ecr3t5ecr3t'
@@ -20,7 +25,9 @@ const config = {
         },
         mailer: {
             url: 'http://mailer',
-            port: 4000
+            port: 4000,
+            // Milliseconds to wait for the mailer's answer.
+            timeout: 10000
         },
         application_notification: [
             'juridical@aegee.eu'
@@ -28,6 +35,13 @@ const config = {
         memberslist_notification: [
             'treasurer@aegee.eu'
         ],
+        // The monthly currency conversion rates of the European Commission, which
+        // memberslist fees are converted to euro with.
+        conversion_rate_api: {
+            host: process.env.CONVERSION_RATE_API_HOST || 'https://ec.europa.eu',
+            // Milliseconds to wait for the rates.
+            timeout: 10000
+        },
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'
@@ -65,7 +79,8 @@ const config = {
         port: parseInt(process.env.TEST_PORT, 10) || 8085,
         postgres: {
             host: 'localhost',
-            database: 'statutory-testing'
+            database: 'statutory-testing',
+            lock_timeout: 1000
         },
         logger: {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true

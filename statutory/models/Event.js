@@ -344,7 +344,8 @@ const Event = sequelize.define('event', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Body ID should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInt: { msg: 'Body ID should be a number.' },
+            min: { args: [0], msg: 'Body ID cannot be negative.' }
         },
     },
     questions: {
@@ -372,7 +373,7 @@ const Event = sequelize.define('event', {
                     }
                     */
 
-                    if (typeof question !== 'object') {
+                    if (typeof question !== 'object' || question === null || Array.isArray(question)) {
                         throw new Error(`Question ${index + 1}: should be an object.`);
                     }
 
@@ -406,7 +407,7 @@ const Event = sequelize.define('event', {
                         }
                         break;
                     default:
-                        throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
+                        throw new Error(`Question ${index + 1}: the type should be one of these: string, text, number, checkbox, select.`);
                     }
                 }
             }
@@ -444,7 +445,7 @@ const Event = sequelize.define('event', {
     vegetarian: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: false
     },
     image_id: {
         allowNull: true,

@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { MAIL_FAILURES, spyOnMailFailures, countFailedMails } = require('../scripts/mail-failures');
 const { Candidate, Image, Position } = require('../../models');
 
 describe('Candidates submission', () => {
@@ -21,6 +22,7 @@ describe('Candidates submission', () => {
     });
 
     afterEach(async () => {
+        jest.restoreAllMocks();
         await generator.clearAll();
         mock.cleanAll();
     });
@@ -590,5 +592,43 @@ describe('Candidates submission', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('agreed_to_privacy_policy');
+    });
+
+    // The candidature is saved first. The mail about it is sent afterwards: when it cannot
+    // be sent, the candidature stays and the failure is logged with the ids and the template
+    // and counted.
+    test.each(MAIL_FAILURES.filter(([, failure]) => failure.mailer))('should save the candidature and answer 200 when %s', async (description, failure) => {
+        mock.mockAll(failure);
+        const log = spyOnMailFailures();
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: generator.generateCandidate({ body_id: regularUser.bodies[0].id }),
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const candidates = await Candidate.findAll();
+        expect(candidates.length).toEqual(1);
+        expect(res.body.data.id).toEqual(candidates[0].id);
+
+        expect(log.entries()).toEqual([{
+            template: 'candidate_applied.html',
+            candidate_id: candidates[0].id,
+            position_id: position.id,
+            event_id: event.id,
+            err: expect.any(Error)
+        }]);
+        expect(log.text()).not.toContain('@');
+        expect(await countFailedMails('candidate_applied.html')).toBeGreaterThanOrEqual(1);
     });
 });

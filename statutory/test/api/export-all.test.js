@@ -361,7 +361,8 @@ describe('Export all', () => {
 
         const body = JSON.parse(res.body.toString());
         expect(body.success).toEqual(false);
-        expect(body.message).toMatch(/event_id/);
+        expect(body.message).toMatch(/^Filtering by this field is not supported\./);
+        expect(body.message).not.toMatch(/event_id/);
     });
 
     test('should return 400 if a filter value is not a plain value or a list of them', async () => {
@@ -433,5 +434,21 @@ describe('Export all', () => {
         const sheet = data[0].data;
         expect(sheet.length).toEqual(2); // headers + 1 application
         expect(sheet[1][0]).toEqual(application.id);
+    });
+
+    test('should take a single selected field as a list of one', async () => {
+        await generator.createApplication({ user_id: regularUser.id, first_name: 'Anna', answers: [true, 'An answer'] }, event);
+
+        const res = await request({
+            path: '/events/' + event.id + '/applications/export/all?select=first_name',
+            method: 'GET',
+            responseType: 'buffer', // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const [sheet] = xlsx.parse(res.body);
+        expect(sheet.data).toEqual([['First name'], ['Anna']]);
     });
 });

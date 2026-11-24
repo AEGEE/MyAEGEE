@@ -4,7 +4,7 @@ const constants = require('./constants');
 const helpers = require('./helpers');
 
 exports.findQuestion = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.question_id))) {
+    if (!helpers.isNumber(req.params.question_id)) {
         return errors.makeBadRequestError(res, 'The question ID is invalid.');
     }
 
@@ -75,7 +75,8 @@ exports.editQuestion = async (req, res) => {
     // Only the text is saved, anything else in the request is ignored.
     req.body = helpers.whitelistObject(req.body, constants.QUESTION_FORM_FIELDS);
 
-    await req.question.update(req.body);
+    // returning: the answer has the values as they were stored, not as they were sent.
+    await req.question.update(req.body, { returning: true });
 
     return res.json({
         success: true,
@@ -97,6 +98,6 @@ exports.deleteQuestion = async (req, res) => {
 
     return res.json({
         success: true,
-        data: 'Question is deleted.'
+        message: 'Question is deleted.'
     });
 };

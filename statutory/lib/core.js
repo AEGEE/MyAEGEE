@@ -1,6 +1,7 @@
 const { request } = require('./http');
 
 const config = require('../config');
+const logger = require('./logger');
 
 const makeRequest = (options) => {
     const requestOptions = {
@@ -11,7 +12,8 @@ const makeRequest = (options) => {
             'X-Auth-Token': options.token,
             'X-Service': 'statutory'
         },
-        fullResponse: options.fullResponse || false
+        fullResponse: options.fullResponse || false,
+        timeout: config.core.timeout
     };
 
     if (options.body) {
@@ -34,23 +36,40 @@ const getMember = async (req, id) => {
     return user.data;
 };
 
+// Returns the notification emails core gives for these users: [{ id, notification_email }].
+// The list is empty when core refuses the lookup or fails, and lacks the users core does
+// not know, so the callers work with the addresses they get.
 const getMails = async (req, ids) => {
-    const mails = await makeRequest({
+    const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members_email?query=' + ids,
-        token: req.headers['x-auth-token']
+        token: req.headers['x-auth-token'],
+        fullResponse: true
     });
+    const mails = response.body;
+
+    if (!mails || !mails.success || !Array.isArray(mails.data)) {
+        logger.warn({ status: response.statusCode }, 'Could not fetch notification emails');
+        return [];
+    }
 
     return mails.data;
 };
 
+// Returns the body, or null if core does not know it.
 const getBody = async (req, id) => {
-    const body = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/bodies/' + id,
-        token: req.headers['x-auth-token']
+    const response = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + encodeURIComponent(id),
+        token: req.headers['x-auth-token'],
+        fullResponse: true
     });
+    const { body } = response;
 
-    if (typeof body !== 'object') {
+    if (!body || typeof body !== 'object') {
         throw new Error('Malformed response when fetching bodies: ' + body);
+    }
+
+    if (response.statusCode === 404) {
+        return null;
     }
 
     if (!body.success) {
