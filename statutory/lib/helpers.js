@@ -306,10 +306,9 @@ function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some((permission) => permission.combined === combinedPermission);
 }
 
-// Uploading and editing a memberslist after the deadline is the only permission that counts in any scope.
+// Uploading and editing a memberslist after the deadline.
 function hasMemberslistLatePermission(permissionsList, eventType) {
-    return hasPermission(permissionsList, 'global:memberslist_late:' + eventType)
-        || hasPermission(permissionsList, 'local:memberslist_late:' + eventType);
+    return hasPermission(permissionsList, 'global:memberslist_late:' + eventType);
 }
 
 // A helper to get bodies list where I have some permission
