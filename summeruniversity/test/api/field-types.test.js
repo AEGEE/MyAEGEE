@@ -269,7 +269,8 @@ describe('Field types', () => {
             ['a day in the year 0000', '0000-07-01'], ['a timestamp that is in the year 0000 in UTC', '0001-01-01T00:30:00+01:00'],
             ['a boolean', true], ['an array', ['2027-07-01']], ['an object', { date: '2027-07-01' }],
             ['a lone number as text', '1'], ['a number as text', '1798761600000'], ['NaN as text', 'NaN'], ['Infinity as text', 'Infinity'],
-            ['a day that does not exist', '2027-02-30'], ['a text', 'garbage']];
+            ['a day that does not exist', '2027-02-30'], ['a text', 'garbage'],
+            ['a fraction of a millisecond', 1798713000000.5], ['a time with a space before it', '2027-07-01 10:30']];
         const rows = (fields) => fields.flatMap(([field, message]) => values.map(([name, value]) => [field, name, value, message]));
         const EVENT_DATES = [['starts', 'Event start date should be valid.'], ['ends', 'Event end date should be valid.']];
         const PERIOD_DATES = [['application_starts', 'Event application starts date should be valid.'], ['application_ends', 'Event application end date should be valid.']];
@@ -392,7 +393,11 @@ describe('Field types', () => {
         test.each([
             ['a day', '2027-07-01', '2027-07-01T00:00:00.000Z'],
             ['a timestamp in UTC', '2027-07-01T10:30:00.000Z', '2027-07-01T10:30:00.000Z'],
-            ['a timestamp with an offset', '2027-07-01T10:30:00+02:00', '2027-07-01T08:30:00.000Z']
+            ['a timestamp with an offset', '2027-07-01T10:30:00+02:00', '2027-07-01T08:30:00.000Z'],
+            // The ISO 8601 forms the events service takes too.
+            ['a timestamp with an offset without a colon', '2027-07-01T10:30:00+0200', '2027-07-01T08:30:00.000Z'],
+            ['a timestamp with four decimals of a second', '2027-07-01T10:30:00.1234Z', '2027-07-01T10:30:00.123Z'],
+            ['a timestamp without seconds', '2027-07-01T10:30Z', '2027-07-01T10:30:00.000Z']
         ])('a season takes %s', async (_name, value, stored) => {
             const res = await call('PUT', '/seasons/2026', { event_submission_deadline: value });
 
