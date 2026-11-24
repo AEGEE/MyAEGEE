@@ -2,6 +2,7 @@
 import type { ApiMock } from '../api-mock.ts';
 import { ok, okList } from '../factories/base.ts';
 import { body, member, type Member } from '../factories/core.ts';
+import { circleDetail, permissionDetail } from '../factories/core-circles.ts';
 
 export const smoke = (api: ApiMock): void => {
     // POST /my_permissions answers "in which circles may I do X" with a list of circles.
@@ -9,6 +10,8 @@ export const smoke = (api: ApiMock): void => {
     api.json('GET core /bodies/:id', ok(body({ id: 1 })));
     api.json('GET core /members/:id', ok(member({ id: 1 })));
     api.json('GET core /members/unconfirmed', okList([]));
+    api.json('GET core /circles/:id', ok(circleDetail({ id: 1 })));
+    api.json('GET core /permissions/:id', ok(permissionDetail('global:view:member', { id: 1 })));
 };
 
 // Route name -> values for the parameters of its path (the default is '1').
