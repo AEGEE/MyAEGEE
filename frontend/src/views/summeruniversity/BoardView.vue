@@ -64,7 +64,6 @@
           <b-table-column field="status" label="Status" sortable v-slot="props">
             <span v-if="props.row.status === 'accepted'">Accepted</span>
             <span v-if="props.row.status === 'rejected'">Rejected</span>
-            <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
             <span v-if="props.row.status === 'pending'">Pending</span>
           </b-table-column>
 
@@ -110,8 +109,6 @@ export default {
         return 'has-background-success'
       case 'rejected':
         return 'has-background-danger'
-      case 'waiting_list':
-        return 'has-background-warning'
       default:
         return ''
       }

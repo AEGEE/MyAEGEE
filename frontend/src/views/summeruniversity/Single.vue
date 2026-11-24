@@ -569,7 +569,6 @@ export default {
         ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -785,9 +784,6 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
-    isOrganizer () {
-      return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
-    },
     // The city where the SU starts or ends: the edit forms used to store the flag as the text 'true'.
     startLocation () {
       const location = this.event.locations.find((item) => item.start === 'true' || item.start === true)

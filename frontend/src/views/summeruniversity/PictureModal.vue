@@ -10,7 +10,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -39,7 +39,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['event', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['event', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       file: null
@@ -50,10 +50,6 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
-      if (!this.file) {
-        return
-      }
-
       const data = new FormData()
       data.append('head_image', this.file)
 
