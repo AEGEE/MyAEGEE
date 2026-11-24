@@ -63,7 +63,7 @@ describe('Join request creating', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
-    test('should fail if mailer fails', async () => {
+    test('should keep the request if the mail to the board cannot be sent', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
@@ -85,10 +85,10 @@ describe('Join request creating', () => {
             body: { motivation: 'test' }
         });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.user_id).toEqual(user.id);
+        expect(await JoinRequest.count({ where: { user_id: user.id, body_id: body.id } })).toEqual(1);
     });
 
     test('should send mail to body email if no permission', async () => {

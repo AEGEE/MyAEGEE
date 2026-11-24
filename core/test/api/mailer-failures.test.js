@@ -120,20 +120,34 @@ describe('A mailer that fails', () => {
         expect(await BodyMembership.count()).toEqual(0);
     });
 
-    test('requesting to join a body answers 500 and keeps no request', async () => {
-        const user = await generator.createUser();
-        const token = await generator.createAccessToken(user);
-        const body = await generator.createBody();
+    // The mail to the board carries no token: the request is kept and the failure reported.
+    test('requesting to join a body answers 200, keeps the request and reports the failure', async () => {
+        const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+        const errorSpy = jest.spyOn(logger, 'error');
+        try {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const body = await generator.createBody();
 
-        const res = await request({
-            path: '/bodies/' + body.id + '/join-requests',
-            method: 'POST',
-            headers: { 'X-Auth-Token': token.value },
-            body: { motivation: 'Motivation' }
-        });
+            const res = await request({
+                path: '/bodies/' + body.id + '/join-requests',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: { motivation: 'Motivation' }
+            });
 
-        expectServerError(res);
-        expect(await JoinRequest.count()).toEqual(0);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.user_id).toEqual(user.id);
+            expect(await JoinRequest.count()).toEqual(1);
+            expect(notifySpy).toHaveBeenCalledTimes(1);
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ body_id: body.id, err: expect.any(Error) }),
+                'Could not tell the board about a join request'
+            );
+        } finally {
+            notifySpy.mockRestore();
+            errorSpy.mockRestore();
+        }
     });
 
     test('approving a join request answers 500 and leaves it pending', async () => {
