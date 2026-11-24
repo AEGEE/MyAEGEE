@@ -227,12 +227,6 @@ export default {
         this.$root.showSuccess('Parent circle is ' + (circle ? 'set.' : 'unset.'))
       }).catch((err) => {
         this.autoComplete.parentCircle.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
-        }
-
         this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle', err)
       })
     },
@@ -248,12 +242,6 @@ export default {
         this.$root.showSuccess('Permission is added.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not add permission: ' + errors)
-        }
-
         this.$root.showError('Could not add permission', err)
       })
     },
@@ -268,12 +256,6 @@ export default {
         this.$root.showSuccess('Permission is deleted.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not delete permission: ' + errors)
-        }
-
         this.$root.showError('Could not delete permission', err)
       })
     },
@@ -289,13 +271,6 @@ export default {
         this.$root.showSuccess('Child circle is added.')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-        if (err.response && err.response.status === 422) {
-          const errors = err.response.data.errors
-            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-            : err.response.data.message
-          return this.$root.showError('Could not add child circle: ' + errors)
-        }
-
         this.$root.showError('Could not add child circle', err)
       })
     },
@@ -313,14 +288,6 @@ export default {
         this.$root.showSuccess('Child circle is removed')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = err.response.data.errors
-            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-            : err.response.data.message
-          return this.$root.showError('Could not remove child circle: ' + errors)
-        }
-
         this.$root.showError('Could not remove child circle', err)
       })
     },
