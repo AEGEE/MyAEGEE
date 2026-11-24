@@ -140,7 +140,7 @@ const { state } = store
 
 // The login page, with the page to go on to after logging in. vue-router encodes the target,
 // so its own query string and hash survive the round trip.
-const loginFor = (route) => (route.name === 'oms.login' ? { path: '/login' } : { path: '/login', query: { to: route.fullPath } })
+const loginFor = (route) => ({ path: '/login', query: { to: route.fullPath } })
 
 router.beforeEach((to, from, next) => {
   const loggedInRedirectPath = to.query.to || '/dashboard'
@@ -224,8 +224,9 @@ let renewalPromise = null
 // forgotten, so the login page doesn't send them straight back as someone still logged in.
 const endSession = (request) => {
   store.dispatch('logout')
-  // The guard's own request (`X-For-Auth`) decides itself where to go.
-  if (!request.headers['X-For-Auth']) {
+  // The guard's own request (`X-For-Auth`) decides itself where to go, and on the login page
+  // there is nowhere else to go.
+  if (!request.headers['X-For-Auth'] && app.$route.name !== 'oms.login') {
     router.push(loginFor(app.$route))
   }
 }
