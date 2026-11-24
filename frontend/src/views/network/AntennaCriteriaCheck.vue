@@ -177,6 +177,8 @@ export default {
       summerUniversities: [],
       isLoading: false,
       isLoadingAgora: false,
+      // How many times the data was loaded: what an earlier load gets is dropped.
+      loads: 0,
       viewportWidth: window.innerWidth,
       antennaCriteriaMapping: {
         'contact': ['communication'],
@@ -367,70 +369,96 @@ export default {
         this.$root.showError('Could not fetch statutory data', err)
       })
     },
-    fetchData () {
+    // Loads everything for the chosen Agora. What a load gets after another Agora was chosen
+    // is dropped, errors included, so the table only shows the chosen Agora's data.
+    async fetchData () {
+      const load = ++this.loads
+      const isCurrent = () => load === this.loads
+      const context = {
+        agora: this.selectedAgora,
+        bodies: [],
+        netcommies: [],
+        mailComponents: undefined,
+        showError: (message, err) => {
+          if (isCurrent()) this.$root.showError(message, err)
+        }
+      }
       this.isLoading = true
 
-      this.axios.get(this.services['core'] + '/bodies').then(async (bodiesResponse) => {
-        this.bodies = bodiesResponse.data.data
-        this.bodies = this.bodies.filter(x => ['antenna', 'contact antenna', 'contact'].includes(x.type))
-        this.bodies.forEach(body => {
-          this.$set(body, 'antennaCriteria', {})
-          this.$set(body, 'comments', {})
-        })
-
-        const promises = []
-        promises.push(this.fetchNetcomAssignment())
-        promises.push(this.checkBoardCriterium())
-        promises.push(this.checkMembersListAndFeeCriteria())
-        promises.push(this.checkEventsCriterium())
-        // network lets only the holders of the fulfilment mail permission read the mail texts.
-        if (this.can.sendFulfilmentEmails) promises.push(this.fetchMailComponents())
-
-        // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
-        await Promise.allSettled(promises)
-
-        // Do this after the rest, to make sure it also "overrides" automatically computed fields
-        await this.getAntennaCriteriaFulfilment()
-
-        this.isLoading = false
-      }).catch((err) => {
+      try {
+        const bodiesResponse = await this.axios.get(this.services['core'] + '/bodies')
+        context.bodies = bodiesResponse.data.data.filter(x => ['antenna', 'contact antenna', 'contact'].includes(x.type))
+      } catch (err) {
+        if (!isCurrent()) return
         this.isLoading = false
         this.$root.showError('Could not fetch bodies', err)
-      })
-    },
-    async fetchEvents () {
-      await this.axios.get(this.services['events'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((eventResponse) => {
-        this.events = eventResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch event data', err)
-      })
-    },
-    async fetchStatutoryEvents () {
-      await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((statutoryResponse) => {
-        this.statutoryEvents = statutoryResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch statutory event data', err)
-      })
-    },
-    async fetchSummerUniversities () {
-      await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((summerUniversityResponse) => {
-        this.summerUniversities = summerUniversityResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch Summer University data', err)
-      })
-    },
-    async checkEventsCriterium () {
-      const promises = []
-      promises.push(this.fetchEvents())
-      promises.push(this.fetchStatutoryEvents())
-      promises.push(this.fetchSummerUniversities())
+        return
+      }
 
-      await Promise.all(promises)
+      context.bodies.forEach(body => {
+        this.$set(body, 'antennaCriteria', {})
+        this.$set(body, 'comments', {})
+      })
+
+      const promises = []
+      promises.push(this.fetchNetcomAssignment(context))
+      promises.push(this.checkBoardCriterium(context))
+      promises.push(this.checkMembersListAndFeeCriteria(context))
+      promises.push(this.checkEventsCriterium(context))
+      // network lets only the holders of the fulfilment mail permission read the mail texts.
+      if (this.can.sendFulfilmentEmails) promises.push(this.fetchMailComponents(context))
+
+      // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
+      await Promise.allSettled(promises)
+
+      // Do this after the rest, to make sure it also "overrides" automatically computed fields
+      await this.getAntennaCriteriaFulfilment(context)
+
+      if (!isCurrent()) return
+      this.netcommies = context.netcommies
+      if (context.mailComponents) this.mailComponents = context.mailComponents
+      this.bodies = context.bodies
+      this.isLoading = false
+    },
+    async fetchEvents ({ agora, showError }) {
+      try {
+        const eventResponse = await this.axios.get(this.services['events'] + '/recents', { params: { ends: agora.ends } })
+        return eventResponse.data.data
+      } catch (err) {
+        showError('Could not fetch event data', err)
+        return []
+      }
+    },
+    async fetchStatutoryEvents ({ agora, showError }) {
+      try {
+        const statutoryResponse = await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: agora.ends } })
+        return statutoryResponse.data.data
+      } catch (err) {
+        showError('Could not fetch statutory event data', err)
+        return []
+      }
+    },
+    async fetchSummerUniversities ({ agora, showError }) {
+      try {
+        const summerUniversityResponse = await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: agora.ends } })
+        return summerUniversityResponse.data.data
+      } catch (err) {
+        showError('Could not fetch Summer University data', err)
+        return []
+      }
+    },
+    async checkEventsCriterium (context) {
+      const { agora, bodies } = context
+      const [events, statutoryEvents, summerUniversities] = await Promise.all([
+        this.fetchEvents(context),
+        this.fetchStatutoryEvents(context),
+        this.fetchSummerUniversities(context)
+      ])
 
       // TODO: Make this code nicer and compacter ...
-      for (const event of this.events) {
+      for (const event of events) {
         for (const organizer of event.organizing_bodies) {
-          const body = this.bodies.find(x => x.id === organizer.body_id)
+          const body = bodies.find(x => x.id === organizer.body_id)
           if (body) {
             const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
               ? event.latest_event
@@ -440,8 +468,8 @@ export default {
         }
       }
 
-      for (const event of this.statutoryEvents) {
-        const body = this.bodies.find(x => x.id === event.body_id)
+      for (const event of statutoryEvents) {
+        const body = bodies.find(x => x.id === event.body_id)
         if (body) {
           const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
             ? event.latest_event
@@ -450,9 +478,9 @@ export default {
         }
       }
 
-      for (const event of this.summerUniversities) {
+      for (const event of summerUniversities) {
         for (const organizer of event.organizing_bodies) {
-          const body = this.bodies.find(x => x.id === organizer.body_id)
+          const body = bodies.find(x => x.id === organizer.body_id)
           if (body) {
             const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
               ? event.latest_event
@@ -464,39 +492,41 @@ export default {
       // ... until here
 
       // Check if the latest event is at most two years before the Agora
-      for (const body of this.bodies) {
+      for (const body of bodies) {
         if (body.latestEvent) {
-          const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestEvent), 'years', true)
+          const diffInYears = moment(agora.ends).diff(moment(body.latestEvent), 'years', true)
           this.$set(body.antennaCriteria, 'events', diffInYears >= 0 && diffInYears <= 2 ? 'true' : 'false')
           body.latestEvent = moment(body.latestEvent).format('M[/]YYYY')
         }
       }
     },
-    async checkBoardCriterium () {
-      await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: this.selectedAgora.ends } }).then((boardsResponse) => {
+    async checkBoardCriterium ({ agora, bodies, showError }) {
+      try {
+        const boardsResponse = await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: agora.ends } })
         for (const board of boardsResponse.data.data) {
-          const body = this.bodies.find(x => x.id === board.body_id)
+          const body = bodies.find(x => x.id === board.body_id)
           if (body) {
             this.$set(body, 'latestElection', board.latest_election)
           }
         }
 
         // Check if the current board was elected within the past year
-        for (const body of this.bodies) {
+        for (const body of bodies) {
           if (body.latestElection) {
-            const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestElection), 'years', true)
+            const diffInYears = moment(agora.ends).diff(moment(body.latestElection), 'years', true)
             this.$set(body.antennaCriteria, 'boardElection', diffInYears >= 0 && diffInYears <= 1 ? 'true' : 'false')
             body.latestElection = moment(body.latestElection).format('D[/]M[/]YYYY')
           }
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch boards data', err)
-      })
+      } catch (err) {
+        showError('Could not fetch boards data', err)
+      }
     },
-    async checkMembersListAndFeeCriteria () {
-      await this.axios.get(this.services['statutory'] + '/events/' + this.selectedAgora.id + '/memberslists').then((membersListsResponse) => {
+    async checkMembersListAndFeeCriteria ({ agora, bodies, showError }) {
+      try {
+        const membersListsResponse = await this.axios.get(this.services['statutory'] + '/events/' + agora.id + '/memberslists')
         for (const membersList of membersListsResponse.data.data) {
-          const body = this.bodies.find(x => x.id === membersList.body_id)
+          const body = bodies.find(x => x.id === membersList.body_id)
           // A body that isn't listed: deleted, or of another type.
           if (!body) continue
 
@@ -506,15 +536,16 @@ export default {
             this.$set(body.antennaCriteria, 'membershipFee', 'true')
           }
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch members list data', err)
-      })
+      } catch (err) {
+        showError('Could not fetch members list data', err)
+      }
     },
-    async getAntennaCriteriaFulfilment () {
-      await this.axios.get(this.services['network'] + '/antennaCriteria/' + this.selectedAgora.id).then((antennaCriteriaResponse) => {
+    async getAntennaCriteriaFulfilment ({ agora, bodies, showError }) {
+      try {
+        const antennaCriteriaResponse = await this.axios.get(this.services['network'] + '/antennaCriteria/' + agora.id)
         const antennaCriteriaFulfilment = antennaCriteriaResponse.data.data
         for (const criterion of antennaCriteriaFulfilment) {
-          const body = this.bodies.find(x => x.id === criterion.body_id)
+          const body = bodies.find(x => x.id === criterion.body_id)
           if (!body) continue
 
           // Convert string to camelCase
@@ -523,44 +554,47 @@ export default {
           this.$set(body.antennaCriteria, criterionName, criterion.value)
           this.$set(body.comments, criterionName, criterion.comment)
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch manual Antenna Criteria fulfilment', err)
-      })
+      } catch (err) {
+        showError('Could not fetch manual Antenna Criteria fulfilment', err)
+      }
     },
-    async fetchNetcom () {
-      await this.axios.get(this.services['core'] + '/bodies?query=network%20commission').then(async (netcomBodyResponse) => {
-        await this.axios.get(this.services['core'] + '/bodies/' + netcomBodyResponse.data.data[0].id + '/members').then((netcomMembersResponse) => {
-          this.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
-            user_id: netcommie.user_id,
-            first_name: netcommie.user.first_name,
-            email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
-          }))
-          this.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
-        })
-      }).catch((err) => {
-        this.$root.showError('Could not fetch NetCom data', err)
-      })
+    async fetchNetcom (context) {
+      try {
+        const netcomBodyResponse = await this.axios.get(this.services['core'] + '/bodies?query=network%20commission')
+        const netcomMembersResponse = await this.axios.get(this.services['core'] + '/bodies/' + netcomBodyResponse.data.data[0].id + '/members')
+        context.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
+          user_id: netcommie.user_id,
+          first_name: netcommie.user.first_name,
+          email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
+        }))
+        context.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
+      } catch (err) {
+        context.showError('Could not fetch NetCom data', err)
+      }
     },
-    async fetchNetcomAssignment () {
-      await this.axios.get(this.services['network'] + '/netcom').then(async (netcomResponse) => {
+    async fetchNetcomAssignment (context) {
+      try {
+        const netcomResponse = await this.axios.get(this.services['network'] + '/netcom')
         const netcomAssignment = netcomResponse.data.data
-        await this.fetchNetcom()
+        await this.fetchNetcom(context)
 
-        for (const body of this.bodies) {
+        const { bodies, netcommies } = context
+        for (const body of bodies) {
           const assignment = netcomAssignment.find(x => x.body_id === body.id)
-          const netcom = this.netcommies.find(x => x.user_id === assignment?.netcom_id)
-          this.$set(body, 'netcom', assignment !== undefined && netcom !== undefined ? netcom : this.netcommies[this.netcommies.length - 1])
+          const netcom = netcommies.find(x => x.user_id === assignment?.netcom_id)
+          this.$set(body, 'netcom', assignment !== undefined && netcom !== undefined ? netcom : netcommies[netcommies.length - 1])
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch NetCom assignment', err)
-      })
+      } catch (err) {
+        context.showError('Could not fetch NetCom assignment', err)
+      }
     },
-    async fetchMailComponents () {
-      await this.axios.get(this.services['network'] + '/mailComponent/' + this.selectedAgora.id).then((mailResponse) => {
-        this.mailComponents = mailResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch mail components', err)
-      })
+    async fetchMailComponents (context) {
+      try {
+        const mailResponse = await this.axios.get(this.services['network'] + '/mailComponent/' + context.agora.id)
+        context.mailComponents = mailResponse.data.data
+      } catch (err) {
+        context.showError('Could not fetch mail components', err)
+      }
     }
   },
   mounted () {
