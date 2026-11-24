@@ -158,4 +158,46 @@ describe('Sorting and paging of lists', () => {
         expect(res.body.data.map((circle) => circle.name)).toEqual(['Bbb']);
         expect(res.body.meta.count).toEqual(3);
     });
+
+    // Whatever a query string holds, a list answers with a success or a 4xx. Each parameter
+    // a list reads (and one it does not) is tried on its own, next to the list's own query.
+    describe('a query string that a list does not expect', () => {
+        const PARAMETERS = ['limit', 'offset', 'sort', 'direction', 'query', 'all', 'type', 'status', 'body_id', 'holds_permission', 'filter', 'unknown'];
+        const VALUES = [
+            '2147483648', '-1', '0', '1.5', '1e300', '12345678', '0000-01-01', '2001-02-30', 'abc', '',
+            '%00', '\u0000', 'a'.repeat(5000), ['a', 'b'], { a: 'b' }, { action: 'a', object: 'b' }
+        ];
+
+        // The other lists that take a query string.
+        const OTHER_LISTS = [
+            { name: 'GET /my_permissions', path: () => '/my_permissions' },
+            { name: 'GET /members_email', path: () => '/members_email' },
+            { name: 'GET /resources', path: () => '/resources' },
+            { name: 'GET /circles/:circle_id/permissions', path: (row) => `/circles/${row.circle.id}/permissions` },
+            { name: 'GET /bodies/:body_id/my_permissions', path: (row) => `/bodies/${row.body.id}/my_permissions` },
+            { name: 'GET /bodies/:body_id', path: (row) => `/bodies/${row.body.id}` }
+        ];
+
+        test.each([...LISTS, ...OTHER_LISTS])('$name never answers with a server error', async (row) => {
+            const failures = [];
+
+            for (const parameter of PARAMETERS) {
+                for (const value of VALUES) {
+                    const res = await request({
+                        path: row.path(data),
+                        method: row.method || 'GET',
+                        headers: { 'X-Auth-Token': token.value },
+                        query: { ...row.query, [parameter]: value },
+                        body: row.body
+                    });
+
+                    if (res.statusCode >= 500) {
+                        failures.push({ parameter, value: JSON.stringify(value).slice(0, 20), status: res.statusCode, message: res.body.message });
+                    }
+                }
+            }
+
+            expect(failures).toEqual([]);
+        }, 30000);
+    });
 });

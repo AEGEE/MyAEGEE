@@ -74,7 +74,12 @@ describe('Request bodies', () => {
     // Whatever type a field has, the route answers: with a success if it can use the value,
     // with a 4xx if it can't. Each field is tried on its own, in a body that is valid otherwise.
     describe('a field with a value of another type', () => {
-        const VALUES = [5, true, null, '', 'abc', [1], { a: 1 }];
+        const VALUES = [
+            5, true, null, '', 'abc', [1], { a: 1 },
+            2147483648, -1, 0, 1.5, 1e300, 12345678,
+            '0000-01-01', '0000-01-01T00:00:00Z', '2001-02-30',
+            Array(300).fill('a'), ['a'.repeat(300)], ['\u0000']
+        ];
 
         test.each(ROUTES.filter((route) => !route.multipart))('$title never answers with a server error', async (route) => {
             const valid = route.body(data);
