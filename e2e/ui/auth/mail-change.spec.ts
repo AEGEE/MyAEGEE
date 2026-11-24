@@ -36,9 +36,9 @@ test.describe('confirming a change of the login email', () => {
 
         await page.getByRole('button', { name: 'Confirm email change' }).click();
 
-        await expect(page.getByText(message)).toBeVisible();
+        await expect(page.getByRole('status').filter({ hasText: message })).toBeVisible();
         await expect(page).toHaveURL('/mail-change?token=old-address-token');
-        await expect(toast(page, /changed/)).toHaveCount(0);
+        await expect(toast(page, 'Mail was changed successfully.')).toHaveCount(0);
     });
 
     test('an unknown or expired token is called invalid or expired', async ({ page, api }) => {
