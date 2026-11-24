@@ -14,7 +14,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button type="button" class="button is-primary" @click="saveQuestionLine()">Save changes</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="saveQuestionLine()">Save changes</button>
       <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -27,6 +27,7 @@ export default {
   data () {
     return {
       errors: {},
+      isLoading: false,
       // The form works on a copy, so the list shows the line as it is stored until it is saved.
       name: this.questionLine.name
     }
