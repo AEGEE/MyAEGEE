@@ -190,6 +190,30 @@ test.describe('participants of a Summer University', () => {
         await expect(select(page, 'Confirmed?', 'Bea Board')).toBeEnabled();
     });
 
+    test('a confirmation while another change is saved asks to try again', async ({ page, api }) => {
+        showParticipants(api, [bea()]);
+        api.on('PUT summeruniversity /single/:id/applications/:application_id/confirmed', { status: 503, json: { success: false, message: BUSY } });
+
+        await page.goto('/summeruniversity/mountains/participants');
+        await select(page, 'Confirmed?', 'Bea Board').selectOption('Yes');
+
+        await expect(toast(page, `Could not update participant fee info: ${BUSY}`)).toBeVisible();
+        await expect(select(page, 'Confirmed?', 'Bea Board')).toHaveValue('false');
+        await expect(select(page, 'Attended?', 'Bea Board')).toBeDisabled();
+    });
+
+    test('an attendance change while another change is saved asks to try again', async ({ page, api }) => {
+        showParticipants(api, [bea({ confirmed: true })]);
+        api.on('PUT summeruniversity /single/:id/applications/:application_id/attended', { status: 503, json: { success: false, message: BUSY } });
+
+        await page.goto('/summeruniversity/mountains/participants');
+        await select(page, 'Attended?', 'Bea Board').selectOption('Yes');
+
+        await expect(toast(page, `Could not update participant attendance info: ${BUSY}`)).toBeVisible();
+        await expect(select(page, 'Attended?', 'Bea Board')).toHaveValue('false');
+        await expect(select(page, 'Confirmed?', 'Bea Board')).toBeEnabled();
+    });
+
     test('"View" shows the application, with "Unknown" and "-" for what is missing', async ({ page, api }) => {
         showParticipants(api, [alex()]);
         api.json('GET summeruniversity /single/:id/applications/:application_id', ok(suApplication({
