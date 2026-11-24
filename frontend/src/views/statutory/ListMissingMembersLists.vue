@@ -9,7 +9,7 @@
             :data="memberslists"
             :loading="isLoading">
             <b-table-column field="name" label="Body name" sortable v-slot="props">
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
             </b-table-column>
