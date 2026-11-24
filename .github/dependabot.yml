@@ -139,6 +139,7 @@ updates:
   # GitHub Actions across all modules
   - package-ecosystem: "github-actions"
     directories:
+      - "/"
       - "/core"
       - "/discounts"
       - "/events"
