@@ -88,12 +88,12 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     confirmPassword () {
-      this.errors = {}
-
       if (this.password !== this.password_confirmation) {
-        this.errors.password = ['Password do not match.']
+        this.errors = { password: ['Passwords do not match.'] }
         return
       }
+
+      this.errors = {}
 
       this.axios
         .post(this.services['core'] + '/password_confirm', {
