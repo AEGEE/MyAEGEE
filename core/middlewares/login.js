@@ -195,6 +195,23 @@ module.exports.renew = async (req, res) => {
     });
 };
 
+// Once the member has the link of a new reset, the earlier ones end. Only the earlier ones: of
+// two resets that are mailed at the same time, the later one stays. A failure here leaves the
+// earlier resets working next to the new one, which was mailed and stays.
+const endEarlierPasswordResets = async (userId, resetId) => {
+    try {
+        await sequelize.transaction(async (t) => {
+            await helpers.lockMailChanges(userId, t);
+            await PasswordReset.destroy({
+                where: { user_id: userId, id: { [Sequelize.Op.lt]: resetId } },
+                transaction: t
+            });
+        });
+    } catch (err) {
+        reportMailFailure(err, 'Could not end the earlier password resets', { user_id: userId, password_reset_id: resetId });
+    }
+};
+
 // Creates a password reset for the account with this login email, if there is one, and mails it.
 const sendPasswordReset = async (email) => {
     let user;
@@ -224,7 +241,8 @@ const sendPasswordReset = async (email) => {
                 return null;
             }
 
-            await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+            // The earlier resets stay until this one is mailed: if its mail fails, the link
+            // the member got before still works.
             const created = await PasswordReset.createForUser(user.id, t);
 
             return { id: created.id, value: created.value, email: current.email };
@@ -251,11 +269,15 @@ const sendPasswordReset = async (email) => {
         });
         metrics.passwordResetFailures.inc();
 
-        // A reset whose mail did not go out is of no use.
+        // A reset whose mail did not go out is of no use. Only this one ends.
         if (reset) {
             await PasswordReset.destroy({ where: { id: reset.id } });
         }
+
+        return;
     }
+
+    await endEarlierPasswordResets(user.id, reset.id);
 };
 
 const pendingPasswordResets = new Set();
