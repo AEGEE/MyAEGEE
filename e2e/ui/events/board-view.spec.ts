@@ -219,5 +219,21 @@ test.describe('events board view', () => {
             // Counted at once: a retried assertion would wait until a toast is gone.
             expect(await toast(page, /Error fetching board view data/).count()).toBe(0);
         });
+
+        test('finding the member\'s boards failing after the member left the page shows no error', async ({ page, api, layout }) => {
+            api.on('POST core /my_permissions', { status: 500, json: { success: false, message: 'connect ECONNREFUSED 127.0.0.1:5432' }, delayMs: 1500 });
+            api.fallback(mockEverything);
+            const late = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().endsWith('/api/core/my_permissions'));
+            await page.goto('/events/boardview');
+            await expect(page.getByRole('heading', { name: 'Board view', level: 1 })).toBeVisible();
+
+            await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+            await expect(page).toHaveURL('/calendar');
+
+            await late;
+            await settle(page);
+            // Counted at once: a retried assertion would wait until a toast is gone.
+            expect(await toast(page, /Could not fetch your board bodies/).count()).toBe(0);
+        });
     });
 });
