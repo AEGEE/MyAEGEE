@@ -170,16 +170,22 @@ export default {
     ...mapGetters(['services'])
   },
   mounted () {
-    this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
-      this.bodies = response.data.data
-
-      if (this.$route.params.body_id) {
-        this.campaign.autojoin_body_id = parseInt(this.$route.params.body_id, 10)
-        this.campaign.autojoin_body = this.bodies.find(body => body.id === this.campaign.autojoin_body_id)
-      }
-    }).catch((err) => {
-      this.$root.showError('Could not fetch bodies list', err)
-    })
+    if (!this.$route.params.body_id) {
+      // The bodies to pick the autojoin body from.
+      this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => {
+        this.bodies = response.data.data
+      }).catch((err) => {
+        this.$root.showError('Could not fetch bodies list', err)
+      })
+    } else if (!this.$route.params.id) {
+      // A new campaign of a body joins that body; an existing one comes with its body.
+      this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.body_id).then((response) => {
+        this.campaign.autojoin_body_id = response.data.data.id
+        this.campaign.autojoin_body = response.data.data
+      }).catch((err) => {
+        this.$root.showError('Could not fetch body', err)
+      })
+    }
 
     if (!this.$route.params.id) {
       return // if creating new campaign
