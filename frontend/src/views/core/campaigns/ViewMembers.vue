@@ -33,7 +33,7 @@
         </b-table-column>
 
         <b-table-column field="first_name" label="User" sortable v-slot="props">
-          <router-link :to="{ name: 'oms.members.view', params: { id: props.row.url || props.row.id } }">
+          <router-link :to="{ name: 'oms.members.view', params: { id: props.row.id } }">
             {{ props.row.first_name }} {{ props.row.last_name }}
           </router-link>
         </b-table-column>

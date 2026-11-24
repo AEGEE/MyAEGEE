@@ -93,8 +93,6 @@ export default {
         autojoin_body: null,
         active: null
       },
-      query: '',
-      limit: 50,
       isLoading: false,
       permissions: [],
       can: {
@@ -174,10 +172,7 @@ export default {
         ? { name: 'oms.bodies.campaigns', params: { id: this.$route.params.body_id } }
         : { name: 'oms.campaigns.list' }
     },
-    ...mapGetters({
-      loginUser: 'user',
-      services: 'services'
-    })
+    ...mapGetters(['services'])
   }
 }
 </script>
