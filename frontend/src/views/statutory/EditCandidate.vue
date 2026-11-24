@@ -183,7 +183,7 @@
         </div>
 
         <div class="field">
-          <label class="label" for="statutory-candidate-related-experience">Task-related experience</label>
+          <label class="label" for="statutory-candidate-related-experience">Position-related experience</label>
           <div class="control">
             <textarea id="statutory-candidate-related-experience" class="textarea" required v-model="candidate.related_experience" />
           </div>
