@@ -87,12 +87,17 @@ export default {
           return byBody
         }
 
-        const byParticipantType = (a.participant_type || 'unset').localeCompare(b.participant_type || 'unset')
+        // Who has no place yet comes after everyone with one, as statutory sorts them.
+        if (!a.participant_type || !b.participant_type) {
+          return Number(!a.participant_type) - Number(!b.participant_type)
+        }
+
+        const byParticipantType = a.participant_type.localeCompare(b.participant_type)
         if (byParticipantType !== 0) {
           return byParticipantType
         }
 
-        return (a.participant_order || 0) - (b.participant_order || 0)
+        return a.participant_order - b.participant_order
       })
       this.isLoading = false
     }).catch((err) => {
