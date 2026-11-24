@@ -96,7 +96,7 @@ const fetchApplicationUser = async (user, adminToken) => {
 // Returns { body_id, body_name }, or null if core does not know or does not show the body.
 const fetchBody = async (body, token) => {
     // return invalid body as it is, will catch it in Event validation.
-    if (typeof body !== 'object' || typeof body.body_id !== 'number') {
+    if (typeof body !== 'object' || body === null || typeof body.body_id !== 'number') {
         return body;
     }
 
