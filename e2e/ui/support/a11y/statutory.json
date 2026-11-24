@@ -15,9 +15,6 @@
   "oms.statutory.applications.stats": {
     "color-contrast": 1
   },
-  "oms.statutory.applications.view": {
-    "link-in-text-block": 2
-  },
   "oms.statutory.boardview": {
     "aria-required-attr": 1,
     "color-contrast": 2
