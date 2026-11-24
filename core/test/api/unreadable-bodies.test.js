@@ -63,4 +63,12 @@ describe('Request bodies that the server cannot read', () => {
         expect(res.statusCode).toEqual(400);
         expect(res.body).toEqual(WITH_NUL);
     });
+
+    test.each(operations)('$title answers 400 for the character U+0000 at the bottom of a body nested 10,000 levels deep', async (operation) => {
+        const depth = 10000;
+        const res = await send(operation, { rawBody: '{"a":'.repeat(depth) + '"a\\u0000b"' + '}'.repeat(depth) });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual(WITH_NUL);
+    });
 });
