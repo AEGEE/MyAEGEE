@@ -320,3 +320,115 @@ export const statutoryEvent = (overrides: Partial<StatutoryEvent> = {}, options:
 
 // The three event types, for specs that go through each of them.
 export const STATUTORY_EVENT_TYPES = EVENT_TYPES;
+
+// Builders that make no entity of their own (see scripts/check-factory-contracts.ts).
+export const NOT_ENTITIES = ['statutoryTasks'];
+
+// What PUT /api/statutory/events/:id/status answers (lib/events.js, changeEventStatus).
+export const statusChangeResult = (): { success: true; message: string } => ({
+    success: true,
+    message: 'Event status was changed successfully.'
+});
+
+// What POST /api/statutory/events/:id/massmailer answers (lib/massmailer.js): how many mails
+// went out.
+export const massmailerResult = (sent = 3): { success: true; message: string; meta: { sent: number } } => ({
+    success: true,
+    message: 'Mail was sent successfully.',
+    meta: { sent }
+});
+
+// The participants limit of a body for an event type (models/PaxLimit.js). `null` is
+// unlimited. `default` says whether the limit is the generated one (not stored).
+export interface PaxLimit {
+    id: number | null;
+    body_id: number;
+    event_type: StatutoryEventType;
+    delegate: number | null;
+    envoy: number | null;
+    observer: number | null;
+    visitor: number | null;
+    default: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
+// A limit stored for one body, as GET /api/statutory/limits/:type lists it for a body with a
+// custom limit, and as POST /api/statutory/limits/:type answers.
+export const paxLimit = (overrides: Partial<PaxLimit> = {}): PaxLimit => ({
+    id: 7,
+    body_id: 1,
+    event_type: 'agora',
+    delegate: 3,
+    envoy: 0,
+    observer: 0,
+    visitor: 30,
+    default: false,
+    created_at: iso(-40),
+    updated_at: iso(-40),
+    ...overrides
+});
+
+type LimitValues = Pick<PaxLimit, 'delegate' | 'envoy' | 'observer' | 'visitor'>;
+
+// The default limits per body type (models/PaxLimit.js, defaultLimitForAgora and
+// defaultLimitForEPM). An EPM and an SPM have the same ones.
+const DEFAULT_LIMITS: Record<'agora' | 'other', Record<string, LimitValues>> = {
+    agora: {
+        partner: { delegate: 0, envoy: 3, visitor: 0, observer: 0 },
+        antenna: { delegate: 3, envoy: 0, visitor: 30, observer: 0 },
+        'contact antenna': { delegate: 0, envoy: 3, visitor: 30, observer: 0 },
+        contact: { delegate: 0, envoy: 0, visitor: 0, observer: null },
+        'working group': { delegate: 0, envoy: 3, visitor: 30, observer: 0 },
+        committee: { delegate: 0, envoy: 3, visitor: 30, observer: 0 },
+        project: { delegate: 0, envoy: 3, visitor: 30, observer: 0 },
+        'interest group': { delegate: 0, envoy: 0, visitor: 30, observer: 0 }
+    },
+    other: {
+        antenna: { delegate: 0, envoy: null, visitor: 0, observer: 0 },
+        'contact antenna': { delegate: 0, envoy: null, visitor: 0, observer: 0 },
+        contact: { delegate: 0, envoy: null, visitor: 0, observer: 0 }
+    }
+};
+const NO_ONE: LimitValues = { delegate: 0, envoy: 0, visitor: 0, observer: 0 };
+
+// The generated limit of a body that has no custom one, as GET /api/statutory/limits/:type and
+// /limits/:type/defaults list it: `defaultPaxLimit({ id: 1, type: 'antenna' })`.
+export const defaultPaxLimit = (body: { id: number; type: string } = { id: 1, type: 'antenna' }, eventType: StatutoryEventType = 'agora'): PaxLimit => ({
+    id: null,
+    body_id: body.id,
+    event_type: eventType,
+    ...(DEFAULT_LIMITS[eventType === 'agora' ? 'agora' : 'other'][body.type] ?? NO_ONE),
+    default: true
+});
+
+// A job the statutory service has scheduled (lib/cron.js): opening or closing the applications
+// of a position, or closing the attendance of a plenary. `params.id` is the position or plenary.
+export interface StatutoryTask {
+    id: number;
+    key: 'CLOSE_ATTENDANCES' | 'OPEN_POSITION_APPLICATIONS' | 'CLOSE_POSITION_APPLICATIONS';
+    description: string;
+    time: string;
+    params: { id: number };
+}
+
+const TASK_DESCRIPTIONS: Record<StatutoryTask['key'], string> = {
+    CLOSE_ATTENDANCES: 'Closing plenary attendance',
+    OPEN_POSITION_APPLICATIONS: 'Open position application deadline',
+    CLOSE_POSITION_APPLICATIONS: 'Close position application deadline'
+};
+
+export const statutoryTask = (overrides: Partial<StatutoryTask> = {}): StatutoryTask => {
+    const key = overrides.key ?? 'CLOSE_POSITION_APPLICATIONS';
+    return {
+        id: 1,
+        key,
+        description: TASK_DESCRIPTIONS[key],
+        time: iso(10),
+        params: { id: 5 },
+        ...overrides
+    };
+};
+
+// What GET /api/statutory/tasks answers: the jobs keyed by their id.
+export const statutoryTasks = (...tasks: StatutoryTask[]): Record<string, StatutoryTask> => Object.fromEntries(tasks.map((task) => [String(task.id), task]));
