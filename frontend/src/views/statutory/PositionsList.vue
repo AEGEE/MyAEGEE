@@ -363,6 +363,7 @@ export default {
 
         for (const candidate of this.myCandidates) {
           const position = this.positions.find(pos => pos.id === candidate.position_id)
+          /* istanbul ignore else -- since statutory #2405 these are only the candidatures for the listed positions of this event; before it, also those of other events */
           if (position) {
             this.$set(position, 'myCandidate', candidate)
           }
