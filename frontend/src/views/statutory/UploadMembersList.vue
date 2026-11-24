@@ -410,11 +410,15 @@ export default {
             if (this.isLocal(body.data.data)) {
               this.boardBodies.push(body.data.data)
             }
+          }).catch((err) => {
+            this.$root.showError('Could not fetch bodies', err)
           })
         }
       } else {
         this.axios.get(this.services['core'] + '/bodies/').then((response) => {
           this.boardBodies = response.data.data.filter(body => this.isLocal(body))
+        }).catch((err) => {
+          this.$root.showError('Could not fetch bodies', err)
         })
       }
     }).catch((err) => {
