@@ -209,6 +209,8 @@ describe('A mailer that fails', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.user_id).toEqual(user.id);
         expect(await JoinRequest.count()).toEqual(1);
+
+        await joinRequests.waitForBoardMails();
         expectReported('Could not tell the board about a join request', {
             template: 'member_joined.html',
             user_id: user.id,

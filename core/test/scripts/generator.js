@@ -20,6 +20,7 @@ const {
     ResourceCategory,
     ResourceLink
 } = require('../../models');
+const joinRequests = require('../../middlewares/join-requests');
 
 const notSet = (field) => typeof field === 'undefined';
 
@@ -245,6 +246,9 @@ exports.createResourceLink = (category, options = {}) => {
 };
 
 exports.clearAll = async () => {
+    // The mails to the boards about join requests are sent after the answer, and look up
+    // members: they are done before anything is deleted.
+    await joinRequests.waitForBoardMails();
     await ResourceLink.destroy({ where: {}, truncate: { cascade: true } });
     await ResourceCategory.destroy({ where: {}, truncate: { cascade: true } });
     await MailChange.destroy({ where: {}, truncate: { cascade: true } });

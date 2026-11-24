@@ -1,8 +1,16 @@
 const { startServer, stopServer } = require('../../lib/server');
-const { request } = require('../scripts/helpers');
+const { request: sendRequest } = require('../scripts/helpers');
+const joinRequests = require('../../middlewares/join-requests');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const { JoinRequest } = require('../../models');
+
+// The mail to the board is sent after the answer. The tests look at the mail, so they wait for it.
+const request = async (options) => {
+    const res = await sendRequest(options);
+    await joinRequests.waitForBoardMails();
+    return res;
+};
 
 describe('Join request creating', () => {
     beforeAll(async () => {
