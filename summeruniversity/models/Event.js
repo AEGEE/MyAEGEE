@@ -130,7 +130,7 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application starts date should be set.' },
+                isDate: { msg: 'Event application starts date should be valid.' },
                 beforeApplicationEnd(val) {
                     if (!val || !this.application_ends) {
                         return;
@@ -146,7 +146,7 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application end date should be set.' },
+                isDate: { msg: 'Event application end date should be valid.' },
                 laterThanApplicationStart(val) {
                     if (!val || !this.application_starts) {
                         return;
