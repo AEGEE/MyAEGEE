@@ -34,7 +34,7 @@
                   required
                   class="input"
                   type="text"
-                  pattern="^(?![0-9._-]*$)[a-zA-Z0-9._-]+$"
+                  pattern="^(?![0-9._\-]*$)[a-zA-Z0-9._\-]+$"
                   title="Username can only contain English letters, numbers, dots and dashes and should contain at least 1 letter."
                   placeholder="You will be able to login with it."
                 />
