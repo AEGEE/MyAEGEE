@@ -56,6 +56,7 @@
             <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
           </select>
         </div>
+        <p class="help is-danger" v-if="errors.body_id">{{ errors.body_id.join(', ') }}</p>
       </div>
 
       <div class="field">
@@ -69,7 +70,7 @@
             :config="dayConfig"
             v-model="dates.start_term" />
         </div>
-        <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+        <p class="help is-danger" v-if="errors.start_term">{{ errors.start_term.join(', ') }}</p>
       </div>
 
       <b-message type="is-info">
@@ -80,6 +81,7 @@
       <b-field label="Position term ends" label-for="statutory-position-end-term">
         <b-input id="statutory-position-end-term" type="text" required v-model="form.end_term" />
       </b-field>
+      <p class="help is-danger" v-if="errors.end_term">{{ errors.end_term.join(', ') }}</p>
 
       <b-message type="is-success" v-if="dateFound">
         A date has been detected
@@ -90,6 +92,7 @@
         <div class="control">
           <b-input id="statutory-position-requirements" type="textarea" v-model="form.requirements" />
         </div>
+        <p class="help is-danger" v-if="errors.requirements">{{ errors.requirements.join(', ') }}</p>
         <p class="label">Preview <MarkdownTooltip /></p>
         <div class="content">
           <span v-html="$options.filters.markdown(form.requirements)" />
