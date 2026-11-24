@@ -135,7 +135,8 @@ export default {
     }).catch((err) => {
       this.isLoading = false
       if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
+        // The event is there once it is loaded, so the plenary isn't.
+        this.$root.showError(this.event.id ? 'Plenary is not found' : 'Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
       }
