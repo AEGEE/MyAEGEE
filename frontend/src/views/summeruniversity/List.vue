@@ -12,24 +12,24 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="su-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+              <input id="su-search" class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
             </div>
             <div class="control">
-              <a class="button is-info" @click="toggleDisplayPast()">
+              <button type="button" class="button is-info" @click="toggleDisplayPast()">
                 {{ this.displayPast ? 'Display only future events' : 'Display past events' }}
-              </a>
+              </button>
             </div>
           </div>
         </div>
 
         <div class="field">
-          <label class="label">Select year</label>
+          <label class="label" for="su-season">Select year</label>
           <div class="control">
             <div class="select">
-              <select v-model="season" @change="refetch()">
+              <select id="su-season" v-model="season" @change="refetch()">
                 <option v-for="item in seasons" :key="item.year" :value="item.year">{{ item.year }}</option>
               </select>
             </div>
@@ -66,18 +66,18 @@
 
         <!-- Classic list view -->
         <template v-if="displayListView">
-          <div class="card" v-for="event in events" v-bind:key="event.id">
+          <article class="card" v-for="event in events" v-bind:key="event.id" :aria-labelledby="'su-title-' + event.id">
             <div class="card-content">
               <div class="media">
                 <div class="media-left">
                   <figure class="image is-96x96">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" :alt="event.name">
                   </figure>
                 </div>
                 <div class="media-content">
                   <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }">
-                    <p class="title is-4">{{ event.name }}</p>
+                    <p class="title is-4" :id="'su-title-' + event.id">{{ event.name }}</p>
                   </router-link>
                 </div>
               </div>
@@ -120,24 +120,24 @@
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </template>
 
         <!-- Card grid view -->
         <template v-else>
           <div class="columns is-multiline">
             <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
-              <div class="card">
+              <article class="card" :aria-labelledby="'su-title-' + event.id">
                 <div class="card-content">
                   <figure class="image is-square">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" style="object-fit: contain; margin: auto">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" :alt="event.name" style="object-fit: contain; margin: auto">
                   </figure>
 
                   <div class="content" style="padding-top: 1rem">
                     <ul style="list-style-type: none; padding: 0; margin: 0">
                       <li>
-                        <span class="title is-4">{{ event.name }}</span>
+                        <span class="title is-4" :id="'su-title-' + event.id">{{ event.name }}</span>
                       </li>
                       <li style="display: flex; justify-content: space-between; gap: 0.5rem; align-items: flex-start; flex-wrap: wrap;">
                         <span class="tag" :style="{ 'background-color': colors[event.type], color: '#FFFFFF' }">
@@ -195,7 +195,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
         </template>
