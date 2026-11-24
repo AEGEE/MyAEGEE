@@ -58,6 +58,24 @@ test.describe('unconfirmed members', () => {
         await expect(page.getByRole('button', { name: 'Current page, Page 1.' })).toBeVisible();
     });
 
+    test('shows only the answer to the last search while typing', async ({ page, api }) => {
+        api.on('GET core /members/unconfirmed', ({ query }) => {
+            // The answer to the first letter would come last; the page cancels it.
+            if (query.get('query') === 'a') return { json: okList([memberListItem({ first_name: 'Anna', last_name: 'Early' })]), delayMs: 1000 };
+            if (query.get('query') === 'ad') return { json: okList([memberListItem({ first_name: 'Ada', last_name: 'Lovelace' })]) };
+            return { json: okList([memberListItem({ first_name: 'Alex', last_name: 'Member' })]) };
+        });
+        await page.goto('/members/unconfirmed');
+        await expect(tableRows(table(page))).toHaveText([/Alex Member/]);
+
+        // The search for "a" is still on its way when the one for "ad" starts.
+        await search(page).pressSequentially('ad', { delay: 300 });
+
+        await expect(tableRows(table(page))).toHaveText([/Ada Lovelace/]);
+        await expect.poll(() => api.callsTo('GET core /members/unconfirmed').map((call) => call.query.get('query'))).toEqual([null, 'a', 'ad']);
+        await expect(toast(page, /Could not fetch/)).toHaveCount(0);
+    });
+
     test('sorts on the server, from the first page', async ({ page, api, layout }) => {
         api.json('GET core /members/unconfirmed', okList([unconfirmed()], 45));
         await page.goto('/members/unconfirmed');

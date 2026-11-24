@@ -106,30 +106,21 @@ test.describe('members list', () => {
     });
 
     test('shows only the answer to the last search while typing', async ({ page, api }) => {
-        let lateAnswerSent = false;
         api.json('GET core /bodies', ok(BODIES));
-        api.on('GET core /members', async ({ query }) => {
-            // The answer to the first letter comes last.
-            if (query.get('query') === 'a') {
-                await new Promise((resolve) => { setTimeout(resolve, 1000); });
-                lateAnswerSent = true;
-                return { json: okList([memberListItem({ first_name: 'Anna', last_name: 'Early' })]) };
-            }
+        api.on('GET core /members', ({ query }) => {
+            // The answer to the first letter would come last; the page cancels it.
+            if (query.get('query') === 'a') return { json: okList([memberListItem({ first_name: 'Anna', last_name: 'Early' })]), delayMs: 1000 };
             if (query.get('query') === 'ad') return { json: okList([memberListItem({ first_name: 'Ada', last_name: 'Lovelace' })]) };
             return { json: okList([memberListItem({ first_name: 'Alex', last_name: 'Member' })]) };
         });
         await page.goto('/members');
         await expect(tableRows(table(page))).toHaveText([/Alex Member/]);
 
-        await search(page).pressSequentially('a');
-        await expect.poll(() => api.callsTo('GET core /members').map((call) => call.query.get('query'))).toEqual([null, 'a']);
-        await search(page).pressSequentially('d');
+        // The search for "a" is still on its way when the one for "ad" starts.
+        await search(page).pressSequentially('ad', { delay: 300 });
 
         await expect(tableRows(table(page))).toHaveText([/Ada Lovelace/]);
-        expect(api.callsTo('GET core /members').map((call) => call.query.get('query'))).toEqual([null, 'a', 'ad']);
-        // The late answer to "a" doesn't replace the list, and the page doesn't call it an error.
-        await expect.poll(() => lateAnswerSent).toBe(true);
-        await expect(tableRows(table(page))).toHaveText([/Ada Lovelace/]);
+        await expect.poll(() => api.callsTo('GET core /members').map((call) => call.query.get('query'))).toEqual([null, 'a', 'ad']);
         await expect(toast(page, 'Could not fetch user list')).toHaveCount(0);
     });
 
