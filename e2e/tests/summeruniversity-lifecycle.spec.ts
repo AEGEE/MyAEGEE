@@ -9,7 +9,7 @@
 // an SU any season, and applying doesn't depend on the active season.
 import type { Envelope, Mail, Member } from '../support/api.ts';
 import { test, expect, loginInBrowser } from '../support/api.ts';
-import { asSu, createSuEvent, type SuApplication, type SuEvent, type SuSeason } from '../support/summeruniversity-data.ts';
+import { asSu, createSuEvent, freshYear, type SuApplication, type SuEvent, type SuSeason } from '../support/summeruniversity-data.ts';
 
 const DAY = 24 * 60 * 60 * 1000;
 const TIMEZONE = 'Europe/Brussels';
@@ -22,9 +22,6 @@ const minuteFromNow = (days: number): Date => new Date(Math.floor((Date.now() + 
 
 // A date as a datetime-local input holds it in Brussels: 2027-03-01T10:00.
 const local = (date: Date): string => date.toLocaleString('sv-SE', { timeZone: TIMEZONE }).slice(0, 16).replace(' ', 'T');
-
-// A year no other test has used: seasons are unique by year and can't be deleted.
-const freshYear = (): number => 3000 + Math.floor(Math.random() * 6000);
 
 const recipients = (mail: Mail): string[] => [mail.to ?? []].flat().sort();
 
@@ -56,7 +53,7 @@ const VISA = {
 test.describe('a Summer University from its season to an application', () => {
     test('SUCT creates a season and approves, publishes and opens an SU of it; a member applies and everybody gets their mail', async ({ api, page }) => {
         // SUCT creates the season on the Seasons pages.
-        const year = freshYear();
+        const year = await freshYear(api);
         const seasonName = `E2E lifecycle season ${year}`;
         const deadline = minuteFromNow(-30);
         const periodStarts = minuteFromNow(-1);

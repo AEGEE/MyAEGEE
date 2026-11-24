@@ -41,13 +41,24 @@ export async function asSu<T>(api: Api, username: Username, method: string, path
     return res.body.data;
 }
 
-// A year no other test has used: seasons are unique by year and can't be deleted.
-const freshYear = (): number => 3000 + Math.floor(Math.random() * 6000);
+// A year that no season has yet, also on databases that are not reset between runs: seasons
+// are unique by year and can't be deleted, so a random year would meet one of an earlier run
+// sooner or later. Four digits, as the statistics only take those. The real-stack suite runs in
+// one worker, so no other test takes the year in between.
+export const freshYear = async (api: Api): Promise<number> => {
+    const taken = new Set((await asSu<SuSeason[]>(api, 'suct', 'GET', '/seasons')).map((season) => season.year));
+    expect(taken.size, 'every four-digit year from 3000 has a season: reset the databases').toBeLessThan(7000);
+    let year: number;
+    do {
+        year = 3000 + Math.floor(Math.random() * 7000);
+    } while (taken.has(year));
+    return year;
+};
 
 // A new season, created by SUCT. It is not active: making it active would change the season
 // every other test's SUs and applications belong to.
-export const createSeason = (api: Api, overrides: Record<string, unknown> = {}): Promise<SuSeason> => {
-    const year = freshYear();
+export const createSeason = async (api: Api, overrides: Record<string, unknown> = {}): Promise<SuSeason> => {
+    const year = await freshYear(api);
     return asSu<SuSeason>(api, 'suct', 'POST', '/seasons', {
         year,
         name: `E2E season ${year}`,
