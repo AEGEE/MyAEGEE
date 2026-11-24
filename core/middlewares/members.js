@@ -325,6 +325,14 @@ exports.setUserActive = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update_active:user is required, but not present.');
     }
 
+    if (req.currentUser.superadmin && !req.user.superadmin) {
+        return errors.makeForbiddenError(res, 'Only a superadmin can suspend or activate a superadmin.');
+    }
+
+    if (req.currentUser.id === req.user.id) {
+        return errors.makeValidationError(res, 'You cannot suspend yourself.');
+    }
+
     await req.currentUser.update({ active: req.body.active });
     return res.json({
         success: true,
