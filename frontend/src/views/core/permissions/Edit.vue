@@ -55,7 +55,7 @@
 
         <div class="field has-addons">
           <div class="control">
-            <input class="input" type="text" aria-label="New filter" v-model="tmpFilter" />
+            <input class="input" type="text" aria-label="New filter" v-model="tmpFilter" @keydown.enter.prevent="addFilter()" />
           </div>
           <div class="control">
             <button type="button" class="button is-primary" :disabled="tmpFilter.length === 0" @click="addFilter()">Add filter</button>
@@ -130,6 +130,8 @@ export default {
       this.permission.filters.splice(index, 1)
     },
     addFilter () {
+      if (!this.tmpFilter) return
+
       this.permission.filters.push(this.tmpFilter)
       this.tmpFilter = ''
     }
