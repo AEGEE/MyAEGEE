@@ -5,9 +5,10 @@
         <div class="box">
           <form v-on:submit.prevent="confirmPassword">
             <div class="field">
-              <label class="label">Token</label>
+              <label class="label" for="password-confirm-token">Token</label>
               <div class="control">
                 <input
+                  id="password-confirm-token"
                   v-model="token"
                   required
                   class="input"
