@@ -56,15 +56,28 @@ function isDecimal(msg) {
     };
 }
 
-// The date input the API takes: a Date (set by the server), or a string with a date and
-// optionally a time, as the frontend sends it ('2026-12-01 15:00') or as ISO 8601.
+// The date input the API takes: a Date (set by the server), a string with a date and
+// optionally a time, as the frontend sends it ('2026-12-01 15:00') or as ISO 8601, or a number
+// of milliseconds (the edit form sends the application end of an event without applications as
+// one). The date lies within the years 0001 to 9999: Postgres has no year 0, and refused one
+// with a 500. The summeruniversity service has the same range.
 const DATE_FORMATS = [moment.ISO_8601, 'YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss'];
+const MILLISECONDS_MIN = Date.parse('0001-01-01T00:00:00.000Z');
+const MILLISECONDS_MAX = Date.parse('9999-12-31T23:59:59.999Z');
+const isInDateRange = (time) => time >= MILLISECONDS_MIN && time <= MILLISECONDS_MAX;
 function isDateInput(value) {
     if (value instanceof Date) {
-        return !Number.isNaN(value.getTime());
+        return isInDateRange(value.getTime());
     }
 
-    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value) && moment(value, DATE_FORMATS, true).isValid();
+    if (typeof value === 'number') {
+        return isInDateRange(value);
+    }
+
+    return typeof value === 'string'
+        && /^\d{4}-\d{2}-\d{2}/.test(value)
+        && moment(value, DATE_FORMATS, true).isValid()
+        && isInDateRange(new Date(value).getTime());
 }
 
 // A setter for a DATE column. Without it, Sequelize turns any input into a date with

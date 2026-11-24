@@ -1048,8 +1048,8 @@ components:
           additionalProperties: false
       additionalProperties: false
     DateInput:
-      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), or an ISO 8601 timestamp.
-      type: string
+      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999.
+      type: [string, number]
     EventInputFields:
       type: object
       properties:
