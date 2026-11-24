@@ -567,43 +567,46 @@
           </MglMap>
         </div>
 
-        <table class="table is-narrowed is-stripped is-fullwidth">
-          <thead>
-            <tr>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Name <span class="has-text-danger">*</span></th>
-              <th>Description</th>
-              <th>Starting city</th>
-              <th>Ending city</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(marker, index) in event.locations" v-bind:key="index">
-              <td>{{ marker.position.lat }}</td>
-              <td>{{ marker.position.lng }}</td>
-              <td>
-                <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
-              </td>
-              <td>
-                <textarea class="textarea" v-model="marker.description" :aria-label="'Location ' + (index + 1) + ' description'" />
-              </td>
-              <td>
-                <input type="radio" name="start_loc" v-model="marker.start" :value="true" @change="chooseCity(index, 'start')" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
-              </td>
-              <td>
-                <input type="radio" name="end_loc" v-model="marker.end" :value="true" @change="chooseCity(index, 'end')" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
-              </td>
-              <td>
-                <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
-              </td>
-            </tr>
-            <tr v-if="event.locations.length === 0">
-              <td colspan="5">No locations added.</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Seven columns are wider than a phone: the table scrolls, not the page. -->
+        <div class="table-container">
+          <table class="table is-narrowed is-stripped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Name <span class="has-text-danger">*</span></th>
+                <th>Description</th>
+                <th>Starting city</th>
+                <th>Ending city</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+                <td>{{ marker.position.lat }}</td>
+                <td>{{ marker.position.lng }}</td>
+                <td>
+                  <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
+                </td>
+                <td>
+                  <textarea class="textarea" v-model="marker.description" :aria-label="'Location ' + (index + 1) + ' description'" />
+                </td>
+                <td>
+                  <input type="radio" name="start_loc" v-model="marker.start" :value="true" @change="chooseCity(index, 'start')" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
+                </td>
+                <td>
+                  <input type="radio" name="end_loc" v-model="marker.end" :value="true" @change="chooseCity(index, 'end')" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
+                </td>
+                <td>
+                  <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                </td>
+              </tr>
+              <tr v-if="event.locations.length === 0">
+                <td colspan="5">No locations added.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="field">
           <div class="control">
