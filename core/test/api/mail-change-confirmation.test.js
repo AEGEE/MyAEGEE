@@ -91,6 +91,21 @@ describe('Mail change confirm', () => {
         expect(userFromDb.email).toEqual(mailChange.new_email);
     });
 
+    test('should refuse the token of a suspended member', async () => {
+        const user = await generator.createUser({ active: false });
+        const mailChange = await generator.createMailChange(user);
+
+        const res = await confirm(mailChange.value);
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Token is invalid.');
+        expect(mails).toEqual([]);
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.email).toEqual(user.email);
+    });
+
     test('should work if the token is found with email with spaces/tabs', async () => {
         const user = await generator.createUser();
         const mailChange = await generator.createMailChange(user);

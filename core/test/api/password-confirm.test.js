@@ -121,6 +121,24 @@ describe('Password confirm', () => {
         expect(await userFromDb.checkPassword('testtest')).toEqual(true);
     });
 
+    test('should refuse the token of a suspended member', async () => {
+        const user = await generator.createUser({ active: false });
+        const reset = await generator.createPasswordReset(user);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'testtest' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Token is invalid.');
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('testtest')).toEqual(false);
+    });
+
     test('should work if the user is found with email with spaces/tabs', async () => {
         const user = await generator.createUser();
         const reset = await generator.createPasswordReset(user);
