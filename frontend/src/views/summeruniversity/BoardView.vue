@@ -99,7 +99,10 @@ export default {
       boardBodies: [],
       boardBodiesLoaded: false,
       isLoading: false,
-      selectedBody: null
+      selectedBody: null,
+      // Counts the requests of the page, so an answer for a body chosen before, or one that
+      // arrives after the member left, is dropped.
+      request: 0
     }
   },
   methods: {
@@ -133,13 +136,19 @@ export default {
         return
       }
 
+      const bodyId = this.selectedBody
+      const request = ++this.request
       this.isLoading = true
-      this.axios.get(this.services['summeruniversity'] + '/boardview/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['summeruniversity'] + '/boardview/' + bodyId).then((response) => {
+        if (request !== this.request) return
+
         this.applications = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request !== this.request) return
 
+        this.applications = []
+        this.isLoading = false
         this.$root.showError('Error fetching board view data', err)
       })
     },
@@ -168,11 +177,14 @@ export default {
     loginUser: 'user'
   }),
   watch: {
+    // The applications of the body chosen before are not shown (nor saved) under another one.
     selectedBody () {
+      this.applications = []
       this.fetchData()
     }
   },
   mounted () {
+    const request = this.request
     this.axios.post(this.services['core'] + '/my_permissions/', {
       action: 'approve_members',
       object: 'summeruniversity'
@@ -190,8 +202,14 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
     }).catch((err) => {
+      if (request !== this.request) return
+
       this.$root.showError('Could not fetch your board bodies', err)
     })
+  },
+  beforeDestroy () {
+    // An answer that arrives after the member left the page is not shown.
+    this.request++
   }
 }
 </script>
