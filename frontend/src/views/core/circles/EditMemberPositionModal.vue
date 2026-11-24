@@ -8,7 +8,7 @@
       <div class="field">
         <label class="label" for="circle-membership-position">Position</label>
         <div class="control">
-          <input id="circle-membership-position" class="input" type="text" v-model="membership.position" />
+          <input id="circle-membership-position" class="input" type="text" v-model="position" />
         </div>
         <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
       </div>
@@ -33,6 +33,8 @@ export default {
   props: ['circle', 'membership', 'services', 'showSuccess', 'showError'],
   data () {
     return {
+      // A copy: the list shows the position of the membership, which changes only once it is saved.
+      position: this.membership.position,
       userErrors: {}
     }
   },
@@ -41,8 +43,9 @@ export default {
       this.isLoading = true
 
       this.axios.put(this.services['core'] + '/circles/' + this.circle.id + '/members/' + this.membership.id, {
-        position: this.membership.position
+        position: this.position
       }).then(() => {
+        this.membership.position = this.position
         this.showSuccess('Membership is updated')
         this.isLoading = false
         this.$parent.close()
