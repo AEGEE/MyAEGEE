@@ -2,11 +2,12 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
+        <h1 class="title">Export candidates</h1>
         <div>
           <div class="field is-fullwidth">
-            <label class="label">Filter on candidate status</label>
+            <label class="label" for="statutory-candidates-export-status">Filter on candidate status</label>
             <div class="select">
-              <select v-model="filter.status">
+              <select id="statutory-candidates-export-status" v-model="filter.status">
                 <option :value="null">Everybody</option>
                 <option value="accepted">Accepted candidates</option>
                 <option value="rejected">Rejected candidates</option>
@@ -25,7 +26,7 @@
 
             <div class="field">
               <div class="control">
-                <button @click="exportAll()" class="button is-primary">
+                <button type="button" @click="exportAll()" class="button is-primary">
                   Export candidates data
                 </button>
               </div>
