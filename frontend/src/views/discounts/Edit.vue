@@ -1,47 +1,50 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <form @submit.prevent="saveIntegration()">
+      <h1 class="title" id="integration-edit-title">{{ $route.params.id ? 'Edit integration' : 'Create integration' }}</h1>
+
+      <form @submit.prevent="saveIntegration()" aria-labelledby="integration-edit-title" :aria-busy="isLoading">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="integration-name">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="integration.name" />
+            <input class="input" id="integration-name" type="text" required v-model="integration.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="integration-description">Description</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="integration.description" />
+            <textarea class="textarea" id="integration-description" placeholder="e.g. Hello world" required v-model="integration.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
-          <div class="content">
+          <p class="label"><span id="integration-preview">Preview</span> <MarkdownTooltip /></p>
+          <div class="content" role="region" aria-labelledby="integration-preview">
             <span v-html="$options.filters.markdown(integration.description)" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Сode</label>
+          <label class="label" for="integration-code">Code</label>
           <div class="control">
-            <input class="input" type="text" required v-model="integration.code" />
+            <input class="input" id="integration-code" type="text" required v-model="integration.code" />
           </div>
           <p class="help is-danger" v-if="errors.code">{{ errors.code.join(', ')}}</p>
         </div>
 
+        <label class="label" for="integration-quota-amount">Codes per period</label>
         <div class="field has-addons">
           <p class="control">
-            <input class="input" type="number" v-model.number="integration.quota_amount" placeholder="Amount of codes claimable">
+            <input class="input" id="integration-quota-amount" type="number" v-model.number="integration.quota_amount" placeholder="Amount of codes claimable">
           </p>
           <p class="control">
-            <a class="button is-statuc">
+            <span class="button is-static" aria-hidden="true">
               /
-            </a>
+            </span>
           </p>
           <p class="control">
             <span class="select">
-              <select v-model="integration.quota_period">
+              <select v-model="integration.quota_period" aria-label="Period">
                 <option value="day">Day</option>
                 <option value="month">Month</option>
                 <option value="year">Year</option>
