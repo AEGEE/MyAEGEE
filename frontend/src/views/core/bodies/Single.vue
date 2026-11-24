@@ -535,13 +535,14 @@ export default {
       .then((response) => {
         this.body = response.data.data
 
-        // Get current board(s) for this body
+        // Get current board(s) for this body. They are shown once their members have names.
+        let boards = []
         this.fetchCurrentBoards()
           .then((boardResponse) => {
-            this.boards = boardResponse.data.data
+            boards = boardResponse.data.data
 
             // The members are only needed to put names to the board.
-            if (!this.boards.length) return { data: { data: [] } }
+            if (!boards.length) return { data: { data: [] } }
             return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
           })
           .then((memberResponse) => {
@@ -552,7 +553,7 @@ export default {
             }
 
             // Match members of a body to members on the board
-            for (const board of this.boards) {
+            for (const board of boards) {
               this.$set(
                 board,
                 'president_user',
@@ -584,6 +585,9 @@ export default {
               return
             }
             this.$root.showError('Some error happened', err)
+          })
+          .finally(() => {
+            this.boards = boards
           })
 
         if (this.loginUser) {
