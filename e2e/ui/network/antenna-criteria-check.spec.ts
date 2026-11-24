@@ -23,7 +23,7 @@ const ALPHA = body({ id: 11, name: 'AEGEE-Alpha', type: 'antenna' });
 const BETA = body({ id: 12, name: 'AEGEE-Beta', type: 'contact antenna' });
 const GAMMA = body({ id: 13, name: 'AEGEE-Gamma', type: 'contact' });
 const WORKING_GROUP = body({ id: 14, name: 'IT Working Group', type: 'working group' });
-const NORA = netcommie(41, 'Nora', { gsuite: 'nora@aegee.eu' });
+const NORA = netcommie(41, 'Nora', { gsuite: 'nora@example.org' });
 const OTTO = netcommie(42, 'Otto');
 
 const criterion = (bodyId: number, name: AntennaCriterionName, value: 'true' | 'false' | 'exception' | null, agoraId = SPRING_AGORA.id) => antennaCriterion({

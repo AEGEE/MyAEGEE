@@ -9,6 +9,10 @@ import { openAccountMenu, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { ACCESS_TOKEN, REFRESH_TOKEN, test, expect } from '../support/test.ts';
 
+// What events, statutory and summeruniversity answer a request that needs a login when the
+// access token is no longer valid. (Their public lists answer it as a visitor instead.)
+const NOT_AUTHENTICATED = { success: false, message: 'Error fetching data: user is not authenticated.' };
+
 const renewed = tokens({ access_token: 'renewed-access-token', refresh_token: 'renewed-refresh-token' });
 const withRenewedToken = (headers: Record<string, string>): boolean => headers['x-auth-token'] === renewed.access_token;
 
@@ -36,6 +40,9 @@ test.describe('tokens and their renewal', () => {
         });
 
         test('an answer 401 on the login page stays there, without a page to go back to', async ({ page, api }) => {
+            // Made up: core answers a failed login with 403, never with 401. The app still treats
+            // a 401 on the login page specially (there is no page to go back to), and only an
+            // invented answer reaches that case.
             api.on('POST core /login', { status: 401, json: UNAUTHORIZED });
             await page.goto('/login');
 
@@ -50,10 +57,10 @@ test.describe('tokens and their renewal', () => {
     });
 
     test('a renewal that brings a new refresh token keeps it', async ({ page, api }) => {
-        api.on('GET events /', ({ headers }) => (withRenewedToken(headers) ? { json: ok([]) } : { status: 401, json: UNAUTHORIZED }));
+        api.on('GET events /mine/participating', ({ headers }) => (withRenewedToken(headers) ? { json: ok([]) } : { status: 401, json: NOT_AUTHENTICATED }));
         api.json('POST core /renew', renewed);
 
-        await page.goto('/events');
+        await page.goto('/events/participating');
 
         await expect(page.getByText('No events found.')).toBeVisible();
         expect(api.callsTo('POST core /renew').map((call) => call.body)).toEqual([{ refresh_token: REFRESH_TOKEN }]);
@@ -61,31 +68,32 @@ test.describe('tokens and their renewal', () => {
     });
 
     test('several requests refused at once renew the session once, and are all repeated', async ({ page, api }) => {
-        // The calendar asks three services at the same time.
+        // The dashboard asks three services for the member's applications at the same time.
         api.fallback(mockEverything);
-        for (const route of ['GET events /', 'GET summeruniversity /', 'GET statutory /'] as const) {
-            api.on(route, ({ headers }) => (withRenewedToken(headers) ? { json: ok([]) } : { status: 401, json: UNAUTHORIZED }));
+        const routes = ['GET events /mine/participating', 'GET summeruniversity /mine/participating', 'GET statutory /mine'] as const;
+        for (const route of routes) {
+            api.on(route, ({ headers }) => (withRenewedToken(headers) ? { json: ok([]) } : { status: 401, json: NOT_AUTHENTICATED }));
         }
         api.on('POST core /renew', { json: renewed, delayMs: 300 });
 
-        await page.goto('/calendar');
+        await page.goto('/dashboard');
 
-        await expect.poll(() => ['GET events /', 'GET summeruniversity /', 'GET statutory /']
+        await expect.poll(() => routes
             .filter((route) => api.callsTo(route).some((call) => withRenewedToken(call.headers) && call.status === 200))).toHaveLength(3);
         expect(api.callsTo('POST core /renew')).toHaveLength(1);
-        await expect(toast(page, /Could not load/)).toHaveCount(0);
+        await expect(toast(page, /Could not/)).toHaveCount(0);
     });
 
     test('a request refused again after renewing shows the page\'s error and renews no more', async ({ page, api }) => {
-        api.on('GET events /', { status: 401, json: UNAUTHORIZED });
+        api.on('GET events /mine/participating', { status: 401, json: NOT_AUTHENTICATED });
         api.json('POST core /renew', renewed);
 
-        await page.goto('/events');
+        await page.goto('/events/participating');
 
-        await expect(toast(page, 'Could not fetch events list: You are not authorized.')).toBeVisible();
-        expect(api.callsTo('GET events /').map((call) => call.headers['x-auth-token'])).toEqual([ACCESS_TOKEN, renewed.access_token]);
+        await expect(toast(page, 'Could not fetch events list: Error fetching data: user is not authenticated.')).toBeVisible();
+        expect(api.callsTo('GET events /mine/participating').map((call) => call.headers['x-auth-token'])).toEqual([ACCESS_TOKEN, renewed.access_token]);
         expect(api.callsTo('POST core /renew')).toHaveLength(1);
-        await expect(page).toHaveURL('/events');
+        await expect(page).toHaveURL('/events/participating');
     });
 
     test('a server error is no reason to renew the session', async ({ page, api }) => {
@@ -109,12 +117,12 @@ test.describe('tokens and their renewal', () => {
     });
 
     test('a session that can\'t be renewed any more ends on the login page and forgets the member', async ({ page, api, layout }) => {
-        api.on('GET events /', { status: 401, json: UNAUTHORIZED });
+        api.on('GET events /mine/participating', { status: 401, json: NOT_AUTHENTICATED });
         api.on('POST core /renew', { status: 403, json: forbidden('Token is not found.') });
 
-        await page.goto('/events');
+        await page.goto('/events/participating');
 
-        await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/events');
+        await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/events/participating');
         await expect(page.getByLabel('Email / Username')).toBeVisible();
         expect(await page.evaluate(storedTokens)).toEqual([null, null]);
         expect(api.callsTo('POST core /renew')).toHaveLength(1);
@@ -125,12 +133,12 @@ test.describe('tokens and their renewal', () => {
     test.describe('with only an access token', () => {
         test.use({ tokens: 'access' });
 
-        test('a request refused on a public page ends on the login page', async ({ page, api }) => {
-            api.on('GET events /', { status: 401, json: UNAUTHORIZED });
+        test('a request refused without a refresh token ends on the login page', async ({ page, api }) => {
+            api.on('GET events /mine/participating', { status: 401, json: NOT_AUTHENTICATED });
 
-            await page.goto('/events');
+            await page.goto('/events/participating');
 
-            await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/events');
+            await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/events/participating');
             await expect(page.getByLabel('Email / Username')).toBeVisible();
             expect(api.callsTo('POST core /renew')).toEqual([]);
         });

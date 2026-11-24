@@ -75,7 +75,7 @@ test.describe('signup page', () => {
         await page.goto('/signup/antenna-fair');
 
         await fillRequired(page);
-        await page.getByLabel('Phone').fill('+32 2 123 45 67');
+        await page.getByLabel('Phone').fill('+32 000 00 00 00');
         await page.getByLabel('Birthday').fill('1999-05-01');
         await page.getByLabel('Birthday').blur();
         await page.getByLabel('Gender', { exact: true }).selectOption('Female');
@@ -96,7 +96,7 @@ test.describe('signup page', () => {
             email: 'nora@example.org',
             date_of_birth: '1999-05-01',
             gender: 'Female',
-            phone: '+32 2 123 45 67',
+            phone: '+32 000 00 00 00',
             address: 'Rue de la Loi 1, Brussels',
             about_me: 'Likes travelling'
         });
@@ -200,18 +200,16 @@ test.describe('signup page', () => {
 
     test('core\'s validation errors appear under their fields, with a toast', async ({ page, api }) => {
         api.json('GET core /campaigns/:id', ok(DEFAULT_CAMPAIGN));
+        // What core's model sends for these fields (a taken username or email is the database's
+        // own message).
         const errors = {
-            username: ['Username is already taken.'],
-            email: ['Email is already taken.'],
-            password: ['Password is too weak.'],
-            password_copy: ['Passwords should match.'],
-            first_name: ['First name is too long.'],
-            last_name: ['Last name is too long.'],
-            phone: ['Phone is invalid.'],
+            username: ['username must be unique'],
+            email: ['email must be unique'],
+            password: ['Password should be at least 8 characters long.'],
+            first_name: ['First name should only contain letters, spaces and dashes.'],
+            last_name: ['Last name should only contain letters, spaces and dashes.'],
             date_of_birth: ['Birthday should be in the past.'],
-            gender: ['Gender is too long.'],
-            address: ['Address is too long.'],
-            about_me: ['About me is too long.']
+            gender: ['Gender should be set.']
         };
         api.on('POST core /signup/:id', { status: 422, json: validationError(errors) });
         await page.goto('/signup/default');

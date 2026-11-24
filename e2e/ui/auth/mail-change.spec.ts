@@ -60,12 +60,12 @@ test.describe('confirming a change of the login email', () => {
     });
 
     test('another error shows core\'s message', async ({ page, api }) => {
-        api.on('POST core /confirm-email-change', { status: 500, json: { success: false, message: 'Could not send the mail.' } });
+        api.on('POST core /confirm-email-change', { status: 503, json: { success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' } });
         await page.goto('/mail-change?token=change-token');
 
         await page.getByRole('button', { name: 'Confirm email change' }).click();
 
-        await expect(toast(page, 'Could not change email: Could not send the mail.')).toBeVisible();
+        await expect(toast(page, 'Could not change email: The mail could not be sent, so nothing was saved. Please try again later.')).toBeVisible();
     });
 
     test.describe('anonymously', () => {

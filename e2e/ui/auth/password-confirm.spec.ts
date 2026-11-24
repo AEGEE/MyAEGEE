@@ -4,7 +4,7 @@ import { notFound, validationError } from '../support/factories/base.ts';
 import { toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
-const CHANGED = { success: true, message: 'The password was changed.' };
+const CHANGED = { success: true, message: 'Password was changed successfully.' };
 
 test.describe('setting a new password', () => {
     test.use({ session: 'anonymous' });
@@ -34,10 +34,10 @@ test.describe('setting a new password', () => {
         expect(api.callsTo('POST core /password_confirm')).toEqual([]);
     });
 
-    test('core\'s validation errors appear under the token and the password', async ({ page, api }) => {
+    test('core\'s validation error appears under the password', async ({ page, api }) => {
         api.on('POST core /password_confirm', {
             status: 422,
-            json: validationError({ token: ['Token should be set.'], password: ['Password should be at least 8 characters long.'] })
+            json: validationError({ password: ['Password should be at least 8 characters long.'] })
         });
         await page.goto('/password_confirm?token=reset-token');
 
@@ -46,7 +46,6 @@ test.describe('setting a new password', () => {
         await page.getByRole('button', { name: 'Confirm password' }).click();
 
         await expect(toast(page, 'Some of the password data is invalid.')).toBeVisible();
-        await expect(page.getByText('Token should be set.')).toBeVisible();
         await expect(page.getByText('Password should be at least 8 characters long.')).toBeVisible();
         await expect(page).toHaveURL('/password_confirm?token=reset-token');
     });
@@ -88,6 +87,8 @@ test.describe('setting a new password', () => {
         expect(await password.evaluate((input: HTMLInputElement) => input.validity.tooShort)).toBe(true);
         expect(api.callsTo('POST core /password_confirm')).toEqual([]);
 
+        // Both eye buttons are named "Show password" (the shared component names them alike, on
+        // the member's own password page too): the first one belongs to the first field.
         await page.getByRole('button', { name: 'Show password' }).first().click();
         await expect(password).toHaveAttribute('type', 'text');
         await expect(confirmation).toHaveAttribute('type', 'password');

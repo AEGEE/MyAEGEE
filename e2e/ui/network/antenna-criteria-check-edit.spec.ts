@@ -11,7 +11,7 @@ import { cellOf, dialog, tableRows, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const ALPHA = body({ id: 11, name: 'AEGEE-Alpha', type: 'antenna' });
-const NORA = netcommie(41, 'Nora', { gsuite: 'nora@aegee.eu' });
+const NORA = netcommie(41, 'Nora', { gsuite: 'nora@example.org' });
 const OTTO = netcommie(42, 'Otto');
 
 const criterion = (name: AntennaCriterionName, value: 'true' | 'false' | 'exception' | null, comment: string | null = null) => antennaCriterion({
@@ -168,13 +168,13 @@ test.describe('editing the criteria of a Local', () => {
 
     test('a failing save shows the error, keeps the dialog open and leaves the row as it was', async ({ page, api }) => {
         mockAcCheck(api, DEFAULT);
-        api.on('PUT network /antennaCriteria', { status: 403, json: { success: false, message: 'You are not allowed to set this criterion.' } });
+        api.on('PUT network /antennaCriteria', { status: 403, json: { success: false, message: 'You are not allowed to set fulfilment of the criterion communication.' } });
 
         const form = await openEditor(page);
         await form.getByLabel('Communication (C)').selectOption('No');
         await form.getByRole('button', { name: 'Save' }).click();
 
-        await expect(toast(page, 'Error saving Antenna Criteria: You are not allowed to set this criterion.')).toBeVisible();
+        await expect(toast(page, 'Error saving Antenna Criteria: You are not allowed to set fulfilment of the criterion communication.')).toBeVisible();
         await expect(editor(page)).toBeVisible();
         await expect(toast(page, 'Antenna Criteria fulfilment updated.')).toHaveCount(0);
         await expect(await cell(page, 'C')).toHaveText('Yes');

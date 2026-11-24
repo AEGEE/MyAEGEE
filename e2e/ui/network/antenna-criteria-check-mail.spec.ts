@@ -11,8 +11,8 @@ import { dialog, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const ALPHA = body({ id: 11, name: 'AEGEE-Alpha', type: 'antenna' });
-const BETA = body({ id: 12, name: 'AEGEE-Beta', type: 'contact antenna', email: 'board@aegee-beta.org' });
-const NORA = netcommie(41, 'Nora', { gsuite: 'nora@aegee.eu' });
+const BETA = body({ id: 12, name: 'AEGEE-Beta', type: 'contact antenna', email: 'board@beta.example.org' });
+const NORA = netcommie(41, 'Nora', { gsuite: 'nora@example.org' });
 const OTTO = netcommie(42, 'Otto', { email: 'otto@example.com' });
 
 const criterion = (bodyId: number, name: AntennaCriterionName, value: 'true' | 'false' | 'exception' | null, comment: string | null = null) => antennaCriterion({
@@ -160,7 +160,7 @@ test.describe('the comments and the fulfilment mail of the Antenna Criteria', ()
 
         const mail = dialog(page, 'Fulfilment mail to AEGEE-Beta');
         await expect(mail.getByLabel('From')).toHaveValue('network@aegee.eu');
-        await expect(mail.getByLabel('To')).toHaveValue('board@aegee-beta.org');
+        await expect(mail.getByLabel('To')).toHaveValue('board@beta.example.org');
         await expect(mail.getByLabel('Cc')).toHaveValue('otto@example.com');
         await expect(mail.getByLabel('Subject')).toHaveValue('Preliminary Antenna Criteria check Agora Spring 2027');
         // Communication and the fee, not the members list, which is in.
@@ -180,20 +180,20 @@ test.describe('the comments and the fulfilment mail of the Antenna Criteria', ()
         await acCheck(page).getByRole('button', { name: 'Send fulfilment mail to AEGEE-Alpha' }).click();
 
         const mail = dialog(page, 'Fulfilment mail to AEGEE-Alpha');
-        await expect(mail.getByLabel('Cc')).toHaveValue('nora@aegee.eu');
+        await expect(mail.getByLabel('Cc')).toHaveValue('nora@example.org');
         await expect(mail.getByLabel('Mail text')).toHaveValue(/^Dear board of AEGEE-Alpha \(Antenna\),/);
         await expect(mail.getByLabel('Mail text')).toHaveValue(/You need 8 criteria/);
     });
 
     test('sending posts the mail as edited, with the sender as reply-to and the text as HTML', async ({ page, api }) => {
         mockAcCheck(api, DEFAULT);
-        api.json('POST network /antennaCriteria/sendFulfilmentMail', { success: true, message: 'Mail sent.' });
+        api.json('POST network /antennaCriteria/sendFulfilmentMail', { success: true, message: 'Successfully sent Antenna Criteria fulfilment mail' });
 
         await loaded(page);
         await acCheck(page).getByRole('button', { name: 'Send fulfilment mail to AEGEE-Beta' }).click();
         const mail = dialog(page, 'Fulfilment mail to AEGEE-Beta');
-        await mail.getByLabel('From').fill('netcom@aegee.org');
-        await mail.getByLabel('Cc').fill('otto@aegee.eu, nora@aegee.eu');
+        await mail.getByLabel('From').fill('made-up-sender@aegee.org');
+        await mail.getByLabel('Cc').fill('otto@example.org, nora@example.org');
         await mail.getByLabel('Subject').fill('Your Antenna Criteria');
         await mail.getByLabel('Mail text').fill('Dear board,\n\nplease send us **your** <r>members list</r>.');
         await expect(mail.getByRole('strong').filter({ hasText: 'your' })).toBeVisible();
@@ -204,11 +204,11 @@ test.describe('the comments and the fulfilment mail of the Antenna Criteria', ()
         const sent = api.callsTo('POST network /antennaCriteria/sendFulfilmentMail').map((call) => call.body as Record<string, string>);
         expect(sent).toHaveLength(1);
         expect(sent[0]).toEqual({
-            from: 'netcom@aegee.org',
-            to: 'board@aegee-beta.org',
-            cc: 'otto@aegee.eu, nora@aegee.eu',
+            from: 'made-up-sender@aegee.org',
+            to: 'board@beta.example.org',
+            cc: 'otto@example.org, nora@example.org',
             subject: 'Your Antenna Criteria',
-            reply_to: 'netcom@aegee.org',
+            reply_to: 'made-up-sender@aegee.org',
             body: expect.stringContaining('<strong>your</strong>')
         });
         expect(sent[0].body).toContain('<font color="red">members list</font>');
@@ -235,14 +235,14 @@ test.describe('the comments and the fulfilment mail of the Antenna Criteria', ()
 
     test('a mail that cannot be sent shows the error, and the dialog stays', async ({ page, api }) => {
         mockAcCheck(api, DEFAULT);
-        api.on('POST network /antennaCriteria/sendFulfilmentMail', { status: 500, json: { success: false, message: 'The mailer is down.' } });
+        api.on('POST network /antennaCriteria/sendFulfilmentMail', { status: 500, json: { success: false, message: 'Unsuccessful response from mailer (status 500)' } });
 
         await loaded(page);
         await acCheck(page).getByRole('button', { name: 'Send fulfilment mail to AEGEE-Beta' }).click();
         const mail = dialog(page, 'Fulfilment mail to AEGEE-Beta');
         await mail.getByRole('button', { name: 'Send' }).click();
 
-        await expect(toast(page, /: The mailer is down\.$/)).toBeVisible();
+        await expect(toast(page, /: Unsuccessful response from mailer \(status 500\)$/)).toBeVisible();
         await expect(mail).toBeVisible();
         await mail.getByRole('button', { name: 'Cancel' }).click();
         await expect(mail).toHaveCount(0);

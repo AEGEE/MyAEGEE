@@ -51,7 +51,7 @@ export const signedUpMember = (overrides: Partial<SignedUpMember> = {}): SignedU
         last_name: 'Newcomer',
         date_of_birth: '1999-05-01',
         gender: 'Female',
-        phone: '+32 2 123 45 67',
+        phone: '+32 000 00 00 00',
         address: 'Somewhere in Europe',
         about_me: 'Just joined',
         privacy_consent: iso(0),
