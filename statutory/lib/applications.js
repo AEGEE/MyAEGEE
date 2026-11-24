@@ -51,7 +51,8 @@ function presentApplication(req, application) {
         delete presented.board_comment;
     }
 
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+    // Only where the caller gets the status: the local organisers' fields have none.
+    if ('status' in presented && helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
         presented.status = 'pending';
     }
 
