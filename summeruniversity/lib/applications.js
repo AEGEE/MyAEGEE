@@ -7,9 +7,6 @@ const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
 
-// Fields applicants can't set when applying or editing their application: these change
-// through their own endpoints, with their own permission checks (status, board comment,
-// confirmed, attended, cancelled), or come from the applicant's body.
 // The fields an applicant sets. The others are set by the server (applicant, event, body name)
 // or through their own endpoints (status, board comment, confirmed, attended, cancelled).
 const APPLICATION_FIELDS = [
