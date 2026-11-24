@@ -152,7 +152,7 @@ only when a container of the job takes longer than about six minutes:
 
 | What | Where | Now | End state |
 |---|---|---:|---:|
-| `parallelism` of `frontend-mocked-test` | `.circleci/config.yml` | 2 | 8 |
+| `parallelism` of `frontend-mocked-test` | `.circleci/config.yml` | 4 | 8 |
 | `parallelism` of `e2e-test` | `.circleci/config.yml` | 1 | 3 |
 
 Nothing else follows from it. The tests are split with `--shard`, which reads the number of
