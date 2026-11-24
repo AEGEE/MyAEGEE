@@ -1,0 +1,28 @@
+version: "3.4"
+
+services:
+  ntfy:
+    restart: unless-stopped
+    image: binwiederhier/ntfy:v1.28.0
+    command:
+      - serve
+    environment:
+      - TZ=UTC
+      - NTFY_LISTEN_HTTP=:8084
+      - NTFY_BASE_URL=ntfy.${BASE_URL} #TODO: change
+      - NTFY_BEHIND_PROXY=true
+      - NTFY_WEB_ROOT=disable
+    volumes:
+      - /var/cache/ntfy:/var/cache/ntfy
+      - /etc/ntfy:/etc/ntfy
+    labels:
+      - "traefik.backend=ntfy"
+      - "traefik.port=8084"
+      - "traefik.enable=true"
+      - traefik.frontend.rule=Host:ntfy.${BASE_URL} #TODO: change
+      - traefik.frontend.priority=20
+
+networks:
+  default:
+    external:
+      name: OMS
