@@ -357,12 +357,18 @@ exports.markPlenaryAttendance = async (req, res) => {
         // case 1.
         await attendance.update({ ends: new Date() });
     } else {
-        // case 2.
-        attendance = await Attendance.create({
-            starts: new Date(),
-            ends: null,
+        // case 2. A member has at most one open attendance at a plenary (a unique index): when
+        // another mark of the same member opened one at the same moment, nothing is added and
+        // this mark answers with that attendance (or with it closed, when a third mark closed
+        // it in the meantime).
+        const ofThisMember = {
             application_id: application.id,
             plenary_id: req.plenary.id
+        };
+        await Attendance.bulkCreate([{ ...ofThisMember, ends: null, starts: new Date() }], { ignoreDuplicates: true });
+        attendance = await Attendance.findOne({
+            where: ofThisMember,
+            order: [['ends', 'DESC NULLS FIRST'], ['id', 'DESC']]
         });
     }
 
