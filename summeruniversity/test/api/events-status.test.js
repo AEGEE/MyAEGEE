@@ -538,6 +538,38 @@ describe('Events status, publication, periods and deletion', () => {
             await event.reload();
             expect(event.open_call).toEqual(false);
         });
+
+        // Sequelize would read "true" and 1 as true, past the free-spot check.
+        test.each([
+            ['the text "true"', 'true'],
+            ['the number 1', 1],
+            ['the text "false"', 'false'],
+            ['the number 0', 0],
+            ['null', null]
+        ])('should return 422 and change nothing for open_call as %s', async (_name, value) => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: value, max_participants: 3 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The value should be true or false.']);
+            expect(res.body.message).toEqual('The value should be true or false.');
+            await event.reload();
+            expect(event.open_call).toEqual(false);
+            expect(event.max_participants).toEqual(1);
+        });
+
+        test('should return 422 and change nothing without open_call', async () => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+
+            const res = await put(event, '/open_call', { max_participants: 3 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The value should be true or false.']);
+            await event.reload();
+            expect(event.max_participants).toEqual(1);
+        });
     });
 
     describe('DELETE /single/:id', () => {
