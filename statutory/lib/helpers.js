@@ -455,8 +455,10 @@ exports.getEventPermissions = (data) => {
 
     permissions.manage_question_lines = hasPermission(corePermissions, 'global:manage_question_lines:' + event.type);
     permissions.see_question_lines = hasPermission(corePermissions, 'global:see_question_lines:' + event.type);
-    permissions.see_questions = permissions.manage_question_lines || permissions.see_question_lines || (myApplication ? myApplication.confirmed : false);
-    permissions.submit_questions = myApplication ? myApplication.confirmed : false;
+    // Without a permission for question lines, an application that is confirmed and not cancelled is needed.
+    const hasConfirmedApplication = Boolean(myApplication && myApplication.confirmed && !myApplication.cancelled);
+    permissions.see_questions = permissions.manage_question_lines || permissions.see_question_lines || hasConfirmedApplication;
+    permissions.submit_questions = hasConfirmedApplication;
 
     return permissions;
 };
