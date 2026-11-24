@@ -265,4 +265,103 @@ describe('User activation', () => {
         expect(renewal.statusCode).toEqual(403);
     });
 
+    describe('who can be suspended', () => {
+        const createSuspender = async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const permission = await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+            const circle = await generator.createCircle();
+            await generator.createCircleMembership(circle, user);
+            await generator.createCirclePermission(circle, permission);
+            return { user, token };
+        };
+
+        const setActive = (token, userId, active) => request({
+            path: '/members/' + userId + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active }
+        });
+
+        test('should refuse suspending yourself', async () => {
+            const { user, token } = await createSuspender();
+
+            const res = await setActive(token, user.id, false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse suspending yourself through /members/me', async () => {
+            const { user, token } = await createSuspender();
+
+            const res = await setActive(token, 'me', false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse a superadmin suspending themselves', async () => {
+            const admin = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+
+            const res = await setActive(token, admin.id, false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse suspending a superadmin to somebody who is not one', async () => {
+            const { token } = await createSuspender();
+            const admin = await generator.createUser({ superadmin: true });
+
+            const res = await setActive(token, admin.id, false);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('Only a superadmin can suspend or activate a superadmin.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse activating a superadmin to somebody who is not one', async () => {
+            const { token } = await createSuspender();
+            const admin = await generator.createUser({ superadmin: true, active: false });
+
+            const res = await setActive(token, admin.id, true);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('Only a superadmin can suspend or activate a superadmin.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(false);
+        });
+
+        test('should let a superadmin suspend another superadmin', async () => {
+            const admin = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+            const otherAdmin = await generator.createUser({ superadmin: true });
+
+            const res = await setActive(token, otherAdmin.id, false);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.active).toEqual(false);
+
+            const userFromDb = await User.findByPk(otherAdmin.id);
+            expect(userFromDb.active).toEqual(false);
+        });
+    });
 });
