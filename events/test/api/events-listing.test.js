@@ -209,6 +209,24 @@ describe('Events listing', () => {
         expect(res.body.meta.limit).toEqual(1);
     });
 
+    // Postgres refused them with a 500 ("bigint out of range").
+    test.each([
+        '/?offset=99999999999999999999',
+        '/?limit=99999999999999999999',
+        '/?offset=2147483648&limit=2147483648',
+        '/mine/organizing?offset=99999999999999999999',
+        '/mine/participating?limit=99999999999999999999'
+    ])('should ignore an offset or limit beyond 2147483647 in %s', async (path) => {
+        const event = await generator.createEvent({ status: 'published' });
+
+        const res = await request({ path, method: 'GET', headers: { 'X-Auth-Token': 'blablabla' } });
+
+        expect(res.statusCode).toEqual(200);
+        if (path.startsWith('/?')) {
+            expect(res.body.data.map((one) => one.id)).toEqual([event.id]);
+        }
+    });
+
     it('should use the default offset if offset is NaN', async () => {
         const res = await request({
             path: '/?offset=nan',
