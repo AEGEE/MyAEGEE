@@ -518,9 +518,13 @@ exports.updateApplication = async (req, res) => {
     await sequelize.transaction(async (t) => {
         await req.application.update(fields, { transaction: t, returning: true });
 
+        // The votes of the two bodies are locked in the order of their ids, as by every request,
+        // so that two edits that move in opposite directions wait for each other instead of
+        // locking each other.
         if (fields.body_id && fields.body_id !== oldBody) {
-            await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody, t);
-            await VotesPerAntenna.recalculateVotesForDelegates(req.event, fields.body_id, t);
+            for (const bodyId of [oldBody, fields.body_id].sort((a, b) => a - b)) {
+                await VotesPerAntenna.recalculateVotesForDelegates(req.event, bodyId, t);
+            }
         }
     });
 

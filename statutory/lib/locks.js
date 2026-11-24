@@ -8,5 +8,7 @@ exports.limitLockWait = (transaction) => sequelize.query(
     { transaction }
 );
 
-// Postgres answers lock_not_available (55P03) when the lock timeout runs out.
-exports.isLockTimeout = (err) => Boolean(err.parent && err.parent.code === '55P03');
+// Postgres answers lock_not_available (55P03) when the lock timeout runs out, and
+// deadlock_detected (40P01) when it ends a wait that would never end. Either way the
+// transaction was rolled back and nothing was changed.
+exports.isLockTimeout = (err) => Boolean(err.parent && ['55P03', '40P01'].includes(err.parent.code));
