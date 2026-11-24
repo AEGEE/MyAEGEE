@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { User } = require('../../models');
 
 describe('User activation', () => {
     beforeAll(async () => {
@@ -19,7 +20,7 @@ describe('User activation', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
 
-        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
             path: '/members/1337/active',
@@ -37,11 +38,12 @@ describe('User activation', () => {
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser();
 
-        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
-            path: '/members/' + user.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: 'aaa' }
@@ -57,11 +59,12 @@ describe('User activation', () => {
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser();
 
-        await generator.createPermission({ scope: 'local', action: 'update_active', object: 'member' });
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
-            path: '/members/' + user.id + '/active',
+            path: '/members/' + otherUser.id + '/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -91,12 +94,12 @@ describe('User activation', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should work with local permission', async () => {
+    test('should fail with only the local permission, for a member of the same body', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
         const otherUser = await generator.createUser();
-        const permission = await generator.createPermission({ scope: 'local', action: 'update_active', object: 'member' });
+        const permission = await generator.createPermission({ scope: 'local', action: 'update_active', object: 'user' });
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
         await generator.createCircleMembership(circle, user);
@@ -110,11 +113,11 @@ describe('User activation', () => {
             body: { active: false }
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.active).toEqual(false);
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Permission global:update_active:user is required, but not present.');
+
+        const userFromDb = await User.findByPk(otherUser.id);
+        expect(userFromDb.active).toEqual(true);
     });
 
     test('should fail for other person without permission', async () => {
@@ -134,5 +137,247 @@ describe('User activation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should work with the global permission of a circle', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const otherUser = await generator.createUser();
+        const permission = await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+        const circle = await generator.createCircle();
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active: false }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.active).toEqual(false);
+
+        const userFromDb = await User.findByPk(otherUser.id);
+        expect(userFromDb.active).toEqual(false);
+    });
+
+    test('should lift a suspension', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const otherUser = await generator.createUser({ active: false });
+        const permission = await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+        const circle = await generator.createCircle();
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active: true }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.active).toEqual(true);
+    });
+
+    test('should fail with a permission of another name', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const otherUser = await generator.createUser();
+        const permission = await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
+        const circle = await generator.createCircle();
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active: false }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Permission global:update_active:user is required, but not present.');
+
+        const userFromDb = await User.findByPk(otherUser.id);
+        expect(userFromDb.active).toEqual(true);
+    });
+
+    test('should fail with the local permission for a member of another body', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const otherUser = await generator.createUser();
+        const permission = await generator.createPermission({ scope: 'local', action: 'update_active', object: 'user' });
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+        await generator.createBodyMembership(otherBody, otherUser);
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active: false }
+        });
+
+        expect(res.statusCode).toEqual(403);
+
+        const userFromDb = await User.findByPk(otherUser.id);
+        expect(userFromDb.active).toEqual(true);
+    });
+
+    test('should end the sessions of the suspended member at their next request', async () => {
+        const admin = await generator.createUser({ superadmin: true });
+        const adminToken = await generator.createAccessToken(admin);
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+
+        const member = await generator.createUser();
+        const memberToken = await generator.createAccessToken(member);
+        const memberRefreshToken = await generator.createRefreshToken(member);
+
+        const before = await request({ path: '/members/me', headers: { 'X-Auth-Token': memberToken.value } });
+        expect(before.statusCode).toEqual(200);
+
+        const res = await request({
+            path: '/members/' + member.id + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': adminToken.value },
+            body: { active: false }
+        });
+        expect(res.statusCode).toEqual(200);
+
+        const after = await request({ path: '/members/me', headers: { 'X-Auth-Token': memberToken.value } });
+        expect(after.statusCode).toEqual(401);
+
+        const renewal = await request({
+            path: '/renew',
+            method: 'POST',
+            body: { refresh_token: memberRefreshToken.value }
+        });
+        expect(renewal.statusCode).toEqual(403);
+    });
+
+    describe('who can be suspended', () => {
+        const createSuspender = async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const permission = await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+            const circle = await generator.createCircle();
+            await generator.createCircleMembership(circle, user);
+            await generator.createCirclePermission(circle, permission);
+            return { user, token };
+        };
+
+        const setActive = (token, userId, active) => request({
+            path: '/members/' + userId + '/active',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { active }
+        });
+
+        test('should refuse suspending yourself', async () => {
+            const { user, token } = await createSuspender();
+
+            const res = await setActive(token, user.id, false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse suspending yourself through /members/me', async () => {
+            const { user, token } = await createSuspender();
+
+            const res = await setActive(token, 'me', false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        // A suspended member is not logged in, so whoever reaches the route is active already.
+        test('should answer activating yourself without changing anything', async () => {
+            const { user, token } = await createSuspender();
+
+            for (const id of [user.id, 'me']) {
+                const res = await setActive(token, id, true);
+
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.success).toEqual(true);
+                expect(res.body.data.id).toEqual(user.id);
+            }
+
+            const userFromDb = await User.findByPk(user.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse a superadmin suspending themselves', async () => {
+            const admin = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+
+            const res = await setActive(token, admin.id, false);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.message).toEqual('You cannot suspend yourself.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse suspending a superadmin to somebody who is not one', async () => {
+            const { token } = await createSuspender();
+            const admin = await generator.createUser({ superadmin: true });
+
+            const res = await setActive(token, admin.id, false);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('Only a superadmin can suspend or activate a superadmin.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(true);
+        });
+
+        test('should refuse activating a superadmin to somebody who is not one', async () => {
+            const { token } = await createSuspender();
+            const admin = await generator.createUser({ superadmin: true, active: false });
+
+            const res = await setActive(token, admin.id, true);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('Only a superadmin can suspend or activate a superadmin.');
+
+            const userFromDb = await User.findByPk(admin.id);
+            expect(userFromDb.active).toEqual(false);
+        });
+
+        test('should let a superadmin suspend another superadmin', async () => {
+            const admin = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+            const otherAdmin = await generator.createUser({ superadmin: true });
+
+            const res = await setActive(token, otherAdmin.id, false);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.active).toEqual(false);
+
+            const userFromDb = await User.findByPk(otherAdmin.id);
+            expect(userFromDb.active).toEqual(false);
+        });
     });
 });

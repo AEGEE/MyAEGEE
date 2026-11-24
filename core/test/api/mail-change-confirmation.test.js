@@ -1,5 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
-const { MailChange, User } = require('../../models');
+const { MailChange, PasswordReset, User } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
+const login = require('../../middlewares/login');
 const constants = require('../../lib/constants');
 
 const { request } = require('../scripts/helpers');
@@ -89,6 +91,21 @@ describe('Mail change confirm', () => {
 
         const userFromDb = await User.scope('withPassword').findByPk(user.id);
         expect(userFromDb.email).toEqual(mailChange.new_email);
+    });
+
+    test('should refuse the token of a suspended member', async () => {
+        const user = await generator.createUser({ active: false });
+        const mailChange = await generator.createMailChange(user);
+
+        const res = await confirm(mailChange.value);
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Token is invalid.');
+        expect(mails).toEqual([]);
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.email).toEqual(user.email);
     });
 
     test('should work if the token is found with email with spaces/tabs', async () => {
@@ -472,6 +489,143 @@ describe('Mail change confirm', () => {
 
             const userFromDb = await User.findByPk(user.id);
             expect(userFromDb.email).toEqual('current@example.com');
+        });
+    });
+
+    describe('password resets that were requested for the earlier address', () => {
+        const confirmPassword = (token) => request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token, password: 'a-new-password' }
+        });
+
+        test('should stop working once the email is changed', async () => {
+            const user = await generator.createUser({ email: 'current@example.com', password: 'the-old-password' });
+            const reset = await generator.createPasswordReset(user);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual({ changed: true });
+
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
+
+            const passwordRes = await confirmPassword(reset.value);
+            expect(passwordRes.statusCode).toEqual(404);
+
+            const userFromDb = await User.scope('withPassword').findByPk(user.id);
+            expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+        });
+
+        test('should stop working once the current address confirmed a change that somebody else requested', async () => {
+            const requester = await generator.createUser();
+            const user = await generator.createUser({ email: 'current@example.com' });
+            await generator.createPasswordReset(user);
+            await generator.createMailChange(user, {
+                new_email: 'new@example.com',
+                value: 'new-token',
+                old_value: 'old-token',
+                requested_by: requester.id
+            });
+
+            const first = await confirm('new-token');
+            expect(first.body.data).toEqual({ changed: false, waiting_for: 'old_email' });
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(1);
+
+            const second = await confirm('old-token');
+            expect(second.body.data).toEqual({ changed: true });
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
+        });
+
+        test('should keep working for the other members', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const otherUser = await generator.createUser();
+            const otherReset = await generator.createPasswordReset(otherUser);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+
+            const passwordRes = await confirmPassword(otherReset.value);
+            expect(passwordRes.statusCode).toEqual(200);
+        });
+
+        test('should keep working if the email is not changed', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const reset = await generator.createPasswordReset(user);
+            await generator.createUser({ email: 'new@example.com' });
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(422);
+
+            const passwordRes = await confirmPassword(reset.value);
+            expect(passwordRes.statusCode).toEqual(200);
+        });
+
+        test('should not mail a reset requested while a change takes effect to the previous address', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+
+            // Polls until the reset was mailed or waits for a lock, whichever comes first.
+            const waitForResetToMailOrWait = async () => {
+                for (let i = 0; i < 150; i++) {
+                    const [{ waiting }] = await sequelize.query(
+                        'SELECT count(*)::int AS waiting FROM pg_locks WHERE NOT granted',
+                        { type: sequelize.QueryTypes.SELECT }
+                    );
+                    if (mails.length > 0 || waiting > 0) {
+                        return;
+                    }
+                    await new Promise((resolve) => { setTimeout(resolve, 20); });
+                }
+                throw new Error('The password reset neither mailed nor waited.');
+            };
+
+            // What a confirmation does, held open: it takes the member's lock for email
+            // changes, writes the new address and ends the resets it knows of.
+            const t = await sequelize.transaction();
+            try {
+                await sequelize.query('SELECT pg_advisory_xact_lock(1, :id)', { replacements: { id: user.id }, transaction: t });
+                await User.update({ email: 'new@example.com' }, { where: { id: user.id }, transaction: t });
+                await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+
+                const res = await request({
+                    path: '/password_reset',
+                    method: 'POST',
+                    body: { email: 'current@example.com' }
+                });
+                expect(res.statusCode).toEqual(200);
+
+                await waitForResetToMailOrWait();
+            } finally {
+                await t.commit();
+            }
+            await login.waitForPasswordResets();
+
+            expect(mails.filter((mail) => mail.to === 'current@example.com')).toEqual([]);
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
+        });
+
+        test('should keep the sessions of the member', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+            const accessToken = await generator.createAccessToken(user);
+            const refreshToken = await generator.createRefreshToken(user);
+            await generator.createPasswordReset(user);
+            const mailChange = await generator.createMailChange(user, { new_email: 'new@example.com' });
+
+            const res = await confirm(mailChange.value);
+            expect(res.statusCode).toEqual(200);
+
+            const me = await request({ path: '/members/me', headers: { 'X-Auth-Token': accessToken.value } });
+            expect(me.statusCode).toEqual(200);
+            expect(me.body.data.email).toEqual('new@example.com');
+
+            const renewal = await request({
+                path: '/renew',
+                method: 'POST',
+                body: { refresh_token: refreshToken.value }
+            });
+            expect(renewal.statusCode).toEqual(200);
         });
     });
 });

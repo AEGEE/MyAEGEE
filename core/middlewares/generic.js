@@ -44,6 +44,12 @@ exports.maybeAuthorize = async (req, res, next) => {
         return next();
     }
 
+    // A suspended member is not logged in, whatever tokens they still have.
+    if (!accessToken.user.active) {
+        logger.debug('Access token belongs to a suspended member');
+        return next();
+    }
+
     req.user = accessToken.user;
 
     const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id', 'body_id'] });

@@ -2,8 +2,8 @@ const { Permission, CirclePermission } = require('../models');
 const errors = require('../lib/errors');
 
 exports.addPermission = async (req, res) => {
-    if (!req.permissions.hasPermission('put_permissions:circle')) {
-        return errors.makeForbiddenError(res, 'Permission put_permissions:circle is required, but not present.');
+    if (!req.permissions.hasPermission('global:put_permissions:circle')) {
+        return errors.makeForbiddenError(res, 'Permission global:put_permissions:circle is required, but not present.');
     }
 
     const permission = await Permission.findByPk(req.body.permission_id);
@@ -23,8 +23,8 @@ exports.addPermission = async (req, res) => {
 };
 
 exports.deletePermission = async (req, res) => {
-    if (!req.permissions.hasPermission('put_permissions:circle')) {
-        return errors.makeForbiddenError(res, 'Permission put_permissions:circle is required, but not present.');
+    if (!req.permissions.hasPermission('global:put_permissions:circle')) {
+        return errors.makeForbiddenError(res, 'Permission global:put_permissions:circle is required, but not present.');
     }
 
     const circlePermission = await CirclePermission.findOne({

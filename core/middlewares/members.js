@@ -2,7 +2,7 @@ const moment = require('moment');
 const _ = require('lodash');
 const { request } = require('../lib/http');
 
-const { User, Body, BodyMembership, MailChange, MailConfirmation, EventApplicationBan } = require('../models');
+const { User, Body, BodyMembership, MailChange, MailConfirmation, EventApplicationBan, PasswordReset } = require('../models');
 const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
@@ -321,8 +321,25 @@ exports.setUserPassword = async (req, res) => {
 };
 
 exports.setUserActive = async (req, res) => {
-    if (!req.permissions.hasPermission('update_active:member')) {
-        return errors.makeForbiddenError(res, 'Permission update_active:member is required, but not present.');
+    if (!req.permissions.hasPermission('global:update_active:user')) {
+        return errors.makeForbiddenError(res, 'Permission global:update_active:user is required, but not present.');
+    }
+
+    if (req.currentUser.superadmin && !req.user.superadmin) {
+        return errors.makeForbiddenError(res, 'Only a superadmin can suspend or activate a superadmin.');
+    }
+
+    if (req.currentUser.id === req.user.id) {
+        // A suspended member is not logged in, so whoever reaches this route is active:
+        // activating yourself changes nothing.
+        if (req.body.active === true) {
+            return res.json({
+                success: true,
+                data: req.currentUser
+            });
+        }
+
+        return errors.makeValidationError(res, 'You cannot suspend yourself.');
     }
 
     await req.currentUser.update({ active: req.body.active });
@@ -455,15 +472,6 @@ exports.setPrimaryBody = async (req, res) => {
     });
 };
 
-// Email changes of one member are processed one by one. An advisory lock does that without
-// locking the member's row, which every request of that member writes to (last_active), so
-// the member is not held up while the mails are sent.
-const MAIL_CHANGE_LOCK_NAMESPACE = 1;
-const lockMailChanges = (userId, transaction) => sequelize.query(
-    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
-    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
-);
-
 // Requests a change of the login email. The new address always has to confirm it. If somebody
 // else requests it for the member, the member's current address has to confirm it as well,
 // unless the requester has global:update:member.
@@ -511,7 +519,7 @@ exports.triggerEmailChange = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
         // Requests for one member at the same time are processed one by one.
-        await lockMailChanges(req.currentUser.id, t);
+        await helpers.lockMailChanges(req.currentUser.id, t);
 
         // There's at most one pending change per member and requester: a new request replaces the earlier one.
         await MailChange.destroy({
@@ -582,7 +590,7 @@ exports.confirmEmailChange = async (req, res) => {
     const result = await sequelize.transaction(async (t) => {
         // Confirmations at the same time (from both addresses, or of several changes
         // of one member) are processed one by one.
-        await lockMailChanges(found.user_id, t);
+        await helpers.lockMailChanges(found.user_id, t);
         const user = await User.findByPk(found.user_id, { transaction: t });
         const mailChange = await MailChange.findOne({
             where: { id: found.id, ...tokenMatches },
@@ -591,7 +599,8 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         // It can be gone by now, if another change of the member just took effect.
-        if (!user || !mailChange) {
+        // The link of a suspended member does not work, as if it did not exist.
+        if (!user || !mailChange || !user.active) {
             return { notFound: 'Token is invalid.' };
         }
 
@@ -651,6 +660,10 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         await user.update({ email: mailChange.new_email }, { transaction: t });
+
+        // A password reset goes to the login address, so the ones which were sent to the
+        // previous address end here. The member's sessions stay.
+        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
 
         return { changed: true };
     });

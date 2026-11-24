@@ -74,6 +74,29 @@ describe('Password reset', () => {
         expect(mails[0].to).toEqual(user.email);
     });
 
+    test('should answer the same and send nothing for a suspended member', async () => {
+        const mails = mock.captureMails();
+        const user = await generator.createUser({ active: false });
+
+        const unknown = await request({
+            path: '/password_reset',
+            method: 'POST',
+            body: { email: 'test@test.io' }
+        });
+
+        const res = await request({
+            path: '/password_reset',
+            method: 'POST',
+            body: { email: user.email }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual(unknown.body);
+
+        expect(await PasswordReset.count()).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
     test('should answer the same and send nothing if no email is provided', async () => {
         const mails = mock.captureMails();
         await generator.createUser();

@@ -456,4 +456,59 @@ describe('Authorization', () => {
         const tokensFromDb = await RefreshToken.findAll({ where: { user_id: user.id } });
         expect(tokensFromDb.map((t) => t.value).sort()).toEqual([otherSession.value, res.body.refresh_token].sort());
     });
+
+    test('should not log in a suspended member', async () => {
+        const user = await generator.createUser({ password: 'testtest', active: false });
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            body: {
+                username: user.email,
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('This account is suspended.');
+        expect(res.body).not.toHaveProperty('access_token');
+        expect(res.body).not.toHaveProperty('refresh_token');
+
+        expect(await AccessToken.count({ where: { user_id: user.id } })).toEqual(0);
+        expect(await RefreshToken.count({ where: { user_id: user.id } })).toEqual(0);
+
+        const userFromDb = await User.findByPk(user.id);
+        expect(userFromDb.last_logged_in).toEqual(null);
+    });
+
+    test('should answer a suspended member with a wrong password like any wrong password', async () => {
+        const user = await generator.createUser({ password: 'testtest', active: false });
+        const wrongPassword = await request({
+            path: '/login/',
+            method: 'POST',
+            body: { username: user.email, password: 'testtest2' }
+        });
+        const unknownAccount = await request({
+            path: '/login/',
+            method: 'POST',
+            body: { username: 'nobody@example.com', password: 'testtest2' }
+        });
+
+        expect(wrongPassword.statusCode).toEqual(403);
+        expect(wrongPassword.body).toEqual(unknownAccount.body);
+    });
+
+    test('should log a member in again after the suspension is lifted', async () => {
+        const user = await generator.createUser({ password: 'testtest', active: false });
+        await user.update({ active: true });
+
+        const res = await request({
+            path: '/login/',
+            method: 'POST',
+            body: { username: user.email, password: 'testtest' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('access_token');
+    });
 });

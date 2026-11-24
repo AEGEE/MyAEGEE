@@ -2,7 +2,7 @@ const moment = require('moment');
 const bcrypt = require('bcrypt');
 
 const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
-const { sequelize } = require('../lib/sequelize');
+const { sequelize, Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const logger = require('../lib/logger');
@@ -55,6 +55,11 @@ module.exports.login = async (req, res) => {
 
     if (!isPasswordValid) {
         return errors.makeForbiddenError(res, INVALID_CREDENTIALS);
+    }
+
+    // Only told to somebody who knows the password.
+    if (!user.active) {
+        return errors.makeForbiddenError(res, 'This account is suspended.');
     }
 
     if (!user.mail_confirmed_at) {
@@ -150,6 +155,12 @@ module.exports.renew = async (req, res) => {
             return null;
         }
 
+        // The tokens of a suspended member are answered like tokens that don't exist.
+        const user = await User.findByPk(token.user_id, { attributes: ['id', 'active'], transaction: t });
+        if (!user || !user.active) {
+            return null;
+        }
+
         // A rotated token keeps working for a short grace period, so parallel renews both succeed.
         if (token.rotated_at) {
             const graceEnd = moment(token.rotated_at).add(config.ttl.refresh_token_grace_period, 'seconds');
@@ -189,16 +200,28 @@ const sendPasswordReset = async (email) => {
             ? await User.findOne({ where: helpers.equalsIgnoreCase('email', email) })
             : null;
 
-        if (!user) {
+        // A suspended member gets no reset, but the answer does not say so.
+        if (!user || !user.active) {
             return;
         }
 
         await sequelize.transaction(async (t) => {
+            // A change of the login email that is being confirmed finishes first, and the
+            // reset only goes out if the account still has the address it was asked for.
+            await helpers.lockMailChanges(user.id, t);
+            const current = await User.findOne({
+                where: { [Sequelize.Op.and]: [{ id: user.id }, helpers.equalsIgnoreCase('email', email)] },
+                transaction: t
+            });
+            if (!current) {
+                return;
+            }
+
             await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
             const currentReset = await PasswordReset.createForUser(user.id, t);
 
             await mailer.sendMail({
-                to: user.email,
+                to: current.email,
                 subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
                 template: 'password_reset.html',
                 parameters: {
@@ -245,7 +268,8 @@ module.exports.passwordConfirm = async (req, res) => {
         include: [User]
     });
 
-    if (!token) {
+    // The link of a suspended member does not work, as if it did not exist.
+    if (!token || !token.user.active) {
         return errors.makeNotFoundError(res, 'Token is invalid.');
     }
 
