@@ -656,6 +656,11 @@ exports.setOpenCallPeriod = async (req, res) => {
         return errors.makeForbiddenError(res, 'This event publication does not allow changing the open call period');
     }
 
+    // Sequelize would read "true" or 1 as true, past the free-spot check below.
+    if (typeof req.body.open_call !== 'boolean') {
+        return helpers.makeFieldError(res, 'open_call', 'The value should be true or false.');
+    }
+
     const acceptedParticipants = await Application.count({ where: {
         event_id: req.event.id,
         status: 'accepted',
