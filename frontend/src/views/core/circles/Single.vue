@@ -210,7 +210,10 @@ export default {
 
         return this.axios.get(this.services['core'] + '/circles/' + id + '/permissions')
       }).then((response) => {
-        this.inheritedPermissions = response.data.data
+        // Core answers with every permission of the circle, also those attached to the circle
+        // itself; inherited are the ones that one of its parents gives.
+        this.inheritedPermissions = response.data.data.filter(permission => permission.circle_permissions
+          .some(link => link.circle_id !== this.circle.id))
 
         this.isLoading = false
       })
