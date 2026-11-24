@@ -203,7 +203,7 @@
                   <a class="button is-static">€</a>
                 </div>
                 <div class="control">
-                  <input id="event-optional-fee" class="input" type="number" v-model="event.optional_fee" min="0" />
+                  <input id="event-optional-fee" class="input" type="number" v-model="event.optional_fee" min="0" @input="$root.nullifyIfEmpty(event, 'optional_fee')" />
                 </div>
               </div>
             </div>
