@@ -11,7 +11,10 @@ info:
     `GET /members/me` and `GET /my_permissions` of this one.
 
     A 500 answer (`ErrorResponse`) is possible on every operation and is not listed. So is
-    a 400 answer for a request body that is not valid JSON.
+    a 400 answer for a request body that is not valid JSON. Every operation with a JSON body
+    lists 400 (a text with the character U+0000, or a compressed body that does not
+    decompress), 413 (a body over 100 kB) and 415 (another charset than UTF-8, or an unknown
+    content encoding): the server refuses those before the route, so also before the login.
   license: {name: ISC, identifier: ISC}
 servers:
   - url: /api/core
@@ -105,13 +108,17 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/UserSignupResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '403':
           description: The campaign is not active.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
   /confirm-email:
     post:
       operationId: confirmEmail
@@ -131,7 +138,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: No token, or a token that is not a string.
+          description: 'No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -145,6 +152,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /confirm-email-change:
     post:
       operationId: confirmEmailChange
@@ -168,17 +177,24 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EmailChangeConfirmationResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '404':
           description: No token, an unknown or expired token, or the login email changed since the request.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The new address belongs to another account by now.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
-        '503': {$ref: '#/components/responses/Busy'}
+        '503':
+          description: 'Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
   /login:
     post:
       operationId: login
@@ -206,11 +222,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/TokensResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '403':
           description: The name or password does not match, the account is suspended, or its email is not confirmed yet.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /logout:
     post:
       operationId: logout
@@ -230,7 +249,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: No token, or a token that is not a string.
+          description: 'No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -239,13 +258,16 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /password_reset:
     post:
       operationId: requestPasswordReset
       summary: Request a password reset mail
       description: |
-        Answers the same whether or not the address belongs to an account. The reset is
-        created and mailed after the answer.
+        Answers the same whether or not the address belongs to an account, and for a
+        suspended member, who gets no mail. The reset is created after the answer, and
+        mailed after it is stored; if the mail fails, the reset is deleted again.
       tags: [login]
       x-permission: none
       security: []
@@ -264,10 +286,12 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: The email is not a string.
+          description: 'The email is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /password_confirm:
     post:
       operationId: confirmPasswordReset
@@ -293,11 +317,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '404':
           description: No token, or an unknown or expired one.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /renew:
     post:
@@ -320,11 +347,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/TokensResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '403':
           description: No token, an unknown or used-up token, or the token of a suspended member.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '503': {$ref: '#/components/responses/Busy'}
   /bodies:
     get:
@@ -387,8 +417,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/BodyResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bug-report:
     post:
@@ -484,7 +517,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/CircleWithCircleMembershipsListResponse'}
         '400':
-          description: No `action` or `object`, or a `sort` field that circles do not have.
+          description: 'No `action` or `object`, or a `sort` field that circles do not have. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -494,6 +527,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /members:
     get:
       operationId: listMembers
@@ -623,8 +658,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CircleResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /permissions:
     get:
@@ -662,8 +700,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/PermissionResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /campaigns:
     get:
@@ -702,8 +743,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CampaignResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /resources:
     get:
@@ -736,8 +780,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ResourceCategoryResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /resources/links:
     post:
@@ -757,8 +804,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ResourceLinkResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /members/{user_id}/my_permissions:
     parameters:
@@ -785,9 +835,14 @@ paths:
     put:
       operationId: setMemberActive
       summary: Suspend or reactivate a member
-      description: A suspended member cannot log in or renew a session, and their tokens stop working.
+      description: |
+        A suspended member cannot log in or renew a session, their tokens stop working,
+        and the links mailed to them (password reset, email change) answer like an invalid
+        token. Nobody can suspend themselves (422 `You cannot suspend yourself.`), and only a
+        superadmin can suspend or reactivate a superadmin (403
+        `Only a superadmin can suspend or activate a superadmin.`).
       tags: [members]
-      x-permission: update_active:user
+      x-permission: global:update_active:user; a superadmin as the member needs a superadmin
       requestBody:
         required: true
         content:
@@ -804,9 +859,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /members/{user_id}/event-application-ban:
     parameters:
@@ -833,9 +891,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventApplicationBanResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: liftEventApplicationBan
@@ -879,9 +940,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /members/{user_id}/confirm:
     parameters:
@@ -907,8 +971,8 @@ paths:
       operationId: setPrimaryBody
       summary: Set or unset the primary body of a member
       description: |
-        The member has to be in the body. Without `primary_body_id`, or with null, the
-        primary body is unset.
+        The member has to be in the body. Without `primary_body_id`, or with any value that
+        JavaScript reads as false (null, `0`, an empty text, false), the primary body is unset.
       tags: [members]
       x-permission: update:member, or the member themselves
       requestBody:
@@ -927,7 +991,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
         '400':
-          description: '`primary_body_id` is not a number.'
+          description: '`primary_body_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -942,6 +1006,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
   /members/{user_id}/email:
     parameters:
       - $ref: '#/components/parameters/UserId'
@@ -972,19 +1038,25 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/EmailChangeRequestResponse'}
         '400':
-          description: No `new_email`, or one that is not a string.
+          description: 'No `new_email`, or one that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The address is on a restricted domain, belongs to another account, or is not an email address.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
-        '503': {$ref: '#/components/responses/Busy'}
+        '503':
+          description: 'Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
   /members/{user_id}/password:
     parameters:
       - $ref: '#/components/parameters/UserId'
@@ -1010,9 +1082,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: No or a wrong `old_password`, or a new password that is not valid.
           content:
@@ -1046,13 +1121,15 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: No `mailinglists`, or not an array.
+          description: 'No `mailinglists`, or not an array. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: An empty list, an item that is not a string, or a list that does not exist.
           content:
@@ -1131,9 +1208,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteMember
@@ -1244,9 +1324,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/BodyWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/my_permissions:
     parameters:
@@ -1305,9 +1388,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CampaignResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/circles:
     parameters:
@@ -1328,9 +1414,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CircleResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/members:
     parameters:
@@ -1400,7 +1489,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/BodyMembershipResponse'}
         '400':
-          description: '`user_id` is not a number.'
+          description: '`user_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -1411,14 +1500,20 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The member belongs to the body already.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
     delete:
       operationId: deleteOwnBodyMembership
       summary: Leave a body
+      description: |
+        If it was the member's last body, the Google Workspace administrators are told; a
+        failure of that mail is logged and does not change the answer.
       tags: [body-memberships]
       x-permission: authenticated; removes the caller's own membership
       responses:
@@ -1455,9 +1550,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/BodyMembershipResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/join-requests:
     parameters:
@@ -1494,7 +1592,9 @@ paths:
     post:
       operationId: createJoinRequest
       summary: Ask to join a body
-      description: Mails the body and the members who can process its join requests.
+      description: |
+        Mails the body and the members who can process its join requests, after the request
+        is stored. If that mail fails, the request stays and the failure is logged.
       tags: [join-requests]
       x-permission: authenticated
       requestBody:
@@ -1511,8 +1611,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/JoinRequestResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The caller asked already, is a member of the body already, or the body is deleted.
           content:
@@ -1558,7 +1661,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/PaymentResponse'}
         '400':
-          description: No `user_id`, or one that is not a number.
+          description: 'No `user_id`, or one that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -1573,6 +1676,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/status:
     parameters:
@@ -1601,9 +1706,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/BodyWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /bodies/{body_id}/members/{membership_id}:
     parameters:
@@ -1648,6 +1756,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: A comment that is not a text.
           content:
@@ -1658,7 +1768,9 @@ paths:
       summary: Remove a member from a body
       description: |
         Also removes the member from the circles of the body, deletes their join request
-        and unsets the body as their primary body.
+        and unsets the body as their primary body. If it was the member's last body, the
+        Google Workspace administrators are told; a failure of that mail is logged and does
+        not change the answer.
       tags: [body-memberships]
       x-permission: delete_member:body
       responses:
@@ -1703,18 +1815,21 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: A request id that is not a number, another status than approved or rejected, or a request that was processed already.
+          description: 'A request id that is not a number, another status than approved or rejected, or a request that was processed already. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: Approving the request of somebody who became a member of the body in the meantime.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
   /circles/{circle_id}/my_permissions:
     parameters:
       - $ref: '#/components/parameters/CircleId'
@@ -1772,7 +1887,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: A circle id or `permission_id` that is not a number.
+          description: 'A circle id or `permission_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -1783,6 +1898,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The circle has the permission already.
           content:
@@ -1848,6 +1965,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteCircle
@@ -1890,7 +2009,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
         '400':
-          description: A circle id or `parent_circle_id` that is not a number.
+          description: 'A circle id or `parent_circle_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -1901,6 +2020,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The circle would become its own parent, directly or through other circles.
           content:
@@ -1948,7 +2069,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/CircleMembershipResponse'}
         '400':
-          description: A circle id or `user_id` that is not a number.
+          description: 'A circle id or `user_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -1963,6 +2084,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: The member is in the circle already.
           content:
@@ -2029,6 +2152,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: A position that is not a text.
           content:
@@ -2086,6 +2211,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deletePermission
@@ -2174,9 +2301,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/CampaignWithAutojoinBodyResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteCampaign
@@ -2281,6 +2411,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteBodyCampaign
@@ -2325,6 +2457,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deletePayment
@@ -2378,6 +2512,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteResourceCategory
@@ -2422,6 +2558,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: '`ids` is not a list of the ids of all links of the section, each once.'
           content:
@@ -2468,6 +2606,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteResourceLink
@@ -2524,8 +2664,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ResourceCategoryWithLinksListResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
         '422':
           description: '`ids` is not a list of the ids of all sections, each once.'
           content:
@@ -2598,11 +2741,15 @@ components:
       required: true
       schema: {type: integer}
   responses:
-    BadRequest: {description: 'Malformed request: an ID that is not a number, or a `sort` field that the listed rows do not have.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadRequest: {description: 'Malformed request: an ID that is not a number, or a `sort` field that the listed rows do not have. On an operation with a JSON body also a text in the body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), or a compressed body that does not decompress (`The request body could not be read.`).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    UnreadableBody: {description: 'A text in the request body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), which Postgres cannot store, or a compressed body that does not decompress (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The JSON body is larger than 100 kB (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyNotReadable: {description: 'A charset other than UTF-8 or a content encoding other than gzip, deflate, br or zstd (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     BadSort: {description: 'A `sort` field that the listed rows do not have.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Busy: {description: 'Another request for the same token or member is being processed for longer than the lock timeout (3 seconds). Nothing was changed; try again.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    MailNotSent: {description: 'The mail of this operation could not be sent (the mailer failed or did not answer within 10 seconds), so it rolled back: `The mail could not be sent, so nothing was saved. Please try again later.`', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   schemas:

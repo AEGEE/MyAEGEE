@@ -168,8 +168,9 @@ export interface paths {
         put?: never;
         /**
          * Request a password reset mail
-         * @description Answers the same whether or not the address belongs to an account. The reset is
-         *     created and mailed after the answer.
+         * @description Answers the same whether or not the address belongs to an account, and for a
+         *     suspended member, who gets no mail. The reset is created after the answer, and
+         *     mailed after it is stored; if the mail fails, the reset is deleted again.
          */
         post: operations["requestPasswordReset"];
         delete?: never;
@@ -504,7 +505,11 @@ export interface paths {
         get?: never;
         /**
          * Suspend or reactivate a member
-         * @description A suspended member cannot log in or renew a session, and their tokens stop working.
+         * @description A suspended member cannot log in or renew a session, their tokens stop working,
+         *     and the links mailed to them (password reset, email change) answer like an invalid
+         *     token. Nobody can suspend themselves (422 `You cannot suspend yourself.`), and only a
+         *     superadmin can suspend or reactivate a superadmin (403
+         *     `Only a superadmin can suspend or activate a superadmin.`).
          */
         put: operations["setMemberActive"];
         post?: never;
@@ -591,8 +596,8 @@ export interface paths {
         get?: never;
         /**
          * Set or unset the primary body of a member
-         * @description The member has to be in the body. Without `primary_body_id`, or with null, the
-         *     primary body is unset.
+         * @description The member has to be in the body. Without `primary_body_id`, or with any value that
+         *     JavaScript reads as false (null, `0`, an empty text, false), the primary body is unset.
          */
         put: operations["setPrimaryBody"];
         post?: never;
@@ -886,7 +891,11 @@ export interface paths {
          *     gets a welcome mail.
          */
         post: operations["createBodyMembership"];
-        /** Leave a body */
+        /**
+         * Leave a body
+         * @description If it was the member's last body, the Google Workspace administrators are told; a
+         *     failure of that mail is logged and does not change the answer.
+         */
         delete: operations["deleteOwnBodyMembership"];
         options?: never;
         head?: never;
@@ -932,7 +941,8 @@ export interface paths {
         put?: never;
         /**
          * Ask to join a body
-         * @description Mails the body and the members who can process its join requests.
+         * @description Mails the body and the members who can process its join requests, after the request
+         *     is stored. If that mail fails, the request stays and the failure is logged.
          */
         post: operations["createJoinRequest"];
         delete?: never;
@@ -1006,7 +1016,9 @@ export interface paths {
         /**
          * Remove a member from a body
          * @description Also removes the member from the circles of the body, deletes their join request
-         *     and unsets the body as their primary body.
+         *     and unsets the body as their primary body. If it was the member's last body, the
+         *     Google Workspace administrators are told; a failure of that mail is logged and does
+         *     not change the answer.
          */
         delete: operations["deleteBodyMembership"];
         options?: never;
@@ -2381,8 +2393,35 @@ export interface components {
         };
     };
     responses: {
-        /** @description Malformed request: an ID that is not a number, or a `sort` field that the listed rows do not have. */
+        /** @description Malformed request: an ID that is not a number, or a `sort` field that the listed rows do not have. On an operation with a JSON body also a text in the body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), or a compressed body that does not decompress (`The request body could not be read.`). */
         BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description A text in the request body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), which Postgres cannot store, or a compressed body that does not decompress (`The request body could not be read.`). Checked before the route, so also before the login. */
+        UnreadableBody: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The JSON body is larger than 100 kB (`The request body could not be read.`). Checked before the route, so also before the login. */
+        BodyTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description A charset other than UTF-8 or a content encoding other than gzip, deflate, br or zstd (`The request body could not be read.`). Checked before the route, so also before the login. */
+        BodyNotReadable: {
             headers: {
                 [name: string]: unknown;
             };
@@ -2419,6 +2458,15 @@ export interface components {
         };
         /** @description Another request for the same token or member is being processed for longer than the lock timeout (3 seconds). Nothing was changed; try again. */
         Busy: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The mail of this operation could not be sent (the mailer failed or did not answer within 10 seconds), so it rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` */
+        MailNotSent: {
             headers: {
                 [name: string]: unknown;
             };
@@ -2561,6 +2609,7 @@ export interface operations {
                     "application/json": components["schemas"]["UserSignupResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             /** @description The campaign is not active. */
             403: {
                 headers: {
@@ -2571,7 +2620,10 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["MailNotSent"];
         };
     };
     confirmEmail: {
@@ -2596,7 +2648,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description No token, or a token that is not a string. */
+            /** @description No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2623,6 +2675,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     confirmEmailChange: {
@@ -2647,6 +2701,7 @@ export interface operations {
                     "application/json": components["schemas"]["EmailChangeConfirmationResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             /** @description No token, an unknown or expired token, or the login email changed since the request. */
             404: {
                 headers: {
@@ -2656,6 +2711,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The new address belongs to another account by now. */
             422: {
                 headers: {
@@ -2665,7 +2722,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            503: components["responses"]["Busy"];
+            /** @description Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     login: {
@@ -2696,6 +2761,7 @@ export interface operations {
                     "application/json": components["schemas"]["TokensResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             /** @description The name or password does not match, the account is suspended, or its email is not confirmed yet. */
             403: {
                 headers: {
@@ -2705,6 +2771,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     logout: {
@@ -2729,7 +2797,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description No token, or a token that is not a string. */
+            /** @description No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2747,6 +2815,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     requestPasswordReset: {
@@ -2776,7 +2846,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description The email is not a string. */
+            /** @description The email is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2785,6 +2855,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     confirmPasswordReset: {
@@ -2814,6 +2886,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             /** @description No token, or an unknown or expired one. */
             404: {
                 headers: {
@@ -2823,6 +2896,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -2848,6 +2923,7 @@ export interface operations {
                     "application/json": components["schemas"]["TokensResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             /** @description No token, an unknown or used-up token, or the token of a suspended member. */
             403: {
                 headers: {
@@ -2857,6 +2933,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             503: components["responses"]["Busy"];
         };
     };
@@ -2942,8 +3020,11 @@ export interface operations {
                     "application/json": components["schemas"]["BodyResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3060,7 +3141,7 @@ export interface operations {
                     "application/json": components["schemas"]["CircleWithCircleMembershipsListResponse"];
                 };
             };
-            /** @description No `action` or `object`, or a `sort` field that circles do not have. */
+            /** @description No `action` or `object`, or a `sort` field that circles do not have. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3079,6 +3160,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     listMembers: {
@@ -3244,8 +3327,11 @@ export interface operations {
                     "application/json": components["schemas"]["CircleResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3302,8 +3388,11 @@ export interface operations {
                     "application/json": components["schemas"]["PermissionResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3361,8 +3450,11 @@ export interface operations {
                     "application/json": components["schemas"]["CampaignResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3409,8 +3501,11 @@ export interface operations {
                     "application/json": components["schemas"]["ResourceCategoryResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3436,8 +3531,11 @@ export interface operations {
                     "application/json": components["schemas"]["ResourceLinkResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3495,9 +3593,12 @@ export interface operations {
                     "application/json": components["schemas"]["UserWithMembershipsResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3531,9 +3632,12 @@ export interface operations {
                     "application/json": components["schemas"]["EventApplicationBanResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3600,9 +3704,12 @@ export interface operations {
                     "application/json": components["schemas"]["UserWithMembershipsResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3662,7 +3769,7 @@ export interface operations {
                     "application/json": components["schemas"]["UserWithMembershipsResponse"];
                 };
             };
-            /** @description `primary_body_id` is not a number. */
+            /** @description `primary_body_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3690,6 +3797,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
         };
     };
     requestEmailChange: {
@@ -3721,7 +3830,7 @@ export interface operations {
                     "application/json": components["schemas"]["EmailChangeRequestResponse"];
                 };
             };
-            /** @description No `new_email`, or one that is not a string. */
+            /** @description No `new_email`, or one that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3733,6 +3842,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The address is on a restricted domain, belongs to another account, or is not an email address. */
             422: {
                 headers: {
@@ -3742,7 +3853,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            503: components["responses"]["Busy"];
+            /** @description Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     setMemberPassword: {
@@ -3775,9 +3894,12 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description No or a wrong `old_password`, or a new password that is not valid. */
             422: {
                 headers: {
@@ -3818,7 +3940,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description No `mailinglists`, or not an array. */
+            /** @description No `mailinglists`, or not an array. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3830,6 +3952,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description An empty list, an item that is not a string, or a list that does not exist. */
             422: {
                 headers: {
@@ -3922,9 +4046,12 @@ export interface operations {
                     "application/json": components["schemas"]["UserWithMembershipsResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4088,9 +4215,12 @@ export interface operations {
                     "application/json": components["schemas"]["BodyWithCirclesResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4180,9 +4310,12 @@ export interface operations {
                     "application/json": components["schemas"]["CampaignResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4211,9 +4344,12 @@ export interface operations {
                     "application/json": components["schemas"]["CircleResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4299,7 +4435,7 @@ export interface operations {
                     "application/json": components["schemas"]["BodyMembershipResponse"];
                 };
             };
-            /** @description `user_id` is not a number. */
+            /** @description `user_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4319,6 +4455,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The member belongs to the body already. */
             422: {
                 headers: {
@@ -4328,6 +4466,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            503: components["responses"]["MailNotSent"];
         };
     };
     deleteOwnBodyMembership: {
@@ -4388,9 +4527,12 @@ export interface operations {
                     "application/json": components["schemas"]["BodyMembershipResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4469,8 +4611,11 @@ export interface operations {
                     "application/json": components["schemas"]["JoinRequestResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The caller asked already, is a member of the body already, or the body is deleted. */
             422: {
                 headers: {
@@ -4541,7 +4686,7 @@ export interface operations {
                     "application/json": components["schemas"]["PaymentResponse"];
                 };
             };
-            /** @description No `user_id`, or one that is not a number. */
+            /** @description No `user_id`, or one that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4569,6 +4714,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4601,9 +4748,12 @@ export interface operations {
                     "application/json": components["schemas"]["BodyWithCirclesResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4671,6 +4821,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description A comment that is not a text. */
             422: {
                 headers: {
@@ -4742,7 +4894,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description A request id that is not a number, another status than approved or rejected, or a request that was processed already. */
+            /** @description A request id that is not a number, another status than approved or rejected, or a request that was processed already. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4754,6 +4906,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description Approving the request of somebody who became a member of the body in the meantime. */
             422: {
                 headers: {
@@ -4763,6 +4917,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            503: components["responses"]["MailNotSent"];
         };
     };
     listMyPermissionsForCircle: {
@@ -4844,7 +4999,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description A circle id or `permission_id` that is not a number. */
+            /** @description A circle id or `permission_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4864,6 +5019,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The circle has the permission already. */
             422: {
                 headers: {
@@ -4963,6 +5120,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5021,7 +5180,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageResponse"];
                 };
             };
-            /** @description A circle id or `parent_circle_id` that is not a number. */
+            /** @description A circle id or `parent_circle_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -5041,6 +5200,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The circle would become its own parent, directly or through other circles. */
             422: {
                 headers: {
@@ -5111,7 +5272,7 @@ export interface operations {
                     "application/json": components["schemas"]["CircleMembershipResponse"];
                 };
             };
-            /** @description A circle id or `user_id` that is not a number. */
+            /** @description A circle id or `user_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -5139,6 +5300,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description The member is in the circle already. */
             422: {
                 headers: {
@@ -5246,6 +5409,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description A position that is not a text. */
             422: {
                 headers: {
@@ -5338,6 +5503,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5455,9 +5622,12 @@ export interface operations {
                     "application/json": components["schemas"]["CampaignWithAutojoinBodyResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5621,6 +5791,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5683,6 +5855,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5767,6 +5941,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5833,6 +6009,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description `ids` is not a list of the ids of all links of the section, each once. */
             422: {
                 headers: {
@@ -5897,6 +6075,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5980,8 +6160,11 @@ export interface operations {
                     "application/json": components["schemas"]["ResourceCategoryWithLinksListResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyNotReadable"];
             /** @description `ids` is not a list of the ids of all sections, each once. */
             422: {
                 headers: {
