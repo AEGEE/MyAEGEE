@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const {
-    isInteger, isText, dateSetter, isDate, areDates
+    isInteger, plainSetter, isBoolean, isText, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -34,8 +34,12 @@ const Season = sequelize.define(
         },
         active: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('active'),
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         event_submission_deadline: {
             type: Sequelize.DATE,

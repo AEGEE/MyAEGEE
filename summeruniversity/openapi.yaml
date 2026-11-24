@@ -926,8 +926,8 @@ components:
             lng: {type: number}
           additionalProperties: false
         description: {type: string}
-        start: {type: boolean}
-        end: {type: boolean}
+        start: {type: [boolean, string], description: 'Whether the Summer University starts here: true or false, or the text "true" or "false", which the edit forms used to send.'}
+        end: {type: [boolean, string], description: 'Whether the Summer University ends here: true or false, or the text "true" or "false", which the edit forms used to send.'}
       additionalProperties: false
     Organizer:
       type: object

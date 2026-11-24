@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
+    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -27,6 +27,10 @@ const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
         lng: Joi.number().required()
     }),
     description: Joi.string().allow(''), // TODO: check that description is filled in for the second submission
+    // Unlike the BOOLEAN columns, start and end also take the text 'true' or 'false' (Joi reads
+    // them as booleans; the location is stored as sent). The edit forms sent the starting and
+    // ending city as the text 'true', stored Summer Universities hold it, and the second edit
+    // form sends the stored locations back as they are.
     start: Joi.boolean(), // TODO: validate that there is 1 starting city
     end: Joi.boolean() // TODO: validate that there is 1 ending city
 }));
@@ -402,8 +406,12 @@ const Event = sequelize.define(
         },
         deleted: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('deleted'),
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isBoolean
+            }
         },
         organizers: {
             type: Sequelize.JSONB,
@@ -495,6 +503,7 @@ const Event = sequelize.define(
         },
         open_call: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('open_call'),
             allowNull: true,
             defaultValue: false,
             validate: {
@@ -575,6 +584,7 @@ const Event = sequelize.define(
         },
         university_support: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('university_support'),
             allowNull: true,
             defaultValue: false,
             validate: {
@@ -597,6 +607,7 @@ const Event = sequelize.define(
         },
         agreed_to_su_terms: {
             type: Sequelize.BOOLEAN,
+            set: plainSetter('agreed_to_su_terms'),
             allowNull: false,
             defaultValue: false,
             validate: {

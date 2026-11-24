@@ -1,6 +1,8 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf, isInteger, isBoolean, isText } = require('../lib/validators');
+const {
+    isOneOf, isInteger, plainSetter, isBoolean, isText
+} = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
 const STRING_LENGTH = {
@@ -72,6 +74,7 @@ const Application = sequelize.define('application', {
     },
     visa_required: {
         type: Sequelize.BOOLEAN,
+        set: plainSetter('visa_required'),
         allowNull: false,
         defaultValue: false,
         validate: {
@@ -186,6 +189,7 @@ const Application = sequelize.define('application', {
     },
     confirmed: {
         type: Sequelize.BOOLEAN,
+        set: plainSetter('confirmed'),
         allowNull: false,
         defaultValue: false,
         validate: {
@@ -199,6 +203,7 @@ const Application = sequelize.define('application', {
     },
     attended: {
         type: Sequelize.BOOLEAN,
+        set: plainSetter('attended'),
         allowNull: false,
         defaultValue: false,
         validate: {
@@ -212,6 +217,7 @@ const Application = sequelize.define('application', {
     },
     cancelled: {
         type: Sequelize.BOOLEAN,
+        set: plainSetter('cancelled'),
         allowNull: false,
         defaultValue: false,
         validate: {
@@ -286,6 +292,7 @@ const Application = sequelize.define('application', {
     agreed_to_privacy_policy: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+        set: plainSetter('agreed_to_privacy_policy'),
         defaultValue: '',
         validate: {
             isValid(value) {
@@ -298,6 +305,7 @@ const Application = sequelize.define('application', {
     agreed_to_su_terms: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+        set: plainSetter('agreed_to_su_terms'),
         defaultValue: '',
         validate: {
             isValid(value) {

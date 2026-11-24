@@ -33,9 +33,16 @@ function isInteger(msg) {
     };
 }
 
-// true or false. Sequelize reads 'true', 'false', 1 and 0 as booleans before validating; any
-// other value reached the database, which refused it with a 500. allowNull decides on a
-// missing value.
+// The setter of a BOOLEAN column: it stores the value as sent. Without it, Sequelize reads
+// 'true', 'false', 1 and 0 as booleans before the validators see them.
+function plainSetter(field) {
+    return function setPlain(value) {
+        this.setDataValue(field, value);
+    };
+}
+
+// true or false (see plainSetter). Any other value reached the database, which refused it with
+// a 500. allowNull decides on a missing value.
 function isBoolean(value) {
     if (value !== null && value !== undefined && typeof value !== 'boolean') {
         throw new Error('The value should be true or false.');
@@ -124,5 +131,5 @@ function isDate(msg) {
 }
 
 module.exports = {
-    isOneOf, isInteger, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
+    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
 };
