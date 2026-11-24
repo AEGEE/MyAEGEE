@@ -38,7 +38,7 @@
           </router-link>
         </b-table-column>
 
-        <b-table-column field="mail_confirmed" label="Email confirmed?" sortable v-slot="props">
+        <b-table-column field="mail_confirmed_at" label="Email confirmed?" sortable v-slot="props">
           <span class="tag is-small" :class="(props.row.mail_confirmed_at) ? 'is-primary' : 'is-danger'">
             {{ !!props.row.mail_confirmed_at | beautify }}
           </span>
