@@ -491,7 +491,11 @@ describe('Events listing', () => {
             '/?starts=0001-01-01',
             '/?ends=0999-12-31',
             '/mine/organizing?starts=0001-01-01',
-            '/mine/participating?ends=0001-01-01'
+            '/mine/participating?ends=0001-01-01',
+            // Read strictly: nothing after the date but an ISO 8601 time, and four digits of year.
+            '/?starts=2027-03-01junk',
+            '/?ends=10000-01-01',
+            '/?starts=2027-3-1'
         ])('should return 422 for %s', async (path) => {
             await generator.createEvent({ status: 'published' });
 
@@ -507,6 +511,7 @@ describe('Events listing', () => {
             '/?type[]=training&type[]=nwm',
             '/?starts=2020-01-01&ends=2040-12-31',
             '/?starts=1000-01-01&ends=9999-12-31',
+            '/?starts=2027-03-01T10:00:00.000Z&ends=2027-03-31T10:00:00%2B0200',
             '/recents?ends=2040-12-31'
         ])('should accept %s', async (path) => {
             const res = await get(path);
