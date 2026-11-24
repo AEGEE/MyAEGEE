@@ -151,6 +151,35 @@ describe('API requests', () => {
             }
         });
 
+        // A body nested this deep is still far below the size limit of the JSON parser.
+        const nestedBody = (depth, innermost) => JSON.stringify({ username: 'x', password: 'x' }).slice(0, -1)
+            + ',"nested":' + '{"a":'.repeat(depth) + JSON.stringify(innermost) + '}'.repeat(depth)
+            + ',"list":' + '['.repeat(depth) + JSON.stringify(innermost) + ']'.repeat(depth) + '}';
+
+        test('should not be looked for in vain in a body nested 10,000 levels deep', async () => {
+            await generator.createUser({ username: 'deep-member', password: 'deep-password' });
+
+            const res = await request({
+                path: '/login',
+                method: 'POST',
+                rawBody: nestedBody(10000, 'text').replace('"username":"x","password":"x"', '"username":"deep-member","password":"deep-password"')
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+        });
+
+        test('should be refused at the bottom of a body nested 10,000 levels deep', async () => {
+            const res = await request({
+                path: '/login',
+                method: 'POST',
+                rawBody: nestedBody(10000, 'te\u0000xt')
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual(REFUSED);
+        });
+
         test('should be refused on a route without a login', async () => {
             const res = await request({
                 path: '/login',

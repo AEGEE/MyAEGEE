@@ -1,3 +1,5 @@
+const nock = require('nock');
+
 const { startServer, stopServer } = require('../../lib/server');
 const login = require('../../middlewares/login');
 const { rateLimitStore } = require('../../middlewares/bug-report');
@@ -91,6 +93,40 @@ describe('Request bodies', () => {
 
                     if (res.statusCode >= 500) {
                         failures.push({ field, value, status: res.statusCode, message: res.body.message });
+                    }
+                }
+            }
+
+            expect(failures).toEqual([]);
+        });
+    });
+
+    // A value nested 10,000 levels deep, as an object and as a list, in each field and in a
+    // field that the route does not know.
+    describe('a value nested 10,000 levels deep', () => {
+        const DEPTH = 10000;
+        const DEEP_VALUES = {
+            object: '{"a":'.repeat(DEPTH) + '"text"' + '}'.repeat(DEPTH),
+            list: '['.repeat(DEPTH) + '"text"' + ']'.repeat(DEPTH)
+        };
+
+        test.each(ROUTES.filter((route) => !route.multipart))('$title never answers with a server error', async (route) => {
+            // With a field it does not know, the subscription to a mailing list goes out.
+            nock(config.listserv_endpoint).persist().post('').reply(200, 'OK');
+            const failures = [];
+
+            for (const field of [...Object.keys(route.body(data)), 'unknown_field']) {
+                for (const [kind, deep] of Object.entries(DEEP_VALUES)) {
+                    const rawBody = JSON.stringify({ ...route.body(data), [field]: 'DEEP' }).replace('"DEEP"', deep);
+                    const res = await request({
+                        path: route.path(data),
+                        method: route.method,
+                        headers: { 'X-Auth-Token': data.token.value },
+                        rawBody
+                    });
+
+                    if (res.statusCode >= 500) {
+                        failures.push({ field, kind, status: res.statusCode, message: res.body.message });
                     }
                 }
             }
