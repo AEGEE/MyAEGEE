@@ -341,9 +341,11 @@ export default {
         this.isSaving = false
         this.$root.showSuccess('Candidate is saved.')
 
+        // Someone else's candidature is edited by the Juridical Commission, from its own list.
+        const prefix = this.$route.params.candidate_id && this.candidate.user_id !== this.loginUser.id ? 'all' : 'approved'
         return this.$router.push({
           name: 'oms.statutory.positions',
-          params: { id: this.$route.params.id, prefix: 'approved' }
+          params: { id: this.$route.params.id, prefix }
         })
       }).catch((err) => {
         this.isSaving = false
