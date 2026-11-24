@@ -628,7 +628,7 @@ export default {
       return !this.application.id
     },
     activeEventApplicationBan () {
-      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+      return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     },
     canSubmitApplication () {
       return this.can.apply && (!this.isNew || !this.activeEventApplicationBan)
