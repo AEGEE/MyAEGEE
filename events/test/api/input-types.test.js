@@ -12,7 +12,12 @@ const user = require('../assets/oms-core-valid.json').data;
 // or a value stored as text.
 const LONG_TEXT = 'a'.repeat(300);
 const ABOVE_INT4 = 2 ** 31;
-const WRONG_DATES = ['garbage', '1', '2020-02-31', [], {}, ABOVE_INT4, true];
+// Numbers are milliseconds. Postgres has no year 0, so dates outside the years 0001 to 9999
+// are refused, also as text.
+const WRONG_DATES = [
+    'garbage', '1', '2020-02-31', [], {}, true, '0000-07-01',
+    1e20, -1e16, Date.parse('0001-01-01T00:00:00.000Z') - 1, Date.parse('9999-12-31T23:59:59.999Z') + 1
+];
 const NOT_TEXT = [[], {}, 5, true];
 
 const EVENT_CASES = [
@@ -180,7 +185,8 @@ describe('Input types', () => {
         ['2026-12-01'],
         ['2026-12-01 15:00'],
         ['2026-12-01T15:00:00.000Z'],
-        ['2026-12-01T15:00:00+01:00']
+        ['2026-12-01T15:00:00+01:00'],
+        [new Date('2026-12-01T15:00:00.000Z').getTime()]
     ])('takes the date %s', async (value) => {
         const event = await generator.createEvent({
             application_starts: moment('2026-11-01').toDate(),
@@ -194,6 +200,47 @@ describe('Input types', () => {
         expect(res.statusCode).toEqual(200);
         const after = await Event.findByPk(event.id);
         expect(after.starts.getTime()).toEqual(new Date(value).getTime());
+    });
+
+    // The edit form sends an online event without applications with an application end of
+    // `starts` minus one minute, as a number of milliseconds.
+    test('creates an online event without applications as the form sends it', async () => {
+        const starts = moment().add(3, 'weeks').toDate();
+        const form = JSON.parse(JSON.stringify(newEvent({
+            method: 'online',
+            has_applications: false,
+            fee: null,
+            optional_fee: null,
+            questions: [],
+            locations: [],
+            starts,
+            ends: moment().add(4, 'weeks').toDate(),
+            application_starts: moment()
+        })));
+        form.application_ends = starts - moment.duration(1, 'minutes');
+
+        const res = await request({ path: '/', method: 'POST', headers: { 'X-Auth-Token': 'foobar' }, body: form });
+
+        expect(res.statusCode).toEqual(201);
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.application_ends.getTime()).toEqual(starts.getTime() - 60000);
+    });
+
+    test('edits an online event without applications as the form sends it', async () => {
+        const event = await generator.createEvent({ method: 'online', has_applications: false });
+        const loaded = await request({ path: '/single/' + event.id, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+        const form = { ...loaded.body.data, name: 'Renamed online event' };
+        form.organizing_bodies = form.organizing_bodies.map((body) => ({ body_id: body.body_id }));
+        form.organizers = form.organizers.map((organizer) => ({ user_id: organizer.user_id }));
+        form.application_starts = JSON.parse(JSON.stringify(moment()));
+        form.application_ends = new Date(form.starts) - moment.duration(1, 'minutes');
+
+        const res = await request({ path: '/single/' + event.id, method: 'PUT', headers: { 'X-Auth-Token': 'foobar' }, body: form });
+
+        expect(res.statusCode).toEqual(200);
+        const after = await Event.findByPk(event.id);
+        expect(after.name).toEqual('Renamed online event');
+        expect(after.application_ends.getTime()).toEqual(new Date(loaded.body.data.starts).getTime() - 60000);
     });
 
     describe('Application', () => {
