@@ -102,6 +102,7 @@ export default {
           placeholder: 'Fee paid (in EUR)',
           required: true,
           type: 'number',
+          min: 0,
           step: 0.01
         },
         onConfirm: (newFee) => this.setFeePaid(parseFloat(newFee), memberslist)
