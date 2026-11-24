@@ -20,6 +20,12 @@ const rows = (paramName, values, filter = () => true) => operations
 // The largest Postgres integer: an id of the right form that no row has.
 const UNKNOWN_ID = '2147483647';
 
+// Values that are not an id: not a number, negative, not whole, or past the largest Postgres integer.
+const MALFORMED_IDS = ['abc', '-1', '1.5', '2147483648'];
+
+// Ids of the right form that no row has: zero, which no serial id takes, and the largest one.
+const UNKNOWN_IDS = ['0', UNKNOWN_ID];
+
 // The ids that a router looks up before its routes run, with the two answers each gives.
 const lookedUp = {
     position_id: { invalid: 'The position ID is invalid.', notFound: 'Position is not found.' },
@@ -43,9 +49,9 @@ const invalidBodyId = {
 
 // The routes that answer 404 for a body without a row of theirs; the others take any body.
 const unknownBodyId = {
-    deletePaxLimit: `There's no limit for body with the ID ${UNKNOWN_ID}.`,
-    getMemberslist: 'Members list is not found.',
-    setMemberslistFeePaid: 'Members list is not found.'
+    deletePaxLimit: (value) => `There's no limit for body with the ID ${value}.`,
+    getMemberslist: () => 'Members list is not found.',
+    setMemberslistFeePaid: () => 'Members list is not found.'
 };
 
 describe('Path parameters', () => {
@@ -100,14 +106,14 @@ describe('Path parameters', () => {
     });
 
     describe.each(Object.entries(lookedUp))('%s', (paramName, messages) => {
-        test.each(rows(paramName, ['abc']))('%s answers 400 for the value %s', async (_, value, operation) => {
+        test.each(rows(paramName, MALFORMED_IDS))('%s answers 400 for the value %s', async (_, value, operation) => {
             const res = await requestFor(operation, fixtures, { pathValues: { [paramName]: value } });
 
             expect(res.statusCode).toEqual(400);
             expect(res.body).toEqual({ success: false, message: messages.invalid });
         });
 
-        test.each(rows(paramName, [UNKNOWN_ID]))('%s answers 404 for the unknown id %s', async (_, value, operation) => {
+        test.each(rows(paramName, UNKNOWN_IDS))('%s answers 404 for the unknown id %s', async (_, value, operation) => {
             const res = await requestFor(operation, fixtures, { pathValues: { [paramName]: value } });
 
             expect(res.statusCode).toEqual(404);
@@ -123,7 +129,7 @@ describe('Path parameters', () => {
         expect(res.body).toEqual({ success: false, message: 'This user haven\'t applied to this event yet.' });
     });
 
-    test.each(rows('body_id', ['abc'], (operation) => invalidBodyId[operation.operationId]))(
+    test.each(rows('body_id', MALFORMED_IDS, (operation) => invalidBodyId[operation.operationId]))(
         '%s answers 400 for the body id %s',
         async (_, value, operation) => {
             const res = await requestFor(operation, fixtures, { pathValues: { body_id: value } });
@@ -133,13 +139,13 @@ describe('Path parameters', () => {
         }
     );
 
-    test.each(rows('body_id', [UNKNOWN_ID], (operation) => unknownBodyId[operation.operationId]))(
+    test.each(rows('body_id', UNKNOWN_IDS, (operation) => unknownBodyId[operation.operationId]))(
         '%s answers 404 for the unknown body %s',
         async (_, value, operation) => {
             const res = await requestFor(operation, fixtures, { pathValues: { body_id: value } });
 
             expect(res.statusCode).toEqual(404);
-            expect(res.body).toEqual({ success: false, message: unknownBodyId[operation.operationId] });
+            expect(res.body).toEqual({ success: false, message: unknownBodyId[operation.operationId](value) });
         }
     );
 
