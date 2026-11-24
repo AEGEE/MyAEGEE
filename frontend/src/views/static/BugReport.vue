@@ -12,7 +12,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event, index)">
+              <input class="file-input" type="file" name="resume" :aria-label="`Screenshot ${index + 1}`" @change="setFile($event, index)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -28,13 +28,13 @@
           </div>
         </div>
         <div class="control">
-          <button class="button is-danger" @click="files.splice(index, 1)">Remove screenshot</button>
+          <button type="button" class="button is-danger" :aria-label="`Remove screenshot ${index + 1}`" @click="files.splice(index, 1)">Remove screenshot</button>
         </div>
       </div>
 
       <div class="field">
         <div class="control">
-          <button class="button is-primary" :disabled="files.length >= maxFiles" @click="files.push(null)">Add screenshot</button>
+          <button type="button" class="button is-primary" :disabled="files.length >= maxFiles" @click="files.push(null)">Add screenshot</button>
         </div>
       </div>
 
@@ -55,23 +55,23 @@
 
       <form @submit.prevent="sendBugReport()">
         <div class="field">
-          <label class="label">What is happening?</label>
+          <label class="label" for="bug-summary">What is happening?</label>
           <div class="control">
-            <input class="input" type="text" v-model="bug.summary" required />
+            <input id="bug-summary" class="input" type="text" v-model="bug.summary" required />
           </div>
         </div>
 
         <div class="field">
-          <label class="label">Describe what's wrong and how it should work</label>
+          <label class="label" for="bug-description">Describe what's wrong and how it should work</label>
           <div class="control">
-            <textarea class="textarea" v-model="bug.description" required />
+            <textarea id="bug-description" class="textarea" v-model="bug.description" required />
           </div>
         </div>
 
         <div class="field" v-if="!loginUser">
-          <label class="label">Your email</label>
+          <label class="label" for="bug-email">Your email</label>
           <div class="control">
-            <input class="input" type="email" v-model="bug.email" required />
+            <input id="bug-email" class="input" type="email" v-model="bug.email" required />
           </div>
         </div>
 
