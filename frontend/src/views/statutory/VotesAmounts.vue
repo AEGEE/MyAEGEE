@@ -46,8 +46,8 @@
         <table class="table is-narrow is-fullwidth" aria-labelledby="votes-by-delegate">
           <thead>
             <tr>
-              <th>Application ID</th>
-              <th>User</th>
+              <th>Statutory ID</th>
+              <th>User ID</th>
               <th>Body</th>
               <th>Type</th>
               <th>Votes</th>
