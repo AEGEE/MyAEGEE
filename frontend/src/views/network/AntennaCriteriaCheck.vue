@@ -1,28 +1,28 @@
 <template>
   <div class="tile is-ancestor antenna-criteria-check">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">Antenna Criteria Check</h4>
+      <article class="tile is-child" aria-labelledby="ac-check-title" :aria-busy="isLoading">
+        <h1 class="title" id="ac-check-title">Antenna Criteria Check</h1>
 
         <div class="antenna-criteria-check-content">
           <div class="antenna-criteria-check-inner">
             <div class="field">
-              <label class="label">Selected Agora</label>
+              <label class="label" for="ac-check-agora">Selected Agora</label>
               <div class="select">
-                <select v-model="selectedAgora" @change="fetchData()">
+                <select id="ac-check-agora" v-model="selectedAgora" @change="fetchData()">
                   <option v-for="agora in agorae" v-bind:key="agora.id" :value="agora">{{ agora.name }}</option>
                 </select>
               </div>
             </div>
 
             <div class="buttons">
-              <a class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</a>
-              <a class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</a>
+              <button type="button" class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</button>
+              <button type="button" class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</button>
 
-              <a class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</a>
-              <a class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</a>
+              <button type="button" class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</button>
+              <button type="button" class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</button>
 
-              <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
+              <button type="button" class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</button>
             </div>
 
             <div class="antenna-criteria-check-table-scroll">
@@ -46,7 +46,7 @@
 
                 <b-table-column field="communication" :label="criterionHeaderLabel('Communication', 'C')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Communication')" v-tooltip="compactHeaderTooltip('Communication')">C</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Communication')" v-tooltip="compactHeaderTooltip('Communication')">C</span>
                     <span v-else>Communication (C)</span>
                   </template>
                   <template v-slot="props">
@@ -56,7 +56,7 @@
 
                 <b-table-column field="boardElection" :label="criterionHeaderLabel('Board election', 'BE')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Board election')" v-tooltip="compactHeaderTooltip('Board election')">BE</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Board election')" v-tooltip="compactHeaderTooltip('Board election')">BE</span>
                     <span v-else>Board election (BE)</span>
                   </template>
                   <template v-slot="props">
@@ -66,7 +66,7 @@
 
                 <b-table-column field="membersList" :label="criterionHeaderLabel('Members list', 'ML')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Members list')" v-tooltip="compactHeaderTooltip('Members list')">ML</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Members list')" v-tooltip="compactHeaderTooltip('Members list')">ML</span>
                     <span v-else>Members list (ML)</span>
                   </template>
                   <template v-slot="props">
@@ -76,7 +76,7 @@
 
                 <b-table-column field="membershipFee" :label="criterionHeaderLabel('Membership fee', 'F')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Membership fee')" v-tooltip="compactHeaderTooltip('Membership fee')">F</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Membership fee')" v-tooltip="compactHeaderTooltip('Membership fee')">F</span>
                     <span v-else>Membership fee (F)</span>
                   </template>
                   <template v-slot="props">
@@ -86,7 +86,7 @@
 
                 <b-table-column field="mostRecentEvent" :label="criterionHeaderLabel('Events', 'E')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Events')" v-tooltip="compactHeaderTooltip('Events')">E</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Events')" v-tooltip="compactHeaderTooltip('Events')">E</span>
                     <span v-else>Events (E)</span>
                   </template>
                   <template v-slot="props">
@@ -96,7 +96,7 @@
 
                 <b-table-column field="attendance" :label="criterionHeaderLabel('Agora attendance', 'AA')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Agora attendance')" v-tooltip="compactHeaderTooltip('Agora attendance')">AA</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Agora attendance')" v-tooltip="compactHeaderTooltip('Agora attendance')">AA</span>
                     <span v-else>Agora attendance (AA)</span>
                   </template>
                   <template v-slot="props">
@@ -106,7 +106,7 @@
 
                 <b-table-column field="development" :label="criterionHeaderLabel('Development plan', 'DP')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Development plan')" v-tooltip="compactHeaderTooltip('Development plan')">DP</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Development plan')" v-tooltip="compactHeaderTooltip('Development plan')">DP</span>
                     <span v-else>Development plan (DP)</span>
                   </template>
                   <template v-slot="props">
@@ -116,7 +116,7 @@
 
                 <b-table-column field="fulfilment" :label="criterionHeaderLabel('Fulfilment report', 'FR')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Fulfilment report')" v-tooltip="compactHeaderTooltip('Fulfilment report')">FR</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Fulfilment report')" v-tooltip="compactHeaderTooltip('Fulfilment report')">FR</span>
                     <span v-else>Fulfilment report (FR)</span>
                   </template>
                   <template v-slot="props">
@@ -125,19 +125,19 @@
                 </b-table-column>
 
                 <b-table-column v-slot="props">
-                  <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link">
+                  <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link" :aria-label="'Show comments for ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'eye']" /></span>
                   </b-button>
                 </b-table-column>
 
                 <b-table-column v-slot="props">
-                  <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning">
+                  <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning" :aria-label="'Edit criteria for ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'pencil-alt']" /></span>
                   </b-button>
                 </b-table-column>
 
                 <b-table-column :visible="!!can.sendFulfilmentEmails" v-slot="props">
-                  <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
+                  <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger" :aria-label="'Send fulfilment mail to ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
                   </b-button>
                 </b-table-column>
@@ -243,6 +243,7 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaModal,
         hasModaLCard: true,
+        ariaLabel: 'Criteria for ' + row.name,
         props: {
           local: row,
           agora: this.selectedAgora,
@@ -259,6 +260,7 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaInfo,
         hasModalCard: true,
+        ariaLabel: 'Comments for ' + row.name,
         props: {
           local: row,
           agora: this.selectedAgora,
@@ -273,6 +275,7 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaMail,
         hasModalCard: true,
+        ariaLabel: 'Change fulfilment email text',
         props: {
           agora: this.selectedAgora,
           mailComponents: this.mailComponents,
@@ -287,6 +290,7 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaMailSend,
         hasModalCard: true,
+        ariaLabel: 'Fulfilment mail to ' + row.name,
         props: {
           local: row,
           agora: this.selectedAgora,
