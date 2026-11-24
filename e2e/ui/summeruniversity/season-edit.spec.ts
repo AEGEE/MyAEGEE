@@ -1,7 +1,8 @@
 // Season editor (/summeruniversity/seasons/new and /summeruniversity/seasons/:year/edit).
 import { ok, validationError } from '../support/factories/base.ts';
 import { suSeason } from '../support/factories/summeruniversity.ts';
-import { toast } from '../support/shell.ts';
+import { openMenu, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 const SEASON = suSeason({
@@ -13,6 +14,9 @@ const SEASON = suSeason({
     application_period_starts: '2027-03-01T09:00:00.000Z',
     application_period_ends: '2027-04-30T08:00:00.000Z'
 });
+
+// What a service answers when its database can't be reached.
+const DATABASE_DOWN = 'connect ECONNREFUSED 127.0.0.1:5432';
 
 test.describe('Summer University season editor', () => {
     test('creating a season sends its dates and goes back to the list', async ({ page, api }) => {
@@ -171,5 +175,33 @@ test.describe('Summer University season editor', () => {
         await page.getByRole('button', { name: 'Save season' }).click();
         expect(await page.getByLabel('Name').evaluate((input: HTMLInputElement) => input.validity.valueMissing)).toBe(true);
         expect(api.callsTo('POST summeruniversity /seasons')).toHaveLength(0);
+    });
+
+    test('a member who leaves while the season loads is not sent on by its late error', async ({ page, api, layout }) => {
+        let release!: () => void;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET summeruniversity /seasons', async () => {
+            await released;
+            return { status: 500, json: { success: false, message: DATABASE_DOWN } };
+        });
+        // The page the member goes to belongs to another area: any answer will do for it.
+        api.fallback(mockEverything);
+        // The mock records a call only once it has answered it, so the test waits for the request.
+        const isLate = (url: string) => new URL(url).pathname.replace(/\/$/, '') === '/api/summeruniversity/seasons';
+        const asked = page.waitForRequest((request) => isLate(request.url()));
+        await page.goto('/summeruniversity/seasons/2027/edit');
+        await asked;
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Dashboard' }).click();
+        await expect(page).toHaveURL('/dashboard');
+
+        const late = page.waitForResponse((response) => isLate(response.url()));
+        release();
+        await late;
+        // Two frames: the page has handled the answer by then.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Could not fetch season/).count()).toBe(0);
+        await expect(page).toHaveURL('/dashboard');
     });
 });

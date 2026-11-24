@@ -2,7 +2,8 @@
 // active.
 import { forbidden, ok } from '../support/factories/base.ts';
 import { suSeason } from '../support/factories/summeruniversity.ts';
-import { cellOf, dialog, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, expectEmptyTable, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 const ACTIVE = suSeason({
@@ -22,6 +23,9 @@ const PREVIOUS = suSeason({
     application_period_starts: null,
     application_period_ends: null
 });
+
+// What a service answers when its database can't be reached.
+const DATABASE_DOWN = 'connect ECONNREFUSED 127.0.0.1:5432';
 
 test.describe('Summer University seasons', () => {
     test('lists the seasons with their dates and the active one', async ({ page, api }) => {
@@ -107,5 +111,33 @@ test.describe('Summer University seasons', () => {
 
         await expect(toast(page, 'Could not fetch seasons: Network Error')).toBeVisible();
         await expectEmptyTable(page.getByRole('table'));
+    });
+
+    test('a member who leaves while the seasons load sees no late error for it', async ({ page, api, layout }) => {
+        let release!: () => void;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET summeruniversity /seasons', async () => {
+            await released;
+            return { status: 500, json: { success: false, message: DATABASE_DOWN } };
+        });
+        // The page the member goes to belongs to another area: any answer will do for it.
+        api.fallback(mockEverything);
+        // The mock records a call only once it has answered it, so the test waits for the request.
+        const isLate = (url: string) => new URL(url).pathname.replace(/\/$/, '') === '/api/summeruniversity/seasons';
+        const asked = page.waitForRequest((request) => isLate(request.url()));
+        await page.goto('/summeruniversity/seasons');
+        await asked;
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Dashboard' }).click();
+        await expect(page).toHaveURL('/dashboard');
+
+        const late = page.waitForResponse((response) => isLate(response.url()));
+        release();
+        await late;
+        // Two frames: the page has handled the answer by then.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Could not fetch seasons/).count()).toBe(0);
+        await expect(page).toHaveURL('/dashboard');
     });
 });

@@ -7,7 +7,8 @@ import { forbidden, notFound, ok, validationError } from '../support/factories/b
 import {
     suApplication, suEvent, suOrganizerPermissions, suParticipantRow, VISA_DETAILS, type SuParticipantRow
 } from '../support/factories/summeruniversity.ts';
-import { dialog, expectEmptyTable, freezeTime, tableRows, toast } from '../support/shell.ts';
+import { dialog, expectEmptyTable, freezeTime, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 // What the service answers when its database can't be reached.
@@ -359,5 +360,33 @@ test.describe('participants of a Summer University', () => {
 
         await expect(toast(page, `Some error happened: ${DATABASE_DOWN}`)).toBeVisible();
         await expect(page).toHaveURL('/summeruniversity');
+    });
+
+    test('a member who leaves while the SU loads is not sent on by its late error', async ({ page, api, layout }) => {
+        let release!: () => void;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET summeruniversity /single/:id', async () => {
+            await released;
+            return { status: 404, json: notFound('Event with id mountains not found') };
+        });
+        // The page the member goes to belongs to another area: any answer will do for it.
+        api.fallback(mockEverything);
+        // The mock records a call only once it has answered it, so the test waits for the request.
+        const isLate = (url: string) => new URL(url).pathname.replace(/\/$/, '') === '/api/summeruniversity/single/mountains';
+        const asked = page.waitForRequest((request) => isLate(request.url()));
+        await page.goto('/summeruniversity/mountains/participants');
+        await asked;
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Dashboard' }).click();
+        await expect(page).toHaveURL('/dashboard');
+
+        const late = page.waitForResponse((response) => isLate(response.url()));
+        release();
+        await late;
+        // Two frames: the page has handled the answer by then.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Event is not found/).count()).toBe(0);
+        await expect(page).toHaveURL('/dashboard');
     });
 });

@@ -4,7 +4,8 @@ import type { Locator, Page } from '@playwright/test';
 
 import { forbidden, ok } from '../support/factories/base.ts';
 import { suEvent, type SuEvent, type SuStatus } from '../support/factories/summeruniversity.ts';
-import { cellOf, dialog, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, expectEmptyTable, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 const STATUS_CHANGED = { success: true, message: 'Successfully changed approval status' };
@@ -22,6 +23,9 @@ const STATUS_BUTTONS = [
 const showList = (api: import('../support/api-mock.ts').ApiMock, events: SuEvent[]) => {
     api.json('GET summeruniversity /mine/approvable', ok(events));
 };
+
+// What a service answers when its database can't be reached.
+const DATABASE_DOWN = 'connect ECONNREFUSED 127.0.0.1:5432';
 
 test.describe('Summer University statuses', () => {
     test('lists the SUs, latest start first, with the status changes of each status', async ({ page, api }) => {
@@ -305,5 +309,33 @@ test.describe('Summer University statuses', () => {
 
         await expect(toast(page, 'Could not fetch events list: Network Error')).toBeVisible();
         await expectEmptyTable(list(page));
+    });
+
+    test('a member who leaves while the SUs load sees no late error for it', async ({ page, api, layout }) => {
+        let release!: () => void;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET summeruniversity /mine/approvable', async () => {
+            await released;
+            return { status: 500, json: { success: false, message: DATABASE_DOWN } };
+        });
+        // The page the member goes to belongs to another area: any answer will do for it.
+        api.fallback(mockEverything);
+        // The mock records a call only once it has answered it, so the test waits for the request.
+        const isLate = (url: string) => new URL(url).pathname.replace(/\/$/, '') === '/api/summeruniversity/mine/approvable';
+        const asked = page.waitForRequest((request) => isLate(request.url()));
+        await page.goto('/summeruniversity/change_status');
+        await asked;
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Dashboard' }).click();
+        await expect(page).toHaveURL('/dashboard');
+
+        const late = page.waitForResponse((response) => isLate(response.url()));
+        release();
+        await late;
+        // Two frames: the page has handled the answer by then.
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+        // Counted at once: a retrying matcher would only wait until a toast has gone.
+        expect(await toast(page, /Could not fetch events list/).count()).toBe(0);
+        await expect(page).toHaveURL('/dashboard');
     });
 });
