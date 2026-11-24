@@ -550,6 +550,7 @@
 
         <div class="tile" role="region" aria-label="Map" style="position: relative; height: 400px">
           <MglMap
+            :mapboxGl="mapboxgl"
             :accessToken="accessToken"
             :mapStyle="map.style"
             :zoom="map.zoom"
@@ -775,6 +776,7 @@ import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
+import mapboxgl from 'mapbox-gl'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -1124,10 +1126,18 @@ export default {
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    // mapbox-gl itself, so the map is built as soon as it is shown: vue-mapbox would load it
+    // on its own after the map was created, and throw when the map is gone by then (the member
+    // left, or the map was taken away). A computed property, so Vue doesn't observe the library.
+    mapboxgl () {
+      return mapboxgl
+    }
+  },
   watch: {
     'event.name': function (newName) {
       if (!this.$route.params.id) {
