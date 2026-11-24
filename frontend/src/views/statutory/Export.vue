@@ -38,7 +38,7 @@
             <label class="label" for="export-cancelled">Filter on cancellation</label>
             <div class="select">
               <select id="export-cancelled" v-model="filter.cancelled">
-                <option :value="null">Everybody</option>
+                <option :value="null">Not cancelled (default)</option>
                 <option :value="true">Cancelled participants</option>
                 <option :value="false">Not cancelled participants</option>
               </select>
