@@ -417,7 +417,6 @@ describe('User mail change', () => {
                     surname: 'One',
                     new_email: 'new@example.com',
                     requester_name: 'Board Member',
-                    requester_email: 'board@example.com',
                     requester_body: 'AEGEE-Somewhere',
                     token: changes[0].old_value
                 }

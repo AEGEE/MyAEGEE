@@ -89,7 +89,6 @@ COMPLETE_PARAMETERS = {
         {"function": "Treasurer", "name": "Grace Hopper"},
     ],
     "requester_body": "AEGEE-Delft",
-    "requester_email": "grace.hopper@example.org",
     "requester_name": "Grace Hopper",
     "surname": "Lovelace",
     "token": "test-token",
@@ -141,7 +140,7 @@ def test_mail_change_old_confirm_shows_requester_new_address_and_token():
     assert "<title>MyAEGEE: Confirm the change of your email</title>" in rendered
     assert "Hello Ada Lovelace" in rendered
     assert (
-        "Grace Hopper (grace.hopper@example.org), who manages the members of AEGEE-Delft,"
+        "Grace Hopper, who manages the members of AEGEE-Delft,"
         " asked to change the login email of your MyAEGEE account"
         " to new.address@example.org. The address only changes if you confirm it:"
     ) in rendered
@@ -156,13 +155,22 @@ def test_mail_change_old_confirm_shows_requester_new_address_and_token():
     assert "just ignore this email" not in rendered
 
 
+def test_mail_change_old_confirm_names_the_requester_without_their_login_email():
+    parameters = copy.deepcopy(COMPLETE_PARAMETERS)
+    parameters["requester_email"] = "grace.hopper@example.org"
+
+    rendered = render_template("mail_change_old_confirm.jinja2", parameters)
+
+    assert "Grace Hopper, who manages the members of AEGEE-Delft, asked to change" in rendered
+    assert "grace.hopper@example.org" not in rendered
+
+
 def test_mail_change_old_confirm_escapes_values():
     parameters = {
         "name": "<i>Ada</i>",
         "surname": "<u>Lovelace</u>",
         "new_email": "<script>new</script>@example.org",
         "requester_name": "<b>x</b>",
-        "requester_email": "<em>mail</em>@example.org",
         "requester_body": "<s>AEGEE</s>",
         "token": '"><b>token</b>',
     }
@@ -172,7 +180,7 @@ def test_mail_change_old_confirm_escapes_values():
     assert "Hello &lt;i&gt;Ada&lt;/i&gt; &lt;u&gt;Lovelace&lt;/u&gt;" in rendered
     assert "&lt;script&gt;new&lt;/script&gt;@example.org" in rendered
     assert (
-        "&lt;b&gt;x&lt;/b&gt; (&lt;em&gt;mail&lt;/em&gt;@example.org),"
+        "&lt;b&gt;x&lt;/b&gt;,"
         " who manages the members of &lt;s&gt;AEGEE&lt;/s&gt;, asked to change"
     ) in rendered
     assert 'token=&#34;&gt;&lt;b&gt;token&lt;/b&gt;"' in rendered
@@ -182,7 +190,7 @@ def test_mail_change_old_confirm_escapes_values():
 
 @pytest.mark.parametrize(
     "missing",
-    ["name", "surname", "new_email", "requester_name", "requester_email", "requester_body", "token"],
+    ["name", "surname", "new_email", "requester_name", "requester_body", "token"],
 )
 def test_mail_change_old_confirm_needs_every_parameter(missing):
     parameters = copy.deepcopy(COMPLETE_PARAMETERS)
