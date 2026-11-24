@@ -3675,8 +3675,8 @@ components:
         body_id: {type: integer}
       unevaluatedProperties: false
     MembersListInput:
+      description: A first members list needs both fields (422 otherwise); an edit changes the fields it is sent and keeps the others.
       type: object
-      required: [currency, members]
       properties:
         currency:
           description: A two-letter code of the European Commission's monthly rates (`EU` for euro).

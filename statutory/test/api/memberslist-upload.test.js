@@ -1462,4 +1462,47 @@ describe('Memberslist uploading', () => {
             });
         });
     });
+
+    describe('an edit of a members list', () => {
+        test.each([
+            ['nothing', {}],
+            ['only the currency', { currency: 'EU' }],
+            ['only the members', { members: [{ first_name: 'Edited', last_name: 'Member', fee: 7, user_id: 1 }] }]
+        ])('with %s changes what it is sent and keeps the rest', async (description, body) => {
+            const event = await generator.createEvent({ type: 'agora' });
+            const stored = await generator.createMembersList({ body_id: regularUser.bodies[0].id, currency: 'EU' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(200);
+            const list = await MembersList.findByPk(stored.id);
+            expect(list.currency).toEqual(body.currency || stored.currency);
+            // The service adds the fee to AEGEE-Europe of each member.
+            const sent = (members) => members.map(({ first_name: first, last_name: last, fee }) => ({ first, last, fee }));
+            expect(sent(list.members)).toEqual(sent(body.members || stored.members));
+        });
+
+        test.each([
+            ['without members', { currency: 'EU' }, 'members'],
+            ['without a currency', { members: [{ first_name: 'A', last_name: 'Member', fee: 7, user_id: 1 }] }, 'currency']
+        ])('a first members list %s answers 422', async (description, body, field) => {
+            const event = await generator.createEvent({ type: 'agora' });
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(await MembersList.count()).toEqual(0);
+        });
+    });
 });

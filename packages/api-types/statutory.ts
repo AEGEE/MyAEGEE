@@ -2882,10 +2882,11 @@ export interface components {
         MembersListUploaded: {
             body_id: number;
         } & components["schemas"]["MembersListFields"];
+        /** @description A first members list needs both fields (422 otherwise); an edit changes the fields it is sent and keeps the others. */
         MembersListInput: {
             /** @description A two-letter code of the European Commission's monthly rates (`EU` for euro). */
-            currency: string;
-            members: {
+            currency?: string;
+            members?: {
                 /** @description Stored without surrounding spaces. */
                 first_name: string;
                 /** @description Stored without surrounding spaces. */
