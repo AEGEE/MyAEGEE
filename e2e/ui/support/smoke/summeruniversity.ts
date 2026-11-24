@@ -1,8 +1,8 @@
 // Answers for the pages of the area `summeruniversity` in the smoke and accessibility runs
 // (see index.ts).
 import type { ApiMock } from '../api-mock.ts';
-import { ok } from '../factories/base.ts';
-import { suEvent, suPermissions, suSeason } from '../factories/summeruniversity.ts';
+import { notFound, ok } from '../factories/base.ts';
+import { suEvent, suPermissions, suSeason, suStats } from '../factories/summeruniversity.ts';
 
 export const smoke = (api: ApiMock): void => {
     // An SU in its first draft, without locations (a map needs its own answers), photos and
@@ -12,6 +12,10 @@ export const smoke = (api: ApiMock): void => {
         { permissions: suPermissions({ apply: false }) }
     ));
     api.json('GET summeruniversity /seasons', ok([suSeason({ year: 2027 })]));
+    // The member hasn't applied yet: the application form.
+    api.on('GET summeruniversity /single/:id/applications/:application_id', { status: 404, json: notFound('Application with id me not found') });
+    // The statistics of the season.
+    api.json('GET summeruniversity /applications', ok(suStats()));
 };
 
 // Route name -> values for the parameters of its path (the default is '1').
