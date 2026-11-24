@@ -212,12 +212,14 @@ There is no index file: import from the file that has the factory.
 3. Ids come from `id()` unless the test passes one. Dates are relative to now (`iso(-5)`), so
    "open for applications" stays true whenever the tests run. A spec that checks a date on the
    page passes a fixed one.
-4. It has a contract check in `e2e/tests/<area>-contract.spec.ts`, added in the same pull
+4. It has a contract check in `e2e/tests/<area>-contract.spec.ts` (or
+   `<area>-<part>-contract.spec.ts` next to `factories/<area>-<part>.ts`), added in the same pull
    request: `expectShape('<factory name>', factory(), realAnswer)`. `npm run lint` fails for a
    factory without one. Helpers that build no entity are listed in the file's `NOT_ENTITIES`.
 5. An entity belongs in the file of the area that owns it. Another area builds on that factory
    with overrides instead of adding its own version.
-6. A large area may split its factories into `factories/<area>-<part>.ts`.
+6. A large area may split its factories into `factories/<area>-<part>.ts`, with their contract
+   checks in `tests/<area>-<part>-contract.spec.ts`. `npm run lint` reads every `*-contract.spec.ts`.
 
 ## Dates and time
 
@@ -252,7 +254,7 @@ a commit of its own (`fix(frontend): ...`), the same way everywhere:
 | A label that isn't tied to its field | `<label for>` with an `id` on the control, or `b-field :label-for`; controls per row get `aria-label="<what> of <row name>"` |
 | A page title that is a `div` | `<h1 class="title">` (or `role="heading" aria-level="1"`); tile and section titles `<h2>`. Specs use `getByRole('heading', { name })` without a level |
 | A dialog or modal opened from code | Its role is set for all of them (`frontend/src/app.js`). The call only adds what names it: `title` for `dialog.confirm`/`alert`/`prompt`, `ariaLabel` for `modal.open`, `inputAttrs: { 'aria-label': ... }` for a prompt's input. Buefy's dialog doesn't refer to its own title, so `app.js` ties them together when a dialog opens: it is named by its title (`aria-labelledby`) and described by its message; one without a title is named by its message. Specs: `page.getByRole('alertdialog', { name: 'Deleting an event' })` or `dialog(page, 'Deleting an event')` |
-| A paginated table | `aria-next-label="Next page"`, `aria-previous-label="Previous page"`, `aria-page-label="Page"`, `aria-current-label="Current page"` on the `b-table`; specs use `getByRole('button', { name: 'Next page' })` |
+| A paginated table | `ariaNextLabel="Next page"`, `ariaPreviousLabel="Previous page"`, `ariaPageLabel="Page"`, `ariaCurrentLabel="Current page"` on the `b-table`, as camelCase props (frontend lint refuses `aria-next-label` in a template as an unknown ARIA attribute). The page buttons are named "Page 3." and "Current page, Page 2.". The arrows are "Previous page" and "Next page" when the table is first shown, but once the page has changed Buefy 0.9 names them after the page they go to ("Page 3."). So specs use `getByRole('button', { name: 'Next page' })` only on the first page shown, and find a numbered page inside its list item, with an exact name: `page.getByRole('listitem').getByRole('button', { name: 'Page 3.', exact: true })` |
 | A loading state a spec needs to see | `:aria-busy` on the region around the `b-loading`. Otherwise wait for the content, never for the overlay |
 | A date picker (flatpickr) | `allowInput: true` and `disableMobile: true` in its config, an `id` and a label; specs use `fillDate()` |
 | A Buefy datepicker | `editable`, `:mobile-native="false"` and a label; specs `fill('1999-05-01')` and leave the field |

@@ -41,7 +41,8 @@ description.
 
 - [ ] At least one flow `e2e/tests/<area>-<flow>.spec.ts` for the area's main path across
       services.
-- [ ] `e2e/tests/<area>-contract.spec.ts` compares every new factory with the real answer
+- [ ] `e2e/tests/<area>-contract.spec.ts` (or `<area>-<part>-contract.spec.ts` for an area that
+      splits its factories) compares every new factory with the real answer
       (`npm run lint` fails for a factory without one). Every field is compared with a value on
       both sides, or listed in `gaps` with the reason nobody can fill it.
 
