@@ -486,7 +486,12 @@ describe('Events listing', () => {
             '/?ends=2020-13-45',
             '/mine/organizing?type=foo',
             '/mine/participating?starts=garbage',
-            '/recents?ends=garbage'
+            '/recents?ends=garbage',
+            // A year outside 1000-9999 reached Postgres, which refused the date with a 500.
+            '/?starts=0001-01-01',
+            '/?ends=0999-12-31',
+            '/mine/organizing?starts=0001-01-01',
+            '/mine/participating?ends=0001-01-01'
         ])('should return 422 for %s', async (path) => {
             await generator.createEvent({ status: 'published' });
 
@@ -501,6 +506,7 @@ describe('Events listing', () => {
             '/?type=training',
             '/?type[]=training&type[]=nwm',
             '/?starts=2020-01-01&ends=2040-12-31',
+            '/?starts=1000-01-01&ends=9999-12-31',
             '/recents?ends=2040-12-31'
         ])('should accept %s', async (path) => {
             const res = await get(path);

@@ -397,7 +397,12 @@ describe('Events listing', () => {
             '/?application_status[]=open&application_status[]=maybe',
             '/mine/organizing?season=abc',
             '/mine/participating?type=foo',
-            '/recents?ends=garbage'
+            '/recents?ends=garbage',
+            // A year outside 1000-9999 reached Postgres, which refused the date with a 500.
+            '/?starts=0001-01-01',
+            '/?ends=0999-12-31',
+            '/mine/organizing?starts=0001-01-01',
+            '/mine/participating?ends=0001-01-01'
         ])('should return 422 for %s', async (path) => {
             await generator.createEvent();
 
@@ -413,6 +418,7 @@ describe('Events listing', () => {
             '/?type[]=regular&type[]=pilot',
             '/?season=2026',
             '/?starts=2020-01-01&ends=2040-12-31',
+            '/?starts=1000-01-01&ends=9999-12-31',
             '/?application_status=open',
             '/?application_status[]=open&application_status[]=closed',
             '/recents?ends=2040-12-31T10:00:00.000Z'
