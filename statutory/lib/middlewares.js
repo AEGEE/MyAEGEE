@@ -336,6 +336,11 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // A path whose encoding is broken (%E0): Express cannot decode its parameters.
+    if (err instanceof URIError && err.status === 400) {
+        return errors.makeBadRequestError(res, 'The path could not be read.');
+    }
+
     // The other errors of reading the body (too large, a charset or an encoding that is not
     // supported, a broken compression) answer with their own status.
     if (err.expose === true && err.status >= 400 && err.status < 500) {
