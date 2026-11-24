@@ -1,5 +1,5 @@
 const path = require('path');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;

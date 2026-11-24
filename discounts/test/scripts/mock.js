@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 
@@ -41,10 +41,10 @@ exports.mockCore = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .reply(function replyWithUser() {
+            .reply((mockRequest) => {
                 const body = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'oms-core-valid.json'), 'utf8'));
                 const overrides = options.userByToken
-                    ? options.userByToken(this.req.headers['x-auth-token'])
+                    ? options.userByToken(mockRequest.headers.get('x-auth-token'))
                     : options.user;
                 body.data = { ...body.data, ...overrides };
                 return [200, body];

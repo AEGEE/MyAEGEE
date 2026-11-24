@@ -1,5 +1,5 @@
 const path = require('path');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const regularUser = require('../assets/oms-core-valid.json').data;
@@ -198,7 +198,8 @@ exports.mockCoreMember = (options) => {
             .persist()
             .matchHeader('x-auth-token', '1')
             .get(/\/members\/[0-9].*/)
-            .reply((uri) => {
+            .reply((mockRequest) => {
+                const uri = new URL(mockRequest.url).pathname;
                 const id = Number(uri.split('/')[2]);
                 return [200, {
                     success: true,

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { unmockedRequest } = require('../../../packages/backend-test-utils/unmocked-request');
+
 const config = require('../../config');
 // Root-level shared helper; becomes a workspace package after the pnpm restructure.
 const { createRequestHook } = require('../../../packages/backend-test-utils/openapi');
@@ -91,7 +93,10 @@ const request = async (options) => {
         }
     }
 
-    const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
+    // Malformed encodings must be rejected by the service, not by Nock's decompressor.
+    const encodedBody = options.rawBody !== undefined && Object.keys(headers).some((key) => key.toLowerCase() === 'content-encoding');
+    const send = encodedBody ? unmockedRequest : fetch;
+    const response = await send(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
     if (responseType === 'buffer') {
         const bufferResult = {
             statusCode: response.status,

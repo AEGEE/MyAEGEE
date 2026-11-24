@@ -1,5 +1,5 @@
 // Callers other than the superadmin of mockAll(), for permission variants in the API tests.
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const mock = require('./mock-core-registry');

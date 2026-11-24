@@ -1,5 +1,5 @@
 const http = require('http');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const mailer = require('../../lib/mailer');

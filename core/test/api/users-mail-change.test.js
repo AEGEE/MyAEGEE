@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -914,7 +914,8 @@ describe('User mail change', () => {
             nock(`${config.mailer.url}:${config.mailer.port}`)
                 .persist()
                 .post('/')
-                .reply(async (uri, body) => {
+                .reply(async (mockRequest) => {
+                    const body = await mockRequest.json();
                     await User.update({ about_me: `saved during mail ${mails.length + 1}` }, { where: { id: member.id } });
                     mails.push(body);
                     return [200, { success: true }];

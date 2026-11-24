@@ -1,5 +1,5 @@
 const http = require('http');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const mailer = require('../../lib/mailer');
@@ -52,14 +52,17 @@ describe('Mailer client errors', () => {
     });
 
     test('should pass on a network error', async () => {
-        nock(`${config.mailer.url}:${config.mailer.port}`)
-            .post('/')
-            .replyWithError('connection refused');
+        const requestError = new TypeError('fetch failed');
+        const fetchSpy = jest.spyOn(global, 'fetch').mockRejectedValueOnce(requestError);
 
-        const err = await mailer.sendMail(mail).catch((e) => e);
+        try {
+            const err = await mailer.sendMail(mail).catch((e) => e);
 
-        expect(err).toBeInstanceOf(Error);
-        expect(err.message).not.toContain('did not answer');
+            expect(err).toBe(requestError);
+            expect(err.message).not.toContain('did not answer');
+        } finally {
+            fetchSpy.mockRestore();
+        }
     });
 
     describe('timeout', () => {

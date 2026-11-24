@@ -277,7 +277,10 @@ describe('Memberslist fee_paid editing', () => {
         const requests = [];
         const stubs = mock.mockAll();
         for (const stub of Object.values(stubs)) {
-            stub.on('request', (req) => requests.push(`${req.method} ${req.path}`));
+            stub.on('request', (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                requests.push(`${mockRequest.method} ${url.pathname}${url.search}`);
+            });
         }
 
         const res = await request({

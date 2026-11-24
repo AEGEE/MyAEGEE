@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const { request } = require('../../lib/http');
 const { startSilentServer } = require('../scripts/silent-server');
@@ -69,8 +69,9 @@ describe('HTTP client', () => {
 
         test('should repeat the name for each item of a list', async () => {
             let path;
-            nock(HOST).get(/^\/things/).reply(200, function reply() {
-                path = this.req.path;
+            nock(HOST).get(/^\/things/).reply(200, (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                path = url.pathname + url.search;
                 return {};
             });
 
@@ -81,8 +82,9 @@ describe('HTTP client', () => {
 
         test('should write the fields of an object in brackets', async () => {
             let path;
-            nock(HOST).get(/^\/things/).reply(200, function reply() {
-                path = this.req.path;
+            nock(HOST).get(/^\/things/).reply(200, (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                path = url.pathname + url.search;
                 return {};
             });
 
@@ -93,8 +95,9 @@ describe('HTTP client', () => {
 
         test('should add to a query that the URL has already', async () => {
             let path;
-            nock(HOST).get(/^\/things/).reply(200, function reply() {
-                path = this.req.path;
+            nock(HOST).get(/^\/things/).reply(200, (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                path = url.pathname + url.search;
                 return {};
             });
 
@@ -117,8 +120,8 @@ describe('HTTP client', () => {
 
         test('should be sent for a value that is empty, like false', async () => {
             let sent;
-            nock(HOST).put('/things/1/active').reply(200, (uri, requestBody) => {
-                sent = requestBody;
+            nock(HOST).put('/things/1/active').reply(200, async (mockRequest) => {
+                sent = await mockRequest.json();
                 return {};
             });
 
@@ -145,9 +148,9 @@ describe('HTTP client', () => {
         test('should not be sent, nor a content type, if there is none', async () => {
             let headers;
             let sent;
-            nock(HOST).post('/things').reply(200, function reply(uri, requestBody) {
-                headers = this.req.headers;
-                sent = requestBody;
+            nock(HOST).post('/things').reply(200, async (mockRequest) => {
+                headers = Object.fromEntries(mockRequest.headers);
+                sent = await mockRequest.text();
                 return {};
             });
 
@@ -162,9 +165,9 @@ describe('HTTP client', () => {
         test('should be sent URL-encoded', async () => {
             let headers;
             let sent;
-            nock(HOST).post('/subscribe').reply(200, function reply(uri, requestBody) {
-                headers = this.req.headers;
-                sent = requestBody;
+            nock(HOST).post('/subscribe').reply(200, async (mockRequest) => {
+                headers = Object.fromEntries(mockRequest.headers);
+                sent = await mockRequest.text();
                 return 'OK';
             });
 
@@ -198,9 +201,9 @@ describe('HTTP client', () => {
         test('should be sent as multipart, with the boundary that fetch chooses', async () => {
             let headers;
             let sent;
-            nock(HOST).post('/upload').reply(200, function reply(uri, requestBody) {
-                headers = this.req.headers;
-                sent = requestBody;
+            nock(HOST).post('/upload').reply(200, async (mockRequest) => {
+                headers = Object.fromEntries(mockRequest.headers);
+                sent = await mockRequest.text();
                 return {};
             });
             const formData = new FormData();
@@ -282,11 +285,14 @@ describe('HTTP client', () => {
 
     describe('a failing request', () => {
         test('should reject with the error of fetch', async () => {
-            nock(HOST).get('/things').replyWithError(new Error('connection refused'));
+            const requestError = new TypeError('fetch failed');
+            const fetchSpy = jest.spyOn(global, 'fetch').mockRejectedValueOnce(requestError);
 
-            const err = await request({ url: HOST + '/things' }).catch((e) => e);
-
-            expect(err).toBeInstanceOf(Error);
+            try {
+                await expect(request({ url: HOST + '/things' })).rejects.toBe(requestError);
+            } finally {
+                fetchSpy.mockRestore();
+            }
         });
     });
 

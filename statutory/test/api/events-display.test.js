@@ -1,6 +1,6 @@
 const moment = require('moment');
 const tk = require('timekeeper');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const { startServer, stopServer } = require('../../lib/server');
