@@ -161,7 +161,6 @@ router.beforeEach((to, from, next) => {
     // First, checking if the user is fetched, if so, not fetching it again.
     // For auth-only requests we'll catch it later in .catch() block
     console.debug('User is fetched, skipping.')
-    document.title = 'MyAEGEE | ' + to.meta.label
     return next()
   }
 
@@ -195,7 +194,6 @@ router.beforeEach((to, from, next) => {
       return next('/profile/update')
     }
 
-    document.title = 'MyAEGEE | ' + to.meta.label
     return next()
   }).catch((err) => {
     // Allow unauthorized users to access if allowed.
@@ -207,6 +205,11 @@ router.beforeEach((to, from, next) => {
     console.debug('Error fetching user, redirect to /login. Error: ' + err)
     return next(loginFor(to))
   })
+})
+
+// Every page names itself in the window title, for members and visitors alike.
+router.afterEach((to) => {
+  document.title = 'MyAEGEE | ' + to.meta.label
 })
 
 axios.interceptors.request.use(config => {
