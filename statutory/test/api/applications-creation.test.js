@@ -25,6 +25,7 @@ describe('Applications creation', () => {
 
     afterEach(async () => {
         jest.restoreAllMocks();
+        tk.reset();
         await generator.clearAll();
         mock.cleanAll();
     });
@@ -1291,5 +1292,180 @@ describe('Applications creation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    const apply = (event, fields = {}) => request({
+        path: '/events/' + event.id + '/applications',
+        method: 'POST',
+        headers: { 'X-Auth-Token': 'blablabla' },
+        body: { ...generator.generateApplication({ body_id: regularUser.bodies[0].id }, event), ...fields }
+    });
+
+    // Members apply during the application period, both ends included.
+    describe('the application period', () => {
+        test.each([
+            ['refuses an application 1 ms before the period starts', 'application_period_starts', -1, 403],
+            ['accepts an application exactly when the period starts (inclusive)', 'application_period_starts', 0, 200],
+            ['accepts an application exactly when the period ends (inclusive)', 'application_period_ends', 0, 200],
+            ['refuses an application 1 ms after the period ends', 'application_period_ends', 1, 403]
+        ])('%s', async (name, field, offset, status) => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ applications: [] });
+            tk.freeze(moment(event[field]).add(offset, 'ms').toDate());
+
+            const res = await apply(event);
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(status === 200 ? 1 : 0);
+
+            if (status === 403) {
+                expect(res.body.message).toEqual('The deadline for applications has passed or the applications period hasn\'t started yet.');
+            }
+        });
+
+        test.each([
+            ['global:apply:agora', 200],
+            ['global:manage_applications:agora', 200],
+            ['global:apply:epm', 403],
+            ['global:manage_applications:epm', 403],
+            ['global:manage_incoming:agora', 403],
+            ['global:approve_members:agora', 403],
+            ['global:manage_event:agora', 403]
+        ])('%s alone answers %i after the period of an Agora', async (permission, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            tk.freeze(moment(event.application_period_ends).add(1, 'ms').toDate());
+
+            const res = await apply(event);
+
+            expect(res.statusCode).toEqual(status);
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(status === 200 ? 1 : 0);
+        });
+    });
+
+    // A member is banned from applying until the moment the ban ends.
+    describe('the end of an application ban', () => {
+        const banUntil = moment().add(2, 'months').startOf('second');
+
+        const createEventAroundTheEndOfTheBan = () => generator.createEvent({
+            applications: [],
+            application_period_starts: moment(banUntil).subtract(1, 'week').toDate(),
+            application_period_ends: moment(banUntil).add(1, 'week').toDate()
+        });
+
+        test.each([
+            ['refuses an application 1 ms before the ban ends', -1, 403],
+            ['accepts an application exactly when the ban ends (exclusive)', 0, 200],
+            ['accepts an application 1 ms after the ban ended', 1, 200]
+        ])('%s', async (name, offset, status) => {
+            mock.mockAll({
+                core: { eventApplicationBanUntil: banUntil.toISOString() },
+                mainPermissions: { noPermissions: true }
+            });
+
+            const event = await createEventAroundTheEndOfTheBan();
+            tk.freeze(moment(banUntil).add(offset, 'ms').toDate());
+
+            const res = await apply(event);
+
+            expect(res.statusCode).toEqual(status);
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(status === 200 ? 1 : 0);
+
+            if (status === 403) {
+                expect(res.body).toEqual({ success: false, message: 'You are temporarily banned from applying to events.' });
+            }
+        });
+
+        test.each([
+            'global:apply:agora',
+            'global:manage_applications:agora'
+        ])('refuses a banned holder of %s too', async (permission) => {
+            mock.mockAll({
+                core: { eventApplicationBanUntil: banUntil.toISOString() },
+                mainPermissions: { permissions: [permission] }
+            });
+
+            // After the application period, when only these permissions let a member apply,
+            // and a week before the ban ends.
+            const event = await generator.createEvent({
+                type: 'agora',
+                applications: [],
+                application_period_starts: moment(banUntil).subtract(3, 'weeks').toDate(),
+                application_period_ends: moment(banUntil).subtract(1, 'week').toDate()
+            });
+            tk.freeze(moment(event.application_period_ends).add(1, 'ms').toDate());
+
+            const res = await apply(event);
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('You are temporarily banned from applying to events.');
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(0);
+        });
+    });
+
+    describe('the type of the values', () => {
+        const createOpenEvent = async () => {
+            const event = await generator.createEvent({ applications: [] });
+            tk.freeze(moment(event.application_period_starts).toDate());
+            return event;
+        };
+
+        beforeEach(() => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+        });
+
+        test.each([
+            ['a word', 'yes'],
+            ['a number other than 0 and 1', 2],
+            ['null', null]
+        ])('should return 422 if visa_required is %s', async (description, value) => {
+            const event = await createOpenEvent();
+
+            const res = await apply(event, { visa_required: value });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty('visa_required');
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(0);
+        });
+
+        test('should not ask for the visa fields when no visa is required', async () => {
+            const event = await createOpenEvent();
+
+            const res = await apply(event, {
+                visa_required: false,
+                visa_place_of_birth: null,
+                visa_passport_number: null,
+                visa_passport_issue_date: null,
+                visa_passport_expiration_date: null,
+                visa_passport_issue_authority: null,
+                visa_embassy: null,
+                visa_street_and_house: null,
+                visa_postal_code: null,
+                visa_city: null,
+                visa_country: null
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.visa_required).toEqual(false);
+            expect(res.body.data.visa_passport_number).toEqual(null);
+        });
+
+        test.each([
+            ['a decimal number', 1.5],
+            ['a number above the largest the column holds', 2147483648]
+        ])('should return 422 if number_of_events_visited is %s', async (description, value) => {
+            const event = await createOpenEvent();
+
+            const res = await apply(event, { number_of_events_visited: value });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty('number_of_events_visited');
+            expect(await Application.count({ where: { event_id: event.id } })).toEqual(0);
+        });
     });
 });

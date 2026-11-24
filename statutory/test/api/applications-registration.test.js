@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { Application } = require('../../models');
 
 describe('Applications registration', () => {
     beforeAll(async () => {
@@ -146,5 +147,36 @@ describe('Applications registration', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('registered');
+    });
+
+    describe('who may set it', () => {
+        test.each([
+            ['global:manage_juridical:agora', 200],
+            ['global:manage_applications:agora', 200],
+            ['global:manage_incoming:agora', 403],
+            ['global:update_memberslist_status:agora', 403],
+            ['global:approve_members:agora', 403],
+            ['global:manage_juridical:epm', 403],
+            ['global:manage_applications:epm', 403]
+        ])('%s alone answers %i on an Agora', async (permission, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: 2, status: 'accepted', confirmed: true }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/' + application.id + '/registered',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { registered: true }
+            });
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+
+            // Nothing is stored when the request is refused.
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.registered).toEqual(status === 200);
+        });
     });
 });

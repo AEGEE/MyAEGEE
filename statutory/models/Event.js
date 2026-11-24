@@ -499,7 +499,7 @@ const Event = sequelize.define('event', {
         },
         validate: {
             isValid(value) {
-                if (!/^[a-zA-A0-9-]+$/.test(value)) {
+                if (!/^[a-zA-Z0-9-]+$/.test(value)) {
                     throw new Error('Event URL should only contain numbers, letters and dashes.');
                 }
 

@@ -1,9 +1,11 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { at, fixedDates, BEFORE_EVERYTHING } = require('../scripts/fixed-event');
 
 describe('Events listing', () => {
     beforeAll(async () => {
@@ -19,6 +21,7 @@ describe('Events listing', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -401,5 +404,240 @@ describe('Events listing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual(`The "${field}" date is invalid, it should be in the YYYY-MM-DD format.`);
         expect(res.body).not.toHaveProperty('data');
+    });
+
+    // The day of a date filter is a day on the Central European calendar, whatever the time
+    // zone of the server: in May that day starts at 22:00 UTC of the day before.
+    describe('the date filters of the list', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        const startOfDay = new Date('2030-05-05T22:00:00.000Z'); // 6 May 2030, 00:00 in Central Europe
+        const endOfDay = new Date('2030-05-10T21:59:59.999Z'); // 10 May 2030, 23:59:59.999 in Central Europe
+
+        const list = async (query) => {
+            const res = await request({
+                path: '/',
+                query,
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return res.body.data.map((event) => event.id);
+        };
+
+        test('should include an event that starts at the first moment of the "starts" day (inclusive), not one that starts 1 ms earlier', async () => {
+            const onTheDay = await generator.createEvent(fixedDates({ starts: startOfDay }));
+            const justBefore = await generator.createEvent(fixedDates({ starts: new Date(startOfDay.getTime() - 1) }));
+
+            expect(await list({ starts: '2030-05-06' })).toEqual([onTheDay.id]);
+            expect(await list({ starts: '2030-05-05' })).toEqual([onTheDay.id, justBefore.id]);
+        });
+
+        test('should include an event that ends at the last moment of the "ends" day (inclusive), not one that ends 1 ms later', async () => {
+            const onTheDay = await generator.createEvent(fixedDates({ ends: endOfDay }));
+            const justAfter = await generator.createEvent(fixedDates({ starts: at('starts', 1), ends: new Date(endOfDay.getTime() + 1) }));
+
+            expect(await list({ ends: '2030-05-10' })).toEqual([onTheDay.id]);
+            expect(await list({ ends: '2030-05-11' })).toEqual([justAfter.id, onTheDay.id]);
+        });
+
+        test('should only list the events that lie between the two days as a whole', async () => {
+            const inside = await generator.createEvent(fixedDates());
+            await generator.createEvent(fixedDates({ starts: at('starts', -7 * 86400000) }));
+            await generator.createEvent(fixedDates({ ends: at('ends', 7 * 86400000) }));
+
+            expect(await list({ starts: '2030-05-06', ends: '2030-05-10' })).toEqual([inside.id]);
+        });
+
+        test('should list nothing when no event lies between the two days', async () => {
+            await generator.createEvent(fixedDates());
+
+            expect(await list({ starts: '2030-05-07', ends: '2030-05-10' })).toEqual([]);
+        });
+
+        test.each(['2030-02-30', '2030-13-01', '2030-00-10'])('should return 400 for the day %s, which does not exist', async (day) => {
+            const res = await request({
+                path: '/',
+                query: { starts: day },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('The "starts" date is invalid, it should be in the YYYY-MM-DD format.');
+        });
+    });
+
+    describe('the other filters of the list', () => {
+        test('should give an anonymous caller the same list as a member', async () => {
+            await generator.createEvent({ type: 'agora' });
+            await generator.createEvent({ type: 'epm' });
+
+            const asMember = await request({
+                path: '/',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            mock.mockAll({
+                core: { unauthorized: true },
+                mainPermissions: { unauthorized: true },
+                approvePermissions: { unauthorized: true },
+                memberslistPermissions: { unauthorized: true }
+            });
+
+            const asAnonymous = await request({ path: '/', method: 'GET' });
+
+            expect(asAnonymous.statusCode).toEqual(200);
+            expect(asAnonymous.body.data.length).toEqual(2);
+            expect(asAnonymous.body).toEqual(asMember.body);
+        });
+
+        test('should list an event with its image and without permissions', async () => {
+            await generator.createEvent({ type: 'agora' });
+
+            const res = await request({
+                path: '/',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data[0].image).toEqual(null);
+            expect(res.body.data[0]).not.toHaveProperty('permissions');
+            expect(res.body.data[0]).not.toHaveProperty('applications');
+        });
+
+        test('should find a part of a word, in any case', async () => {
+            const event = await generator.createEvent({ name: 'Autumn Agora Enschede', description: 'other' });
+            await generator.createEvent({ name: 'other', description: 'other' });
+
+            const res = await request({
+                path: '/',
+                query: { search: 'SCHED' },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
+        });
+
+        test('should combine the search with the type', async () => {
+            const event = await generator.createEvent({ type: 'agora', name: 'Autumn Agora', description: 'other' });
+            await generator.createEvent({ type: 'epm', name: 'Autumn EPM', description: 'other' });
+            await generator.createEvent({ type: 'agora', name: 'Spring Agora', description: 'other' });
+
+            const res = await request({
+                path: '/',
+                query: { search: 'autumn', type: 'agora' },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((e) => e.id)).toEqual([event.id]);
+        });
+
+        test('should list nothing when nothing matches', async () => {
+            await generator.createEvent({ type: 'agora', name: 'Autumn Agora', description: 'other' });
+
+            const res = await request({
+                path: '/',
+                query: { search: 'spring' },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual([]);
+        });
+
+        test('should search for % and _ as they are written', async () => {
+            const first = await generator.createEvent({ name: 'A discount of 50% for members', description: 'other' });
+            await generator.createEvent({ name: 'An Agora for 500 members', description: 'other' });
+
+            const res = await request({
+                path: '/',
+                query: { search: '50%' },
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((e) => e.id)).toEqual([first.id]);
+        });
+    });
+
+    describe('the latest event per body', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        const recents = async (query) => {
+            const res = await request({
+                path: '/recents',
+                query,
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            return res.body.data.sort((a, b) => a.body_id - b.body_id);
+        };
+
+        test('should give one entry per organising body, with the end of its published event that ends last', async () => {
+            await generator.createEvent({ body_id: 1, type: 'agora', ...fixedDates() });
+            await generator.createEvent({ body_id: 1, type: 'epm', ...fixedDates({ ends: at('ends', 86400000) }) });
+            await generator.createEvent({ body_id: 2, ...fixedDates({ ends: at('ends', -3600000) }) });
+            // Drafts do not count: not for a body that has published events, not for one that has none.
+            await generator.createEvent({ body_id: 1, status: 'draft', ...fixedDates({ ends: at('ends', 30 * 86400000) }) });
+            await generator.createEvent({ body_id: 3, status: 'draft', ...fixedDates() });
+
+            expect(await recents()).toEqual([
+                { body_id: 1, latest_event: at('ends', 86400000).toISOString() },
+                { body_id: 2, latest_event: at('ends', -3600000).toISOString() }
+            ]);
+        });
+
+        test('should give an empty list when nothing is published', async () => {
+            await generator.createEvent({ status: 'draft' });
+
+            expect(await recents()).toEqual([]);
+        });
+
+        test('should answer a member without permissions', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            await generator.createEvent({ body_id: 1, ...fixedDates() });
+
+            expect(await recents()).toEqual([{ body_id: 1, latest_event: at('ends').toISOString() }]);
+        });
+
+        // As for the list: a day on the Central European calendar.
+        test('should include an event that ends at the last moment of the "ends" day (inclusive), not one that ends 1 ms later', async () => {
+            const endOfDay = new Date('2030-05-10T21:59:59.999Z');
+            await generator.createEvent({ body_id: 1, ...fixedDates({ ends: endOfDay }) });
+            await generator.createEvent({ body_id: 2, ...fixedDates({ ends: new Date(endOfDay.getTime() + 1) }) });
+
+            expect(await recents({ ends: '2030-05-10' })).toEqual([{ body_id: 1, latest_event: endOfDay.toISOString() }]);
+            expect(await recents({ ends: '2030-05-11' })).toEqual([
+                { body_id: 1, latest_event: endOfDay.toISOString() },
+                { body_id: 2, latest_event: new Date(endOfDay.getTime() + 1).toISOString() }
+            ]);
+        });
+
+        test('should give the end of the last event that ended by the "ends" day when a later one exists', async () => {
+            await generator.createEvent({ body_id: 1, ...fixedDates() });
+            await generator.createEvent({ body_id: 1, ...fixedDates({ ends: at('ends', 30 * 86400000) }) });
+
+            expect(await recents({ ends: '2030-05-20' })).toEqual([{ body_id: 1, latest_event: at('ends').toISOString() }]);
+        });
     });
 });

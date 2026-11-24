@@ -24,6 +24,7 @@ describe('Applications editing', () => {
 
     afterEach(async () => {
         jest.restoreAllMocks();
+        tk.reset();
         await generator.clearAll();
         mock.cleanAll();
     });
@@ -763,5 +764,166 @@ describe('Applications editing', () => {
                 expect(applicationFromDb[field]).toEqual(application[field]);
             }
         });
+    });
+
+    const edit = (event, applicationId, body = { allergies: 'Changed' }) => request({
+        path: '/events/' + event.id + '/applications/' + applicationId,
+        method: 'PUT',
+        headers: { 'X-Auth-Token': 'blablabla' },
+        body
+    });
+
+    const expectStored = async (application, changed) => {
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.allergies).toEqual(changed ? 'Changed' : application.allergies);
+    };
+
+    // Applicants edit their application during the application period, both ends included.
+    describe('the application period', () => {
+        test.each([
+            ['refuses the applicant 1 ms before the period starts', 'application_period_starts', -1, 403],
+            ['lets the applicant edit exactly when the period starts (inclusive)', 'application_period_starts', 0, 200],
+            ['lets the applicant edit exactly when the period ends (inclusive)', 'application_period_ends', 0, 200],
+            ['refuses the applicant 1 ms after the period ends', 'application_period_ends', 1, 403]
+        ])('%s', async (name, field, offset, status) => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ user_id: regularUser.id, allergies: 'Before' }, event);
+
+            tk.freeze(moment(event[field]).add(offset, 'ms').toDate());
+
+            const res = await edit(event, 'me');
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+            await expectStored(application, status === 200);
+
+            if (status === 403) {
+                expect(res.body).toEqual({ success: false, message: 'You cannot edit this application.' });
+            }
+        });
+
+        test.each([
+            ['global:apply:agora', 200],
+            ['global:manage_applications:agora', 200],
+            ['global:apply:epm', 403],
+            ['global:manage_applications:epm', 403],
+            ['global:manage_incoming:agora', 403],
+            ['global:approve_members:agora', 403]
+        ])('%s alone answers the applicant with %i after the period of an Agora', async (permission, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: regularUser.id, allergies: 'Before' }, event);
+
+            tk.freeze(moment(event.application_period_ends).add(1, 'ms').toDate());
+
+            const res = await edit(event, 'me');
+
+            expect(res.statusCode).toEqual(status);
+            await expectStored(application, status === 200);
+        });
+    });
+
+    // Applicants edit their application until it is accepted.
+    describe('the status of the application', () => {
+        test.each([
+            ['pending', 200],
+            ['waiting_list', 200],
+            ['rejected', 200],
+            ['accepted', 403]
+        ])('answers the applicant of a "%s" application with %i within the period', async (applicationStatus, status) => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({
+                user_id: regularUser.id,
+                status: applicationStatus,
+                allergies: 'Before'
+            }, event);
+
+            tk.freeze(moment(event.application_period_starts).toDate());
+
+            const res = await edit(event, 'me');
+
+            expect(res.statusCode).toEqual(status);
+            await expectStored(application, status === 200);
+        });
+
+        test('lets those who manage the applications edit an accepted application', async () => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_applications:agora'] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({ user_id: 2, status: 'accepted', allergies: 'Before' }, event);
+
+            const res = await edit(event, application.id);
+
+            expect(res.statusCode).toEqual(200);
+            await expectStored(application, true);
+        });
+    });
+
+    describe('who may edit somebody else\'s application', () => {
+        test.each([
+            ['global:manage_applications:agora', 200],
+            ['global:manage_applications:epm', 403],
+            ['global:manage_incoming:agora', 403],
+            ['global:manage_juridical:agora', 403],
+            ['global:update_memberslist_status:agora', 403],
+            ['global:approve_members:agora', 403],
+            ['global:apply:agora', 403]
+        ])('%s alone answers %i on an Agora', async (permission, status) => {
+            mock.mockAll({ mainPermissions: { permissions: [permission] } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            // Accepted, so that the local organisers reach the application too.
+            const application = await generator.createApplication({ user_id: 2, status: 'accepted', allergies: 'Before' }, event);
+
+            // Within the period, when applicants may edit their own.
+            tk.freeze(moment(event.application_period_starts).toDate());
+
+            const res = await edit(event, application.id);
+
+            expect(res.statusCode).toEqual(status);
+            expect(res.body.success).toEqual(status === 200);
+            await expectStored(application, status === 200);
+        });
+
+        test('should return 403 for a board member of the applicant\'s body', async () => {
+            // The core mock makes the user a board member of their first body.
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({
+                user_id: 2,
+                body_id: regularUser.bodies[0].id,
+                allergies: 'Before'
+            }, event);
+
+            tk.freeze(moment(event.application_period_starts).toDate());
+
+            const res = await edit(event, application.id);
+
+            expect(res.statusCode).toEqual(403);
+            await expectStored(application, false);
+        });
+    });
+
+    test.each([
+        ['a decimal number', 1.5],
+        ['a number above the largest the column holds', 2147483648]
+    ])('should return 422 if number_of_events_visited is %s', async (description, value) => {
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: 2, number_of_events_visited: 3 }, event);
+
+        const res = await edit(event, application.id, { number_of_events_visited: value });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('number_of_events_visited');
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.number_of_events_visited).toEqual(3);
     });
 });

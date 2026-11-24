@@ -49,7 +49,6 @@ server.use(middlewares.checkRequestBody);
 server.use(queryBoolean());
 server.use(morgan);
 
-/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
@@ -73,7 +72,7 @@ GeneralRouter.get('/tasks', middlewares.getTasksList);
 GeneralRouter.get('/mine', events.listUserAppliedEvents);
 GeneralRouter.get('/applications/future/:user_id', applications.listFutureApplicationsForUser);
 
-GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
+GeneralRouter.get('/recents', events.listMostRecentEvents);
 
 PaxLimitsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, paxLimits.checkEventType);
 PaxLimitsRouter.get('/defaults', paxLimits.listAllDefaultLimits);
@@ -217,7 +216,6 @@ async function startServer() {
             await cron.registerAllDeadlines();
             return res();
         });
-        /* istanbul ignore next */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -225,7 +223,6 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }

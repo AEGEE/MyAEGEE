@@ -37,7 +37,8 @@ exports.findPosition = async (req, res, next) => {
 exports.listAllPositions = async (req, res) => {
     const positions = await Position.findAll({
         where: { event_id: req.event.id, deleted: false },
-        order: [['created_at', 'ASC']]
+        // By ID for rows that were created in the same millisecond.
+        order: [['created_at', 'ASC'], ['id', 'ASC']]
     });
     return res.json({
         success: true,
@@ -54,7 +55,9 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
         where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
-            [Candidate, 'created_at', 'ASC']
+            ['id', 'ASC'],
+            [Candidate, 'created_at', 'ASC'],
+            [Candidate, 'id', 'ASC']
         ],
         include: [{
             model: Candidate,
@@ -86,7 +89,9 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
         where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
-            [Candidate, 'created_at', 'ASC']
+            ['id', 'ASC'],
+            [Candidate, 'created_at', 'ASC'],
+            [Candidate, 'id', 'ASC']
         ],
         include: [{
             model: Candidate,

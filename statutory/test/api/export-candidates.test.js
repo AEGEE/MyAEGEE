@@ -8,6 +8,10 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const mails = require('../assets/core-notification-mails.json').data;
 
+// Every field that can be exported, in the order of the columns, and the header of each.
+const ALL_FIELDS = Object.keys(constants.CANDIDATE_FIELDS);
+const ALL_HEADERS = Object.values(constants.CANDIDATE_FIELDS);
+
 describe('Export candidates', () => {
     let event;
 
@@ -42,7 +46,7 @@ describe('Export candidates', () => {
             method: 'GET',
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            query: { select: constants.CANDIDATE_FIELDS }
+            query: { select: ALL_FIELDS }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -51,7 +55,8 @@ describe('Export candidates', () => {
         expect(data.length).toEqual(1); // 1 sheet
 
         const sheet = data[0].data;
-        expect(sheet.length).toEqual(1); // 1 string in sheet
+        expect(sheet).toEqual([ALL_HEADERS]); // only the header row
+        expect(res.headers['content-disposition']).toEqual('attachment; filename=stats.xlsx');
     });
 
     test('should return something if present', async () => {
@@ -67,7 +72,7 @@ describe('Export candidates', () => {
             method: 'GET',
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            query: { select: ['id'] }
+            query: { select: ['id', 'first_name'] }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -77,6 +82,7 @@ describe('Export candidates', () => {
 
         const sheet = data[0].data;
         expect(sheet.length).toEqual(2); // headers + 1 application
+        expect(sheet[0]).toEqual(['ID', 'First name']);
         expect(sheet[1][0]).toEqual(candidate.id);
     });
 
@@ -88,7 +94,7 @@ describe('Export candidates', () => {
             method: 'GET',
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            query: { select: constants.CANDIDATE_FIELDS }
+            query: { select: ALL_FIELDS }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -135,7 +141,7 @@ describe('Export candidates', () => {
             method: 'GET',
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
-            query: { select: constants.CANDIDATE_FIELDS, filter: {} }
+            query: { select: ALL_FIELDS, filter: {} }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -145,6 +151,8 @@ describe('Export candidates', () => {
 
         const sheet = data[0].data;
         expect(sheet.length).toEqual(3); // headers + 2 applications
+        expect(sheet[0]).toEqual(ALL_HEADERS);
+        expect(sheet.slice(1).map((row) => row[ALL_FIELDS.indexOf('status')]).sort()).toEqual(['approved', 'rejected']);
     });
 
     test('should use the filter if provided', async () => {
@@ -158,7 +166,7 @@ describe('Export candidates', () => {
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
             query: {
-                select: constants.CANDIDATE_FIELDS,
+                select: ALL_FIELDS,
                 filter: { status: 'approved' }
             }
         });
@@ -170,7 +178,9 @@ describe('Export candidates', () => {
 
         const sheet = data[0].data;
         expect(sheet.length).toEqual(2); // headers + 1 application
-        expect(sheet[1][0]).toEqual(candidate.id);
+        expect(sheet[0]).toEqual(ALL_HEADERS);
+        expect(sheet[1][ALL_FIELDS.indexOf('id')]).toEqual(candidate.id);
+        expect(sheet[1][ALL_FIELDS.indexOf('status')]).toEqual('approved');
     });
 
     test('should return 400 if the filter has a status candidates cannot have', async () => {
@@ -180,7 +190,7 @@ describe('Export candidates', () => {
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
             query: {
-                select: constants.CANDIDATE_FIELDS,
+                select: ALL_FIELDS,
                 filter: { status: 'accepted' }
             }
         });
@@ -202,7 +212,7 @@ describe('Export candidates', () => {
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
             query: {
-                select: constants.CANDIDATE_FIELDS,
+                select: ALL_FIELDS,
                 filter: { first_name: 'test' }
             }
         });
@@ -226,7 +236,7 @@ describe('Export candidates', () => {
             responseType: 'buffer', // make response body to Buffer.
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
             query: {
-                select: constants.CANDIDATE_FIELDS,
+                select: ALL_FIELDS,
                 filter: { '$position.event_id$': anotherEvent.id }
             }
         });
@@ -311,5 +321,119 @@ describe('Export candidates', () => {
 
         const [sheet] = xlsx.parse(res.body);
         expect(sheet.data).toEqual([['First name'], ['Carla']]);
+    });
+
+    describe('who may export and what is exported', () => {
+        const MANAGE = 'global:manage_candidates:agora';
+
+        const exportCandidates = (query) => request({
+            path: '/events/' + event.id + '/positions/export',
+            method: 'GET',
+            responseType: 'buffer',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            query
+        });
+
+        const rowsOf = (res) => xlsx.parse(res.body)[0].data;
+
+        test('lets a holder of global:manage_candidates:agora alone export the candidatures of this Agora for the positions that are not deleted', async () => {
+            mock.mockAll({ mainPermissions: { permissions: [MANAGE] } });
+
+            const position = await generator.createPosition({ name: 'President' }, event);
+            const candidate = await generator.createCandidate({ user_id: 2, first_name: 'Ada' }, position);
+
+            const deletedPosition = await generator.createPosition({ deleted: true }, event);
+            await generator.createCandidate({ user_id: 3 }, deletedPosition);
+
+            const otherEvent = await generator.createEvent({ type: 'agora' });
+            const otherPosition = await generator.createPosition({}, otherEvent);
+            await generator.createCandidate({ user_id: 4 }, otherPosition);
+
+            const res = await exportCandidates({ select: ['id', 'first_name', 'position.name', 'notification_email'] });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['content-disposition']).toEqual('attachment; filename=stats.xlsx');
+            expect(rowsOf(res)).toEqual([
+                ['ID', 'First name', 'Position', 'Email'],
+                [candidate.id, 'Ada', 'President', 'test@example.com']
+            ]);
+        });
+
+        test('refuses a holder of the permission for another event type and of the other permissions for an Agora', async () => {
+            mock.mockAll({
+                mainPermissions: {
+                    permissions: [
+                        'global:manage_candidates:epm',
+                        'global:manage_event:agora',
+                        'global:manage_applications:agora',
+                        'global:manage_plenaries:agora',
+                        'global:manage_question_lines:agora'
+                    ]
+                }
+            });
+
+            const res = await exportCandidates({ select: ['id', 'first_name'] });
+
+            expect(res.statusCode).toEqual(403);
+            expect(JSON.parse(res.body.toString())).toEqual({
+                success: false,
+                message: 'You are not allowed to export candidates.'
+            });
+        });
+
+        test('exports every field when none is selected', async () => {
+            const position = await generator.createPosition({}, event);
+            const candidate = await generator.createCandidate({ user_id: 2 }, position);
+
+            const res = await exportCandidates();
+
+            expect(res.statusCode).toEqual(200);
+
+            const rows = rowsOf(res);
+            expect(rows.length).toEqual(2);
+            expect(rows[0]).toEqual(ALL_HEADERS);
+            expect(rows[1][ALL_FIELDS.indexOf('id')]).toEqual(candidate.id);
+        });
+
+        test('exports the candidatures with one of the statuses of a list', async () => {
+            const position = await generator.createPosition({}, event);
+            await generator.createCandidate({ status: 'approved' }, position);
+            await generator.createCandidate({ status: 'pending' }, position);
+            await generator.createCandidate({ status: 'rejected' }, position);
+
+            const res = await request({
+                path: '/events/' + event.id + '/positions/export?select[]=status&filter[status][]=approved&filter[status][]=pending',
+                method: 'GET',
+                responseType: 'buffer',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const rows = rowsOf(res);
+            expect(rows[0]).toEqual(['Status']);
+            expect(rows.slice(1).map((row) => row[0]).sort()).toEqual(['approved', 'pending']);
+        });
+
+        test('exports one column when one field is selected, with or without brackets', async () => {
+            const position = await generator.createPosition({}, event);
+            await generator.createCandidate({ user_id: 2 }, position);
+
+            const withoutBrackets = await request({
+                path: '/events/' + event.id + '/positions/export?select=id',
+                method: 'GET',
+                responseType: 'buffer',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+            const withBrackets = await request({
+                path: '/events/' + event.id + '/positions/export?select[]=id',
+                method: 'GET',
+                responseType: 'buffer',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(rowsOf(withoutBrackets)[0]).toEqual(['ID']);
+            expect(rowsOf(withBrackets)[0]).toEqual(['ID']);
+        });
     });
 });

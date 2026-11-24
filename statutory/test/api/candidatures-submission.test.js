@@ -7,6 +7,7 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
 const { MAIL_FAILURES, spyOnMailFailures, countFailedMails } = require('../scripts/mail-failures');
 const { Candidate, Image, Position } = require('../../models');
+const config = require('../../config');
 
 describe('Candidates submission', () => {
     beforeAll(async () => {
@@ -630,5 +631,146 @@ describe('Candidates submission', () => {
         }]);
         expect(log.text()).not.toContain('@');
         expect(await countFailedMails('candidate_applied.html')).toBeGreaterThanOrEqual(1);
+    });
+
+    describe('who may submit a candidature and when', () => {
+        const MANAGE = 'global:manage_candidates:agora';
+        const bodyId = regularUser.bodies[0].id;
+        let event;
+
+        beforeEach(async () => {
+            event = await generator.createEvent({ type: 'agora', applications: [] });
+        });
+
+        const submit = (position, body = generator.generateCandidate({ body_id: bodyId }), targetEvent = event) => request({
+            path: '/events/' + targetEvent.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        // The position as the test needs it: its period, and its status when that is not the one of the period.
+        const periods = {
+            'has not started': { starts: moment().add(1, 'week').toDate(), ends: moment().add(2, 'weeks').toDate() },
+            runs: { starts: moment().subtract(1, 'week').toDate(), ends: moment().add(1, 'week').toDate() },
+            'is over': { starts: moment().subtract(2, 'weeks').toDate(), ends: moment().subtract(1, 'week').toDate() }
+        };
+
+        const createPosition = async (period, status) => {
+            const position = await generator.createPosition({ ...periods[period] }, event);
+            if (status && status !== position.status) {
+                // As a manager does through the status route, without touching the period.
+                await position.update({ status }, { hooks: false });
+            }
+
+            return position;
+        };
+
+        test.each([
+            ['lets', 'a member without permissions', 'runs', undefined, [], 200],
+            ['refuses', 'a member without permissions', 'has not started', undefined, [], 403],
+            ['refuses', 'a member without permissions', 'is over', undefined, [], 403],
+            ['refuses', 'a holder of the permission for another event type', 'is over', undefined, ['global:manage_candidates:epm', 'global:manage_event:agora'], 403],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'has not started', undefined, [MANAGE], 200],
+            ['lets', 'a holder of global:manage_candidates:agora alone', 'is over', undefined, [MANAGE], 200],
+            // The status decides, not the period: a manager can close a position early and open it again later.
+            ['refuses', 'a member without permissions', 'runs', 'closed', [], 403],
+            ['lets', 'a member without permissions', 'is over', 'open', [], 200]
+        ])('%s %s submit a candidature for a position whose period %s (status %s)', async (verb, who, period, status, permissions, expected) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+            const position = await createPosition(period, status);
+
+            const res = await submit(position);
+
+            expect(res.statusCode).toEqual(expected);
+            if (expected === 200) {
+                const candidates = await Candidate.findAll();
+                expect(candidates.map((candidate) => [candidate.id, candidate.position_id, candidate.user_id]))
+                    .toEqual([[res.body.data.id, position.id, regularUser.id]]);
+            } else {
+                expect(res.body).toEqual({ success: false, message: 'You cannot submit candidature.' });
+                expect(await Candidate.count()).toEqual(0);
+            }
+        });
+
+        test('stores the candidature as pending, for the caller and the name of their body, whatever the body says', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const position = await createPosition('runs');
+
+            const res = await submit(position, {
+                ...generator.generateCandidate({ body_id: bodyId }),
+                status: 'approved',
+                user_id: 1337,
+                position_id: 1337,
+                body_name: 'A made up body',
+                email: 'someone@example.org'
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(await Candidate.findByPk(res.body.data.id)).toMatchObject({
+                status: 'pending',
+                user_id: regularUser.id,
+                position_id: position.id,
+                body_id: bodyId,
+                body_name: regularUser.bodies[0].name,
+                email: null
+            });
+        });
+
+        test('lets a member candidate for two positions of the same Agora', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const first = await createPosition('runs');
+            const second = await createPosition('runs');
+
+            expect((await submit(first)).statusCode).toEqual(200);
+            expect((await submit(second)).statusCode).toEqual(200);
+
+            const candidates = await Candidate.findAll({ order: [['id', 'ASC']] });
+            expect(candidates.map((candidate) => candidate.position_id)).toEqual([first.id, second.id]);
+        });
+
+        test('mails the notification address about the candidature, and nobody when it is refused', async () => {
+            const stubs = mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const mails = [];
+            stubs.mailerStub.on('request', (req, interceptor, body) => mails.push(JSON.parse(body)));
+
+            const closedPosition = await createPosition('is over');
+            expect((await submit(closedPosition)).statusCode).toEqual(403);
+            expect(mails).toEqual([]);
+
+            const position = await createPosition('runs');
+            const res = await submit(position);
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails.length).toEqual(1);
+            expect(mails[0].to).toEqual(config.application_notification);
+            expect(mails[0].subject).toEqual('A new application was submitted');
+            expect(mails[0].template).toEqual('candidate_applied.html');
+            expect(mails[0].parameters.position.id).toEqual(position.id);
+            expect(mails[0].parameters.candidate.id).toEqual(res.body.data.id);
+        });
+
+        test('answers 404 for a deleted position and stores nothing', async () => {
+            mock.mockAll({ mainPermissions: { permissions: [MANAGE] } });
+            const position = await generator.createPosition({ ...periods.runs, deleted: true }, event);
+
+            const res = await submit(position);
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body).toEqual({ success: false, message: 'Position is not found.' });
+            expect(await Candidate.count()).toEqual(0);
+        });
+
+        test.each(['epm', 'spm'])('answers 400 for an %s event and stores nothing', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: [MANAGE, `global:manage_candidates:${type}`] } });
+            const otherEvent = await generator.createEvent({ type, applications: [] });
+            const position = await generator.createPosition({ ...periods.runs }, otherEvent);
+
+            const res = await submit(position, generator.generateCandidate({ body_id: bodyId }), otherEvent);
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'You can only access memberslist for Agora.' });
+            expect(await Candidate.count()).toEqual(0);
+        });
     });
 });

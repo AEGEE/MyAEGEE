@@ -75,6 +75,12 @@ exports.checkRequestBody = (req, res, next) => {
 };
 
 exports.authenticateUser = async (req, res, next) => {
+    // A request can pass several routers that all start with this middleware
+    // (the one of an event before the one of its plenaries): the user is fetched once.
+    if (req.userRequest) {
+        return next();
+    }
+
     try {
         // Query the core for user and permissions.
         const [userBody, permissionsBody] = await Promise.all([
@@ -130,6 +136,11 @@ exports.ensureAuthorized = async (req, res, next) => {
 };
 
 exports.fetchEvent = async (req, res, next) => {
+    // As for the user: the event is fetched once per request.
+    if (req.event) {
+        return next();
+    }
+
     // The URL as it is written, in any case. Both sides are compared in lower case:
     // the URLs of older events are stored with the capitals they were written with.
     let query = {
@@ -302,7 +313,6 @@ exports.fetchSingleApplication = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -314,7 +324,6 @@ exports.healthcheck = (req, res) => {
     });
 };
 
-/* istanbul ignore next */
 exports.getTasksList = (req, res) => {
     if (!req.permissions.see_background_tasks) {
         return errors.makeForbiddenError(res, 'You cannot see background tasks.');
@@ -363,13 +372,10 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeServiceUnavailableError(res, 'The server is busy, please try again.');
     }
 
-    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err });
-    /* istanbul ignore next */
     return errors.makeInternalError(res);
 };

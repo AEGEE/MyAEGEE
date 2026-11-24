@@ -276,10 +276,6 @@ exports.listUserAppliedEvents = async (req, res) => {
     const events = await Event.findAll(queryObj);
 
     for (const event of events) {
-        if (!event.applications || event.applications.length === 0) {
-            continue;
-        }
-
         if (helpers.shouldHideApplicationStatus(event, {
             change_status: helpers.hasPermission(req.corePermissions, 'global:manage_applications:' + event.type)
         })) {

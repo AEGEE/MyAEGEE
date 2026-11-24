@@ -236,4 +236,104 @@ describe('Votes amounts listing', () => {
             }
         });
     });
+
+    describe('who sees the votes, and of which event', () => {
+        const bodyId = regularUser.bodies[0].id;
+        const routes = [
+            ['/votes-amounts/antenna'],
+            ['/votes-amounts/delegate'],
+            ['/votes-amounts/' + bodyId]
+        ];
+
+        // An Agora with 5 votes for the caller's body, all with its one confirmed delegate.
+        const createAgoraWithVotes = async (userId) => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            await generator.createMembersList({
+                body_id: bodyId,
+                members: Array.from({ length: 175 }, () => generator.generateMembersListMember())
+            }, event);
+            await generator.createApplication({
+                user_id: userId,
+                participant_type: 'delegate',
+                participant_order: 1,
+                body_id: bodyId,
+                confirmed: true
+            }, event);
+            await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
+
+            return event;
+        };
+
+        const get = (event, route) => request({
+            path: '/events/' + event.id + route,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        test('shows a member without permissions the votes per antenna of this Agora only', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+            const event = await createAgoraWithVotes(1337);
+            await createAgoraWithVotes(1338);
+
+            const res = await get(event, '/votes-amounts/antenna');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.map((votes) => [votes.event_id, votes.body_id, votes.votes])).toEqual([[event.id, bodyId, 5]]);
+        });
+
+        test('shows a member without permissions the votes per delegate of this Agora only', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+            const event = await createAgoraWithVotes(1337);
+            await createAgoraWithVotes(1338);
+
+            const res = await get(event, '/votes-amounts/delegate');
+
+            expect(res.statusCode).toEqual(200);
+            // Not registered at the event yet, so there are only the votes off the event.
+            expect(res.body.data.map((votes) => [votes.event_id, votes.user_id, votes.type, votes.votes]))
+                .toEqual([[event.id, 1337, 'off-event', 5]]);
+        });
+
+        test('shows a member without permissions the votes of one body at this Agora only', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true }, memberslistPermissions: { noPermissions: true } });
+            const event = await createAgoraWithVotes(1337);
+            await createAgoraWithVotes(1338);
+
+            const res = await get(event, '/votes-amounts/' + bodyId);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.antenna.event_id).toEqual(event.id);
+            expect(res.body.data.antenna.votes).toEqual(5);
+            expect(res.body.data.delegate.map((votes) => [votes.event_id, votes.user_id, votes.votes])).toEqual([[event.id, 1337, 5]]);
+        });
+
+        test('answers with no votes for a body that has none at this Agora', async () => {
+            const event = await createAgoraWithVotes(1337);
+
+            const res = await get(event, '/votes-amounts/2147483647');
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, data: { antenna: null, delegate: [] } });
+        });
+
+        test('answers 400 for the body id Infinity, as for any value that is not written in digits', async () => {
+            const event = await createAgoraWithVotes(1337);
+
+            const res = await get(event, '/votes-amounts/Infinity');
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body ID is malformed.' });
+        });
+
+        describe.each(['epm', 'spm'])('of an %s event', (type) => {
+            test.each(routes)('answers 400 on %s', async (route) => {
+                const event = await generator.createEvent({ type, applications: [] });
+
+                const res = await get(event, route);
+
+                expect(res.statusCode).toEqual(400);
+                expect(res.body).toEqual({ success: false, message: 'You can only access memberslist for Agora.' });
+            });
+        });
+    });
 });

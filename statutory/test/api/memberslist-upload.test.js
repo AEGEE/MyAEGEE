@@ -1,4 +1,5 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -1263,5 +1264,245 @@ describe('Memberslist uploading', () => {
         // The member with that user ID is on the list.
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.is_on_memberslist).toEqual(true);
+    });
+
+    describe('deadlines', () => {
+        // Fixed dates, in a month without clock changes: the edit deadline is 14 days before the start.
+        const PERIOD_STARTS = new Date('2031-06-01T10:00:00.000Z');
+        const SUBMISSION_DEADLINE = new Date('2031-07-01T10:00:00.000Z');
+        const EDIT_DEADLINE = new Date('2031-07-06T10:00:00.000Z');
+        const EVENT_STARTS = new Date('2031-07-20T10:00:00.000Z');
+
+        const MANAGE = 'global:manage_memberslist:agora';
+        const BETWEEN = 'global:edit_memberslist_between_deadlines:agora';
+        const LATE_LOCAL = 'local:memberslist_late:agora';
+        const LATE_GLOBAL = 'global:memberslist_late:agora';
+
+        const bodyId = regularUser.bodies[0].id;
+        const storedMembers = [{ first_name: 'stored', last_name: 'stored', fee: 3, user_id: 1 }];
+        const sentMembers = [{ first_name: 'sent', last_name: 'sent', fee: 5, user_id: 2 }];
+
+        const ms = (date, offset) => new Date(date.getTime() + offset);
+
+        // The board of the local: the default mocks make the caller a board member of their first body.
+        // The manager holds global:manage_memberslist:agora and is on no board.
+        const callers = {
+            board: { name: 'the board of the local', mocks: (permissions) => ({ mainPermissions: { permissions } }) },
+            manager: {
+                name: 'a holder of ' + MANAGE,
+                mocks: (permissions) => ({
+                    mainPermissions: { permissions: [MANAGE, ...permissions] },
+                    memberslistPermissions: { noPermissions: true }
+                })
+            },
+            member: {
+                name: 'a member',
+                mocks: (permissions) => ({
+                    mainPermissions: { permissions },
+                    memberslistPermissions: { noPermissions: true }
+                })
+            }
+        };
+
+        // A row of the tables below: who, with which extra permissions, when, and the answer.
+        const row = (verb, caller, permissions, when, date) => [
+            `${verb} ${callers[caller].name}${permissions.length ? ' with ' + permissions.join(' and ') : ''} ${when}`,
+            verb === 'accepts' ? 200 : 403,
+            caller,
+            permissions,
+            date
+        ];
+
+        const createAgora = () => generator.createEvent({
+            type: 'agora',
+            application_period_starts: PERIOD_STARTS,
+            application_period_ends: new Date('2031-06-10T10:00:00.000Z'),
+            board_approve_deadline: new Date('2031-06-15T10:00:00.000Z'),
+            participants_list_publish_deadline: new Date('2031-06-20T10:00:00.000Z'),
+            memberslist_submission_deadline: SUBMISSION_DEADLINE,
+            starts: EVENT_STARTS,
+            ends: new Date('2031-07-25T10:00:00.000Z')
+        });
+
+        const upload = (event, toBodyId = bodyId) => request({
+            path: '/events/' + event.id + '/memberslists/' + toBodyId,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { currency: 'EU', members: sentMembers }
+        });
+
+        const membersInDb = async () => {
+            const memberslists = await MembersList.findAll({ where: {} });
+            return memberslists.map((memberslist) => memberslist.members.map((member) => member.first_name));
+        };
+
+        afterEach(() => {
+            tk.reset();
+        });
+
+        test('the edit deadline is 14 days before the event starts', async () => {
+            const event = await createAgora();
+
+            expect(event.memberslist_edit_deadline).toEqual(EDIT_DEADLINE);
+        });
+
+        describe('of a first members list', () => {
+            test.each([
+                row('refuses', 'board', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
+                row('accepts', 'board', [], 'exactly when the application period starts (inclusive)', PERIOD_STARTS),
+                row('accepts', 'board', [], 'exactly at the submission deadline (inclusive)', SUBMISSION_DEADLINE),
+                row('refuses', 'board', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'board', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                // The late permission is a global one: in another scope it counts nothing.
+                row('refuses', 'board', [LATE_LOCAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'board', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'board', [LATE_GLOBAL], 'after the event started', ms(EVENT_STARTS, 1)),
+                row('refuses', 'member', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'manager', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
+                row('accepts', 'manager', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'manager', [], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1))
+            ])('%s', async (name, status, caller, permissions, date) => {
+                mock.mockAll(callers[caller].mocks(permissions));
+                const event = await createAgora();
+
+                tk.freeze(date);
+                const res = await upload(event);
+
+                expect(res.statusCode).toEqual(status);
+                if (status === 200) {
+                    expect(await membersInDb()).toEqual([['sent']]);
+                } else {
+                    expect(res.body).toEqual({ success: false, message: 'You are not allowed to upload memberslist.' });
+                    expect(await membersInDb()).toEqual([]);
+                }
+            });
+        });
+
+        describe('of an edit of a members list', () => {
+            test.each([
+                row('refuses', 'board', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
+                row('accepts', 'board', [], 'exactly when the application period starts (inclusive)', PERIOD_STARTS),
+                row('accepts', 'board', [], 'exactly at the submission deadline (inclusive)', SUBMISSION_DEADLINE),
+                row('refuses', 'board', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'board', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'board', [], 'exactly at the edit deadline', EDIT_DEADLINE),
+                row('accepts', 'board', [BETWEEN], 'exactly at the edit deadline (inclusive)', EDIT_DEADLINE),
+                row('refuses', 'board', [BETWEEN], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
+                // The late permission is a global one: in another scope it counts nothing.
+                row('refuses', 'board', [LATE_LOCAL], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
+                row('accepts', 'board', [LATE_GLOBAL], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1)),
+                // BUG: the late permission lets a board edit after the edit deadline, but not in the days before it:
+                // between the deadlines it still needs the permission for that period. Expected: accepted.
+                row('refuses', 'board', [LATE_GLOBAL], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'board', [LATE_GLOBAL], 'exactly at the edit deadline', EDIT_DEADLINE),
+                row('accepts', 'board', [LATE_GLOBAL, BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'member', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'manager', [], '1 ms before the application period starts', ms(PERIOD_STARTS, -1)),
+                row('accepts', 'manager', [], 'exactly at the submission deadline (inclusive)', SUBMISSION_DEADLINE),
+                row('refuses', 'manager', [], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('accepts', 'manager', [BETWEEN], '1 ms after the submission deadline', ms(SUBMISSION_DEADLINE, 1)),
+                row('refuses', 'manager', [], 'exactly at the edit deadline', EDIT_DEADLINE),
+                row('accepts', 'manager', [BETWEEN], 'exactly at the edit deadline (inclusive)', EDIT_DEADLINE),
+                // BUG: a manager needs the permission for the period between the deadlines, but nothing more
+                // than global:manage_memberslist once the edit deadline has passed. Expected: refused, or the
+                // manager is not bound by the period between the deadlines either.
+                row('accepts', 'manager', [], '1 ms after the edit deadline', ms(EDIT_DEADLINE, 1))
+            ])('%s', async (name, status, caller, permissions, date) => {
+                mock.mockAll(callers[caller].mocks(permissions));
+                const event = await createAgora();
+                await generator.createMembersList({ body_id: bodyId, user_id: regularUser.id, members: storedMembers }, event);
+
+                tk.freeze(date);
+                const res = await upload(event);
+
+                expect(res.statusCode).toEqual(status);
+                if (status === 200) {
+                    expect(await membersInDb()).toEqual([['sent']]);
+                } else {
+                    expect(res.body).toEqual({ success: false, message: 'You are not allowed to edit memberslist.' });
+                    expect(await membersInDb()).toEqual([['stored']]);
+                }
+            });
+        });
+
+        // The board of a local holds manage_memberslist:agora in its own body only, so the late
+        // permission and the open periods count for that body, never for another one.
+        describe('of another body', () => {
+            const OTHER_BODY_ID = 1337;
+
+            test.each([
+                ['while the submission is open', [], PERIOD_STARTS],
+                [`with ${LATE_GLOBAL} after the submission deadline`, [LATE_GLOBAL], ms(SUBMISSION_DEADLINE, 1)]
+            ])('refuses a first members list from the board of another local %s', async (_, permissions, date) => {
+                mock.mockAll(callers.board.mocks(permissions));
+                const event = await createAgora();
+
+                tk.freeze(date);
+                const res = await upload(event, OTHER_BODY_ID);
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual({ success: false, message: 'You are not allowed to upload memberslist.' });
+                expect(await membersInDb()).toEqual([]);
+            });
+
+            test.each([
+                ['while the submission is open', [], PERIOD_STARTS],
+                [`with ${LATE_GLOBAL} after the edit deadline`, [LATE_GLOBAL], ms(EDIT_DEADLINE, 1)]
+            ])('refuses an edit from the board of another local %s', async (_, permissions, date) => {
+                mock.mockAll(callers.board.mocks(permissions));
+                const event = await createAgora();
+                await generator.createMembersList({ body_id: OTHER_BODY_ID, members: storedMembers }, event);
+
+                tk.freeze(date);
+                const res = await upload(event, OTHER_BODY_ID);
+
+                expect(res.statusCode).toEqual(403);
+                expect(res.body).toEqual({ success: false, message: 'You are not allowed to edit memberslist.' });
+                expect(await membersInDb()).toEqual([['stored']]);
+            });
+        });
+    });
+
+    describe('an edit of a members list', () => {
+        test.each([
+            ['nothing', {}],
+            ['only the currency', { currency: 'EU' }],
+            ['only the members', { members: [{ first_name: 'Edited', last_name: 'Member', fee: 7, user_id: 1 }] }]
+        ])('with %s changes what it is sent and keeps the rest', async (description, body) => {
+            const event = await generator.createEvent({ type: 'agora' });
+            const stored = await generator.createMembersList({ body_id: regularUser.bodies[0].id, currency: 'EU' }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(200);
+            const list = await MembersList.findByPk(stored.id);
+            expect(list.currency).toEqual(body.currency || stored.currency);
+            // The service adds the fee to AEGEE-Europe of each member.
+            const sent = (members) => members.map(({ first_name: first, last_name: last, fee }) => ({ first, last, fee }));
+            expect(sent(list.members)).toEqual(sent(body.members || stored.members));
+        });
+
+        test.each([
+            ['without members', { currency: 'EU' }, 'members'],
+            ['without a currency', { members: [{ first_name: 'A', last_name: 'Member', fee: 7, user_id: 1 }] }, 'currency']
+        ])('a first members list %s answers 422', async (description, body, field) => {
+            const event = await generator.createEvent({ type: 'agora' });
+
+            const res = await request({
+                path: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(await MembersList.count()).toEqual(0);
+        });
     });
 });

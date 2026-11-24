@@ -1,9 +1,11 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { at, fixedDates, BEFORE_EVERYTHING } = require('../scripts/fixed-event');
 const { Event, Image } = require('../../models');
 
 describe('Events creation', () => {
@@ -20,6 +22,7 @@ describe('Events creation', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -116,6 +119,23 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
         expect(Object.keys(res.body.errors).length).toEqual(1);
         expect(res.body.errors).toHaveProperty('url');
+    });
+
+    test('should fail if the event URL is a number and not text', async () => {
+        // The default user holds global:manage_event for the types of the generated events.
+        const res = await request({
+            path: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                url: 12345
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors)).toEqual(['url']);
+        expect(await Event.count()).toEqual(0);
     });
 
     it('should return 422 if URL is not unique', async () => {
@@ -1331,5 +1351,300 @@ describe('Events creation', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
+    });
+
+    describe('who may create an event', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        test.each(['agora', 'epm', 'spm'])('should let the holder of global:manage_event:%s alone create such an event', async (type) => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_event:' + type] } });
+
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type, ...fixedDates() })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.type).toEqual(type);
+
+            const eventFromDb = await Event.findByPk(res.body.data.id);
+            expect(eventFromDb.type).toEqual(type);
+        });
+
+        test.each([
+            ['agora', ['global:manage_event:epm', 'global:manage_event:spm']],
+            ['epm', ['global:manage_event:agora', 'global:manage_event:spm']],
+            ['spm', ['global:manage_event:agora', 'global:manage_event:epm']],
+            ['agora', ['global:manage_applications:agora', 'global:manage_incoming:agora', 'global:approve_members:agora']]
+        ])('should refuse a new %s from somebody with %j', async (type, permissions) => {
+            mock.mockAll({ mainPermissions: { permissions } });
+
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type, ...fixedDates() })
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual('You are not allowed to create events of this type.');
+            expect(res.body).not.toHaveProperty('data');
+            expect(await Event.count()).toEqual(0);
+        });
+
+        // The permission for the type is looked up before the event is validated, so a type
+        // that does not exist is refused like a type the user may not create.
+        test.each([
+            ['a type that does not exist', 'conference'],
+            ['a type in capitals', 'AGORA'],
+            ['no type', undefined],
+            ['null as the type', null]
+        ])('should answer 403 for %s, also to somebody who may create every type', async (description, type) => {
+            mock.mockAll({
+                mainPermissions: { permissions: ['global:manage_event:agora', 'global:manage_event:epm', 'global:manage_event:spm'] }
+            });
+
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { ...generator.generateEvent(fixedDates()), type }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.message).toEqual('You are not allowed to create events of this type.');
+            expect(await Event.count()).toEqual(0);
+        });
+    });
+
+    describe('what the body cannot set', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        test('should create a draft whatever status the body asks for', async () => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', status: 'published', ...fixedDates() })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.status).toEqual('draft');
+
+            const eventFromDb = await Event.findByPk(res.body.data.id);
+            expect(eventFromDb.status).toEqual('draft');
+            expect(eventFromDb.publication_date).toEqual(null);
+        });
+
+        test('should give the event its own id, not the one in the body', async () => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: { ...generator.generateEvent({ type: 'epm', ...fixedDates() }), id: 424242 }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).not.toEqual(424242);
+            expect(await Event.findByPk(424242)).toEqual(null);
+            expect(await Event.count()).toEqual(1);
+        });
+    });
+
+    describe('validation', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        const withoutField = (field) => {
+            const event = generator.generateEvent({ type: 'epm', ...fixedDates() });
+            delete event[field];
+            return event;
+        };
+
+        test.each([
+            ['an empty name', 'name', { name: '', url: 'an-event' }],
+            ['an empty description', 'description', { description: '' }],
+            ['a negative fee', 'fee', { fee: -1 }],
+            ['a fee that is not a number', 'fee', { fee: 'abc' }],
+            ['null as the fee', 'fee', { fee: null }],
+            ['a body that is not a number', 'body_id', { body_id: 'abc' }],
+            ['null as the body', 'body_id', { body_id: null }],
+            ['no questions', 'questions', { questions: [] }],
+            // eslint-disable-next-line no-script-url
+            ['a booklet folder that is a script', 'booklet_folder', { booklet_folder: 'javascript:alert(1)' }],
+            ['a booklet folder on another protocol', 'booklet_folder', { booklet_folder: 'ftp://example.org/booklet' }],
+            ['a booklet folder that is not a link', 'booklet_folder', { booklet_folder: 'not a url' }]
+        ])('should refuse an event with %s', async (description, field, values) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(), ...values })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(Object.keys(res.body.errors)).toEqual([field]);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each([
+            'name',
+            'description',
+            'starts',
+            'ends',
+            'application_period_starts',
+            'application_period_ends',
+            'board_approve_deadline',
+            'participants_list_publish_deadline',
+            'body_id',
+            'questions',
+            'fee',
+            'url'
+        ])('should refuse an event without %s', async (field) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: withoutField(field)
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test('should refuse null as a question, as for a question that is a text', async () => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(), questions: [null] })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ questions: ['Question 1: should be an object.'] });
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test('should accept a web link as the booklet folder', async () => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(), booklet_folder: 'https://example.org/booklet' })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.booklet_folder).toEqual('https://example.org/booklet');
+        });
+
+        // The order of the dates, each rule exactly at its boundary: two dates at the same
+        // moment are refused everywhere.
+        test.each([
+            ['the end at the moment of the start', 'ends', { ends: at('starts') }],
+            ['the application period ending at the moment it starts', 'application_period_ends', { application_period_ends: at('application_period_starts') }],
+            ['the application period ending at the moment the event starts', 'application_period_ends', {
+                application_period_ends: at('starts'),
+                board_approve_deadline: at('starts', 1),
+                starts: at('starts'),
+                ends: at('ends')
+            }],
+            ['the board approve deadline at the moment the application period ends', 'board_approve_deadline', { board_approve_deadline: at('application_period_ends') }],
+            ['the board approve deadline at the moment the event starts', 'board_approve_deadline', { board_approve_deadline: at('starts') }],
+            ['the board approve deadline 1 ms after the event starts', 'board_approve_deadline', { board_approve_deadline: at('starts', 1) }],
+            ['the participants list deadline at the moment the event starts', 'participants_list_publish_deadline', { participants_list_publish_deadline: at('starts') }]
+        ])('should refuse %s', async (description, field, dates) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(dates) })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty(field);
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each([
+            ['the end 1 ms after the start', { ends: at('starts', 1) }],
+            ['the application period ending 1 ms after it starts', { application_period_ends: at('application_period_starts', 1) }],
+            ['the board approve deadline 1 ms after the application period ends', { board_approve_deadline: at('application_period_ends', 1) }],
+            ['the board approve deadline 1 ms before the event starts', { board_approve_deadline: at('starts', -1) }],
+            ['the participants list deadline 1 ms before the event starts', { participants_list_publish_deadline: at('starts', -1) }],
+            ['the application period ending 1 ms before the event starts', { application_period_ends: at('starts', -2), board_approve_deadline: at('starts', -1) }]
+        ])('should accept %s', async (description, dates) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', ...fixedDates(dates) })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(await Event.count()).toEqual(1);
+        });
+    });
+
+    // The statuses of the applications count as revealed from the participants list deadline
+    // on. An event that is created at or after that deadline records the moment.
+    describe('application_status_revealed_at', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
+        const create = () => request({
+            path: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({ type: 'epm', ...fixedDates() })
+        });
+
+        test('should stay empty when the event is created 1 ms before the participants list deadline', async () => {
+            tk.freeze(at('participants_list_publish_deadline', -1));
+
+            const res = await create();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.application_status_revealed_at).toEqual(null);
+
+            const eventFromDb = await Event.findByPk(res.body.data.id);
+            expect(eventFromDb.application_status_revealed_at).toEqual(null);
+        });
+
+        test.each([
+            ['exactly at the participants list deadline (inclusive)', 0],
+            ['1 ms after the participants list deadline', 1]
+        ])('should be set to the moment of creation when the event is created %s', async (description, offset) => {
+            const now = at('participants_list_publish_deadline', offset);
+            tk.freeze(now);
+
+            const res = await create();
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.application_status_revealed_at).toEqual(now.toISOString());
+
+            const eventFromDb = await Event.findByPk(res.body.data.id);
+            expect(eventFromDb.application_status_revealed_at).toEqual(now);
+        });
     });
 });
