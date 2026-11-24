@@ -210,7 +210,9 @@ export default {
       loginUser: 'user'
     }),
     prefix () {
-      return this.$route.params.prefix
+      // There are two lists: the one of the Juridical Commission and the one every member sees,
+      // which any other address shows.
+      return this.$route.params.prefix === 'all' ? 'all' : 'approved'
     },
     taskDescription () {
       if (!this.selectedPosition || !this.selectedPosition.body_id) {
@@ -354,6 +356,10 @@ export default {
     }
   },
   mounted () {
+    if (this.$route.params.prefix !== this.prefix) {
+      this.$router.replace({ name: 'oms.statutory.positions', params: { id: this.$route.params.id, prefix: this.prefix } })
+    }
+
     this.isLoading = true
 
     this.axios.get(this.services['core'] + '/bodies').then((bodiesResponse) => {
