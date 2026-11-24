@@ -56,9 +56,7 @@ describe('Users image upload', () => {
         });
 
         expect(res.statusCode).toEqual(422);
-
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toEqual({ success: false, message: 'Allowed extensions: \'.png\', \'.jpg\', \'.jpeg\'.' });
     });
 
     it('should answer 500 without the text of the error if the image cannot be stored', async () => {

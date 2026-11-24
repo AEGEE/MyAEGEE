@@ -33,6 +33,16 @@ describe('API requests', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should name the method and the path of an unknown endpoint, without the query', async () => {
+        const res = await request({
+            path: '/not-existant/1',
+            query: { token: 'abc' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toEqual({ success: false, message: 'No such API endpoint: GET /not-existant/1' });
+    });
+
     test('should fail if the request is not JSON', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
