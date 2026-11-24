@@ -116,7 +116,7 @@
                 <p>
                   <b>You applied from this body:</b>
                   <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                    {{ application.body ? application.body.name : 'Loading...' }}
+                    {{ application.body ? application.body.name : application.body_name }}
                   </router-link>
                 </p>
                 <table class="table is-narrow is-fullwidth">
