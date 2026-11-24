@@ -297,13 +297,13 @@ test.describe('event editor', () => {
         });
 
         test('a failed member search shows the error', async ({ page, api }) => {
-            api.on('GET core /members_search', { status: 403, json: forbidden('Permission search:member is required, but not present.') });
+            api.on('GET core /members_search', { status: 403, json: forbidden('You can only search members of bodies you are a member of.') });
             await page.goto('/events/new');
             await addBody(page, 'AEGEE-Antenna');
 
             await textbox(page, 'Add organiser').fill('Chr');
 
-            await expect(toast(page, 'Could not fetch members: Permission search:member is required, but not present.')).toBeVisible();
+            await expect(toast(page, 'Could not fetch members: You can only search members of bodies you are a member of.')).toBeVisible();
         });
 
         test('deleting a question and a location removes their rows without saving the event', async ({ page, api }) => {
