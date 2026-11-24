@@ -42,10 +42,11 @@
           <div class="field has-addons">
             <b-autocomplete
               id="campaign-autojoin-body"
-              v-model="autocompleteCampaign"
-              :data="bodies"
+              field="name"
+              v-model="autocompleteBody"
+              :data="filteredBodies"
               :disabled="$route.params.body_id"
-              open-on-focus="true"
+              :open-on-focus="true"
               @select="body => { campaign.autojoin_body_id = body.id; campaign.autojoin_body = body }">
               <template slot-scope="props">
                 <div class="media">
@@ -118,6 +119,8 @@ export default {
         active: true
       },
       bodies: [],
+      // The text typed into the body picker.
+      autocompleteBody: '',
       errors: {},
       isLoading: false,
       isSaving: false
@@ -153,7 +156,13 @@ export default {
       })
     }
   },
-  computed: mapGetters(['services']),
+  computed: {
+    filteredBodies () {
+      const typed = (this.autocompleteBody || '').toLowerCase()
+      return this.bodies.filter((body) => body.name.toLowerCase().includes(typed))
+    },
+    ...mapGetters(['services'])
+  },
   mounted () {
     this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
