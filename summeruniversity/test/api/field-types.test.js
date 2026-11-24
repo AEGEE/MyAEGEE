@@ -402,8 +402,16 @@ describe('Field types', () => {
     });
 
     describe('decimals', () => {
+        // At most 308 digits before the decimal point, which read back as a number, and 16383
+        // after it, what a Postgres NUMERIC keeps: beyond it Postgres answers "value overflows
+        // numeric format" (500).
         const values = [['an array', [5]], ['an array of text', ['5']], ['an object', { value: 5 }], ['a boolean', true],
-            ['more decimals than the column keeps', `0.${'1'.repeat(16384)}`]];
+            ['more decimals than the column keeps', `0.${'1'.repeat(16384)}`],
+            ['a 1 at the 16384th decimal', `0.${'0'.repeat(16383)}1`], ['an exponent that makes 16384 decimals', '1e-16384'],
+            ['an exponent that makes 309 digits', '1e308'], ['309 digits', '1'.padEnd(309, '0')],
+            ['an exponent beyond what Postgres keeps', '1e131072'],
+            ['a point without decimals', '5.'], ['a decimal comma', '1,5'], ['NaN as text', 'NaN'], ['Infinity as text', 'Infinity'],
+            ['an empty exponent', '1e'], ['a text', 'abc']];
         const rows = [['fee', 'Event fee should be valid.'], ['optional_fee', 'Optional fee should be valid.']]
             .flatMap(([field, message]) => values.map(([name, value]) => [field, name, value, message]));
 
@@ -421,6 +429,44 @@ describe('Field types', () => {
 
             expectFieldError(res, field, message);
             expect(Number((await Event.findByPk(event.id))[field])).toEqual(Number(event[field]));
+        });
+
+        // An <input type="number"> may submit any of these: they are valid floating-point
+        // numbers in HTML.
+        test.each([
+            ['a decimal without a leading zero', '.5', 0.5],
+            ['a plus sign', '+5', 5],
+            ['a trailing zero', '2.50', 2.5],
+            ['an exponent', '1e2', 100],
+            ['a negative exponent in capitals', '1E-2', 0.01],
+            ['a number that JavaScript writes with an exponent', 1e21, 1e21]
+        ])('creating a Summer University takes a fee with %s', async (_name, fee, stored) => {
+            const res = await call('POST', '/', generator.generateEventBody({ fee }));
+
+            expect(res.statusCode).toEqual(201);
+            expect(Number((await Event.findByPk(res.body.data.id)).fee)).toEqual(stored);
+        });
+
+        // The most digits before the point: test/unit/decimal-fields.test.js.
+        test.each([
+            ['16383 decimals', `0.${'0'.repeat(16382)}1`],
+            ['an exponent that makes 16383 decimals', '1e-16383']
+        ])('editing a Summer University takes a fee with %s, the most the column keeps', async (_name, fee) => {
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await call('PUT', `/single/${event.id}`, { fee });
+
+            expect(res.statusCode).toEqual(200);
+        });
+
+        // JSON has no Infinity, but body-parser reads a number too large for a double as one.
+        test('editing a Summer University refuses a fee that is an infinite number', async () => {
+            const event = await generator.createEvent({ status: 'first draft', published: 'none' });
+
+            const res = await request({ method: 'PUT', path: `/single/${event.id}`, headers: { 'X-Auth-Token': 'foobar', 'Content-Type': 'application/json' }, rawBody: '{"fee":1e400}' });
+
+            expectFieldError(res, 'fee', 'Event fee should be valid.');
+            expect(Number((await Event.findByPk(event.id)).fee)).toEqual(Number(event.fee));
         });
 
         test('a fee takes a number with decimals, also as text', async () => {
