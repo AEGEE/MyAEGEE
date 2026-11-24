@@ -79,6 +79,7 @@ export default {
     return {
       events: [],
       isLoading: false,
+      left: false,
       permissions: [],
       eventTypes: constants.EVENT_TYPES_NAMES
     }
@@ -119,6 +120,8 @@ export default {
         this.events = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         this.$root.showError('Could not fetch events list', err)
       })
@@ -126,6 +129,10 @@ export default {
   },
   mounted () {
     this.fetchData()
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>

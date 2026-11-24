@@ -381,6 +381,7 @@ export default {
         zoom: 3
       },
       isLoading: false,
+      left: false,
       can: {
         edit_event: false,
         approve_event: {},
@@ -565,6 +566,8 @@ export default {
         }
       })
       .catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
@@ -591,6 +594,10 @@ export default {
     activeEventApplicationBan () {
       return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>

@@ -720,6 +720,7 @@ export default {
       },
       errors: {},
       isLoading: false,
+      left: false,
       isSaving: false
     }
   },
@@ -1009,6 +1010,8 @@ export default {
         }
       })
     }).catch((err) => {
+      if (this.left) return
+
       this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
@@ -1018,6 +1021,10 @@ export default {
 
       this.$router.push({ name: 'oms.events.list.all' })
     })
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>
