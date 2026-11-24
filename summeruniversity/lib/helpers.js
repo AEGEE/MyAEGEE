@@ -7,8 +7,11 @@ const { Sequelize, sequelize } = require('./sequelize');
 const config = require('../config');
 
 // Dates are read as YYYY-MM-DD; a longer ISO string (the frontend sends one to /recents) is
-// read by its date part, as the list queries do.
-const isValidDay = (value) => typeof value === 'string' && moment(value, 'YYYY-MM-DD').isValid();
+// read by its date part, as the list queries do. The year is read from four digits and must be
+// at least 1000: Postgres refuses some earlier dates in the form the queries send them.
+const isValidDay = (value) => typeof value === 'string'
+    && moment(value, 'YYYY-MM-DD').isValid()
+    && moment(value, 'YYYY-MM-DD').year() >= 1000;
 
 const APPLICATION_STATUSES = ['open', 'closed'];
 
