@@ -182,7 +182,8 @@ export default {
         childCircles: { name: '', values: [], loading: false },
         permissions: { name: '', values: [], loading: false }
       },
-      token: null,
+      // One search per field: typing in one field doesn't cancel the search of another.
+      tokens: {},
       errors: {},
       isLoading: false,
       isSaving: false
@@ -196,11 +197,11 @@ export default {
       this.autoComplete[key].values = []
       this.autoComplete[key].loading = true
 
-      if (this.token) this.token.cancel()
-      this.token = this.axios.CancelToken.source()
+      if (this.tokens[key]) this.tokens[key].cancel()
+      this.tokens[key] = this.axios.CancelToken.source()
 
       this.axios.get(this.services['core'] + '/' + context, {
-        cancelToken: this.token.token,
+        cancelToken: this.tokens[key].token,
         params: { query }
       }).then((response) => {
         this.autoComplete[key].values = response.data.data
