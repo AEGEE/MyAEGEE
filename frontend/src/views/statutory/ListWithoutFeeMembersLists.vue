@@ -2,27 +2,29 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">List all memberslists without fee for {{ event.name }}</h4>
+        <h1 class="title">List all memberslists without fee for {{ event.name }}</h1>
 
-        <b-table
-          :data="memberslists"
-          :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="body_name" label="Body name" sortable>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-                {{ props.row.body ? props.row.body.name : 'Loading...' }}
-              </router-link>
-            </b-table-column>
+        <section aria-label="Members lists without fee" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="memberslists"
+            :loading="isLoading">
+            <template slot-scope="props">
+              <b-table-column field="body_name" label="Body name" sortable>
+                <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                  {{ props.row.body ? props.row.body.name : 'Loading...' }}
+                </router-link>
+              </b-table-column>
 
-            <b-table-column field="type" label="Type" sortable>
-              {{ props.row.type | capitalize }}
-            </b-table-column>
-          </template>
+              <b-table-column field="type" label="Type" sortable>
+                {{ props.row.type | capitalize }}
+              </b-table-column>
+            </template>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </article>
     </div>
   </div>
