@@ -337,6 +337,21 @@ export default {
       }))
     }
   },
+  methods: {
+    // The names of the bodies and which of them are antennae. Without them the statistics
+    // still show, with the ids of the bodies.
+    loadBodies () {
+      this.axios.get(this.services['core'] + '/bodies/').then((bodies) => {
+        this.bodies = bodies.data.data
+        for (const stat of this.stats.by_body) {
+          const body = this.bodies.find(b => stat.type === b.id)
+          if (body) {
+            this.$set(stat, 'body', body)
+          }
+        }
+      }).catch((err) => this.$root.showError('Could not load the bodies', err))
+    }
+  },
   mounted () {
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
@@ -366,15 +381,7 @@ export default {
       }
       this.stats.by_gender = byGenderStats
 
-      return this.axios.get(this.services['core'] + '/bodies/')
-    }).then((bodies) => {
-      this.bodies = bodies.data.data
-      for (const stat of this.stats.by_body) {
-        const body = this.bodies.find(b => stat.type === b.id)
-        if (body) {
-          this.$set(stat, 'body', body)
-        }
-      }
+      this.loadBodies()
     })
       .catch((err) => {
         if (err.response && err.response.status === 404) {
