@@ -9,7 +9,7 @@ const mail = {
     to: 'to@example.org',
     subject: 'Subject',
     template: 'custom.html',
-    parameters: { body: 'Hello' }
+    parameters: { email_body: 'Hello' }
 };
 
 describe('Mailer client', () => {

@@ -37,7 +37,6 @@ defmodule OmsmailerWeb do
       use Phoenix.HTML
 
       import OmsmailerWeb.Router.Helpers
-      import OmsmailerWeb.ErrorHelpers
     end
   end
 
@@ -46,12 +45,6 @@ defmodule OmsmailerWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
-    end
-  end
-
-  def channel do
-    quote do
-      use Phoenix.Channel
     end
   end
 

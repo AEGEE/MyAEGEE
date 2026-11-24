@@ -1,0 +1,2505 @@
+{
+  "$comment": "The mail contract: every template the mailer and the dispatcher render, its parameters as a JSON Schema subset, and examples. See README.md.",
+  "version": 1,
+  "envelope": {
+    "type": "object",
+    "required": [
+      "to",
+      "subject",
+      "template",
+      "parameters"
+    ],
+    "properties": {
+      "to": {
+        "type": [
+          "string",
+          "array"
+        ],
+        "minLength": 1,
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "subject": {
+        "type": "string",
+        "minLength": 1
+      },
+      "template": {
+        "type": "string",
+        "minLength": 1
+      },
+      "parameters": {
+        "type": [
+          "object",
+          "array"
+        ]
+      },
+      "from": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1
+      },
+      "reply_to": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "cc": {
+        "type": [
+          "string",
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "bcc": {
+        "type": [
+          "string",
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "printable": {
+      "description": "A value the template prints: text, a number, true/false or null (printed as nothing).",
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "token": {
+      "description": "A confirmation or reset token; it goes into a link.",
+      "type": "string",
+      "minLength": 1
+    },
+    "questions": {
+      "description": "The event's application questions; the template lists each with the answer at the same position.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "$ref": "#/$defs/printable"
+          }
+        }
+      }
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/printable"
+      }
+    },
+    "event_link": {
+      "description": "An event the mail names and links to.",
+      "type": "object",
+      "required": [
+        "name",
+        "url"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "event_status": {
+      "type": "object",
+      "required": [
+        "name",
+        "url",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/printable"
+        }
+      }
+    },
+    "event_questions": {
+      "description": "An event whose name is in the subject line and whose questions are listed.",
+      "type": "object",
+      "required": [
+        "name",
+        "questions"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "questions": {
+          "$ref": "#/$defs/questions"
+        }
+      }
+    },
+    "event_questions_link": {
+      "type": "object",
+      "required": [
+        "name",
+        "url",
+        "questions"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "questions": {
+          "$ref": "#/$defs/questions"
+        }
+      }
+    },
+    "events_application": {
+      "type": "object",
+      "required": [
+        "body_name",
+        "created_at",
+        "updated_at",
+        "first_name",
+        "last_name",
+        "email",
+        "answers"
+      ],
+      "properties": {
+        "body_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "created_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "first_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "last_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "email": {
+          "$ref": "#/$defs/printable"
+        },
+        "answers": {
+          "$ref": "#/$defs/answers"
+        }
+      }
+    },
+    "statutory_application": {
+      "type": "object",
+      "required": [
+        "body_name",
+        "created_at",
+        "updated_at",
+        "first_name",
+        "last_name",
+        "gender",
+        "date_of_birth",
+        "email",
+        "nationality",
+        "meals",
+        "allergies",
+        "number_of_events_visited",
+        "visa_required",
+        "visa_passport_number",
+        "visa_passport_issue_date",
+        "visa_passport_expiration_date",
+        "visa_passport_issue_authority",
+        "visa_place_of_birth",
+        "visa_street_and_house",
+        "visa_postal_code",
+        "visa_city",
+        "visa_country",
+        "visa_embassy",
+        "answers"
+      ],
+      "properties": {
+        "body_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "created_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "first_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "last_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "gender": {
+          "$ref": "#/$defs/printable"
+        },
+        "date_of_birth": {
+          "$ref": "#/$defs/printable"
+        },
+        "email": {
+          "$ref": "#/$defs/printable"
+        },
+        "nationality": {
+          "$ref": "#/$defs/printable"
+        },
+        "meals": {
+          "$ref": "#/$defs/printable"
+        },
+        "allergies": {
+          "$ref": "#/$defs/printable"
+        },
+        "number_of_events_visited": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_required": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_passport_number": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_passport_issue_date": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_passport_expiration_date": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_passport_issue_authority": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_place_of_birth": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_street_and_house": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_postal_code": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_city": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_country": {
+          "$ref": "#/$defs/printable"
+        },
+        "visa_embassy": {
+          "$ref": "#/$defs/printable"
+        },
+        "answers": {
+          "$ref": "#/$defs/answers"
+        }
+      }
+    },
+    "summeruniversity_application": {
+      "type": "object",
+      "required": [
+        "body_name",
+        "created_at",
+        "updated_at",
+        "first_name",
+        "last_name",
+        "aegee_experience",
+        "ideal_su",
+        "motivation",
+        "answers"
+      ],
+      "properties": {
+        "body_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "created_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/printable"
+        },
+        "first_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "last_name": {
+          "$ref": "#/$defs/printable"
+        },
+        "aegee_experience": {
+          "$ref": "#/$defs/printable"
+        },
+        "ideal_su": {
+          "$ref": "#/$defs/printable"
+        },
+        "motivation": {
+          "$ref": "#/$defs/printable"
+        },
+        "answers": {
+          "$ref": "#/$defs/answers"
+        }
+      }
+    }
+  },
+  "templates": {
+    "candidate_applied": {
+      "description": "Notice of a new candidature for a position.",
+      "senders": [
+        "statutory/lib/candidates.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "position",
+          "candidate"
+        ],
+        "properties": {
+          "position": {
+            "type": "object",
+            "required": [
+              "name",
+              "event_id"
+            ],
+            "properties": {
+              "name": {
+                "$ref": "#/$defs/printable"
+              },
+              "event_id": {
+                "type": [
+                  "integer",
+                  "string"
+                ]
+              }
+            }
+          },
+          "candidate": {
+            "type": "object",
+            "required": [
+              "first_name",
+              "last_name"
+            ],
+            "properties": {
+              "first_name": {
+                "$ref": "#/$defs/printable"
+              },
+              "last_name": {
+                "$ref": "#/$defs/printable"
+              }
+            }
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "candidature submitted",
+          "sender": "statutory/lib/candidates.js",
+          "parameters": {
+            "position": {
+              "id": 5,
+              "event_id": 3,
+              "name": "Comité Directeur",
+              "places": 2
+            },
+            "candidate": {
+              "id": 8,
+              "user_id": 4021,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending"
+            }
+          }
+        }
+      ]
+    },
+    "confirm_email": {
+      "description": "Signup confirmation with the confirmation token; greets with first name and surname.",
+      "senders": [
+        "core/middlewares/campaigns.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "token"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "token": {
+            "$ref": "#/$defs/token"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "signup through a campaign",
+          "sender": "core/middlewares/campaigns.js",
+          "parameters": {
+            "name": "Ada",
+            "surname": "Lovelace",
+            "token": "Xq3vK9pLm2Rt8sYw"
+          }
+        }
+      ]
+    },
+    "custom": {
+      "description": "A mail whose HTML the sender writes; email_body is rendered without escaping. A list of parameter objects gives one body per address in \"to\".",
+      "senders": [
+        "discounts/lib/integrations.js",
+        "network/lib/antenna_criteria.js",
+        "statutory/lib/massmailer.js"
+      ],
+      "per_recipient_parameters": true,
+      "parameters": {
+        "type": "object",
+        "required": [
+          "email_body"
+        ],
+        "properties": {
+          "email_body": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "discount code claimed",
+          "sender": "discounts/lib/integrations.js",
+          "parameters": {
+            "email_body": "<p>Hello Ada,</p><p>Your code for Example Partner is <b>CODE-1234</b>.</p>"
+          }
+        },
+        {
+          "name": "fulfilment mail to a body",
+          "sender": "network/lib/antenna_criteria.js",
+          "parameters": {
+            "email_body": "<p>Dear board of AEGEE-Delft,</p><p>Please send your activity report.</p>"
+          }
+        },
+        {
+          "name": "mass mail to applicants",
+          "sender": "statutory/lib/massmailer.js",
+          "parameters": {
+            "email_body": "<p>Dear participants of Agora Example,</p><p>See you soon!</p>"
+          }
+        }
+      ]
+    },
+    "events_applied": {
+      "description": "Confirmation to an applicant of an event.",
+      "senders": [
+        "events/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/events_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "events/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 31,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": "ada.lovelace@example.org",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "created_at": "2026-05-01T10:00:00.000Z",
+              "updated_at": "2026-05-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topic",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "published",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_edited": {
+      "description": "Notice to an applicant that their application was edited.",
+      "senders": [
+        "events/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/events_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "events/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 31,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": null,
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "created_at": "2026-05-01T10:00:00.000Z",
+              "updated_at": "2026-05-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topic",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "published",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_european_status_changed": {
+      "description": "Notice to the organisers that their event became a European event.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "notice to the organisers that their event became a european event",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "draft",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_event_created": {
+      "description": "Notice to the organisers that their event was created.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "notice to the organisers that their event was created",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "draft",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_event_updated": {
+      "description": "Notice to the organisers that their event was edited.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "notice to the organisers that their event was edited",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "draft",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_spc_info": {
+      "description": "Safe-space information to the organisers of a new event.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "safe-space information to the organisers of a new event",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "draft",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "events_status_changed": {
+      "description": "Notice to the organisers that their event's status changed.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "old_status"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_status"
+          },
+          "old_status": {
+            "$ref": "#/$defs/printable"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "status changed",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "published",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            },
+            "old_status": "submitted"
+          }
+        }
+      ]
+    },
+    "events_submitted": {
+      "description": "Notice that an event was submitted for approval.",
+      "senders": [
+        "events/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "notice that an event was submitted for approval",
+          "sender": "events/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 9,
+              "name": "Training on Example Skills",
+              "url": "training-example-skills",
+              "status": "draft",
+              "type": "training",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Have you been to a training before?",
+                  "type": "checkbox",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "mail_change": {
+      "description": "Confirmation of a login email change, sent to the new address.",
+      "senders": [
+        "core/middlewares/members.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "token"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "token": {
+            "$ref": "#/$defs/token"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "email change requested",
+          "sender": "core/middlewares/members.js",
+          "parameters": {
+            "name": "Ada",
+            "surname": "Lovelace",
+            "token": "Pm4sDf6gHj8kLz1x"
+          }
+        }
+      ]
+    },
+    "mail_change_notice": {
+      "description": "Notice to the old address (and the notification address) that the login email changed, naming who asked for it.",
+      "senders": [
+        "core/middlewares/members.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "new_email",
+          "changed_by"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "new_email": {
+            "type": "string"
+          },
+          "changed_by": {
+            "description": "The requester's name, or \"yourself\".",
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "changed by a board",
+          "sender": "core/middlewares/members.js",
+          "parameters": {
+            "name": "Ada",
+            "surname": "Lovelace",
+            "new_email": "ada@example.org",
+            "changed_by": "Grace Hopper"
+          }
+        },
+        {
+          "name": "own change",
+          "sender": "core/middlewares/members.js",
+          "parameters": {
+            "name": "Ada",
+            "surname": "Lovelace",
+            "new_email": "ada@example.org",
+            "changed_by": "yourself"
+          }
+        }
+      ]
+    },
+    "mail_change_old_confirm": {
+      "description": "Confirmation of a login email change that a board asked for, sent to the current address.",
+      "senders": [
+        "core/middlewares/members.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "new_email",
+          "requester_name",
+          "requester_body",
+          "token"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "new_email": {
+            "type": "string"
+          },
+          "requester_name": {
+            "type": "string"
+          },
+          "requester_body": {
+            "type": "string"
+          },
+          "token": {
+            "$ref": "#/$defs/token"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "change asked for by a board",
+          "sender": "core/middlewares/members.js",
+          "parameters": {
+            "name": "Ada",
+            "surname": "Lovelace",
+            "new_email": "ada@example.org",
+            "requester_name": "Grace Hopper",
+            "requester_body": "AEGEE-Delft",
+            "token": "Zx9cVb7nM5aS3dF1"
+          }
+        }
+      ]
+    },
+    "member_joined": {
+      "description": "Notice to a body that somebody asked to join it.",
+      "senders": [
+        "core/middlewares/join-requests.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "member_firstname",
+          "member_lastname",
+          "body_name",
+          "body_id"
+        ],
+        "properties": {
+          "member_firstname": {
+            "type": "string"
+          },
+          "member_lastname": {
+            "type": "string"
+          },
+          "body_name": {
+            "type": "string"
+          },
+          "body_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "join request created",
+          "sender": "core/middlewares/join-requests.js",
+          "parameters": {
+            "member_firstname": "Ada",
+            "member_lastname": "Lovelace",
+            "body_name": "AEGEE-Delft",
+            "body_id": 12
+          }
+        }
+      ]
+    },
+    "membership_expired": {
+      "description": "Notice that a membership expired.",
+      "unused": "No service sends it; kept in both renderers on purpose (maintainer decision of 2026-11-23).",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "body",
+          "last_payment"
+        ],
+        "properties": {
+          "body": {
+            "$ref": "#/$defs/printable"
+          },
+          "last_payment": {
+            "$ref": "#/$defs/printable"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "membership expired",
+          "parameters": {
+            "body": "AEGEE-Delft",
+            "last_payment": "2025-11-01"
+          }
+        }
+      ]
+    },
+    "network_board_welcome": {
+      "description": "Welcome to the members of a board whose term started. Takes no parameters.",
+      "senders": [
+        "network/lib/boards.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [],
+        "properties": {}
+      },
+      "examples": [
+        {
+          "name": "board term started",
+          "sender": "network/lib/boards.js",
+          "parameters": {}
+        }
+      ]
+    },
+    "network_new_board": {
+      "description": "Notice of a new board, listing its positions. board is the request body, so end_date and message can be missing.",
+      "senders": [
+        "network/lib/boards.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "body_name",
+          "board",
+          "positions"
+        ],
+        "properties": {
+          "body_name": {
+            "type": "string"
+          },
+          "board": {
+            "type": "object",
+            "required": [
+              "elected_date",
+              "start_date"
+            ],
+            "properties": {
+              "elected_date": {
+                "$ref": "#/$defs/printable"
+              },
+              "start_date": {
+                "$ref": "#/$defs/printable"
+              },
+              "end_date": {
+                "$ref": "#/$defs/printable"
+              },
+              "message": {
+                "$ref": "#/$defs/printable"
+              }
+            }
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "function",
+                "name"
+              ],
+              "properties": {
+                "function": {
+                  "$ref": "#/$defs/printable"
+                },
+                "name": {
+                  "$ref": "#/$defs/printable"
+                }
+              }
+            }
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "board created",
+          "sender": "network/lib/boards.js",
+          "parameters": {
+            "body_name": "AEGEE-Delft",
+            "board": {
+              "body_id": 12,
+              "elected_date": "2026-04-01",
+              "start_date": "2026-05-01",
+              "end_date": "2027-04-30",
+              "message": "We are looking forward to the year!",
+              "president": 4021,
+              "secretary": 4022,
+              "treasurer": 4023
+            },
+            "positions": [
+              {
+                "function": "President",
+                "name": "Ada Lovelace"
+              },
+              {
+                "function": "Secretary",
+                "name": "Grace Hopper"
+              },
+              {
+                "function": "Treasurer",
+                "name": "Alan Turing"
+              },
+              {
+                "function": "Public relations",
+                "name": "Katherine Johnson"
+              }
+            ]
+          }
+        },
+        {
+          "name": "board created without end date and message",
+          "sender": "network/lib/boards.js",
+          "parameters": {
+            "body_name": "AEGEE-Leiden",
+            "board": {
+              "body_id": 7,
+              "elected_date": "2026-04-02",
+              "start_date": "2026-05-02"
+            },
+            "positions": [
+              {
+                "function": "President",
+                "name": "Ada Lovelace"
+              },
+              {
+                "function": "Secretary",
+                "name": "Grace Hopper"
+              },
+              {
+                "function": "Treasurer",
+                "name": "Alan Turing"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "new_member": {
+      "description": "Welcome to a member who joined their first body. member_lastname and body_id are sent but not shown.",
+      "senders": [
+        "core/middlewares/body-memberships.js",
+        "core/middlewares/join-requests.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "member_firstname",
+          "body_name"
+        ],
+        "properties": {
+          "member_firstname": {
+            "type": "string"
+          },
+          "member_lastname": {
+            "type": "string"
+          },
+          "body_name": {
+            "type": "string"
+          },
+          "body_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "added by a board",
+          "sender": "core/middlewares/body-memberships.js",
+          "parameters": {
+            "member_firstname": "Ada",
+            "member_lastname": "Lovelace",
+            "body_name": "AEGEE-Delft",
+            "body_id": 12
+          }
+        },
+        {
+          "name": "join request approved",
+          "sender": "core/middlewares/join-requests.js",
+          "parameters": {
+            "member_firstname": "Grace",
+            "member_lastname": "Hopper",
+            "body_name": "AEGEE-Leiden",
+            "body_id": 7
+          }
+        }
+      ]
+    },
+    "password_reset": {
+      "description": "Password reset link with the reset token; goes to the login address.",
+      "senders": [
+        "core/middlewares/login.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "$ref": "#/$defs/token"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "password reset",
+          "sender": "core/middlewares/login.js",
+          "parameters": {
+            "token": "Hb7nQ2wErT5yUi9o"
+          }
+        }
+      ]
+    },
+    "statutory_applied": {
+      "description": "Confirmation to an applicant of a statutory event.",
+      "senders": [
+        "statutory/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/statutory_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "statutory/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 51,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": "ada.lovelace@example.org",
+              "body_name": "AEGEE-Delft",
+              "gender": "female",
+              "date_of_birth": "1995-01-01",
+              "nationality": "Example",
+              "meals": "Vegetarian",
+              "allergies": null,
+              "number_of_events_visited": 3,
+              "visa_required": false,
+              "visa_passport_number": "X0000000",
+              "visa_passport_issue_date": "2020-01-01",
+              "visa_passport_expiration_date": "2030-01-01",
+              "visa_passport_issue_authority": "Example Authority",
+              "visa_place_of_birth": "Example City",
+              "visa_street_and_house": "Example Street 1",
+              "visa_postal_code": "0000 AA",
+              "visa_city": "Example City",
+              "visa_country": "Example",
+              "visa_embassy": "Example Embassy",
+              "participant_type": "delegate",
+              "status": "pending",
+              "created_at": "2026-03-01T10:00:00.000Z",
+              "updated_at": "2026-03-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topics",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 3,
+              "name": "Agora Example",
+              "url": "agora-example",
+              "type": "agora",
+              "status": "published",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Is this your first Agora?",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "statutory_board_applied": {
+      "description": "Notice to the applicant's board of a statutory application.",
+      "senders": [
+        "statutory/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions_link"
+          },
+          "application": {
+            "$ref": "#/$defs/statutory_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "statutory/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 51,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": "ada.lovelace@example.org",
+              "body_name": "AEGEE-Delft",
+              "gender": "female",
+              "date_of_birth": "1995-01-01",
+              "nationality": "Example",
+              "meals": "Vegetarian",
+              "allergies": null,
+              "number_of_events_visited": 3,
+              "visa_required": false,
+              "visa_passport_number": "X0000000",
+              "visa_passport_issue_date": "2020-01-01",
+              "visa_passport_expiration_date": "2030-01-01",
+              "visa_passport_issue_authority": "Example Authority",
+              "visa_place_of_birth": "Example City",
+              "visa_street_and_house": "Example Street 1",
+              "visa_postal_code": "0000 AA",
+              "visa_city": "Example City",
+              "visa_country": "Example",
+              "visa_embassy": "Example Embassy",
+              "participant_type": "delegate",
+              "status": "pending",
+              "created_at": "2026-03-01T10:00:00.000Z",
+              "updated_at": "2026-03-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topics",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 3,
+              "name": "Agora Example",
+              "url": "agora-example",
+              "type": "agora",
+              "status": "published",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Is this your first Agora?",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "statutory_board_edited": {
+      "description": "Notice to the applicant's board that a statutory application was edited.",
+      "senders": [
+        "statutory/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions_link"
+          },
+          "application": {
+            "$ref": "#/$defs/statutory_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "statutory/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 51,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": "ada.lovelace@example.org",
+              "body_name": "AEGEE-Delft",
+              "gender": "female",
+              "date_of_birth": "1995-01-01",
+              "nationality": "Example",
+              "meals": "Vegetarian",
+              "allergies": null,
+              "number_of_events_visited": 3,
+              "visa_required": false,
+              "visa_passport_number": "X0000000",
+              "visa_passport_issue_date": "2020-01-01",
+              "visa_passport_expiration_date": "2030-01-01",
+              "visa_passport_issue_authority": "Example Authority",
+              "visa_place_of_birth": "Example City",
+              "visa_street_and_house": "Example Street 1",
+              "visa_postal_code": "0000 AA",
+              "visa_city": "Example City",
+              "visa_country": "Example",
+              "visa_embassy": "Example Embassy",
+              "participant_type": "delegate",
+              "status": "pending",
+              "created_at": "2026-03-01T10:00:00.000Z",
+              "updated_at": "2026-03-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topics",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 3,
+              "name": "Agora Example",
+              "url": "agora-example",
+              "type": "agora",
+              "status": "published",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Is this your first Agora?",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "statutory_edited": {
+      "description": "Notice to an applicant that their statutory application was edited.",
+      "senders": [
+        "statutory/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/statutory_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "statutory/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 51,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "email": "ada.lovelace@example.org",
+              "body_name": "AEGEE-Delft",
+              "gender": "female",
+              "date_of_birth": "1995-01-01",
+              "nationality": "Example",
+              "meals": "Vegetarian",
+              "allergies": "Nuts",
+              "number_of_events_visited": 3,
+              "visa_required": false,
+              "visa_passport_number": "X0000000",
+              "visa_passport_issue_date": "2020-01-01",
+              "visa_passport_expiration_date": "2030-01-01",
+              "visa_passport_issue_authority": "Example Authority",
+              "visa_place_of_birth": "Example City",
+              "visa_street_and_house": "Example Street 1",
+              "visa_postal_code": "0000 AA",
+              "visa_city": "Example City",
+              "visa_country": "Example",
+              "visa_embassy": "Example Embassy",
+              "participant_type": "delegate",
+              "status": "pending",
+              "created_at": "2026-03-01T10:00:00.000Z",
+              "updated_at": "2026-03-02T09:30:00.000Z",
+              "answers": [
+                "Because of the topics",
+                "Yes"
+              ]
+            },
+            "event": {
+              "id": 3,
+              "name": "Agora Example",
+              "url": "agora-example",
+              "type": "agora",
+              "status": "published",
+              "questions": [
+                {
+                  "description": "Why do you want to come?",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "description": "Is this your first Agora?",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "statutory_memberslist_edited": {
+      "description": "Notice that a body edited its members list for a statutory event.",
+      "senders": [
+        "statutory/lib/memberslists.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "body_name",
+          "event_name",
+          "membership_fee"
+        ],
+        "properties": {
+          "body_name": {
+            "type": "string"
+          },
+          "event_name": {
+            "type": "string"
+          },
+          "membership_fee": {
+            "type": [
+              "number",
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "members list edited",
+          "sender": "statutory/lib/memberslists.js",
+          "parameters": {
+            "body_name": "AEGEE-Delft",
+            "event_name": "Agora Example",
+            "membership_fee": 120.5
+          }
+        }
+      ]
+    },
+    "statutory_memberslist_submitted": {
+      "description": "Notice that a body uploaded its members list for a statutory event.",
+      "senders": [
+        "statutory/lib/memberslists.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "body_name",
+          "event_name",
+          "membership_fee"
+        ],
+        "properties": {
+          "body_name": {
+            "type": "string"
+          },
+          "event_name": {
+            "type": "string"
+          },
+          "membership_fee": {
+            "type": [
+              "number",
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "members list uploaded",
+          "sender": "statutory/lib/memberslists.js",
+          "parameters": {
+            "body_name": "AEGEE-Delft",
+            "event_name": "Agora Example",
+            "membership_fee": 80
+          }
+        }
+      ]
+    },
+    "summeruniversity_application_edited": {
+      "description": "Notice to an applicant that their Summer University application was edited.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_application_status_updated": {
+      "description": "Notice to an applicant that the organisers set the status of their application.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "application": {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "$ref": "#/$defs/printable"
+              }
+            }
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "status set by an organiser",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "accepted",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_applied": {
+      "description": "Confirmation to an applicant of a Summer University.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_board_applied": {
+      "description": "Notice to the applicant's board of a Summer University application.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_board_edited": {
+      "description": "Notice to the applicant's board that a Summer University application was edited.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_event_created": {
+      "description": "Notice to the organisers that their Summer University was created.",
+      "senders": [
+        "summeruniversity/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "Summer University created",
+          "sender": "summeruniversity/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "first draft",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_event_updated": {
+      "description": "Notice to the organisers that their Summer University was edited.",
+      "senders": [
+        "summeruniversity/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_link"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "Summer University edited",
+          "sender": "summeruniversity/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "first draft",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_organizer_applied": {
+      "description": "Notice to the organisers of a new application.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions_link"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application created",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_organizer_edited": {
+      "description": "Notice to the organisers that an application was edited.",
+      "senders": [
+        "summeruniversity/lib/applications.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "application"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_questions_link"
+          },
+          "application": {
+            "$ref": "#/$defs/summeruniversity_application"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "application edited",
+          "sender": "summeruniversity/lib/applications.js",
+          "parameters": {
+            "application": {
+              "id": 71,
+              "user_id": 4021,
+              "body_id": 12,
+              "first_name": "Ada",
+              "last_name": "Lovelace",
+              "body_name": "AEGEE-Delft",
+              "status": "pending",
+              "aegee_experience": "Local board member for a year",
+              "ideal_su": "Sun, culture and new friends",
+              "motivation": "I want to meet people from all over Europe",
+              "created_at": "2026-02-01T10:00:00.000Z",
+              "updated_at": "2026-02-02T09:30:00.000Z",
+              "answers": [
+                "Yes",
+                "Dutch"
+              ]
+            },
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "published",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "summeruniversity_status_changed": {
+      "description": "Notice to the organisers that their Summer University's status changed.",
+      "senders": [
+        "summeruniversity/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event",
+          "old_status"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_status"
+          },
+          "old_status": {
+            "$ref": "#/$defs/printable"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "status changed",
+          "sender": "summeruniversity/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "first approval",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            },
+            "old_status": "first submission"
+          }
+        }
+      ]
+    },
+    "summeruniversity_submitted": {
+      "description": "Notice to the Summer University Coordination Team that a Summer University was submitted or changed while in review.",
+      "senders": [
+        "summeruniversity/lib/events.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/$defs/event_status"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "first submission",
+          "sender": "summeruniversity/lib/events.js",
+          "parameters": {
+            "event": {
+              "id": 21,
+              "name": "Summer University Example",
+              "url": "su-example",
+              "status": "first submission",
+              "type": "su",
+              "questions": [
+                {
+                  "description": "Do you need a visa?",
+                  "type": "checkbox",
+                  "required": true
+                },
+                {
+                  "description": "Which languages do you speak?",
+                  "type": "text",
+                  "required": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "workspace_deleted_member": {
+      "description": "Notice to the Google Workspace admin mailbox that a member left their last body, so the account can be removed by hand.",
+      "senders": [
+        "core/middlewares/body-memberships.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "member_firstname",
+          "member_lastname",
+          "user_id",
+          "member_workspace_email"
+        ],
+        "properties": {
+          "member_firstname": {
+            "type": "string"
+          },
+          "member_lastname": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "member_workspace_email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "removed by a board",
+          "sender": "core/middlewares/body-memberships.js",
+          "parameters": {
+            "member_firstname": "Ada",
+            "member_lastname": "Lovelace",
+            "user_id": 4021,
+            "member_workspace_email": "ada.lovelace@example.org"
+          }
+        }
+      ]
+    },
+    "workspace_new_member": {
+      "description": "Notice to the Google Workspace admin mailbox that a member joined their first body.",
+      "senders": [
+        "core/middlewares/body-memberships.js",
+        "core/middlewares/join-requests.js"
+      ],
+      "parameters": {
+        "type": "object",
+        "required": [
+          "member_firstname",
+          "member_lastname",
+          "user_id",
+          "member_email"
+        ],
+        "properties": {
+          "member_firstname": {
+            "type": "string"
+          },
+          "member_lastname": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "member_email": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "added by a board",
+          "sender": "core/middlewares/body-memberships.js",
+          "parameters": {
+            "member_firstname": "Ada",
+            "member_lastname": "Lovelace",
+            "user_id": 4021,
+            "member_email": "ada.lovelace@example.org"
+          }
+        },
+        {
+          "name": "join request approved",
+          "sender": "core/middlewares/join-requests.js",
+          "parameters": {
+            "member_firstname": "Grace",
+            "member_lastname": "Hopper",
+            "user_id": 4022,
+            "member_email": "grace.hopper@example.org"
+          }
+        }
+      ]
+    }
+  }
+}

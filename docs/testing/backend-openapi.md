@@ -16,7 +16,7 @@ service's existing jest tests prove that it is right:
 | Lint | Invalid OpenAPI, an operation without `summary`, `operationId` or `x-permission`, unused components | `openapi` CI job (`npx redocly lint`) |
 | Generated types | `packages/api-types/<service>.ts` out of date | `openapi` CI job (`npm run openapi:types:check`: generates the types and fails on any difference to the committed files; `openapi-typescript --check` cannot be used, because it stops at the first API in `redocly.yaml` that is up to date) |
 | Coverage ratchet | Coverage of all CI shards together below the numbers in `<service>/package.json` | The service's `<service>-coverage` CI job, and a local unsharded `npm run test:ci` |
-| Ratchet lowered | A pull request that lowers those numbers without an approved `Coverage-lowered` trailer | `openapi` CI job (`check-coverage-lowered.js`, all six services) |
+| Ratchet lowered | A pull request that lowers those numbers without an approved `Coverage-lowered` trailer | `openapi` CI job (`check-coverage-lowered.js`, all six services, the mailer and the dispatcher) |
 
 The helpers live in [`packages/backend-test-utils/`](../../packages/backend-test-utils/). They
 are test-only and have no dependencies of their own: `ajv`, `ajv-formats`, `yaml` and
@@ -460,9 +460,11 @@ from an earlier local run can never hide a response that no test produces any mo
   ```
 
   The `openapi` CI job runs
-  `node packages/backend-test-utils/check-coverage-lowered.js core statutory events summeruniversity network discounts`,
+  `node packages/backend-test-utils/check-coverage-lowered.js core statutory events summeruniversity network discounts mailer dispatcher`,
   which compares each service's four numbers with the merge base of the branch and
-  `origin/stable`. A lower or removed number without the trailer fails:
+  `origin/stable`, and does the same for the mailer's `minimum_coverage` in
+  `mailer/coveralls.json` and the dispatcher's `--cov-fail-under` in
+  `dispatcher/pyproject.toml`. A lower or removed number without the trailer fails:
   `<service>: this branch lowers the coverage ratchet in <service>/package.json: branches 80 -> 79.5.`
   The trailer covers only that branch's commits, so the next pull request starts without it.
 - **Exclusions** are `istanbul ignore` comments in the source with a reason after `--`:

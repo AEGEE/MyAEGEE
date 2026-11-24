@@ -17,7 +17,7 @@ describe('Mailer', () => {
                 to: 'test@test.io',
                 subject: 'test',
                 template: 'custom.html',
-                parameters: {}
+                parameters: { email_body: 'test' }
             });
             expect(1).toEqual(0);
         } catch (err) {
@@ -32,7 +32,7 @@ describe('Mailer', () => {
                 to: 'test@test.io',
                 subject: 'test',
                 template: 'custom.html',
-                parameters: {}
+                parameters: { email_body: 'test' }
             });
             expect(1).toEqual(0);
         } catch (err) {
@@ -47,7 +47,7 @@ describe('Mailer', () => {
                 to: 'test@test.io',
                 subject: 'test',
                 template: 'custom.html',
-                parameters: {}
+                parameters: { email_body: 'test' }
             });
             expect(1).toEqual(0);
         } catch (err) {
@@ -60,7 +60,7 @@ describe('Mailer', () => {
             to: 'test@test.io',
             subject: 'test',
             template: 'custom.html',
-            parameters: {}
+            parameters: { email_body: 'test' }
         });
 
         expect(1).toEqual(1);

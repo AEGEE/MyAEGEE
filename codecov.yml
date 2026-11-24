@@ -2,18 +2,22 @@ codecov:
   branch: stable
   require_ci_to_pass: true
   notify:
-    # The sum of parallelism over the six test jobs that upload (discounts runs unsharded). The
-    # upload of frontend-coverage is one more and is not waited for: that job only runs when the
-    # frontend tests passed, and Codecov must report on the services also when they did not
-    # (docs/testing/coverage.md). Checked by packages/backend-test-utils/check-codecov-builds.js.
-    after_n_builds: 21
+    # The sum of parallelism over the six test jobs that upload (discounts runs unsharded), plus
+    # mailer-test and dispatcher-test. The upload of frontend-coverage is one more and is not
+    # waited for: that job only runs when the frontend tests passed, and Codecov must report on
+    # the services also when they did not (docs/testing/coverage.md). Checked by
+    # packages/backend-test-utils/check-codecov-builds.js.
+    after_n_builds: 23
 
 coverage:
   status:
     # codecov/project and codecov/patch are about the six services, which have unit tests and a
     # coverage ratchet of their own. Frontend code is kept out of them: its gate is the one
     # per area in the frontend-tests workflow (docs/testing/coverage.md), and most areas are
-    # not enforced there yet.
+    # not enforced there yet. The mailer and the dispatcher are kept out of them too: their
+    # gates are the coverage minimums their CI jobs enforce (mailer/coveralls.json,
+    # dispatcher/pyproject.toml), and a status that failed on any drop would fail on the
+    # mailer's one timing-dependent line.
     project:
       default:
         target: auto
@@ -25,25 +29,49 @@ coverage:
           - "network/**"
           - "statutory/**"
           - "summeruniversity/**"
+      # codecov/project/dispatcher and codecov/project/mailer: reported, never failing.
+      dispatcher:
+        target: auto
+        informational: true
+        paths: &dispatcher
+          - "dispatcher/**"
       # codecov/project/frontend: reported, never failing, until the last area's gate is enforced.
       frontend:
         target: auto
         informational: true
         paths: &frontend
           - "frontend/**"
+      mailer:
+        target: auto
+        informational: true
+        paths: &mailer
+          - "mailer/**"
     patch:
       default:
         target: auto
         paths: *services
-      # codecov/patch/frontend: as above.
+      # codecov/patch/dispatcher, codecov/patch/frontend and codecov/patch/mailer: as above.
+      dispatcher:
+        target: auto
+        informational: true
+        paths: *dispatcher
       frontend:
         target: auto
         informational: true
         paths: *frontend
+      mailer:
+        target: auto
+        informational: true
+        paths: *mailer
+
+# mailer-test runs the mailer's tests in a container with mailer/ mounted at /app, so its
+# lcov.info names files /app/lib/...
+fixes:
+  - "/app/::mailer/"
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
-  after_n_builds: 21  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
+  after_n_builds: 23  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
 
 component_management:
   individual_components:
@@ -53,12 +81,18 @@ component_management:
     - component_id: discounts
       name: discounts
       paths: ["discounts/**"]
+    - component_id: dispatcher
+      name: dispatcher
+      paths: ["dispatcher/**"]
     - component_id: events
       name: events
       paths: ["events/**"]
     - component_id: frontend
       name: frontend
       paths: ["frontend/**"]
+    - component_id: mailer
+      name: mailer
+      paths: ["mailer/**"]
     - component_id: network
       name: network
       paths: ["network/**"]
