@@ -205,6 +205,27 @@ describe('Users list', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should refuse ids that no member can have', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
+
+        for (const query of ['2147483648', '99999999999999999999', `${user.id},2147483648`, '0', `${user.id},0`]) {
+            const res = await request({
+                path: '/members_email',
+                query: { query },
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect({ query, status: res.statusCode, message: res.body.message }).toEqual({
+                query,
+                status: 400,
+                message: 'Query should be a string of 1 id or multiple ids seperated by commas.'
+            });
+        }
+    });
+
     test('should only return id and notification email', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
