@@ -891,7 +891,7 @@ components:
     Decimal:
       description: Sequelize DECIMAL. A string when read from Postgres, the input value right after create or update.
       type: [string, number]
-      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+      pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]+)([eE][+-]?[0-9]+)?$'
     HealthcheckResponse:
       type: object
       required: [success, data]
@@ -1606,8 +1606,8 @@ components:
         accommodation_type: {type: string, maxLength: 255}
         starts: {$ref: '#/components/schemas/DateInput'}
         ends: {$ref: '#/components/schemas/DateInput'}
-        fee: {type: [number, string], pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]{1,16383})$'}
-        optional_fee: {type: [number, string, 'null'], pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]{1,16383})$'}
+        fee: {$ref: '#/components/schemas/DecimalInput'}
+        optional_fee: {oneOf: [{$ref: '#/components/schemas/DecimalInput'}, {type: 'null'}]}
         type: {type: string}
         organizing_bodies: {type: array}
         cooperation: {type: [array, 'null']}
@@ -1724,6 +1724,14 @@ components:
       properties:
         status: {type: string, enum: [pending, accepted, rejected]}
       additionalProperties: true
+    DecimalInput:
+      description: |
+        A number, or its text: digits with an optional sign, decimal point and exponent (.5, +5,
+        2.50, 1e2, 1E-2), as an <input type="number"> may submit it. At most 308 digits before
+        the decimal point (so that it reads back as a number) and 16383 after it (what a Postgres
+        NUMERIC keeps), counting the exponent.
+      type: [number, string]
+      pattern: '^[+-]?([0-9]+|[0-9]*\.[0-9]+)([eE][+-]?[0-9]+)?$'
     DateInput:
       description: 'A day (2027-07-01), an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without an offset), or milliseconds since 1970-01-01T00:00:00.000Z, within the years 0001-9999.'
       anyOf:

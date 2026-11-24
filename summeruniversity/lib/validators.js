@@ -90,12 +90,22 @@ function listOfKeysSetter(field, keys) {
     };
 }
 
-// The most digits after the decimal point that a Postgres NUMERIC without a precision keeps.
+// The most digits before and after the decimal point. A Postgres NUMERIC without a precision
+// keeps 16383 after it and answers "value overflows numeric format" (a 500) beyond; before it,
+// 308 digits are what the API still reads back as a number (DECIMAL.parse is parseFloat, and a
+// larger value became Infinity, sent as null). The events service has the same rule.
+const DECIMAL_DIGITS_MAX = 308;
 const DECIMAL_SCALE_MAX = 16383;
 
-// A number for a DECIMAL column: a number, or its text as forms send it. Sequelize's own
-// isNumeric reads String(value), which an array such as [5] passes; and Postgres refuses
-// more decimals than it keeps with a 500.
+// A decimal number as text: digits with an optional sign, decimal point and exponent (.5, +5,
+// 2.50, 1e2, 1E-2; not 5., 1,5, NaN or Infinity). The groups: the digits of a number without a
+// point, or those before and after the point, and the exponent.
+const DECIMAL_FORMAT = /^[+-]?(?:([0-9]+)|([0-9]*)\.([0-9]+))(?:[eE]([+-]?[0-9]+))?$/;
+
+// A number for a DECIMAL column: a number, or its text as forms send it. An <input
+// type="number"> may submit an exponent (1e2 is a valid floating-point number in HTML).
+// Sequelize's own isNumeric reads String(value), which an array such as [5] passes; and
+// Postgres refuses more digits than it keeps with a 500. A number is checked as its text.
 function isDecimal(msg) {
     return function isDecimalValue(value) {
         if (value === null || value === undefined) {
@@ -103,8 +113,16 @@ function isDecimal(msg) {
         }
 
         const text = typeof value === 'number' ? String(value) : value;
-        const match = typeof text === 'string' && /^[+-]?([0-9]+|[0-9]*\.([0-9]+))$/.exec(text);
-        if (!match || (match[2] || '').length > DECIMAL_SCALE_MAX) {
+        const match = typeof text === 'string' && DECIMAL_FORMAT.exec(text);
+        if (!match) {
+            throw new Error(msg);
+        }
+
+        const exponent = Number(match[4] || 0);
+        // The digits before the point: group 1 is never empty, group 2 may be ('.5').
+        const digits = (match[1] || match[2]).replace(/^0+/, '').length + exponent;
+        const scale = (match[3] || '').length - exponent;
+        if (digits > DECIMAL_DIGITS_MAX || scale > DECIMAL_SCALE_MAX) {
             throw new Error(msg);
         }
     };
