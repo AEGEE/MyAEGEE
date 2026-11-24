@@ -87,6 +87,7 @@ export default {
         this.integrations = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        this.isLoading = false
         this.$root.showError('Could not fetch integrations list', err)
       })
     }

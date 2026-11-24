@@ -86,6 +86,7 @@ export default {
         this.categories = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        this.isLoading = false
         this.$root.showError('Could not fetch categories list', err)
       })
     }
