@@ -20,7 +20,7 @@
       <div class="field">
         <label class="label" for="question-text">Text</label>
         <div class="control">
-          <textarea id="question-text" class="textarea" required v-model="question.text" />
+          <textarea id="question-text" class="textarea" required v-model="text" />
         </div>
         <p class="help is-danger" v-if="errors.text">{{ errors.text.join(', ')}}</p>
       </div>
@@ -39,7 +39,9 @@ export default {
   data () {
     return {
       isLoading: true,
-      errors: {}
+      errors: {},
+      // The form works on a copy, so the list shows the question as it is stored until it is saved.
+      text: this.question.text
     }
   },
   computed: {
@@ -51,9 +53,11 @@ export default {
     saveQuestion () {
       this.isLoading = true
 
+      // Only the field of the form.
+      const question = { text: this.text }
       const action = this.isNew
-        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/', this.question)
-        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/' + this.question.id, this.question)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/', question)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/' + this.question.id, question)
 
       action.then(() => {
         this.showSuccess(this.isNew ? 'Question is created.' : 'Question is updated.')

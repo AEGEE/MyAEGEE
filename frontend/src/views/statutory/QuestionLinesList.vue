@@ -275,7 +275,7 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           questionLine,
           question: {
-            name: ''
+            text: ''
           },
           event: this.event,
           services: this.services,

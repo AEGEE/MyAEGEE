@@ -8,7 +8,7 @@
       <div class="field">
         <label class="label" for="plenary-name">Name</label>
         <div class="control">
-          <input id="plenary-name" class="input" type="text" required v-model="plenary.name" />
+          <input id="plenary-name" class="input" type="text" required v-model="name" />
         </div>
         <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
       </div>
@@ -61,6 +61,8 @@ export default {
   data () {
     return {
       errors: {},
+      // The form works on a copy, so the list shows the plenary as it is stored until it is saved.
+      name: this.plenary.name,
       dateConfig: {
         enableTime: true,
         time_24hr: true,
@@ -69,18 +71,9 @@ export default {
         disableMobile: true
       },
       dates: {
-        starts: null,
-        ends: null
+        starts: new Date(this.plenary.starts),
+        ends: new Date(this.plenary.ends)
       }
-    }
-  },
-  watch: {
-    // An emptied picker gives null: the date is not set (new Date(null) would be 1970).
-    'dates.starts': function (newDate) {
-      this.plenary.starts = newDate ? new Date(newDate) : null
-    },
-    'dates.ends': function (newDate) {
-      this.plenary.ends = newDate ? new Date(newDate) : null
     }
   },
   computed: {
@@ -89,12 +82,22 @@ export default {
     }
   },
   methods: {
+    // An emptied picker gives null: the date is not set (new Date(null) would be 1970).
+    toDate (value) {
+      return value ? new Date(value) : null
+    },
     savePlenary () {
       this.isLoading = true
 
+      // Only the fields of the form.
+      const plenary = {
+        name: this.name,
+        starts: this.toDate(this.dates.starts),
+        ends: this.toDate(this.dates.ends)
+      }
       const action = this.isNew
-        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/', this.plenary)
-        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/', plenary)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, plenary)
 
       action.then(() => {
         this.showSuccess(this.isNew ? 'Plenary is created.' : 'Plenary is updated.')
@@ -112,10 +115,6 @@ export default {
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
-  },
-  mounted () {
-    this.dates.starts = this.plenary.starts = new Date(this.plenary.starts)
-    this.dates.ends = this.plenary.ends = new Date(this.plenary.ends)
   }
 }
 </script>
