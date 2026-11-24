@@ -110,7 +110,7 @@
                       :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                       class="button">Go to event page</router-link>
                   </p>
-                  <p class="control" v-if="can.apply && event.application_status === 'open'">
+                  <p class="control" v-if="can.apply && event.application_status === 'open' && event.published === 'full'">
                     <router-link
                       :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                       class="button is-primary">
@@ -185,7 +185,7 @@
                           :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                           class="button">Go to event page</router-link>
                       </p>
-                      <p class="control" v-if="can.apply && event.application_status === 'open'">
+                      <p class="control" v-if="can.apply && event.application_status === 'open' && event.published === 'full'">
                         <router-link
                           :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                           class="button is-primary">
