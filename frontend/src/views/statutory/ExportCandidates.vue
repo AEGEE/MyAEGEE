@@ -26,7 +26,12 @@
 
             <div class="field">
               <div class="control">
-                <button type="button" @click="exportAll()" class="button is-primary">
+                <button
+                  type="button"
+                  @click="exportAll()"
+                  class="button is-primary"
+                  :class="{ 'is-loading': isExporting }"
+                  :disabled="isExporting">
                   Export candidates data
                 </button>
               </div>
@@ -56,7 +61,8 @@ export default {
       },
       can: {
         manage_candidates: false
-      }
+      },
+      isExporting: false
     }
   },
   computed: mapGetters({
@@ -68,6 +74,7 @@ export default {
       const select = this.filterKeys()
       const filter = this.filterApplications()
 
+      this.isExporting = true
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/export', {
         responseType: 'blob',
         params: {
@@ -82,6 +89,22 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+        this.isExporting = false
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the API's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.isExporting = false
+        this.$root.showError('Could not export candidates', err)
       })
     },
     filterKeys () {
