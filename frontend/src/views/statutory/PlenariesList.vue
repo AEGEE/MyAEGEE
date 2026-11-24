@@ -6,7 +6,7 @@
 
         <div class="buttons">
           <button type="button" class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
-          <button type="button" class="button is-primary" @click="exportAll()">Export stats</button>
+          <button type="button" class="button is-primary" :class="{ 'is-loading': isExporting }" :disabled="isExporting" @click="exportAll()">Export stats</button>
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">
@@ -62,7 +62,8 @@ export default {
         see_plenaries: false,
         mark_attendance: false
       },
-      isLoading: false
+      isLoading: false,
+      isExporting: false
     }
   },
   computed: {
@@ -110,6 +111,7 @@ export default {
       this.loadPlenaries().catch((err) => this.$root.showError('Could not load the plenaries', err))
     },
     exportAll () {
+      this.isExporting = true
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/', {
         responseType: 'blob'
       }).then(response => {
@@ -120,6 +122,22 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+        this.isExporting = false
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the service's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.isExporting = false
+        this.$root.showError('Could not export the statistics', err)
       })
     }
   },
