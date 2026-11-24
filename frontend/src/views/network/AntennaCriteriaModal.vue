@@ -288,7 +288,8 @@ export default {
       this.comments[criterion] = this.local.comments[criterion] ?? ''
     }
 
-    this.selectedNetcom = this.netcommies.find(x => x.first_name === this.local.netcom.first_name)
+    // A Local has no NetCom data when it could not be loaded.
+    this.selectedNetcom = this.netcommies.find(x => x.user_id === this.local.netcom?.user_id)
 
     this.isLoading = false
   }
