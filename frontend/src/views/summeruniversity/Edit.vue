@@ -798,8 +798,9 @@ export default {
   name: 'EditEvent',
   data () {
     return {
-      // Set once the member left the page: what arrives after that is not shown.
-      left: false,
+      // Counts the loads of the form, so the answers of an earlier one (for the SU of the page
+      // before, or after the member left) are dropped.
+      loads: 0,
       event: {
         id: null,
         name: null,
@@ -1124,6 +1125,82 @@ export default {
       }
 
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
+    },
+    // Loads the form: the SU of the page, or an empty SU with the member as its organiser.
+    load () {
+      const load = ++this.loads
+      this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
+        this.seasons = response.data.data
+      }).catch((err) => this.$root.showError('Could not fetch seasons', err))
+
+      this.axios.get(this.services['core'] + '/bodies/').then((response) => {
+        this.bodies = response.data.data
+
+        return this.axios.get(this.services['core'] + '/my_permissions/')
+      }).then((response) => {
+        if (load !== this.loads) return
+
+        this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+        this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
+        this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
+
+        if (!this.$route.params.id) {
+          this.isLoading = false
+          this.event.organizers.push({
+            user_id: this.loginUser.id,
+            first_name: this.loginUser.first_name,
+            last_name: this.loginUser.last_name,
+            disableEdit: true
+          })
+          return
+        }
+
+        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
+          if (load !== this.loads) return
+
+          this.event = eventsResponse.data.data
+          this.can = eventsResponse.data.permissions
+          this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+          this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
+
+          this.dates.starts = this.event.starts = new Date(this.event.starts)
+          this.dates.ends = this.event.ends = new Date(this.event.ends)
+
+          for (const body of this.event.organizing_bodies) {
+            const foundBody = this.bodies.find(b => b.id === body.body_id)
+            this.$set(body, 'body', foundBody)
+          }
+
+          for (const body of this.event.cooperation) {
+            const foundBody = this.bodies.find(b => b.id === body.body_id)
+            this.$set(body, 'body', foundBody)
+          }
+
+          for (const organizer of this.event.organizers) {
+            this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
+              this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
+              this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
+            }).catch((err) => this.$root.showError('Could not fetch an organiser', err))
+
+            if (this.loginUser.id === organizer.user_id) {
+              this.$set(organizer, 'disableEdit', true)
+            }
+          }
+
+          this.isLoading = false
+        })
+      }).catch((err) => {
+        if (load !== this.loads) return
+
+        this.isLoading = false
+        if (err.response && err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
+
+        this.$router.push({ name: 'oms.summeruniversity.list.all' })
+      })
     }
   },
   computed: {
@@ -1139,9 +1216,19 @@ export default {
     }
   },
   watch: {
+    // The editor and the creation form are one page: going from one to the other (the menu's
+    // "Create SU") starts the form afresh. The map stays, and with it its controls.
+    '$route.params.id': function () {
+      const { loads, map: { actions } } = this
+      Object.assign(this.$data, this.$options.data.call(this))
+      this.loads = loads
+      this.map.actions = actions
+      this.load()
+    },
     'event.name': function (newName) {
       if (!this.$route.params.id) {
-        this.event.url = this.$root.sluggify(newName)
+        // A form started afresh has no title.
+        this.event.url = this.$root.sluggify(newName || '')
       }
     },
     // An emptied date picker gives null, which would be 1970 as a date.
@@ -1153,77 +1240,10 @@ export default {
     }
   },
   mounted () {
-    this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
-      this.seasons = response.data.data
-    }).catch((err) => this.$root.showError('Could not fetch seasons', err))
-
-    this.axios.get(this.services['core'] + '/bodies/').then((response) => {
-      this.bodies = response.data.data
-
-      return this.axios.get(this.services['core'] + '/my_permissions/')
-    }).then((response) => {
-      this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-      this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
-      this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
-
-      if (!this.$route.params.id) {
-        this.isLoading = false
-        this.event.organizers.push({
-          user_id: this.loginUser.id,
-          first_name: this.loginUser.first_name,
-          last_name: this.loginUser.last_name,
-          disableEdit: true
-        })
-        return
-      }
-
-      return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
-        this.event = eventsResponse.data.data
-        this.can = eventsResponse.data.permissions
-        this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-        this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
-
-        this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.ends = new Date(this.event.ends)
-
-        for (const body of this.event.organizing_bodies) {
-          const foundBody = this.bodies.find(b => b.id === body.body_id)
-          this.$set(body, 'body', foundBody)
-        }
-
-        for (const body of this.event.cooperation) {
-          const foundBody = this.bodies.find(b => b.id === body.body_id)
-          this.$set(body, 'body', foundBody)
-        }
-
-        for (const organizer of this.event.organizers) {
-          this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
-            this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
-            this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
-          }).catch((err) => this.$root.showError('Could not fetch an organiser', err))
-
-          if (this.loginUser.id === organizer.user_id) {
-            this.$set(organizer, 'disableEdit', true)
-          }
-        }
-
-        this.isLoading = false
-      })
-    }).catch((err) => {
-      if (this.left) return
-
-      this.isLoading = false
-      if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
-
-      this.$router.push({ name: 'oms.summeruniversity.list.all' })
-    })
+    this.load()
   },
   beforeDestroy () {
-    this.left = true
+    this.loads++
   }
 }
 </script>
