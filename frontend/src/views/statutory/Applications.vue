@@ -17,7 +17,8 @@
               placeholder="Select application fields"
               aria-label="Application fields"
               track-by="key"
-              label="name">
+              label="name"
+              :custom-label="optionLabel">
               <template
                 slot="selection"
                 slot-scope="{ values, isOpen }">
@@ -223,6 +224,8 @@ export default {
       return this.baseFields.concat(questions.map((question, index) => ({
         key: `question:${index}`,
         name: question.description,
+        // In the picker a question is told apart from a field of the same name.
+        option: `${question.description} (question ${index + 1})`,
         get: (pax) => pax.answers[index]
       })))
     },
@@ -252,6 +255,9 @@ export default {
     }
   },
   methods: {
+    optionLabel (field) {
+      return field.option || field.name
+    },
     calculateClassForApplication (pax) {
       switch (pax.status) {
       case 'accepted':
