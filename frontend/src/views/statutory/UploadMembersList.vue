@@ -20,7 +20,7 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="!isLoadingBodies && boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div v-show="selectedBody && canEditMemberslist(selectedBody)">
@@ -176,6 +176,7 @@ export default {
       payments: [],
       tempFee: 0,
       isLoading: false,
+      isLoadingBodies: true,
       isEditing: false,
       isSaving: false,
       saved: true
@@ -404,23 +405,23 @@ export default {
 
       // If user has global permission, fetch all bodies.
       // Otherwise, fetch only bodies that user is a member of.
-      if (!this.can.see_memberslist.global) {
-        for (const bodyId of this.myBoards) {
-          this.axios.get(this.services['core'] + '/bodies/' + bodyId).then((body) => {
-            if (this.isLocal(body.data.data)) {
-              this.boardBodies.push(body.data.data)
-            }
-          }).catch((err) => {
-            this.$root.showError('Could not fetch bodies', err)
-          })
+      const requests = this.can.see_memberslist.global
+        ? [this.axios.get(this.services['core'] + '/bodies/').then((response) => response.data.data)]
+        : this.myBoards.map((bodyId) => this.axios.get(this.services['core'] + '/bodies/' + bodyId).then((body) => [body.data.data]))
+
+      // The page only says the member has no body once every body is in.
+      Promise.allSettled(requests).then((results) => {
+        this.boardBodies = results
+          .filter((result) => result.status === 'fulfilled')
+          .flatMap((result) => result.value)
+          .filter(body => this.isLocal(body))
+        this.isLoadingBodies = false
+
+        const failed = results.find((result) => result.status === 'rejected')
+        if (failed) {
+          this.$root.showError('Could not fetch bodies', failed.reason)
         }
-      } else {
-        this.axios.get(this.services['core'] + '/bodies/').then((response) => {
-          this.boardBodies = response.data.data.filter(body => this.isLocal(body))
-        }).catch((err) => {
-          this.$root.showError('Could not fetch bodies', err)
-        })
-      }
+      })
     }).catch((err) => {
       this.isLoading = false
       if (err.response && err.response.status === 404) {
