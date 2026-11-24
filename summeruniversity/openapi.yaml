@@ -118,6 +118,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventCreatedResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
@@ -312,6 +313,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/SeasonMessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
@@ -349,6 +351,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/SeasonMessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -410,6 +413,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -455,6 +459,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -531,6 +536,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventMessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -559,6 +565,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -846,7 +853,7 @@ components:
         application/json:
           schema: {$ref: '#/components/schemas/ApplicationInput'}
   responses:
-    BadRequest: {description: 'Malformed request, for example a non-numeric ID.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadRequest: {description: 'Malformed request, for example a non-numeric ID, or a JSON body that is not an object.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}

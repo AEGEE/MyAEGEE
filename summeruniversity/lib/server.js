@@ -26,6 +26,7 @@ const server = express();
 // parameters (filter[status]=..., type[]=...) with up to 1000 array items.
 server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, arrayLimit: 1000 }));
 server.use(bodyParser.json());
+server.use(middlewares.checkJsonBody);
 server.use(morgan);
 server.use(queryBoolean());
 

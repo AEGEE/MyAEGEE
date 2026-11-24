@@ -7,6 +7,7 @@ const errors = require('./errors');
 const logger = require('./logger');
 const { Application, Event } = require('../models');
 const helpers = require('./helpers');
+const { isPlainObject } = require('./validators');
 const config = require('../config');
 
 const packageInfo = require('../package.json');
@@ -152,6 +153,34 @@ exports.fetchSingleApplication = async (req, res, next) => {
         user: req.user,
         event: req.event
     });
+    return next();
+};
+
+// Keys that would reach an object's prototype when the body is copied or merged.
+const PROTOTYPE_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+// A JSON body is an object. bodyParser.json() also takes a list such as [1,2] (in its strict
+// mode it takes nothing but objects and lists), which the handlers read as if it were an
+// object: PUT /single/:id answered 200 and mailed the organizers. The body's own prototype
+// keys are dropped: a __proto__ key made creating a Summer University answer 500. A request
+// without a JSON body (none, or a file upload) has no req.body here and gets an empty one,
+// which the handlers read like any other (POST / without a body answered 500).
+exports.checkJsonBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    if (!isPlainObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    for (const key of PROTOTYPE_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+            delete req.body[key];
+        }
+    }
+
     return next();
 };
 
