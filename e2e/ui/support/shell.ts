@@ -111,8 +111,12 @@ const columnIndex = async (table: Locator, column: string | RegExp): Promise<num
 };
 
 // The cell of `row` in the column with this header, on both viewports. `row` is one of
-// tableRows(table).
-export const cellOf = async (table: Locator, row: Locator, column: string | RegExp): Promise<Locator> => row.getByRole('cell').nth(await columnIndex(table, column));
+// tableRows(table). The position of the column is read once the row is shown: a page that
+// adds columns when its data arrives has its final columns by then.
+export const cellOf = async (table: Locator, row: Locator, column: string | RegExp): Promise<Locator> => {
+    await expect(row.first()).toBeVisible();
+    return row.getByRole('cell').nth(await columnIndex(table, column));
+};
 
 // Sorts a table by a column: a click on the column header on a desktop, Buefy's sort control
 // above the cards on a phone. Starts from a table that isn't sorted by that column yet.

@@ -392,6 +392,8 @@ test.describe('managing the applications to a statutory event', () => {
         await page.goto('/statutory/agora-spring/applications');
 
         const table = applicationsTable(page);
+        // The columns are final once the rows are there: read the column positions after that.
+        await expect(tableRows(table)).toHaveCount(2);
         await expect((await cellOf(table, rowOf(page, 'Alex'), 'View')).getByRole('link', { name: 'View' })).toHaveAttribute('href', '/statutory/agora-spring/applications/001-0001');
         await expect((await cellOf(table, rowOf(page, 'Alex'), 'Edit')).getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/statutory/agora-spring/applications/001-0001/edit');
         // Without a statutory ID, by the id.
