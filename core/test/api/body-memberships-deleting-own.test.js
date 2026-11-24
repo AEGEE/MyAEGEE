@@ -168,7 +168,7 @@ describe('Body memberships deleting own', () => {
         });
 
         // The same as when a board removes the member: the membership is gone, the request reports the failure.
-        test('should answer 500 if the notice cannot be sent, with the membership removed', async () => {
+        test('should answer 200 if the notice cannot be sent, with the membership removed', async () => {
             mock.mockAll({ mailer: { netError: true } });
 
             const body = await generator.createBody();
@@ -178,8 +178,8 @@ describe('Body memberships deleting own', () => {
 
             const res = await leave(body, token);
 
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
             expect(await BodyMembership.findByPk(membership.id)).toEqual(null);
         });
     });

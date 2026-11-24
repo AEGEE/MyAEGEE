@@ -5,6 +5,8 @@ const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const { startSilentServer } = require('../scripts/silent-server');
+const Bugsnag = require('../../lib/bugsnag');
+const logger = require('../../lib/logger');
 const {
     User,
     BodyMembership,
@@ -154,40 +156,68 @@ describe('A mailer that fails', () => {
         expect(await BodyMembership.count()).toEqual(0);
     });
 
-    // The two removals tell the Workspace administrators after the membership is gone:
-    // the request reports the failure, the removal stays.
-    test('removing a member from their last body answers 500 after the removal', async () => {
-        const admin = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken(admin);
-        await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
-        const body = await generator.createBody();
-        const member = await generator.createUser();
-        const membership = await generator.createBodyMembership(body, member);
+    // The two removals tell the Workspace administrators after the membership is gone. That
+    // notice is best effort: the removal answers as usual and the failure is logged.
+    describe('removing a membership', () => {
+        let notifySpy;
+        let errorSpy;
 
-        const res = await request({
-            path: '/bodies/' + body.id + '/members/' + membership.id,
-            method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+        beforeEach(() => {
+            notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+            errorSpy = jest.spyOn(logger, 'error');
         });
 
-        expectServerError(res);
-        expect(await BodyMembership.count()).toEqual(0);
-    });
-
-    test('leaving the last body answers 500 after the member has left', async () => {
-        const user = await generator.createUser();
-        const token = await generator.createAccessToken(user);
-        const body = await generator.createBody();
-        await generator.createBodyMembership(body, user);
-
-        const res = await request({
-            path: '/bodies/' + body.id + '/members',
-            method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+        afterEach(() => {
+            notifySpy.mockRestore();
+            errorSpy.mockRestore();
         });
 
-        expectServerError(res);
-        expect(await BodyMembership.count()).toEqual(0);
+        const expectReportedFailure = (userId) => {
+            expect(notifySpy).toHaveBeenCalledTimes(1);
+            expect(notifySpy.mock.calls[0][0]).toBeInstanceOf(Error);
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ user_id: userId, err: expect.any(Error) }),
+                'Could not tell the Workspace administrators about a member without a body'
+            );
+        };
+
+        test('removing a member from their last body answers 200 and reports the failure', async () => {
+            const admin = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken(admin);
+            await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
+            const body = await generator.createBody();
+            const member = await generator.createUser();
+            const membership = await generator.createBodyMembership(body, member);
+
+            const res = await request({
+                path: '/bodies/' + body.id + '/members/' + membership.id,
+                method: 'DELETE',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, message: 'Membership is deleted' });
+            expect(await BodyMembership.count()).toEqual(0);
+            expectReportedFailure(member.id);
+        });
+
+        test('leaving the last body answers 200 and reports the failure', async () => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const body = await generator.createBody();
+            await generator.createBodyMembership(body, user);
+
+            const res = await request({
+                path: '/bodies/' + body.id + '/members',
+                method: 'DELETE',
+                headers: { 'X-Auth-Token': token.value }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({ success: true, message: 'Membership is deleted.' });
+            expect(await BodyMembership.count()).toEqual(0);
+            expectReportedFailure(user.id);
+        });
     });
 
     describe('by not answering within the timeout', () => {
