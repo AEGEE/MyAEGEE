@@ -65,7 +65,7 @@ test.describe('logging in against core', () => {
         // The bar at the top counts every request; one that the app stopped must count as ended.
         await page.getByRole('link', { name: 'Forgot your password?' }).click();
         await expect(page).toHaveURL('/password_reset');
-        // eslint-disable-next-line no-restricted-syntax -- the progress bar has no role or name; nprogress renders it as #nprogress
+        // The progress bar has no role or name: nprogress renders it as #nprogress.
         await expect(page.locator('#nprogress')).toHaveCount(0);
     });
 
