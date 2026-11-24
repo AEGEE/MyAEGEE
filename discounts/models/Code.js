@@ -7,6 +7,7 @@ const Code = sequelize.define('code', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Code should be set.' },
+            len: { args: [0, 255], msg: 'Code should be at most 255 characters long.' }
         },
     },
     integration_id: {

@@ -30,19 +30,28 @@
     "verbose": true,
     "collectCoverage": true,
     "setupFilesAfterEnv": [
-      "<rootDir>/test/setup.js"
+      "<rootDir>/test/setup.js",
+      "<rootDir>/test/scripts/mail-contract.js"
     ],
     "collectCoverageFrom": [
       "lib/**/*.js",
       "models/**/*.js",
-      "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js"
     ],
     "reporters": [
       "default",
       "jest-junit"
-    ]
+    ],
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",

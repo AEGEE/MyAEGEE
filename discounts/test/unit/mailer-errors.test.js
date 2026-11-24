@@ -1,3 +1,4 @@
+const http = require('http');
 const nock = require('nock');
 
 const config = require('../../config');
@@ -11,7 +12,7 @@ const mail = {
     to: RECIPIENT,
     subject: 'Subject',
     template: 'custom.html',
-    parameters: { body: 'Hello' }
+    parameters: { email_body: 'Hello' }
 };
 
 describe('Mailer client errors', () => {
@@ -48,5 +49,26 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
+    });
+
+    test('should give up when the mailer does not answer within the timeout', async () => {
+        // A local server that accepts the request and never answers. (nock's delayed
+        // replies crash the process when the request was aborted before.)
+        const silentServer = http.createServer(() => {});
+        await new Promise((resolve) => { silentServer.listen(0, '127.0.0.1', resolve); });
+
+        const saved = { ...config.mailer };
+        Object.assign(config.mailer, { url: 'http://127.0.0.1', port: silentServer.address().port, timeout: 50 });
+
+        try {
+            const err = await mailer.sendMail(mail).catch((e) => e);
+
+            // A DOMException, which jest's sandbox does not see as an Error.
+            expect(err.name).toEqual('TimeoutError');
+        } finally {
+            Object.assign(config.mailer, saved);
+            silentServer.closeAllConnections();
+            await new Promise((resolve) => { silentServer.close(resolve); });
+        }
     });
 });

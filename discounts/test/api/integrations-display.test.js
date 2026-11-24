@@ -60,4 +60,26 @@ describe('Integrations displaying', () => {
 
         expect(res.body.data.id).toEqual(integration.id);
     });
+
+    test('should look up an all-digit value as an id, not as a code', async () => {
+        // An integration whose code is all digits can only be found by its id.
+        const integration = await generator.createIntegration({ code: '2024' });
+
+        const byCode = await request({
+            path: '/integrations/2024',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(byCode.statusCode).toEqual(404);
+
+        const byId = await request({
+            path: '/integrations/' + integration.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(byId.statusCode).toEqual(200);
+        expect(byId.body.data.code).toEqual('2024');
+    });
 });

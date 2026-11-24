@@ -19,6 +19,11 @@ module.exports.request = async (options) => {
         headers
     };
 
+    // Milliseconds to wait for the answer; fetch then rejects with a TimeoutError.
+    if (options.timeout) {
+        fetchOptions.signal = AbortSignal.timeout(options.timeout);
+    }
+
     if (options.body !== undefined) {
         headers['Content-Type'] = headers['Content-Type'] || 'application/json';
         fetchOptions.body = JSON.stringify(options.body);

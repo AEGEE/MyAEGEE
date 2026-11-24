@@ -29,7 +29,8 @@
     ],
     "globalSetup": "<rootDir>/test/scripts/faker-global-setup.js",
     "setupFilesAfterEnv": [
-      "<rootDir>/test/scripts/faker-seed.js"
+      "<rootDir>/test/scripts/faker-seed.js",
+      "<rootDir>/test/scripts/mail-contract.js"
     ]
   },
   "lint-staged": {

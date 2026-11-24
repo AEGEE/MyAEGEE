@@ -1,17 +1,14 @@
+"""Escaping and the texts of single templates. Every template is rendered with the
+contract's examples in test_contract_templates.py."""
+
 import copy
-import sys
 from pathlib import Path
 
 import pytest
 from jinja2 import UndefinedError
-
-SRC_DIR = Path(__file__).resolve().parents[1] / "dispatcher"
-sys.path.insert(0, str(SRC_DIR))
-
-from main import create_template_environment  # noqa: E402
+from main import create_template_environment
 
 TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "templates"
-TOP_LEVEL_TEMPLATES = sorted(path.name for path in TEMPLATE_DIR.glob("*.jinja2"))
 
 COMPLETE_PARAMETERS = {
     "application": {
@@ -89,7 +86,6 @@ COMPLETE_PARAMETERS = {
         {"function": "Treasurer", "name": "Grace Hopper"},
     ],
     "requester_body": "AEGEE-Delft",
-    "requester_email": "grace.hopper@example.org",
     "requester_name": "Grace Hopper",
     "surname": "Lovelace",
     "token": "test-token",
@@ -100,14 +96,7 @@ COMPLETE_PARAMETERS = {
 def render_template(template_name, parameters=None):
     env = create_template_environment(str(TEMPLATE_DIR))
     template = env.get_template(template_name)
-    return template.render(parameters or copy.deepcopy(COMPLETE_PARAMETERS), altro="Test subject")
-
-
-@pytest.mark.parametrize("template_name", TOP_LEVEL_TEMPLATES)
-def test_top_level_templates_render_with_complete_fixture(template_name):
-    rendered = render_template(template_name)
-
-    assert rendered.strip()
+    return template.render(parameters or copy.deepcopy(COMPLETE_PARAMETERS))
 
 
 def test_default_template_variables_are_escaped():
@@ -141,7 +130,7 @@ def test_mail_change_old_confirm_shows_requester_new_address_and_token():
     assert "<title>MyAEGEE: Confirm the change of your email</title>" in rendered
     assert "Hello Ada Lovelace" in rendered
     assert (
-        "Grace Hopper (grace.hopper@example.org), who manages the members of AEGEE-Delft,"
+        "Grace Hopper, who manages the members of AEGEE-Delft,"
         " asked to change the login email of your MyAEGEE account"
         " to new.address@example.org. The address only changes if you confirm it:"
     ) in rendered
@@ -156,13 +145,22 @@ def test_mail_change_old_confirm_shows_requester_new_address_and_token():
     assert "just ignore this email" not in rendered
 
 
+def test_mail_change_old_confirm_names_the_requester_without_their_login_email():
+    parameters = copy.deepcopy(COMPLETE_PARAMETERS)
+    parameters["requester_email"] = "grace.hopper@example.org"
+
+    rendered = render_template("mail_change_old_confirm.jinja2", parameters)
+
+    assert "Grace Hopper, who manages the members of AEGEE-Delft, asked to change" in rendered
+    assert "grace.hopper@example.org" not in rendered
+
+
 def test_mail_change_old_confirm_escapes_values():
     parameters = {
         "name": "<i>Ada</i>",
         "surname": "<u>Lovelace</u>",
         "new_email": "<script>new</script>@example.org",
         "requester_name": "<b>x</b>",
-        "requester_email": "<em>mail</em>@example.org",
         "requester_body": "<s>AEGEE</s>",
         "token": '"><b>token</b>',
     }
@@ -172,7 +170,7 @@ def test_mail_change_old_confirm_escapes_values():
     assert "Hello &lt;i&gt;Ada&lt;/i&gt; &lt;u&gt;Lovelace&lt;/u&gt;" in rendered
     assert "&lt;script&gt;new&lt;/script&gt;@example.org" in rendered
     assert (
-        "&lt;b&gt;x&lt;/b&gt; (&lt;em&gt;mail&lt;/em&gt;@example.org),"
+        "&lt;b&gt;x&lt;/b&gt;,"
         " who manages the members of &lt;s&gt;AEGEE&lt;/s&gt;, asked to change"
     ) in rendered
     assert 'token=&#34;&gt;&lt;b&gt;token&lt;/b&gt;"' in rendered
@@ -182,7 +180,7 @@ def test_mail_change_old_confirm_escapes_values():
 
 @pytest.mark.parametrize(
     "missing",
-    ["name", "surname", "new_email", "requester_name", "requester_email", "requester_body", "token"],
+    ["name", "surname", "new_email", "requester_name", "requester_body", "token"],
 )
 def test_mail_change_old_confirm_needs_every_parameter(missing):
     parameters = copy.deepcopy(COMPLETE_PARAMETERS)

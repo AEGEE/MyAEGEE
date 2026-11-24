@@ -299,4 +299,39 @@ describe('check-coverage-lowered (lowering the ratchet needs an approved trailer
         const { check } = repo(undefined);
         assert.equal(check().failed, false);
     });
+
+    // The mailer's and the dispatcher's gates: a scratch repository whose "stable" has `file`
+    // with `before`, and a branch that changes it to `after`.
+    function fileRepo(file, before, after, message = 'change') {
+        const dir = tmpDir('git');
+        const git = (...args) => execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: dir, encoding: 'utf8' });
+        fs.mkdirSync(path.join(dir, 'svc'), { recursive: true });
+        fs.writeFileSync(path.join(dir, 'svc', file), before);
+        git('init', '-q', '-b', 'stable');
+        git('add', '.');
+        git('commit', '-q', '-m', 'base');
+        git('switch', '-q', '-c', 'branch');
+        fs.writeFileSync(path.join(dir, 'svc', file), after);
+        git('commit', '-q', '-am', message);
+        return checkCoverageLowered({ repoRoot: dir, service: 'svc', base: 'stable' });
+    }
+    const coveralls = (minimum) => JSON.stringify({ skip_files: ['test/support'], coverage_options: { minimum_coverage: minimum } });
+    const pyproject = (threshold) => `[tool.pytest.ini_options]\naddopts = "--cov=dispatcher --cov-branch --cov-fail-under=${threshold}"\n`;
+
+    test('the mailer\'s minimum_coverage in coveralls.json is a ratchet too', () => {
+        assert.deepEqual(fileRepo('coveralls.json', coveralls(96.6), coveralls(96.7)), { failed: false, lines: ['svc: the coverage ratchet was not lowered'] });
+        const lowered = fileRepo('coveralls.json', coveralls(96.6), coveralls(95));
+        assert.equal(lowered.failed, true);
+        assert.match(lowered.lines[0], /svc: this branch lowers the coverage ratchet in svc\/coveralls\.json: lines 96\.6 -> 95\./);
+        assert.match(fileRepo('coveralls.json', coveralls(96.6), JSON.stringify({ skip_files: [] })).lines[0], /lines 96\.6 -> removed/);
+        assert.equal(fileRepo('coveralls.json', coveralls(96.6), coveralls(95), 'lower\n\nCoverage-lowered: svc: approved').failed, false);
+    });
+
+    test('the dispatcher\'s --cov-fail-under in pyproject.toml is a ratchet too', () => {
+        assert.deepEqual(fileRepo('pyproject.toml', pyproject(99.5), pyproject(100)), { failed: false, lines: ['svc: the coverage ratchet was not lowered'] });
+        const lowered = fileRepo('pyproject.toml', pyproject(100), pyproject(99.5));
+        assert.equal(lowered.failed, true);
+        assert.match(lowered.lines[0], /svc: this branch lowers the coverage ratchet in svc\/pyproject\.toml: total 100 -> 99\.5\./);
+        assert.match(fileRepo('pyproject.toml', pyproject(100), '[tool.pytest.ini_options]\naddopts = "--cov=dispatcher"\n').lines[0], /total 100 -> removed/);
+    });
 });

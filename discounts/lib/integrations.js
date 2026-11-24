@@ -1,17 +1,20 @@
 const moment = require('moment');
 
 const { Integration, Code } = require('../models');
-const { Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
+const config = require('../config');
+const { INTEGRATION_FIELDS, MAX_CODE_LENGTH } = require('./constants');
+const logger = require('./logger');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to create integrations.');
     }
 
-    const integration = await Integration.create(req.body);
+    const integration = await Integration.create(req.body, { fields: INTEGRATION_FIELDS });
 
     return res.json({
         success: true,
@@ -57,7 +60,9 @@ exports.updateIntegration = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update integration.');
     }
 
-    await req.integration.update(req.body);
+    await req.integration.update(req.body, { fields: INTEGRATION_FIELDS });
+    // Return what was stored, not what was sent ("7" is stored as 7).
+    await req.integration.reload();
 
     return res.json({
         success: true,
@@ -68,6 +73,12 @@ exports.updateIntegration = async (req, res) => {
 exports.deleteIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to delete integration.');
+    }
+
+    // Codes keep their integration: members see their claimed codes with it under "My codes".
+    const codesCount = await Code.count({ where: { integration_id: req.integration.id } });
+    if (codesCount > 0) {
+        return errors.makeError(res, 409, 'The integration has codes, so it cannot be deleted. Codes cannot be deleted either, so the integration stays.');
     }
 
     await req.integration.destroy();
@@ -91,12 +102,55 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeBadRequestError(res, 'No codes are provided.');
     }
 
-    const arrayToCreate = req.body.map((code) => ({
-        integration_id: req.integration.id,
-        value: code
-    }));
+    if (!req.body.every((code) => typeof code === 'string' && code.trim() !== '')) {
+        return errors.makeValidationError(res, 'Every code should be a non-empty string.');
+    }
 
-    await Code.bulkCreate(arrayToCreate);
+    // Codes are stored without the spaces around them, which a pasted list often has.
+    const codes = req.body.map((code) => code.trim());
+
+    if (codes.some((code) => code.length > MAX_CODE_LENGTH)) {
+        return errors.makeValidationError(res, 'Every code should be at most 255 characters long.');
+    }
+
+    // Two members must never be handed the same code, so a code is stored once per integration:
+    // duplicates within the request are dropped, and codes the integration has already refuse
+    // the whole request. The lock on the integration's row makes requests that add codes to it
+    // run one after the other, so two of them cannot both store the same code.
+    const uniqueCodes = [...new Set(codes)];
+
+    const storedCodes = await sequelize.transaction(async (transaction) => {
+        await Integration.findOne({
+            where: { id: req.integration.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction
+        });
+
+        const existing = await Code.findAll({
+            attributes: ['value'],
+            where: {
+                integration_id: req.integration.id,
+                value: uniqueCodes
+            },
+            transaction
+        });
+
+        if (existing.length > 0) {
+            const existingValues = new Set(existing.map((code) => code.value));
+            return uniqueCodes.filter((code) => existingValues.has(code));
+        }
+
+        await Code.bulkCreate(uniqueCodes.map((code) => ({
+            integration_id: req.integration.id,
+            value: code
+        })), { validate: true, transaction });
+
+        return [];
+    });
+
+    if (storedCodes.length > 0) {
+        return errors.makeValidationError(res, `These codes are stored for this integration already: ${storedCodes.join(', ')}.`);
+    }
 
     return res.json({
         success: true,
@@ -105,54 +159,96 @@ exports.addCodesToIntegration = async (req, res) => {
 };
 
 exports.claimCode = async (req, res) => {
-    // Checking if a user has already claimed more codes than available.
-    const startPeriod = moment().startOf(req.integration.quota_period).toDate();
-    const endPeriod = moment().endOf(req.integration.quota_period).toDate();
+    if (!helpers.canClaimCodes(req.user)) {
+        return errors.makeForbiddenError(res, 'Only members of an antenna, contact antenna or contact can claim codes.');
+    }
 
-    const existingCodes = await Code.count({
-        where: {
-            claimed_by: req.user.id,
-            integration_id: req.integration.id,
-            updated_at: {
-                [Sequelize.Op.gte]: startPeriod,
-                [Sequelize.Op.lte]: endPeriod
+    // One transaction per claim, holding a lock on the integration's row: claims of one
+    // integration run one after the other, so the quota count and the free-code lookup
+    // see every claim made before them.
+    // The wait for the lock is limited (config.claim.lockTimeout), because every waiting
+    // claim holds a database connection.
+    const result = await sequelize.transaction(async (transaction) => {
+        await sequelize.query(`SET LOCAL lock_timeout = ${Number(config.claim.lockTimeout)}`, { transaction });
+
+        const integration = await Integration.findOne({
+            where: { id: req.integration.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction
+        });
+
+        if (!integration) {
+            return { status: 404, message: 'The integration is not found.' };
+        }
+
+        // Checking if a user has already claimed more codes than available.
+        const startPeriod = moment().startOf(integration.quota_period).toDate();
+        const endPeriod = moment().endOf(integration.quota_period).toDate();
+
+        const existingCodes = await Code.count({
+            where: {
+                claimed_by: req.user.id,
+                integration_id: integration.id,
+                updated_at: {
+                    [Sequelize.Op.gte]: startPeriod,
+                    [Sequelize.Op.lte]: endPeriod
+                }
+            },
+            transaction
+        });
+
+        if (existingCodes >= integration.quota_amount) {
+            return { status: 403, message: 'Your quota is exceeded for this integration.' };
+        }
+
+        // Trying to get a free code from DB.
+        const freeCode = await Code.findOne({
+            where: {
+                claimed_by: null,
+                integration_id: integration.id
+            },
+            transaction
+        });
+
+        // There can be cases when there are no free codes anymore.
+        if (!freeCode) {
+            return { status: 403, message: 'There are no codes left. Wait for CD to add them.' };
+        }
+
+        await freeCode.update({ claimed_by: req.user.id }, { transaction });
+        return { code: freeCode };
+    }).catch((err) => {
+        // Postgres answers lock_not_available (55P03) when the lock timeout runs out.
+        if (err.parent && err.parent.code === '55P03') {
+            return { status: 503, message: 'Other claims of this integration are being processed. Please try again in a moment.' };
+        }
+        throw err;
+    });
+
+    if (!result.code) {
+        return errors.makeError(res, result.status, result.message);
+    }
+
+    const codeToClaim = result.code;
+
+    // The mail is best effort: the code is claimed and shown under "My codes" either way.
+    try {
+        await mailer.sendMail({
+            to: req.user.notification_email,
+            subject: `Your ${req.integration.name} discount code`,
+            template: 'custom.html',
+            parameters: {
+                email_body: helpers.getMailText({
+                    user: req.user,
+                    integration: req.integration,
+                    code: codeToClaim
+                })
             }
-        }
-    });
-
-    if (existingCodes >= req.integration.quota_amount) {
-        return errors.makeForbiddenError(res, 'Your quota is exceeded for this integration.');
+        });
+    } catch (err) {
+        logger.error({ err, code_id: codeToClaim.id, integration_id: req.integration.id }, 'Could not send the claimed code mail');
     }
 
-    // Trying to get a random code from DB.
-    const codeToClaim = await Code.findOne({
-        where: {
-            claimed_by: null,
-            integration_id: req.integration.id
-        }
-    });
-
-    // There can be cases when there are no free codes anymore.
-    if (!codeToClaim) {
-        return errors.makeForbiddenError(res, 'There are no codes left. Wait for CD to add them.');
-    }
-
-    await codeToClaim.update({ claimed_by: req.user.id });
-
-    await mailer.sendMail({
-        to: req.user.notification_email,
-        subject: `Your ${req.integration.name} discount code`,
-        template: 'custom.html',
-        parameters: {
-            email_body: helpers.getMailText({
-                user: req.user,
-                integration: req.integration,
-                code: codeToClaim
-            })
-        }
-    });
-
-    // TODO: Send mail to user.
     return res.json({
         success: true,
         data: codeToClaim

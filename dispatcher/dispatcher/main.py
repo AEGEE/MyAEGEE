@@ -2,6 +2,9 @@
 Continuously polls the email queue and renders + sends a template on every
 acknowledged message. The process blocks waiting for RabbitMQ to push messages
 (push-based, not polling).
+
+Logs and operator alerts name the template and the names of fields, never a message's
+addresses, parameters or body: they hold names, addresses and tokens.
 """
 
 import json
@@ -78,6 +81,12 @@ def create_template_environment(templates_dir: str = _TEMPLATES_DIR) -> Environm
     )
 
 
+def template_file_name(template: str) -> str:
+    """The template file for a template name; the services send names like confirm_email.html,
+    the mailer accepts them with or without the suffix."""
+    return f"{template.removesuffix('.html')}.jinja2"
+
+
 def connect_to_smtp():
     global smtpObj
 
@@ -148,6 +157,24 @@ def requeue_wait(ch, method, properties, body, reason):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
+def build_email(msg: dict, recipient: str, text: str) -> EmailMessage:
+    """One mail to one recipient; cc, bcc and reply-to are set on every recipient's mail."""
+    email = EmailMessage()
+    email.set_content(text, subtype='html')
+    email['From'] = msg.get('from') or EMAIL_ADDRESS or ''
+    email['To'] = recipient
+    email['Subject'] = msg['subject']
+    if msg.get('reply_to'):
+        email['Reply-To'] = msg['reply_to']
+    if msg.get('cc'):
+        cc = msg['cc']
+        email['Cc'] = ', '.join(cc) if isinstance(cc, list) else cc
+    if msg.get('bcc'):
+        bcc = msg['bcc']
+        email['Bcc'] = ', '.join(bcc) if isinstance(bcc, list) else bcc
+    return email
+
+
 def send_email(ch, method, properties, body):
     """
     Callback for the NORMAL MESSAGE.
@@ -155,28 +182,79 @@ def send_email(ch, method, properties, body):
         OR
     Output: publish to a parking queue (template missing or rendering error)
     """
-    msg = json.loads(body)
+    global smtpObj
+
+    try:
+        msg = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        msg = None
+    if not isinstance(msg, dict):
+        # Retrying will never fix it. The body is not logged: it can hold personal data.
+        logging.error("Dropping a message whose body is not a JSON object")
+        operator_alert("Malformed message dropped: the body is not a JSON object",
+                    submessage="The producer sent a payload that is not a JSON object. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
 
     missing = validate_message(msg)
     if missing:
-        logging.error(f"Dropping malformed message: missing fields {missing}. Body: {body}")
+        # Field names only: the body holds addresses, names and tokens.
+        template = msg.get('template') if isinstance(msg.get('template'), str) else None
+        logging.error(f"Dropping malformed message (template {template}): missing fields {missing}")
         operator_alert(f"Malformed message dropped: missing fields {missing}",
                     submessage="The producer sent an incomplete payload. Check the sending service.")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
+    if not isinstance(msg['template'], str) or not msg['template']:
+        logging.error("Dropping a message whose template name is not a text")
+        operator_alert("Malformed message dropped: the template name is not a text",
+                    submessage="The producer sent an invalid template name. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    # One mail per recipient, as the mailer sends them: the recipients don't see each other.
+    recipients = msg['to'] if isinstance(msg['to'], list) else [msg['to']]
+    if not recipients or not all(isinstance(r, str) and r for r in recipients):
+        logging.error(f"Dropping a message without a valid recipient (template {msg['template']})")
+        operator_alert("Malformed message dropped: no valid recipient",
+                    submessage="The producer sent an empty or invalid `to`. Check the sending service.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    # `parameters` is one object for every recipient, or a list with one object per
+    # recipient (a mass mail with a text per person).
+    parameters = msg['parameters']
+    if isinstance(parameters, list):
+        valid = (isinstance(msg['to'], list) and len(parameters) == len(recipients)
+                 and all(isinstance(p, dict) for p in parameters))
+    else:
+        valid = isinstance(parameters, dict)
+    if not valid:
+        logging.error(f"Dropping a message whose parameters don't match its recipients (template {msg['template']})")
+        operator_alert("Malformed message dropped: parameters don't match the recipients",
+                    submessage="`parameters` must be an object, or a list with one object per address in `to`.")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    template_name = template_file_name(msg['template'])
     try:
-        template = tpl_environment.get_template(f"{msg['template']}.jinja2")
+        template = tpl_environment.get_template(template_name)
     except exceptions.TemplateNotFound:
-        logging.error(f"Template {msg['template']}.jinja2 not found")
+        logging.error(f"Template {template_name} not found")
         # Requeuable: the template may be deployed while the message is waiting.
         requeue_wait(ch, method, properties, body, reason=f"template_not_found-{msg['template']}")
         return
 
     try:
-        rendered = template.render(msg['parameters'], altro=msg['subject'])
+        # All texts are rendered before anything is sent: one that fails drops the whole message.
+        if isinstance(parameters, list):
+            texts = [template.render(p) for p in parameters]
+        else:
+            texts = [template.render(parameters)] * len(recipients)
     except exceptions.UndefinedError as e:
-        logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
+        # Jinja's message names the missing field; the message itself is not logged.
+        logging.error(f"Error in rendering {msg['template']}: some parameter is undefined ({e.message})")
         # NON-requeuable: the payload is malformed and retrying will never fix it.
         # Drop immediately — with native TTL+DLX there is no filter step that would
         # intercept a re-delivered copy, so requeueing would cause an infinite loop.
@@ -185,7 +263,7 @@ def send_email(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
     except exceptions.TemplateNotFound:
-        logging.error(f"A sub-template in {msg['template']}.jinja2 was not found")
+        logging.error(f"A sub-template in {template_name} was not found")
         # Requeuable: a missing snippet template may be deployed while waiting.
         requeue_wait(ch, method, properties, body, reason=f"subtemplate_not_found-{msg['template']}")
         return
@@ -198,31 +276,80 @@ def send_email(ch, method, properties, body):
         requeue_wait(ch, method, properties, body, reason="smtp_unavailable")
         return
 
-    try:
-        email = EmailMessage()
-        email.set_content(rendered, subtype='html')
-        email['From'] = msg.get('from') or EMAIL_ADDRESS or ''
-        email['To'] = msg['to']
-        email['Subject'] = msg['subject']
-        if msg.get('reply_to'):
-            email['Reply-To'] = msg['reply_to']
-        if msg.get('cc'):
-            cc = msg['cc']
-            email['Cc'] = ', '.join(cc) if isinstance(cc, list) else cc
-        if msg.get('bcc'):
-            bcc = msg['bcc']
-            email['Bcc'] = ', '.join(bcc) if isinstance(bcc, list) else bcc
-        smtpObj.send_message(email)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-    except smtplib.SMTPServerDisconnected:
-        # Do not ack/nack: pika will re-deliver the message once the connection
-        # is re-established or the channel is re-opened.
-        logging.error("Server unexpectedly disconnected. Attempting to reconnect")
-        connect_to_smtp()
-    except smtplib.SMTPResponseException as e:
-        logging.error(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
+    # Each recipient's mail is sent on its own, so a failure partway must not send the mail
+    # again to the recipients before it: only the recipients not yet sent to are retried.
+    refused = []
+    for index, (recipient, text) in enumerate(zip(recipients, texts)):
+        try:
+            smtpObj.send_message(build_email(msg, recipient, text))
+        except smtplib.SMTPServerDisconnected:
+            # If reconnecting fails, smtpObj stays None and the next delivery parks the
+            # message in the retry queues (smtp_unavailable).
+            logging.error("Server unexpectedly disconnected. Attempting to reconnect")
+            smtpObj = None
+            connect_to_smtp()
+            if index == 0:
+                # Nothing was sent: the message goes back to the queue as it is.
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                return
+            if refused:
+                park_refused(msg, recipients, refused, properties)
+            # The recipients from this one on go back to the email queue.
+            channel.basic_publish(
+                exchange="eml",
+                routing_key="mail",
+                body=message_for(msg, recipients, range(index, len(recipients))),
+                properties=pika.BasicProperties(
+                    headers=dict(properties.headers or {}),
+                    delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+                ),
+            )
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return
+        except Exception as e:
+            # Refused by the server (this recipient, or this mail), or an unexpected error:
+            # the other recipients still get their mail. The error's text can name the
+            # address, so only its kind and code are logged.
+            code = f" {e.smtp_code}" if isinstance(e, smtplib.SMTPResponseException) else ""
+            logging.error(f"Mail {index + 1}/{len(recipients)} of {msg['template']} was not sent: "
+                          f"{type(e).__name__}{code}")
+            refused.append(index)
+
+    if refused:
+        park_refused(msg, recipients, refused, properties)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+def message_for(msg: dict, recipients: list[str], indexes) -> bytes:
+    """The message addressed to the recipients at `indexes` only, with their parameters."""
+    indexes = list(indexes)
+    part = {**msg, "to": [recipients[i] for i in indexes]}
+    if isinstance(msg["parameters"], list):
+        part["parameters"] = [msg["parameters"][i] for i in indexes]
+    return json.dumps(part).encode()
+
+
+def park_refused(msg: dict, recipients: list[str], indexes: list[int], properties):
+    """Puts the refused recipients' part of the message in the last retry queue, for one
+    more try; a part that was refused on that try is dropped. Alerts either way."""
+    last_index = len(RETRY_QUEUE_NAMES) - 1
+    count = f"{len(indexes)} of {len(recipients)}"
+    if int((properties.headers or {}).get("x-retry-index", -1)) >= last_index:
+        operator_alert(f"Refused mails dropped after the last retry ({msg['template']})",
+                    submessage=f"The SMTP server refused {count} mails again; they are not sent.")
+        return
+    _, wait_ms = RETRY_QUEUES[last_index]
+    operator_alert(f"Mails refused by the SMTP server ({msg['template']})",
+                submessage=f"{count} mails will be tried again in {int(wait_ms / 1000)} sec; the others were sent.")
+    channel.basic_publish(
+        exchange="",
+        routing_key=RETRY_QUEUE_NAMES[last_index],
+        body=message_for(msg, recipients, indexes),
+        properties=pika.BasicProperties(
+            headers={"reason": "smtp_refused", "x-retry-index": last_index},
+            delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+        ),
+    )
 
 
 def process_dead_letter_messages(ch, method, properties, body):

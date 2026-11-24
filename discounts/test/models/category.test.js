@@ -30,4 +30,13 @@ describe('Category model', () => {
 
         await expect(category.validate()).rejects.toBeInstanceOf(ValidationError);
     });
+
+    test('should fail if name is longer than 255 characters', async () => {
+        const category = Category.build({
+            name: 'a'.repeat(256),
+            discounts: [{ icon: 'icon', name: 'Name', shortDescription: 'Short', longDescription: 'Long' }]
+        });
+
+        await expect(category.validate()).rejects.toThrow('Name should be at most 255 characters long.');
+    });
 });

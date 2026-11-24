@@ -9,7 +9,7 @@ const mail = {
     to: 'to@example.org',
     subject: 'Subject',
     template: 'custom.html',
-    parameters: { body: 'Hello' }
+    parameters: { email_body: 'Hello' }
 };
 
 describe('Mailer client', () => {
@@ -27,7 +27,8 @@ describe('Mailer client', () => {
             url: `${config.mailer.url}:${config.mailer.port}/`,
             method: 'POST',
             body: mail,
-            fullResponse: true
+            fullResponse: true,
+            timeout: 10000
         });
     });
 

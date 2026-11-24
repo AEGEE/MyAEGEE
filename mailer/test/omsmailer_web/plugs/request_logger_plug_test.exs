@@ -98,4 +98,15 @@ defmodule OmsmailerWeb.RequestLoggerPlugTest do
     refute log =~ "mail:"
     refute log =~ "recipient@example.org"
   end
+
+  test "logs at info level unless told otherwise" do
+    assert RequestLoggerPlug.init([]) == :info
+    assert RequestLoggerPlug.init(log: :debug) == :debug
+  end
+
+  test "logs no mail fields when the request parameters were not read" do
+    log = log_request("POST", %Plug.Conn.Unfetched{aspect: :params})
+
+    assert logged_mail(log) == %{}
+  end
 end

@@ -15,6 +15,7 @@ const Category = sequelize.define('category', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Name should be set.' },
+            len: { args: [0, 255], msg: 'Name should be at most 255 characters long.' }
         },
     },
     discounts: {

@@ -40,6 +40,26 @@ describe('Helpers', () => {
         expect(mailTextFor('2026-12-31T23:30:00.000Z')).toContain('Claimed on: 2027-01-01 00:30 CET<br/>');
     });
 
+    test('getMailText should insert the name and the partner texts as they are, without escaping', () => {
+        // Today's behaviour, pinned so that a change to it is deliberate: the mail body is
+        // HTML, and the description is the partner's Markdown, which may contain HTML.
+        const text = helpers.getMailText({
+            user: { first_name: '<b>Alex</b>' },
+            integration: { name: 'A & B', description: '<a href="https://example.org">Shop</a>' },
+            code: { value: 'SAVE-123', updated_at: new Date('2024-01-02T03:04:00.000Z') }
+        });
+
+        expect(text).toContain('Hey <b>Alex</b>');
+        expect(text).toContain('Partner: A & B');
+        expect(text).toContain('<a href="https://example.org">Shop</a>');
+    });
+
+    test('canClaimCodes should skip entries that are not bodies', () => {
+        expect(helpers.canClaimCodes({ bodies: [null, { type: 'antenna', status: 'active' }] })).toEqual(true);
+        expect(helpers.canClaimCodes({ bodies: [null] })).toEqual(false);
+        expect(helpers.canClaimCodes(null)).toEqual(false);
+    });
+
     test('getPermissions should expose manage_discounts', () => {
         const permissions = helpers.getPermissions({}, [
             { combined: 'global:manage:discounts' },
