@@ -67,6 +67,12 @@ const showMap = (api: ApiMock) => {
     });
 };
 
+// The map has loaded: its zoom buttons are only there once it fired `load`, which is when the
+// page centres it on the SU's locations.
+const mapLoaded = async (page: Page) => {
+    await expect(page.getByRole('region', { name: 'Map' }).getByRole('button', { name: 'Zoom in' })).toBeVisible();
+};
+
 // Drags the map's only marker 100 pixels up. Mapbox adds the marker once the map has loaded
 // and centred on the location; a drag before that would move the map instead.
 const dragTheMarker = async (page: Page) => {
@@ -470,6 +476,7 @@ test.describe('Summer University second submission editor', () => {
 
         await expect(page.getByRole('region', { name: 'Map' })).toBeVisible();
         await expect.poll(() => api.callsTo('GET url ' + STYLE)).toHaveLength(1);
+        await mapLoaded(page);
     });
 
     test('the map of an SU without locations stays where it is', async ({ page, api, me }) => {
@@ -479,6 +486,8 @@ test.describe('Summer University second submission editor', () => {
 
         await expect(page.getByText('No locations added.')).toBeVisible();
         await expect.poll(() => api.callsTo('GET url ' + STYLE)).toHaveLength(1);
+        await mapLoaded(page);
+        await expect(page.getByText('No locations added.')).toBeVisible();
     });
 
     test('typing on drops the earlier organiser search', async ({ page, api, me }) => {
