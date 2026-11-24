@@ -60,7 +60,7 @@
               </span>
             </b-table-column>
 
-            <b-table-column label="Set memberslist status" centered sortable v-slot="props">
+            <b-table-column label="Set memberslist status" centered v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingOnMemberslist }">
                 <select v-model="props.row.newIsOnMemberslist" :aria-label="'Members list status of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxOnMemberslist(props.row)">
                   <option :value="true">Is on memberslist</option>
