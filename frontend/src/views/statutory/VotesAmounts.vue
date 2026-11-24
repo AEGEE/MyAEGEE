@@ -83,13 +83,14 @@ import { mapGetters } from 'vuex'
 
 /**
  * Takes a list of antennas, and returns an object with two properties, TXT content and a filename
+ * An antenna whose body core doesn't list (any more) is exported by its body ID: '#12'.
  * @param antennae
  * @param eventShortLink the string 'aaa' in the URL http://my.appserver.test/statutory/aaa/votes. Since it's part of the URL, it does comport spaces.
  */
 function prepareExportTxt (antennae, eventShortLink) {
   // we're forced to use %09 for tabs and %0A for linebreak.
   const contentT = 'data:text/plain,' + antennae
-    .map(antenna => antenna.body.code + '%09' + antenna.votes + '%0A')
+    .map(antenna => (antenna.body ? antenna.body.code : '%23' + antenna.body_id) + '%09' + antenna.votes + '%0A')
     .join('')
   const filenameT = 'exportVotes_' + eventShortLink + '_' + new Date().toISOString() + '.txt'
   return {
