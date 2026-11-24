@@ -962,8 +962,7 @@
           "name",
           "surname",
           "new_email",
-          "changed_by",
-          "changed_by_email"
+          "changed_by"
         ],
         "properties": {
           "name": {
@@ -978,13 +977,6 @@
           "changed_by": {
             "description": "The requester's name, or \"yourself\".",
             "type": "string"
-          },
-          "changed_by_email": {
-            "description": "The requester's login email; null for an own change.",
-            "type": [
-              "string",
-              "null"
-            ]
           }
         }
       },
@@ -996,8 +988,7 @@
             "name": "Ada",
             "surname": "Lovelace",
             "new_email": "ada@example.org",
-            "changed_by": "Grace Hopper",
-            "changed_by_email": "grace.hopper@example.org"
+            "changed_by": "Grace Hopper"
           }
         },
         {
@@ -1007,8 +998,7 @@
             "name": "Ada",
             "surname": "Lovelace",
             "new_email": "ada@example.org",
-            "changed_by": "yourself",
-            "changed_by_email": null
+            "changed_by": "yourself"
           }
         }
       ]
@@ -1025,7 +1015,6 @@
           "surname",
           "new_email",
           "requester_name",
-          "requester_email",
           "requester_body",
           "token"
         ],
@@ -1040,9 +1029,6 @@
             "type": "string"
           },
           "requester_name": {
-            "type": "string"
-          },
-          "requester_email": {
             "type": "string"
           },
           "requester_body": {
@@ -1062,7 +1048,6 @@
             "surname": "Lovelace",
             "new_email": "ada@example.org",
             "requester_name": "Grace Hopper",
-            "requester_email": "grace.hopper@example.org",
             "requester_body": "AEGEE-Delft",
             "token": "Zx9cVb7nM5aS3dF1"
           }

@@ -29,7 +29,7 @@ defmodule OmsmailerWeb.Contract.TemplatePathsTest do
   describe "the path extractor" do
     test "finds the subject line, Map.fetch! and plain reads" do
       assert TemplatePaths.read("mail_change_notice") == %{
-               read: MapSet.new(~w(name surname new_email changed_by changed_by_email)),
+               read: MapSet.new(~w(name surname new_email changed_by)),
                needed: MapSet.new()
              }
 

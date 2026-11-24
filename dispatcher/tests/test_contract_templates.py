@@ -101,5 +101,5 @@ def test_the_path_extractor_finds_what_the_templates_read():
     assert guarded == {"board.end_date", "board.message"}
 
     read, guarded = PATHS.read("mail_change_notice.jinja2")
-    assert read == {"name", "surname", "new_email", "changed_by", "changed_by_email"}
-    assert guarded == {"changed_by_email"}
+    assert read == {"name", "surname", "new_email", "changed_by"}
+    assert guarded == set()
