@@ -2,13 +2,13 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Summer University statistics</div>
+        <h1 class="title">Summer University statistics</h1>
 
         <div class="field is-grouped is-grouped-multiline">
           <div class="control">
-            <label class="label">Season</label>
+            <label class="label" for="stats-season">Season</label>
             <div class="select">
-              <select v-model="season" @change="fetchData()">
+              <select id="stats-season" v-model="season" @change="fetchData()">
                 <option :value="null">All seasons</option>
                 <option v-for="item in seasons" :key="item.year" :value="item.year">{{ item.year }}</option>
               </select>
@@ -50,8 +50,8 @@
 
         <div class="columns">
           <div class="column" v-for="section in sections" :key="section.key">
-            <div class="subtitle">{{ section.title }}</div>
-            <table class="table is-narrow is-fullwidth is-striped">
+            <h2 class="subtitle" :id="'stats-' + section.key">{{ section.title }}</h2>
+            <table class="table is-narrow is-fullwidth is-striped" :aria-labelledby="'stats-' + section.key">
               <thead>
                 <tr>
                   <th>{{ section.label }}</th>
