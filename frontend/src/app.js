@@ -220,6 +220,16 @@ axios.interceptors.request.use(config => {
 
 let renewalPromise = null
 
+// The session is over: there is no refresh token, or core refused to renew it. The member is
+// forgotten, so the login page doesn't send them straight back as someone still logged in.
+const endSession = (request) => {
+  store.dispatch('logout')
+  // The guard's own request (`X-For-Auth`) decides itself where to go.
+  if (!request.headers['X-For-Auth']) {
+    router.push(loginFor(app.$route))
+  }
+}
+
 axios.interceptors.response.use(
   response => response, // success handler
   error => {
@@ -234,11 +244,7 @@ axios.interceptors.response.use(
     const refreshToken = window.localStorage.getItem('refresh-token')
     if (!refreshToken) {
       console.debug('No refresh token provided')
-
-      // Workaround indicating that we don't need to redirect (it's an auth request)
-      if (!originalRequest.headers['X-For-Auth']) {
-        router.push(loginFor(app.$route))
-      }
+      endSession(originalRequest)
       return Promise.reject(error)
     }
 
@@ -256,9 +262,7 @@ axios.interceptors.response.use(
           console.debug('Token renewal failed:', renewError)
           window.localStorage.removeItem('access-token')
           window.localStorage.removeItem('refresh-token')
-          if (!originalRequest.headers['X-For-Auth']) {
-            router.push(loginFor(app.$route))
-          }
+          endSession(originalRequest)
           throw renewError
         })
         .finally(() => { renewalPromise = null })
