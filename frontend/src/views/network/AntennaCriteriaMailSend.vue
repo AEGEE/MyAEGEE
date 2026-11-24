@@ -2,28 +2,28 @@
   <div class="modal-card" style="height: 75vh">
     <header class="modal-card-head">
       <p class="modal-card-title">{{ local.name }}</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
-      <b-field label="From" horizontal>
-        <b-input v-model="from" />
+      <b-field label="From" label-for="ac-send-from" horizontal>
+        <b-input id="ac-send-from" v-model="from" />
       </b-field>
 
-      <b-field label="To" horizontal>
-        <b-input v-model="to" />
+      <b-field label="To" label-for="ac-send-to" horizontal>
+        <b-input id="ac-send-to" v-model="to" />
       </b-field>
 
-      <b-field label="Cc" horizontal>
-        <b-input v-model="cc" />
+      <b-field label="Cc" label-for="ac-send-cc" horizontal>
+        <b-input id="ac-send-cc" v-model="cc" />
       </b-field>
 
-      <b-field label="Subject" horizontal>
-        <b-input v-model="subject" />
+      <b-field label="Subject" label-for="ac-send-subject" horizontal>
+        <b-input id="ac-send-subject" v-model="subject" />
       </b-field>
 
-      <b-field label="Mail text">
-        <b-input type="textarea" v-model="body" />
+      <b-field label="Mail text" label-for="ac-send-body">
+        <b-input type="textarea" id="ac-send-body" v-model="body" />
       </b-field>
 
       <hr />
@@ -34,8 +34,8 @@
     </section>
 
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="send()">Send</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="send()">Send</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
