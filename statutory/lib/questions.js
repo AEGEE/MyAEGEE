@@ -51,7 +51,8 @@ exports.submitQuestion = async (req, res) => {
 };
 
 exports.getQuestion = async (req, res) => {
-    if (!req.permissions.see_questions) {
+    // The member who asked the question can always read it, as they can edit and delete it.
+    if (!req.permissions.see_questions && req.question.application.user_id !== req.user.id) {
         return errors.makeForbiddenError(res, 'You cannot see this question.');
     }
 
