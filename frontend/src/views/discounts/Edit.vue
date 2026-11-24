@@ -133,7 +133,7 @@ export default {
       if (err.response && err.response.status === 404) {
         this.$root.showError('Integration is not found')
       } else {
-        this.$root.showError('Some error happened', err.message)
+        this.$root.showError('Some error happened', err)
       }
 
       this.$router.push({ name: 'oms.discounts.list' })
