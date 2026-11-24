@@ -1,8 +1,8 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">Discounts integrations list</h4>
+      <article class="tile is-child" aria-labelledby="discount-integrations-title" :aria-busy="isLoading">
+        <h1 class="title" id="discount-integrations-title">Discounts integrations list</h1>
 
         <div class="field" v-if="can.create">
           <div class="control">
@@ -28,11 +28,11 @@
           </b-table-column>
 
           <b-table-column label="Edit" v-slot="props">
-            <router-link :to="{ name: 'oms.discounts.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
+            <router-link :to="{ name: 'oms.discounts.edit', params: { id: props.row.id } }" class="button is-small is-warning" :aria-label="'Edit integration ' + props.row.name">Edit</router-link>
           </b-table-column>
 
           <b-table-column label="Add codes" v-slot="props">
-            <router-link :to="{ name: 'oms.discounts.add_codes', params: { id: props.row.id } }" class="button is-small is-warning">Add codes</router-link>
+            <router-link :to="{ name: 'oms.discounts.add_codes', params: { id: props.row.id } }" class="button is-small is-warning" :aria-label="'Add codes to ' + props.row.name">Add codes</router-link>
           </b-table-column>
 
           <template slot="empty">
