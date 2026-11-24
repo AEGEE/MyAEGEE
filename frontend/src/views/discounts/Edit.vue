@@ -21,7 +21,7 @@
           <div class="content" role="region" aria-labelledby="integration-preview">
             <span v-html="$options.filters.markdown(integration.description)" />
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
