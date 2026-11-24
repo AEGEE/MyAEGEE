@@ -3,7 +3,7 @@
     <div class="tile is-child">
       <h1 class="title" id="category-edit-title">{{ $route.params.id ? 'Edit category' : 'Create category' }}</h1>
 
-      <form @submit.prevent="saveCategory()" aria-labelledby="category-edit-title" :aria-busy="isLoading">
+      <form class="is-relative" @submit.prevent="saveCategory()" aria-labelledby="category-edit-title" :aria-busy="isLoading">
         <div class="field">
           <label class="label" for="category-name">Name</label>
           <div class="control">
@@ -58,7 +58,7 @@
           <hr />
         </fieldset>
 
-        <b-loading is-full-page="false" :active.sync="isLoading" />
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="buttons">
           <button type="button" class="button is-primary" @click="addDiscount()">Add new discount</button>

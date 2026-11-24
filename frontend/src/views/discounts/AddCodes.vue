@@ -3,7 +3,7 @@
     <div class="tile is-child">
       <h1 class="title" id="add-codes-title">Add codes for {{ integration.name }}</h1>
 
-      <form @submit.prevent="addCodes()" aria-labelledby="add-codes-title" :aria-busy="isLoading">
+      <form class="is-relative" @submit.prevent="addCodes()" aria-labelledby="add-codes-title" :aria-busy="isLoading">
         <div class="field">
           <label class="label" for="add-codes-codes">Please enter each code on a separate line, without any spaces or tabs.</label>
           <div class="control">
@@ -11,7 +11,7 @@
           </div>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading" />
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">

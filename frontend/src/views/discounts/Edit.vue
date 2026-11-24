@@ -3,7 +3,7 @@
     <div class="tile is-child">
       <h1 class="title" id="integration-edit-title">{{ $route.params.id ? 'Edit integration' : 'Create integration' }}</h1>
 
-      <form @submit.prevent="saveIntegration()" aria-labelledby="integration-edit-title" :aria-busy="isLoading">
+      <form class="is-relative" @submit.prevent="saveIntegration()" aria-labelledby="integration-edit-title" :aria-busy="isLoading">
         <div class="field">
           <label class="label" for="integration-name">Name</label>
           <div class="control">
@@ -53,7 +53,7 @@
           </p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading" />
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
