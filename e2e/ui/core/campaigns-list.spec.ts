@@ -92,22 +92,25 @@ test.describe('campaigns list', () => {
     });
 
     test('searching asks again with the text and replaces the rows', async ({ page, api }) => {
+        // Slow answers, so each keystroke cancels the request of the one before.
         api.on('GET core /campaigns', ({ query }) => ({
             json: ok(query.get('query') === 'aut'
                 ? [campaign({ id: 7, name: 'Autumn recruitment' })]
-                : [campaign({ id: 8, name: 'Spring recruitment' })])
+                : [campaign({ id: 8, name: 'Spring recruitment' })]),
+            delayMs: 500
         }));
 
         await page.goto('/campaigns');
         const table = campaignsTable(page);
         await expect(tableRows(table).filter({ hasText: 'Spring recruitment' })).toBeVisible();
-        await search(page).pressSequentially('aut');
+        await search(page).pressSequentially('aut', { delay: 100 });
 
         await expect(tableRows(table).filter({ hasText: 'Autumn recruitment' })).toBeVisible();
         await expect(tableRows(table)).toHaveCount(1);
         expect(Object.fromEntries(api.callsTo('GET core /campaigns').at(-1)!.query)).toEqual({ limit: '30', offset: '0', query: 'aut' });
-        // Each keystroke cancels the request before it: no error for those.
-        await expect(toast(page, 'Could not fetch campaign list')).toHaveCount(0);
+        // Each keystroke cancels the request before it: no error for those. Counted at once, as a
+        // toast that was shown is gone again after three seconds.
+        expect(await toast(page, 'Could not fetch campaign list').count()).toBe(0);
 
         await search(page).fill('');
 

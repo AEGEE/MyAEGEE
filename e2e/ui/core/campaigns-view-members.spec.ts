@@ -61,17 +61,19 @@ test.describe('the members of a campaign', () => {
 
     test('searching asks again with the text', async ({ page, api }) => {
         api.json('GET core /campaigns/:id', ok(publicCampaign({ id: 7 })));
-        api.on('GET core /campaigns/:id/members', ({ query }) => ({ json: okList(query.get('query') === 'jan' ? [JANE] : [JANE, JOHN]) }));
+        // Slow answers, so each keystroke cancels the request of the one before.
+        api.on('GET core /campaigns/:id/members', ({ query }) => ({ json: okList(query.get('query') === 'jan' ? [JANE] : [JANE, JOHN]), delayMs: 500 }));
 
         await page.goto('/campaigns/7/members');
         const table = membersTable(page);
         await expect(tableRows(table)).toHaveCount(2);
-        await search(page).pressSequentially('jan');
+        await search(page).pressSequentially('jan', { delay: 100 });
 
         await expect(tableRows(table)).toHaveCount(1);
         expect(Object.fromEntries(api.callsTo('GET core /campaigns/:id/members').at(-1)!.query)).toEqual({ limit: '30', offset: '0', sort: 'id', direction: 'desc', query: 'jan' });
-        // Each keystroke cancels the request before it: no error for those.
-        await expect(toast(page, 'Could not fetch campaign members')).toHaveCount(0);
+        // Each keystroke cancels the request before it: no error for those. Counted at once, as a
+        // toast that was shown is gone again after three seconds.
+        expect(await toast(page, 'Could not fetch campaign members').count()).toBe(0);
 
         await search(page).fill('');
 
