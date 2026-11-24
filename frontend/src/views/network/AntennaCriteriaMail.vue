@@ -120,7 +120,7 @@ export default {
       for (const part in this.parts) {
         const component = part.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
         const original = this.mailComponents.find(c => c.mail_component === component)
-        if (original !== this.parts[part]) {
+        if ((original?.text ?? '') !== this.parts[part]) {
           promises.push(this.setMailComponent(component, this.parts[part]))
         }
       }
