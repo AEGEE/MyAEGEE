@@ -1,5 +1,5 @@
 <template>
-  <div class="resources">
+  <div class="resources" role="region" aria-label="Resources" :aria-busy="isLoading">
     <div v-if="canManage" class="resources-actions">
       <router-link class="button is-primary" :to="{ name: 'oms.resources.manage' }">Manage resources</router-link>
     </div>
