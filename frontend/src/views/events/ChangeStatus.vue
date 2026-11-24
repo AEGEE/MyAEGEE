@@ -87,7 +87,9 @@ export default {
   methods: {
     changeStatus (event, newStatus) {
       if (event.status === 'draft') {
-        if (!event.budget) {
+        // Online events have no budget.
+        const needsBudget = event.method !== 'online'
+        if (needsBudget && !event.budget) {
           this.$root.showError('The budget for the event is not set.')
         }
 
@@ -95,7 +97,7 @@ export default {
           this.$root.showError('The program for the event is not set.')
         }
 
-        if (!event.budget || !event.programme) {
+        if ((needsBudget && !event.budget) || !event.programme) {
           return
         }
       }
