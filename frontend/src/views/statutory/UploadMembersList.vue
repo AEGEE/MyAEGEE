@@ -168,7 +168,7 @@ export default {
       isEditing: false,
       // Counts the requests for a list, so a late answer for another local is dropped.
       memberslistRequest: 0,
-      // For a list fetched from a body: the members whose fee was filled in from a payment.
+      // For a list fetched from a body: the fee each member got from a payment, by user ID.
       // Null for a stored list.
       feesFromPayments: null
     }
@@ -250,8 +250,12 @@ export default {
             // currency of the list: when they are all in one currency, that becomes the
             // currency of the list.
             this.feesFromPayments = {}
+            // A currency the board chose meanwhile stays, and only a currency the page knows
+            // can be taken; any other is named in the warning.
             const currencies = this.currentPaymentCurrencies()
-            if (currencies.length === 1) this.memberslist.currency = currencies[0]
+            if (currencies.length === 1 && !this.memberslist.currency && currenciesList[currencies[0]]) {
+              this.memberslist.currency = currencies[0]
+            }
             this.fillFeesFromPayments()
 
             this.isLoading = false
@@ -337,28 +341,38 @@ export default {
         this.$root.showError('Could not save memberslist', err)
       })
     },
-    // The current payment of a member, if they have one.
-    currentPaymentOf (member) {
-      return this.payments.find(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+    // The current payments of a member.
+    currentPaymentsOf (member) {
+      return this.payments.filter(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
     },
-    // The currencies of the current payments of the members on the list, without repeats.
+    // The current payment of a member: the one in the list's currency if there is one.
+    currentPaymentOf (member) {
+      const current = this.currentPaymentsOf(member)
+      return current.find(payment => payment.currency === this.memberslist.currency) || current[0]
+    },
+    // The currencies of all current payments of the members on the list, without repeats.
     currentPaymentCurrencies () {
       const currencies = this.memberslist.members
-        .map(member => this.currentPaymentOf(member))
-        .filter(payment => payment)
+        .flatMap(member => this.currentPaymentsOf(member))
         .map(payment => payment.currency)
       return [...new Set(currencies)].sort()
     },
     // Sets the fee of every member whose current payment is in the list's currency to that
-    // payment, and takes back a fee filled in from a payment in another currency.
+    // payment, and takes back a fee filled in from a payment in another currency. A fee the
+    // board typed in is left alone.
     fillFeesFromPayments () {
       for (const member of this.memberslist.members) {
+        const filled = this.feesFromPayments[member.user_id]
+        if (member.fee !== (filled === undefined ? 0 : filled)) {
+          delete this.feesFromPayments[member.user_id]
+          continue
+        }
         const payment = this.currentPaymentOf(member)
         if (payment && payment.currency === this.memberslist.currency) {
           const fee = Number(payment.amount)
           member.fee = !Number.isNaN(fee) ? fee : 0
-          this.feesFromPayments[member.user_id] = true
-        } else if (this.feesFromPayments[member.user_id]) {
+          this.feesFromPayments[member.user_id] = member.fee
+        } else if (filled !== undefined) {
           member.fee = 0
           delete this.feesFromPayments[member.user_id]
         }
