@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board view</div>
+        <div class="title" role="heading" aria-level="1">Board view</div>
 
         <div class="field" v-if="boardBodies.length === 1">
           <label>You are currently viewing applications from </label>
@@ -10,11 +10,11 @@
         </div>
 
         <div class="field" v-if="boardBodies.length > 1">
-          <label>Select the body to view application from:</label>
+          <label for="board-body">Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="board-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -69,7 +69,7 @@
           </b-table-column>
 
           <b-table-column field="board_comment" label="Board comment" v-slot="props">
-            <textarea class="textarea" v-model="props.row.board_comment" />
+            <textarea class="textarea" v-model="props.row.board_comment" :aria-label="'Board comment for ' + props.row.first_name + ' ' + props.row.last_name" />
           </b-table-column>
 
           <b-table-column label="Save" v-slot="props">
@@ -149,6 +149,7 @@ export default {
         this.$buefy.modal.open({
           component: ViewParticipantModal,
           hasModalCard: true,
+          ariaLabel: 'View participant',
           props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
