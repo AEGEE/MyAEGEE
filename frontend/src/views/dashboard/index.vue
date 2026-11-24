@@ -4,7 +4,7 @@
       <div class="tile is-vertical is-12">
         <div class="tile">
           <div class="tile is-4 is-parent">
-            <article class="tile is-child box" aria-labelledby="dashboard-member" :aria-busy="isLoading.user">
+            <article class="tile is-child box" aria-labelledby="dashboard-member">
               <h2 id="dashboard-member" class="title">{{ user.first_name }} {{ user.last_name }}</h2>
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
@@ -22,8 +22,6 @@
                   </li>
                 </ul>
                 <p v-show="user.circles.length === 0"><i>You are currently not a member of any circle.</i></p>
-
-                <b-loading :is-full-page="false" :active.sync="isLoading.user" />
               </div>
             </article>
           </div>
@@ -135,39 +133,20 @@ export default {
   data () {
     return {
       constants,
-      user: {
-        first_name: '',
-        last_name: '',
-        primary_body: null,
-        bodies: [],
-        circles: []
-      },
       events: {
         past: [],
         future: []
       },
       statutory: null,
       isLoading: {
-        user: false,
         events: false,
         statutory: false
       }
     }
   },
   mounted () {
-    this.isLoading.user = true
     this.isLoading.events = true
     this.isLoading.statutory = true
-
-    this.axios.get(this.services['core'] + '/members/me').then((response) => {
-      this.user = response.data.data
-      this.user.bodies = sortBodies(this.user.bodies, this.user.primary_body_id)
-      this.user.circles.sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
-      this.isLoading.user = false
-    }).catch((err) => {
-      this.isLoading.user = false
-      this.$root.showError('Could not fetch user', err)
-    })
 
     this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
       this.axios.get(this.services['statutory'] + '/mine').then((statutoryResponse) => {
@@ -213,6 +192,14 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
+    // The member as the app fetched them when it started, with their bodies and circles sorted.
+    user () {
+      return {
+        ...this.loginUser,
+        bodies: sortBodies(this.loginUser.bodies, this.loginUser.primary_body_id),
+        circles: [...this.loginUser.circles].sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
+      }
+    },
     isAnythingLoading () {
       return Object.keys(this.isLoading).some(key => this.isLoading[key])
     },
