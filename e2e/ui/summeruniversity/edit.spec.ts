@@ -989,4 +989,62 @@ test.describe('Summer University editor', () => {
         await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
         expect(api.callsTo('POST core /logout')).toHaveLength(1);
     });
+
+    test('"Create SU" in the menu leaves the SU being edited for an empty form', async ({ page, api, me, layout, myPermissions }) => {
+        myPermissions.push(permission('global:create:summeruniversity'));
+        showEdit(api, me);
+        await page.goto('/summeruniversity/mountain-su/edit');
+        await expect(page.getByLabel('Title')).toHaveValue('Mountain SU');
+
+        const menu = await openMenu(page, layout);
+        await menu.getByRole('button', { name: 'SU listing' }).click();
+        await menu.getByRole('link', { name: 'Create SU' }).click();
+
+        await expect(page).toHaveURL('/summeruniversity/new');
+        await expect(page.getByLabel('Title')).toHaveValue('');
+        await expect(page.getByRole('textbox', { name: 'Location 1 name' })).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Remove AEGEE-Antenna' })).toHaveCount(0);
+    });
+
+    // The answers the editor waits for before it shows an SU: the member's permissions, then the SU.
+    for (const late of ['GET core /my_permissions', 'GET summeruniversity /single/:id'] as const) {
+        test(`"Create SU" while the editor still waits for ${late} doesn't fill the empty form with that SU`, async ({ page, api, me, layout, myPermissions }) => {
+            myPermissions.push(permission('global:create:summeruniversity'));
+            showEdit(api, me);
+            let release!: () => void;
+            const released = new Promise<void>((resolve) => { release = resolve; });
+            // The app asks for the permissions when it starts too: only the editor's own request waits.
+            let permissionCalls = 0;
+            api.on('GET core /my_permissions', async () => {
+                permissionCalls += 1;
+                if (late === 'GET core /my_permissions' && permissionCalls === 2) await released;
+                return { json: ok(myPermissions) };
+            });
+            api.on('GET summeruniversity /single/:id', async () => {
+                if (late === 'GET summeruniversity /single/:id') await released;
+                return { json: ok(EDITED, { permissions: suOrganizerPermissions(EDITED.status) }) };
+            }, late === 'GET core /my_permissions' ? { optional: 'the editor gives the SU up before asking for it, as the member went on to the creation form' } : {});
+            // The mock records a call only once it has answered it, so the test waits for the request.
+            const path = late === 'GET core /my_permissions' ? '/api/core/my_permissions' : '/api/summeruniversity/single/mountain-su';
+            const asked = page.waitForRequest((request) => new URL(request.url()).pathname.replace(/\/$/, '') === path && (late !== 'GET core /my_permissions' || permissionCalls >= 1));
+            await page.goto('/summeruniversity/mountain-su/edit');
+            const request = await asked;
+
+            const menu = await openMenu(page, layout);
+            await menu.getByRole('button', { name: 'SU listing' }).click();
+            await menu.getByRole('link', { name: 'Create SU' }).click();
+            await expect(page).toHaveURL('/summeruniversity/new');
+            await expect(page.getByRole('combobox', { name: 'Role of Alex Member' })).toBeVisible();
+
+            release();
+            await request.response();
+            // Two frames: the page has handled the answer by then.
+            await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
+            await expect(page.getByLabel('Title')).toHaveValue('');
+            await expect(page.getByRole('combobox', { name: 'Role of Olga Organiser' })).toHaveCount(0);
+            // The member is the form's only organiser, once.
+            await expect(page.getByRole('combobox', { name: 'Role of Alex Member' })).toHaveCount(1);
+        });
+    }
 });
