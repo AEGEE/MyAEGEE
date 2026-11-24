@@ -2170,14 +2170,15 @@ components:
           additionalProperties: false
       additionalProperties: false
     CoreBody:
-      description: A body as core returns it with a member. Passed on unchanged, so core defines the other keys.
+      description: A body of the applicant as core returns it with a member, reduced to these keys.
       type: object
-      required: [id, name, type]
+      required: [id, name, type, code]
       properties:
         id: {type: integer}
         name: {type: string}
         type: {type: string}
-      x-free-form: a body from core's member profile, passed on as core sent it; core's contract describes its keys
+        code: {type: string}
+      additionalProperties: false
     BodySummary:
       type: object
       required: [id, name, type]

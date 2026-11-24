@@ -13,15 +13,19 @@ const { Sequelize } = require('./sequelize');
 const logger = require('./logger');
 const locks = require('./locks');
 
+// The bodies of the applicant that may send participants to the event, each with only
+// the keys the application form needs, not everything core sends about a body.
 async function getEditableBodiesForUser(req, user) {
     const limits = await Promise.all(
         user.bodies.map((body) => PaxLimit.fetchOrUseDefaultForBody(body, req.event.type))
     );
 
-    return user.bodies.filter((body) => {
-        const limit = limits.find((item) => item.body_id === body.id);
-        return limit && limit.hasAnyLimits();
-    });
+    return user.bodies
+        .filter((body) => {
+            const limit = limits.find((item) => item.body_id === body.id);
+            return limit && limit.hasAnyLimits();
+        })
+        .map((body) => ({ id: body.id, name: body.name, type: body.type, code: body.code }));
 }
 
 function hasManageApplicationsPermission(corePermissions) {

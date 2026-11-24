@@ -2001,11 +2001,12 @@ export interface components {
                 version: string;
             };
         };
-        /** @description A body as core returns it with a member. Passed on unchanged, so core defines the other keys. */
+        /** @description A body of the applicant as core returns it with a member, reduced to these keys. */
         CoreBody: {
             id: number;
             name: string;
             type: string;
+            code: string;
         };
         BodySummary: {
             id: number;
