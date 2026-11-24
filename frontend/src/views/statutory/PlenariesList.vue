@@ -68,8 +68,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     })
   },
   methods: {

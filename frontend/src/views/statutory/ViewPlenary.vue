@@ -64,7 +64,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'StatutoryPlenariesList',
+  name: 'StatutoryViewPlenary',
   data () {
     return {
       plenary: {
@@ -85,8 +85,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     })
   },
   methods: {

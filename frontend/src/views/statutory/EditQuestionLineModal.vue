@@ -65,9 +65,6 @@ export default {
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
-  },
-  mounted () {
-
   }
 }
 </script>

@@ -38,7 +38,7 @@ export default {
   props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showError'],
   data () {
     return {
-      isLoading: true,
+      isLoading: false,
       errors: {},
       // The form works on a copy, so the list shows the question as it is stored until it is saved.
       text: this.question.text
@@ -76,9 +76,6 @@ export default {
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
-  },
-  mounted () {
-    this.isLoading = false
   }
 }
 </script>

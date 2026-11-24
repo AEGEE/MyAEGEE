@@ -174,7 +174,6 @@ export default {
   data () {
     return {
       questionLines: [],
-      selected: null,
       event: {},
       selectedQuestionLine: null,
       can: {
