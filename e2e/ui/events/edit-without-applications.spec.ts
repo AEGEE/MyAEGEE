@@ -5,6 +5,7 @@
 import { ok } from '../support/factories/base.ts';
 import { body } from '../support/factories/core.ts';
 import { event, organizerPermissions } from '../support/factories/events.ts';
+import { mockMap } from '../support/map.ts';
 import { toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -31,6 +32,8 @@ test.describe('editing an event without applications', () => {
             organizers: [{ user_id: me!.id, first_name: me!.first_name, last_name: me!.last_name }]
         });
         api.json('GET core /bodies/', ok([body({ id: 1, name: 'AEGEE-Antenna' })]));
+        // The editor's map, which starts before the event says it is online.
+        mockMap(api);
         api.on('GET events /single/:id', { json: ok(stored, { permissions: organizerPermissions() }) });
         api.on('PUT events /single/:id', ({ body: sent }) => ({ json: ok({ ...stored, ...(sent as object) }) }));
 
