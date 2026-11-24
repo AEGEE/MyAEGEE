@@ -316,7 +316,8 @@ exports.getStats = async (req, res) => {
         where: { event_id: req.event.id }
     });
 
-    if (helpers.shouldHideApplicationStatus(req.event, req.permissions)) {
+    // Those who manage applications see the statuses, as on a single application.
+    if (helpers.shouldHideApplicationStatus(req.event, { change_status: req.permissions.manage_applications })) {
         statsObject.numbers = {
             total: applications.length,
             accepted: 0,

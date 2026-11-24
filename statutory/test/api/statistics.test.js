@@ -349,6 +349,8 @@ describe('Statistics testing', () => {
     });
 
     test('should calculate numbers properly if participant list publication is in the future', async () => {
+        // For a member: those who manage applications get the statuses.
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         await generator.createApplication({ user_id: 1, status: 'pending' }, event);
         await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
         await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
