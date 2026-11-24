@@ -182,6 +182,10 @@ export default {
     }).finally(() => {
       this.fetchData()
     })
+  },
+  beforeDestroy () {
+    // An answer that arrives after the member left the page is not shown.
+    this.requestId++
   }
 }
 </script>
