@@ -263,13 +263,15 @@ import moment from 'moment'
 
 import nationalities from '../../nationalities'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
+import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 import sortBodies from '../../methods/sort-bodies'
 
 export default {
   components: {
     flatPickr,
     InputTag,
-    MarkdownTooltip
+    MarkdownTooltip,
+    EventNoBodyNotification
   },
   name: 'EditCandidate',
   data () {
