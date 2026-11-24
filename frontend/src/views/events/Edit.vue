@@ -945,16 +945,16 @@ export default {
       }
     },
     'dates.application_starts': function (newDate) {
-      this.event.application_starts = new Date(newDate)
+      this.event.application_starts = newDate ? new Date(newDate) : null
     },
     'dates.application_ends': function (newDate) {
-      this.event.application_ends = new Date(newDate)
+      this.event.application_ends = newDate ? new Date(newDate) : null
     },
     'dates.starts': function (newDate) {
-      this.event.starts = new Date(newDate)
+      this.event.starts = newDate ? new Date(newDate) : null
     },
     'dates.ends': function (newDate) {
-      this.event.ends = new Date(newDate)
+      this.event.ends = newDate ? new Date(newDate) : null
     }
   },
   mounted () {
