@@ -249,14 +249,27 @@ const lockMailChanges = async (userId, transaction) => {
 };
 
 // Whether a text anywhere in a parsed JSON value (a value, an item of a list or a key) contains
-// U+0000, which Postgres cannot store in a text column.
+// U+0000, which Postgres cannot store in a text column. The value is walked with a list of what
+// is left to look at, not by recursion, so that a value nested however deep fits on the stack.
 const containsNulCharacter = (value) => {
-    if (typeof value === 'string') {
-        return value.includes('\u0000');
-    }
+    const pending = [value];
 
-    if (value && typeof value === 'object') {
-        return Object.entries(value).some(([key, item]) => key.includes('\u0000') || containsNulCharacter(item));
+    while (pending.length) {
+        const item = pending.pop();
+
+        if (typeof item === 'string') {
+            if (item.includes('\u0000')) {
+                return true;
+            }
+        } else if (item && typeof item === 'object') {
+            for (const [key, child] of Object.entries(item)) {
+                if (key.includes('\u0000')) {
+                    return true;
+                }
+
+                pending.push(child);
+            }
+        }
     }
 
     return false;
