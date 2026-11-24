@@ -58,7 +58,7 @@
             <input class="input" type="text" aria-label="New filter" v-model="tmpFilter" />
           </div>
           <div class="control">
-            <a class="button is-primary" @click.prevent="addFilter()" :disabled="tmpFilter.length === 0">Add filter</a>
+            <button type="button" class="button is-primary" :disabled="tmpFilter.length === 0" @click="addFilter()">Add filter</button>
           </div>
         </div>
 
