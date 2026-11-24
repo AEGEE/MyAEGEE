@@ -93,7 +93,7 @@ test.describe('events calendar', () => {
         await details.getByRole('button', { name: 'Event page' }).click();
 
         await expect(page).toHaveURL(/\/events\/spring-training$/);
-        await expect(page.getByRole('main').getByRole('heading').first()).toHaveText(/\S/);
+        await expect(page).toHaveTitle('MyAEGEE | Display single event');
         await expect(details).toBeHidden();
         // In the app: the page is not loaded again, and the app doesn't fetch the member again.
         expect(await page.evaluate(() => (window as { calendarOpened?: boolean }).calendarOpened)).toBe(true);

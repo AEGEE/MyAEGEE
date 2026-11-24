@@ -86,7 +86,7 @@ test.describe('resources page', () => {
 
         // The page fades in: axe reads the colours once that is over.
         await expect(async () => {
-            const results = await new AxeBuilder({ page }).include('.resources').withRules(['color-contrast']).analyze();
+            const results = await new AxeBuilder({ page }).include('[role=region][aria-label=Resources]').withRules(['color-contrast']).analyze();
             expect(results.violations).toEqual([]);
             expect(results.passes.flatMap((rule) => rule.nodes).length).toBeGreaterThanOrEqual(themes.length + 1);
         }).toPass({ timeout: 5000 });

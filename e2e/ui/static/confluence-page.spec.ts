@@ -15,6 +15,13 @@ const content = (id: string) => `/services/jira-cors/wiki/rest/api/content/${id}
 const answer = (id: string, title: string, text: string): MockResponse => ({ json: confluencePage({ id, title, html: `<p>${text}</p>` }) });
 
 const title = (page: Page) => page.getByRole('main').getByRole('heading', { level: 1 });
+// The page has received the answer for `path` and had the chance to act on it: the browser
+// records a resource once its answer has arrived in the page, and two frames later the app's
+// handler and Vue's re-render have run. Only then can a test see that the answer was ignored.
+const pageHasHandled = async (page: Page, path: string): Promise<void> => {
+    await page.waitForFunction((part) => performance.getEntriesByType('resource').some((entry) => entry.name.includes(part)), path);
+    await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+};
 const notFoundText = 'The page you\'ve requested cannot be found. Maybe you\'ve mistyped the URL?...';
 
 test.describe('wiki pages', () => {
@@ -116,8 +123,7 @@ test.describe('wiki pages', () => {
         const late = page.waitForResponse((response) => response.url().includes(content(TERMS)));
         release();
         await (await late).finished();
-        // Let the page handle that answer before checking that it was ignored.
-        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100))); }));
+        await pageHasHandled(page, content(TERMS));
 
         await expect(title(page)).toHaveText('Knowledge Management System');
         await expect(page.getByRole('main').getByText('Welcome to the KMS.')).toBeVisible();
@@ -139,7 +145,7 @@ test.describe('wiki pages', () => {
         const late = page.waitForResponse((response) => response.url().includes(content(TERMS)));
         release();
         await (await late).finished();
-        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100))); }));
+        await pageHasHandled(page, content(TERMS));
 
         await expect(title(page)).toHaveText('Knowledge Management System');
         await expect(page.getByText(notFoundText)).toHaveCount(0);
