@@ -35,7 +35,8 @@ export default {
         name: 'integration that is loading'
       },
       codesRaw: '',
-      isLoading: false
+      isLoading: false,
+      isSaving: false
     }
   },
   computed: {
