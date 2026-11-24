@@ -544,7 +544,6 @@ exports.triggerEmailChange = async (req, res) => {
                     ...names,
                     new_email: mailChange.new_email,
                     requester_name: `${req.user.first_name} ${req.user.last_name}`,
-                    requester_email: req.user.email,
                     requester_body: requesterBodies.map((body) => body.name).join(', '),
                     token: mailChange.old_value
                 }
