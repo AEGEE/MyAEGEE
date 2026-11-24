@@ -212,6 +212,12 @@ describe('Events editing', () => {
     });
 
     describe('what the body cannot change', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test.each([
             ['the type', { type: 'agora' }, 'type', 'epm'],
             ['the status', { status: 'published' }, 'status', 'draft'],
@@ -278,6 +284,12 @@ describe('Events editing', () => {
     });
 
     describe('validation', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test.each([
             ['a negative fee', 'fee', { fee: -1 }],
             ['no questions', 'questions', { questions: [] }],
@@ -341,6 +353,12 @@ describe('Events editing', () => {
     // The statuses of the applications count as revealed from the participants list deadline
     // on. The first edit at or after that deadline records the moment.
     describe('application_status_revealed_at', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const edit = (event, body = { name: 'A new name' }) => request({
             path: '/events/' + event.id,
             method: 'PUT',

@@ -425,6 +425,12 @@ describe('Events listing for single', () => {
     });
 
     describe('finding the event', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test.each(['test-slug', 'TEST-SLUG', 'Test-Slug'])('should find the event with the url test-slug as %s', async (url) => {
             const event = await generator.createEvent({ url: 'test-slug' });
             await generator.createEvent({ url: 'another-slug' });
@@ -529,6 +535,12 @@ describe('Events listing for single', () => {
     });
 
     describe('what the event looks like', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test('should answer with the event, no image and the permissions of the caller', async () => {
             tk.freeze(BEFORE_EVERYTHING);
             const event = await generator.createEvent({ type: 'agora', ...fixedDates() });
@@ -584,6 +596,12 @@ describe('Events listing for single', () => {
     // The permissions object tells the frontend what to show. Every test is outside of the
     // periods of the event unless it says otherwise, so only the caller decides the values.
     describe('permissions', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         let event;
 
         beforeEach(async () => {
@@ -769,6 +787,12 @@ describe('Events listing for single', () => {
     // The computed fields of an event, 1 ms before, exactly at and 1 ms after each end of
     // their periods. `permission` is what a board member of a local gets from the field.
     describe('periods', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const periods = [
             {
                 field: 'can_apply',

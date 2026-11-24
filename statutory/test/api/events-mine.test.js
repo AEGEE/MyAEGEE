@@ -109,6 +109,12 @@ describe('Events participating', () => {
     };
 
     describe('what is listed', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test('should give an empty list to a member who never applied', async () => {
             const event = await generator.createEvent();
             await generator.createApplication({ user_id: 1337 }, event);
@@ -165,6 +171,12 @@ describe('Events participating', () => {
     // The applicant reads "pending" until the participants list deadline, whatever the
     // organisers decided, unless the event revealed the statuses earlier.
     describe('the status of the application', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         let event;
 
         const statusOf = async () => (await mine())[0].applications[0].status;

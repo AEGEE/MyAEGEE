@@ -5,7 +5,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { at, fixedDates } = require('../scripts/fixed-event');
+const { at, fixedDates, BEFORE_EVERYTHING } = require('../scripts/fixed-event');
 const { Event, Image } = require('../../models');
 
 describe('Events creation', () => {
@@ -1354,6 +1354,12 @@ describe('Events creation', () => {
     });
 
     describe('who may create an event', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test.each(['agora', 'epm', 'spm'])('should let the holder of global:manage_event:%s alone create such an event', async (type) => {
             mock.mockAll({ mainPermissions: { permissions: ['global:manage_event:' + type] } });
 
@@ -1419,6 +1425,12 @@ describe('Events creation', () => {
     });
 
     describe('what the body cannot set', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         test('should create a draft whatever status the body asks for', async () => {
             const res = await request({
                 path: '/',
@@ -1451,6 +1463,12 @@ describe('Events creation', () => {
     });
 
     describe('validation', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const withoutField = (field) => {
             const event = generator.generateEvent({ type: 'epm', ...fixedDates() });
             delete event[field];
@@ -1590,6 +1608,12 @@ describe('Events creation', () => {
     // The statuses of the applications count as revealed from the participants list deadline
     // on. An event that is created at or after that deadline records the moment.
     describe('application_status_revealed_at', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const create = () => request({
             path: '/',
             method: 'POST',

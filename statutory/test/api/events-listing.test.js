@@ -1,10 +1,11 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { at, fixedDates } = require('../scripts/fixed-event');
+const { at, fixedDates, BEFORE_EVERYTHING } = require('../scripts/fixed-event');
 
 describe('Events listing', () => {
     beforeAll(async () => {
@@ -20,6 +21,7 @@ describe('Events listing', () => {
     });
 
     afterEach(async () => {
+        tk.reset();
         mock.cleanAll();
         await generator.clearAll();
     });
@@ -407,6 +409,12 @@ describe('Events listing', () => {
     // The day of a date filter is a day on the Central European calendar, whatever the time
     // zone of the server: in May that day starts at 22:00 UTC of the day before.
     describe('the date filters of the list', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const startOfDay = new Date('2030-05-05T22:00:00.000Z'); // 6 May 2030, 00:00 in Central Europe
         const endOfDay = new Date('2030-05-10T21:59:59.999Z'); // 10 May 2030, 23:59:59.999 in Central Europe
 
@@ -569,6 +577,12 @@ describe('Events listing', () => {
     });
 
     describe('the latest event per body', () => {
+        // The events of these tests have the fixed dates: the clock stands before all of
+        // them, unless a test sets it itself.
+        beforeEach(() => {
+            tk.freeze(BEFORE_EVERYTHING);
+        });
+
         const recents = async (query) => {
             const res = await request({
                 path: '/recents',
