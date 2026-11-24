@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const { limitLockWait } = require('../lib/locks');
 const MembersList = require('./MembersList');
 const VotesPerDelegate = require('./VotesPerDelegate');
 const Application = require('./Application');
@@ -136,11 +137,15 @@ VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesFo
         return;
     }
 
+    // The votes of the body stay locked until the transaction ends, so that requests that
+    // recalculate the votes of the same body run one after the other.
+    await limitLockWait(transaction);
     const votesAmountPerAntenna = await this.findOne({
         where: {
             event_id: event.id,
             body_id: bodyId
         },
+        lock: transaction.LOCK.UPDATE,
         transaction
     });
 

@@ -509,8 +509,16 @@ exports.updateApplication = async (req, res) => {
     // Keeping old body, as apparently next line is changing req.application as well.
     const oldBody = req.application.body_id;
 
+    // The edit and the votes per delegate of the old and the new body change together.
     // returning: the answer has the values as they were stored, not as they were sent.
-    await req.application.update(fields, { returning: true });
+    await sequelize.transaction(async (t) => {
+        await req.application.update(fields, { transaction: t, returning: true });
+
+        if (fields.body_id && fields.body_id !== oldBody) {
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody, t);
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, fields.body_id, t);
+        }
+    });
 
     // The edit is saved: the mails about it are sent afterwards, and a failure does not undo it.
     const ids = { application_id: req.application.id, event_id: req.event.id };
@@ -543,13 +551,6 @@ exports.updateApplication = async (req, res) => {
         }
     });
 
-    // Recalculating votes per delegate for this antenna, if user changed the body.
-    // Both for new and old body.
-    if (fields.body_id && fields.body_id !== oldBody) {
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, fields.body_id);
-    }
-
     return res.json({
         success: true,
         data: presentApplication(req, req.application)
@@ -574,13 +575,16 @@ function setApplicationBoolean(key) {
         const toUpdate = {};
         toUpdate[key] = req.body[key];
 
-        const dbResult = await req.application.update(
-            toUpdate,
-            { returning: ['*'], hooks: false }
-        );
+        // The flag and the votes per delegate for this antenna change together, or not at all.
+        const dbResult = await sequelize.transaction(async (t) => {
+            const updated = await req.application.update(
+                toUpdate,
+                { returning: ['*'], hooks: false, transaction: t }
+            );
 
-        // Recalculating votes per delegate for this antenna.
-        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
+            return updated;
+        });
 
         return res.json({
             success: true,
@@ -610,13 +614,16 @@ exports.setApplicationStatus = async (req, res) => {
         );
     }
 
-    const dbResult = await req.application.update(
-        { status: req.body.status },
-        { returning: ['*'] }
-    );
+    // The status and the votes per delegate for this antenna change together, or not at all.
+    const dbResult = await sequelize.transaction(async (t) => {
+        const updated = await req.application.update(
+            { status: req.body.status },
+            { returning: ['*'], transaction: t }
+        );
 
-    // Recalculating votes per delegate for this antenna.
-    await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
+        return updated;
+    });
 
     return res.json({
         success: true,
