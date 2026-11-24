@@ -3,6 +3,7 @@ const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const logger = require('../lib/logger');
+const Bugsnag = require('../lib/bugsnag');
 const mailer = require('../lib/mailer');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
@@ -39,14 +40,14 @@ exports.createJoinRequest = async (req, res) => {
         return errors.makeValidationError(res, 'You are already a member of this body.');
     }
 
-    let request;
-    await sequelize.transaction(async (t) => {
-        request = await JoinRequest.create({
-            user_id: req.user.id,
-            body_id: req.currentBody.id,
-            motivation: req.body.motivation
-        }, { transaction: t });
+    const request = await JoinRequest.create({
+        user_id: req.user.id,
+        body_id: req.currentBody.id,
+        motivation: req.body.motivation
+    });
 
+    // The mail to the board carries no token, so a failure does not undo the request.
+    try {
         const recipients = [req.currentBody.email];
 
         // Fetching a permission.
@@ -91,7 +92,10 @@ exports.createJoinRequest = async (req, res) => {
                 body_id: req.currentBody.id
             }
         });
-    });
+    } catch (err) {
+        logger.error({ err, body_id: req.currentBody.id, join_request_id: request.id }, 'Could not tell the board about a join request');
+        Bugsnag.notify(err);
+    }
 
     return res.json({
         success: true,
