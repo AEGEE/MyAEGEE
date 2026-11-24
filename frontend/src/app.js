@@ -213,13 +213,26 @@ let renewalPromise = null
 
 // The session is over: there is no refresh token, or core refused to renew it. The member is
 // forgotten, so the login page doesn't send them straight back as someone still logged in.
+// Returns whether the app leaves the page for the login page: not for the guard's own request
+// (`X-For-Auth`), which decides itself where to go, and not on the login page, where there is
+// nowhere else to go.
 const endSession = (request) => {
   store.dispatch('logout')
-  // The guard's own request (`X-For-Auth`) decides itself where to go, and on the login page
-  // there is nowhere else to go.
-  if (!request.headers['X-For-Auth'] && app.$route.name !== 'oms.login') {
-    router.push(loginFor(app.$route))
+  if (request.headers['X-For-Auth'] || app.$route.name === 'oms.login') {
+    return false
   }
+  router.push(loginFor(app.$route))
+  return true
+}
+
+// What a request whose session ended gives the page that sent it. A page that is being left
+// for the login page gets no answer at all: its own error handling would only show an error
+// over the login page, or navigate away from it.
+const sessionEnded = (request, error, leftPage) => {
+  if (leftPage && !request.headers['X-For-Auth']) {
+    return new Promise(() => {})
+  }
+  return Promise.reject(error)
 }
 
 axios.interceptors.response.use(
@@ -236,8 +249,7 @@ axios.interceptors.response.use(
     const refreshToken = window.localStorage.getItem('refresh-token')
     if (!refreshToken) {
       console.debug('No refresh token provided')
-      endSession(originalRequest)
-      return Promise.reject(error)
+      return sessionEnded(originalRequest, error, endSession(originalRequest))
     }
 
     if (!renewalPromise) {
@@ -254,7 +266,7 @@ axios.interceptors.response.use(
           console.debug('Token renewal failed:', renewError)
           window.localStorage.removeItem('access-token')
           window.localStorage.removeItem('refresh-token')
-          endSession(originalRequest)
+          renewError.leftPage = endSession(originalRequest)
           throw renewError
         })
         .finally(() => { renewalPromise = null })
@@ -263,7 +275,7 @@ axios.interceptors.response.use(
     return renewalPromise.then((newToken) => {
       originalRequest.headers['X-Auth-Token'] = newToken
       return axios(originalRequest)
-    })
+    }, (renewError) => sessionEnded(originalRequest, renewError, renewError.leftPage))
   }
 )
 
