@@ -533,7 +533,10 @@ exports.updateApplication = async (req, res) => {
     const ids = { application_id: req.application.id, event_id: req.event.id };
     // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
     await Promise.all([
-        mailer.sendMailAfterSave({ template: 'statutory_edited.html', ids }, () => mailer.sendMail({
+        mailer.sendMailAfterSave({
+            template: 'statutory_edited.html',
+            ids
+        }, () => mailer.sendMail({
             to: user.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'statutory_edited.html',
@@ -542,7 +545,10 @@ exports.updateApplication = async (req, res) => {
                 event: req.event
             }
         })),
-        mailer.sendMailAfterSave({ template: 'statutory_board_edited.html', ids }, async () => {
+        mailer.sendMailAfterSave({
+            template: 'statutory_board_edited.html',
+            ids
+        }, async () => {
             const boardMembers = await core.getBodyUsersForPermission({
                 action: 'approve_members',
                 object: req.event.type
@@ -889,7 +895,10 @@ exports.postApplication = async (req, res) => {
     const ids = { application_id: newApplication.id, event_id: req.event.id };
     // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
     await Promise.all([
-        mailer.sendMailAfterSave({ template: 'statutory_applied.html', ids }, () => mailer.sendMail({
+        mailer.sendMailAfterSave({
+            template: 'statutory_applied.html',
+            ids
+        }, () => mailer.sendMail({
             to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
@@ -898,7 +907,10 @@ exports.postApplication = async (req, res) => {
                 event: req.event
             }
         })),
-        mailer.sendMailAfterSave({ template: 'statutory_board_applied.html', ids }, async () => {
+        mailer.sendMailAfterSave({
+            template: 'statutory_board_applied.html',
+            ids
+        }, async () => {
             const boardMembers = await core.getBodyUsersForPermission({
                 action: 'approve_members',
                 object: req.event.type
