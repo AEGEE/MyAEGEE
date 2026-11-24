@@ -1,5 +1,6 @@
 const { startServer, stopServer } = require('../../lib/server');
 const login = require('../../middlewares/login');
+const joinRequests = require('../../middlewares/join-requests');
 const config = require('../../config');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
@@ -336,6 +337,36 @@ describe('A mailer that fails', () => {
             expect(silentMailer.requests).toEqual(1);
             expect(await PasswordReset.count()).toEqual(0);
         });
+
+        // The board is told about a join request after the answer.
+        test('requesting to join a body answers before the mail to the board is sent', async () => {
+            config.mailer.timeout = 5000;
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const body = await generator.createBody();
+
+            const started = Date.now();
+            const res = await request({
+                path: '/bodies/' + body.id + '/join-requests',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: { motivation: 'Motivation' }
+            });
+            const took = Date.now() - started;
+
+            expect(res.statusCode).toEqual(200);
+            expect(took).toBeLessThan(1000);
+
+            await joinRequests.waitForBoardMails();
+            expect(silentMailer.requests).toEqual(1);
+            expect(await JoinRequest.count()).toEqual(1);
+            expectReported('Could not tell the board about a join request', {
+                template: 'member_joined.html',
+                user_id: user.id,
+                body_id: body.id,
+                join_request_id: res.body.data.id
+            });
+        }, 20000);
 
         // A signup is stored and committed before its mail is sent, so a mailer that hangs
         // holds no database connection.
