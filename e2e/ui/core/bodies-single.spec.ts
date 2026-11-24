@@ -227,6 +227,15 @@ test.describe('the page of a body', () => {
         await expect(fact(page, 'Shadow circle').getByRole('link', { name: 'Members of AEGEE-Antenna' })).toHaveAttribute('href', '/circles/62');
     });
 
+    test('a board member who may update the body but not delete it sees no "Delete body"', async ({ page, api }) => {
+        answer(api, bodyDetail({ id: 1, type: 'antenna' }), { permissions: ['local:update:body'] });
+
+        await page.goto('/bodies/1');
+
+        await expect(page.getByRole('link', { name: 'Edit body details', exact: true })).toHaveAttribute('href', '/bodies/1/edit');
+        await expect(page.getByRole('button', { name: 'Delete body' })).toHaveCount(0);
+    });
+
     test('a body without a shadow circle or Workspace account says so', async ({ page, api }) => {
         answer(api, bodyDetail({ id: 1, gsuite_id: null, google_group: 'group@aegee.eu', shadow_circle: null }), { permissions: ['global:update:body', 'global:view:shadow_circle'] });
 
