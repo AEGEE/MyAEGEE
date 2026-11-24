@@ -1,5 +1,5 @@
 {
-  "gate": "pending",
+  "gate": "enforced",
   "templateExceptions": [
     {
       "file": "views/statutory/QuestionLinesList.vue",
