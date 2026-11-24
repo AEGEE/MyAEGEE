@@ -203,7 +203,6 @@ def generate_fake_payload(subj="", template="", return_malformed_mail=False):
             "token": faker.md5(),
             "new_email": faker.email(),
             "requester_name": faker.name(),
-            "requester_email": faker.email(),
             "requester_body": "AEGEE-" + faker.city(),
             "changed_by": random.choice(["yourself", faker.name()]),
             "old_status": "snafu",

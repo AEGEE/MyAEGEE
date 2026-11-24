@@ -38,7 +38,7 @@
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Hello <%= @parameters["name"] %> <%= @parameters["surname"] %></strong></div>
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><%= @parameters["requester_name"] %> (<%= @parameters["requester_email"] %>), who manages the members of <%= @parameters["requester_body"] %>, asked to change the login email of your MyAEGEE account to <%= @parameters["new_email"] %>. The address only changes if you confirm it:</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><%= @parameters["requester_name"] %>, who manages the members of <%= @parameters["requester_body"] %>, asked to change the login email of your MyAEGEE account to <%= @parameters["new_email"] %>. The address only changes if you confirm it:</div>
                         </td>
                       </tr>
                       <tr>
