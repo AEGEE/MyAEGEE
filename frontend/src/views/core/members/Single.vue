@@ -62,7 +62,7 @@
             </button>
           </div>
 
-          <div class="field is-grouped" v-if="can.setActive">
+          <div class="field is-grouped" v-if="can.setActive && !isOwnProfile">
             <button
               v-if="user.active"
               type="button"
