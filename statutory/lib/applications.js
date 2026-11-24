@@ -530,34 +530,36 @@ exports.updateApplication = async (req, res) => {
 
     // The edit is saved: the mails about it are sent afterwards, and a failure does not undo it.
     const ids = { application_id: req.application.id, event_id: req.event.id };
-    await mailer.sendMailAfterSave({ template: 'statutory_edited.html', ids }, () => mailer.sendMail({
-        to: user.notification_email,
-        subject: `Your application for ${req.event.name} was updated`,
-        template: 'statutory_edited.html',
-        parameters: {
-            application: req.application,
-            event: req.event
-        }
-    }));
+    // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
+    await Promise.all([
+        mailer.sendMailAfterSave({ template: 'statutory_edited.html', ids }, () => mailer.sendMail({
+            to: user.notification_email,
+            subject: `Your application for ${req.event.name} was updated`,
+            template: 'statutory_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        })),
+        mailer.sendMailAfterSave({ template: 'statutory_board_edited.html', ids }, async () => {
+            const boardMembers = await core.getBodyUsersForPermission({
+                action: 'approve_members',
+                object: req.event.type
+            }, req.application.body_id);
 
-    await mailer.sendMailAfterSave({ template: 'statutory_board_edited.html', ids }, async () => {
-        const boardMembers = await core.getBodyUsersForPermission({
-            action: 'approve_members',
-            object: req.event.type
-        }, req.application.body_id);
-
-        if (boardMembers.length > 0) {
-            await mailer.sendMail({
-                to: boardMembers.map((member) => member.user.notification_email),
-                subject: `One of your body members changed the application to ${req.event.name}`,
-                template: 'statutory_board_edited.html',
-                parameters: {
-                    application: req.application,
-                    event: req.event
-                }
-            });
-        }
-    });
+            if (boardMembers.length > 0) {
+                await mailer.sendMail({
+                    to: boardMembers.map((member) => member.user.notification_email),
+                    subject: `One of your body members changed the application to ${req.event.name}`,
+                    template: 'statutory_board_edited.html',
+                    parameters: {
+                        application: req.application,
+                        event: req.event
+                    }
+                });
+            }
+        })
+    ]);
 
     return res.json({
         success: true,
@@ -884,34 +886,36 @@ exports.postApplication = async (req, res) => {
 
     // The application is saved: the mails about it are sent afterwards, and a failure does not undo it.
     const ids = { application_id: newApplication.id, event_id: req.event.id };
-    await mailer.sendMailAfterSave({ template: 'statutory_applied.html', ids }, () => mailer.sendMail({
-        to: req.user.notification_email,
-        subject: `You've successfully applied for ${req.event.name}`,
-        template: 'statutory_applied.html',
-        parameters: {
-            application: newApplication,
-            event: req.event
-        }
-    }));
+    // Both at once: a mailer that does not answer delays the answer by one timeout, not two.
+    await Promise.all([
+        mailer.sendMailAfterSave({ template: 'statutory_applied.html', ids }, () => mailer.sendMail({
+            to: req.user.notification_email,
+            subject: `You've successfully applied for ${req.event.name}`,
+            template: 'statutory_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        })),
+        mailer.sendMailAfterSave({ template: 'statutory_board_applied.html', ids }, async () => {
+            const boardMembers = await core.getBodyUsersForPermission({
+                action: 'approve_members',
+                object: req.event.type
+            }, newApplication.body_id);
 
-    await mailer.sendMailAfterSave({ template: 'statutory_board_applied.html', ids }, async () => {
-        const boardMembers = await core.getBodyUsersForPermission({
-            action: 'approve_members',
-            object: req.event.type
-        }, newApplication.body_id);
-
-        if (boardMembers.length > 0) {
-            await mailer.sendMail({
-                to: boardMembers.map((member) => member.user.notification_email),
-                subject: `One of your body members has applied to ${req.event.name}`,
-                template: 'statutory_board_applied.html',
-                parameters: {
-                    application: newApplication,
-                    event: req.event
-                }
-            });
-        }
-    });
+            if (boardMembers.length > 0) {
+                await mailer.sendMail({
+                    to: boardMembers.map((member) => member.user.notification_email),
+                    subject: `One of your body members has applied to ${req.event.name}`,
+                    template: 'statutory_board_applied.html',
+                    parameters: {
+                        application: newApplication,
+                        event: req.event
+                    }
+                });
+            }
+        })
+    ]);
 
     return res.json({
         success: true,
