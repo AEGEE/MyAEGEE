@@ -24,7 +24,7 @@
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div v-show="selectedBody && canEditMemberslist(selectedBody)">
-          <div class="field is-grouped">
+          <div class="field is-grouped is-grouped-multiline">
             <div class="control">
               <button type="button" class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
