@@ -46,6 +46,11 @@ const request = async (options) => {
         fetchOptions.body = JSON.stringify(options.body);
     }
 
+    // A raw string body, e.g. JSON with keys JSON.stringify would not write.
+    if (options.rawBody !== undefined) {
+        fetchOptions.body = options.rawBody;
+    }
+
     if (options.files) {
         const entries = Object.entries(options.files);
         const formData = new FormData();
