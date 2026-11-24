@@ -25,7 +25,7 @@ test.describe('a board and the members of its antenna', () => {
         const member = await asAdmin<Person>(api, 'GET', `/members/${seeded.id}`);
         const antenna = await asAdmin<Antenna>(api, 'GET', `/bodies/${antennaId}`);
         const suffix = Date.now().toString().slice(-6);
-        const phone = `+32 2 123 ${suffix}`;
+        const phone = `+32 000 ${suffix}`;
         const description = `Edited by its board ${suffix}`;
 
         try {

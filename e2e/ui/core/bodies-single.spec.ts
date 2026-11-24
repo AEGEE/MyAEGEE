@@ -54,7 +54,7 @@ test.describe('the page of a body', () => {
             code: 'ANT',
             founded_at: '1985-04-15',
             email: 'antenna@example.com',
-            phone: '+32 2 123 45 67',
+            phone: '+32 000 00 00 00',
             address: 'Main street 1',
             postal_address: 'PO Box 1',
             website: 'https://antenna.example.org'
@@ -72,7 +72,7 @@ test.describe('the page of a body', () => {
         await expect(fact(page, 'Code')).toContainText('ANT');
         await expect(fact(page, 'Foundation date')).toContainText('1985-04-15');
         await expect(fact(page, 'Email').getByRole('link', { name: 'antenna@example.com' })).toHaveAttribute('href', 'mailto:antenna@example.com');
-        await expect(fact(page, 'Phone')).toContainText('+32 2 123 45 67');
+        await expect(fact(page, 'Phone')).toContainText('+32 000 00 00 00');
         await expect(fact(page, 'Address')).toContainText('Main street 1');
         await expect(fact(page, 'Postal address')).toContainText('PO Box 1');
         const website = fact(page, 'Website').getByRole('link', { name: 'https://antenna.example.org' });
@@ -210,7 +210,7 @@ test.describe('the page of a body', () => {
 
     test('gives a board member the links and buttons of their rights', async ({ page, api }) => {
         const shadow = circle({ id: 62, body_id: 1, name: 'Members of AEGEE-Antenna' });
-        answer(api, bodyDetail({ id: 1, type: 'antenna', gsuite_id: 'antenna@aegee.eu', google_group: null, shadow_circle_id: 62, shadow_circle: shadow }), { permissions: BOARD });
+        answer(api, bodyDetail({ id: 1, type: 'antenna', gsuite_id: 'antenna@example.org', google_group: null, shadow_circle_id: 62, shadow_circle: shadow }), { permissions: BOARD });
 
         await page.goto('/bodies/1');
 
@@ -222,7 +222,7 @@ test.describe('the page of a body', () => {
         for (const name of ['Add member', 'Add bound circle', 'Change board', 'Leave body', 'Delete body']) {
             await expect(page.getByRole('button', { name }), name).toBeVisible();
         }
-        await expect(fact(page, 'Google Workspace account').getByRole('link', { name: 'antenna@aegee.eu' })).toHaveAttribute('href', 'mailto:antenna@aegee.eu');
+        await expect(fact(page, 'Google Workspace account').getByRole('link', { name: 'antenna@example.org' })).toHaveAttribute('href', 'mailto:antenna@example.org');
         await expect(fact(page, 'Google Group')).toContainText('Not set.');
         await expect(fact(page, 'Shadow circle').getByRole('link', { name: 'Members of AEGEE-Antenna' })).toHaveAttribute('href', '/circles/62');
     });
@@ -237,13 +237,13 @@ test.describe('the page of a body', () => {
     });
 
     test('a body without a shadow circle or Workspace account says so', async ({ page, api }) => {
-        answer(api, bodyDetail({ id: 1, gsuite_id: null, google_group: 'group@aegee.eu', shadow_circle: null }), { permissions: ['global:update:body', 'global:view:shadow_circle'] });
+        answer(api, bodyDetail({ id: 1, gsuite_id: null, google_group: 'group@example.org', shadow_circle: null }), { permissions: ['global:update:body', 'global:view:shadow_circle'] });
 
         await page.goto('/bodies/1');
 
         await expect(fact(page, 'Shadow circle')).toContainText('No shadow circle assigned.');
         await expect(fact(page, 'Google Workspace account')).toContainText('Not set.');
-        await expect(fact(page, 'Google Group').getByRole('link', { name: 'group@aegee.eu' })).toBeVisible();
+        await expect(fact(page, 'Google Group').getByRole('link', { name: 'group@example.org' })).toBeVisible();
     });
 
     test('the Boards link is only for antennas, contact antennas and contacts', async ({ page, api }) => {
@@ -537,7 +537,7 @@ test.describe('adding to a body from its page', () => {
 
 test.describe('adding a board from the body page', () => {
     const PEOPLE = [membership(41, 'Pia', 'President'), membership(42, 'Sam', 'Secretary'), membership(43, 'Tom', 'Treasurer'), membership(44, 'Val', 'Vice')];
-    const antenna = () => bodyDetail({ id: 1, type: 'antenna', email: 'antenna@example.com', phone: '+32 2 000 00 00', address: 'Main street 1', postal_address: null, website: null });
+    const antenna = () => bodyDetail({ id: 1, type: 'antenna', email: 'antenna@example.com', phone: '+32 000 00 00 01', address: 'Main street 1', postal_address: null, website: null });
 
     // The people of the body whose name starts with what was typed.
     const searchPeople = (api: ApiMock): void => {
@@ -573,7 +573,7 @@ test.describe('adding a board from the body page', () => {
         await modal.getByRole('group', { name: 'New position' }).getByRole('textbox').first().fill('Vice-president');
         await pick(page, 'Vice-president', 'Val', 'Val Vice');
         await expect(modal.getByLabel('Email')).toHaveValue('antenna@example.com');
-        await modal.getByLabel('Phone').fill('+32 2 111 11 11');
+        await modal.getByLabel('Phone').fill('+32 000 00 00 02');
         await modal.getByRole('textbox', { name: 'Message' }).fill('We are **the** new board');
         await expect(modal.getByRole('region', { name: 'Preview of the message' }).getByText('the', { exact: true })).toHaveJSProperty('tagName', 'STRONG');
         await modal.getByRole('button', { name: 'Save changes' }).click();
@@ -584,7 +584,7 @@ test.describe('adding a board from the body page', () => {
         await expect.poll(() => api.callsTo('GET core /bodies/:id/members').map((call) => call.query.get('query'))).toEqual(expect.arrayContaining(['Pia', 'Sam', 'Tom', 'Val']));
         const [details] = api.callsTo('PUT core /bodies/:id');
         expect(details.params).toEqual({ id: '1' });
-        expect(details.body).toMatchObject({ email: 'antenna@example.com', phone: '+32 2 111 11 11', address: 'Main street 1' });
+        expect(details.body).toMatchObject({ email: 'antenna@example.com', phone: '+32 000 00 00 02', address: 'Main street 1' });
         await expect.poll(() => api.callsTo('POST network /bodies/:id/boards').map((call) => [call.params, call.body])).toEqual([[{ id: '1' }, {
             body_id: 1,
             elected_date: '2026-12-01',

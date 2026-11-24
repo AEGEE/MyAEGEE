@@ -22,7 +22,7 @@ test.describe('member page factories match the real API', () => {
         expectStatus(list, 200);
         expect(list.body.data).toHaveLength(1);
         // Every optional field filled, as null isn't compared.
-        const filled = memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 });
+        const filled = memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 });
         expectShape('memberListItem', filled, list.body.data[0]);
         expectShape('okList', okList([filled]), list.body);
         // Bodies and circles are not part of a row.

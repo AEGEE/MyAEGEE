@@ -92,7 +92,7 @@ test.describe('circle and permission page factories match the real API', () => {
             expect(members.body.data).toHaveLength(1);
             expectShape('circleMembership', circleMembership({
                 position: 'Treasurer',
-                user: memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 })
+                user: memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 })
             }), members.body.data[0]);
             expect(members.body.meta).toEqual({ count: 1 });
         } finally {
@@ -110,7 +110,7 @@ test.describe('circle and permission page factories match the real API', () => {
             const holders = await api.call<Envelope<Row[]>>('admin', 'GET', `/api/core/permissions/${tree.permission.id}/members`);
             expectStatus(holders, 200);
             const member = holders.body.data.find((row) => row.id === otherAntenna.member.id);
-            const holder = permissionHolder({ about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 });
+            const holder = permissionHolder({ about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 });
             expectShape('permissionHolder', {
                 ...holder,
                 circle_memberships: [{ ...holder.circle_memberships[0], position: 'Treasurer' }],

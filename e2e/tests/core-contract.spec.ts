@@ -30,7 +30,7 @@ test.describe('core factories match the real API', () => {
         expectShape('member', member({
             about_me: 'x',
             image: 'picture.png',
-            gsuite_id: 'x@aegee.eu',
+            gsuite_id: 'example-x@aegee.eu',
             bodies: [filledBody],
             circles: [circle({ body_id: 1 })],
             // A join request has no factory yet: the fields the profile pages read.
@@ -108,12 +108,12 @@ test.describe('core factories match the real API', () => {
 
     test('a member search result with a Workspace address', async ({ api, otherAntenna }) => {
         const { member: antennaMember } = otherAntenna;
-        await asAdmin(api, 'PUT', `/members/${antennaMember.id}`, { gsuite_id: `${antennaMember.username}@aegee.eu` });
+        await asAdmin(api, 'PUT', `/members/${antennaMember.id}`, { gsuite_id: `example-${antennaMember.username}@aegee.eu` });
 
         const found = await api.call<Envelope<Row[]>>('admin', 'GET', `/api/core/members_search?query=${antennaMember.username}`);
         expectStatus(found, 200);
         expect(found.body.data).toHaveLength(1);
-        expectShape('memberSearchResult', memberSearchResult({ username: 'x', email: 'x@example.com', gsuite_id: 'x@aegee.eu' }), found.body.data[0]);
+        expectShape('memberSearchResult', memberSearchResult({ username: 'x', email: 'x@example.com', gsuite_id: 'example-x@aegee.eu' }), found.body.data[0]);
     });
 
     test('a body\'s memberships and payments', async ({ api, otherAntenna }) => {
@@ -130,7 +130,7 @@ test.describe('core factories match the real API', () => {
         const { user } = bodyMembership();
         expectShape('bodyMembership', bodyMembership({
             comment: 'Joined at the fair',
-            user: { ...user, about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 }
+            user: { ...user, about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 }
         }), memberships[0]);
 
         const filled = payment({ comment: 'Paid in cash', invoice_name: 'A. Member', invoice_address: 'Somewhere in Europe' });
@@ -158,7 +158,7 @@ test.describe('core factories match the real API', () => {
         const antenna = otherAntenna.body;
         await asAdmin(api, 'PUT', `/bodies/${antenna.id}`, { website: 'https://www.example.org' });
         const filled = publicCampaign({
-            autojoin_body: { id: 1, name: 'AEGEE-Antenna', email: 'antenna@example.com', phone: '+32 2 123 45 67', address: 'Somewhere in Europe', website: 'https://www.example.org' }
+            autojoin_body: { id: 1, name: 'AEGEE-Antenna', email: 'antenna@example.com', phone: '+32 000 00 00 00', address: 'Somewhere in Europe', website: 'https://www.example.org' }
         });
 
         const [campaign, remove] = await createCampaign(api, { autojoinBody: antenna.id });

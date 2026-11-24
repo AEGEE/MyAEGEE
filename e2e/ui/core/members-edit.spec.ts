@@ -31,10 +31,10 @@ const ALEX = () => member({
     username: 'alex.member',
     first_name: 'Alex',
     last_name: 'Member',
-    phone: '+32 2 123 45 67',
+    phone: '+32 000 00 00 00',
     date_of_birth: '1999-05-01',
     gender: 'Female',
-    address: 'Rue de la Loi 1',
+    address: 'Example Street 1',
     about_me: 'Likes trains'
 });
 
@@ -52,16 +52,16 @@ test.describe('editing a member', () => {
         await expect(field(page, 'First name')).toHaveValue('Alex');
         await expect(field(page, 'Last name')).toHaveValue('Member');
         await expect(field(page, 'Username')).toHaveValue('alex.member');
-        await expect(field(page, 'Phone')).toHaveValue('+32 2 123 45 67');
+        await expect(field(page, 'Phone')).toHaveValue('+32 000 00 00 00');
         await expect(field(page, 'Birthday')).toHaveValue('1999-05-01');
         await expect(field(page, 'Gender')).toHaveValue('Female');
-        await expect(field(page, 'Address')).toHaveValue('Rue de la Loi 1');
+        await expect(field(page, 'Address')).toHaveValue('Example Street 1');
         await expect(field(page, 'About me')).toHaveValue('Likes trains');
         // Only global member managers see the Google Workspace account.
         await expect(field(page, 'Google Workspace account')).toHaveCount(0);
 
         await field(page, 'Username').fill('alex.new');
-        await field(page, 'Phone').fill('+32 2 765 43 21');
+        await field(page, 'Phone').fill('+32 000 00 00 03');
         await field(page, 'About me').fill('Likes boats');
         await save(page).click();
 
@@ -76,8 +76,8 @@ test.describe('editing a member', () => {
             username: 'alex.new',
             gender: 'Female',
             about_me: 'Likes boats',
-            address: 'Rue de la Loi 1',
-            phone: '+32 2 765 43 21',
+            address: 'Example Street 1',
+            phone: '+32 000 00 00 03',
             date_of_birth: '1999-05-01'
         }]]);
     });
@@ -127,17 +127,17 @@ test.describe('editing a member', () => {
     });
 
     test('a global member manager sees and changes the Google Workspace account', async ({ page, api, me }) => {
-        showMember(api, me, { ...ALEX(), gsuite_id: 'alex.member@aegee.eu' }, ['global:update:member']);
+        showMember(api, me, { ...ALEX(), gsuite_id: 'example-alex@aegee.eu' }, ['global:update:member']);
         api.json('PUT core /members/:id', ok(ALEX()));
         api.fallback(mockEverything);
         await page.goto('/members/alex.member/edit');
 
-        await expect(field(page, 'Google Workspace account')).toHaveValue('alex.member@aegee.eu');
-        await field(page, 'Google Workspace account').fill('alex.m@aegee.eu');
+        await expect(field(page, 'Google Workspace account')).toHaveValue('example-alex@aegee.eu');
+        await field(page, 'Google Workspace account').fill('example-alex.m@aegee.eu');
         await save(page).click();
 
         await expect(toast(page, 'User is saved.')).toBeVisible();
-        expect(sent(api).map(([, body]) => (body as Member).gsuite_id)).toEqual(['alex.m@aegee.eu']);
+        expect(sent(api).map(([, body]) => (body as Member).gsuite_id)).toEqual(['example-alex.m@aegee.eu']);
     });
 
     test('a global member manager saves a member without a Google Workspace account', async ({ page, api, me }) => {
@@ -155,7 +155,7 @@ test.describe('editing a member', () => {
     });
 
     test('a global member manager removes the Google Workspace account', async ({ page, api, me }) => {
-        showMember(api, me, { ...ALEX(), gsuite_id: 'alex.member@aegee.eu' }, ['global:update:member']);
+        showMember(api, me, { ...ALEX(), gsuite_id: 'example-alex@aegee.eu' }, ['global:update:member']);
         api.json('PUT core /members/:id', ok(ALEX()));
         api.fallback(mockEverything);
         await page.goto('/members/alex.member/edit');
@@ -211,10 +211,10 @@ test.describe('editing a member', () => {
     });
 
     test('shows the Workspace account\'s error to a global member manager', async ({ page, api, me }) => {
-        showMember(api, me, { ...ALEX(), gsuite_id: 'alex.member@aegee.eu' }, ['global:update:member']);
+        showMember(api, me, { ...ALEX(), gsuite_id: 'example-alex@aegee.eu' }, ['global:update:member']);
         api.on('PUT core /members/:id', { status: 422, json: validationError({ gsuite_id: ['GSuite ID should be a valid email.'] }) });
         await page.goto('/members/alex.member/edit');
-        await expect(field(page, 'Google Workspace account')).toHaveValue('alex.member@aegee.eu');
+        await expect(field(page, 'Google Workspace account')).toHaveValue('example-alex@aegee.eu');
 
         await save(page).click();
 

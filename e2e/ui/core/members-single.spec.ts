@@ -46,10 +46,10 @@ const ALEX = (overrides: Partial<Member> = {}) => member({
     last_name: 'Member',
     email: 'alex@example.org',
     notification_email: 'alex@example.org',
-    phone: '+32 2 123 45 67',
+    phone: '+32 000 00 00 00',
     date_of_birth: '1999-05-01',
     gender: 'Female',
-    address: 'Rue de la Loi 1',
+    address: 'Example Street 1',
     about_me: 'Likes trains',
     bodies: [ANTENNA],
     ...overrides
@@ -73,7 +73,7 @@ const SUSPEND = ['global:update_active:member', 'global:update_active:user'];
 
 test.describe('member page', () => {
     test('shows the facts about the member', async ({ page, api, me }) => {
-        showMember(api, me, ALEX({ superadmin: false, active: true, gsuite_id: 'alex.member@aegee.eu' }));
+        showMember(api, me, ALEX({ superadmin: false, active: true, gsuite_id: 'example-alex@aegee.eu' }));
 
         await page.goto('/members/alex.member');
 
@@ -84,14 +84,14 @@ test.describe('member page', () => {
         await expect(profileLink).toHaveText('https://my.aegee.eu/members/alex.member');
         await expect(profileLink).toHaveAttribute('href', '/members/alex.member');
         await expect(fact(page, 'Primary body').getByRole('link', { name: 'AEGEE-Antenna' })).toHaveAttribute('href', '/bodies/1');
-        await expect(fact(page, 'Phone')).toHaveText('+32 2 123 45 67');
+        await expect(fact(page, 'Phone')).toHaveText('+32 000 00 00 00');
         await expect(fact(page, 'Date of birth')).toHaveText('1999-05-01');
         await expect(fact(page, 'Gender')).toHaveText('Female');
-        await expect(fact(page, 'Address')).toHaveText('Rue de la Loi 1');
+        await expect(fact(page, 'Address')).toHaveText('Example Street 1');
         await expect(fact(page, 'About me')).toHaveText('Likes trains');
         await expect(fact(page, 'Is superadmin?')).toHaveText('No');
         await expect(fact(page, 'Notification email').getByRole('link', { name: 'alex@example.org' })).toHaveAttribute('href', 'mailto:alex@example.org');
-        await expect(fact(page, 'Google Workspace account').getByRole('link', { name: 'alex.member@aegee.eu' })).toHaveAttribute('href', 'mailto:alex.member@aegee.eu');
+        await expect(fact(page, 'Google Workspace account').getByRole('link', { name: 'example-alex@aegee.eu' })).toHaveAttribute('href', 'mailto:example-alex@aegee.eu');
         await expect(fact(page, 'Login suspended?')).toHaveText('No');
         // Without a picture the page shows the logo, which says nothing about the member.
         await expect(page.getByRole('img', { name: /Profile picture/ })).toHaveCount(0);
@@ -109,11 +109,11 @@ test.describe('member page', () => {
 
     test('the notification email link mails the address it shows', async ({ page, api, me }) => {
         // The member reads their mail on their Workspace account.
-        showMember(api, me, ALEX({ email: 'alex@example.org', gsuite_id: 'alex.member@aegee.eu', primary_email: 'gsuite', notification_email: 'alex.member@aegee.eu' }));
+        showMember(api, me, ALEX({ email: 'alex@example.org', gsuite_id: 'example-alex@aegee.eu', primary_email: 'gsuite', notification_email: 'example-alex@aegee.eu' }));
 
         await page.goto('/members/alex.member');
 
-        await expect(fact(page, 'Notification email').getByRole('link', { name: 'alex.member@aegee.eu' })).toHaveAttribute('href', 'mailto:alex.member@aegee.eu');
+        await expect(fact(page, 'Notification email').getByRole('link', { name: 'example-alex@aegee.eu' })).toHaveAttribute('href', 'mailto:example-alex@aegee.eu');
     });
 
     test('shows "Not set." without a primary body or Workspace account, and a superadmin who is suspended', async ({ page, api, me }) => {
@@ -170,7 +170,7 @@ test.describe('member page', () => {
     });
 
     test('a member looking at someone else without permissions sees no actions and no ban', async ({ page, api, me }) => {
-        showMember(api, me, ALEX({ gsuite_id: 'alex.member@aegee.eu' }));
+        showMember(api, me, ALEX({ gsuite_id: 'example-alex@aegee.eu' }));
 
         await page.goto('/members/alex.member');
 
@@ -193,7 +193,7 @@ test.describe('member page', () => {
     });
 
     test('a member with a Workspace account can also choose their primary email', async ({ page, api, me }) => {
-        me!.gsuite_id = 'alex.member@aegee.eu';
+        me!.gsuite_id = 'example-alex@aegee.eu';
         showMember(api, me, me!, {}, 'me');
 
         await page.goto('/members/me');
@@ -223,7 +223,7 @@ test.describe('member page', () => {
     });
 
     test('a board member of one of the member\'s bodies may edit them', async ({ page, api, me }) => {
-        showMember(api, me, ALEX({ bodies: [ANTENNA, OTHER], gsuite_id: 'alex.member@aegee.eu' }), { perBody: { 7: ['local:update:member'] } });
+        showMember(api, me, ALEX({ bodies: [ANTENNA, OTHER], gsuite_id: 'example-alex@aegee.eu' }), { perBody: { 7: ['local:update:member'] } });
 
         await page.goto('/members/alex.member');
 

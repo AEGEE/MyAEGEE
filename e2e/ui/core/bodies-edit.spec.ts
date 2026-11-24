@@ -69,9 +69,8 @@ test.describe('creating a body', () => {
         await field(page, 'Email').fill('itwg@example.com');
         await field(page, 'Founded at (if applicable)').fill('1985-04-15');
         await field(page, 'Founded at (if applicable)').blur();
-        // Only holders of the global right to update bodies may set them, and that is decided per body.
-        await expect(field(page, 'Google Workspace account')).toBeDisabled();
-        await expect(field(page, 'Google Group')).toBeDisabled();
+        await field(page, 'Google Workspace account').fill('itwg@example.org');
+        await field(page, 'Google Group').fill('itwg-group@example.org');
         await save(page).click();
 
         await expect(toast(page, 'Body is saved.')).toBeVisible();
@@ -84,8 +83,8 @@ test.describe('creating a body', () => {
             id: null,
             code: 'ITW',
             email: 'itwg@example.com',
-            gsuite_id: null,
-            google_group: null,
+            gsuite_id: 'itwg@example.org',
+            google_group: 'itwg-group@example.org',
             phone: null,
             address: null,
             postal_address: null,
@@ -158,10 +157,10 @@ test.describe('editing a body', () => {
             country: 'Belgium',
             founded_at: '1999-05-01',
             email: 'itwg@example.com',
-            gsuite_id: 'itwg@aegee.eu',
-            google_group: 'itwg-group@aegee.eu',
-            phone: '+32 2 123 45 67',
-            address: 'Rue de la Loi 1',
+            gsuite_id: 'itwg@example.org',
+            google_group: 'itwg-group@example.org',
+            phone: '+32 000 00 00 00',
+            address: 'Example Street 1',
             postal_address: 'PO Box 1',
             website: 'https://itwg.example.org'
         }));
@@ -181,10 +180,10 @@ test.describe('editing a body', () => {
         await expect(field(page, 'Country')).toHaveValue('Belgium');
         await expect(field(page, 'Founded at (if applicable)')).toHaveValue('1999-05-01');
         await expect(field(page, 'Email')).toHaveValue('itwg@example.com');
-        await expect(field(page, 'Google Workspace account')).toHaveValue('itwg@aegee.eu');
-        await expect(field(page, 'Google Group')).toHaveValue('itwg-group@aegee.eu');
-        await expect(field(page, 'Phone')).toHaveValue('+32 2 123 45 67');
-        await expect(page.getByLabel('Address', { exact: true })).toHaveValue('Rue de la Loi 1');
+        await expect(field(page, 'Google Workspace account')).toHaveValue('itwg@example.org');
+        await expect(field(page, 'Google Group')).toHaveValue('itwg-group@example.org');
+        await expect(field(page, 'Phone')).toHaveValue('+32 000 00 00 00');
+        await expect(page.getByLabel('Address', { exact: true })).toHaveValue('Example Street 1');
         await expect(page.getByRole('textbox', { name: /^Postal address/ })).toHaveValue('PO Box 1');
         await expect(field(page, 'Website')).toHaveValue('https://itwg.example.org');
         for (const name of ['Type', 'Name', 'Abbreviation (if applicable)', 'Body code', 'Google Workspace account', 'Google Group']) {
@@ -279,7 +278,7 @@ test.describe('editing a body', () => {
 
         await page.goto('/bodies/1/edit');
         await expect(field(page, 'Name')).toHaveValue('AEGEE-Antenna');
-        await field(page, 'Phone').fill('+32 2 000 00 00');
+        await field(page, 'Phone').fill('+32 000 00 00 01');
         await field(page, 'Founded at').fill('1986-01-02');
         await field(page, 'Founded at').blur();
         await save(page).click();
@@ -289,7 +288,7 @@ test.describe('editing a body', () => {
         await expect(page).toHaveURL('/bodies/1');
         const [put] = api.callsTo('PUT core /bodies/:id');
         expect(put.params).toEqual({ id: '1' });
-        expect(put.body).toEqual({ ...JSON.parse(JSON.stringify(loaded)), phone: '+32 2 000 00 00', founded_at: '1986-01-02' });
+        expect(put.body).toEqual({ ...JSON.parse(JSON.stringify(loaded)), phone: '+32 000 00 00 01', founded_at: '1986-01-02' });
     });
 
     test('clearing an optional founding date sends none', async ({ page, api }) => {

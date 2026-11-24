@@ -138,7 +138,7 @@ test.describe('completing the profile', () => {
     });
 
     test('a login email on an AEGEE domain has to be changed to another address', async ({ page, api, me }) => {
-        me!.email = 'alex@aegee.org';
+        me!.email = 'example-alex@aegee.org';
         showBodies(api);
         api.json('PUT core /members/:id/email', {
             success: true,
@@ -152,7 +152,7 @@ test.describe('completing the profile', () => {
         const email = page.getByLabel('Email');
 
         // Not to another AEGEE address, nor one of their subdomains.
-        for (const address of ['alex@aegee.eu', 'alex@lists.aegee.org']) {
+        for (const address of ['example-alex@aegee.eu', 'example-alex@lists.aegee.org']) {
             await email.fill(address);
             await page.getByRole('button', { name: 'Change email' }).click();
         }
@@ -167,7 +167,7 @@ test.describe('completing the profile', () => {
     });
 
     test('a refused email change says why', async ({ page, api, me }) => {
-        me!.email = 'alex@aegee.org';
+        me!.email = 'example-alex@aegee.org';
         showBodies(api);
         api.on('PUT core /members/:id/email', { status: 422, json: { success: false, message: 'User with this email already exists.' } });
         await page.goto('/profile/update');
@@ -307,7 +307,7 @@ test.describe('completing the profile', () => {
     test('a superadmin is never asked to complete the profile', async ({ page, api, me }) => {
         me!.superadmin = true;
         me!.privacy_consent = null;
-        me!.email = 'admin@aegee.org';
+        me!.email = 'example-admin@aegee.org';
         api.fallback(mockEverything);
 
         await page.goto('/dashboard');

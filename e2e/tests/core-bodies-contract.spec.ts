@@ -14,10 +14,10 @@ test.describe('core factories of the body pages match the real API', () => {
         const { body } = otherAntenna;
         await fillAntenna(api, otherAntenna, { otherBodyId: (await api.me('member')).bodies[0].id });
         await asAdmin(api, 'PUT', `/bodies/${body.id}`, {
-            phone: '+32 2 123 45 67',
+            phone: '+32 000 00 00 00',
             postal_address: 'PO Box 1',
-            gsuite_id: `e2e-body-${body.id}@aegee.eu`,
-            google_group: `e2e-group-${body.id}@aegee.eu`
+            gsuite_id: `e2e-body-${body.id}@example.org`,
+            google_group: `e2e-group-${body.id}@example.org`
         });
         // The antenna's members circle is its shadow circle (createAntenna): give it a mailing list.
         const real = await api.call<Envelope<Row>>('admin', 'GET', `/api/core/bodies/${body.id}`);
@@ -35,8 +35,8 @@ test.describe('core factories of the body pages match the real API', () => {
             website: 'https://www.example.org',
             shadow_circle_id: 1,
             postal_address: 'x',
-            gsuite_id: 'x@aegee.eu',
-            google_group: 'x@aegee.eu',
+            gsuite_id: 'x@example.org',
+            google_group: 'x@example.org',
             circles: [filledCircle],
             shadow_circle: filledCircle
         });

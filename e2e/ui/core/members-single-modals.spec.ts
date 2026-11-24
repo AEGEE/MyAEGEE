@@ -202,7 +202,7 @@ test.describe('setting the primary body', () => {
 });
 
 test.describe('setting the primary email', () => {
-    const WITH_WORKSPACE = () => ALEX({ gsuite_id: 'alex.member@aegee.eu', primary_email: 'personal' });
+    const WITH_WORKSPACE = () => ALEX({ gsuite_id: 'example-alex@aegee.eu', primary_email: 'personal' });
 
     test('starts at the current choice and saves the other address', async ({ page, api, me }) => {
         showMember(api, me, WITH_WORKSPACE());
@@ -212,9 +212,9 @@ test.describe('setting the primary email', () => {
         await page.getByRole('button', { name: 'Set primary email' }).click();
         const modal = dialog(page, 'Set primary email');
         await expect(modal.getByRole('radio', { name: 'alex@example.org' })).toBeChecked();
-        await expect(modal.getByRole('radio', { name: 'alex.member@aegee.eu' })).not.toBeChecked();
+        await expect(modal.getByRole('radio', { name: 'example-alex@aegee.eu' })).not.toBeChecked();
 
-        await modal.getByText('alex.member@aegee.eu').click();
+        await modal.getByText('example-alex@aegee.eu').click();
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
         await expect(toast(page, 'Primary email is updated')).toBeVisible();
@@ -223,7 +223,7 @@ test.describe('setting the primary email', () => {
 
         // Opened again, it shows the new choice.
         await page.getByRole('button', { name: 'Set primary email' }).click();
-        await expect(dialog(page, 'Set primary email').getByRole('radio', { name: 'alex.member@aegee.eu' })).toBeChecked();
+        await expect(dialog(page, 'Set primary email').getByRole('radio', { name: 'example-alex@aegee.eu' })).toBeChecked();
     });
 
     test('explains what the primary email is', async ({ page, api, me }) => {
@@ -237,13 +237,13 @@ test.describe('setting the primary email', () => {
     });
 
     test('a refused change keeps the dialog open; Cancel closes it without saving', async ({ page, api, me }) => {
-        showMember(api, me, ALEX({ gsuite_id: 'alex.member@aegee.eu', primary_email: 'gsuite' }));
+        showMember(api, me, ALEX({ gsuite_id: 'example-alex@aegee.eu', primary_email: 'gsuite' }));
         api.on('PUT core /members/:id', { status: 404, json: notFound('User is not found.') });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Set primary email' }).click();
         const modal = dialog(page, 'Set primary email');
-        await expect(modal.getByRole('radio', { name: 'alex.member@aegee.eu' })).toBeChecked();
+        await expect(modal.getByRole('radio', { name: 'example-alex@aegee.eu' })).toBeChecked();
         await modal.getByRole('button', { name: 'Save changes' }).click();
 
         await expect(toast(page, 'Error updating primary email: User is not found.')).toBeVisible();

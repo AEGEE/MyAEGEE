@@ -40,7 +40,7 @@ test.describe('core factories of the campaign and join request pages match the r
         expectStatus(detail, 200);
         expectShape('campaignDetail', campaignDetail({
             description_short: 'x',
-            autojoin_body: { id: 1, name: 'AEGEE-Antenna', email: 'antenna@example.com', phone: '+32 2 123 45 67', address: 'Somewhere in Europe', website: 'https://www.example.org' }
+            autojoin_body: { id: 1, name: 'AEGEE-Antenna', email: 'antenna@example.com', phone: '+32 000 00 00 00', address: 'Somewhere in Europe', website: 'https://www.example.org' }
         }), detail.body.data);
 
         const ofOneBody = await api.call<Envelope<Row>>('admin', 'GET', `/api/core/bodies/${antenna.id}/campaigns/${String(found.id)}`);
@@ -69,7 +69,7 @@ test.describe('core factories of the campaign and join request pages match the r
         const list = await api.call<Envelope<Row[]>>('admin', 'GET', `/api/core/campaigns/${String(found.id)}/members?limit=30&offset=0`);
         expectStatus(list, 200);
         expect(list.body.data).toHaveLength(1);
-        const filled = memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 });
+        const filled = memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 });
         expectShape('memberListItem', filled, list.body.data[0]);
         expectShape('okList', okList([filled]), list.body);
 
@@ -90,7 +90,7 @@ test.describe('core factories of the campaign and join request pages match the r
         const mine = list.body.data.filter((row) => row.user_id === member.id);
         expect(mine).toHaveLength(1);
         const filled = joinRequest({
-            user: memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'x@aegee.eu', campaign_id: 1 })
+            user: memberListItem({ about_me: 'x', image: 'picture.png', gsuite_id: 'example-x@aegee.eu', campaign_id: 1 })
         });
         expectShape('joinRequest', filled, mine[0]);
         expectShape('okList', okList([filled]), list.body, { ignore: { '$.data': 'the row of this test is compared just above' } });

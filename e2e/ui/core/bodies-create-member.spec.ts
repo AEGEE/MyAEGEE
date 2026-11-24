@@ -44,7 +44,7 @@ test.describe('creating a member for a body', () => {
 
         await page.goto('/bodies/1/new_member');
         await fillRequired(page);
-        await page.getByLabel('Phone').fill('+32 2 123 45 67');
+        await page.getByLabel('Phone').fill('+32 000 00 00 00');
         await page.getByLabel('Birthday').fill('1990-05-14');
         await page.getByLabel('Birthday').blur();
         await page.getByLabel('Gender').fill('female');
@@ -59,7 +59,7 @@ test.describe('creating a member for a body', () => {
             last_name: 'Doe',
             date_of_birth: '1990-05-14',
             gender: 'female',
-            phone: '+32 2 123 45 67',
+            phone: '+32 000 00 00 00',
             address: 'Main street 1',
             username: 'jane.doe',
             email: 'jane@example.com',
