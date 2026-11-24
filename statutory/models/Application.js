@@ -4,12 +4,6 @@ const { limitLockWait } = require('../lib/locks');
 const Event = require('./Event');
 const MembersList = require('./MembersList');
 
-function isBoolean(val) {
-    if (typeof val !== 'boolean') {
-        throw new Error('The value should be true or false.');
-    }
-}
-
 const Application = sequelize.define('application', {
     event_id: {
         allowNull: false,
@@ -42,9 +36,6 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     board_comment: {
         type: Sequelize.TEXT
@@ -147,16 +138,12 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     confirmed: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfCancelled(value) {
                 if (this.cancelled && value) {
                     throw new Error('This application is cancelled, you cannot mark it as confirmed.');
@@ -174,7 +161,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfCancelled(value) {
                 if (this.cancelled && value) {
                     throw new Error('This application is cancelled, you cannot mark it as incoming.');
@@ -192,7 +178,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotConfirmed(value) {
                 if (!this.confirmed && value) {
                     throw new Error('You should set user as confirmed first.');
@@ -205,7 +190,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotConfirmed(value) {
                 if (!this.confirmed && value) {
                     throw new Error('You should set user as confirmed first.');
@@ -223,7 +207,6 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean,
             notAllowIfNotRegistered(value) {
                 if (!this.registered && value) {
                     throw new Error('You should set user as attended first.');
@@ -352,17 +335,11 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     is_on_previous_memberslist: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-        validate: {
-            isBoolean
-        }
     },
     statutory_id: {
         // no validation because it's set automatically in pre-create hook

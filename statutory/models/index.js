@@ -131,6 +131,35 @@ const isDate = (value) => {
     }
 };
 
+// A validator for a text column: the value is a text. No value is left to the validators
+// that say that the value should be set.
+const isText = (value) => {
+    if (value !== null && value !== undefined && typeof value !== 'string') {
+        throw new Error('The value should be a text.');
+    }
+};
+
+// A validator for a list of texts.
+const isListOfTexts = (value) => {
+    if (value !== null && value !== undefined && (!Array.isArray(value) || value.some((item) => typeof item !== 'string'))) {
+        throw new Error('The value should be a list of texts.');
+    }
+};
+
+// A setter for a yes/no column that keeps the value as it was sent, for the validator below:
+// without it, Sequelize would read "true", "1" or 1 as true.
+const setAsSent = (name) => function set(value) {
+    this.setDataValue(name, value);
+};
+
+// A validator for a yes/no column: the value is true or false. No value is left to the
+// validators that say that the value should be set.
+const isBoolean = (value) => {
+    if (value !== null && value !== undefined && typeof value !== 'boolean') {
+        throw new Error('The value should be true or false.');
+    }
+};
+
 // A validator for a column that holds one value of a kind that text, a number or a list
 // with one item all pass for (a choice out of a few, an amount): a list or an object is none.
 const isOneValue = (value) => {
@@ -139,14 +168,20 @@ const isOneValue = (value) => {
     }
 };
 
-// Every string, whole number and date column refuses a value that does not fit it, with
+// Every text, yes/no, whole number and date column refuses a value that does not fit it, with
 // a validation error on the field. Without it such a value fails in the database, or is
 // stored as something else than what was sent.
 for (const model of models) {
     for (const [name, attribute] of Object.entries(model.rawAttributes)) {
         const length = getStringLength(attribute.type);
+        const textValidator = attribute.type instanceof Sequelize.ARRAY ? isListOfTexts : isText;
         if (length) {
-            attribute.validate = { ...attribute.validate, fitsInColumn: fitsInStringColumn(length) };
+            attribute.validate = { isText: textValidator, ...attribute.validate, fitsInColumn: fitsInStringColumn(length) };
+        } else if (attribute.type instanceof Sequelize.TEXT) {
+            attribute.validate = { isText, ...attribute.validate };
+        } else if (attribute.type instanceof Sequelize.BOOLEAN) {
+            attribute.set = setAsSent(name);
+            attribute.validate = { ...attribute.validate, isBoolean };
         } else if (attribute.type instanceof Sequelize.INTEGER) {
             attribute.validate = { ...attribute.validate, fitsInColumn: fitsInIntegerColumn };
         } else if (attribute.type instanceof Sequelize.DATE || attribute.type instanceof Sequelize.DATEONLY) {
