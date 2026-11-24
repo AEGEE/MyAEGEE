@@ -1,5 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { MailChange, PasswordReset, User } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
+const login = require('../../middlewares/login');
 const constants = require('../../lib/constants');
 
 const { request } = require('../scripts/helpers');
@@ -559,6 +561,49 @@ describe('Mail change confirm', () => {
 
             const passwordRes = await confirmPassword(reset.value);
             expect(passwordRes.statusCode).toEqual(200);
+        });
+
+        test('should not mail a reset requested while a change takes effect to the previous address', async () => {
+            const user = await generator.createUser({ email: 'current@example.com' });
+
+            // Polls until the reset was mailed or waits for a lock, whichever comes first.
+            const waitForResetToMailOrWait = async () => {
+                for (let i = 0; i < 150; i++) {
+                    const [{ waiting }] = await sequelize.query(
+                        'SELECT count(*)::int AS waiting FROM pg_locks WHERE NOT granted',
+                        { type: sequelize.QueryTypes.SELECT }
+                    );
+                    if (mails.length > 0 || waiting > 0) {
+                        return;
+                    }
+                    await new Promise((resolve) => { setTimeout(resolve, 20); });
+                }
+                throw new Error('The password reset neither mailed nor waited.');
+            };
+
+            // What a confirmation does, held open: it takes the member's lock for email
+            // changes, writes the new address and ends the resets it knows of.
+            const t = await sequelize.transaction();
+            try {
+                await sequelize.query('SELECT pg_advisory_xact_lock(1, :id)', { replacements: { id: user.id }, transaction: t });
+                await User.update({ email: 'new@example.com' }, { where: { id: user.id }, transaction: t });
+                await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+
+                const res = await request({
+                    path: '/password_reset',
+                    method: 'POST',
+                    body: { email: 'current@example.com' }
+                });
+                expect(res.statusCode).toEqual(200);
+
+                await waitForResetToMailOrWait();
+            } finally {
+                await t.commit();
+            }
+            await login.waitForPasswordResets();
+
+            expect(mails.filter((mail) => mail.to === 'current@example.com')).toEqual([]);
+            expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(0);
         });
 
         test('should keep the sessions of the member', async () => {
