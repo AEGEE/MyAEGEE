@@ -19,6 +19,9 @@ const WRONG_DATES = [
     1e20, -1e16, Date.parse('0001-01-01T00:00:00.000Z') - 1, Date.parse('9999-12-31T23:59:59.999Z') + 1
 ];
 const NOT_TEXT = [[], {}, 5, true];
+// More than 16383 digits after the point (what a Postgres NUMERIC keeps) or 308 before it
+// (what reads back as a number).
+const WRONG_DECIMALS = ['abc', [], {}, true, '5.', '1,5', '0.' + '0'.repeat(16383) + '1', '1e-16384', '1e308', '1' + '0'.repeat(308), '1e131072'];
 
 const EVENT_CASES = [
     ['name', [LONG_TEXT, ...NOT_TEXT]],
@@ -28,8 +31,8 @@ const EVENT_CASES = [
     ['application_ends', WRONG_DATES],
     ['starts', WRONG_DATES],
     ['ends', WRONG_DATES],
-    ['fee', ['abc', [], {}, true, '']],
-    ['optional_fee', ['abc', [], {}, true]],
+    ['fee', [...WRONG_DECIMALS, '']],
+    ['optional_fee', WRONG_DECIMALS],
     ['max_participants', [ABOVE_INT4, 3000000000, 1.5, 'abc', [], {}, true, -1]],
     ['meals_per_day', [ABOVE_INT4, 1.5, 'abc', [], {}, true]],
     ['budget', NOT_TEXT],
@@ -200,6 +203,18 @@ describe('Input types', () => {
         expect(res.statusCode).toEqual(200);
         const after = await Event.findByPk(event.id);
         expect(after.starts.getTime()).toEqual(new Date(value).getTime());
+    });
+
+    // An <input type="number"> can submit '.5' and '1e2'.
+    test.each([
+        ['.5', 0.5], ['+5', 5], ['1e2', 100], ['2.50', 2.5], ['1E-2', 0.01], [0.5, 0.5], ['1e307', 1e307], ['9'.repeat(308), Number('9'.repeat(308))]
+    ])('takes the fee %s', async (value, stored) => {
+        const res = await request({ path: '/', method: 'POST', headers: { 'X-Auth-Token': 'foobar' }, body: newEvent({ fee: value, optional_fee: value }) });
+
+        expect(res.statusCode).toEqual(201);
+        const event = await Event.findByPk(res.body.data.id);
+        expect(event.fee).toEqual(stored);
+        expect(event.optional_fee).toEqual(stored);
     });
 
     // The edit form sends an online event without applications with an application end of
