@@ -115,7 +115,10 @@ describe('Field types', () => {
     });
 
     describe('booleans', () => {
-        const values = [['a text', 'garbage'], ['an empty text', ''], ['a number', 5], ['an array', [true]], ['an object', { value: true }]];
+        // Sequelize itself reads 'true', 'false', 1 and 0 as booleans; the fields take only true and false.
+        const values = [['a text', 'garbage'], ['an empty text', ''], ['a number', 5], ['an array', [true]], ['an object', { value: true }],
+            ['true as text', 'true'], ['false as text', 'false'], ['the number 1', 1], ['the number 0', 0]];
+        const AS_BOOLEANS = [['true as text', 'true'], ['the number 1', 1]];
 
         test.each(values)('creating a Summer University refuses a university_support that is %s', async (_name, value) => {
             const res = await call('POST', '/', generator.generateEventBody({ university_support: value }));
@@ -140,6 +143,58 @@ describe('Field types', () => {
 
             expectFieldError(res, 'open_call', 'The value should be true or false.');
             expect((await Event.findByPk(event.id)).open_call).toEqual(false);
+        });
+
+        test.each(values)('applying refuses a visa_required that is %s', async (_name, value) => {
+            const event = await generator.createEvent();
+
+            const res = await call('POST', `/single/${event.id}/applications`, generator.generateApplicationBody(event, { body_id: user.bodies[0].id, visa_required: value }));
+
+            expectFieldError(res, 'visa_required', 'The value should be true or false.');
+            expect(await Application.count()).toEqual(0);
+        });
+
+        test.each(values)('editing an application refuses a visa_required that is %s', async (_name, value) => {
+            const event = await generator.createEvent();
+            const application = await generator.createApplication(event, { user_id: user.id, body_id: user.bodies[0].id });
+
+            const res = await call('PUT', `/single/${event.id}/applications/${application.id}`, { visa_required: value });
+
+            expectFieldError(res, 'visa_required', 'The value should be true or false.');
+            expect((await Application.findByPk(application.id)).visa_required).toEqual(false);
+        });
+
+        // The edit forms sent the starting and ending city as the text 'true' (and send stored
+        // locations back as they are), so a location still takes 'true' and 'false' as text.
+        test('a location takes start and end as booleans or as text', async () => {
+            const locations = [
+                { name: 'Test city', position: { lat: 1, lng: 2 }, start: 'true', end: 'false' },
+                { name: 'Other test city', position: { lat: 3, lng: 4 }, start: false, end: true }
+            ];
+
+            const res = await call('POST', '/', generator.generateEventBody({ locations }));
+
+            expect(res.statusCode).toEqual(201);
+            expect((await Event.findByPk(res.body.data.id)).locations).toEqual(locations);
+        });
+
+        test.each(AS_BOOLEANS)('creating a Summer University refuses an agreed_to_su_terms that is %s', async (_name, value) => {
+            const res = await call('POST', '/', generator.generateEventBody({ agreed_to_su_terms: value }));
+
+            expectFieldError(res, 'agreed_to_su_terms', 'You should agree to the SU terms.');
+            expect(await Event.count()).toEqual(0);
+        });
+
+        test.each([
+            ...AS_BOOLEANS.map(([name, value]) => ['agreed_to_privacy_policy', name, value, 'You should agree to Privacy Policy.']),
+            ...AS_BOOLEANS.map(([name, value]) => ['agreed_to_su_terms', name, value, 'You should agree to the SU terms.'])
+        ])('applying refuses an %s that is %s', async (field, _name, value, message) => {
+            const event = await generator.createEvent();
+
+            const res = await call('POST', `/single/${event.id}/applications`, generator.generateApplicationBody(event, { body_id: user.bodies[0].id, [field]: value }));
+
+            expectFieldError(res, field, message);
+            expect(await Application.count()).toEqual(0);
         });
     });
 
