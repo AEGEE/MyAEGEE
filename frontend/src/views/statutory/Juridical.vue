@@ -166,10 +166,10 @@ export default {
       this.axios.put(url, { departed: pax.newDeparted }).then(() => {
         pax.departed = pax.newDeparted
         pax.isSavingDeparted = false
-        this.$root.showSuccess(`Successfully updated departion info of application for user #${pax.user_id}`)
+        this.$root.showSuccess(`Successfully updated departure info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingDeparted = false
-        this.$root.showError('Could not update participant departion info', err)
+        this.$root.showError('Could not update participant departure info', err)
       })
     },
     onPageChange (page) {
