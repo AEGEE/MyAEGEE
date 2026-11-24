@@ -159,7 +159,7 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.campaigns.list' })
+      this.$router.push(this.listRoute)
     })
   },
   computed: {
