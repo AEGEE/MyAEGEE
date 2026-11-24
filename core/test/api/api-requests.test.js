@@ -50,6 +50,55 @@ describe('API requests', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    describe('a request body that cannot be read', () => {
+        const UNREADABLE = { success: false, message: 'The request body could not be read.' };
+        const login = (options) => request({ path: '/login', method: 'POST', ...options });
+
+        test('should answer 413 for a body that is too large', async () => {
+            const res = await login({ rawBody: JSON.stringify({ username: 'x'.repeat(200 * 1024), password: 'x' }) });
+
+            expect(res.statusCode).toEqual(413);
+            expect(res.body).toEqual(UNREADABLE);
+        });
+
+        test('should answer 415 for a charset the server does not read', async () => {
+            const res = await login({
+                headers: { 'Content-Type': 'application/json; charset=latin1' },
+                rawBody: JSON.stringify({ username: 'x', password: 'x' })
+            });
+
+            expect(res.statusCode).toEqual(415);
+            expect(res.body).toEqual(UNREADABLE);
+        });
+
+        test('should answer 415 for a content encoding the server does not read', async () => {
+            const res = await login({
+                headers: { 'Content-Encoding': 'compress' },
+                rawBody: JSON.stringify({ username: 'x', password: 'x' })
+            });
+
+            expect(res.statusCode).toEqual(415);
+            expect(res.body).toEqual(UNREADABLE);
+        });
+
+        test('should answer 400 for a compressed body that does not decompress', async () => {
+            const res = await login({
+                headers: { 'Content-Encoding': 'gzip' },
+                rawBody: 'this is not gzip'
+            });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual(UNREADABLE);
+        });
+
+        test('should answer 400 for a body that is not JSON, as before', async () => {
+            const res = await login({ rawBody: '{"username": ' });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'Invalid JSON.' });
+        });
+    });
+
     describe('an error that the server did not expect', () => {
         const SERVER_ERROR = { success: false, message: 'Something went wrong on the server.' };
 
