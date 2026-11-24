@@ -151,8 +151,8 @@ export default {
 
       const onlinePromise = fetch(onlineEventsUrl).then(res => res.text()).then((result) => {
         /* Loading the online events Google calendar */
-        const onlineEventsData = Object.values(ical.parseICS(result))
-        onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
+        // The calendar also holds its time zones; only its events are shown.
+        const onlineEventsData = Object.values(ical.parseICS(result)).filter((item) => item.type === 'VEVENT')
         return onlineEventsData.map((event) => ({
           title: event.summary,
           start: new Date(event.start),
