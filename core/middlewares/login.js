@@ -199,6 +199,7 @@ module.exports.renew = async (req, res) => {
 // Creates a password reset for the account with this login email, if there is one, and mails it.
 const sendPasswordReset = async (email) => {
     let user;
+    let reset;
 
     try {
         user = email
@@ -210,7 +211,9 @@ const sendPasswordReset = async (email) => {
             return;
         }
 
-        await sequelize.transaction(async (t) => {
+        // The reset is stored first and mailed after the commit, so that a slow mailer
+        // holds neither a database connection nor the member's lock.
+        reset = await sequelize.transaction(async (t) => {
             // A change of the login email that is being confirmed finishes first, and the
             // reset only goes out if the account still has the address it was asked for.
             await helpers.lockMailChanges(user.id, t);
@@ -219,20 +222,26 @@ const sendPasswordReset = async (email) => {
                 transaction: t
             });
             if (!current) {
-                return;
+                return null;
             }
 
             await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
-            const currentReset = await PasswordReset.createForUser(user.id, t);
+            const created = await PasswordReset.createForUser(user.id, t);
 
-            await mailer.sendMail({
-                to: current.email,
-                subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
-                template: 'password_reset.html',
-                parameters: {
-                    token: currentReset.value
-                }
-            });
+            return { id: created.id, value: created.value, email: current.email };
+        });
+
+        if (!reset) {
+            return;
+        }
+
+        await mailer.sendMail({
+            to: reset.email,
+            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+            template: 'password_reset.html',
+            parameters: {
+                token: reset.value
+            }
         });
     } catch (err) {
         // Nobody is waiting for the result anymore, so a failure only shows up here:
@@ -240,6 +249,11 @@ const sendPasswordReset = async (email) => {
         logger.error({ err, user_id: user ? user.id : null }, 'Could not send a password reset');
         metrics.passwordResetFailures.inc();
         Bugsnag.notify(err);
+
+        // A reset whose mail did not go out is of no use.
+        if (reset) {
+            await PasswordReset.destroy({ where: { id: reset.id } });
+        }
     }
 };
 
