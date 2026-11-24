@@ -3,42 +3,42 @@
     <div class="tile is-child">
       <form @submit.prevent="saveSeason()">
         <div class="field">
-          <label class="label">Year <span class="has-text-danger">*</span></label>
+          <label class="label" for="season-year">Year <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="number" required :disabled="!!$route.params.year" v-model.number="season.year" />
+            <input id="season-year" class="input" type="number" required :disabled="!!$route.params.year" v-model.number="season.year" />
           </div>
           <p class="help" v-if="$route.params.year">The year can't be changed, as events refer to the season by its year.</p>
           <p class="help is-danger" v-if="errors.year">{{ errors.year.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Name <span class="has-text-danger">*</span></label>
+          <label class="label" for="season-name">Name <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" required v-model="season.name" />
+            <input id="season-name" class="input" type="text" required v-model="season.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Event submission deadline</label>
+          <label class="label" for="season-event-submission-deadline">Event submission deadline</label>
           <div class="control">
-            <input class="input" type="datetime-local" v-model="dates.event_submission_deadline" />
+            <input id="season-event-submission-deadline" class="input" type="datetime-local" v-model="dates.event_submission_deadline" />
           </div>
           <p class="help is-danger" v-if="errors.event_submission_deadline">{{ errors.event_submission_deadline.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Application period starts</label>
+          <label class="label" for="season-application-period-starts">Application period starts</label>
           <div class="control">
-            <input class="input" type="datetime-local" v-model="dates.application_period_starts" />
+            <input id="season-application-period-starts" class="input" type="datetime-local" v-model="dates.application_period_starts" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Application period ends</label>
+          <label class="label" for="season-application-period-ends">Application period ends</label>
           <div class="control">
-            <input class="input" type="datetime-local" v-model="dates.application_period_ends" />
+            <input id="season-application-period-ends" class="input" type="datetime-local" v-model="dates.application_period_ends" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
         </div>
