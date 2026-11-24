@@ -43,6 +43,7 @@ import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
 import EmptyTableStub from './components/EmptyTableStub'
 import Tooltip from './components/Tooltip'
+import { afterLogin } from './methods/navigation'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -138,7 +139,7 @@ const { state } = store
 const loginFor = (route) => ({ path: '/login', query: { to: route.fullPath } })
 
 router.beforeEach((to, from, next) => {
-  const loggedInRedirectPath = to.query.to || '/dashboard'
+  const loggedInRedirectPath = afterLogin(to.query)
 
   // Fuck my life.
   if (state.login.user) {
