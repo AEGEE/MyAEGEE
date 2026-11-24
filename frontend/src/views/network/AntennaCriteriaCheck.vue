@@ -283,7 +283,7 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router
+          onSaved: this.reloadMailComponents
         }
       })
     },
@@ -600,6 +600,12 @@ export default {
       } catch (err) {
         context.showError('Could not fetch NetCom assignment', err)
       }
+    },
+    // After the texts were changed: the new ones, for the Agora that is still chosen.
+    async reloadMailComponents () {
+      const context = { agora: this.selectedAgora, mailComponents: undefined, showError: this.$root.showError }
+      await this.fetchMailComponents(context)
+      if (context.mailComponents && context.agora === this.selectedAgora) this.mailComponents = context.mailComponents
     },
     async fetchMailComponents (context) {
       try {

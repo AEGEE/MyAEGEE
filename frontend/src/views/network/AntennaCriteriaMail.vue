@@ -82,7 +82,8 @@
 <script>
 export default {
   name: 'AntennaCriteriaMail',
-  props: ['agora', 'mailComponents', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  // onSaved: called after the texts were saved, so the page takes the new ones.
+  props: ['agora', 'mailComponents', 'permissions', 'services', 'showError', 'showSuccess', 'onSaved'],
   data () {
     return {
       parts: {
@@ -100,18 +101,19 @@ export default {
     }
   },
   methods: {
-    async setMailComponent (component, text) {
+    setMailComponent (component, text) {
       const data = {
         'agora_id': this.agora.id,
         'mail_component': component,
         'text': text
       }
 
-      await this.axios.put(
+      return this.axios.put(
         this.services['network'] + '/mailComponent',
         data
       ).catch((err) => {
         this.showError('Error saving mail component', err)
+        throw err
       })
     },
     async save () {
@@ -125,12 +127,13 @@ export default {
         }
       }
 
-      await Promise.all(promises).then(() => {
-        this.showSuccess('Mail components updated.')
-        this.router.go(0)
-      }).catch((err) => {
-        this.showError('Something went wrong', err)
-      })
+      // Each part that failed showed its error; the dialog stays open for another try.
+      const results = await Promise.allSettled(promises)
+      if (results.some(result => result.status === 'rejected')) return
+
+      this.showSuccess('Mail components updated.')
+      this.onSaved()
+      this.$parent.close()
     }
   },
   computed: {
