@@ -167,6 +167,21 @@ const isOneValue = (value) => {
     }
 };
 
+// A validator for an amount (a DECIMAL column that a client sets): at most 10 digits before
+// the decimal point and 4 after it (a paid fee can hold fractions of a cent). Without it a
+// longer value was stored, and read back as Infinity, which goes out as null. No value is
+// left to the validators that say that the value should be set, a negative one to those
+// that say it cannot be negative.
+const AMOUNT = /^-?\d{1,10}(\.\d{1,4})?$/;
+const isAmount = (value) => {
+    if (!isEmpty(value) && ['number', 'string'].includes(typeof value) && !AMOUNT.test(String(value))) {
+        throw new Error('The value should be an amount with at most 10 digits before the decimal point and 4 after it.');
+    }
+};
+
+// DECIMAL columns that the service sets itself, with more decimals: not amounts.
+const NOT_AMOUNTS = ['conversion_rate'];
+
 // Every text, yes/no, whole number and date column refuses a value that does not fit it, with
 // a validation error on the field. Without it such a value fails in the database, or is
 // stored as something else than what was sent.
@@ -186,6 +201,8 @@ for (const model of models) {
         } else if (attribute.type instanceof Sequelize.DATE || attribute.type instanceof Sequelize.DATEONLY) {
             attribute.set = setDate(name, attribute.type instanceof Sequelize.DATEONLY);
             attribute.validate = { ...attribute.validate, isWrittenAsDate: isDate };
+        } else if (attribute.type instanceof Sequelize.DECIMAL && !NOT_AMOUNTS.includes(name)) {
+            attribute.validate = { isOneValue, ...attribute.validate, isAmount };
         } else if (attribute.type instanceof Sequelize.ENUM || attribute.type instanceof Sequelize.DECIMAL) {
             attribute.validate = { isOneValue, ...attribute.validate };
         }
