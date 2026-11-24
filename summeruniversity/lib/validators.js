@@ -129,18 +129,19 @@ function isDecimal(msg) {
 }
 
 // A day (2027-07-01) or an ISO 8601 timestamp (2027-07-01T10:30:00.000Z, with or without
-// an offset), as the frontend sends them. A number of milliseconds is taken too (isDateMs).
-const DATE_FORMAT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,3})?)?(Z|[+-][0-9]{2}:[0-9]{2})?)?$/;
+// seconds, decimals and an offset such as +02:00 or +0200), as the frontend sends them: the ISO
+// 8601 forms the events service takes. A whole number of milliseconds is taken too (isDateMs).
+const DATE_FORMAT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?(Z|[+-][0-9]{2}:?[0-9]{2})?)?$/;
 const isDateText = (value) => typeof value === 'string'
     && DATE_FORMAT.test(value)
     && moment(value, moment.ISO_8601, true).isValid();
 
-// Milliseconds since 1970 (what Date.getTime() gives) within the years 0001-9999, from
+// Whole milliseconds since 1970 (what Date.getTime() gives) within the years 0001-9999, from
 // 0001-01-01T00:00:00.000Z to 9999-12-31T23:59:59.999Z. Postgres has no year 0000 (it refuses
-// one with a 500), and larger numbers, NaN and Infinity are not dates a client means.
+// one with a 500), and larger numbers, fractions, NaN and Infinity are not dates a client means.
 const DATE_MS_MIN = -62135596800000;
 const DATE_MS_MAX = 253402300799999;
-const isDateMs = (value) => typeof value === 'number' && value >= DATE_MS_MIN && value <= DATE_MS_MAX;
+const isDateMs = (value) => Number.isInteger(value) && value >= DATE_MS_MIN && value <= DATE_MS_MAX;
 
 // The setter of a DATE column. Sequelize turns any value of a DATE column into a Date before
 // validating it (true became 1970-01-01, "1" became 2001-01-01), so a validator cannot tell
