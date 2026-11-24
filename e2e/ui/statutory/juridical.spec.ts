@@ -212,6 +212,33 @@ test.describe('the juridical commission\'s page', () => {
         expect(api.callsTo('GET statutory /events/:id')).toHaveLength(1);
     });
 
+    test('a late answer to an earlier search doesn\'t replace the answer to the last one', async ({ page, api }) => {
+        mockPage(api);
+        // The answer to "Ja" is held back until the one to "Jan" is shown.
+        let release = (): void => undefined;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET statutory /events/:id/applications/juridical', async ({ query }) => {
+            if (query.get('query') === 'Ja') {
+                await released;
+                return { json: okList([ALEX, JAN]) };
+            }
+            return { json: okList(query.get('query') === 'Jan' ? [JAN] : [ALEX, JAN]) };
+        });
+        const late = page.waitForResponse((response) => new URL(response.url()).searchParams.get('query') === 'Ja');
+        await page.goto('/statutory/agora-spring/juridical');
+        await expect(tableRows(participants(page))).toHaveCount(2);
+
+        await page.getByRole('textbox', { name: 'Search by name, surname or statutory ID' }).fill('Ja');
+        await page.getByRole('textbox', { name: 'Search by name, surname or statutory ID' }).fill('Jan');
+        await expect(tableRows(participants(page))).toHaveCount(1);
+        release();
+        await (await late).finished();
+        // eslint-disable-next-line no-restricted-syntax -- lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
+        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+
+        await expect(tableRows(participants(page))).toHaveText([/Jansen/]);
+    });
+
     test('sorting by a column asks the service for that order', async ({ page, api, layout }) => {
         mockPage(api);
         await page.goto('/statutory/agora-spring/juridical');

@@ -50,9 +50,10 @@ const agora = (permissions: StatutoryEventPermissions, { submission = 21, edit =
 const ALEX = bodyMembership({ user_id: 2, body_id: 1, user: { ...bodyMembership({ user_id: 2 }).user, first_name: 'Alex', last_name: 'Member' } });
 const JAN = bodyMembership({ user_id: 7, body_id: 1, user: { ...bodyMembership({ user_id: 7 }).user, first_name: 'Jan', last_name: 'Jansen' } });
 
-// Alex paid 30 euro this year; Jan's payment has expired.
-const ALEX_PAID = payment({ user_id: 2, body_id: 1, amount: 30, starts: date(-60, NOW), expires: date(300, NOW) });
-const JAN_EXPIRED = payment({ user_id: 7, body_id: 1, amount: 25, starts: date(-400, NOW), expires: date(-35, NOW) });
+// Alex paid 30 euro this year; Jan's payment has expired. Core stores the currency with the
+// keys the frontend's currency list has (`EU` for the euro).
+const ALEX_PAID = payment({ user_id: 2, body_id: 1, amount: 30, currency: 'EU', starts: date(-60, NOW), expires: date(300, NOW) });
+const JAN_EXPIRED = payment({ user_id: 7, body_id: 1, amount: 25, currency: 'EU', starts: date(-400, NOW), expires: date(-35, NOW) });
 
 const STORED = membersList({
     body_id: 1,
@@ -226,6 +227,73 @@ test.describe('sending the members list of a local', () => {
         await expect(page.getByText('Total fee paid to AEGEE-Europe: 5.75 EUR')).toBeVisible();
         await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee to AEGEE-Europe')).toHaveText('3.75 EUR');
         await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee to AEGEE-Europe')).toHaveText('2.00 EUR');
+    });
+
+    test('the currency of the members\' payments becomes the currency of the list', async ({ page, api }) => {
+        mockPage(api);
+        mockCore(api, [ALEX, JAN], [{ ...ALEX_PAID, currency: 'PL' }, JAN_EXPIRED]);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+
+        await fetchFromBody(page);
+
+        await expect(page.getByLabel('Currency')).toHaveValue('PL');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('30');
+        await expect(page.getByText(/in another currency/)).toHaveCount(0);
+    });
+
+    test('with payments in several currencies only those in the list\'s currency fill in a fee', async ({ page, api }) => {
+        mockPage(api);
+        const JAN_PAID = payment({ user_id: 7, body_id: 1, amount: 120, currency: 'PL', starts: date(-30, NOW), expires: date(300, NOW) });
+        mockCore(api, [ALEX, JAN], [ALEX_PAID, JAN_PAID]);
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+
+        await fetchFromBody(page);
+
+        // No currency is chosen yet: no fee is filled in, and the page says why.
+        await expect(page.getByLabel('Currency')).toHaveValue('');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('0');
+        await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee')).toHaveText('0');
+        await expect(page.getByText('Some payments are in another currency (Euro, Zloty (PL)): their fees are not filled in, check them.')).toBeVisible();
+
+        await page.getByLabel('Currency').selectOption('Euro');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('30');
+        await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee')).toHaveText('0');
+        await expect(page.getByText('Some payments are in another currency (Zloty (PL)): their fees are not filled in, check them.')).toBeVisible();
+
+        // Another currency takes back the fees it doesn't match.
+        await page.getByLabel('Currency').selectOption('Zloty (PL)');
+        await expect(await cellOf(members(page), rowOf(page, 'Alex'), 'Fee')).toHaveText('0');
+        await expect(await cellOf(members(page), rowOf(page, 'Jan'), 'Fee')).toHaveText('120');
+        await expect(page.getByText('Some payments are in another currency (Euro): their fees are not filled in, check them.')).toBeVisible();
+    });
+
+    test('a quickly switched local shows the list of that local, not of the one before', async ({ page, api }) => {
+        const twoBoards = statutoryEventPermissions({
+            see_memberslist: { global: false, 1: true, 3: true },
+            upload_memberslist: { global: false, 1: true, 3: true },
+            edit_memberslist: { global: false, 1: true, 3: true }
+        });
+        mockPage(api, { event: agora(twoBoards) });
+        // The antenna's list (asked for on load) is held back until Utrecht's is shown.
+        let release = (): void => undefined;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET statutory /events/:id/memberslists/:body_id', async ({ params }) => {
+            if (params.body_id !== '1') return { json: ok(membersList({ body_id: 3, members: [membersListMember({ user_id: 7, first_name: 'Jan', last_name: 'Jansen', fee: 25 })] })) };
+            await released;
+            return { json: ok(STORED) };
+        });
+        const late = page.waitForResponse((response) => response.url().endsWith('/memberslists/1'));
+        await page.goto('/statutory/agora-spring/memberslist/upload');
+
+        await page.getByLabel('Select the body to manage members list for:').selectOption('AEGEE-Utrecht');
+        await expect(page.getByText('Total members: 1')).toBeVisible();
+        release();
+        await (await late).finished();
+        // eslint-disable-next-line no-restricted-syntax -- lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
+        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+
+        await expect(page.getByText('Total members: 1')).toBeVisible();
+        await expect(tableRows(members(page))).toHaveText([/Jansen/]);
     });
 
     test('a payment whose amount is no number counts as no fee', async ({ page, api }) => {
@@ -431,9 +499,12 @@ test.describe('sending the members list of a local', () => {
 
     test('a list without a currency isn\'t sent', async ({ page, api }) => {
         mockPage(api);
-        mockCore(api, [ALEX], [ALEX_PAID]);
+        // Without a current payment nothing sets the currency.
+        mockCore(api, [ALEX], []);
         await page.goto('/statutory/agora-spring/memberslist/upload');
         await fetchFromBody(page);
+        await button(page, 'Edit').click();
+        await page.getByLabel('Fee of member 1').fill('30');
 
         await button(page, 'Save!').click();
 

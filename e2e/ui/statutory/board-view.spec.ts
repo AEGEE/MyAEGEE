@@ -447,6 +447,33 @@ test.describe('the board view of a statutory event', () => {
         await expect(tableRows(applicationsTable(page))).toHaveCount(2);
     });
 
+    test('a quickly switched body shows the applicants of that body, not of the one before', async ({ page, api }) => {
+        mockPage(api, { event: agora({ permissions: boardPermissions({ see_boardview: { global: true, 1: true }, set_board_comment_and_participant_type: { global: true, 1: true } }) }) });
+        api.json('GET core /bodies', okList([body({ id: 1, name: 'AEGEE-Antenna' }), body({ id: 3, name: 'AEGEE-Utrecht' })]));
+        // The antenna's answer (asked for on load) is held back until Utrecht, picked meanwhile, is shown.
+        let release = (): void => undefined;
+        const released = new Promise<void>((resolve) => { release = resolve; });
+        api.on('GET statutory /events/:id/applications/boardview/:body_id', async ({ params }) => {
+            if (params.body_id !== '1') return { json: ok([{ ...JAN, body_id: 3, body_name: 'AEGEE-Utrecht' }]) };
+            await released;
+            return { json: ok([ALEX]) };
+        });
+        const late = page.waitForResponse((response) => response.url().endsWith('/applications/boardview/1'));
+        await page.goto('/statutory/agora-spring/boardview');
+
+        await page.getByRole('combobox', { name: 'Select the body to view application from:' }).selectOption('AEGEE-Utrecht');
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Jan Jansen' })).toHaveCount(1);
+        release();
+        await (await late).finished();
+        // eslint-disable-next-line no-restricted-syntax -- lets the page handle the answer it has just received (two turns of its event loop), so that what is checked below is after it
+        await page.evaluate(() => new Promise((resolve) => { setTimeout(() => setTimeout(resolve, 0), 0); }));
+
+        await expect(userOf(page, 'delegate 1').getByRole('option', { name: 'Alex Member' })).toHaveCount(0);
+        await page.getByRole('tab', { name: 'View applications' }).click();
+        await expect(tableRows(applicationsTable(page))).toHaveText([/Jan/]);
+        expect(api.callsTo('GET statutory /limits/:event_type/:body_id').map((call) => call.params.body_id)).toEqual(['3']);
+    });
+
     test('shows why the bodies could not be loaded', async ({ page, api }) => {
         api.json('GET statutory /events/:id', ok(agora({ permissions: boardPermissions({ see_boardview: { global: true, 1: false } }) })));
         api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Core is down' } });
