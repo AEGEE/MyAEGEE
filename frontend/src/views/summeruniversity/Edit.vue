@@ -1121,11 +1121,12 @@ export default {
         this.event.url = this.$root.sluggify(newName)
       }
     },
+    // An emptied date picker gives null, which would be 1970 as a date.
     'dates.starts': function (newDate) {
-      this.event.starts = new Date(newDate)
+      this.event.starts = newDate ? new Date(newDate) : null
     },
     'dates.ends': function (newDate) {
-      this.event.ends = new Date(newDate)
+      this.event.ends = newDate ? new Date(newDate) : null
     }
   },
   mounted () {
