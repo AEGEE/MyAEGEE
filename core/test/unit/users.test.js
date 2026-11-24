@@ -271,9 +271,9 @@ describe('Users testing', () => {
             ['password', null, ['Password should be set.']],
             ['password', '1234567', ['Password should be at least 8 characters long.']],
             ['first_name', '', ['First name should be set.']],
-            ['first_name', 'Some1', ['First name should only contain letters, spaces and dashes, got "Some1".']],
+            ['first_name', 'Some1', ['First name should only contain letters, spaces and dashes.']],
             ['last_name', '', ['Last name should be set.']],
-            ['last_name', 'One_', ['Last name should only contain letters, spaces and dashes, got "One_".']],
+            ['last_name', 'One_', ['Last name should only contain letters, spaces and dashes.']],
             ['date_of_birth', 'abc', ['Birthday should be a valid date.']],
             ['date_of_birth', '2999-01-01', ['Birthday should be in the past.']],
             ['privacy_consent', 'abc', ['Privacy consent should be a valid date.']],
@@ -309,7 +309,7 @@ describe('Users testing', () => {
             expect(await validationErrors({ username: '1', email: 'x', first_name: '1', primary_email: 'x' })).toEqual({
                 username: ['Username should have at least 1 letter.'],
                 email: ['Email should be valid.'],
-                first_name: ['First name should only contain letters, spaces and dashes, got "1".'],
+                first_name: ['First name should only contain letters, spaces and dashes.'],
                 primary_email: ['Primary email should be one of these: "personal", "gsuite".']
             });
         });

@@ -234,7 +234,7 @@ describe('Body payments creating', () => {
             ['an end on the day of the start', { expires: '2026-03-01' }, { expires: ['Expiration date should be after the start date.'] }],
             ['an end that is not a date', { expires: 'abc' }, { expires: ['Expiration date should be valid.'] }],
             ['a start that is not a date', { starts: 'abc' }, { starts: ['Starts date should be valid.'] }],
-            ['no start', { starts: undefined }, { starts: ['Starts date should be set.', 'Starts date should be valid.'] }],
+            ['no start', { starts: undefined }, { starts: ['Starts date should be valid.', 'Starts date should be set.'] }],
             ['an amount that is not a number', { amount: 'abc' }, { amount: ['Amount should be valid.'] }],
             ['an amount with a comma', { amount: '12,50' }, { amount: ['Amount should be valid.'] }],
             ['an amount below zero', { amount: -1 }, { amount: ['Amount cannot be negative.'] }],

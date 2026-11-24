@@ -716,9 +716,9 @@ describe('User editing', () => {
             ['username', 'user name', 'Username should only contain letters, numbers, dots, underscores and dashes.'],
             ['username', '1234', 'Username should have at least 1 letter.'],
             ['username', '', 'Username should be set.'],
-            ['first_name', 'Some1', 'First name should only contain letters, spaces and dashes, got "Some1".'],
+            ['first_name', 'Some1', 'First name should only contain letters, spaces and dashes.'],
             ['first_name', '', 'First name should be set.'],
-            ['last_name', 'One!', 'Last name should only contain letters, spaces and dashes, got "One!".'],
+            ['last_name', 'One!', 'Last name should only contain letters, spaces and dashes.'],
             ['last_name', '', 'Last name should be set.'],
             ['date_of_birth', '2999-01-01', 'Birthday should be in the past.'],
             ['primary_email', 'work', 'Primary email should be one of these: "personal", "gsuite".']

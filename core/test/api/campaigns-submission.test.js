@@ -495,7 +495,7 @@ describe('Campaign submission', () => {
                 username: ['Username should have at least 1 letter.'],
                 email: ['Email should be valid.'],
                 password: ['Password should be at least 8 characters long.'],
-                first_name: ['First name should only contain letters, spaces and dashes, got "!@#".']
+                first_name: ['First name should only contain letters, spaces and dashes.']
             }
         });
 

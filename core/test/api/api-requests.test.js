@@ -37,7 +37,8 @@ describe('API requests', () => {
     test('should name the method and the path of an unknown endpoint, without the query', async () => {
         const res = await request({
             path: '/not-existant/1',
-            query: { token: 'abc' }
+            query: { token: 'abc' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);
