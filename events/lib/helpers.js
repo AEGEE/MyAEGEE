@@ -3,12 +3,13 @@ const moment = require('moment');
 const constants = require('./constants');
 const { Sequelize } = require('./sequelize');
 
-// Dates are read as YYYY-MM-DD; a longer ISO string (the frontend sends one to /recents) is
-// read by its date part, as the list queries do. The year is read from four digits and must be
-// at least 1000: Postgres refuses some earlier dates in the form the queries send them.
+// Dates are YYYY-MM-DD, or an ISO 8601 timestamp (the frontend sends one to /recents), read
+// strictly; the list queries read their date part. The year must be at least 1000: Postgres
+// refuses some earlier dates in the form the queries send them.
+const DAY_FORMATS = ['YYYY-MM-DD', moment.ISO_8601];
 const isValidDay = (value) => typeof value === 'string'
-    && moment(value, 'YYYY-MM-DD').isValid()
-    && moment(value, 'YYYY-MM-DD').year() >= 1000;
+    && moment(value, DAY_FORMATS, true).isValid()
+    && moment(value, DAY_FORMATS, true).year() >= 1000;
 
 // An empty filter (?type=) is no filter, as in the list queries below.
 const isSet = (value) => typeof value !== 'undefined' && value !== '';
