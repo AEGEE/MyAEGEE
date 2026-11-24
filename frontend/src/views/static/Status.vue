@@ -2,38 +2,41 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h1 class="title">Services statuses</h1>
+        <h1 class="title" id="status-title">Services statuses</h1>
 
-        <table class="table is-bordered is-striped is-narrow is-fullwidth">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Current version</th>
-              <th>Latest Github version</th>
-              <th>Latest Dockerhub tag</th>
-              <th>Releases</th>
-              <th>Round-trip time</th>
-              <th>Is alive?</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(value, service) in statuses" v-bind:key="service">
-              <td>{{ value.name || service }}</td>
-              <td>{{ value.version }}</td>
-              <td>{{ value.latestVersion }}</td>
-              <td>{{ value.latestTag }}</td>
-              <td v-if="value.releasesUrl">
-                <a :href="value.releasesUrl" target="_blank" rel="noopener noreferrer">View releases</a>
-              </td>
-              <td v-else>-</td>
-              <td v-if="value.roundTrip">{{ value.roundTrip }} ms.</td>
-              <td v-else>-</td>
-              <td>
-                <span class="tag is-small" :class="calculateClassForService(value.isAlive)">{{ value.isAlive | beautify }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Scrolls on its own on a narrow screen, so the page (and the top bar) keep the screen's width. -->
+        <div class="table-container" role="region" aria-labelledby="status-title" tabindex="0">
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Current version</th>
+                <th>Latest Github version</th>
+                <th>Latest Dockerhub tag</th>
+                <th>Releases</th>
+                <th>Round-trip time</th>
+                <th>Is alive?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(value, service) in statuses" v-bind:key="service">
+                <td>{{ value.name || service }}</td>
+                <td>{{ value.version }}</td>
+                <td>{{ value.latestVersion }}</td>
+                <td>{{ value.latestTag }}</td>
+                <td v-if="value.releasesUrl">
+                  <a :href="value.releasesUrl" target="_blank" rel="noopener noreferrer">View releases</a>
+                </td>
+                <td v-else>-</td>
+                <td v-if="value.roundTrip">{{ value.roundTrip }} ms.</td>
+                <td v-else>-</td>
+                <td>
+                  <span class="tag is-small" :class="calculateClassForService(value.isAlive)">{{ value.isAlive | beautify }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </article>
     </div>
   </div>
