@@ -130,7 +130,9 @@ export default {
         field: 'id',
         order: 'desc'
       },
-      isLoading: false
+      isLoading: false,
+      // Counts the list requests, so a late answer to an earlier one is dropped.
+      listRequest: 0
     }
   },
   computed: {
@@ -212,9 +214,13 @@ export default {
       this.loadApplications()
     },
     loadApplications () {
+      // Only the answer to the last search, page or sort counts: a late one for an earlier
+      // request is dropped.
+      const request = ++this.listRequest
       this.isLoading = true
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject }).then((application) => {
+        if (request !== this.listRequest) return
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -228,7 +234,10 @@ export default {
           this.$set(pax, 'isSavingIncoming', false)
           this.$set(pax, 'isSavingAttended', false)
         }
-      }).catch(this.showLoadError)
+      }).catch((err) => {
+        if (request !== this.listRequest) return
+        this.showLoadError(err)
+      })
     },
     showLoadError (err) {
       this.isLoading = false

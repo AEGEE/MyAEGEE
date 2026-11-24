@@ -103,7 +103,9 @@ export default {
       offset: 0,
       page: 1,
       total: 0,
-      isLoading: false
+      isLoading: false,
+      // Counts the list requests, so a late answer to an earlier one is dropped.
+      listRequest: 0
     }
   },
   watch: {
@@ -157,9 +159,13 @@ export default {
       this.loadApplications()
     },
     loadApplications () {
+      // Only the answer to the last search, page or sort counts: a late one for an earlier
+      // request is dropped.
+      const request = ++this.listRequest
       this.isLoading = true
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject }).then((application) => {
+        if (request !== this.listRequest) return
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -170,6 +176,7 @@ export default {
           this.$set(pax, 'isSavingOnMemberslist', false)
         }
       }).catch((err) => {
+        if (request !== this.listRequest) return
         this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
