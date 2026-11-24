@@ -242,7 +242,7 @@ export default {
     openAntennaCriteriaModal (row) {
       this.$buefy.modal.open({
         component: AntennaCriteriaModal,
-        hasModaLCard: true,
+        hasModalCard: true,
         ariaLabel: 'Criteria for ' + row.name,
         props: {
           local: row,
