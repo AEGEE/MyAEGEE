@@ -101,7 +101,7 @@
     </section>
 
     <footer class="modal-card-foot">
-      <button type="button" class="button is-primary" @click="savePosition()">Save changes</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="savePosition()">Save changes</button>
       <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -152,7 +152,8 @@ export default {
         starts: null,
         ends: null,
         start_term: null
-      }
+      },
+      isLoading: false
     }
   },
   watch: {
