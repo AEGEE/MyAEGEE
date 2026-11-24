@@ -9,6 +9,9 @@ import { cellOf, dialog, expectEmptyTable, sortBy, tableRows, toast } from '../s
 import { test, expect } from '../support/test.ts';
 
 const table = (page: Page) => page.getByRole('table');
+// The numbered button of a page in the pager: the one in the list of pages, not the "next" arrow,
+// which Buefy names after the page it goes to as well.
+const pageButton = (page: Page, number: number) => page.getByRole('listitem').getByRole('button', { name: `Page ${number}.`, exact: true });
 const search = (page: Page) => page.getByRole('textbox', { name: 'Search by name or surname' });
 const queries = (api: ApiMock) => api.callsTo('GET core /members/unconfirmed').map((call) => Object.fromEntries(call.query));
 
@@ -49,7 +52,7 @@ test.describe('unconfirmed members', () => {
         api.json('GET core /members/unconfirmed', okList([unconfirmed()], 45));
         await page.goto('/members/unconfirmed');
 
-        await page.getByRole('button', { name: 'Page 2.' }).last().click();
+        await pageButton(page, 2).click();
         await expect.poll(() => queries(api).at(-1)).toEqual({ limit: '30', offset: '30', sort: 'id', direction: 'asc' });
 
         await search(page).fill('nina');
@@ -92,7 +95,7 @@ test.describe('unconfirmed members', () => {
     test('a sort on the second page starts again on the first', async ({ page, api, layout }) => {
         api.json('GET core /members/unconfirmed', okList([unconfirmed()], 45));
         await page.goto('/members/unconfirmed');
-        await page.getByRole('button', { name: 'Page 2.' }).last().click();
+        await pageButton(page, 2).click();
         await expect.poll(() => queries(api).at(-1)?.offset).toBe('30');
 
         await sortBy(table(page), 'Name and surname', layout);

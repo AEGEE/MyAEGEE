@@ -17,6 +17,9 @@ const showMembers = (api: ApiMock, rows: MemberListItem[], count = rows.length) 
 };
 
 const table = (page: Page) => page.getByRole('table');
+// The numbered button of a page in the pager: the one in the list of pages, not the "next" arrow,
+// which Buefy names after the page it goes to as well.
+const pageButton = (page: Page, number: number) => page.getByRole('listitem').getByRole('button', { name: `Page ${number}.`, exact: true });
 const search = (page: Page) => page.getByRole('textbox', { name: 'Search by name or surname' });
 const lastQuery = (api: ApiMock) => Object.fromEntries(api.callsTo('GET core /members').at(-1)!.query);
 
@@ -137,7 +140,7 @@ test.describe('members list', () => {
         await expect.poll(() => lastQuery(api)).toEqual({ limit: '30', offset: '30', sort: 'id', direction: 'asc' });
         await expect(page.getByRole('button', { name: 'Current page, Page 2.' })).toBeVisible();
 
-        await page.getByRole('button', { name: 'Page 3.' }).last().click();
+        await pageButton(page, 3).click();
         await expect.poll(() => lastQuery(api).offset).toBe('60');
     });
 

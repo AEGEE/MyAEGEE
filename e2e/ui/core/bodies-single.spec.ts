@@ -161,7 +161,7 @@ test.describe('the page of a body', () => {
         await page.goto('/bodies/1');
 
         await expect(page.getByRole('heading', { name: 'Board', exact: true })).toBeVisible();
-        const boardTable = page.getByRole('table').nth(1);
+        const boardTable = page.getByRole('table', { name: 'Current board' });
         const row = (name: string) => boardTable.getByRole('row').filter({ has: page.getByRole('rowheader', { name, exact: true }) });
         await expect(row('Name')).toContainText('Board 2027');
         await expect(row('Term')).toContainText('2027-01-01 -');
@@ -180,7 +180,7 @@ test.describe('the page of a body', () => {
 
         await page.goto('/bodies/1');
 
-        const boardTable = page.getByRole('table').nth(1);
+        const boardTable = page.getByRole('table', { name: 'Current board' });
         await expect(boardTable.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Term' }) })).toContainText('2027-01-01 - 2027-12-31');
         await expect(boardTable.getByRole('rowheader', { name: 'Name' })).toHaveCount(0);
     });
