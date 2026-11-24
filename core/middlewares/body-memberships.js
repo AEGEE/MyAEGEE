@@ -10,6 +10,8 @@ const { sequelize, Sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
+const logger = require('../lib/logger');
+const Bugsnag = require('../lib/bugsnag');
 const config = require('../config');
 
 exports.listAllMemberships = async (req, res) => {
@@ -225,28 +227,34 @@ exports.updateMembership = async (req, res) => {
 
 // A member who is in no body anymore has no right to a Google Workspace account. The Workspace
 // administrators are told, so they can remove the account by hand; nothing is removed here.
+// The membership is gone by then, so a failure is reported and does not change the answer.
 const notifyWorkspaceAdminsIfLastBody = async (userId) => {
-    const bodyCount = await BodyMembership.count({
-        where: { user_id: userId },
-    });
+    try {
+        const bodyCount = await BodyMembership.count({
+            where: { user_id: userId },
+        });
 
-    if (bodyCount > 0) {
-        return;
+        if (bodyCount > 0) {
+            return;
+        }
+
+        const user = await User.findByPk(userId);
+
+        await mailer.sendMail({
+            to: config.google_workspace_notifications,
+            subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
+            template: 'workspace_deleted_member.html',
+            parameters: {
+                member_firstname: user.first_name,
+                member_lastname: user.last_name,
+                user_id: user.id,
+                member_workspace_email: user.gsuite_id,
+            },
+        });
+    } catch (err) {
+        logger.error({ err, user_id: userId }, 'Could not tell the Workspace administrators about a member without a body');
+        Bugsnag.notify(err);
     }
-
-    const user = await User.findByPk(userId);
-
-    await mailer.sendMail({
-        to: config.google_workspace_notifications,
-        subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
-        template: 'workspace_deleted_member.html',
-        parameters: {
-            member_firstname: user.first_name,
-            member_lastname: user.last_name,
-            user_id: user.id,
-            member_workspace_email: user.gsuite_id,
-        },
-    });
 };
 
 exports.deleteMembership = async (req, res) => {
