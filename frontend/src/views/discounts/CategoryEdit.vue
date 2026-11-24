@@ -53,7 +53,7 @@
           </div>
 
           <div class="control">
-            <button class="button is-danger is-fullwidth" @click="deleteDiscount(index)">Delete discount</button>
+            <button type="button" class="button is-danger is-fullwidth" @click="deleteDiscount(index)">Delete discount</button>
           </div>
           <hr />
         </fieldset>
@@ -61,7 +61,7 @@
         <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="buttons">
-          <button class="button is-primary" @click="addDiscount()">Add new discount</button>
+          <button type="button" class="button is-primary" @click="addDiscount()">Add new discount</button>
           <input type="submit" value="Save category" :disabled="isSaving" class="button is-primary" />
         </div>
       </form>
