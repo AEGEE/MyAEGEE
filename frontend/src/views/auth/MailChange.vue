@@ -49,16 +49,14 @@ export default {
       this.axios
         .post(this.services['core'] + '/confirm-email-change', { token: this.token })
         .then((response) => {
-          const result = response.data.data || {}
-
           // Some changes need a confirmation from both the current and the new address.
           // Until the other one confirms there's nothing to see on the profile, so staying here.
-          if (result.changed === false) {
+          if (response.data.data.changed === false) {
             this.notice = response.data.message
             return
           }
 
-          this.$root.showSuccess(response.data.message || 'Your email is changed.')
+          this.$root.showSuccess(response.data.message)
           // Somebody who is logged out is sent to log in first: that is no error.
           this.$router.push({ name: 'oms.members.view', params: { id: 'me' } }).catch(() => {})
         })

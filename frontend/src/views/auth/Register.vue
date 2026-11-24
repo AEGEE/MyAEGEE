@@ -191,9 +191,6 @@
                 </router-link>
                 <input type="checkbox" required v-model="agreedToPrivacyPolicy" />
               </label>
-              <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">
-                {{ errors.agreedToPrivacyPolicy.join(', ') }}
-              </p>
             </div>
 
             <hr />
@@ -259,8 +256,7 @@ export default {
 
       /* istanbul ignore if -- the checkbox is required: the browser doesn't send the form without it */
       if (!this.agreedToPrivacyPolicy) {
-        this.errors.agreedToPrivacyPolicy = ['You need to agree with our Privacy Policy.']
-        return
+        return this.$root.showError('You need to agree with our Privacy Policy.')
       }
 
       if (this.user.password !== this.user.password_copy) {
