@@ -93,7 +93,8 @@ export default {
   },
   mounted () {
     this.to = this.local.email
-    this.cc = this.local.netcom.email // TODO: See how we can set this to always be an @aegee.eu account
+    // A Local has no NetCom data when it could not be loaded.
+    this.cc = this.local.netcom?.email ?? '' // TODO: See how we can set this to always be an @aegee.eu account
     this.subject = 'Preliminary Antenna Criteria check ' + this.agora.name
 
     const textOf = (part) => {
@@ -118,7 +119,7 @@ export default {
     this.body = rawMail
       .replaceAll('{body_name}', this.local.name)
       .replaceAll('{agora_name}', this.agora.name)
-      .replaceAll('{netcom_name}', this.local.netcom.first_name)
+      .replaceAll('{netcom_name}', this.local.netcom?.first_name ?? '')
       .replaceAll('{local_type}', this.local.type.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
       .replaceAll('{antenna_criteria_amount}', this.antennaCriteriaMapping[this.local.type].length)
   }
