@@ -497,6 +497,9 @@ export default {
       await this.axios.get(this.services['statutory'] + '/events/' + this.selectedAgora.id + '/memberslists').then((membersListsResponse) => {
         for (const membersList of membersListsResponse.data.data) {
           const body = this.bodies.find(x => x.id === membersList.body_id)
+          // A body that isn't listed: deleted, or of another type.
+          if (!body) continue
+
           this.$set(body.antennaCriteria, 'membersList', 'true')
 
           if (membersList.fee_not_paid <= 0) {
@@ -512,6 +515,7 @@ export default {
         const antennaCriteriaFulfilment = antennaCriteriaResponse.data.data
         for (const criterion of antennaCriteriaFulfilment) {
           const body = this.bodies.find(x => x.id === criterion.body_id)
+          if (!body) continue
 
           // Convert string to camelCase
           const criterionName = criterion.antenna_criterion.replace(/(?:^\w|\s\w)/g, match => match.trim().toUpperCase()).replace(/^\w/, match => match.toLowerCase())
