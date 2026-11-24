@@ -702,7 +702,7 @@ export default {
           openCall
         )
         .then(() => {
-          this.$root.showInfo('Event open call is succesfully changed')
+          this.$root.showInfo('Event open call is successfully changed')
 
           // Refetching the event to renew the permissions.
           return this.axios.get(
