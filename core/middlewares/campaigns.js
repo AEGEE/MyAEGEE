@@ -10,6 +10,9 @@ const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const { sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
+const logger = require('../lib/logger');
+const Bugsnag = require('../lib/bugsnag');
+const metrics = require('./metrics');
 
 exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
@@ -20,10 +23,10 @@ exports.registerUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Campaign is not active.');
     }
 
-    let created;
-
-    await sequelize.transaction(async (t) => {
-        const user = await User.scope('noExtraFields').create({
+    // The member, the membership and the confirmation are stored and committed first, and
+    // mailed after that, so that a slow mailer holds no database connection.
+    const { user, confirmation } = await sequelize.transaction(async (t) => {
+        const created = await User.scope('noExtraFields').create({
             ...req.body,
             campaign_id: campaign.id
         }, {
@@ -37,13 +40,15 @@ exports.registerUser = async (req, res) => {
         // Adding a person to a body if campaign has the autojoin body.
         if (campaign.autojoin_body_id) {
             await BodyMembership.create({
-                user_id: user.id,
+                user_id: created.id,
                 body_id: campaign.autojoin_body_id
             }, { transaction: t });
         }
 
-        const confirmation = await MailConfirmation.createForUser(user.id, t);
+        return { user: created, confirmation: await MailConfirmation.createForUser(created.id, t) };
+    });
 
+    try {
         await mailer.sendMail({
             to: user.notification_email,
             subject: constants.MAIL_SUBJECTS.MAIL_CONFIRMATION,
@@ -54,14 +59,27 @@ exports.registerUser = async (req, res) => {
                 token: confirmation.value
             }
         });
+    } catch (err) {
+        logger.error({ err, user_id: user.id, campaign_id: campaign.id }, 'Could not send the confirmation of a signup');
+        metrics.signupMailFailures.inc();
+        Bugsnag.notify(err);
 
-        created = user;
-    });
+        // A member who cannot confirm their address is of no use: the signup is undone, so that
+        // the same username and address can sign up again. The circle membership that joining
+        // the body gave goes with the member.
+        await sequelize.transaction(async (t) => {
+            await MailConfirmation.destroy({ where: { user_id: user.id }, transaction: t });
+            await BodyMembership.destroy({ where: { user_id: user.id }, transaction: t });
+            await User.destroy({ where: { id: user.id }, transaction: t });
+        });
+
+        return errors.makeMailError(res);
+    }
 
     // The member as every other route returns it: as stored, and without the password.
     return res.json({
         success: true,
-        data: await User.findByPk(created.id)
+        data: await User.findByPk(user.id)
     });
 };
 
