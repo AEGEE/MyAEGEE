@@ -68,7 +68,7 @@ test.describe('creating a member for a body', () => {
     });
 
     test('without a birthday sends an empty one', async ({ page, api }) => {
-        api.on('POST core /bodies/:id/create-member', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('POST core /bodies/:id/create-member', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1/new_member');
         await fillRequired(page);
@@ -79,7 +79,7 @@ test.describe('creating a member for a body', () => {
         await page.getByLabel('Birthday').blur();
         await save(page).click();
 
-        await expect(toast(page, 'Could not create user: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not create user: Something went wrong on the server.')).toBeVisible();
         await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member')[0].body).toMatchObject({ date_of_birth: '' });
     });
 
@@ -102,13 +102,9 @@ test.describe('creating a member for a body', () => {
             json: validationError({
                 first_name: ['First name should be set.'],
                 last_name: ['Last name should be set.'],
-                phone: ['Phone is too long.'],
-                gender: ['Gender is too long.'],
-                address: ['Address is too long.'],
-                about_me: ['About me is too long.'],
                 email: ['Email should be valid.'],
                 username: ['Username should only contain letters, numbers, dots, underscores and dashes.'],
-                date_of_birth: ['Date of birth should be in the past.']
+                date_of_birth: ['Birthday should be in the past.']
             })
         });
 
@@ -119,8 +115,8 @@ test.describe('creating a member for a body', () => {
         await expect(toast(page, 'Some of the user data is invalid.')).toBeVisible();
         await expect(page.getByText('Email should be valid.')).toBeVisible();
         await expect(page.getByText('Username should only contain letters, numbers, dots, underscores and dashes.')).toBeVisible();
-        await expect(page.getByText('Date of birth should be in the past.')).toBeVisible();
-        for (const message of ['First name should be set.', 'Last name should be set.', 'Phone is too long.', 'Gender is too long.', 'Address is too long.', 'About me is too long.']) {
+        await expect(page.getByText('Birthday should be in the past.')).toBeVisible();
+        for (const message of ['First name should be set.', 'Last name should be set.']) {
             await expect(page.getByText(message), message).toBeVisible();
         }
     });

@@ -328,13 +328,24 @@ test.describe('editing a body', () => {
 
     test('shows the service\'s objections under the fields', async ({ page, api }) => {
         editing(api, bodyDetail({ id: 1, code: 'ANT', type: 'working group' }));
-        const others = ['type', 'abbreviation', 'description', 'task_description', 'country', 'founded_at', 'email', 'gsuite_id', 'google_group', 'phone', 'address', 'postal_address', 'website'];
+        // What the model of a body checks; the other fields have no validation.
+        const others = {
+            type: 'Type must be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "external", "other".',
+            description: 'Description must be set.',
+            founded_at: 'Foundation date should be a valid date.',
+            email: 'Email must be valid.',
+            gsuite_id: 'GSuite ID must be a valid email.',
+            google_group: 'Google Group must be a valid email.',
+            phone: 'Phone must be set.',
+            address: 'Address must be set.',
+            website: 'The link should be a valid URL starting with http:// or https://.'
+        };
         api.on('PUT core /bodies/:id', {
             status: 422,
             json: validationError({
                 name: ['Name must be set.'],
                 code: ['Code must be 3 letters long.', 'Code must contain only letters.'],
-                ...Object.fromEntries(others.map((key) => [key, [`The ${key} is wrong.`]]))
+                ...Object.fromEntries(Object.entries(others).map(([key, message]) => [key, [message]]))
             })
         });
 
@@ -344,8 +355,8 @@ test.describe('editing a body', () => {
         await expect(toast(page, 'Some of the body data is invalid.')).toBeVisible();
         await expect(page.getByText('Name must be set.')).toBeVisible();
         await expect(page.getByText('Code must be 3 letters long., Code must contain only letters.')).toBeVisible();
-        for (const key of others) {
-            await expect(page.getByText(`The ${key} is wrong.`), key).toBeVisible();
+        for (const [key, message] of Object.entries(others)) {
+            await expect(page.getByText(message, { exact: true }), key).toBeVisible();
         }
         await expect(save(page)).toBeEnabled();
 
@@ -377,22 +388,22 @@ test.describe('editing a body', () => {
     });
 
     test('a failing body request sends the member back to the list', async ({ page, api }) => {
-        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         api.json('GET core /bodies', ok([]));
 
         await page.goto('/bodies/1/edit');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/bodies');
     });
 
     test('failing permissions keep the form, with the restricted fields locked', async ({ page, api }) => {
         api.json('GET core /bodies/:id', ok(bodyDetail({ id: 1, code: 'ANT', type: 'working group' })));
-        api.on('GET core /bodies/:id/my_permissions', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id/my_permissions', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/1/edit');
 
-        await expect(toast(page, 'Could not fetch your permissions for this body: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch your permissions for this body: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/bodies/1/edit');
         await expect(field(page, 'Name')).toHaveValue('AEGEE-Test 1');
         await expect(field(page, 'Name')).toBeDisabled();

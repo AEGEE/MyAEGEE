@@ -113,7 +113,7 @@ test.describe('bulk import of members', () => {
 
     test('shows why a person was refused and tries only them again', async ({ page, api }) => {
         api.on('POST core /bodies/:id/create-member', ({ body }) => ((body as { username: string }).username === 'john.smith'
-            ? { status: 422, json: validationError({ username: ['Username is already taken.'] }) }
+            ? { status: 422, json: validationError({ username: ['username must be unique'] }) }
             : { json: ok({ id: 1 }) }));
 
         await page.goto('/bodies/1/bulk_import');
@@ -124,7 +124,7 @@ test.describe('bulk import of members', () => {
         await expect(toast(page, 'Some of the user data is invalid.')).toBeVisible();
         const john = await cellOf(table, rowOf(page, 'john@example.com'), 'Status');
         await expect(john).toContainText('Error while saving:');
-        await expect(john).toContainText('Username is already taken.');
+        await expect(john).toContainText('username must be unique');
         await expect(await cellOf(table, rowOf(page, 'anna@example.com'), 'Status')).toHaveText('Successfully saved.');
         await expect(rowOf(page, 'john@example.com').getByRole('button', { name: 'Delete user' })).toHaveCount(0);
         await expect.poll(() => api.callsTo('POST core /bodies/:id/create-member').length).toBe(3);
