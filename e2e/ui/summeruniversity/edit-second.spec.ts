@@ -51,6 +51,34 @@ const answerSave = (api: ApiMock) => {
 // The row of a list field that holds `control`.
 const rowWith = (page: Page, control: string) => page.getByRole('row').filter({ has: page.getByRole('textbox', { name: control, exact: true }) });
 
+// The map's style (see ui/support/map.ts), answered a little late, so the map loads after the
+// SU and centres on its locations.
+const STYLE = 'https://api.maptiler.com/maps/basic/style.json*';
+const showMap = (api: ApiMock) => {
+    api.url('GET', STYLE, {
+        json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#e8e8e8' } }] },
+        delayMs: 300
+    });
+};
+
+// Drags the map's only marker 100 pixels up. Mapbox adds the marker once the map has loaded
+// and centred on the location; a drag before that would move the map instead.
+const dragTheMarker = async (page: Page) => {
+    const map = page.getByRole('region', { name: 'Map' });
+    await map.scrollIntoViewIfNeeded();
+    // eslint-disable-next-line no-restricted-syntax -- a Mapbox marker has no role or name; it is only an image on the map
+    const marker = map.locator('.mapboxgl-marker');
+    await expect(marker).toBeVisible();
+    const box = await marker.boundingBox();
+    expect(box).not.toBeNull();
+    const x = box!.x + box!.width / 2;
+    const y = box!.y + box!.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y - 100, { steps: 5 });
+    await page.mouse.up();
+};
+
 const save = async (page: Page) => {
     await page.getByRole('button', { name: 'Save event' }).click();
 };
@@ -411,5 +439,55 @@ test.describe('Summer University second submission editor', () => {
 
         await expect(toast(page, 'Some error happened: You cannot see this event.')).toBeVisible();
         await expect(page).toHaveURL('/summeruniversity');
+    });
+
+    test('the map centres on the only location, and dragging its marker moves it', async ({ page, api, me }) => {
+        showMap(api);
+        showForm(api, me, { ...SECOND, locations: [suLocation({ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } })] });
+        await page.goto('/summeruniversity/lake-su/edit_second');
+        await loaded(page);
+        await expect.poll(() => api.callsTo('GET url ' + STYLE)).toHaveLength(1);
+
+        const row = rowWith(page, 'Location 1 name');
+        await expect(row).toContainText(/^50\.85\s*4\.35/);
+        await dragTheMarker(page);
+        // Up is north: the latitude grows, the longitude stays (give or take the float).
+        await expect(row).toContainText(/^50\.(8[6-9]|9)\d*\s*4\.3[45]\d*/);
+    });
+
+    test('the map shows every location', async ({ page, api, me }) => {
+        showMap(api);
+        showForm(api, me);
+        await page.goto('/summeruniversity/lake-su/edit_second');
+        await loaded(page);
+
+        await expect(page.getByRole('region', { name: 'Map' })).toBeVisible();
+        await expect.poll(() => api.callsTo('GET url ' + STYLE)).toHaveLength(1);
+    });
+
+    test('the map of an SU without locations stays where it is', async ({ page, api, me }) => {
+        showMap(api);
+        showForm(api, me, { ...SECOND, locations: [] });
+        await page.goto('/summeruniversity/lake-su/edit_second');
+
+        await expect(page.getByText('No locations added.')).toBeVisible();
+        await expect.poll(() => api.callsTo('GET url ' + STYLE)).toHaveLength(1);
+    });
+
+    test('typing on drops the earlier organiser search', async ({ page, api, me }) => {
+        showForm(api, me);
+        api.on('GET core /members_search', ({ query }) => (query.get('query') === 'Lo'
+            ? { json: ok([memberSearchResult({ id: 9, first_name: 'Lo', last_name: 'Late' })]), delayMs: 1500 }
+            : { json: ok([memberSearchResult({ id: 8, first_name: 'Ada', last_name: 'Lovelace' })]) }));
+        await page.goto('/summeruniversity/lake-su/edit_second');
+        await loaded(page);
+
+        await page.getByRole('textbox', { name: 'Add organiser' }).fill('Lo');
+        await page.getByRole('textbox', { name: 'Add organiser' }).fill('Lov');
+
+        await expect(page.getByRole('main').getByRole('button', { name: 'Ada Lovelace', exact: true })).toBeVisible();
+        await expect.poll(() => api.callsTo('GET core /members_search').map((call) => call.query.get('query')).sort()).toEqual(['Lo', 'Lov']);
+        await expect(page.getByRole('main').getByRole('button', { name: 'Lo Late' })).toHaveCount(0);
+        await expect(toast(page, 'Could not fetch members')).toHaveCount(0);
     });
 });
