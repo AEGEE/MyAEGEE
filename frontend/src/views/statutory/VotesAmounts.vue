@@ -24,10 +24,10 @@
           </thead>
           <tbody>
             <tr v-for="vote in antennae" v-bind:key="vote.id">
-              <td>{{ vote.body ? vote.body.code : 'Loading...' }}</td>
+              <td>{{ vote.body ? vote.body.code : (isLoadingBodies ? 'Loading...' : '-') }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">
-                  {{ vote.body ? vote.body.name : 'Loading...' }}
+                  {{ bodyName(vote) }}
                 </router-link>
               </td>
               <td>{{ vote.votes }}</td>
@@ -59,7 +59,7 @@
               <td>{{ vote.application.user_id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">
-                  {{ vote.body ? vote.body.name : 'Loading...' }}
+                  {{ bodyName(vote) }}
                 </router-link>
               </td>
               <td>{{ vote.type }}</td>
@@ -105,6 +105,7 @@ export default {
       antennae: [],
       delegates: [],
       isLoading: false,
+      isLoadingBodies: true,
       isSaving: false,
       exportVotesTXT: {
         content: '',
@@ -116,6 +117,16 @@ export default {
     services: 'services',
     loginUser: 'user'
   }),
+  methods: {
+    // Core lists the active bodies only, so the body of an old vote may not be among them.
+    bodyName (vote) {
+      if (vote.body) {
+        return vote.body.name
+      }
+
+      return this.isLoadingBodies ? 'Loading...' : `Unknown body (#${vote.body_id})`
+    }
+  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/antenna').then((votes) => {
@@ -135,8 +146,10 @@ export default {
         for (const antenna of this.antennae) {
           this.$set(antenna, 'body', bodies.data.data.find(b => b.id === antenna.body_id))
         }
+        this.isLoadingBodies = false
         this.exportVotesTXT = prepareExportTxt(this.antennae, this.$route.params.id)
       }).catch((err) => {
+        this.isLoadingBodies = false
         this.$root.showError('Could not fetch bodies', err)
       })
     }).catch((err) => {
