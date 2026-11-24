@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/core-valid.json').data;
+const { sequelize } = require('../../lib/sequelize');
 
 // An ID in the path is a whole number written in digits. Anything else answers 400,
 // before anything is looked up.
@@ -122,5 +123,21 @@ describe('IDs in the path that are not whole numbers', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.id).toEqual(event.id);
+    });
+
+    // Events from before 2021 can have capitals in their stored URL.
+    test.each(['Old-Agora', 'old-agora', 'OLD-AGORA'])('should find an event whose stored URL has capitals as %s', async (url) => {
+        const event = await generator.createEvent({ type: 'epm', url: 'old-agora', applications: [] });
+        await sequelize.query('UPDATE events SET url = \'Old-Agora\' WHERE id = :id', { replacements: { id: event.id } });
+
+        const res = await request({
+            path: '/events/' + url,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(event.id);
+        expect(res.body.data.url).toEqual('Old-Agora');
     });
 });
