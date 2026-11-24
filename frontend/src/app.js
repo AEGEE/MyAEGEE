@@ -228,6 +228,8 @@ const endSession = (request) => {
     return false
   }
   if (!leaving && app.$route.name !== 'oms.login') {
+    // The toast stays over the login page: the member didn't choose to log out.
+    app.showWarning('Your session has ended. Please log in again. Changes that were not saved are lost.')
     leaving = router.push(loginFor(app.$route)).catch(() => {}).finally(() => { leaving = null })
   }
   return true
