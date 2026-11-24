@@ -9,6 +9,10 @@ const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const { ROUTES, createFixtures } = require('../scripts/body-routes');
 
+// Each sweep sends a few hundred requests per route, and every response is checked against the
+// OpenAPI file; a shared runner takes longer than the default 5 seconds for the slowest route.
+jest.setTimeout(60 * 1000);
+
 describe('Request bodies', () => {
     let data;
 
