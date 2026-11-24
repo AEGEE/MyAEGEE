@@ -81,13 +81,19 @@ exports.sendAll = async (req, res) => {
         return errors.makeInternalError(res, 'Could not find the email addresses of the users matching this filter.');
     }
 
-    await mailer.sendMail({
-        reply_to: req.body.reply_to,
-        to,
-        subject: req.body.subject,
-        template: 'custom.html',
-        parameters: bodies
-    });
+    try {
+        await mailer.sendMail({
+            reply_to: req.body.reply_to,
+            to,
+            subject: req.body.subject,
+            template: 'custom.html',
+            parameters: bodies
+        });
+    } catch (err) {
+        // The mailer can fail after it sent some of the mails: the sender cannot know which.
+        logger.error({ err, event_id: req.event.id, count: bodies.length }, 'The mailer did not take the mass mail');
+        return errors.makeInternalError(res, 'The mailer did not take the mails. Some of them may have been sent.');
+    }
 
     return res.json({
         success: true,

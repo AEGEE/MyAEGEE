@@ -361,7 +361,8 @@ describe('Export all', () => {
 
         const body = JSON.parse(res.body.toString());
         expect(body.success).toEqual(false);
-        expect(body.message).toMatch(/event_id/);
+        expect(body.message).toMatch(/^Filtering by this field is not supported\./);
+        expect(body.message).not.toMatch(/event_id/);
     });
 
     test('should return 400 if a filter value is not a plain value or a list of them', async () => {

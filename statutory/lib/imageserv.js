@@ -36,7 +36,7 @@ const upload = multer({
         const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
             const allowed = allowedExtensions.map((e) => `'${e}'`).join(', ');
-            return cb(new Error(`Allowed extensions: ${allowed}, but '${extension}' was passed.`));
+            return cb(new Error(`Allowed extensions: ${allowed}.`));
         }
 
         return cb(null, true);

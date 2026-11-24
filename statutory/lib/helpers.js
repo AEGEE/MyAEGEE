@@ -46,6 +46,11 @@ exports.toList = (value) => (typeof value === 'string' ? [value] : value);
 // A helper to check if the value is truthy.
 exports.isTruthy = (value) => exports.isDefined(value) && value !== null;
 
+// A change of the board that the participants limits or the orders of a body do not allow.
+// The board routes refuse it with 403.
+class BoardChangeRefused extends Error {}
+exports.BoardChangeRefused = BoardChangeRefused;
+
 // A helper to check if the boardview update for application was okay.
 // It's run within a transaction, so if this will throw an error, the transaction will be rolled back.
 exports.checkApplicationBoardviewValidity = async ({ event, application, body, transaction }) => {
@@ -79,7 +84,7 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
         // that means setting the pax order for this user was a mistake and
         // this needs to be rolled back.
         if (limit[application.participant_type] < applicationsCount) {
-            throw new Error(`Too much applications \
+            throw new BoardChangeRefused(`Too much applications \
 for body #${application.body_id} for type "${application.participant_type}": \
 expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
         }
@@ -87,7 +92,7 @@ expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
         // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
         // then rolling back as well.
         if (application.participant_order > limit[application.participant_type]) {
-            throw new Error(`Expected a participant order from 1 to ${limit[application.participant_type]}, \
+            throw new BoardChangeRefused(`Expected a participant order from 1 to ${limit[application.participant_type]}, \
 got ${application.participant_order}.`);
         }
     }
@@ -175,7 +180,7 @@ exports.getFilterError = (filter, allowedFields) => {
 
     for (const [field, value] of Object.entries(filter)) {
         if (!Object.prototype.hasOwnProperty.call(allowedFields, field)) {
-            return `Filtering by "${field}" is not supported. The supported filter fields are: ${fieldNames.join(', ')}.`;
+            return `Filtering by this field is not supported. The supported filter fields are: ${fieldNames.join(', ')}.`;
         }
 
         const isBoolean = allowedFields[field] === 'boolean';

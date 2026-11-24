@@ -89,7 +89,8 @@ function presentApplicationAfterFlag(req, application, key) {
 // Returns the error message, or null if the parameters are fine.
 function getListQueryError(query, fields = Object.keys(Application.rawAttributes)) {
     for (const key of ['limit', 'offset']) {
-        if (helpers.isDefined(query[key]) && (!/^\d+$/.test(query[key]) || !Number.isSafeInteger(Number(query[key])))) {
+        const value = query[key];
+        if (helpers.isDefined(value) && (typeof value !== 'string' || !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)))) {
             return `The "${key}" parameter should be a whole number, zero or higher.`;
         }
     }
@@ -98,11 +99,12 @@ function getListQueryError(query, fields = Object.keys(Application.rawAttributes
         return null;
     }
 
-    if (helpers.isDefined(query.sort.field) && !fields.includes(query.sort.field)) {
-        return `Sorting by "${query.sort.field}" is not supported. The supported fields are: ${fields.join(', ')}.`;
+    // The supported fields are listed in the description of the API.
+    if (helpers.isDefined(query.sort.field) && (typeof query.sort.field !== 'string' || !fields.includes(query.sort.field))) {
+        return 'Sorting by this field is not supported.';
     }
 
-    if (helpers.isDefined(query.sort.order) && !['asc', 'desc'].includes(String(query.sort.order).toLowerCase())) {
+    if (helpers.isDefined(query.sort.order) && (typeof query.sort.order !== 'string' || !['asc', 'desc'].includes(query.sort.order.toLowerCase()))) {
         return 'The sorting order should be "asc" or "desc".';
     }
 
@@ -667,12 +669,13 @@ exports.setApplicationBoard = async (req, res) => {
     // against the limit for this body. If something goes wrong or there's a
     // calculation error, rollback everything. Advantages: don't need to worry
     // about validations, they'll fail the transaction.
+    let application;
     try {
-        await sequelize.transaction(async (t) => {
+        application = await sequelize.transaction(async (t) => {
             // First, saving the application.
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
-            const application = await req.application.update(toUpdate, { returning: ['*'], transaction: t });
+            const updated = await req.application.update(toUpdate, { returning: ['*'], transaction: t });
 
             // Recalculating votes per delegate for this antenna.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
@@ -681,26 +684,27 @@ exports.setApplicationBoard = async (req, res) => {
             await helpers.checkApplicationBoardviewValidity({
                 body,
                 event: req.event,
-                application,
+                application: updated,
                 transaction: t
             });
 
-            // If we got here, everything is okay.
-            return res.json({
-                success: true,
-                data: application
-            });
+            return updated;
         });
     } catch (err) {
-        // Here we go only when the transaction has failed and rolled back.
-
-        // If validation error, throw it further so general error handler can handle it.
-        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
-            throw err;
+        // The transaction was rolled back. What the participants limits of the body do not
+        // allow is refused; any other error (validation, a lock, the database) is answered as such.
+        if (err instanceof helpers.BoardChangeRefused) {
+            return errors.makeForbiddenError(res, err.message);
         }
 
-        return errors.makeForbiddenError(res, err.message);
+        throw err;
     }
+
+    // The change is committed.
+    return res.json({
+        success: true,
+        data: application
+    });
 };
 
 // WARNING: This will reset all of the pax types and orders and board comments
@@ -771,7 +775,7 @@ exports.setBoardForBody = async (req, res) => {
             );
 
             // Then iterating through entries.
-            for (const entry of req.body) {
+            for (const [index, entry] of req.body.entries()) {
                 // Finding the application required.
                 const application = await Application.findOne({
                     where: {
@@ -783,7 +787,7 @@ exports.setBoardForBody = async (req, res) => {
                 });
 
                 if (!application) {
-                    throw new Error(`Application with user ID #${entry.user_id} from body ID #${body.id} is not found.`);
+                    throw new helpers.BoardChangeRefused(`Entry ${index + 1}: this user has no application from this body.`);
                 }
 
                 const toUpdate = {
@@ -811,14 +815,13 @@ exports.setBoardForBody = async (req, res) => {
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.params.body_id, t);
         });
     } catch (err) {
-        // Here we go only when the transaction has failed and rolled back.
-
-        // If validation error, throw it further so general error handler can handle it.
-        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
-            throw err;
+        // The transaction was rolled back. What the participants limits of the body do not
+        // allow is refused; any other error (validation, a lock, the database) is answered as such.
+        if (err instanceof helpers.BoardChangeRefused) {
+            return errors.makeForbiddenError(res, err.message);
         }
 
-        return errors.makeForbiddenError(res, err.message);
+        throw err;
     }
 
     // If we got here, everything is okay.
@@ -992,7 +995,7 @@ exports.exportOpenslides = async (req, res) => {
 exports.exportAll = async (req, res) => {
     // Exporting users as XLSX for LOs/Chair/CD/whoever.
     if (!['all', 'incoming'].includes(req.params.prefix)) {
-        return errors.makeBadRequestError(res, `Prefix should be one of these: "all", "incoming", but received ${req.params.prefix}`);
+        return errors.makeBadRequestError(res, 'The prefix should be "all" or "incoming".');
     }
 
     if (!req.permissions.export[req.params.prefix]) {

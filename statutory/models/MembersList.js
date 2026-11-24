@@ -126,7 +126,7 @@ MembersList.beforeSave(async (memberslist, options) => {
     const conversionForCurrency = conversion.find((c) => c.isoA2Code.toLowerCase() === currency.toLowerCase());
     if (!conversionForCurrency) {
         // A validation error on the currency field, so the client gets it like the other ones.
-        const message = `The currency "${memberslist.currency}" is not known.`;
+        const message = 'The currency is not known.';
         throw new Sequelize.ValidationError(message, [
             new Sequelize.ValidationErrorItem(message, 'Validation error', 'currency', memberslist.currency)
         ]);

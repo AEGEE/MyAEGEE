@@ -612,7 +612,7 @@ describe('Applications listing', () => {
             const res = await list(event, name, { sort: { field: 'nonexistent' } });
 
             expectBadRequest(res);
-            expect(res.body.message).toMatch(/^Sorting by "nonexistent" is not supported\. The supported fields are: /);
+            expect(res.body.message).toEqual('Sorting by this field is not supported.');
         });
 
         // The officers' lists can only be sorted by the fields they return.

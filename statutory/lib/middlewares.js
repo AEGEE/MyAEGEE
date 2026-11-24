@@ -110,7 +110,8 @@ exports.authenticateUser = async (req, res, next) => {
 
         return next();
     } catch (err) {
-        return errors.makeInternalError(res, err);
+        logger.error({ err }, 'Could not fetch the user and the permissions from core');
+        return errors.makeInternalError(res);
     }
 };
 
@@ -326,7 +327,7 @@ exports.getTasksList = (req, res) => {
 };
 
 /* eslint-disable no-unused-vars */
-exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl.split('?')[0]);
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
@@ -359,5 +360,5 @@ exports.errorHandler = (err, req, res, next) => {
     /* istanbul ignore next */
     logger.error({ err });
     /* istanbul ignore next */
-    return errors.makeInternalError(res, err);
+    return errors.makeInternalError(res);
 };

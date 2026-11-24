@@ -71,12 +71,12 @@ const Application = sequelize.define('application', {
                         break;
                     case 'number':
                         if (Number.isNaN(Number(value[index]))) {
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`);
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number.`);
                         }
                         break;
                     case 'select':
                         if (!event.questions[index].values.includes(value[index])) {
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(', ')}, but got "${value[index]}".`);
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(', ')}.`);
                         }
                         break;
                     case 'checkbox':

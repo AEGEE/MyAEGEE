@@ -1154,7 +1154,7 @@ describe('Memberslist uploading', () => {
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
-            expect(res.body.errors.currency).toEqual(['The currency "TEST" is not known.']);
+            expect(res.body.errors.currency).toEqual(['The currency is not known.']);
             expect(await MembersList.count()).toEqual(0);
         });
 
@@ -1174,7 +1174,7 @@ describe('Memberslist uploading', () => {
             });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors.currency).toEqual(['The currency "TEST" is not known.']);
+            expect(res.body.errors.currency).toEqual(['The currency is not known.']);
 
             const memberslistFromDb = await MembersList.findOne({ where: { event_id: event.id } });
             expect(memberslistFromDb.currency).toEqual('EU');

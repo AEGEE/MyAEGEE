@@ -211,7 +211,8 @@ describe('Export candidates', () => {
 
         const body = JSON.parse(res.body.toString());
         expect(body.success).toEqual(false);
-        expect(body.message).toMatch(/first_name/);
+        expect(body.message).toMatch(/^Filtering by this field is not supported\./);
+        expect(body.message).not.toMatch(/first_name/);
     });
 
     test('should return 400 if the filter has a field of the position', async () => {

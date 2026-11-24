@@ -406,7 +406,7 @@ const Event = sequelize.define('event', {
                         }
                         break;
                     default:
-                        throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
+                        throw new Error(`Question ${index + 1}: the type should be one of these: string, text, number, checkbox, select.`);
                     }
                 }
             }

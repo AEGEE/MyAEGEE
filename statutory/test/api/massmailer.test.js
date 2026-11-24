@@ -285,7 +285,8 @@ describe('Massmailer', () => {
 
         expect(res.statusCode).toEqual(400);
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toMatch(/event_id/);
+        expect(res.body.message).toMatch(/^Filtering by this field is not supported\./);
+        expect(res.body.message).not.toMatch(/event_id/);
     });
 
     test('should fail if a filter value is not a plain value or a list of them', async () => {
