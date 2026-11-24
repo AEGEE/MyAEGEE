@@ -1002,6 +1002,11 @@ export default {
         }
 
         this.isLoading = false
+
+        // The map may have loaded before the event: it is centred on the locations now.
+        if (this.map.actions) {
+          this.centerMap()
+        }
       })
     }).catch((err) => {
       this.isLoading = false
