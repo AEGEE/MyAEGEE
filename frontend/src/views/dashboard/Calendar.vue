@@ -19,9 +19,11 @@
 
     <hr />
 
-    <FullCalendar
-      :options="calendarOptions"
-    />
+    <div role="region" aria-label="Events calendar" :aria-busy="isLoading">
+      <FullCalendar
+        :options="calendarOptions"
+      />
+    </div>
 
     <b-loading :is-full-page="true" :active.sync="isLoading" />
   </div>
