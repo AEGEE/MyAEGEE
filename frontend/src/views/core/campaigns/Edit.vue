@@ -132,8 +132,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['core'] + '/campaigns/' + this.$route.params.id, this.campaign)
-        : this.axios.post(this.services['core'] + '/campaigns/', this.campaign)
+        ? this.axios.put(this.campaignsUrl + '/' + this.$route.params.id, this.campaign)
+        : this.axios.post(this.campaignsUrl, this.campaign)
 
       promise.then((response) => {
         this.isSaving = false
@@ -161,6 +161,12 @@ export default {
       const typed = (this.autocompleteBody || '').toLowerCase()
       return this.bodies.filter((body) => body.name.toLowerCase().includes(typed))
     },
+    // The campaigns of the body of the route are saved through that body.
+    campaignsUrl () {
+      return this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns'
+        : this.services['core'] + '/campaigns'
+    },
     ...mapGetters(['services'])
   },
   mounted () {
@@ -180,7 +186,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.campaignsUrl + '/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {
