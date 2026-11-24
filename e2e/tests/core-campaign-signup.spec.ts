@@ -12,7 +12,8 @@ test.describe('signing up through a campaign', () => {
     test('an admin creates a campaign, someone signs up, is confirmed and is in the body', async ({ api, page, otherAntenna }) => {
         const { body } = otherAntenna;
         // Letters only: a surname may have no digits.
-        const suffix = Date.now().toString().split('').map((digit) => String.fromCharCode(97 + Number(digit))).join('');
+        const suffix = Date.now().toString().split('').map((digit) => String.fromCharCode(97 + Number(digit)))
+            .join('');
         const url = `e2e-signup-${suffix}`;
         const person = { first_name: 'Sam', last_name: `Signup ${suffix}` };
         const name = `${person.first_name} ${person.last_name}`;
