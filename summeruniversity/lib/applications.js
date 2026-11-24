@@ -286,6 +286,18 @@ exports.updateApplication = async (req, res) => {
     });
 };
 
+// Reads the application again inside the transaction of helpers.changeWithLockedEvent, and locks
+// its row: req.application was fetched before the Summer University was locked, so another change
+// may have changed it since. Every decision of a locked change is made from this row. The
+// applicant's details from core that fetchSingleApplication added (gender, date of birth,
+// notification email) are kept for the answer.
+const lockApplication = async (req, transaction) => {
+    const fromCore = Object.fromEntries(Object.entries(req.application.dataValues)
+        .filter(([key]) => !Object.prototype.hasOwnProperty.call(Application.rawAttributes, key)));
+    await req.application.reload({ transaction, lock: transaction.LOCK.UPDATE });
+    Object.assign(req.application.dataValues, fromCore);
+};
+
 exports.setApplicationConfirmed = async (req, res) => {
     if (!req.permissions.set_participants_confirmed) {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
@@ -295,15 +307,25 @@ exports.setApplicationConfirmed = async (req, res) => {
         return undefined;
     }
 
-    // Only participants who were accepted and did not cancel can confirm their participation.
-    if (req.body.confirmed && (req.application.status !== 'accepted' || req.application.cancelled)) {
-        return helpers.makeFieldError(res, 'confirmed', 'Only accepted applications that are not cancelled can be confirmed.');
-    }
+    let dbResult;
+    // Locked like the status changes, which clear the confirmation, and decided from the
+    // application as they left it.
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        await lockApplication(req, t);
 
-    const dbResult = await req.application.update(
-        { confirmed: req.body.confirmed },
-        { returning: ['*'] }
-    );
+        // Only participants who were accepted and did not cancel can confirm their participation.
+        if (req.body.confirmed && (req.application.status !== 'accepted' || req.application.cancelled)) {
+            throw new helpers.FieldError('confirmed', 'Only accepted applications that are not cancelled can be confirmed.');
+        }
+
+        dbResult = await req.application.update(
+            { confirmed: req.body.confirmed },
+            { returning: ['*'], transaction: t }
+        );
+    });
+    if (answered) {
+        return undefined;
+    }
 
     return res.json({
         success: true,
@@ -320,10 +342,20 @@ exports.setApplicationAttended = async (req, res) => {
         return undefined;
     }
 
-    const dbResult = await req.application.update(
-        { attended: req.body.attended },
-        { returning: ['*'] }
-    );
+    let dbResult;
+    // Locked like the status changes, which refuse an attended application and clear the
+    // confirmation that attendance needs.
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        await lockApplication(req, t);
+
+        dbResult = await req.application.update(
+            { attended: req.body.attended },
+            { returning: ['*'], transaction: t }
+        );
+    });
+    if (answered) {
+        return undefined;
+    }
 
     return res.json({
         success: true,
@@ -384,6 +416,8 @@ exports.setApplicationCancelled = async (req, res) => {
 
     let dbResult;
     const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        await lockApplication(req, t);
+
         // An accepted application that comes back from cancelled takes a spot again.
         const takesSpotBack = req.body.cancelled === false && req.application.cancelled && req.application.status === 'accepted';
         if (takesSpotBack && !mayExceedLimit(req) && await isFull(event, req.application, t)) {
@@ -417,15 +451,17 @@ exports.setApplicationStatus = async (req, res) => {
         return helpers.makeFieldError(res, 'status', `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
-    // Only accepted applications can be confirmed, so the confirmation goes when it stops being
-    // accepted. Attendance needs the confirmation, so it has to be taken back first.
-    const stopsBeingAccepted = req.application.status === 'accepted' && req.body.status !== 'accepted';
-    if (stopsBeingAccepted && req.application.attended) {
-        return helpers.makeFieldError(res, 'status', 'This application is marked as attended: mark it as not attended before changing its status.');
-    }
-    const changes = stopsBeingAccepted ? { status: req.body.status, confirmed: false } : { status: req.body.status };
-
     const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        await lockApplication(req, t);
+
+        // Only accepted applications can be confirmed, so the confirmation goes when it stops
+        // being accepted. Attendance needs the confirmation, so it has to be taken back first.
+        const stopsBeingAccepted = req.application.status === 'accepted' && req.body.status !== 'accepted';
+        if (stopsBeingAccepted && req.application.attended) {
+            throw new helpers.FieldError('status', 'This application is marked as attended: mark it as not attended before changing its status.');
+        }
+        const changes = stopsBeingAccepted ? { status: req.body.status, confirmed: false } : { status: req.body.status };
+
         // Accepting needs a free spot. A cancelled application does not count, so accepting it
         // takes none.
         const takesSpot = req.body.status === 'accepted' && !req.application.cancelled;

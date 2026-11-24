@@ -123,14 +123,16 @@ const LOCK_NOT_AVAILABLE = '55P03';
 
 // Runs `change(event, transaction)` in a transaction that first locks the event's row, so that
 // changes of the same event that check its free spots run one after the other: the check, the
-// change and the count of accepted participants see each other's results. A request waits at
+// change and the count of accepted participants see each other's results. FOR NO KEY UPDATE
+// excludes the other callers and updates of the row, but not the lock a new application takes on
+// it (its event_id) until its mails are sent, so applying does not hold the organisers up. A request waits at
 // most config.lock_timeout ms for the lock, and then answers 503. A FieldError from `change`
 // answers 422. Returns whether it answered.
 exports.changeWithLockedEvent = async (req, res, change) => {
     try {
         await sequelize.transaction(async (t) => {
             await sequelize.query(`SET LOCAL lock_timeout = ${Number(config.lock_timeout)}`, { transaction: t });
-            const event = await Event.findByPk(req.event.id, { transaction: t, lock: t.LOCK.UPDATE });
+            const event = await Event.findByPk(req.event.id, { transaction: t, lock: t.LOCK.NO_KEY_UPDATE });
             await change(event, t);
         });
     } catch (err) {
