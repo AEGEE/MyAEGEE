@@ -510,6 +510,8 @@ export default {
   name: 'SingleEvent',
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       event: {
         name: '',
         description: '',
@@ -772,6 +774,8 @@ export default {
         }
       })
       .catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
@@ -799,6 +803,9 @@ export default {
     activeEventApplicationBan () {
       return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>
