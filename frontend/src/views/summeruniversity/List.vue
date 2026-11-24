@@ -335,12 +335,12 @@ export default {
 
         this.isLoading.events = false
       }).catch((err) => {
-        this.isLoading.events = false
-
+        // A request given up for a newer one: that one is still loading.
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading.events = false
         this.$root.showError('Could not fetch events list', err)
       })
     },
