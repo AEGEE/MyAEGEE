@@ -136,7 +136,7 @@
                   </b-button>
                 </b-table-column>
 
-                <b-table-column :visible="!!can.sendFulfilmentEmails" v-slot="props">
+                <b-table-column :visible="can.sendFulfilmentEmails" v-slot="props">
                   <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger" :aria-label="'Send fulfilment mail to ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
                   </b-button>
@@ -178,10 +178,6 @@ export default {
       isLoading: false,
       isLoadingAgora: false,
       viewportWidth: window.innerWidth,
-      permissions: [],
-      can: {
-        sendFulfilmentEmails: false
-      },
       antennaCriteriaMapping: {
         'contact': ['communication'],
         'contact antenna': ['communication', 'membersList', 'membershipFee'],
@@ -190,10 +186,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
-    }),
+    ...mapGetters(['services', 'permissions']),
+    // From the permissions the app got when it started.
+    can () {
+      return {
+        sendFulfilmentEmails: this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
+      }
+    },
     tableHeight () {
       const viewportOffset = this.viewportWidth <= 1023 ? 18 * 16 : 24 * 16
       const maxHeight = Math.max(window.innerHeight - viewportOffset, 240)
@@ -566,11 +565,6 @@ export default {
   mounted () {
     window.addEventListener('resize', this.updateViewportWidth)
     this.fetchAgorae()
-
-    this.axios.get(this.services['core'] + '/my_permissions').then((permissionResponse) => {
-      this.permissions = permissionResponse.data.data
-      this.can.sendFulfilmentEmails = this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
-    })
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.updateViewportWidth)
