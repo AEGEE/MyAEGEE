@@ -72,6 +72,8 @@ export default {
         } else {
           this.showError('Some error happened', err)
         }
+
+        if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
   },
