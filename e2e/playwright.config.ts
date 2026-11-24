@@ -49,6 +49,11 @@ export default defineConfig({
             url: `${url('mailer')}/healthcheck`,
             reuseExistingServer
         },
+        {
+            command: 'node support/fake-currency.ts',
+            url: `${url('currency')}/healthcheck`,
+            reuseExistingServer
+        },
         service('core'),
         service('events'),
         service('summeruniversity'),

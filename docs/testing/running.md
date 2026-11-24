@@ -97,6 +97,7 @@ npm run setup && npm test && npm run test:mocked
 | 18080 | gateway of the real stack (frontend and `/api`) |
 | 18084 to 18089 | core, events, summeruniversity, statutory, network, discounts |
 | 18090 | fake mailer |
+| 18091 | fake currency conversion rates, which statutory asks for when a members list is saved |
 | 18180 | static server of the mocked suite |
 
 One Postgres is enough for all slots. A checkout that is done with its slot runs

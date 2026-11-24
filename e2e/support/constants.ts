@@ -20,6 +20,8 @@ const BASE_PORTS = {
     network: 18088,
     discounts: 18089,
     mailer: 18090,
+    // The stand-in for the currency conversion rates statutory asks for (support/fake-currency.ts).
+    currency: 18091,
     // The static server of the mocked-API suite.
     mocked: 18180
 } as const;
@@ -40,7 +42,8 @@ export const serviceEnv = (service: Service): Record<string, string> => ({
     E2E_DB_NAME: `${service}-e2e${suffix}`,
     E2E_CORE_PORT: String(PORTS.core),
     E2E_MAILER_PORT: String(PORTS.mailer),
-    E2E_MEDIA_ROOT: `/tmp/myaegee-e2e${suffix}`
+    E2E_MEDIA_ROOT: `/tmp/myaegee-e2e${suffix}`,
+    ...(service === 'statutory' ? { CONVERSION_RATE_API_HOST: `http://127.0.0.1:${PORTS.currency}` } : {})
 });
 
 export const PASSWORD = '5ecr3t5ecr3t';
