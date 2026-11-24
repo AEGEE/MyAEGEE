@@ -3,6 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 const { Board } = require('../../models');
+const body = require('../assets/core-local.json').data;
 
 describe('Board deleting', () => {
     beforeAll(async () => {
@@ -97,5 +98,44 @@ describe('Board deleting', () => {
 
         const boardFromDB = await Board.findByPk(board.id);
         expect(boardFromDB).not.toEqual(null);
+    });
+
+    test('should not let a board manager of the body delete its board', async () => {
+        // A member with the view permission who manages body.id locally.
+        mock.mockAll({ mainPermissions: { viewOnly: true } });
+
+        const board = await generator.createBoard({ body_id: body.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toContain('global:manage_network:boards');
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB).not.toEqual(null);
+    });
+
+    test('should let a holder of the global board management permission delete a board of any body', async () => {
+        // core-permissions-full.json holds global:manage_network:boards; no local permission.
+        mock.mockAll({ managePermissions: { noPermissions: true } });
+
+        const board = await generator.createBoard({ body_id: body.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/boards/' + board.id,
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const boardFromDB = await Board.findByPk(board.id);
+        expect(boardFromDB).toEqual(null);
     });
 });

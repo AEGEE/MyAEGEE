@@ -52,17 +52,19 @@ test.describe('shared real-stack helpers', () => {
     });
 
     test('a global permission counts in another service, until the cleanup', async ({ api }) => {
-        // Members can't list the boards in network (core/scripts/seed-permissions.js).
-        expectStatus(await api.call('member', 'GET', '/api/network/boards'), 403);
+        // Members can't list the NetCom assignments in network: only the NetCom circle holds
+        // global:manage_network:netcom_assignment (core/scripts/seed-permissions.js). The list
+        // answers 200 with or without assignments, so no other data matters.
+        expectStatus(await api.call('member', 'GET', '/api/network/netcom'), 403);
 
-        const [, revoke] = await grantPermission(api, 'member', 'global:view:board');
+        const [, revoke] = await grantPermission(api, 'member', 'global:manage_network:netcom_assignment');
         try {
-            expectStatus(await api.call('member', 'GET', '/api/network/boards'), 200);
+            expectStatus(await api.call('member', 'GET', '/api/network/netcom'), 200);
         } finally {
             await revoke();
         }
 
-        expectStatus(await api.call('member', 'GET', '/api/network/boards'), 403);
+        expectStatus(await api.call('member', 'GET', '/api/network/netcom'), 403);
     });
 
     test('a local permission counts in its body only', async ({ api, otherAntenna }) => {

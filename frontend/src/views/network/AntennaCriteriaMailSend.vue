@@ -73,7 +73,8 @@ export default {
         this.showSuccess('Mail sent succesfully.')
         this.$parent.close()
       }).catch((err) => {
-        this.showError('Something went wrong', err)
+        // showError lists the field messages of a 422.
+        this.showError('Could not send the mail', err)
       })
     }
   },

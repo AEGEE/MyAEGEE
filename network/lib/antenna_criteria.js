@@ -2,6 +2,64 @@ const { AntennaCriterion } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
+const constants = require('./constants');
+
+// One address without a display name: a dot-atom local part (RFC 5322, no quoted
+// strings) and a domain of at least two labels. Neither part can hold whitespace, so
+// a CR or LF never gets through.
+const LOCAL_PART = "[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*";
+const DOMAIN_LABEL = '[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?';
+const EMAIL_REGEX = new RegExp(`^(${LOCAL_PART})@(${DOMAIN_LABEL}(?:\\.${DOMAIN_LABEL})+)$`);
+
+const parseAddress = (value) => {
+    if (typeof value !== 'string' || value.length > 254) {
+        return null;
+    }
+
+    const match = EMAIL_REGEX.exec(value);
+    if (!match || match[1].length > 64) {
+        return null;
+    }
+
+    return { local: match[1], domain: match[2].toLowerCase() };
+};
+
+const isAddress = (value) => parseAddress(value) !== null;
+
+const isAegeeAddress = (value) => {
+    const address = parseAddress(value);
+    return address !== null && constants.AEGEE_MAIL_DOMAINS.includes(address.domain);
+};
+
+// One address, several separated by commas (what the send dialog's one field holds), or
+// a non-empty list. Spaces and tabs around each address are dropped; line breaks are not.
+const toAddressList = (value) => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (typeof value !== 'string') {
+        return [value];
+    }
+
+    return value.split(',').map((address) => address.replace(/^[ \t]+|[ \t]+$/g, ''));
+};
+
+const isAddressList = (value) => {
+    const list = toAddressList(value);
+    return list.length > 0 && list.every(isAddress);
+};
+
+// What the mailer gets: a list for several addresses (it takes one or a list), the
+// value as sent otherwise.
+const normalizeAddressList = (value) => {
+    const list = toAddressList(value);
+    return typeof value === 'string' && list.length > 1 ? list : value;
+};
+
+// A mail header line holds at most 998 characters; a subject of 255 leaves room for
+// the header name and fits what mail clients show.
+const SUBJECT_MAX_LENGTH = 255;
 
 exports.listCriteria = async (req, res) => {
     if (!req.permissions.manage_antenna_criteria) {
@@ -47,19 +105,64 @@ exports.setCriterion = async (req, res) => {
     });
 };
 
+const isFilledString = (value) => typeof value === 'string' && value.trim() !== '';
+const isEmpty = (value) => value === undefined || value === null || value === '';
+
+// Checks the fulfilment mail request and returns the errors per field. Every header
+// field (sender, recipients, reply-to, subject) is one line; only the text may span lines.
+const validateFulfilmentMail = (input) => {
+    const fieldErrors = {};
+
+    if (!isEmpty(input.from) && !isAegeeAddress(input.from)) {
+        fieldErrors.from = ['The sender must be an address on one of these domains: ' + constants.AEGEE_MAIL_DOMAINS.join(', ') + '.'];
+    }
+
+    if (!isAddressList(input.to)) {
+        fieldErrors.to = ['The recipient must be an address, or several addresses separated by commas.'];
+    }
+
+    if (!isEmpty(input.cc) && !isAddressList(input.cc)) {
+        fieldErrors.cc = ['Cc must be an address, or several addresses separated by commas.'];
+    }
+
+    if (!isEmpty(input.reply_to) && !isAddress(input.reply_to)) {
+        fieldErrors.reply_to = ['Reply-to must be an address.'];
+    }
+
+    if (!isFilledString(input.subject)) {
+        fieldErrors.subject = ['The subject must be set.'];
+    } else if (/[\r\n]/.test(input.subject)) {
+        fieldErrors.subject = ['The subject must be one line.'];
+    } else if (input.subject.length > SUBJECT_MAX_LENGTH) {
+        fieldErrors.subject = [`The subject must be at most ${SUBJECT_MAX_LENGTH} characters.`];
+    }
+
+    if (!isFilledString(input.body)) {
+        fieldErrors.body = ['The mail text must be set.'];
+    }
+
+    return fieldErrors;
+};
+
 exports.sendFulfilmentMail = async (req, res) => {
     if (!req.permissions.send_mails) {
         return errors.makeForbiddenError(res, 'You are not allowed to send Antenna Criteria fulfilment mails.');
     }
 
+    const input = req.body || {};
+    const fieldErrors = validateFulfilmentMail(input);
+    if (Object.keys(fieldErrors).length > 0) {
+        return res.status(422).json({ success: false, errors: fieldErrors });
+    }
+
     await mailer.sendMail({
-        from: req.body.from,
-        to: req.body.to,
-        cc: req.body.cc,
-        subject: req.body.subject,
+        from: isEmpty(input.from) ? constants.FULFILMENT_MAIL_DEFAULT_FROM : input.from,
+        to: normalizeAddressList(input.to),
+        cc: normalizeAddressList(input.cc),
+        subject: input.subject,
         template: 'custom.html',
-        reply_to: req.body.reply_to,
-        parameters: { email_body: req.body.body }
+        reply_to: input.reply_to,
+        parameters: { email_body: input.body }
     });
 
     return res.json({

@@ -146,7 +146,7 @@
 
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="saveChangeBoard()">Save changes</button>
-      <button class="button is-danger" v-if="edit" @click="deleteBoard()">Delete board</button>
+      <button class="button is-danger" v-if="edit && canDelete" @click="deleteBoard()">Delete board</button>
       <button class="button" @click="$parent.close()">Cancel</button>
     </footer>
 
@@ -164,7 +164,7 @@ export default {
     MarkdownTooltip
   },
   name: 'ChangeBoardModal',
-  props: ['edit', 'oldBoard', 'body', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['edit', 'canDelete', 'oldBoard', 'body', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       board: {
