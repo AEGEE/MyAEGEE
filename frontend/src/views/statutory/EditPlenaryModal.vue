@@ -75,11 +75,12 @@ export default {
     }
   },
   watch: {
+    // An emptied picker gives null: the date is not set (new Date(null) would be 1970).
     'dates.starts': function (newDate) {
-      this.plenary.starts = new Date(newDate)
+      this.plenary.starts = newDate ? new Date(newDate) : null
     },
     'dates.ends': function (newDate) {
-      this.plenary.ends = new Date(newDate)
+      this.plenary.ends = newDate ? new Date(newDate) : null
     }
   },
   computed: {
