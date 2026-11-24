@@ -1,25 +1,26 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Add plenary</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">Add plenary</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Name</label>
+        <label class="label" for="plenary-name">Name</label>
         <div class="control">
-          <input class="input" type="text" required v-model="plenary.name" />
+          <input id="plenary-name" class="input" type="text" required v-model="plenary.name" />
         </div>
         <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
       </div>
 
       <div class="field">
-        <label class="label">Starts</label>
+        <label class="label" for="plenary-starts">Starts</label>
         <div class="control">
           <flat-pickr
+            id="plenary-starts"
             placeholder="Select date"
             class="input"
-            required
+            aria-required="true"
             :config="dateConfig"
             v-model="dates.starts" />
         </div>
@@ -27,10 +28,12 @@
       </div>
 
       <div class="field">
-        <label class="label">Ends</label>
+        <label class="label" for="plenary-ends">Ends</label>
         <div class="control">
           <flat-pickr
+            id="plenary-ends"
             placeholder="Select date"
+            aria-required="true"
             class="input"
             :config="dateConfig"
             v-model="dates.ends" />
@@ -39,8 +42,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="savePlenary()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="savePlenary()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -60,7 +63,10 @@ export default {
       errors: {},
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        // Typed dates are accepted, and phones get the same picker.
+        allowInput: true,
+        disableMobile: true
       },
       dates: {
         starts: null,

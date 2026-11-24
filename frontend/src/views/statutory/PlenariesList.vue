@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Plenaries list</div>
+        <h1 class="title">Plenaries list</h1>
 
         <div class="buttons">
-          <button class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
-          <button class="button is-primary" @click="exportAll()">Export stats</button>
+          <button type="button" class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
+          <button type="button" class="button is-primary" @click="exportAll()">Export stats</button>
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">
@@ -27,7 +27,7 @@
           </b-table-column>
 
           <b-table-column label="Edit" centered :visible="!!can.manage_plenaries" v-slot="props">
-            <button class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
+            <button type="button" class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
           </b-table-column>
 
           <b-table-column label="Mark attendances" centered v-slot="props">
@@ -83,6 +83,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPlenaryModal,
         hasModalCard: true,
+        ariaLabel: 'Add plenary',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
