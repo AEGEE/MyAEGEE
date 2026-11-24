@@ -535,6 +535,8 @@ export default {
   },
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       event: {
         name: null,
         questions: []
@@ -662,6 +664,8 @@ export default {
         }
       })
     }).catch((err) => {
+      if (this.left) return
+
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
@@ -670,6 +674,9 @@ export default {
 
       this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>
