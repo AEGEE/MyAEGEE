@@ -5,9 +5,10 @@
         <div class="box">
           <form v-on:submit.prevent="resetPassword">
             <div class="field">
-              <label class="label">Email</label>
+              <label class="label" for="password-reset-email">Email</label>
               <div class="control">
                 <input
+                  id="password-reset-email"
                   v-model="email"
                   required
                   class="input"
