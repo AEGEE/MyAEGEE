@@ -50,7 +50,13 @@ const Permission = sequelize.define('permission', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            isListOfTexts: validators.isListOfTexts('Filters should be a list of field names.')
+            isListOfTexts: validators.isListOfTexts('Filters should be a list of field names.'),
+            // The items are STRING(255) in the database.
+            itemsAreShortEnough(value) {
+                if (Array.isArray(value) && value.some((item) => typeof item === 'string' && item.length > 255)) {
+                    throw new Error('Each filter should be at most 255 characters long.');
+                }
+            }
         }
     }
 }, {
