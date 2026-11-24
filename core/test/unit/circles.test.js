@@ -77,4 +77,35 @@ describe('Cirrcle testing', () => {
         expect(circle.name).toEqual('test');
         expect(circle.description).toEqual('test');
     });
+
+    test('should fail with a gsuite_id that is not an email address', async () => {
+        await expect(generator.createCircle({ gsuite_id: 'test' })).rejects.toMatchObject({
+            name: 'SequelizeValidationError',
+            errors: [expect.objectContaining({ path: 'gsuite_id', message: 'GSuite ID should be a valid email.' })]
+        });
+        expect(await Circle.count()).toEqual(0);
+    });
+
+    test('should fail with the gsuite_id of another circle in another case', async () => {
+        await generator.createCircle({ gsuite_id: 'example-test@aegee.eu' });
+
+        await expect(generator.createCircle({ gsuite_id: '\t example-Test@AEGEE.eu ' })).rejects.toMatchObject({
+            name: 'SequelizeUniqueConstraintError',
+            errors: [expect.objectContaining({ path: 'gsuite_id', type: 'unique violation' })]
+        });
+        expect(await Circle.count()).toEqual(1);
+    });
+
+    test('should normalize the gsuite_id', async () => {
+        const circle = await generator.createCircle({ gsuite_id: '\t example-Test@AEGEE.eu ' });
+
+        expect(circle.gsuite_id).toEqual('example-test@aegee.eu');
+    });
+
+    test('should succeed for several circles without a gsuite_id', async () => {
+        await generator.createCircle({ gsuite_id: null });
+        await generator.createCircle({ gsuite_id: null });
+
+        expect(await Circle.count({ where: { gsuite_id: null } })).toEqual(2);
+    });
 });

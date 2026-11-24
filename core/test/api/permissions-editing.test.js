@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Permission } = require('../../models');
 
 describe('Permissions details', () => {
     beforeAll(async () => {
@@ -22,7 +23,7 @@ describe('Permissions details', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
 
         const res = await request({
-            path: '/permissions/1337',
+            path: '/permissions/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -95,5 +96,32 @@ describe('Permissions details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.scope).toEqual('local');
+    });
+
+    test('should fail if another permission has the scope, action and object, and keep the permission as it was', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'permission' });
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+        const permission = await generator.createPermission({ scope: 'local', action: 'view', object: 'member' });
+
+        const res = await request({
+            path: '/permissions/' + permission.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { scope: 'global' }
+        });
+
+        const message = 'There\'s already a permission with such scope, action and object.';
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({
+            success: false,
+            errors: { scope: [message], action: [message], object: [message] }
+        });
+
+        const permissionFromDb = await Permission.findByPk(permission.id);
+        expect(permissionFromDb.scope).toEqual('local');
+        expect(permissionFromDb.combined).toEqual('local:view:member');
     });
 });

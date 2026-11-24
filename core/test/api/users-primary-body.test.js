@@ -24,7 +24,7 @@ describe('User primary body setting', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/primary-body',
+            path: '/members/2147483647/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { primary_body_id: null }
@@ -67,7 +67,7 @@ describe('User primary body setting', () => {
             path: '/members/' + user.id + '/primary-body',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { primary_body_id: 1337 }
+            body: { primary_body_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -264,5 +264,130 @@ describe('User primary body setting', () => {
         expect(unset.statusCode).toEqual(200);
         expect(unset.body.data.primary_body_id).toEqual(null);
         expect(unset.body.data.primary_body).toEqual(null);
+    });
+
+    describe('what is stored', () => {
+        test('should store the primary body of that member only', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+
+            const otherUser = await generator.createUser();
+            await generator.createBodyMembership(body, otherUser);
+
+            const res = await request({
+                path: '/members/me/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { primary_body_id: body.id }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(user.id);
+            expect(res.body.data.primary_body_id).toEqual(body.id);
+            expect(res.body.data.primary_body.id).toEqual(body.id);
+
+            expect((await User.findByPk(user.id)).primary_body_id).toEqual(body.id);
+            expect((await User.findByPk(otherUser.id)).primary_body_id).toBeNull();
+        });
+
+        test('should unset the primary body without the field', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+            await user.update({ primary_body_id: body.id });
+
+            const res = await request({
+                path: '/members/me/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: {}
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.primary_body_id).toBeNull();
+            expect(res.body.data.primary_body).toBeNull();
+            expect((await User.findByPk(user.id)).primary_body_id).toBeNull();
+        });
+
+        test('should keep the primary body if the new one is a body the member is not in', async () => {
+            const body = await generator.createBody();
+            const otherBody = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+            await user.update({ primary_body_id: body.id });
+
+            const res = await request({
+                path: '/members/me/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { primary_body_id: otherBody.id }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'User is not a member of this body.' });
+            expect((await User.findByPk(user.id)).primary_body_id).toEqual(body.id);
+        });
+
+        test('should not take a join request for a membership', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createJoinRequest(body, user);
+
+            const res = await request({
+                path: '/members/me/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { primary_body_id: body.id }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'User is not a member of this body.' });
+            expect((await User.findByPk(user.id)).primary_body_id).toBeNull();
+        });
+
+        test('should keep the primary body if the new one does not exist', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+            await user.update({ primary_body_id: body.id });
+
+            const res = await request({
+                path: '/members/me/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { primary_body_id: 2147483647 }
+            });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body).toEqual({ success: false, message: 'Body is not found.' });
+            expect((await User.findByPk(user.id)).primary_body_id).toEqual(body.id);
+        });
+
+        test('should name the permission and keep the primary body of another member without it', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const otherUser = await generator.createUser();
+            await generator.createBodyMembership(body, otherUser);
+            await otherUser.update({ primary_body_id: body.id });
+
+            const res = await request({
+                path: '/members/' + otherUser.id + '/primary-body',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { primary_body_id: null }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'Permission update:member is required, but not present.' });
+            expect((await User.findByPk(otherUser.id)).primary_body_id).toEqual(body.id);
+        });
     });
 });

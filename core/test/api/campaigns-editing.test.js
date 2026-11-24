@@ -23,7 +23,7 @@ describe('Campaign editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
-            path: '/campaigns/1337',
+            path: '/campaigns/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -210,5 +210,46 @@ describe('Campaign editing', () => {
         expect(unset.statusCode).toEqual(200);
         expect(unset.body.data.autojoin_body_id).toEqual(null);
         expect(unset.body.data.autojoin_body).toEqual(null);
+    });
+
+    test('should fail if another campaign has the url, and keep the url it had', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        await generator.createCampaign({ url: 'summer-university' });
+        const campaign = await generator.createCampaign({ url: 'winter-university' });
+
+        const res = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { url: 'Summer-University' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors: { url: ['url must be unique'] } });
+
+        const campaignFromDb = await Campaign.findByPk(campaign.id);
+        expect(campaignFromDb.url).toEqual('winter-university');
+    });
+
+    test('should accept the url that the campaign has already', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({ url: 'winter-university', name: 'Winter' });
+
+        const res = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { url: 'winter-university', name: 'Winter University' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.url).toEqual('winter-university');
+        expect(res.body.data.name).toEqual('Winter University');
     });
 });

@@ -24,7 +24,7 @@ describe('Body membership details', () => {
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/2147483647',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

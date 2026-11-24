@@ -2,6 +2,36 @@ const fs = require('fs');
 const path = require('path');
 
 const config = require('../../config');
+// Root-level shared helper; becomes a workspace package after the pnpm restructure.
+const { createRequestHook } = require('../../../packages/backend-test-utils/openapi');
+
+// Checks every response (and every accepted JSON request body) against openapi.yaml.
+const checkContract = createRequestHook({ serviceRoot: path.join(__dirname, '..', '..') });
+
+// The body is checked as the server gets it: as JSON, in which a Date is a string, or as the
+// text a test sent with rawBody.
+//
+// options.skipRequestCheck: '<reason>' leaves out only the check of the request body, for the
+// sweeps that send what a client should not send: the server takes some of it (a number where
+// a text belongs is stored as a text), which the request check would report. The response is
+// still checked. A skip without a reason throws.
+const checkResponse = (options, fetchOptions, result) => {
+    if (options.skipRequestCheck !== undefined
+        && (typeof options.skipRequestCheck !== 'string' || options.skipRequestCheck.trim().length === 0)) {
+        throw new Error('skipRequestCheck needs a reason, for example skipRequestCheck: \'sends values of another type\'');
+    }
+
+    let sent = options;
+    if (options.skipRequestCheck) {
+        sent = { ...options, body: undefined };
+    } else if (options.rawBody !== undefined) {
+        sent = { ...options, body: String(options.rawBody) };
+    } else if (options.body !== undefined && !options.files) {
+        sent = { ...options, body: JSON.parse(JSON.stringify(options.body)) };
+    }
+
+    checkContract(sent, fetchOptions, result);
+};
 
 const baseUrl = 'http://localhost:' + config.port;
 
@@ -63,12 +93,14 @@ const request = async (options) => {
 
     const response = await fetch(appendQuery(new URL(options.path, baseUrl + '/').toString(), options.query), fetchOptions);
     if (responseType === 'buffer') {
-        return {
+        const bufferResult = {
             statusCode: response.status,
             statusMessage: response.statusText,
             headers: Object.fromEntries(response.headers.entries()),
             body: Buffer.from(await response.arrayBuffer())
         };
+        checkResponse(options, fetchOptions, bufferResult);
+        return bufferResult;
     }
 
     const text = await response.text();
@@ -82,12 +114,14 @@ const request = async (options) => {
         }
     }
 
-    return {
+    const result = {
         statusCode: response.status,
         statusMessage: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
         body
     };
+    checkResponse(options, fetchOptions, result);
+    return result;
 };
 
 exports.request = request;

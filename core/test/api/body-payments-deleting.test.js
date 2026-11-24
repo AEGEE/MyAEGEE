@@ -27,7 +27,7 @@ describe('Body payments deleting', () => {
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'payment' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/payments/1337',
+            path: '/bodies/' + body.id + '/payments/2147483647',
             method: 'DELETE',
             headers: { 'X-Auth-Token': token.value }
         });

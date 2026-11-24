@@ -38,7 +38,7 @@ describe('User mail change', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/email',
+            path: '/members/2147483647/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { new_email: 'test@test.io' }
@@ -197,7 +197,7 @@ describe('User mail change', () => {
             path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { new_email: 'test@aegee.eu' }
+            body: { new_email: 'example-test@aegee.eu' }
         });
 
         expect(res.statusCode).toEqual(422);
@@ -216,7 +216,7 @@ describe('User mail change', () => {
             path: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { new_email: 'test@aegee.org' }
+            body: { new_email: 'example-test@aegee.org' }
         });
 
         expect(res.statusCode).toEqual(422);

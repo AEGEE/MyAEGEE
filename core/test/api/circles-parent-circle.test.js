@@ -27,7 +27,7 @@ describe('Circle setting parent circle', () => {
             path: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle_id: 1337 }
+            body: { parent_circle_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(404);

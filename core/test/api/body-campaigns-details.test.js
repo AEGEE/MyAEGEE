@@ -21,7 +21,7 @@ describe('Body campaign details', () => {
         const body = await generator.createBody();
 
         const res = await request({
-            path: '/bodies/' + body.id + '/campaigns/1337',
+            path: '/bodies/' + body.id + '/campaigns/2147483647',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

@@ -133,7 +133,6 @@ function filterBy(query, fields) {
     Required for filtering stuff.
 */
 function findBy(query, fields) {
-    /* istanbul ignore if */
     if (typeof query !== 'object' || query === null) {
         return {};
     }
@@ -180,7 +179,6 @@ function whitelistObject(object, allowedFields) {
 function getRandomBytes(length) {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(length / 2, (err, res) => {
-            /* istanbul ignore if */
             if (err) {
                 return reject(err);
             }
@@ -188,13 +186,6 @@ function getRandomBytes(length) {
             return resolve(res.toString('hex'));
         });
     });
-}
-
-function getMailText({ user, mailinglists }) {
-    return `OK BEGIN
-REG ${user.first_name} ${user.last_name}
-SUBSCRIBE ${mailinglists.join('\r\nSUBSCRIBE ')}
-OK END`;
 }
 
 // A helper to add data to gauge Prometheus metric.
@@ -284,7 +275,6 @@ module.exports = {
     findBy,
     whitelistObject,
     getRandomBytes,
-    getMailText,
     addGaugeData,
     equalsIgnoreCase,
     isRestrictedEmail,

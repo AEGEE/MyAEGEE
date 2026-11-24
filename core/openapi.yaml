@@ -1,0 +1,3918 @@
+# The API of core: members, bodies, circles, permissions, campaigns, payments and the
+# Resources page. Hand-written; every response of the jest tests is checked against it
+# (docs/testing/backend-openapi.md). Paths are in the order of lib/server.js.
+openapi: 3.1.1
+info:
+  title: MyAEGEE core
+  version: '1'
+  description: |
+    Members, bodies, circles, permissions, signup campaigns, membership fee payments and
+    the Resources page of MyAEGEE. The other services check every request against
+    `GET /members/me` and `GET /my_permissions` of this one.
+
+    A 500 answer (`ErrorResponse`) is possible on every operation and is not listed. So is
+    a 400 answer for a request body that is not valid JSON. Every operation with a JSON body
+    lists 400 (a text with the character U+0000, or a compressed body that does not
+    decompress), 413 (a body over 100 kB) and 415 (another charset than UTF-8, or an unknown
+    content encoding): the server refuses those before the route, so also before the login.
+  license: {name: ISC, identifier: ISC}
+servers:
+  - url: /api/core
+security:
+  - XAuthToken: []
+tags:
+  - name: generic
+  - name: metrics
+  - name: endpoint-metrics
+  - name: campaigns
+  - name: register
+  - name: members
+  - name: login
+  - name: bodies
+  - name: bug-report
+  - name: my-permissions
+  - name: circles
+  - name: permissions
+  - name: resources
+  - name: imageserv
+  - name: body-campaigns
+  - name: body-memberships
+  - name: join-requests
+  - name: payments
+  - name: circle-permissions
+  - name: circle-memberships
+paths:
+  /healthcheck:
+    get:
+      operationId: getHealthcheck
+      summary: Health check
+      tags: [generic]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: The service is up.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthcheckResponse'}
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics of the data (numbers of members, bodies, circles)
+      tags: [metrics]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /metrics/requests:
+    get:
+      operationId: getRequestMetrics
+      summary: Prometheus metrics of the handled requests
+      tags: [endpoint-metrics]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /signup/{campaign_id}:
+    parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        description: The `url` of the campaign. Unlike on `/campaigns/{campaign_id}`, an id does not work here.
+        schema: {type: string}
+    post:
+      operationId: registerUser
+      summary: Register an account through a signup campaign
+      description: |
+        Creates the member, adds them to the campaign's autojoin body if it has one, and
+        mails a confirmation link. The account cannot log in before the email is confirmed.
+      tags: [campaigns]
+      x-permission: none; the campaign must be active
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserSignupInput'}
+      responses:
+        '200':
+          description: The created member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserSignupResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '403':
+          description: The campaign is not active.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
+  /confirm-email:
+    post:
+      operationId: confirmEmail
+      summary: Confirm the email of a new account
+      tags: [register]
+      x-permission: none; needs the token from the confirmation mail
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TokenInput'}
+      responses:
+        '200':
+          description: The account is confirmed and can log in.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '403':
+          description: The token has expired.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404':
+          description: No confirmation with this token.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /confirm-email-change:
+    post:
+      operationId: confirmEmailChange
+      summary: Confirm a change of the login email
+      description: |
+        Takes the token that was mailed to the new address, or the one that was mailed to
+        the current address when somebody else requested the change. The email changes once
+        every address that has to confirm has done so; until then `data.changed` is false
+        and `data.waiting_for` names the address that is still missing.
+      tags: [members]
+      x-permission: none; needs a token from one of the email change mails
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TokenInput'}
+      responses:
+        '200':
+          description: Confirmed. `data` tells whether the email has changed already.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmailChangeConfirmationResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '404':
+          description: No token, an unknown or expired token, or the login email changed since the request.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The new address belongs to another account by now.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503':
+          description: 'Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /login:
+    post:
+      operationId: login
+      summary: Log in with a username, login email or Google Workspace account
+      description: |
+        Unlike the other operations, the answer has no `data`: the tokens are at the top
+        level. The other services log their service accounts in here.
+      tags: [login]
+      x-permission: none
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: {type: string, description: 'Username, login email or Google Workspace account; case and surrounding spaces are ignored.'}
+                password: {type: string}
+              additionalProperties: true
+      responses:
+        '200':
+          description: A new access token and refresh token.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TokensResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '403':
+          description: The name or password does not match, the account is suspended, or its email is not confirmed yet.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /logout:
+    post:
+      operationId: logout
+      summary: Log out by deleting a refresh token
+      tags: [login]
+      x-permission: none; needs the refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RefreshTokenInput'}
+      responses:
+        '200':
+          description: The refresh token is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'No token, or a token that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '403':
+          description: No such refresh token.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /password_reset:
+    post:
+      operationId: requestPasswordReset
+      summary: Request a password reset mail
+      description: |
+        Answers the same whether or not the address belongs to an account, and for a
+        suspended member, who gets no mail. The reset is created after the answer, and
+        mailed after it is stored; if the mail fails, the reset is deleted again.
+      tags: [login]
+      x-permission: none
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: {type: [string, 'null'], description: The login email of the account.}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The request is taken.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'The email is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /password_confirm:
+    post:
+      operationId: confirmPasswordReset
+      summary: Set a new password with the token from a password reset mail
+      description: Ends all sessions of the member.
+      tags: [login]
+      x-permission: none; needs the token from the password reset mail
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: {type: string}
+                password: {type: string, minLength: 8}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The password is changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '404':
+          description: No token, or an unknown or expired one.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /renew:
+    post:
+      operationId: renewTokens
+      summary: Exchange a refresh token for a new access token and refresh token
+      description: |
+        The refresh token is rotated: the old one keeps working for a short grace period, so
+        that two renews at the same time both succeed. Like login, the answer has no `data`.
+      tags: [login]
+      x-permission: none; needs the refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RefreshTokenInput'}
+      responses:
+        '200':
+          description: A new access token and refresh token.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TokensResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '403':
+          description: No token, an unknown or used-up token, or the token of a suspended member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '503': {$ref: '#/components/responses/Busy'}
+  /bodies:
+    get:
+      operationId: listBodies
+      summary: List bodies
+      description: |
+        Sorted by name unless `sort` says otherwise. Without a login only antennae, contact
+        antennae and contacts are listed.
+      tags: [bodies]
+      x-permission: none; all=true needs global:view_deleted:body
+      security: [{}, {XAuthToken: []}]
+      parameters:
+        - name: all
+          in: query
+          description: Any value includes deleted bodies. Needs a login and `global:view_deleted:body`.
+          schema: {type: string}
+        - name: type
+          in: query
+          description: Only bodies of these types, separated by commas.
+          schema: {type: string}
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The bodies.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyListResponse'}
+        '400':
+          description: A `sort` field that bodies do not have, or a `type` that is not a text.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401':
+          description: '`all` without a login.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '403':
+          description: '`all` without `global:view_deleted:body`.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      operationId: createBody
+      summary: Create a body
+      tags: [bodies]
+      x-permission: global:create:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BodyCreateInput'}
+      responses:
+        '200':
+          description: The created body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bug-report:
+    post:
+      operationId: reportBug
+      summary: Send a bug report to the issue tracker
+      description: |
+        Forwards the report and its screenshots to the Atlassian service desk. Without
+        `email`, the notification email of the logged-in member is used. At most 10 reports
+        per hour from one address.
+      tags: [bug-report]
+      x-permission: none
+      security: [{}, {XAuthToken: []}]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                summary: {type: string}
+                description: {type: string}
+                email: {type: string}
+                screenshots:
+                  type: array
+                  maxItems: 3
+                  items: {type: string, contentMediaType: application/octet-stream}
+      responses:
+        '200':
+          description: The issue is created.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '422':
+          description: The form could not be read (too many or too large files), or the issue tracker refused the report.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '429':
+          description: Too many bug reports from this address.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '502':
+          description: The issue tracker could not be reached or failed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /my_permissions:
+    get:
+      operationId: listMyPermissions
+      summary: The global permissions of the current member
+      description: |
+        A superadmin gets every permission of every scope. The other services read
+        `combined` of each row to decide what the member may do.
+      tags: [my-permissions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permissions. Not paginated and without `meta`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MyPermissionsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: listMyCirclesWithPermission
+      summary: The circles through which the current member holds a local permission
+      description: |
+        The other services use the `body_id` of these circles to find the bodies in which
+        the member holds the permission.
+      tags: [my-permissions]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action, object]
+              properties:
+                action: {type: string}
+                object: {type: string}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The circles, each with the member's own memberships of it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleWithCircleMembershipsListResponse'}
+        '400':
+          description: 'No `action` or `object`, or a `sort` field that circles do not have. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404':
+          description: There is no local permission with this action and object.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /members:
+    get:
+      operationId: listMembers
+      summary: List members
+      tags: [members]
+      x-permission: global:view:member
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The members.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /members_search:
+    get:
+      operationId: searchMembers
+      summary: Search members by name or email
+      description: |
+        With `global:search:member` the search covers all members, optionally narrowed by
+        `body_id`. Without it `body_id` is required (at most 10 bodies) and the caller must
+        be a member of at least one of them.
+
+        With `global:view:member` the search covers names, emails and Google Workspace
+        accounts, and each result has the contact fields, with the total in `meta.count`.
+        Everybody else searches by name or an exact email, needs a query of at least 2
+        characters, and gets at most 50 results with ids and names only and an empty `meta`.
+      tags: [members]
+      x-permission: global:search:member, or member of one of the bodies in body_id
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - name: body_id
+          in: query
+          description: Body ids, separated by commas. Values that are not ids are ignored.
+          schema: {type: string}
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: sort
+          in: query
+          description: A member field to sort by. A field that the results do not have is replaced by `id`.
+          schema: {type: string}
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The results, in one of two shapes (see above).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserSearchResponse'}
+        '400':
+          description: '`body_id` given more than once, more than 10 bodies, or a `sort` field that members do not have.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /members_email:
+    get:
+      operationId: listMemberEmails
+      summary: The notification emails of members
+      description: The other services use this to mail members.
+      tags: [members]
+      x-permission: global:mail:member, or only the caller's own id
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: One member id or several, separated by commas.
+          schema: {type: string, pattern: '^\d+(,\d+)*$'}
+      responses:
+        '200':
+          description: The id and notification email of each member that exists.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserEmailListResponse'}
+        '400':
+          description: No `query`, or one that is not a list of ids.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /circles:
+    get:
+      operationId: listCircles
+      summary: List circles
+      tags: [circles]
+      x-permission: authenticated
+      parameters:
+        - name: all
+          in: query
+          description: Any value includes the circles that are bound to a body. Without it only free circles are listed.
+          schema: {type: string}
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The circles.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: createCircle
+      summary: Create a free circle
+      description: A circle of a body is created with `POST /bodies/{body_id}/circles`.
+      tags: [circles]
+      x-permission: global:create:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CircleCreateInput'}
+      responses:
+        '200':
+          description: The created circle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /permissions:
+    get:
+      operationId: listPermissions
+      summary: List permissions
+      tags: [permissions]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The permissions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PermissionListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: createPermission
+      summary: Create a permission
+      tags: [permissions]
+      x-permission: global:create:permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PermissionCreateInput'}
+      responses:
+        '200':
+          description: The created permission.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PermissionResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      summary: List signup campaigns
+      tags: [campaigns]
+      x-permission: global:view:campaign
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The campaigns.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      operationId: createCampaign
+      summary: Create a signup campaign
+      tags: [campaigns]
+      x-permission: global:create:campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CampaignCreateInput'}
+      responses:
+        '200':
+          description: The created campaign.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /resources:
+    get:
+      operationId: listResources
+      summary: The sections of the Resources page with their links
+      tags: [resources]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The sections in page order, each with its links in order. Not paginated and without `meta`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryWithLinksListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /resources/categories:
+    post:
+      operationId: createResourceCategory
+      summary: Add a section to the Resources page
+      description: The new section goes last.
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ResourceCategoryCreateInput'}
+      responses:
+        '200':
+          description: The created section.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /resources/links:
+    post:
+      operationId: createResourceLink
+      summary: Add a link to a section of the Resources page
+      description: The new link goes last in its section.
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ResourceLinkCreateInput'}
+      responses:
+        '200':
+          description: The created link.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceLinkResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /members/{user_id}/my_permissions:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: listMyPermissionsForMember
+      summary: The permissions of the current member on another member
+      description: |
+        The global permissions, plus the local ones that the current member holds in a body
+        of that member, plus the join request ones held in a body that member asked to join.
+      tags: [my-permissions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permissions. Not paginated and without `meta`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MyPermissionsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /members/{user_id}/active:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: setMemberActive
+      summary: Suspend or reactivate a member
+      description: |
+        A suspended member cannot log in or renew a session, their tokens stop working,
+        and the links mailed to them (password reset, email change) answer like an invalid
+        token. Nobody can suspend themselves (422 `You cannot suspend yourself.`), and only a
+        superadmin can suspend or reactivate a superadmin (403
+        `Only a superadmin can suspend or activate a superadmin.`).
+      tags: [members]
+      x-permission: global:update_active:user; a superadmin as the member needs a superadmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Without `active` nothing changes.
+              properties:
+                active: {type: boolean}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /members/{user_id}/event-application-ban:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: setEventApplicationBan
+      summary: Ban a member from applying to events
+      description: Replaces an active ban of the member. The ban ends by itself at `ban_until`.
+      tags: [members]
+      x-permission: global:update_application_ban:member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ban_until]
+              properties:
+                ban_until: {type: string, description: 'An ISO date or timestamp in the future, at most 3 months from now.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The new ban.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventApplicationBanResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: liftEventApplicationBan
+      summary: Lift the event application ban of a member
+      tags: [members]
+      x-permission: global:update_application_ban:member
+      responses:
+        '200':
+          description: The ban is lifted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such member, or the member has no active ban.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /members/{user_id}/superadmin:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: setMemberSuperadmin
+      summary: Make a member a superadmin, or take that away
+      tags: [members]
+      x-permission: global:update_superadmin:member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Without `superadmin` nothing changes.
+              properties:
+                superadmin: {type: boolean}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /members/{user_id}/confirm:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    post:
+      operationId: confirmMember
+      summary: Confirm the email of a member for them
+      tags: [members]
+      x-permission: global:confirm:member
+      responses:
+        '200':
+          description: The member, now confirmed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /members/{user_id}/primary-body:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: setPrimaryBody
+      summary: Set or unset the primary body of a member
+      description: |
+        The member has to be in the body. Without `primary_body_id`, or with any value that
+        JavaScript reads as false (null, `0`, an empty text, false), the primary body is unset.
+      tags: [members]
+      x-permission: update:member, or the member themselves
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                primary_body_id: {type: [integer, string, 'null'], description: 'A body the member belongs to, as a number or as a text of digits. Null unsets the primary body.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400':
+          description: '`primary_body_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: Not allowed, or the member does not belong to that body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404':
+          description: No such member or body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+  /members/{user_id}/email:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: requestEmailChange
+      summary: Request a change of the login email of a member
+      description: |
+        Mails a confirmation link to the new address; the email changes with
+        `POST /confirm-email-change`. When somebody else asks for the change and does not
+        hold `global:update:member`, the member's current address has to confirm it as well
+        (`data.needs_old_address_confirmation`).
+      tags: [members]
+      x-permission: update:member, or the member themselves
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_email]
+              properties:
+                new_email: {type: string}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The change is requested and the mails are sent.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmailChangeRequestResponse'}
+        '400':
+          description: 'No `new_email`, or one that is not a string. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The address is on a restricted domain, belongs to another account, or is not an email address.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503':
+          description: 'Another request for the same member is being processed for longer than the lock timeout (3 seconds): `Another request for the same data is being processed. Please try again in a moment.` Or a mail could not be sent, so the operation rolled back: `The mail could not be sent, so nothing was saved. Please try again later.` Nothing was changed in either case.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /members/{user_id}/password:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    put:
+      operationId: setMemberPassword
+      summary: Change the password of a member
+      tags: [members]
+      x-permission: update:member, or the member themselves; needs the current password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [old_password, password]
+              properties:
+                old_password: {type: string}
+                password: {type: string, minLength: 8}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The password is changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: No or a wrong `old_password`, or a new password that is not valid.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /members/{user_id}/listserv:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    post:
+      operationId: subscribeListserv
+      summary: Subscribe a member to AEGEE mailing lists
+      tags: [members]
+      x-permission: global:subscribe:listserv, or the member themselves
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mailinglists]
+              properties:
+                mailinglists:
+                  type: array
+                  minItems: 1
+                  items: {type: string, description: 'One of AEGEE-L, AEGEENEWS-L, ANNOUNCE-L and AEGEE-EVENT-L, in any case.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The subscription request is sent to the list server.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'No `mailinglists`, or not an array. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: An empty list, an item that is not a string, or a list that does not exist.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /members/{user_id}/lookup:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: lookupMember
+      summary: The name and addresses of a member
+      tags: [members]
+      x-permission: lookup:member or view:member, or the member themselves
+      responses:
+        '200':
+          description: The member's id, names and addresses.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserLookupResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /members/{user_id}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: getMember
+      summary: One member, or the current member with `me`
+      description: |
+        The other services call `GET /members/me` with the caller's token on every request,
+        and read `id`, the names, `notification_email`, `superadmin` and `bodies`.
+
+        With `view:member`, and for the member themselves, the answer is the whole member
+        with their bodies, memberships, join requests and circles. `event_application_ban`
+        is only there for the member themselves and for holders of
+        `global:update_application_ban:member`; it is null without an active ban.
+
+        With only `view_members:body` the answer has just the id, names and addresses.
+      tags: [members]
+      x-permission: view:member, or the member themselves; view_members:body gives a short version
+      responses:
+        '200':
+          description: The member, in one of two shapes (see above).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: {const: true}
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/UserWithMemberships'
+                      - $ref: '#/components/schemas/UserLimited'
+                additionalProperties: false
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateMember
+      summary: Update the profile of a member
+      description: |
+        `gsuite_id` is only taken from holders of `global:update:member` and ignored from
+        everybody else. The login email, password, primary body and the `active` and
+        `superadmin` flags have their own operations.
+      tags: [members]
+      x-permission: update:member, or the member themselves
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserInput'}
+      responses:
+        '200':
+          description: The member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithMembershipsResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteMember
+      summary: Delete a member
+      tags: [members]
+      x-permission: delete:member
+      responses:
+        '200':
+          description: The member is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /members/{user_id}/upload:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    post:
+      operationId: uploadMemberImage
+      summary: Upload the profile picture of a member
+      description: A PNG or JPEG of at most 5 MB. Replaces the picture the member had.
+      tags: [imageserv]
+      x-permission: update:member, or the member themselves
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [head_image]
+              properties:
+                head_image: {type: string, contentMediaType: application/octet-stream}
+      responses:
+        '200':
+          description: The picture is stored. `data` is its file name.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422':
+          description: No file, a file that is too large, or one that is not a PNG or JPEG.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /members/{user_id}/image:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    delete:
+      operationId: deleteMemberImage
+      summary: Remove the profile picture of a member
+      tags: [imageserv]
+      x-permission: update:member, or the member themselves
+      responses:
+        '200':
+          description: The picture is removed. `data` is null.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422':
+          description: The member has no picture.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /bodies/{body_id}:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: getBody
+      summary: One body
+      description: The other services read `name`, `code`, `type`, `status` and `email`.
+      tags: [bodies]
+      x-permission: none; a deleted body needs view_deleted:body
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The body with its circles and its shadow circle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyWithCirclesResponse'}
+        '403':
+          description: The body is deleted and the caller may not see deleted bodies.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateBody
+      summary: Update a body
+      description: |
+        A permission with `filters` limits the change to those fields; the other fields in
+        the request are ignored. A new `shadow_circle_id` has to be a circle of this body.
+      tags: [bodies]
+      x-permission: update:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BodyInput'}
+      responses:
+        '200':
+          description: The body with its circles and its shadow circle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/my_permissions:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: listMyPermissionsForBody
+      summary: The permissions of the current member in a body
+      description: The global permissions, plus the local ones held through the circles of this body.
+      tags: [my-permissions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permissions. Not paginated and without `meta`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MyPermissionsResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /bodies/{body_id}/campaigns:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: listBodyCampaigns
+      summary: List the signup campaigns that add new members to a body
+      tags: [body-campaigns]
+      x-permission: view:campaign
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The campaigns.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createBodyCampaign
+      summary: Create a signup campaign that adds new members to a body
+      tags: [body-campaigns]
+      x-permission: create:campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CampaignCreateInput'}
+      responses:
+        '200':
+          description: The created campaign, with this body as `autojoin_body_id` whatever the request says.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/circles:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    post:
+      operationId: createBodyCircle
+      summary: Create a circle of a body
+      tags: [bodies]
+      x-permission: create:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CircleCreateInput'}
+      responses:
+        '200':
+          description: The created circle, bound to this body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: listBodyMemberships
+      summary: List the members of a body
+      description: |
+        With `holds_permission[action]` and `holds_permission[object]` only the members who
+        hold that local permission in this body are listed, and each `user` has the
+        `circle_memberships` that give it, with their circle. The other services use this
+        to find whom to mail (`user.notification_email` and the names).
+      tags: [body-memberships]
+      x-permission: view_members:body
+      parameters:
+        - name: holds_permission
+          in: query
+          style: deepObject
+          explode: true
+          description: Only members holding this local permission in the body.
+          schema:
+            type: object
+            required: [action, object]
+            properties:
+              action: {type: string}
+              object: {type: string}
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The memberships, each with its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyMembershipWithUserListResponse'}
+        '400':
+          description: '`holds_permission` without an action or object, or a `sort` field that memberships do not have.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such body, or no local permission with the action and object of `holds_permission`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      operationId: createBodyMembership
+      summary: Add a member to a body
+      description: |
+        The member also joins the shadow circle of the body. A member who had no body yet
+        gets a welcome mail.
+      tags: [body-memberships]
+      x-permission: add_member:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserIdInput'}
+      responses:
+        '200':
+          description: The created membership.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyMembershipResponse'}
+        '400':
+          description: '`user_id` is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such body or member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The member belongs to the body already.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
+    delete:
+      operationId: deleteOwnBodyMembership
+      summary: Leave a body
+      description: |
+        If it was the member's last body, the Google Workspace administrators are told; a
+        failure of that mail is logged and does not change the answer.
+      tags: [body-memberships]
+      x-permission: authenticated; removes the caller's own membership
+      responses:
+        '200':
+          description: The membership is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404':
+          description: No such body, or the caller is not a member of it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /bodies/{body_id}/create-member:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    post:
+      operationId: createBodyMember
+      summary: Create an account for somebody and add them to a body
+      description: |
+        The account is confirmed right away and gets a random password; the new member sets
+        their own with a password reset. A `password` in the request is ignored.
+      tags: [bodies]
+      x-permission: create_member:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserCreateInput'}
+      responses:
+        '200':
+          description: The membership of the new member (not the member).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyMembershipResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/join-requests:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: listJoinRequests
+      summary: List the join requests of a body
+      tags: [join-requests]
+      x-permission: view:join_request
+      parameters:
+        - name: status
+          in: query
+          description: Only requests with this status.
+          schema: {$ref: '#/components/schemas/JoinRequestStatus'}
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The join requests, each with its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/JoinRequestWithUserListResponse'}
+        '400':
+          description: A `sort` field that join requests do not have, or a `status` that is not a text.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createJoinRequest
+      summary: Ask to join a body
+      description: |
+        Mails the body and the members who can process its join requests, after the request
+        is stored. If that mail fails, the request stays and the failure is logged.
+      tags: [join-requests]
+      x-permission: authenticated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                motivation: {type: [string, 'null']}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The created join request, with the status `pending`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/JoinRequestResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The caller asked already, is a member of the body already, or the body is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /bodies/{body_id}/payments:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    get:
+      operationId: listPayments
+      summary: List the membership fee payments of a body
+      tags: [payments]
+      x-permission: view:payment
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The payments.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaymentListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createPayment
+      summary: Record a membership fee payment of a member of a body
+      tags: [payments]
+      x-permission: create:payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PaymentCreateInput'}
+      responses:
+        '200':
+          description: The created payment.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaymentResponse'}
+        '400':
+          description: 'No `user_id`, or one that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: Not allowed, or the member does not belong to the body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404':
+          description: No such body or member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+    put:
+      operationId: setBodyStatus
+      summary: Delete or restore a body
+      description: |
+        Deleting a body also deletes its memberships, circles, payments and approved join
+        requests. Restoring it does not bring them back.
+      tags: [bodies]
+      x-permission: global:delete:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Without `status` nothing changes.
+              properties:
+                status: {$ref: '#/components/schemas/BodyStatus'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The body as loaded before the change, with the new status.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /bodies/{body_id}/members/{membership_id}:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+      - $ref: '#/components/parameters/BodyMembershipId'
+    get:
+      operationId: getBodyMembership
+      summary: One membership of a body
+      tags: [body-memberships]
+      x-permission: view_members:body
+      responses:
+        '200':
+          description: The membership with its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyMembershipWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateBodyMembership
+      summary: Change the comment of a membership of a body
+      tags: [body-memberships]
+      x-permission: update_member:body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment: {type: [string, 'null']}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The membership with its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BodyMembershipWithUserResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: A comment that is not a text.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    delete:
+      operationId: deleteBodyMembership
+      summary: Remove a member from a body
+      description: |
+        Also removes the member from the circles of the body, deletes their join request
+        and unsets the body as their primary body. If it was the member's last body, the
+        Google Workspace administrators are told; a failure of that mail is logged and does
+        not change the answer.
+      tags: [body-memberships]
+      x-permission: delete_member:body
+      responses:
+        '200':
+          description: The membership is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /bodies/{body_id}/join-requests/{request_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+      - name: request_id
+        in: path
+        required: true
+        schema: {type: integer}
+    put:
+      operationId: setJoinRequestStatus
+      summary: Approve or reject a join request
+      description: |
+        Approving makes the member a member of the body and keeps the request. Rejecting
+        deletes the request, so that the member can ask again.
+      tags: [join-requests]
+      x-permission: process:join_request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [approved, rejected]}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The request is processed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'A request id that is not a number, another status than approved or rejected, or a request that was processed already. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: Approving the request of somebody who became a member of the body in the meantime.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '503': {$ref: '#/components/responses/MailNotSent'}
+  /circles/{circle_id}/my_permissions:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+    get:
+      operationId: listMyPermissionsForCircle
+      summary: The permissions of the current member on a circle
+      description: The global permissions, plus the local ones held in the body that the circle belongs to.
+      tags: [my-permissions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permissions. Not paginated and without `meta`.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MyPermissionsResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /circles/{circle_id}/permissions:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+    get:
+      operationId: listCirclePermissions
+      summary: The permissions of a circle, its own and those of its parent circles
+      tags: [circles]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permissions, each with the circles through which this circle has it. Not paginated.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PermissionWithCirclePermissionsListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: addCirclePermission
+      summary: Give a permission to a circle
+      tags: [circle-permissions]
+      x-permission: global:put_permissions:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [permission_id]
+              properties:
+                permission_id: {type: [integer, string], description: 'As a number or as a text of digits.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The circle has the permission now.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'A circle id or `permission_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such circle or permission.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The circle has the permission already.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /circles/{circle_id}/permissions/{permission_id}:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+      - $ref: '#/components/parameters/PermissionId'
+    delete:
+      operationId: removeCirclePermission
+      summary: Take a permission away from a circle
+      tags: [circle-permissions]
+      x-permission: global:put_permissions:circle
+      responses:
+        '200':
+          description: The circle no longer has the permission.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such circle, or the circle does not have this permission itself.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /circles/{circle_id}:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+    get:
+      operationId: getCircle
+      summary: One circle
+      tags: [circles]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The circle with its child circles, parent circle, body and own permissions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleWithPermissionsResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateCircle
+      summary: Update a circle
+      tags: [circles]
+      x-permission: update:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CircleInput'}
+      responses:
+        '200':
+          description: The circle with its child circles, parent circle, body and own permissions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleWithPermissionsResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteCircle
+      summary: Delete a circle
+      tags: [circles]
+      x-permission: delete:circle
+      responses:
+        '200':
+          description: The circle is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /circles/{circle_id}/parent:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+    put:
+      operationId: setParentCircle
+      summary: Set or unset the parent circle of a circle
+      description: A circle has the permissions of its parent circles as well.
+      tags: [circles]
+      x-permission: global:put_parent:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [parent_circle_id]
+              properties:
+                parent_circle_id: {type: [integer, string, 'null'], description: 'As a number or as a text of digits. Null unsets the parent circle.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The parent circle is set or unset.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400':
+          description: 'A circle id or `parent_circle_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404':
+          description: No such circle or parent circle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The circle would become its own parent, directly or through other circles.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /circles/{circle_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+    get:
+      operationId: listCircleMemberships
+      summary: List the members of a circle
+      tags: [circle-memberships]
+      x-permission: view_members:circle
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The memberships, each with its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleMembershipWithUserListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createCircleMembership
+      summary: Add a member to a circle
+      description: For a circle of a body, the member has to belong to that body.
+      tags: [circle-memberships]
+      x-permission: add_member:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserIdInput'}
+      responses:
+        '200':
+          description: The created membership.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleMembershipResponse'}
+        '400':
+          description: 'A circle id or `user_id` that is not a number. A text in the request body that contains the character U+0000, or a compressed body that does not decompress, also answers 400.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: Not allowed, or the member does not belong to the body of the circle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404':
+          description: No such circle or member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: The member is in the circle already.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    delete:
+      operationId: deleteOwnCircleMembership
+      summary: Leave a circle
+      tags: [circle-memberships]
+      x-permission: authenticated; removes the caller's own membership
+      responses:
+        '200':
+          description: The membership is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404':
+          description: No such circle, or the caller is not a member of it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /circles/{circle_id}/members/{membership_id}:
+    parameters:
+      - $ref: '#/components/parameters/CircleId'
+      - $ref: '#/components/parameters/CircleMembershipId'
+    get:
+      operationId: getCircleMembership
+      summary: One membership of a circle
+      tags: [circle-memberships]
+      x-permission: view_members:circle
+      responses:
+        '200':
+          description: The membership, without its member.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleMembershipResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateCircleMembership
+      summary: Change the position of a member in a circle
+      tags: [circle-memberships]
+      x-permission: update_members:circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position: {type: [string, 'null'], description: 'What the member does in the circle, like President.'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The membership.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CircleMembershipResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: A position that is not a text.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    delete:
+      operationId: deleteCircleMembership
+      summary: Remove a member from a circle
+      tags: [circle-memberships]
+      x-permission: delete_members:circle
+      responses:
+        '200':
+          description: The membership is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /permissions/{permission_id}:
+    parameters:
+      - $ref: '#/components/parameters/PermissionId'
+    get:
+      operationId: getPermission
+      summary: One permission
+      tags: [permissions]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The permission with the circles that have it themselves.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PermissionWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updatePermission
+      summary: Update a permission
+      tags: [permissions]
+      x-permission: global:update:permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PermissionInput'}
+      responses:
+        '200':
+          description: The permission with the circles that have it themselves.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PermissionWithCirclesResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deletePermission
+      summary: Delete a permission
+      tags: [permissions]
+      x-permission: global:delete:permission
+      responses:
+        '200':
+          description: The permission is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /permissions/{permission_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/PermissionId'
+    get:
+      operationId: listPermissionMembers
+      summary: List the members who hold a permission
+      description: |
+        The members of a circle that has the permission, itself or through a parent circle,
+        and the superadmins.
+      tags: [permissions]
+      x-permission: global:view:member
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The members, each with their circle memberships and circles.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserWithCirclesListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /campaigns/{campaign_id}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      operationId: getCampaign
+      summary: One signup campaign
+      description: |
+        The signup page reads this without a login. Holders of `global:create:campaign` get
+        all fields of the campaign; everybody else gets the public fields. Both get the same
+        six fields of the autojoin body.
+      tags: [campaigns]
+      x-permission: none; global:create:campaign gives all fields
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The campaign, in one of two shapes (see above).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: {const: true}
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/CampaignPublic'
+                      - $ref: '#/components/schemas/CampaignWithPublicAutojoinBody'
+                additionalProperties: false
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateCampaign
+      summary: Update a signup campaign
+      tags: [campaigns]
+      x-permission: global:update:campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CampaignInput'}
+      responses:
+        '200':
+          description: The campaign. The included `autojoin_body` is the one from before the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignWithAutojoinBodyResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteCampaign
+      summary: Delete a signup campaign
+      tags: [campaigns]
+      x-permission: global:delete:campaign
+      responses:
+        '200':
+          description: The campaign is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /campaigns/{campaign_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      operationId: listCampaignMembers
+      summary: List the members who registered through a signup campaign
+      tags: [campaigns]
+      x-permission: global:view:member
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The members.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /bodies/{body_id}/campaigns/{campaign_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+      - $ref: '#/components/parameters/BodyCampaignId'
+    get:
+      operationId: listBodyCampaignMembers
+      summary: List the members who registered through a signup campaign of a body
+      tags: [body-campaigns]
+      x-permission: view:member
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The members.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserListResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /bodies/{body_id}/campaigns/{campaign_id}:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+      - $ref: '#/components/parameters/BodyCampaignId'
+    get:
+      operationId: getBodyCampaign
+      summary: One signup campaign of a body
+      tags: [body-campaigns]
+      x-permission: view:campaign
+      responses:
+        '200':
+          description: The campaign with its autojoin body, which is this body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignWithAutojoinBodyResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateBodyCampaign
+      summary: Update a signup campaign of a body
+      description: The campaign stays with this body; `autojoin_body_id` in the request is ignored.
+      tags: [body-campaigns]
+      x-permission: update:campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CampaignInput'}
+      responses:
+        '200':
+          description: The campaign with its autojoin body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CampaignWithAutojoinBodyResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteBodyCampaign
+      summary: Delete a signup campaign of a body
+      tags: [body-campaigns]
+      x-permission: delete:campaign
+      responses:
+        '200':
+          description: The campaign is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /bodies/{body_id}/payments/{payment_id}:
+    parameters:
+      - $ref: '#/components/parameters/BodyId'
+      - name: payment_id
+        in: path
+        required: true
+        schema: {type: integer}
+    put:
+      operationId: updatePayment
+      summary: Update a membership fee payment
+      description: The member and the body of a payment cannot be changed.
+      tags: [payments]
+      x-permission: update:payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PaymentInput'}
+      responses:
+        '200':
+          description: The payment.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaymentResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deletePayment
+      summary: Delete a membership fee payment
+      tags: [payments]
+      x-permission: delete:payment
+      responses:
+        '200':
+          description: The payment is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /resources/categories/{category_id}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    get:
+      operationId: getResourceCategory
+      summary: One section of the Resources page
+      tags: [resources]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The section with its links in order.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryWithLinksResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateResourceCategory
+      summary: Rename a section of the Resources page or change its colour
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ResourceCategoryInput'}
+      responses:
+        '200':
+          description: The section, without its links.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteResourceCategory
+      summary: Delete an empty section of the Resources page
+      tags: [resources]
+      x-permission: global:manage:resources
+      responses:
+        '200':
+          description: The section is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409':
+          description: The section still has links.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /resources/categories/{category_id}/links/order:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    put:
+      operationId: setResourceLinksOrder
+      summary: Put the links of a section of the Resources page in a new order
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OrderInput'}
+      responses:
+        '200':
+          description: The section with its links in the new order.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryWithLinksResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: '`ids` is not a list of the ids of all links of the section, each once.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /resources/links/{link_id}:
+    parameters:
+      - name: link_id
+        in: path
+        required: true
+        schema: {type: integer}
+    get:
+      operationId: getResourceLink
+      summary: One link of the Resources page
+      tags: [resources]
+      x-permission: authenticated
+      responses:
+        '200':
+          description: The link.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceLinkResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateResourceLink
+      summary: Update a link of the Resources page
+      description: A link that moves to another section goes last there.
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ResourceLinkInput'}
+      responses:
+        '200':
+          description: The link.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceLinkResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+    delete:
+      operationId: deleteResourceLink
+      summary: Delete a link of the Resources page
+      tags: [resources]
+      x-permission: global:manage:resources
+      responses:
+        '200':
+          description: The link is deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /members/unconfirmed:
+    get:
+      operationId: listUnconfirmedMembers
+      summary: List the members who have not confirmed their email yet
+      description: Registered before the member routes, so `unconfirmed` is not read as a username here.
+      tags: [members]
+      x-permission: global:view_unconfirmed:member
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Direction'
+      responses:
+        '200':
+          description: The members.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UserListResponse'}
+        '400': {$ref: '#/components/responses/BadSort'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /resources/categories/order:
+    put:
+      operationId: setResourceCategoriesOrder
+      summary: Put the sections of the Resources page in a new order
+      description: Registered before the section routes, so `order` is not read as a section id here.
+      tags: [resources]
+      x-permission: global:manage:resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OrderInput'}
+      responses:
+        '200':
+          description: All sections in the new order, each with its links.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResourceCategoryWithLinksListResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyNotReadable'}
+        '422':
+          description: '`ids` is not a list of the ids of all sections, each once.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+components:
+  securitySchemes:
+    XAuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: |
+        Access token from `POST /login` or `POST /renew`. A token that is unknown or
+        expired, or that belongs to a suspended member, counts as no token.
+  parameters:
+    Limit: {name: limit, in: query, description: 'Page size. Without it everything is returned.', schema: {type: integer, minimum: 1}}
+    Offset: {name: offset, in: query, schema: {type: integer, minimum: 0}}
+    Sort: {name: sort, in: query, description: 'A field of the listed rows to sort by, `id` by default.', schema: {type: string}}
+    Direction: {name: direction, in: query, schema: {type: string, enum: [asc, desc]}}
+    Query: {name: query, in: query, description: 'Text to search for, in any case.', schema: {type: string}}
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      description: A member id, a username (in any case), or `me` for the current member. Express routes all three through this path.
+      schema: {type: [integer, string]}
+    BodyId:
+      name: body_id
+      in: path
+      required: true
+      description: A body id, or the three-letter code of the body (in any case).
+      schema: {type: [integer, string]}
+    CircleId:
+      name: circle_id
+      in: path
+      required: true
+      schema: {type: integer}
+    PermissionId:
+      name: permission_id
+      in: path
+      required: true
+      schema: {type: integer}
+    CampaignId:
+      name: campaign_id
+      in: path
+      required: true
+      description: A campaign id, or the `url` of the campaign.
+      schema: {type: [integer, string]}
+    BodyCampaignId:
+      name: campaign_id
+      in: path
+      required: true
+      description: A campaign id. Unlike on `/campaigns/{campaign_id}`, the `url` does not work here.
+      schema: {type: integer}
+    BodyMembershipId:
+      name: membership_id
+      in: path
+      required: true
+      description: The id of the membership, not of the member.
+      schema: {type: integer}
+    CircleMembershipId:
+      name: membership_id
+      in: path
+      required: true
+      description: The id of the membership, not of the member.
+      schema: {type: integer}
+    CategoryId:
+      name: category_id
+      in: path
+      required: true
+      schema: {type: integer}
+  responses:
+    BadRequest: {description: 'Malformed request: an ID that is not a number, or a `sort` field that the listed rows do not have. On an operation with a JSON body also a text in the body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), or a compressed body that does not decompress (`The request body could not be read.`).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    UnreadableBody: {description: 'A text in the request body that contains the character U+0000 (`Texts in the request body cannot contain the character U+0000.`), which Postgres cannot store, or a compressed body that does not decompress (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The JSON body is larger than 100 kB (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyNotReadable: {description: 'A charset other than UTF-8 or a content encoding other than gzip, deflate, br or zstd (`The request body could not be read.`). Checked before the route, so also before the login.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadSort: {description: 'A `sort` field that the listed rows do not have.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Busy: {description: 'Another request for the same token or member is being processed for longer than the lock timeout (3 seconds). Nothing was changed; try again.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    MailNotSent: {description: 'The mail of this operation could not be sent (the mailer failed or did not answer within 10 seconds), so it rolled back: `The mail could not be sent, so nothing was saved. Please try again later.`', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  schemas:
+    ErrorResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ErrorWithMessage'
+        - $ref: '#/components/schemas/ErrorWithFields'
+    ErrorWithMessage:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: false}
+        message: {type: string}
+      additionalProperties: false
+    ErrorWithFields:
+      description: Validation messages per field.
+      type: object
+      required: [success, errors]
+      properties:
+        success: {const: false}
+        errors:
+          type: object
+          additionalProperties: {type: array, items: {type: string}}
+      additionalProperties: false
+    MessageResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: true}
+        message: {type: string}
+      additionalProperties: false
+    ListMeta:
+      type: object
+      required: [count]
+      properties:
+        count: {type: integer, minimum: 0, description: The number of rows on all pages together.}
+      additionalProperties: false
+    Decimal:
+      description: Sequelize DECIMAL. A number when read from Postgres, the input value right after create or update.
+      type: [string, number]
+      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+    HealthcheckResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [name, description, version]
+          properties:
+            name: {type: string}
+            description: {type: string}
+            version: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+    TokensResponse:
+      description: The answer of login and renew. The tokens are at the top level, not in `data`.
+      type: object
+      required: [success, access_token, refresh_token]
+      properties:
+        success: {const: true}
+        access_token: {type: string, description: 'For the `X-Auth-Token` header. Valid for 10 minutes.'}
+        refresh_token: {type: string, description: 'For `POST /renew` and `POST /logout`.'}
+      additionalProperties: false
+    TokenInput:
+      type: object
+      required: [token]
+      properties:
+        token: {type: string}
+      additionalProperties: true
+    RefreshTokenInput:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: {type: string}
+      additionalProperties: true
+    UserIdInput:
+      type: object
+      required: [user_id]
+      properties:
+        user_id: {type: [integer, string], description: 'As a number or as a text of digits.'}
+      additionalProperties: true
+    OrderInput:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          description: The ids of all items, each once, in the new order.
+          type: array
+          items: {type: integer}
+      additionalProperties: true
+    EmailChangeConfirmationResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data:
+          type: object
+          required: [changed]
+          properties:
+            changed: {type: boolean, description: Whether the login email has changed.}
+            waiting_for:
+              description: The address that still has to confirm. Only there while `changed` is false.
+              type: string
+              enum: [new_email, old_email]
+          additionalProperties: false
+      additionalProperties: false
+    EmailChangeRequestResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data:
+          type: object
+          required: [needs_old_address_confirmation]
+          properties:
+            needs_old_address_confirmation: {type: boolean, description: Whether the current address of the member has to confirm the change as well.}
+          additionalProperties: false
+      additionalProperties: false
+    ImageResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {type: [string, 'null'], description: 'The file name of the profile picture, null after removing it.'}
+      additionalProperties: false
+    UserPrimaryEmail:
+      description: Which address `notification_email` is, the login email or the Google Workspace account.
+      type: string
+      enum: [personal, gsuite]
+    UserFields:
+      description: The columns of a member. The password is never among them.
+      type: object
+      required: [notification_email, id, username, email, mail_confirmed_at, active, superadmin, privacy_consent, first_name, last_name, date_of_birth, gender, phone, address, image, about_me, primary_email, last_logged_in, last_active, gsuite_id, created_at, updated_at, campaign_id, primary_body_id]
+      properties:
+        notification_email: {type: [string, 'null'], description: 'Where mails to the member go: `gsuite_id` when `primary_email` is gsuite, `email` otherwise.'}
+        id: {type: integer}
+        username: {type: string}
+        email: {type: string, description: The login email.}
+        mail_confirmed_at: {type: [string, 'null'], format: date-time}
+        active: {type: boolean, description: False for a suspended member.}
+        superadmin: {type: boolean}
+        privacy_consent: {type: [string, 'null'], format: date-time}
+        first_name: {type: string}
+        last_name: {type: string}
+        date_of_birth: {type: [string, 'null'], format: date}
+        gender: {type: [string, 'null']}
+        phone: {type: [string, 'null']}
+        address: {type: [string, 'null']}
+        image: {type: [string, 'null'], description: The file name of the profile picture.}
+        about_me: {type: [string, 'null']}
+        primary_email: {$ref: '#/components/schemas/UserPrimaryEmail'}
+        last_logged_in: {type: [string, 'null'], format: date-time}
+        last_active: {type: [string, 'null'], format: date-time}
+        gsuite_id: {type: [string, 'null'], description: The Google Workspace account.}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        campaign_id: {type: [integer, 'null'], description: The signup campaign through which the member registered.}
+        primary_body_id: {type: [integer, 'null']}
+    User:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserFields'
+      unevaluatedProperties: false
+    UserWithMemberships:
+      description: |
+        A member with their bodies, memberships, join requests and circles. The other
+        services read `id`, the names, `notification_email`, `gender`, `date_of_birth`,
+        `superadmin` and `bodies` (`id`, `name`, `code`, `type`, `status`).
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserFields'
+      required: [bodies, primary_body, body_memberships, join_requests, circles]
+      properties:
+        bodies:
+          type: array
+          items: {$ref: '#/components/schemas/BodyWithMembership'}
+        primary_body:
+          oneOf:
+            - $ref: '#/components/schemas/Body'
+            - type: 'null'
+        body_memberships:
+          type: array
+          items: {$ref: '#/components/schemas/BodyMembership'}
+        join_requests:
+          type: array
+          items: {$ref: '#/components/schemas/JoinRequest'}
+        circles:
+          type: array
+          items: {$ref: '#/components/schemas/CircleWithMembership'}
+        event_application_ban:
+          description: |
+            The active ban, or null. Only on `GET /members/{user_id}`, for the member
+            themselves and for holders of `global:update_application_ban:member`.
+          oneOf:
+            - $ref: '#/components/schemas/EventApplicationBan'
+            - type: 'null'
+      unevaluatedProperties: false
+    UserWithCircles:
+      description: A member with their circle memberships and circles.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserFields'
+      required: [circle_memberships, circles]
+      properties:
+        circle_memberships:
+          type: array
+          items: {$ref: '#/components/schemas/CircleMembership'}
+        circles:
+          type: array
+          items: {$ref: '#/components/schemas/CircleWithMembership'}
+      unevaluatedProperties: false
+    UserWithCircleMemberships:
+      description: A member with circle memberships and the circle of each.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserFields'
+      required: [circle_memberships]
+      properties:
+        circle_memberships:
+          type: array
+          items: {$ref: '#/components/schemas/CircleMembershipWithCircle'}
+      unevaluatedProperties: false
+    UserLimited:
+      description: What holders of `view_members:body` see of a member they may not view in full.
+      type: object
+      required: [id, first_name, last_name, email, notification_email]
+      properties:
+        id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        email: {type: string}
+        notification_email: {type: [string, 'null']}
+      additionalProperties: false
+    UserLookup:
+      type: object
+      required: [id, first_name, last_name, username, email, gsuite_id, notification_email]
+      properties:
+        id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        username: {type: string}
+        email: {type: string}
+        gsuite_id: {type: [string, 'null']}
+        notification_email: {type: [string, 'null']}
+      additionalProperties: false
+    UserSearchName:
+      description: A search result for callers without `global:view:member`.
+      type: object
+      required: [id, first_name, last_name]
+      properties:
+        id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+      additionalProperties: false
+    UserSearchContact:
+      description: A search result for holders of `global:view:member`.
+      type: object
+      required: [id, first_name, last_name, username, email, gsuite_id]
+      properties:
+        id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        username: {type: string}
+        email: {type: string}
+        gsuite_id: {type: [string, 'null']}
+      additionalProperties: false
+    UserEmail:
+      type: object
+      required: [id, notification_email]
+      properties:
+        id: {type: integer}
+        notification_email: {type: [string, 'null']}
+      additionalProperties: false
+    UserInput:
+      description: The profile fields of a member. Unknown fields are ignored.
+      type: object
+      properties:
+        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming.'}
+        first_name: {type: string, description: 'At most 255 characters after trimming.'}
+        last_name: {type: string, description: 'At most 255 characters after trimming.'}
+        date_of_birth: {type: [string, 'null'], description: 'A date in the past, as an ISO date (1990-01-31). An empty string unsets it.'}
+        gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        gsuite_id: {type: [string, 'null'], description: 'An address on aegee.org or aegee.eu. Only taken from holders of `global:update:member`. At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        privacy_consent: {type: [string, 'null'], description: 'The date and time of the consent, as an ISO timestamp.'}
+        address: {type: [string, 'null']}
+        about_me: {type: [string, 'null']}
+        primary_email: {$ref: '#/components/schemas/UserPrimaryEmail'}
+      additionalProperties: true
+    UserCreateInput:
+      description: The fields of a new account. Unknown fields are ignored.
+      type: object
+      required: [username, email, first_name, last_name]
+      properties:
+        username: {type: string, description: 'Letters, digits, dots, underscores and dashes, with at least one letter. Stored in lower case. At most 255 characters after trimming.'}
+        email: {type: string, description: 'The login email. Not on aegee.org or aegee.eu. At most 255 characters after trimming.'}
+        password: {type: string, minLength: 8, maxLength: 255}
+        first_name: {type: string, description: 'At most 255 characters after trimming.'}
+        last_name: {type: string, description: 'At most 255 characters after trimming.'}
+        date_of_birth: {type: [string, 'null'], description: 'A date in the past, as an ISO date (1990-01-31).'}
+        gender: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        privacy_consent: {type: [string, 'null'], description: 'The date and time of the consent, as an ISO timestamp.'}
+        address: {type: [string, 'null']}
+        about_me: {type: [string, 'null']}
+      additionalProperties: true
+    UserSignupInput:
+      description: The fields of a new account, with the password it gets.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserCreateInput'
+      required: [password]
+    UserSignupResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/User'}
+      additionalProperties: false
+    UserWithMembershipsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/UserWithMemberships'}
+      additionalProperties: false
+    UserLookupResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/UserLookup'}
+      additionalProperties: false
+    UserListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/User'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    UserWithCirclesListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/UserWithCircles'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    UserEmailListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/UserEmail'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    UserSearchResponse:
+      description: |
+        Ids and names with an empty `meta`, or, for holders of `global:view:member`, the
+        contact fields as well with the total in `meta.count`.
+      oneOf:
+        - $ref: '#/components/schemas/UserSearchNameListResponse'
+        - $ref: '#/components/schemas/UserSearchContactListResponse'
+    UserSearchNameListResponse:
+      description: Search results for callers without `global:view:member`. `meta` is empty, so that the number of matches stays unknown.
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/UserSearchName'}}
+        meta: {type: object, maxProperties: 0, additionalProperties: false}
+      additionalProperties: false
+    UserSearchContactListResponse:
+      description: Search results for holders of `global:view:member`.
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/UserSearchContact'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    EventApplicationBan:
+      type: object
+      required: [id, user_id, banned_by_user_id, ban_until, lifted_by_user_id, lifted_at, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        user_id: {type: integer}
+        banned_by_user_id: {type: integer}
+        ban_until: {type: string, format: date-time}
+        lifted_by_user_id: {type: [integer, 'null']}
+        lifted_at: {type: [string, 'null'], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    EventApplicationBanResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/EventApplicationBan'}
+      additionalProperties: false
+    BodyType:
+      type: string
+      enum: [antenna, contact antenna, contact, interest group, working group, commission, committee, project, partner, external, other]
+    BodyStatus:
+      type: string
+      enum: [active, deleted]
+    BodyFields:
+      description: The columns of a body.
+      type: object
+      required: [id, name, description, task_description, code, abbreviation, email, phone, address, postal_address, type, fee_currency, pays_fees, founded_at, status, country, website, gsuite_id, google_group, created_at, updated_at, shadow_circle_id]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        description: {type: string}
+        task_description: {type: [string, 'null']}
+        code: {type: string, description: Three letters in upper case.}
+        abbreviation: {type: [string, 'null']}
+        email: {type: string}
+        phone: {type: [string, 'null']}
+        address: {type: [string, 'null']}
+        postal_address: {type: [string, 'null']}
+        type: {$ref: '#/components/schemas/BodyType'}
+        fee_currency: {type: [string, 'null']}
+        pays_fees: {type: boolean}
+        founded_at: {type: [string, 'null'], format: date}
+        status: {$ref: '#/components/schemas/BodyStatus'}
+        country: {type: [string, 'null']}
+        website: {type: [string, 'null']}
+        gsuite_id: {type: [string, 'null'], description: The Google Workspace account.}
+        google_group: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        shadow_circle_id: {type: [integer, 'null'], description: The circle that every new member of the body joins.}
+    Body:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BodyFields'
+      unevaluatedProperties: false
+    BodyWithCircles:
+      description: A body with its circles and its shadow circle.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BodyFields'
+      required: [circles, shadow_circle]
+      properties:
+        circles:
+          type: array
+          items: {$ref: '#/components/schemas/Circle'}
+        shadow_circle:
+          oneOf:
+            - $ref: '#/components/schemas/Circle'
+            - type: 'null'
+      unevaluatedProperties: false
+    BodyWithMembership:
+      description: A body of a member, with the membership that links the two.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BodyFields'
+      required: [body_membership]
+      properties:
+        body_membership: {$ref: '#/components/schemas/BodyMembership'}
+      unevaluatedProperties: false
+    BodyInput:
+      description: The fields of a body. Unknown fields are ignored.
+      type: object
+      properties:
+        name: {type: string, maxLength: 255}
+        description: {type: string}
+        task_description: {type: [string, 'null']}
+        code: {type: string, description: Three letters. Stored in upper case.}
+        abbreviation: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        email: {type: string, description: 'At most 255 characters after trimming.'}
+        phone: {type: [string, 'null'], maxLength: 255}
+        address: {type: [string, 'null']}
+        postal_address: {type: [string, 'null']}
+        type: {$ref: '#/components/schemas/BodyType'}
+        fee_currency: {type: [string, 'null'], maxLength: 255}
+        pays_fees: {type: boolean}
+        founded_at: {type: [string, 'null'], description: 'An ISO date (1990-01-31). Required for antennae, contact antennae and contacts.'}
+        country: {type: [string, 'null'], maxLength: 255}
+        website: {type: [string, 'null'], maxLength: 255, description: An http or https address.}
+        gsuite_id: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        google_group: {type: [string, 'null'], description: 'At most 255 characters after trimming.'}
+        shadow_circle_id: {type: [integer, string, 'null'], description: A circle of this body. Only on update.}
+      additionalProperties: true
+    BodyCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BodyInput'
+      required: [name, description, code, email]
+    BodyResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Body'}
+      additionalProperties: false
+    BodyWithCirclesResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/BodyWithCircles'}
+      additionalProperties: false
+    BodyListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Body'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    BodyMembership:
+      type: object
+      required: [id, comment, created_at, updated_at, body_id, user_id]
+      properties:
+        id: {type: integer}
+        comment: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        body_id: {type: integer}
+        user_id: {type: integer}
+      additionalProperties: false
+    BodyMembershipWithUser:
+      type: object
+      required: [id, comment, created_at, updated_at, body_id, user_id, user]
+      properties:
+        id: {type: integer}
+        comment: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        body_id: {type: integer}
+        user_id: {type: integer}
+        user:
+          description: |
+            The member. With `holds_permission` on the list, the member has the
+            `circle_memberships` that give the permission, each with its circle.
+          oneOf:
+            - $ref: '#/components/schemas/User'
+            - $ref: '#/components/schemas/UserWithCircleMemberships'
+      additionalProperties: false
+    BodyMembershipResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/BodyMembership'}
+      additionalProperties: false
+    BodyMembershipWithUserResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/BodyMembershipWithUser'}
+      additionalProperties: false
+    BodyMembershipWithUserListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/BodyMembershipWithUser'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    JoinRequestStatus:
+      description: A rejected request is deleted, so that the member can ask again.
+      type: string
+      enum: [pending, approved]
+    JoinRequest:
+      type: object
+      required: [id, motivation, status, created_at, updated_at, user_id, body_id]
+      properties:
+        id: {type: integer}
+        motivation: {type: [string, 'null']}
+        status: {$ref: '#/components/schemas/JoinRequestStatus'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        user_id: {type: integer}
+        body_id: {type: integer}
+      additionalProperties: false
+    JoinRequestWithUser:
+      type: object
+      required: [id, motivation, status, created_at, updated_at, user_id, body_id, user]
+      properties:
+        id: {type: integer}
+        motivation: {type: [string, 'null']}
+        status: {$ref: '#/components/schemas/JoinRequestStatus'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        user_id: {type: integer}
+        body_id: {type: integer}
+        user: {$ref: '#/components/schemas/User'}
+      additionalProperties: false
+    JoinRequestResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/JoinRequest'}
+      additionalProperties: false
+    JoinRequestWithUserListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/JoinRequestWithUser'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    Payment:
+      description: A membership fee that a member paid to a body.
+      type: object
+      required: [id, starts, expires, amount, currency, comment, invoice_name, invoice_address, created_at, updated_at, user_id, body_id]
+      properties:
+        id: {type: integer}
+        starts: {type: string, format: date}
+        expires: {type: string, format: date}
+        amount: {$ref: '#/components/schemas/Decimal'}
+        currency: {type: string}
+        comment: {type: [string, 'null']}
+        invoice_name: {type: [string, 'null']}
+        invoice_address: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        user_id: {type: integer}
+        body_id: {type: integer}
+      additionalProperties: false
+    PaymentInput:
+      description: The fields of a payment. Unknown fields are ignored.
+      type: object
+      properties:
+        starts: {type: string, description: An ISO date (2026-01-31).}
+        expires: {type: string, description: An ISO date (2026-01-31) after `starts`.}
+        amount: {type: [string, number], description: Not negative.}
+        currency: {type: string, description: 'At most 255 characters after trimming.'}
+        comment: {type: [string, 'null']}
+        invoice_name: {type: [string, 'null']}
+        invoice_address: {type: [string, 'null']}
+      additionalProperties: true
+    PaymentCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaymentInput'
+      required: [user_id, starts, expires, amount, currency]
+      properties:
+        user_id: {type: [integer, string], description: 'A member of the body, as a number or as a text of digits.'}
+    PaymentResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Payment'}
+      additionalProperties: false
+    PaymentListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Payment'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    CircleFields:
+      description: The columns of a circle.
+      type: object
+      required: [id, name, description, gsuite_id, created_at, updated_at, body_id, parent_circle_id]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        description: {type: string}
+        gsuite_id: {type: [string, 'null'], description: The Google Workspace group.}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        body_id: {type: [integer, 'null'], description: The body the circle belongs to. Null for a free circle.}
+        parent_circle_id: {type: [integer, 'null']}
+    Circle:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleFields'
+      unevaluatedProperties: false
+    CircleWithMembership:
+      description: A circle of a member, with the membership that links the two.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleFields'
+      required: [circle_membership]
+      properties:
+        circle_membership: {$ref: '#/components/schemas/CircleMembership'}
+      unevaluatedProperties: false
+    CircleWithCircleMemberships:
+      description: A circle with memberships of it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleFields'
+      required: [circle_memberships]
+      properties:
+        circle_memberships:
+          type: array
+          items: {$ref: '#/components/schemas/CircleMembership'}
+      unevaluatedProperties: false
+    CircleWithCirclePermission:
+      description: A circle that has a permission, with the row that links the two.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleFields'
+      required: [circle_permission]
+      properties:
+        circle_permission: {$ref: '#/components/schemas/CirclePermission'}
+      unevaluatedProperties: false
+    CircleWithPermissions:
+      description: A circle with its child circles, parent circle, body and own permissions.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleFields'
+      required: [child_circles, parent_circle, body, permissions]
+      properties:
+        child_circles:
+          type: array
+          items: {$ref: '#/components/schemas/Circle'}
+        parent_circle:
+          oneOf:
+            - $ref: '#/components/schemas/Circle'
+            - type: 'null'
+        body:
+          oneOf:
+            - $ref: '#/components/schemas/Body'
+            - type: 'null'
+        permissions:
+          description: The permissions the circle has itself, without those of its parent circles.
+          type: array
+          items: {$ref: '#/components/schemas/PermissionWithCirclePermission'}
+      unevaluatedProperties: false
+    CircleInput:
+      description: The fields of a circle. Unknown fields are ignored.
+      type: object
+      properties:
+        name: {type: string, description: 'At most 255 characters after trimming.'}
+        description: {type: string}
+        gsuite_id: {type: [string, 'null'], description: 'Only on update. At most 255 characters after trimming.'}
+      additionalProperties: true
+    CircleCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CircleInput'
+      required: [name, description]
+    CircleResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Circle'}
+      additionalProperties: false
+    CircleWithPermissionsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/CircleWithPermissions'}
+      additionalProperties: false
+    CircleListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Circle'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    CircleWithCircleMembershipsListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/CircleWithCircleMemberships'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    CircleMembership:
+      type: object
+      required: [id, position, created_at, updated_at, circle_id, user_id]
+      properties:
+        id: {type: integer}
+        position: {type: [string, 'null'], description: 'What the member does in the circle, like President.'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        circle_id: {type: integer}
+        user_id: {type: integer}
+      additionalProperties: false
+    CircleMembershipWithUser:
+      type: object
+      required: [id, position, created_at, updated_at, circle_id, user_id, user]
+      properties:
+        id: {type: integer}
+        position: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        circle_id: {type: integer}
+        user_id: {type: integer}
+        user: {$ref: '#/components/schemas/User'}
+      additionalProperties: false
+    CircleMembershipWithCircle:
+      type: object
+      required: [id, position, created_at, updated_at, circle_id, user_id, circle]
+      properties:
+        id: {type: integer}
+        position: {type: [string, 'null']}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        circle_id: {type: integer}
+        user_id: {type: integer}
+        circle: {$ref: '#/components/schemas/Circle'}
+      additionalProperties: false
+    CircleMembershipResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/CircleMembership'}
+      additionalProperties: false
+    CircleMembershipWithUserListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/CircleMembershipWithUser'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    CirclePermission:
+      description: The row that gives a permission to a circle. It has no id of its own.
+      type: object
+      required: [created_at, updated_at, circle_id, permission_id]
+      properties:
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        circle_id: {type: integer}
+        permission_id: {type: integer}
+      additionalProperties: false
+    PermissionScope:
+      description: |
+        Where a permission counts: everywhere (global), in the bodies where the holder has
+        it through a circle of the body (local), or on the members who asked to join such
+        a body (join_request).
+      type: string
+      enum: [global, local, join_request]
+    PermissionFields:
+      description: The columns of a permission.
+      type: object
+      required: [id, scope, action, object, combined, description, filters, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        scope: {$ref: '#/components/schemas/PermissionScope'}
+        action: {type: string}
+        object: {type: string}
+        combined: {type: string, description: '`scope:action:object`, set on every write. What the other services compare with.'}
+        description: {type: string}
+        filters:
+          description: For `update:body`, the body fields that the holder may change. Empty means all fields.
+          type: array
+          items: {type: string}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    Permission:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PermissionFields'
+      unevaluatedProperties: false
+    PermissionWithCirclePermissions:
+      description: A permission with the rows that give it to circles.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PermissionFields'
+      required: [circle_permissions]
+      properties:
+        circle_permissions:
+          description: |
+            On the `my_permissions` operations: the circles through which the member has
+            the permission. Empty for a permission that a superadmin has without a circle.
+          type: array
+          items: {$ref: '#/components/schemas/CirclePermission'}
+      unevaluatedProperties: false
+    PermissionWithCirclePermission:
+      description: A permission of a circle, with the row that links the two.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PermissionFields'
+      required: [circle_permission]
+      properties:
+        circle_permission: {$ref: '#/components/schemas/CirclePermission'}
+      unevaluatedProperties: false
+    PermissionWithCircles:
+      description: A permission with the circles that have it themselves.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PermissionFields'
+      required: [circles]
+      properties:
+        circles:
+          type: array
+          items: {$ref: '#/components/schemas/CircleWithCirclePermission'}
+      unevaluatedProperties: false
+    PermissionInput:
+      description: The fields of a permission. Unknown fields are ignored.
+      type: object
+      properties:
+        scope: {$ref: '#/components/schemas/PermissionScope'}
+        action: {type: string, description: 'Stored in lower case. At most 255 characters after trimming.'}
+        object: {type: string, description: 'Stored in lower case. At most 255 characters after trimming.'}
+        description: {type: string}
+        filters:
+          type: array
+          items: {type: string}
+      additionalProperties: true
+    PermissionCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PermissionInput'
+      required: [scope, action, object, description]
+    PermissionResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Permission'}
+      additionalProperties: false
+    PermissionWithCirclesResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/PermissionWithCircles'}
+      additionalProperties: false
+    PermissionListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Permission'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    PermissionWithCirclePermissionsListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PermissionWithCirclePermissions'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    MyPermissionsResponse:
+      description: The answer of the `my_permissions` operations. A list without `meta`.
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/PermissionWithCirclePermissions'}}
+      additionalProperties: false
+    CampaignFields:
+      description: The columns of a signup campaign.
+      type: object
+      required: [id, name, url, active, description_short, description_long, activate_user, created_at, updated_at, autojoin_body_id]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url: {type: string, description: 'The last part of the signup link, in lower case.'}
+        active: {type: boolean, description: Whether people can register through the campaign.}
+        description_short: {type: [string, 'null']}
+        description_long: {type: string}
+        activate_user: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        autojoin_body_id: {type: [integer, 'null'], description: The body that new members join right away.}
+    Campaign:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CampaignFields'
+      unevaluatedProperties: false
+    CampaignWithAutojoinBody:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CampaignFields'
+      required: [autojoin_body]
+      properties:
+        autojoin_body:
+          oneOf:
+            - $ref: '#/components/schemas/Body'
+            - type: 'null'
+      unevaluatedProperties: false
+    CampaignWithPublicAutojoinBody:
+      description: All fields of a signup campaign, with what everybody may see of its autojoin body.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CampaignFields'
+      required: [autojoin_body]
+      properties:
+        autojoin_body:
+          oneOf:
+            - $ref: '#/components/schemas/CampaignAutojoinBody'
+            - type: 'null'
+      unevaluatedProperties: false
+    CampaignPublic:
+      description: What everybody may see of a signup campaign.
+      type: object
+      required: [id, url, name, active, description_short, description_long, autojoin_body]
+      properties:
+        id: {type: integer}
+        url: {type: string}
+        name: {type: string}
+        active: {type: boolean}
+        description_short: {type: [string, 'null']}
+        description_long: {type: string}
+        autojoin_body:
+          oneOf:
+            - $ref: '#/components/schemas/CampaignAutojoinBody'
+            - type: 'null'
+      additionalProperties: false
+    CampaignAutojoinBody:
+      description: What everybody may see of the body that a signup campaign adds new members to.
+      type: object
+      required: [id, name, email, phone, address, website]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        email: {type: string}
+        phone: {type: [string, 'null']}
+        address: {type: [string, 'null']}
+        website: {type: [string, 'null']}
+      additionalProperties: false
+    CampaignInput:
+      description: The fields of a signup campaign. Unknown fields are ignored.
+      type: object
+      properties:
+        name: {type: string, description: 'At most 255 characters after trimming.'}
+        url: {type: string, description: 'Stored in lower case. Unique. At most 255 characters after trimming.'}
+        active: {type: boolean}
+        description_short: {type: [string, 'null']}
+        description_long: {type: string}
+        activate_user: {type: boolean}
+        autojoin_body_id: {type: [integer, string, 'null'], description: 'An existing body, as a number or as a text of digits. On the routes under `/bodies/{body_id}` it is always that body.'}
+      additionalProperties: true
+    CampaignCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CampaignInput'
+      required: [name, url, description_long]
+    CampaignResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Campaign'}
+      additionalProperties: false
+    CampaignWithAutojoinBodyResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/CampaignWithAutojoinBody'}
+      additionalProperties: false
+    CampaignListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Campaign'}}
+        meta: {$ref: '#/components/schemas/ListMeta'}
+      additionalProperties: false
+    ResourceTheme:
+      description: The colour of a section of the Resources page.
+      type: string
+      enum: [blue, blue-dark, purple, red, grey, yellow, green]
+    ResourceCategory:
+      description: A section of the Resources page.
+      type: object
+      required: [id, name, theme, position, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        theme: {$ref: '#/components/schemas/ResourceTheme'}
+        position: {type: integer, description: 'The place on the page, from 0.'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    ResourceCategoryWithLinks:
+      description: A section of the Resources page with its links in order.
+      type: object
+      required: [id, name, theme, position, created_at, updated_at, links]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        theme: {$ref: '#/components/schemas/ResourceTheme'}
+        position: {type: integer}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        links:
+          type: array
+          items: {$ref: '#/components/schemas/ResourceLink'}
+      additionalProperties: false
+    ResourceCategoryInput:
+      description: The fields of a section. Unknown fields are ignored; the position is set with the order operation.
+      type: object
+      properties:
+        name: {type: string, description: 'At most 100 characters after trimming.'}
+        theme: {$ref: '#/components/schemas/ResourceTheme'}
+      additionalProperties: true
+    ResourceCategoryCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResourceCategoryInput'
+      required: [name, theme]
+    ResourceCategoryResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ResourceCategory'}
+      additionalProperties: false
+    ResourceCategoryWithLinksResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ResourceCategoryWithLinks'}
+      additionalProperties: false
+    ResourceCategoryWithLinksListResponse:
+      description: All sections of the Resources page. A list without `meta`.
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ResourceCategoryWithLinks'}}
+      additionalProperties: false
+    ResourceLink:
+      description: A link on the Resources page.
+      type: object
+      required: [id, category_id, title, description, url, position, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        category_id: {type: integer}
+        title: {type: string}
+        description: {type: string}
+        url: {type: string, description: 'A MyAEGEE path starting with `/`, or an http or https address.'}
+        position: {type: integer, description: 'The place in the section, from 0.'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    ResourceLinkInput:
+      description: The fields of a link. Unknown fields are ignored; the position is set with the order operation.
+      type: object
+      properties:
+        category_id: {type: [integer, string], description: The section of the link.}
+        title: {type: string, description: 'At most 100 characters after trimming.'}
+        description: {type: string, description: 'At most 255 characters after trimming.'}
+        url: {type: string, description: 'A MyAEGEE path starting with `/`, or an http or https address. At most 2048 characters after trimming.'}
+      additionalProperties: true
+    ResourceLinkCreateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResourceLinkInput'
+      required: [category_id, title, description, url]
+    ResourceLinkResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/ResourceLink'}
+      additionalProperties: false

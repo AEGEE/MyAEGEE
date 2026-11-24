@@ -77,7 +77,6 @@ exports.ensureAuthorized = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -136,13 +135,10 @@ exports.errorHandler = (err, req, res, next) => {
     }
 
     // Handling validation errors
-    /* istanbul ignore else */
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err }, 'Request error');
-    /* istanbul ignore next */
     return errors.makeInternalError(res);
 };

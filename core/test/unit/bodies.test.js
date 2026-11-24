@@ -121,4 +121,39 @@ describe('Bodies testing', () => {
         expect(body.code).toEqual('TET');
         expect(body.email).toEqual('test@test.io');
     });
+
+    test.each([
+        ['null name', { name: null }, 'name', 'body.name cannot be null'],
+        ['empty name', { name: '' }, 'name', 'Name must be set.'],
+        ['name of spaces', { name: '  \t ' }, 'name', 'Name must be set.'],
+        ['null description', { description: null }, 'description', 'body.description cannot be null'],
+        ['empty description', { description: '' }, 'description', 'Description must be set.'],
+        ['empty phone', { phone: '' }, 'phone', 'Phone must be set.'],
+        ['empty address', { address: '' }, 'address', 'Address must be set.'],
+        ['type that does not exist', { type: 'club' }, 'type', expect.stringMatching(/^Type must be one of these: /)],
+        ['status that does not exist', { status: 'gone' }, 'status', 'Status must be one of these: "active", "deleted".']
+    ])('should fail with %s', async (name, fields, path, message) => {
+        await expect(generator.createBody(fields)).rejects.toMatchObject({
+            name: 'SequelizeValidationError',
+            errors: [expect.objectContaining({ path, message })]
+        });
+        expect(await Body.count()).toEqual(0);
+    });
+
+    test.each(['name', 'description'])('should fail with not set %s', async (field) => {
+        const body = generator.generateBody();
+        delete body[field];
+
+        await expect(Body.create(body)).rejects.toMatchObject({
+            name: 'SequelizeValidationError',
+            errors: [expect.objectContaining({ path: field, message: `body.${field} cannot be null` })]
+        });
+    });
+
+    test('should succeed without a phone and an address', async () => {
+        const body = await generator.createBody({ phone: null, address: null });
+
+        expect(body.phone).toEqual(null);
+        expect(body.address).toEqual(null);
+    });
 });

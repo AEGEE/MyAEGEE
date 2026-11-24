@@ -40,19 +40,24 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
     "verbose": true,
     "collectCoverage": true,
     "collectCoverageFrom": [
       "lib/**/*.js",
       "models/**/*.js",
       "middlewares/**/*.js",
-      "!lib/run.js",
       "!lib/sequelize.js",
-      "!lib/logger.js",
-      "!lib/fs.js",
-      "!lib/merge.js",
-      "!lib/errors.js"
+      "!lib/logger.js"
     ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
     "reporters": [
       "default",
       "jest-junit"

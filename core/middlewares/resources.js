@@ -21,7 +21,7 @@ const ensureCanManage = (req, res) => {
 };
 
 const pickFields = (body, fields) => {
-    const picked = helpers.whitelistObject(body || {}, fields);
+    const picked = helpers.whitelistObject(body, fields);
     for (const field of Object.keys(picked)) {
         if (typeof picked[field] === 'undefined') delete picked[field];
     }
@@ -84,7 +84,7 @@ exports.createCategory = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
     const category = await sequelize.transaction(async (transaction) => ResourceCategory.create({
-        ...helpers.whitelistObject(req.body || {}, constants.FIELDS_TO_UPDATE.RESOURCE_CATEGORY),
+        ...helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.RESOURCE_CATEGORY),
         position: await nextPosition(ResourceCategory, {}, transaction)
     }, { transaction }));
 
@@ -97,7 +97,7 @@ exports.createCategory = async (req, res) => {
 exports.setCategoriesOrder = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
-    const ids = req.body && req.body.ids;
+    const { ids } = req.body;
     const existingIds = (await ResourceCategory.findAll({ attributes: ['id'] })).map((category) => category.id);
     const orderError = getOrderError(ids, existingIds);
     if (orderError) {
@@ -147,7 +147,7 @@ exports.deleteCategory = async (req, res) => {
 exports.setLinksOrder = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
-    const ids = req.body && req.body.ids;
+    const { ids } = req.body;
     const existingIds = (await ResourceLink.findAll({
         attributes: ['id'],
         where: { category_id: req.currentResourceCategory.id }
@@ -168,7 +168,7 @@ exports.setLinksOrder = async (req, res) => {
 exports.createLink = async (req, res) => {
     if (!ensureCanManage(req, res)) return;
 
-    const fields = helpers.whitelistObject(req.body || {}, constants.FIELDS_TO_UPDATE.RESOURCE_LINK);
+    const fields = helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.RESOURCE_LINK);
     const categoryId = await findCategoryId(fields.category_id);
     if (!categoryId) {
         return errors.makeValidationError(res, { category_id: ['Section is not found.'] });

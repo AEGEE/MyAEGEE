@@ -117,7 +117,7 @@ describe('Body circles creating', () => {
         await generator.createPermission({ scope: 'global', action: 'create', object: 'circle' });
 
         const body = await generator.createBody();
-        const circle = generator.generateCircle({ body_id: 1337 });
+        const circle = generator.generateCircle({ body_id: 2147483647 });
 
         const res = await request({
             path: '/bodies/' + body.id + '/circles/',
@@ -130,7 +130,7 @@ describe('Body circles creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.body_id).not.toEqual(2147483647);
     });
 
     test('should ignore fields that are not allowed', async () => {
@@ -141,7 +141,7 @@ describe('Body circles creating', () => {
 
         const body = await generator.createBody();
         const parentCircle = await generator.createCircle();
-        const circle = generator.generateCircle({ parent_circle_id: parentCircle.id, gsuite_id: 'circle@aegee.eu' });
+        const circle = generator.generateCircle({ parent_circle_id: parentCircle.id, gsuite_id: 'example-circle@aegee.eu' });
 
         const res = await request({
             path: '/bodies/' + body.id + '/circles/',

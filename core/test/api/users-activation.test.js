@@ -23,7 +23,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
 
         const res = await request({
-            path: '/members/1337/active',
+            path: '/members/2147483647/active',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { active: false }
@@ -378,6 +378,104 @@ describe('User activation', () => {
 
             const userFromDb = await User.findByPk(otherAdmin.id);
             expect(userFromDb.active).toEqual(false);
+        });
+    });
+
+    describe('what is stored', () => {
+        const createManager = async () => {
+            const manager = await generator.createUser({ superadmin: true });
+            await generator.createPermission({ scope: 'global', action: 'update_active', object: 'user' });
+
+            return generator.createAccessToken(manager);
+        };
+
+        test('should suspend the member, and nobody else', async () => {
+            const token = await createManager();
+            const member = await generator.createUser();
+            const otherMember = await generator.createUser();
+
+            const res = await request({
+                path: '/members/' + member.id + '/active',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { active: false }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(member.id);
+            expect(res.body.data.active).toEqual(false);
+            expect(res.body.data).not.toHaveProperty('password');
+
+            expect((await User.findByPk(member.id)).active).toEqual(false);
+            expect((await User.findByPk(otherMember.id)).active).toEqual(true);
+        });
+
+        test('should change nothing without the field', async () => {
+            const token = await createManager();
+            const member = await generator.createUser({ active: false });
+
+            const res = await request({
+                path: '/members/' + member.id + '/active',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: {}
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.active).toEqual(false);
+            expect((await User.findByPk(member.id)).active).toEqual(false);
+        });
+
+        test('should ignore the other fields of a member', async () => {
+            const token = await createManager();
+            const member = await generator.createUser({ first_name: 'Some' });
+
+            const res = await request({
+                path: '/members/' + member.id + '/active',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { active: false, superadmin: true, first_name: 'Changed' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+
+            const fromDb = await User.findByPk(member.id);
+            expect(fromDb.active).toEqual(false);
+            expect(fromDb.superadmin).toEqual(false);
+            expect(fromDb.first_name).toEqual('Some');
+        });
+
+        test('should name the rule for a value that is not yes or no, and keep the member active', async () => {
+            const token = await createManager();
+            const member = await generator.createUser();
+
+            const res = await request({
+                path: '/members/' + member.id + '/active',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { active: 'aaa' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { active: ['Active should be valid.'] } });
+            expect((await User.findByPk(member.id)).active).toEqual(true);
+        });
+
+        test.each(['themselves', 'another member'])('should name the permission and keep the member active for %s without it', async (who) => {
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const member = who === 'themselves' ? user : await generator.createUser();
+
+            const res = await request({
+                path: '/members/' + member.id + '/active',
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { active: false }
+            });
+
+            expect(res.statusCode).toEqual(403);
+            expect(res.body).toEqual({ success: false, message: 'Permission global:update_active:user is required, but not present.' });
+            expect((await User.findByPk(member.id)).active).toEqual(true);
         });
     });
 });

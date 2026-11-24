@@ -99,7 +99,7 @@ describe('Campaigns creating', () => {
         await generator.createCircleMembership(circle, user);
         await generator.createCirclePermission(circle, permission);
 
-        const campaign = generator.generateCampaign({ body_id: 1337 });
+        const campaign = generator.generateCampaign({ body_id: 2147483647 });
 
         const res = await request({
             path: '/bodies/' + body.id + '/campaigns',
@@ -112,7 +112,7 @@ describe('Campaigns creating', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.body_id).not.toEqual(1337);
+        expect(res.body.data.body_id).not.toEqual(2147483647);
     });
 
     test('should fail if no permission', async () => {
@@ -120,7 +120,7 @@ describe('Campaigns creating', () => {
         const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
-        const campaign = generator.generateCampaign({ body_id: 1337 });
+        const campaign = generator.generateCampaign({ body_id: 2147483647 });
 
         const res = await request({
             path: '/bodies/' + body.id + '/campaigns',

@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { AccessToken, RefreshToken } = require('../../models');
 
 describe('Logout', () => {
     beforeAll(async () => {
@@ -79,6 +80,89 @@ describe('Logout', () => {
             path: '/logout',
             method: 'POST',
             body: { refresh_token: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'Token is not provided.' });
+    });
+
+    test('should delete the refresh token, and only that one', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createRefreshToken(user);
+        const otherSession = await generator.createRefreshToken(user);
+        const otherUser = await generator.createUser();
+        const otherToken = await generator.createRefreshToken(otherUser);
+
+        const res = await request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual({ success: true, message: 'You are now logged out.' });
+
+        const tokens = await RefreshToken.findAll({ order: [['id', 'ASC']] });
+        expect(tokens.map((item) => item.value)).toEqual([otherSession.value, otherToken.value]);
+    });
+
+    test('should answer 403 for a token that was logged out already', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createRefreshToken(user);
+        const logout = () => request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: token.value }
+        });
+
+        expect((await logout()).statusCode).toEqual(200);
+
+        const res = await logout();
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Token is not found.' });
+    });
+
+    test('should keep the access tokens of the member until they expire', async () => {
+        const user = await generator.createUser();
+        const refreshToken = await generator.createRefreshToken(user);
+        const accessToken = await generator.createAccessToken(user);
+
+        await request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: refreshToken.value }
+        });
+
+        expect(await AccessToken.count({ where: { user_id: user.id } })).toEqual(1);
+
+        const res = await request({
+            path: '/members/me',
+            method: 'GET',
+            headers: { 'X-Auth-Token': accessToken.value }
+        });
+        expect(res.statusCode).toEqual(200);
+    });
+
+    test('should not take an access token for a refresh token', async () => {
+        const user = await generator.createUser();
+        const accessToken = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: accessToken.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Token is not found.' });
+        expect(await AccessToken.count()).toEqual(1);
+    });
+
+    test('should say that the token is missing if it is an empty text', async () => {
+        const res = await request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: '' }
         });
 
         expect(res.statusCode).toEqual(400);

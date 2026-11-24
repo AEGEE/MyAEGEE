@@ -199,4 +199,167 @@ describe('Password confirm', () => {
         const userFromDb = await User.scope('withPassword').findByPk(user.id);
         expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
     });
+
+    test('should say which of the two is wrong with the token', async () => {
+        const user = await generator.createUser();
+        const reset = await generator.createPasswordReset(user, { expires_at: new Date(Date.now() - 1000) });
+
+        const unknown = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: 'does-not-exist', password: 'testtest' }
+        });
+        expect(unknown.statusCode).toEqual(404);
+        expect(unknown.body).toEqual({ success: false, message: 'Token is invalid.' });
+
+        const expired = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'testtest' }
+        });
+        expect(expired.statusCode).toEqual(404);
+        expect(expired.body).toEqual({ success: false, message: 'Token is expired.' });
+    });
+
+    test('should keep the password and the sessions if the token is expired', async () => {
+        const user = await generator.createUser({ password: 'the-old-password' });
+        const reset = await generator.createPasswordReset(user, { expires_at: new Date(Date.now() - 1000) });
+        await generator.createAccessToken(user);
+        await generator.createRefreshToken(user);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-new-password' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+        expect(await AccessToken.count({ where: { user_id: user.id } })).toEqual(1);
+        expect(await RefreshToken.count({ where: { user_id: user.id } })).toEqual(1);
+    });
+
+    test('should name the rule that the new password breaks, and keep the sessions', async () => {
+        const user = await generator.createUser({ password: 'the-old-password' });
+        const reset = await generator.createPasswordReset(user);
+        await generator.createAccessToken(user);
+        await generator.createRefreshToken(user);
+
+        const tooShort = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'short' }
+        });
+        expect(tooShort.statusCode).toEqual(422);
+        expect(tooShort.body).toEqual({
+            success: false,
+            errors: { password: ['Password should be at least 8 characters long.'] }
+        });
+
+        const missing = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value }
+        });
+        expect(missing.statusCode).toEqual(422);
+        expect(missing.body.errors.password).toContain('Password should be set.');
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+        expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(1);
+        expect(await AccessToken.count({ where: { user_id: user.id } })).toEqual(1);
+        expect(await RefreshToken.count({ where: { user_id: user.id } })).toEqual(1);
+    });
+
+    test('should accept a token only once', async () => {
+        const user = await generator.createUser();
+        const reset = await generator.createPasswordReset(user);
+
+        const first = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-first-password' }
+        });
+        expect(first.statusCode).toEqual(200);
+        expect(first.body).toEqual({ success: true, message: 'Password was changed successfully.' });
+
+        const second = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-second-password' }
+        });
+        expect(second.statusCode).toEqual(404);
+        expect(second.body).toEqual({ success: false, message: 'Token is invalid.' });
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('the-first-password')).toEqual(true);
+    });
+
+    test('should keep the password, the sessions and the resets of the other members', async () => {
+        const user = await generator.createUser();
+        const reset = await generator.createPasswordReset(user);
+
+        const otherUser = await generator.createUser({ password: 'the-other-password' });
+        await generator.createPasswordReset(otherUser);
+        await generator.createAccessToken(otherUser);
+        await generator.createRefreshToken(otherUser);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-new-password' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const otherFromDb = await User.scope('withPassword').findByPk(otherUser.id);
+        expect(await otherFromDb.checkPassword('the-other-password')).toEqual(true);
+        expect(await PasswordReset.count({ where: { user_id: otherUser.id } })).toEqual(1);
+        expect(await AccessToken.count({ where: { user_id: otherUser.id } })).toEqual(1);
+        expect(await RefreshToken.count({ where: { user_id: otherUser.id } })).toEqual(1);
+    });
+
+    test('should let the member log in with the new password only', async () => {
+        const user = await generator.createUser({ password: 'the-old-password' });
+        const reset = await generator.createPasswordReset(user);
+
+        await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-new-password' }
+        });
+
+        const withOld = await request({
+            path: '/login',
+            method: 'POST',
+            body: { username: user.email, password: 'the-old-password' }
+        });
+        expect(withOld.statusCode).toEqual(403);
+
+        const withNew = await request({
+            path: '/login',
+            method: 'POST',
+            body: { username: user.email, password: 'the-new-password' }
+        });
+        expect(withNew.statusCode).toEqual(200);
+    });
+
+    test('should not store the new password as it is sent', async () => {
+        const user = await generator.createUser();
+        const reset = await generator.createPasswordReset(user);
+
+        const res = await request({
+            path: '/password_confirm',
+            method: 'POST',
+            body: { token: reset.value, password: 'the-new-password' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(userFromDb.password).not.toEqual('the-new-password');
+        expect(userFromDb.password).toMatch(/^\$2[aby]\$/);
+    });
 });

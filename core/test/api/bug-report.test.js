@@ -307,4 +307,72 @@ describe('Bug report', () => {
         // The user id only, not the client address.
         expect(warnLog).toHaveBeenCalledWith({ user_id: null }, 'Bug report: rate limit exceeded');
     });
+
+    // Reports of people who are not logged in and leave no email are taken as well.
+    it('should report the bug without an email if nobody is logged in and none is given', async () => {
+        const requestsMock = mock.mockAll({
+            atlassian: {
+                body: {
+                    fields: [
+                        { id: 'summary', value: fields.summary },
+                        { id: 'description', value: fields.description },
+                        { id: 'email', value: null },
+                        { id: 'attachment', value: [] }
+                    ]
+                }
+            }
+        });
+
+        const res = await request({
+            path: '/bug-report',
+            method: 'POST',
+            files: {},
+            fields: { summary: fields.summary, description: fields.description }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual({ success: true, message: 'Your issue is reported.' });
+        expect(requestsMock.atlassian.isDone()).toEqual(true);
+    });
+
+    it('should return 429 to a logged-in member who sends too many bug reports, and log their id', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        for (let i = 0; i < config.bug_report.rate_limit.max; i++) {
+            const res = await request({
+                path: '/bug-report',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                files: {},
+                fields
+            });
+
+            expect(res.statusCode).toEqual(200);
+        }
+
+        // A report that got through to the issue tracker now would answer 502.
+        mock.mockAll({ atlassian: { netError: true } });
+
+        const warnLog = jest.spyOn(log, 'warn');
+        let res;
+        try {
+            res = await request({
+                path: '/bug-report',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                files: {},
+                fields
+            });
+        } finally {
+            jest.restoreAllMocks();
+        }
+
+        expect(res.statusCode).toEqual(429);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'You have sent too many bug reports, please try again later.'
+        });
+        expect(warnLog).toHaveBeenCalledWith({ user_id: user.id }, 'Bug report: rate limit exceeded');
+    });
 });

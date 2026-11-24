@@ -9,6 +9,7 @@ const mock = require('../scripts/mock');
 const login = require('../../middlewares/login');
 const config = require('../../config');
 const Bugsnag = require('../../lib/bugsnag');
+const constants = require('../../lib/constants');
 
 // The reset is created and mailed after the answer. The tests look at the result, so they wait for that.
 const request = async (options) => {
@@ -459,5 +460,149 @@ describe('Password reset', () => {
         expect(res.statusCode).toEqual(200);
         expect(await PasswordReset.count({ where: { user_id: user.id } })).toEqual(1);
         expect(mails.length).toEqual(1);
+    });
+
+    describe('the mail', () => {
+        test('should carry the token of the stored reset, and nothing else', async () => {
+            const mails = mock.captureMails();
+            const user = await generator.createUser({ email: 'some.one@example.com' });
+
+            const before = Date.now();
+            const res = await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: 'some.one@example.com' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({
+                success: true,
+                message: 'If this email belongs to an account, a password reset was sent to it.'
+            });
+
+            const resets = await PasswordReset.findAll();
+            expect(resets.length).toEqual(1);
+            expect(resets[0].user_id).toEqual(user.id);
+            expect(resets[0].value.length).toEqual(constants.TOKEN_LENGTH.PASSWORD_RESET);
+            expect(resets[0].expires_at.getTime()).toBeGreaterThanOrEqual(before + ((config.ttl.password_reset - 1) * 1000));
+            expect(resets[0].expires_at.getTime()).toBeLessThanOrEqual(Date.now() + (config.ttl.password_reset * 1000));
+
+            expect(mails).toEqual([{
+                to: 'some.one@example.com',
+                subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+                template: 'password_reset.html',
+                parameters: { token: resets[0].value }
+            }]);
+        });
+
+        test('should go to the login email of a member whose primary email is the Google Workspace account', async () => {
+            const mails = mock.captureMails();
+            await generator.createUser({
+                email: 'some.one@example.com',
+                gsuite_id: 'example-some.one@aegee.eu',
+                primary_email: 'gsuite'
+            });
+
+            const res = await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: 'some.one@example.com' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails.length).toEqual(1);
+            expect(mails[0].to).toEqual('some.one@example.com');
+        });
+
+        test('should not be sent for the Google Workspace account or the username of a member', async () => {
+            const mails = mock.captureMails();
+            await generator.createUser({
+                username: 'someone',
+                email: 'some.one@example.com',
+                gsuite_id: 'example-some.one@aegee.eu',
+                primary_email: 'gsuite'
+            });
+
+            for (const email of ['example-some.one@aegee.eu', 'someone']) {
+                const res = await request({
+                    path: '/password_reset',
+                    method: 'POST',
+                    body: { email }
+                });
+
+                expect(res.statusCode).toEqual(200);
+            }
+
+            expect(mails).toEqual([]);
+            expect(await PasswordReset.count()).toEqual(0);
+        });
+
+        test('should let the member set a new password with its token', async () => {
+            const mails = mock.captureMails();
+            const user = await generator.createUser({ password: 'the-old-password' });
+
+            await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: user.email }
+            });
+
+            const confirmed = await request({
+                path: '/password_confirm',
+                method: 'POST',
+                body: { token: mails[0].parameters.token, password: 'the-new-password' }
+            });
+            expect(confirmed.statusCode).toEqual(200);
+
+            const userFromDb = await User.scope('withPassword').findByPk(user.id);
+            expect(await userFromDb.checkPassword('the-new-password')).toEqual(true);
+            expect(await userFromDb.checkPassword('the-old-password')).toEqual(false);
+        });
+
+        test('should only keep the token of the last request of a member', async () => {
+            const mails = mock.captureMails();
+            const user = await generator.createUser({ password: 'the-old-password' });
+
+            for (let i = 0; i < 2; i++) {
+                await request({
+                    path: '/password_reset',
+                    method: 'POST',
+                    body: { email: user.email }
+                });
+            }
+
+            expect(mails.length).toEqual(2);
+            expect(mails[0].parameters.token).not.toEqual(mails[1].parameters.token);
+
+            const resets = await PasswordReset.findAll();
+            expect(resets.map((reset) => reset.value)).toEqual([mails[1].parameters.token]);
+
+            const withFirstToken = await request({
+                path: '/password_confirm',
+                method: 'POST',
+                body: { token: mails[0].parameters.token, password: 'the-new-password' }
+            });
+            expect(withFirstToken.statusCode).toEqual(404);
+
+            const userFromDb = await User.scope('withPassword').findByPk(user.id);
+            expect(await userFromDb.checkPassword('the-old-password')).toEqual(true);
+        });
+
+        test('should not touch the resets of other members', async () => {
+            mock.captureMails();
+            const user = await generator.createUser();
+            const otherUser = await generator.createUser();
+            const otherReset = await generator.createPasswordReset(otherUser);
+
+            await request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: user.email }
+            });
+
+            const resets = await PasswordReset.findAll({ order: [['id', 'ASC']] });
+            expect(resets.map((reset) => reset.user_id)).toEqual([otherUser.id, user.id]);
+            expect(resets[0].value).toEqual(otherReset.value);
+        });
     });
 });

@@ -23,7 +23,7 @@ describe('User activation', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            path: '/members/1337/password',
+            path: '/members/2147483647/password',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { old_password: 'testtest', password: 'testtest2' }
@@ -210,5 +210,130 @@ describe('User activation', () => {
 
         const userFromDb = await User.scope('withPassword').findByPk(user.id);
         expect(await userFromDb.checkPassword('testtest')).toEqual(true);
+    });
+
+    test('should answer with a message only, and store the new password as a hash', async () => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password: 'testtest2' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual({ success: true, message: 'The password was changed.' });
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(userFromDb.password).not.toEqual('testtest2');
+        expect(await userFromDb.checkPassword('testtest2')).toEqual(true);
+        expect(await userFromDb.checkPassword('testtest')).toEqual(false);
+    });
+
+    test('should let the member log in with the new password only', async () => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+
+        await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password: 'testtest2' }
+        });
+
+        const login = (password) => request({
+            path: '/login',
+            method: 'POST',
+            body: { username: user.email, password }
+        });
+
+        expect((await login('testtest')).statusCode).toEqual(403);
+        expect((await login('testtest2')).statusCode).toEqual(200);
+    });
+
+    test('should need the password of the member, not the one of who asks', async () => {
+        const manager = await generator.createUser({ password: 'the-own-password', superadmin: true });
+        const token = await generator.createAccessToken(manager);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const member = await generator.createUser({ password: 'testtest' });
+
+        const res = await request({
+            path: '/members/' + member.id + '/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'the-own-password', password: 'testtest2' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, message: 'The old password is invalid.' });
+
+        const memberFromDb = await User.scope('withPassword').findByPk(member.id);
+        expect(await memberFromDb.checkPassword('testtest')).toEqual(true);
+
+        const managerFromDb = await User.scope('withPassword').findByPk(manager.id);
+        expect(await managerFromDb.checkPassword('the-own-password')).toEqual(true);
+    });
+
+    test('should change the password of that member only', async () => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser({ password: 'testtest' });
+
+        const res = await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password: 'testtest2' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const otherFromDb = await User.scope('withPassword').findByPk(otherUser.id);
+        expect(await otherFromDb.checkPassword('testtest')).toEqual(true);
+    });
+
+    test.each([
+        ['too short', 'short', 'Password should be at least 8 characters long.'],
+        ['empty', '', 'Password should be set.']
+    ])('should name the rule for a new password that is %s, and keep the old one', async (name, password, message) => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(Object.keys(res.body).sort()).toEqual(['errors', 'success']);
+        expect(Object.keys(res.body.errors)).toEqual(['password']);
+        expect(res.body.errors.password).toContain(message);
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('testtest')).toEqual(true);
+    });
+
+    test('should name the permission and keep the password for another member without it', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser({ password: 'testtest' });
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password: 'testtest2' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Permission update:member is required, but not present.' });
+
+        const otherFromDb = await User.scope('withPassword').findByPk(otherUser.id);
+        expect(await otherFromDb.checkPassword('testtest')).toEqual(true);
     });
 });

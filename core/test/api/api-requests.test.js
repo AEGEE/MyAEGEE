@@ -24,7 +24,8 @@ describe('API requests', () => {
         const res = await request({
             path: '/not-existant',
             method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            headers: { 'X-Auth-Token': 'blablabla' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);
@@ -36,7 +37,8 @@ describe('API requests', () => {
     test('should name the method and the path of an unknown endpoint, without the query', async () => {
         const res = await request({
             path: '/not-existant/1',
-            query: { token: 'abc' }
+            query: { token: 'abc' },
+            skipOpenApi: 'the not-found handler'
         });
 
         expect(res.statusCode).toEqual(404);
@@ -162,7 +164,8 @@ describe('API requests', () => {
             const res = await request({
                 path: '/login',
                 method: 'POST',
-                rawBody: nestedBody(10000, 'text').replace('"username":"x","password":"x"', '"username":"deep-member","password":"deep-password"')
+                rawBody: nestedBody(10000, 'text').replace('"username":"x","password":"x"', '"username":"deep-member","password":"deep-password"'),
+                skipRequestCheck: 'the fields that are nested this deep are not ones a client sends'
             });
 
             expect(res.statusCode).toEqual(200);

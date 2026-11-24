@@ -1,8 +1,10 @@
 const { startServer, stopServer } = require('../../lib/server');
-const { CircleMembership } = require('../../models');
+const { BodyMembership, CircleMembership } = require('../../models');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
+const config = require('../../config');
+const constants = require('../../lib/constants');
 
 describe('Body membership creating', () => {
     beforeAll(async () => {
@@ -33,7 +35,7 @@ describe('Body membership creating', () => {
             path: '/bodies/' + body.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: { user_id: 1337 }
+            body: { user_id: 2147483647 }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -169,5 +171,124 @@ describe('Body membership creating', () => {
 
         expect(res.statusCode).toEqual(400);
         expect(res.body).toEqual({ success: false, message: 'The user ID is not valid.' });
+    });
+
+    describe('for a member with or without a body', () => {
+        let mails;
+        let token;
+        let body;
+
+        beforeEach(async () => {
+            mails = mock.captureMails();
+
+            const user = await generator.createUser({ superadmin: true });
+            token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'add_member', object: 'body' });
+
+            body = await generator.createBody({ name: 'AEGEE-Somewhere' });
+        });
+
+        const add = (member) => request({
+            path: '/bodies/' + body.id + '/members',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { user_id: member.id }
+        });
+
+        test('should fail for a member of the body, and keep the one membership', async () => {
+            const member = await generator.createUser();
+            const membership = await generator.createBodyMembership(body, member);
+
+            const res = await add(member);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({
+                success: false,
+                errors: { body_id: ['body_id must be unique'], user_id: ['user_id must be unique'] }
+            });
+
+            const memberships = await BodyMembership.findAll({ where: { body_id: body.id, user_id: member.id } });
+            expect(memberships.map((item) => item.id)).toEqual([membership.id]);
+            expect(mails).toEqual([]);
+        });
+
+        test('should fail for a member of the body without adding them to the shadow circle again', async () => {
+            const shadowCircle = await generator.createCircle({ body_id: body.id });
+            await body.update({ shadow_circle_id: shadowCircle.id });
+
+            const member = await generator.createUser();
+            await generator.createBodyMembership(body, member);
+
+            const res = await add(member);
+
+            expect(res.statusCode).toEqual(422);
+            expect(await CircleMembership.count({ where: { circle_id: shadowCircle.id, user_id: member.id } })).toEqual(1);
+        });
+
+        test('should send no mail for a member who is in another body already', async () => {
+            const otherBody = await generator.createBody();
+            const member = await generator.createUser();
+            await generator.createBodyMembership(otherBody, member);
+
+            const res = await add(member);
+
+            expect(res.statusCode).toEqual(200);
+            expect(await BodyMembership.count({ where: { body_id: body.id, user_id: member.id } })).toEqual(1);
+            expect(mails).toEqual([]);
+        });
+
+        test('should welcome a member without a body and tell the Google Workspace administrators', async () => {
+            const member = await generator.createUser({
+                first_name: 'Some',
+                last_name: 'One',
+                email: 'some.one@example.com'
+            });
+
+            const res = await add(member);
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails).toEqual([
+                {
+                    to: 'some.one@example.com',
+                    subject: constants.MAIL_SUBJECTS.NEW_MEMBER,
+                    template: 'new_member.html',
+                    parameters: {
+                        member_firstname: 'Some',
+                        member_lastname: 'One',
+                        body_name: 'AEGEE-Somewhere',
+                        body_id: body.id
+                    }
+                },
+                {
+                    to: config.google_workspace_notifications,
+                    subject: constants.MAIL_SUBJECTS.WORKSPACE_NEW_MEMBER,
+                    template: 'workspace_new_member.html',
+                    parameters: {
+                        member_firstname: 'Some',
+                        member_lastname: 'One',
+                        user_id: member.id,
+                        member_email: 'some.one@example.com'
+                    }
+                }
+            ]);
+        });
+
+        // The welcome goes to the address the member reads; the administrators get the personal one.
+        test('should welcome a member on their Workspace address if that is their primary one', async () => {
+            const member = await generator.createUser({
+                email: 'some.one@example.com',
+                gsuite_id: 'example-some.one@aegee.eu',
+                primary_email: 'gsuite'
+            });
+
+            const res = await add(member);
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails.map((mail) => [mail.template, mail.to])).toEqual([
+                ['new_member.html', 'example-some.one@aegee.eu'],
+                ['workspace_new_member.html', config.google_workspace_notifications]
+            ]);
+            expect(mails[1].parameters.member_email).toEqual('some.one@example.com');
+        });
     });
 });

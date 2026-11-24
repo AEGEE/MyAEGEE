@@ -286,4 +286,50 @@ describe('Body memberships list wth permission', () => {
             expect(res.body.meta.count).toEqual(1);
         });
     });
+
+    // The statutory and summer university services mail the members that this list names.
+    test('should return the names of the members and the address they read their mail on', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
+
+        const body = await generator.createBody();
+        const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
+        const circle = await generator.createCircle({ body_id: body.id });
+        await generator.createCirclePermission(circle, permission);
+
+        const members = [
+            await generator.createUser({ first_name: 'Anna', last_name: 'Personal', email: 'anna@example.com' }),
+            await generator.createUser({
+                first_name: 'Bert',
+                last_name: 'Workspace',
+                email: 'bert@example.com',
+                gsuite_id: 'example-bert@aegee.eu',
+                primary_email: 'gsuite'
+            })
+        ];
+        for (const member of members) {
+            await generator.createBodyMembership(body, member);
+            await generator.createCircleMembership(circle, member);
+        }
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/members',
+            method: 'GET',
+            query: { holds_permission: { action: 'action', object: 'object' } },
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((membership) => ({
+            user_id: membership.user_id,
+            first_name: membership.user.first_name,
+            last_name: membership.user.last_name,
+            notification_email: membership.user.notification_email
+        }))).toEqual([
+            { user_id: members[0].id, first_name: 'Anna', last_name: 'Personal', notification_email: 'anna@example.com' },
+            { user_id: members[1].id, first_name: 'Bert', last_name: 'Workspace', notification_email: 'example-bert@aegee.eu' }
+        ]);
+    });
 });

@@ -108,4 +108,61 @@ describe('Payments testing', () => {
         expect(payment.invoice_name).toEqual(null);
         expect(payment.invoice_address).toEqual(null);
     });
+
+    describe('validation', () => {
+        let valid;
+
+        beforeEach(async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+
+            valid = {
+                user_id: user.id,
+                body_id: body.id,
+                amount: 1,
+                currency: 'EUR',
+                starts: '2026-03-01',
+                expires: '2027-03-01'
+            };
+        });
+
+        test.each([
+            ['an amount that is not a decimal', { amount: 'abc' }, 'amount', ['Amount should be valid.']],
+            ['an amount with a comma', { amount: '1,5' }, 'amount', ['Amount should be valid.']],
+            ['a negative amount', { amount: -0.01 }, 'amount', ['Amount cannot be negative.']],
+            ['not set amount', { amount: undefined }, 'amount', ['Amount should be set.', 'Amount should be valid.']],
+            ['null amount', { amount: null }, 'amount', ['payment.amount cannot be null']],
+            ['not set starts', { starts: undefined }, 'starts', ['Starts date should be valid.', 'Starts date should be set.']],
+            ['null starts', { starts: null }, 'starts', ['payment.starts cannot be null']],
+            ['starts that is not a date', { starts: 'abc' }, 'starts', ['Starts date should be valid.']],
+            ['not set expires', { expires: undefined }, 'expires', ['Expiration date should be valid.', 'Expiration date should be set.']],
+            ['expires that is not a date', { expires: 'abc' }, 'expires', ['Expiration date should be valid.']],
+            ['expires on the day of starts', { expires: '2026-03-01' }, 'expires', ['Expiration date should be after the start date.']],
+            ['empty currency', { currency: '' }, 'currency', ['Currency should be set.']],
+            ['currency of spaces', { currency: '  \t ' }, 'currency', ['Currency should be set.']],
+            ['not set currency', { currency: undefined }, 'currency', ['payment.currency cannot be null']]
+        ])('should fail with %s', async (name, fields, path, messages) => {
+            await expect(Payment.create({ ...valid, ...fields })).rejects.toMatchObject({
+                name: 'SequelizeValidationError',
+                errors: messages.map((message) => expect.objectContaining({ path, message }))
+            });
+            expect(await Payment.count()).toEqual(0);
+        });
+
+        test.each([
+            ['zero', 0],
+            ['an amount with cents', 12.5],
+            ['an amount with cents as a text', '12.50']
+        ])('should succeed with %s as the amount', async (name, amount) => {
+            const payment = await Payment.create({ ...valid, amount });
+
+            expect(Number((await Payment.findByPk(payment.id)).amount)).toEqual(Number(amount));
+        });
+
+        test('should succeed when the expiration date is the day after the start date', async () => {
+            const payment = await Payment.create({ ...valid, expires: '2026-03-02' });
+
+            expect(payment.expires).toEqual('2026-03-02');
+        });
+    });
 });

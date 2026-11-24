@@ -1,14 +1,19 @@
 const generator = require('./generator');
 
-// The permissions the routes below ask for. A superadmin holds every permission that exists.
+// Every permission the routes ask for. A superadmin holds every permission that exists,
+// so with these the one in the fixtures is allowed everything.
 const PERMISSIONS = [
-    'create:body', 'update:body', 'delete:body', 'add_member:body', 'create_member:body', 'update_member:body',
-    'create:circle', 'update:circle', 'put_parent:circle', 'put_permissions:circle', 'add_member:circle', 'update_members:circle',
-    'create:permission', 'update:permission',
-    'create:campaign', 'update:campaign',
-    'create:payment', 'update:payment',
-    'process:join_request',
-    'update:member', 'update_active:user', 'update_superadmin:member', 'update_application_ban:member', 'confirm:member',
+    'create:body', 'update:body', 'delete:body', 'view_deleted:body',
+    'view_members:body', 'add_member:body', 'create_member:body', 'update_member:body', 'delete_member:body',
+    'create:circle', 'update:circle', 'delete:circle', 'put_parent:circle', 'put_permissions:circle',
+    'view_members:circle', 'add_member:circle', 'update_members:circle', 'delete_members:circle',
+    'create:permission', 'update:permission', 'delete:permission',
+    'view:campaign', 'create:campaign', 'update:campaign', 'delete:campaign',
+    'view:payment', 'create:payment', 'update:payment', 'delete:payment',
+    'view:join_request', 'process:join_request',
+    'view:member', 'view_unconfirmed:member', 'search:member', 'mail:member', 'lookup:member',
+    'update:member', 'delete:member', 'confirm:member',
+    'update_active:user', 'update_superadmin:member', 'update_application_ban:member',
     'subscribe:listserv',
     'manage:resources'
 ];
@@ -91,8 +96,8 @@ const bodyFields = () => ({
     pays_fees: true,
     country: 'Netherlands',
     website: 'https://example.com',
-    gsuite_id: 'body@aegee.eu',
-    google_group: 'group@aegee.eu'
+    gsuite_id: 'example-body@aegee.eu',
+    google_group: 'example-group@aegee.eu'
 });
 
 const campaignFields = () => ({
@@ -114,6 +119,7 @@ const paymentFields = () => ({
 // Every route that reads a JSON request body, with a body it accepts.
 // `noBody` is the status it answers when the request has no body at all.
 // `multipart`: the route takes a form with files, so there are no JSON fields to vary.
+// `noFields`: the route reads nothing from the body.
 exports.ROUTES = [
     { method: 'POST', name: '/signup/:campaign_id', path: (d) => `/signup/${d.campaign.url}`, body: () => userFields(), noBody: 422 },
     { method: 'POST', name: '/confirm-email', path: () => '/confirm-email', body: (d) => ({ token: d.mailConfirmation.value }), noBody: 400 },
@@ -153,7 +159,7 @@ exports.ROUTES = [
         noBody: 422
     },
     { method: 'PUT', name: '/members/:user_id/superadmin', path: (d) => `/members/${d.member.id}/superadmin`, body: () => ({ superadmin: true }), noBody: 200 },
-    { method: 'POST', name: '/members/:user_id/confirm', path: (d) => `/members/${d.unconfirmed.id}/confirm`, body: () => ({}), noBody: 200 },
+    { method: 'POST', name: '/members/:user_id/confirm', path: (d) => `/members/${d.unconfirmed.id}/confirm`, body: () => ({}), noFields: true, noBody: 200 },
     { method: 'PUT', name: '/members/:user_id/primary-body', path: (d) => `/members/${d.member.id}/primary-body`, body: (d) => ({ primary_body_id: d.body.id }), noBody: 200 },
     { method: 'PUT', name: '/members/:user_id/email', path: (d) => `/members/${d.member.id}/email`, body: () => ({ new_email: 'new@example.com' }), noBody: 400 },
     {
@@ -170,7 +176,7 @@ exports.ROUTES = [
         path: (d) => `/members/${d.member.id}`,
         body: () => {
             const { email, password, mail_confirmed_at: confirmed, ...fields } = userFields();
-            return { ...fields, gsuite_id: 'member@aegee.eu', primary_email: 'gsuite' };
+            return { ...fields, gsuite_id: 'example-member@aegee.eu', primary_email: 'gsuite' };
         },
         noBody: 200
     },
@@ -230,7 +236,7 @@ exports.ROUTES = [
         method: 'PUT',
         name: '/circles/:circle_id',
         path: (d) => `/circles/${d.circle.id}`,
-        body: () => ({ name: 'Circle', description: 'Description', gsuite_id: 'circle@aegee.eu' }),
+        body: () => ({ name: 'Circle', description: 'Description', gsuite_id: 'example-circle@aegee.eu' }),
         noBody: 200
     },
     {

@@ -89,7 +89,7 @@ describe('Resources', () => {
         test('should return 404 for a section that does not exist', async () => {
             const token = await createMember();
 
-            const res = await call(token, 'GET', '/resources/categories/1337');
+            const res = await call(token, 'GET', '/resources/categories/2147483647');
 
             expect(res.statusCode).toEqual(404);
             expect(res.body.success).toEqual(false);
@@ -106,7 +106,7 @@ describe('Resources', () => {
         test('should return 404 for a link that does not exist', async () => {
             const token = await createMember();
 
-            const res = await call(token, 'GET', '/resources/links/1337');
+            const res = await call(token, 'GET', '/resources/links/2147483647');
 
             expect(res.statusCode).toEqual(404);
         });
@@ -162,11 +162,11 @@ describe('Resources', () => {
             const token = await createManager();
             await generator.createResourceCategory({ position: 4 });
 
-            const res = await call(token, 'POST', '/resources/categories', { name: ' Financial ', theme: 'blue-dark', position: 0, id: 1337 });
+            const res = await call(token, 'POST', '/resources/categories', { name: ' Financial ', theme: 'blue-dark', position: 0, id: 2147483647 });
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data).toMatchObject({ name: 'Financial', theme: 'blue-dark', position: 5 });
-            expect(res.body.data.id).not.toEqual(1337);
+            expect(res.body.data.id).not.toEqual(2147483647);
         });
 
         test('should create the first section at position 0', async () => {
@@ -263,7 +263,7 @@ describe('Resources', () => {
             ['not an array', () => 'nope'],
             ['missing a section', (ids) => ids.slice(1)],
             ['listing a section twice', (ids) => [ids[0], ...ids]],
-            ['replacing a section with another ID', (ids) => [ids[0], 1337]],
+            ['replacing a section with another ID', (ids) => [ids[0], 2147483647]],
             ['containing something other than IDs', (ids) => [ids[0], String(ids[1])]]
         ])('should refuse a list %s', async (_name, makeIds) => {
             const token = await createManager();
@@ -323,11 +323,13 @@ describe('Resources', () => {
 
         test.each([
             ['missing', undefined],
-            ['not existing', 1337],
+            ['not existing', 2147483647],
             ['not a number', 'abc'],
             ['not an integer', 1.5]
         ])('should refuse a section that is %s', async (_name, categoryId) => {
             const token = await createManager();
+            // Another section exists: the link does not end up there either.
+            await generator.createResourceCategory();
 
             const res = await call(token, 'POST', '/resources/links', {
                 category_id: categoryId,
@@ -337,7 +339,8 @@ describe('Resources', () => {
             });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('category_id');
+            expect(res.body).toEqual({ success: false, errors: { category_id: ['Section is not found.'] } });
+            expect(await ResourceLink.count()).toEqual(0);
         });
 
         test('should refuse a javascript: URL', async () => {
@@ -397,10 +400,10 @@ describe('Resources', () => {
             const category = await generator.createResourceCategory();
             const link = await generator.createResourceLink(category);
 
-            const res = await call(token, 'PUT', '/resources/links/' + link.id, { category_id: 1337 });
+            const res = await call(token, 'PUT', '/resources/links/' + link.id, { category_id: 2147483647 });
 
             expect(res.statusCode).toEqual(422);
-            expect(res.body.errors).toHaveProperty('category_id');
+            expect(res.body).toEqual({ success: false, errors: { category_id: ['Section is not found.'] } });
             expect((await ResourceLink.findByPk(link.id)).category_id).toEqual(category.id);
         });
 

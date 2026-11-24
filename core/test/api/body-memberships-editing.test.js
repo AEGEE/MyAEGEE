@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { BodyMembership } = require('../../models');
 
 describe('Body membership editing', () => {
     beforeAll(async () => {
@@ -43,7 +44,7 @@ describe('Body membership editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
 
         const res = await request({
-            path: '/bodies/' + body.id + '/members/1337',
+            path: '/bodies/' + body.id + '/members/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -121,5 +122,59 @@ describe('Body membership editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test.each([
+        ['an object', { text: 'test' }],
+        ['a list', ['test']]
+    ])('should fail if the comment is %s, and keep the comment it had', async (name, comment) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        const membership = await generator.createBodyMembership(body, user);
+        await membership.update({ comment: 'Paid the fee' });
+
+        await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/members/' + membership.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { comment }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({
+            success: false,
+            errors: { comment: ['comment cannot be an array or an object'] }
+        });
+
+        const membershipFromDb = await BodyMembership.findByPk(membership.id);
+        expect(membershipFromDb.comment).toEqual('Paid the fee');
+    });
+
+    test('should remove the comment if it is null', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        const membership = await generator.createBodyMembership(body, user);
+        await membership.update({ comment: 'Paid the fee' });
+
+        await generator.createPermission({ scope: 'global', action: 'update_member', object: 'body' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/members/' + membership.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { comment: null }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.comment).toEqual(null);
+
+        const membershipFromDb = await BodyMembership.findByPk(membership.id);
+        expect(membershipFromDb.comment).toEqual(null);
     });
 });

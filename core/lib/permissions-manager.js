@@ -13,7 +13,6 @@ class PermissionsManager {
         this.circlesMap = {};
     }
 
-    // istanbul ignore next
     addCircles(circles) {
         for (const circle of circles) {
             if (!this.circlesMap[circle.id]) {
@@ -23,7 +22,6 @@ class PermissionsManager {
         }
     }
 
-    // istanbul ignore next
     addPermissions(permissions) {
         for (const permission of permissions) {
             if (!this.permissionsMap[permission.combined]) {

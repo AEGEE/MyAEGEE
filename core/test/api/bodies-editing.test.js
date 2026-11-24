@@ -23,7 +23,7 @@ describe('Bodies editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
         const res = await request({
-            path: '/bodies/1337',
+            path: '/bodies/2147483647',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { email: 'test@test.io' }
@@ -555,5 +555,60 @@ describe('Bodies editing', () => {
         expect(unset.statusCode).toEqual(200);
         expect(unset.body.data.shadow_circle_id).toEqual(null);
         expect(unset.body.data.shadow_circle).toEqual(null);
+    });
+
+    describe('with a value that another body has', () => {
+        const own = {
+            code: 'OWN',
+            abbreviation: 'AEGEE-Own',
+            gsuite_id: 'example-own@aegee.eu',
+            google_group: 'example-own-l@aegee.eu'
+        };
+        let token;
+        let body;
+
+        beforeEach(async () => {
+            const user = await generator.createUser({ superadmin: true });
+            token = await generator.createAccessToken(user);
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            await generator.createBody({
+                code: 'ABC',
+                abbreviation: 'AEGEE-Somewhere',
+                gsuite_id: 'example-somewhere@aegee.eu',
+                google_group: 'example-somewhere-l@aegee.eu'
+            });
+            body = await generator.createBody({ ...own });
+        });
+
+        const update = (fields) => request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: fields
+        });
+
+        test.each([
+            ['code', 'abc', 'code must be unique'],
+            ['abbreviation', 'AEGEE-Somewhere', 'abbreviation must be unique'],
+            ['gsuite_id', 'example-Somewhere@AEGEE.eu', 'gsuite_id must be unique'],
+            ['google_group', 'example-Somewhere-L@aegee.eu', 'google_group must be unique']
+        ])('should fail for the %s, and keep the body as it was', async (field, value, message) => {
+            const res = await update({ [field]: value, name: 'Other name' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors: { [field]: [message] } });
+
+            const bodyFromDb = await Body.findByPk(body.id);
+            expect(bodyFromDb[field]).toEqual(own[field]);
+            expect(bodyFromDb.name).toEqual(body.name);
+        });
+
+        test('should succeed when the body sends its own values back', async () => {
+            const res = await update({ ...own, name: 'Other name' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toMatchObject({ ...own, name: 'Other name' });
+        });
     });
 });

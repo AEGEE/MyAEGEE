@@ -148,4 +148,48 @@ describe('Bodies creating', () => {
         expect(bodyFromDb.name).toEqual(body.name);
         expect(bodyFromDb.status).toEqual('active');
     });
+
+    describe('with a value that is taken or is not one', () => {
+        let token;
+
+        beforeEach(async () => {
+            const user = await generator.createUser({ superadmin: true });
+            token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'body' });
+            await generator.createBody({
+                code: 'ABC',
+                abbreviation: 'AEGEE-Somewhere',
+                gsuite_id: 'example-somewhere@aegee.eu',
+                google_group: 'example-somewhere-l@aegee.eu'
+            });
+        });
+
+        const typeMessage = 'Type must be one of these: "antenna", "contact antenna", "contact", "interest group", '
+            + '"working group", "commission", "committee", "project", "partner", "external", "other".';
+
+        test.each([
+            ['a code that another body has', { code: 'ABC' }, { code: ['code must be unique'] }],
+            ['a code that another body has in another case', { code: 'abc' }, { code: ['code must be unique'] }],
+            ['a type that does not exist', { type: 'club' }, { type: [typeMessage] }],
+            ['an abbreviation that another body has', { abbreviation: 'AEGEE-Somewhere' }, { abbreviation: ['abbreviation must be unique'] }],
+            ['an abbreviation that another body has, with spaces around it', { abbreviation: ' AEGEE-Somewhere ' }, { abbreviation: ['abbreviation must be unique'] }],
+            ['a Workspace account that is not an email address', { gsuite_id: 'x' }, { gsuite_id: ['GSuite ID must be a valid email.'] }],
+            ['a Workspace account that another body has', { gsuite_id: 'example-Somewhere@AEGEE.eu' }, { gsuite_id: ['gsuite_id must be unique'] }],
+            ['a Google group that is not an email address', { google_group: 'x' }, { google_group: ['Google Group must be a valid email.'] }],
+            ['a Google group that another body has', { google_group: 'example-Somewhere-L@aegee.eu' }, { google_group: ['google_group must be unique'] }]
+        ])('should fail for %s', async (name, fields, errors) => {
+            const res = await request({
+                path: '/bodies/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                // A code of its own, so only the field of the row can be refused.
+                body: generator.generateBody({ code: 'XYZ', ...fields })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({ success: false, errors });
+            expect(await Body.count()).toEqual(1);
+        });
+    });
 });

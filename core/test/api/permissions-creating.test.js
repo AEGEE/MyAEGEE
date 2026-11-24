@@ -85,7 +85,7 @@ describe('Permissions creating', () => {
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
 
-        const permission = generator.generatePermission({ id: 1337, filters: ['name'] });
+        const permission = generator.generatePermission({ id: 2147483647, filters: ['name'] });
 
         const res = await request({
             path: '/permissions',
@@ -96,7 +96,7 @@ describe('Permissions creating', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data.id).not.toEqual(1337);
+        expect(res.body.data.id).not.toEqual(2147483647);
 
         const permissionFromDb = await Permission.findByPk(res.body.data.id);
         expect(permissionFromDb.filters).toEqual(['name']);
@@ -134,5 +134,50 @@ describe('Permissions creating', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.filters).toEqual(['a'.repeat(255)]);
+    });
+
+    describe('with the scope, action and object of an existing permission', () => {
+        const message = 'There\'s already a permission with such scope, action and object.';
+        let token;
+
+        beforeEach(async () => {
+            const user = await generator.createUser({ superadmin: true });
+            token = await generator.createAccessToken(user);
+
+            await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
+            await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+        });
+
+        test.each([
+            ['written the same', { scope: 'global', action: 'view', object: 'member' }],
+            ['written in another case and with spaces around it', { scope: 'global', action: ' VIEW', object: 'Member ' }]
+        ])('should fail if it is %s', async (name, fields) => {
+            const res = await request({
+                path: '/permissions',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: generator.generatePermission({ ...fields })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body).toEqual({
+                success: false,
+                errors: { scope: [message], action: [message], object: [message] }
+            });
+            expect(await Permission.count({ where: { action: 'view', object: 'member' } })).toEqual(1);
+        });
+
+        test('should succeed if only the scope differs', async () => {
+            const res = await request({
+                path: '/permissions',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: generator.generatePermission({ scope: 'local', action: 'view', object: 'member' })
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.combined).toEqual('local:view:member');
+            expect(await Permission.count({ where: { action: 'view', object: 'member' } })).toEqual(2);
+        });
     });
 });

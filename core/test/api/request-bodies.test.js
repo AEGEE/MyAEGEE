@@ -9,6 +9,10 @@ const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 const { ROUTES, createFixtures } = require('../scripts/body-routes');
 
+// Each sweep sends a few hundred requests per route, and every response is checked against the
+// OpenAPI file; a shared runner takes longer than the default 5 seconds for the slowest route.
+jest.setTimeout(60 * 1000);
+
 describe('Request bodies', () => {
     let data;
 
@@ -19,16 +23,17 @@ describe('Request bodies', () => {
         body
     });
 
-    // For values that a client should not send: straight to the server.
-    const sendUnchecked = async (route, body) => {
-        const res = await fetch(`http://localhost:${config.port}${route.path(data)}`, {
-            method: route.method,
-            headers: { 'X-Auth-Token': data.token.value, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-
-        return { statusCode: res.status, body: await res.json() };
-    };
+    // For the sweeps that send whatever a client should not send. The server takes some of it
+    // (a number where a text belongs is stored as a text), which the request check of the
+    // OpenAPI file would report: that file says what a client should send. The response is
+    // still checked.
+    const sendUnusual = (route, body) => request({
+        path: route.path(data),
+        method: route.method,
+        headers: { 'X-Auth-Token': data.token.value },
+        body,
+        skipRequestCheck: 'the sweep sends values a client should not send'
+    });
 
     beforeAll(async () => {
         await startServer();
@@ -58,7 +63,8 @@ describe('Request bodies', () => {
             expect(res.body.success).toEqual(route.noBody === 200);
         });
 
-        test.each(ROUTES.filter((route) => !route.multipart))('$title answers the same for an empty JSON object', async (route) => {
+        // Not the routes that take no fields: a body is not for them.
+        test.each(ROUTES.filter((route) => !route.multipart && !route.noFields))('$title answers the same for an empty JSON object', async (route) => {
             const res = await send(route, {});
 
             expect(res.statusCode).toEqual(route.noBody);
@@ -89,7 +95,7 @@ describe('Request bodies', () => {
 
             for (const field of Object.keys(valid)) {
                 for (const value of VALUES) {
-                    const res = await send(route, { ...route.body(data), [field]: value });
+                    const res = await sendUnusual(route, { ...route.body(data), [field]: value });
 
                     if (res.statusCode >= 500) {
                         failures.push({ field, value, status: res.statusCode, message: res.body.message });
@@ -122,7 +128,8 @@ describe('Request bodies', () => {
                         path: route.path(data),
                         method: route.method,
                         headers: { 'X-Auth-Token': data.token.value },
-                        rawBody
+                        rawBody,
+                        skipRequestCheck: 'the sweep sends values a client should not send'
                     });
 
                     if (res.statusCode >= 500) {
@@ -196,7 +203,7 @@ describe('Request bodies', () => {
             const failures = [];
 
             for (const { field, value } of Object.keys(valid).flatMap(variants)) {
-                const res = await send(route, { ...route.body(data), [field]: value });
+                const res = await sendUnusual(route, { ...route.body(data), [field]: value });
 
                 if (res.statusCode >= 500) {
                     failures.push({ field, value: value.slice(0, 20), status: res.statusCode, message: res.body.message });
@@ -239,7 +246,7 @@ describe('Request bodies', () => {
             const wrong = [];
 
             for (const field of Object.keys(valid).filter((key) => typeof valid[key] === 'string')) {
-                const res = await send(route, { ...route.body(data), [field]: 5 });
+                const res = await sendUnusual(route, { ...route.body(data), [field]: 5 });
                 const answered = res.statusCode === 200 && res.body.data ? res.body.data[field] : undefined;
 
                 if (typeof answered !== 'undefined' && typeof answered !== 'string') {
@@ -292,7 +299,7 @@ describe('Request bodies', () => {
             const route = ROUTES.find((item) => item.title === title);
 
             for (const value of [1, '1', '2001', '12/31/2001', '31-12-2001', 'January 1, 2001', '2001-13-45', '2001-02-30', '0000-01-01', '0000-01-01T00:00:00Z', '2001-01-01 10:00', true]) {
-                const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
+                const res = await sendUnusual(route, { ...route.body(data), [field]: value });
 
                 expect({ value, status: res.statusCode, fields: Object.keys(res.body.errors || {}) })
                     .toEqual({ value, status: 422, fields: [field] });
@@ -306,7 +313,7 @@ describe('Request bodies', () => {
             async (title, field, value) => {
                 const route = ROUTES.find((item) => item.title === title);
 
-                const res = await sendUnchecked(route, { ...route.body(data), [field]: value });
+                const res = await sendUnusual(route, { ...route.body(data), [field]: value });
 
                 expect(res.statusCode).toEqual(200);
             }
