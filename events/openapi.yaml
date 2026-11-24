@@ -977,7 +977,7 @@ components:
           items: {$ref: '#/components/schemas/Question'}
         max_participants: {type: [integer, 'null']}
         application_status:
-          description: '`open` while now is within the application period (both ends included).'
+          description: '`open` while now is within the application period (both ends included); always `closed` for an event without applications.'
           type: string
           enum: [open, closed]
         optional_programme: {type: [string, 'null']}
@@ -1145,7 +1145,7 @@ components:
         vegetarian: {type: boolean}
         accommodation_type: {type: [string, 'null'], maxLength: 255, description: 'Required for in-person events; "none" if there is none.'}
         method: {$ref: '#/components/schemas/EventMethod'}
-        has_applications: {type: boolean, description: 'Always true for in-person events.'}
+        has_applications: {type: boolean, description: 'Always true for in-person events. The application dates of an event without applications are not checked against each other or the event dates; they are checked again when it starts to take applications.'}
     EventCreateInput:
       description: Unknown keys are ignored.
       type: object
