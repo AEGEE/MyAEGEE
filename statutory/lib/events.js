@@ -212,11 +212,13 @@ exports.changeEventStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change status for events of this type.');
     }
 
-    await req.event.update({ status: req.body.status });
-
-    if (req.event.status === 'published') {
-        await req.event.update({ publication_date: new Date() });
+    // The publication date is the moment a draft became published.
+    const fields = { status: req.body.status };
+    if (req.event.status !== 'published' && req.body.status === 'published') {
+        fields.publication_date = new Date();
     }
+
+    await req.event.update(fields);
 
     return res.json({
         success: true,
