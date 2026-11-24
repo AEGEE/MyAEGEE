@@ -134,6 +134,41 @@ describe('Locks', () => {
         }, 20000);
     });
 
+    describe('the row of an application', () => {
+        test.each([
+            ['confirmed', { confirmed: true }],
+            ['status', { status: 'accepted' }],
+            ['board', { board_comment: 'A comment' }],
+            ['', { allergies: 'None' }]
+        ])('a change of %j that waits too long for the application answers 503 and changes nothing', async (route, body) => {
+            mock.mockAll({ mainPermissions: { permissions: ['global:manage_applications:agora', 'global:manage_incoming:agora', 'global:approve_members:agora'] } });
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({
+                user_id: 1001,
+                body_id: regularUser.bodies[0].id,
+                participant_type: null,
+                participant_order: null
+            }, event);
+
+            const started = Date.now();
+            const res = await holdingLock(
+                'SELECT * FROM applications WHERE id = :id FOR UPDATE',
+                { id: application.id },
+                () => request({
+                    path: '/events/' + event.id + '/applications/' + application.id + (route ? '/' + route : ''),
+                    method: 'PUT',
+                    headers: { 'X-Auth-Token': 'blablabla' },
+                    body
+                })
+            );
+
+            expect(res.statusCode).toEqual(503);
+            expect(res.body).toEqual(BUSY);
+            expect(Date.now() - started).toBeLessThan(config.postgres.lock_timeout * 4);
+            expect((await Application.findByPk(application.id)).updated_at).toEqual(application.updated_at);
+        }, 20000);
+    });
+
     describe('two bodies at once', () => {
         test('applications that move between two bodies in opposite directions at the same time all answer 200', async () => {
             // The lock timeout of production: with a shorter one the waits end before Postgres
