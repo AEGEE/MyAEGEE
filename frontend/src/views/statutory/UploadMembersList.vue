@@ -384,6 +384,10 @@ export default {
       this.fetchMembersList()
     }
   },
+  // A page left while its request runs drops the answer.
+  beforeDestroy () {
+    this.memberslistRequest++
+  },
   mounted () {
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data

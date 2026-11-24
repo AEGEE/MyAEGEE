@@ -430,6 +430,10 @@ export default {
       this.fetchBoardview()
     }
   },
+  // A page left while its request runs drops the answer.
+  beforeDestroy () {
+    this.boardviewRequest++
+  },
   mounted () {
     this.isLoading = true
 

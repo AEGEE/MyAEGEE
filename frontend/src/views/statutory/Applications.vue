@@ -328,6 +328,10 @@ export default {
       this.$router.push({ name: 'oms.statutory.list.all' })
     }
   },
+  // A page left while its request runs drops the answer: no late error, no redirect.
+  beforeDestroy () {
+    this.listRequest++
+  },
   mounted () {
     this.isLoading = true
 

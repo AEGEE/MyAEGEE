@@ -252,6 +252,10 @@ export default {
       })
     }
   },
+  // A page left while its request runs drops the answer: no late error, no redirect.
+  beforeDestroy () {
+    this.listRequest++
+  },
   mounted () {
     this.isLoading = true
 
