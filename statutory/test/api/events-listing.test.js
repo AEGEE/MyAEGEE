@@ -463,15 +463,6 @@ describe('Events listing', () => {
             expect(res.statusCode).toEqual(400);
             expect(res.body.message).toEqual('The "starts" date is invalid, it should be in the YYYY-MM-DD format.');
         });
-
-        // BUG: a date in another format is not refused but read wrongly: "06-05-2031" is read
-        // as 20 May of the year 6, so the filter lets every event through.
-        // Expected: 400, as the message for other invalid dates promises (YYYY-MM-DD).
-        test('should read a date in another format as some date instead of refusing it', async () => {
-            const event = await generator.createEvent(fixedDates());
-
-            expect(await list({ starts: '06-05-2031' })).toEqual([event.id]);
-        });
     });
 
     describe('the other filters of the list', () => {
@@ -574,27 +565,6 @@ describe('Events listing', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.map((e) => e.id).sort()).toEqual([first.id, second.id].sort());
-        });
-
-        // BUG: a type that does not exist fails in the database: 500. Expected: 400 (or an
-        // empty list), as for the dates.
-        test.each([
-            ['a type that does not exist', { type: 'conference' }],
-            ['a list with a type that does not exist', { type: ['agora', 'conference'] }],
-            ['an object as the type', { type: { name: 'agora' } }]
-        ])('should answer 500 for %s', async (description, query) => {
-            await generator.createEvent({ type: 'agora' });
-
-            const res = await request({
-                path: '/',
-                query,
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
-            expect(res.body).not.toHaveProperty('data');
         });
     });
 

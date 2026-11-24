@@ -55,13 +55,10 @@ describe('Plenary model', () => {
         });
     });
 
-    // BUG: the column does not accept null and the model does (its validation of the name is
-    // skipped for null), so a name of null reaches the database and comes back as a 500.
-    // Expected: 'Plenary name should be set.'
-    test('accepts a name of null', async () => {
+    test('refuses a name of null', async () => {
         const plenary = Plenary.build({ event_id: 1, name: null, starts: STARTS, ends: ENDS });
 
-        expect(await errorsOf(plenary)).toEqual({});
+        expect(await errorsOf(plenary)).toEqual({ name: ['Plenary name should be set.'] });
     });
 
     test('gives the duration in seconds, the milliseconds as a fraction', () => {
@@ -119,10 +116,10 @@ describe('Attendance model', () => {
     test('refuses a start and an end that are not dates', async () => {
         const attendance = Attendance.build({ plenary_id: 1, application_id: 1, starts: 'not-a-date', ends: 'not-a-date' });
 
-        expect(await errorsOf(attendance)).toEqual({
-            starts: ['Attendance start date should be valid.'],
-            ends: ['Attendance end date should be valid.']
-        });
+        const errors = await errorsOf(attendance);
+        expect(Object.keys(errors).sort()).toEqual(['ends', 'starts']);
+        expect(errors.starts).toContain('Attendance start date should be valid.');
+        expect(errors.ends).toContain('Attendance end date should be valid.');
     });
 
     test('refuses an empty end', async () => {

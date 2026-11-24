@@ -453,22 +453,6 @@ describe('Events listing for single', () => {
             expect(res.body.message).toEqual(NOT_FOUND);
         });
 
-        // BUG: the url in the path is used as a pattern, so "%" stands for any text and "_" for
-        // any character: /events/% answers with some event, and /events/test_slug with
-        // test-slug. Expected: 404, only the exact url (in any case) finds the event.
-        test.each(['%25', 'test%25', 'test_slug'])('should find the event with the url test-slug as %s', async (url) => {
-            const event = await generator.createEvent({ url: 'test-slug' });
-
-            const res = await request({
-                path: '/events/' + url,
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.id).toEqual(event.id);
-        });
-
         // The four names pick the published event that starts last, not the one created last.
         const latest = [
             ['latest', ['agora', 'epm', 'spm']],

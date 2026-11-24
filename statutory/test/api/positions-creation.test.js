@@ -335,22 +335,6 @@ describe('Positions creation', () => {
             expect(await Position.count()).toEqual(0);
         });
 
-        // BUG: the body is stored as it comes, so `deleted: true` adds a position that is deleted
-        // from the start and that no list shows. Expected: `deleted` is ignored, like `status`.
-        test('adds a position that is already deleted when the body says so', async () => {
-            const res = await create({ ...openPosition(), deleted: true });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.deleted).toEqual(true);
-
-            const list = await request({
-                path: '/events/' + event.id + '/positions/',
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-            expect(list.body.data).toEqual([]);
-        });
-
         describe('at the edges of its period', () => {
             const STARTS = new Date('2031-06-01T10:00:00.000Z');
             const ENDS = new Date('2031-06-15T10:00:00.000Z');

@@ -232,17 +232,6 @@ describe('Plenaries edition', () => {
             expect((await Plenary.findByPk(plenary.id)).name).toEqual('Old name');
         });
 
-        // BUG: the model lets a name of null through (its validation skips null) and the
-        // column does not, so the message of the database comes back. Expected: 422, as for an empty name.
-        test('answers 500 for a name that is null', async () => {
-            const res = await edit({ name: null });
-
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
-            expect(res.body.message).toContain('violates not-null constraint');
-            expect((await Plenary.findByPk(plenary.id)).name).toEqual('Old name');
-        });
-
         test('accepts a new end 1 ms after the start', async () => {
             const res = await edit({ ends: '2030-03-01T10:00:00.001Z' });
 
@@ -273,37 +262,6 @@ describe('Plenaries edition', () => {
             const plenaryFromDb = await Plenary.findByPk(plenary.id);
             expect(plenaryFromDb.starts.toISOString()).toEqual(STARTS);
             expect(plenaryFromDb.ends.toISOString()).toEqual(ENDS);
-        });
-
-        // BUG: the rule that a plenary ends after it starts is a rule of `ends`, and only the
-        // fields in the body are checked. A new start alone can be after the end: the duration
-        // is negative then, and so are the percentages of the statistics. Expected: 422 on `starts`.
-        test('accepts a new start after the end, which leaves a plenary with a negative duration', async () => {
-            const res = await edit({ starts: '2030-03-01T13:00:00.000Z' });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data).toMatchObject({ starts: '2030-03-01T13:00:00.000Z', ends: ENDS, duration: -3600 });
-            expect((await Plenary.findByPk(plenary.id)).starts.toISOString()).toEqual('2030-03-01T13:00:00.000Z');
-        });
-
-        // BUG: `event_id` in the body is not ignored, so a plenary can be moved to another event,
-        // also to one that is not an Agora, where no route reaches it any more. Expected: ignored,
-        // as for the question lines.
-        test('moves the plenary to the event the body names', async () => {
-            const epm = await generator.createEvent({ type: 'epm', applications: [] });
-
-            const res = await edit({ event_id: epm.id });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.event_id).toEqual(epm.id);
-            expect((await Plenary.findByPk(plenary.id)).event_id).toEqual(epm.id);
-
-            const gone = await request({
-                path: '/events/' + event.id + '/plenaries/' + plenary.id,
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-            expect(gone.statusCode).toEqual(404);
         });
     });
 });

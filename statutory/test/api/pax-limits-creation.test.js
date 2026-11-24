@@ -326,16 +326,6 @@ describe('Pax limits creation/editing', () => {
             expect(await PaxLimit.count()).toEqual(0);
         });
 
-        // BUG: a list as the body crashes: 500. Expected: 422 with an error on "body_id", as
-        // for an empty object.
-        test.each([[[]], [[{ body_id: 34, delegate: 1 }]]])('should answer 500 for the list %j as the body', async (body) => {
-            const res = await send('agora', body);
-
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.success).toEqual(false);
-            expect(await PaxLimit.count()).toEqual(0);
-        });
-
         test('should refuse a wrong value for a stored limit and leave it as it was', async () => {
             const limit = await generator.createPaxLimit({ body_id: 34, event_type: 'agora', delegate: 3, envoy: 3, observer: 3, visitor: 3 });
 

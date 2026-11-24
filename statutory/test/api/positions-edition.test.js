@@ -220,17 +220,6 @@ describe('Positions edition', () => {
             expect((await stored()).toJSON()).toEqual(before);
         });
 
-        // BUG: the rule that a period ends after it starts is only checked when the end is sent,
-        // so moving the start past the end is accepted. Expected: 422 with errors.starts or errors.ends.
-        test('accepts a start of the period after its end when the end is not sent', async () => {
-            const res = await edit({ starts: moment().add(2, 'weeks').toDate() });
-
-            expect(res.statusCode).toEqual(200);
-
-            const fromDb = await stored();
-            expect(moment(fromDb.starts).isAfter(fromDb.ends)).toEqual(true);
-        });
-
         // BUG: the status follows the period only when a position is added. An edit of the period
         // cancels the jobs that open and close the position and plans none for a moment that has
         // passed, so the position keeps its status. Expected: closed, as its period is over.

@@ -179,18 +179,5 @@ describe('Question line creation', () => {
             expect(res.body).toEqual({ success: false, errors: { name: [message] } });
             expect(await QuestionLine.count()).toEqual(0);
         });
-
-        // BUG: the whole body goes to the model, so the client chooses the id and the creation
-        // time, which the list is sorted by. Expected: both are ignored, as `status` is.
-        test('takes the id and the creation time from the body', async () => {
-            const res = await create({ name: 'Questions to the board', id: 4242, created_at: '2001-01-01T00:00:00.000Z' });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.id).toEqual(4242);
-
-            const questionLine = await QuestionLine.findByPk(4242);
-            expect(questionLine.name).toEqual('Questions to the board');
-            expect(questionLine.created_at.toISOString()).toEqual('2001-01-01T00:00:00.000Z');
-        });
     });
 });

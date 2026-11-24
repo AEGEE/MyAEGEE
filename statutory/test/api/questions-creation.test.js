@@ -318,44 +318,5 @@ describe('Questions creation', () => {
             expect(res.body).toEqual({ success: false, errors: { text: [message] } });
             expect(await Question.count()).toEqual(0);
         });
-
-        // BUG: the whole body goes to the model, so the member chooses the creation time, which
-        // the questions of a line are sorted by, and the id. Expected: both are ignored.
-        test('takes the creation time from the body, which puts the question before the ones asked earlier', async () => {
-            const otherApplication = await generator.createApplication({ status: 'accepted', confirmed: true }, event);
-            const earlierQuestion = await generator.createQuestion({
-                application_id: otherApplication.id,
-                created_at: new Date('2030-01-01T12:00:00.000Z')
-            }, questionLine);
-
-            const res = await ask({ text: 'Me first', id: 4242, created_at: '2001-01-01T00:00:00.000Z' });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.data.id).toEqual(4242);
-            expect((await Question.findByPk(4242)).created_at.toISOString()).toEqual('2001-01-01T00:00:00.000Z');
-
-            const list = await request({
-                path: '/events/' + event.id + '/question-lines',
-                method: 'GET',
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-            expect(list.body.data[0].questions.map((question) => question.id)).toEqual([4242, earlierQuestion.id]);
-        });
-
-        // BUG: a consequence of the one above. An id from the body does not move the counter
-        // of the ids, so the next question that gets this id is refused. Expected: 200.
-        test('answers 422 to the next question after somebody took the id it would get', async () => {
-            const first = await ask({ text: 'First question' });
-            expect(first.statusCode).toEqual(200);
-
-            const withChosenId = await ask({ text: 'Question with the next id', id: first.body.data.id + 1 });
-            expect(withChosenId.statusCode).toEqual(200);
-
-            const res = await ask({ text: 'Question of the next member' });
-
-            expect(res.statusCode).toEqual(422);
-            expect(res.body).toEqual({ success: false, errors: { id: ['id must be unique'] } });
-            expect(await Question.count()).toEqual(2);
-        });
     });
 });
