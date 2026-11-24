@@ -22,28 +22,30 @@ test.describe('statutory members list and votes factories match the real API', (
         expectShape('membersListBody', membersListBody(), row);
     });
 
-    test('a saved members list and the votes it gives', async ({ api, otherAntenna }) => {
+    test('a saved members list and the votes it gives', async ({ api }) => {
         const event = await api.createStatutoryEvent();
         expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/status`, { status: 'published' }), 200);
-        // A confirmed delegate of the antenna, who gets its votes.
-        const delegate = await acceptedDelegate(api, event, otherAntenna.member.username);
+        // A confirmed delegate of member's antenna, who gets its votes. The list goes with the event.
+        const member = await api.me('member');
+        const antenna = member.bodies[0];
+        const delegate = await acceptedDelegate(api, event, 'member');
         expectStatus(await api.call('admin', 'PUT', `/api/statutory/events/${event.id}/applications/${delegate.id}/confirmed`, { confirmed: true }), 200);
-        await saveMembersList(api, event, otherAntenna.body.id, [
-            { user_id: otherAntenna.member.id, first_name: otherAntenna.member.first_name, last_name: otherAntenna.member.last_name, fee: 40 }
+        await saveMembersList(api, event, antenna.id, [
+            { user_id: member.id, first_name: member.first_name, last_name: member.last_name, fee: 40 }
         ]);
 
         const list = await api.call<Envelope<{ body_id: number; members: unknown[] }[]>>('admin', 'GET', `/api/statutory/events/${event.id}/memberslists`);
         expectStatus(list, 200);
-        const saved = list.body.data.find((item) => item.body_id === otherAntenna.body.id);
+        const saved = list.body.data.find((item) => item.body_id === antenna.id);
         expectShape('membersList', membersList(), saved);
         expectShape('membersListMember', membersListMember(), saved?.members[0]);
 
         const antennae = await api.call<Envelope<{ body_id: number }[]>>('member', 'GET', `/api/statutory/events/${event.id}/votes-amounts/antenna`);
         expectStatus(antennae, 200);
-        expectShape('votesPerAntenna', votesPerAntenna(), antennae.body.data.find((item) => item.body_id === otherAntenna.body.id));
+        expectShape('votesPerAntenna', votesPerAntenna(), antennae.body.data.find((item) => item.body_id === antenna.id));
 
         const delegates = await api.call<Envelope<{ body_id: number }[]>>('member', 'GET', `/api/statutory/events/${event.id}/votes-amounts/delegate`);
         expectStatus(delegates, 200);
-        expectShape('votesPerDelegate', votesPerDelegate(), delegates.body.data.find((item) => item.body_id === otherAntenna.body.id));
+        expectShape('votesPerDelegate', votesPerDelegate(), delegates.body.data.find((item) => item.body_id === antenna.id));
     });
 });
