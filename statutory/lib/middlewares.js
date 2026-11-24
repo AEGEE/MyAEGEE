@@ -10,6 +10,70 @@ const packageInfo = require('../package.json');
 const cron = require('./cron');
 const { isLockTimeout } = require('./locks');
 
+// The only route that takes a list as its body: the board view of a body.
+const LIST_BODY_ROUTE = /^\/events\/[^/]+\/applications\/boardview\/[^/]+\/?$/;
+
+// What JSON can hold and the database cannot: the NUL character and unpaired surrogates.
+// eslint-disable-next-line no-control-regex -- the NUL character is what is looked for
+const UNSTORABLE = /\u0000|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+// Deeper bodies are not read: no route takes more than a few levels.
+const MAX_DEPTH = 32;
+
+// Whether a parsed body is too deep, or holds a text or key with characters that cannot be stored.
+// Walked without recursion, so that a deep body cannot exhaust the stack.
+const inspectBody = (body) => {
+    const stack = [{ value: body, depth: 0 }];
+    while (stack.length > 0) {
+        const { value, depth } = stack.pop();
+        if (typeof value === 'string') {
+            if (UNSTORABLE.test(value)) {
+                return 'unstorable';
+            }
+        } else if (helpers.isObject(value)) {
+            if (depth >= MAX_DEPTH) {
+                return 'too deep';
+            }
+
+            for (const [key, item] of Object.entries(value)) {
+                if (UNSTORABLE.test(key)) {
+                    return 'unstorable';
+                }
+
+                stack.push({ value: item, depth: depth + 1 });
+            }
+        }
+    }
+
+    return null;
+};
+
+// Every route that takes a body takes an object, apart from the board view of a body, which
+// takes a list. A request without a body is handled like one with an empty object, so that a
+// route answers as it does for missing fields.
+exports.checkRequestBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    const problem = inspectBody(req.body);
+    if (problem === 'too deep') {
+        return errors.makeBadRequestError(res, 'The request body could not be read.');
+    }
+
+    if (problem === 'unstorable') {
+        return errors.makeBadRequestError(res, 'The request body contains characters that cannot be stored.');
+    }
+
+    const takesList = req.method === 'POST' && LIST_BODY_ROUTE.test(req.path);
+    if (!takesList && (!helpers.isObject(req.body) || Array.isArray(req.body))) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    return next();
+};
+
 exports.authenticateUser = async (req, res, next) => {
     try {
         // Query the core for user and permissions.
@@ -269,6 +333,12 @@ exports.errorHandler = (err, req, res, next) => {
     // Handling invalid JSON
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
+    }
+
+    // The other errors of reading the body (too large, a charset or an encoding that is not
+    // supported, a broken compression) answer with their own status.
+    if (err.expose === true && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
     }
 
     // Handling validation errors

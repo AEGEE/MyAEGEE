@@ -112,7 +112,8 @@ describe('Values of the wrong kind', () => {
         test('should refuse a list as a participants limit', async () => {
             const res = await send('POST', '/limits/agora', [{ body_id: 34, delegate: 1 }]);
 
-            expectInvalid(res, 'body_id');
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The body should be an object.' });
         });
     });
 
