@@ -173,6 +173,25 @@ describe('Board comment of an application', () => {
             expect(res.body.data[0].board_comment).toEqual(BOARD_COMMENT);
         });
 
+        test('should be returned with the application to a holder of the permission to approve members of all bodies', async () => {
+            mock.mockAll({
+                mainPermissions: { permissions: ['global:approve_members:agora'] },
+                approvePermissions: { noPermissions: true }
+            });
+            const application = await generator.createApplication({ user_id: 1337, board_comment: BOARD_COMMENT }, event);
+
+            const res = await request({
+                path: '/events/' + event.id + '/applications/' + application.id,
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.id).toEqual(application.id);
+            expect(res.body.data.answers).toEqual(application.answers);
+            expect(res.body.data.board_comment).toEqual(BOARD_COMMENT);
+        });
+
         test('should be returned to an applicant who is in the board of their body', async () => {
             // They can read it in the board view of their body as well.
             mock.mockAll({ mainPermissions: { noPermissions: true } });
