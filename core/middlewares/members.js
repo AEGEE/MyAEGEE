@@ -660,6 +660,11 @@ exports.confirmEmailChange = async (req, res) => {
         // Including the other pending changes of the member: they were requested for the previous address.
         await MailChange.destroy({ where: { user_id: user.id }, transaction: t });
 
+        // A password reset goes to the login address, so the ones which were sent to the
+        // previous address end here. The member's sessions stay. This comes before the
+        // notice, so that a wait for a lock fails the change before anybody is told about it.
+        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+
         // The notice is sent before the member's row is written, so that row is not locked
         // while the mailer answers. If the mail fails, nothing is changed.
         await mailer.sendMail({
@@ -675,10 +680,6 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         await user.update({ email: mailChange.new_email }, { transaction: t });
-
-        // A password reset goes to the login address, so the ones which were sent to the
-        // previous address end here. The member's sessions stay.
-        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
 
         return { changed: true };
     });
