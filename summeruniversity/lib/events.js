@@ -32,6 +32,11 @@ const removeBlockedFields = (data) => {
 };
 
 exports.listEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
 
@@ -47,7 +52,7 @@ exports.listEvents = async (req, res) => {
     const whitelistEvents = [];
 
     for (let event of events) {
-        if (!req.query.application_status || req.query.application_status.includes(event.application_status)) {
+        if (!req.query.application_status || [].concat(req.query.application_status).includes(event.application_status)) {
             if (event.published === 'full') {
                 event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
             } else {
@@ -68,6 +73,11 @@ exports.listEvents = async (req, res) => {
 };
 
 exports.listMostRecentEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const queryObj = {
         where: {
             deleted: false,
@@ -123,6 +133,11 @@ exports.listBodyApplications = async (req, res) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -141,6 +156,11 @@ exports.listUserOrganizedEvents = async (req, res) => {
 
 // List all the event where the user is participant at.
 exports.listUserAppliedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -264,10 +284,36 @@ const validateTypeAndFee = async (data) => {
     }
 };
 
-const makeOrganizersError = (res, message) => res.status(422).json({
-    success: false,
-    errors: { organizers: [message] }
-});
+// Fetches the names of the bodies in `bodies` from core. Bodies core does not know or does
+// not show (deleted ones) are listed in `missing` instead of failing the request.
+async function fetchBodies(bodies, token) {
+    const fetched = await Promise.all(bodies.map((body) => core.fetchBody(body, token)));
+    const missing = bodies.filter((body, index) => fetched[index] === null).map((body) => body.body_id);
+    return { bodies: fetched, missing };
+}
+
+const missingBodiesMessage = (ids) => `These bodies do not exist: ${ids.join(', ')}.`;
+
+// Replaces the bodies in the given fields of `target` (the new event or the edit) with the
+// ones fetched from core. Returns the validation errors for bodies that do not exist, or null.
+async function resolveBodies(target, fields, token) {
+    const bodyErrors = {};
+    for (const field of fields) {
+        if (Array.isArray(target[field])) {
+            const { bodies, missing } = await fetchBodies(target[field], token);
+            target[field] = bodies;
+            if (missing.length > 0) {
+                bodyErrors[field] = [missingBodiesMessage(missing)];
+            }
+        }
+    }
+
+    return Object.keys(bodyErrors).length > 0 ? bodyErrors : null;
+}
+
+const BODY_FIELDS = ['organizing_bodies', 'cooperation'];
+
+const makeOrganizersError = (res, message) => helpers.makeFieldError(res, 'organizers', message);
 
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_summeruniversity) {
@@ -299,14 +345,10 @@ exports.addEvent = async (req, res) => {
         }
     }
 
-    if (Array.isArray(event.organizing_bodies)) {
-        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
-    }
-
-    if (Array.isArray(event.cooperation)) {
-        event.cooperation = await Promise.all(event.cooperation.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(event, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     if (Array.isArray(event.organizers)) {
@@ -410,14 +452,10 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change the fee of this Summer University.');
     }
 
-    if (Array.isArray(data.organizing_bodies)) {
-        data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
-    }
-
-    if (Array.isArray(data.cooperation)) {
-        data.cooperation = await Promise.all(data.cooperation.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(data, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     if (Array.isArray(data.organizers)) {
@@ -502,7 +540,13 @@ exports.deleteEvent = async (req, res) => {
     });
 };
 
+const EVENT_STATUSES = ['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval'];
+
 exports.setApprovalStatus = async (req, res) => {
+    if (!EVENT_STATUSES.includes(req.body.status)) {
+        return errors.makeValidationError(res, `The status should be one of: ${EVENT_STATUSES.join(', ')}.`);
+    }
+
     if (!req.permissions.change_status[req.body.status.replace(' ', '_')]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
@@ -612,23 +656,35 @@ exports.setOpenCallPeriod = async (req, res) => {
         return errors.makeForbiddenError(res, 'This event publication does not allow changing the open call period');
     }
 
-    const acceptedParticipants = await Application.count({ where: {
-        event_id: req.event.id,
-        status: 'accepted',
-        cancelled: false
-    } });
-
-    if (req.body.max_participants) {
-        req.body = {
-            max_participants: req.body.max_participants,
-            open_call: req.body.open_call,
-            accepted_participants: acceptedParticipants
-        };
-    } else {
-        req.body = { open_call: req.body.open_call };
+    // Sequelize would read "true" or 1 as true, past the free-spot check below.
+    if (typeof req.body.open_call !== 'boolean') {
+        return helpers.makeFieldError(res, 'open_call', 'The value should be true or false.');
     }
 
-    await req.event.update(req.body);
+    // Locked like the application changes that take a spot, so that the call is not opened
+    // while an acceptance fills the last spot.
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        const acceptedParticipants = await Application.count({
+            where: { event_id: event.id, status: 'accepted', cancelled: false },
+            transaction: t
+        });
+
+        // Opening the call needs a free spot; without one the call would close again at once.
+        // A maximum that is not a number of at least 0 is left to the model validation.
+        const maxParticipants = req.body.max_participants || event.max_participants;
+        const isFull = maxParticipants !== null && Number(maxParticipants) >= 0 && Number(maxParticipants) <= acceptedParticipants;
+        if (req.body.open_call === true && isFull) {
+            throw new helpers.FieldError('open_call', `The open call needs a free spot: max_participants should be more than the ${acceptedParticipants} accepted participants.`);
+        }
+
+        const changes = req.body.max_participants
+            ? { max_participants: req.body.max_participants, open_call: req.body.open_call, accepted_participants: acceptedParticipants }
+            : { open_call: req.body.open_call };
+        await event.update(changes, { transaction: t });
+    });
+    if (answered) {
+        return undefined;
+    }
 
     return res.json({
         success: true,

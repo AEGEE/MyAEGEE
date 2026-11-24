@@ -287,6 +287,7 @@
           </a>
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</a>
         </div>
+        <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
 
         <div class="field">
           <label class="label">Add organising body</label>
@@ -848,7 +849,9 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      if (!this.event.has_applications) {
+      // An event without applications needs an application period that ends before it starts,
+      // but nothing reads it: a new one gets one, an existing one keeps the stored one.
+      if (!this.event.has_applications && !this.$route.params.id) {
         this.event.application_starts = moment()
         this.event.application_ends = this.event.starts - moment.duration(1, 'minutes')
       }

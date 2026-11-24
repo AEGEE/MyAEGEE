@@ -86,16 +86,26 @@ const fetchApplicationUser = async (user) => {
     return userResponse.data;
 };
 
+// Returns { body_id, body_name }, or null if core does not know or does not show the body.
 const fetchBody = async (body, token) => {
     // return invalid body as it is, will catch it in Event validation.
     if (typeof body !== 'object' || typeof body.body_id !== 'number') {
         return body;
     }
 
-    const bodyRequest = await makeRequest({
+    const response = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + body.body_id,
-        token
+        token,
+        fullResponse: true
     });
+
+    // Core answers 404 for an unknown body and 403 for a deleted one (unless the user may
+    // see deleted bodies). The caller reports those as a validation error.
+    if ([403, 404].includes(response.statusCode)) {
+        return null;
+    }
+
+    const bodyRequest = response.body;
 
     if (typeof bodyRequest !== 'object') {
         throw new Error('Malformed response when fetching body: ' + bodyRequest);

@@ -275,7 +275,7 @@ describe('Applications listing, viewing and exporting', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.headers['content-type']).toEqual('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            expect(res.headers['content-disposition']).toMatch(/^attachment; filename=participants_Export SU_.*\.xlsx$/);
+            expect(res.headers['content-disposition']).toMatch(/^attachment; filename="participants_Export SU_.*\.xlsx"$/);
 
             const [sheet] = xlsx.parse(res.body);
             expect(sheet.name).toEqual('Participants');
@@ -307,12 +307,22 @@ describe('Applications listing, viewing and exporting', () => {
 
         // BUG: the event name is put into the Content-Disposition header unescaped, so
         // a name with characters outside latin1 makes res.setHeader throw.
-        test('should currently return 500 if the event name contains non-latin1 characters', async () => {
+        test('should export an event whose name has characters outside latin1', async () => {
             const exportEvent = await generator.createEvent({ name: 'Summer in İstanbul — 2026' });
 
             const res = await get('/single/' + exportEvent.id + '/applications/export', { responseType: 'buffer' });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['content-disposition']).toMatch(/^attachment; filename="participants_Summer in \?stanbul \? 2026_.*\.xlsx"; filename\*=UTF-8''participants_Summer%20in%20%C4%B0stanbul%20%E2%80%94%202026_.*\.xlsx$/);
+        });
+
+        test('should quote an event name with separators in the file name', async () => {
+            const exportEvent = await generator.createEvent({ name: 'Sun; sea "and" fun' });
+
+            const res = await get('/single/' + exportEvent.id + '/applications/export', { responseType: 'buffer' });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['content-disposition']).toMatch(/^attachment; filename="participants_Sun; sea \\"and\\" fun_.*\.xlsx"$/);
         });
 
         test('should return 500 if fetching an applicant from core fails', async () => {

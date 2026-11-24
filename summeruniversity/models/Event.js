@@ -130,7 +130,7 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application starts date should be set.' },
+                isDate: { msg: 'Event application starts date should be valid.' },
                 beforeApplicationEnd(val) {
                     if (!val || !this.application_ends) {
                         return;
@@ -146,7 +146,7 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: true,
             validate: {
-                isDate: { msg: 'Event application end date should be set.' },
+                isDate: { msg: 'Event application end date should be valid.' },
                 laterThanApplicationStart(val) {
                     if (!val || !this.application_starts) {
                         return;
@@ -531,6 +531,18 @@ const Event = sequelize.define(
     }
 );
 
+// The date validators compare dates with each other, but on update Sequelize only validates
+// the attributes that changed. When one of the dates changes, validate all of them, so a
+// partial edit cannot put them out of order.
+const DATE_FIELDS = ['application_starts', 'application_ends', 'starts', 'ends'];
+Event.beforeValidate((event, options) => {
+    if (!Array.isArray(options.skip) || DATE_FIELDS.every((field) => options.skip.includes(field))) {
+        return;
+    }
+
+    options.skip = options.skip.filter((field) => !DATE_FIELDS.includes(field));
+});
+
 Event.beforeValidate(async (event) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
@@ -538,7 +550,8 @@ Event.beforeValidate(async (event) => {
 
 Event.afterSave(async (event, options) => {
     // Without max_participants there's no limit, even though available_spots computes to 0.
-    if (event.max_participants !== null && event.available_spots === 0 && event.open_call === true) {
+    // An event can be over capacity (max_participants lowered below the accepted count).
+    if (event.max_participants !== null && event.available_spots <= 0 && event.open_call === true) {
         await event.update({ open_call: false }, { hooks: false, transaction: options.transaction });
     }
 });

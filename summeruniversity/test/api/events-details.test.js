@@ -301,4 +301,30 @@ describe('Event details', () => {
         expect(res.body.data.available_spots).toEqual(15);
         expect(res.body.data.application_status).toEqual('open');
     });
+    describe('event ids that are not stored ids', () => {
+        test.each(['1.5', '99999999999', 'Infinity', '1e3', '-1'])('should return 404 for /single/%s', async (id) => {
+            await generator.createEvent();
+
+            const res = await request({
+                path: '/single/' + id,
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'GET'
+            });
+
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.success).toEqual(false);
+        });
+    });
+    test('should find an event by its URL in any letter case', async () => {
+        const event = await generator.createEvent({ url: 'case-test-event' });
+
+        const res = await request({
+            path: '/single/Case-Test-EVENT',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.id).toEqual(event.id);
+    });
 });

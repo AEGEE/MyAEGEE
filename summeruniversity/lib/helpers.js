@@ -1,8 +1,50 @@
 const moment = require('moment');
 
 const constants = require('./constants');
+const errors = require('./errors');
 const { Application, Event } = require('../models');
-const { Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
+const config = require('../config');
+
+// Dates are YYYY-MM-DD, or an ISO 8601 timestamp (the frontend sends one to /recents), read
+// strictly; the list queries read their date part. The year must be at least 1000: Postgres
+// refuses some earlier dates in the form the queries send them.
+const DAY_FORMATS = ['YYYY-MM-DD', moment.ISO_8601];
+const isValidDay = (value) => typeof value === 'string'
+    && moment(value, DAY_FORMATS, true).isValid()
+    && moment(value, DAY_FORMATS, true).year() >= 1000;
+
+const APPLICATION_STATUSES = ['open', 'closed'];
+
+const asList = (value) => (Array.isArray(value) ? value : [value]);
+
+// An empty filter (?type=) is no filter, as in the list queries below.
+const isSet = (value) => typeof value !== 'undefined' && value !== '';
+
+// Checks the filters of the event lists. Returns a message for the user, or null if the
+// filters are fine. Without this, an unknown type or date reaches Postgres and fails there.
+exports.validateListQuery = (query) => {
+    if (isSet(query.type) && !asList(query.type).every((type) => constants.EVENT_TYPES.includes(type))) {
+        return `The type filter should be one or more of: ${constants.EVENT_TYPES.join(', ')}.`;
+    }
+
+    if (isSet(query.season) && !exports.isNumber(query.season)) {
+        return 'The season filter should be a year.';
+    }
+
+    for (const field of ['starts', 'ends']) {
+        if (isSet(query[field]) && !isValidDay(query[field])) {
+            return `The ${field} filter should be a date (YYYY-MM-DD).`;
+        }
+    }
+
+    if (isSet(query.application_status)
+        && !asList(query.application_status).every((status) => APPLICATION_STATUSES.includes(status))) {
+        return `The application_status filter should be one or more of: ${APPLICATION_STATUSES.join(', ')}.`;
+    }
+
+    return null;
+};
 
 // A helper to get default search/query/pagination filter for events listings.
 exports.getDefaultQuery = (req) => {
@@ -56,6 +98,59 @@ exports.getDefaultQuery = (req) => {
     }
 
     return queryObj;
+};
+
+// A 422 for fields the handler checks itself: `errors` in the shape of a model validation
+// error, and `message`, which the frontend shows, with the same text.
+exports.makeFieldErrors = (res, fieldErrors) => res.status(422).json({
+    success: false,
+    message: Object.values(fieldErrors).flat().join(' '),
+    errors: fieldErrors
+});
+
+exports.makeFieldError = (res, field, message) => exports.makeFieldErrors(res, { [field]: [message] });
+
+// Thrown inside changeWithLockedEvent to answer 422 on `field` with the error's message.
+class FieldError extends Error {
+    constructor(field, message) {
+        super(message);
+        this.field = field;
+    }
+}
+exports.FieldError = FieldError;
+
+// Postgres's error code when lock_timeout passes before a lock is granted.
+const LOCK_NOT_AVAILABLE = '55P03';
+
+// Runs `change(event, transaction)` in a transaction that first locks the event's row, so that
+// changes of the same event that check its free spots run one after the other: the check, the
+// change and the count of accepted participants see each other's results. FOR NO KEY UPDATE
+// excludes the other callers and updates of the row, but not the lock a new application takes on
+// it (its event_id) until its mails are sent, so applying does not hold the organisers up. A request waits at
+// most config.lock_timeout ms for the lock, and then answers 503. A FieldError from `change`
+// answers 422. Returns whether it answered.
+exports.changeWithLockedEvent = async (req, res, change) => {
+    try {
+        await sequelize.transaction(async (t) => {
+            await sequelize.query(`SET LOCAL lock_timeout = ${Number(config.lock_timeout)}`, { transaction: t });
+            const event = await Event.findByPk(req.event.id, { transaction: t, lock: t.LOCK.NO_KEY_UPDATE });
+            await change(event, t);
+        });
+    } catch (err) {
+        if (err instanceof FieldError) {
+            exports.makeFieldError(res, err.field, err.message);
+            return true;
+        }
+
+        if (err.parent && err.parent.code === LOCK_NOT_AVAILABLE) {
+            errors.makeError(res, 503, 'Another change to this event is in progress. Please try again.');
+            return true;
+        }
+
+        throw err;
+    }
+
+    return false;
 };
 
 // A helper to flatten the nested object. Copypasted from Google.

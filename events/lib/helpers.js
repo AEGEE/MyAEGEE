@@ -3,6 +3,36 @@ const moment = require('moment');
 const constants = require('./constants');
 const { Sequelize } = require('./sequelize');
 
+// Dates are YYYY-MM-DD, or an ISO 8601 timestamp (the frontend sends one to /recents), read
+// strictly; the list queries read their date part. The year must be at least 1000: Postgres
+// refuses some earlier dates in the form the queries send them.
+const DAY_FORMATS = ['YYYY-MM-DD', moment.ISO_8601];
+const isValidDay = (value) => typeof value === 'string'
+    && moment(value, DAY_FORMATS, true).isValid()
+    && moment(value, DAY_FORMATS, true).year() >= 1000;
+
+// An empty filter (?type=) is no filter, as in the list queries below.
+const isSet = (value) => typeof value !== 'undefined' && value !== '';
+
+// Checks the filters of the event lists. Returns a message for the user, or null if the
+// filters are fine. Without this, an unknown type or date reaches Postgres and fails there.
+exports.validateListQuery = (query) => {
+    if (isSet(query.type)) {
+        const types = Array.isArray(query.type) ? query.type : [query.type];
+        if (!types.every((type) => constants.EVENT_TYPES.includes(type))) {
+            return `The type filter should be one or more of: ${constants.EVENT_TYPES.join(', ')}.`;
+        }
+    }
+
+    for (const field of ['starts', 'ends']) {
+        if (isSet(query[field]) && !isValidDay(query[field])) {
+            return `The ${field} filter should be a date (YYYY-MM-DD).`;
+        }
+    }
+
+    return null;
+};
+
 // A helper to get default search/query/pagination filter for events listings.
 exports.getDefaultQuery = (req) => {
     // Default filter is empty.
@@ -51,6 +81,16 @@ exports.getDefaultQuery = (req) => {
 
     return queryObj;
 };
+
+// A 422 for fields the handler checks itself: `errors` in the shape of a model validation
+// error, and `message`, which the frontend shows, with the same text.
+exports.makeFieldErrors = (res, fieldErrors) => res.status(422).json({
+    success: false,
+    message: Object.values(fieldErrors).flat().join(' '),
+    errors: fieldErrors
+});
+
+exports.makeFieldError = (res, field, message) => exports.makeFieldErrors(res, { [field]: [message] });
 
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {

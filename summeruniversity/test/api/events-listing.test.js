@@ -382,4 +382,75 @@ describe('Events listing', () => {
             expect(res.body.data).toEqual([]);
         });
     });
+    describe('invalid filters', () => {
+        const getPath = (path) => request({ path, method: 'GET', headers: { 'X-Auth-Token': 'foobar' } });
+
+        test.each([
+            '/?type=foo',
+            '/?type[a]=regular',
+            '/?season=abc',
+            '/?season=2026.5',
+            '/?starts=garbage',
+            '/?ends=2020-13-45',
+            '/?application_status=true',
+            '/?application_status=maybe',
+            '/?application_status[]=open&application_status[]=maybe',
+            '/mine/organizing?season=abc',
+            '/mine/participating?type=foo',
+            '/recents?ends=garbage',
+            // A year outside 1000-9999 reached Postgres, which refused the date with a 500.
+            '/?starts=0001-01-01',
+            '/?ends=0999-12-31',
+            '/mine/organizing?starts=0001-01-01',
+            '/mine/participating?ends=0001-01-01',
+            // Read strictly: nothing after the date but an ISO 8601 time, and four digits of year.
+            '/?starts=2027-03-01junk',
+            '/?ends=10000-01-01',
+            '/?starts=2027-3-1'
+        ])('should return 422 for %s', async (path) => {
+            await generator.createEvent();
+
+            const res = await getPath(path);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        test.each([
+            '/?type=pilot',
+            '/?type[]=regular&type[]=pilot',
+            '/?season=2026',
+            '/?starts=2020-01-01&ends=2040-12-31',
+            '/?starts=1000-01-01&ends=9999-12-31',
+            '/?starts=2027-03-01T10:00:00.000Z&ends=2027-03-31T10:00:00%2B0200',
+            '/?application_status=open',
+            '/?application_status[]=open&application_status[]=closed',
+            '/recents?ends=2040-12-31T10:00:00.000Z'
+        ])('should accept %s', async (path) => {
+            const res = await getPath(path);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+        });
+
+        // Other sites call the lists with empty filters; an empty value is no filter.
+        test.each([
+            '/?type=',
+            '/?season=',
+            '/?starts=&ends=',
+            '/?application_status=',
+            '/mine/organizing?season=',
+            '/mine/participating?type=',
+            '/recents?ends='
+        ])('should treat the empty filters of %s as absent', async (path) => {
+            await generator.createEvent();
+
+            const res = await getPath(path);
+            const unfiltered = await getPath(path.split('?')[0]);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data).toEqual(unfiltered.body.data);
+        });
+    });
 });

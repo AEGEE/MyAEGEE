@@ -15,13 +15,20 @@ exports.cleanAll = () => nock.cleanAll();
 // - netError / badResponse: HTTP 500 with a non-JSON body
 // - unsuccessfulResponse: HTTP 500 with { success: false }
 // - unauthorized: HTTP 401 (only meaningful for the auth-related endpoints)
+// - notFound / forbidden: HTTP 404 / 403 with { success: false } (core's answers for an unknown or a deleted body)
 // - noPermissions: HTTP 200 with an empty data array (permission endpoints)
 // - data: HTTP 200 with { success: true, data } (custom payload)
+// - delay: answer after this many milliseconds
 // Otherwise the default reply is used.
 const intercept = (baseUrl, method, endpoint, options, defaultReply) => {
     let interceptor = nock(baseUrl).persist()[method](endpoint);
     if (endpoint instanceof RegExp) {
         interceptor = interceptor.query(true);
+    }
+
+    // Answers after this many milliseconds, e.g. a slow mailer.
+    if (options.delay) {
+        interceptor = interceptor.delay(options.delay);
     }
 
     if (options.netError) {
@@ -38,6 +45,14 @@ const intercept = (baseUrl, method, endpoint, options, defaultReply) => {
 
     if (options.unauthorized) {
         return interceptor.replyWithFile(401, asset('oms-core-unauthorized.json'));
+    }
+
+    if (options.notFound) {
+        return interceptor.reply(404, { success: false, message: 'Not found.' });
+    }
+
+    if (options.forbidden) {
+        return interceptor.reply(403, { success: false, message: 'Not allowed.' });
     }
 
     if (options.noPermissions) {

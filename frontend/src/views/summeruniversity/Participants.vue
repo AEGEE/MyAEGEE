@@ -142,12 +142,16 @@ export default {
       pax.isSaving = true
       const url = this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/status'
 
-      this.axios.put(url, { status: pax.newStatus }).then(() => {
+      this.axios.put(url, { status: pax.newStatus }).then((response) => {
         pax.status = pax.newStatus
+        // An application that stops being accepted loses its confirmation.
+        pax.confirmed = response.data.data.confirmed
+        pax.newConfirmed = pax.confirmed
         pax.isSaving = false
         this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
       }).catch((err) => {
         pax.isSaving = false
+        pax.newStatus = pax.status
         this.$root.showError('Could not update participant status', err)
       })
     },
@@ -161,6 +165,7 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingCancelled = false
+        pax.newCancelled = pax.cancelled
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -174,6 +179,7 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingAttended = false
+        pax.newAttended = pax.attended
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -187,6 +193,7 @@ export default {
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingConfirmed = false
+        pax.newConfirmed = pax.confirmed
         this.$root.showError('Could not update participant fee info', err)
       })
     },

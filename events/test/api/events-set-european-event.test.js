@@ -51,6 +51,7 @@ describe('Events set European Event', () => {
             },
         });
 
+        expect(res.statusCode).toEqual(422);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('is_european_event');
     });

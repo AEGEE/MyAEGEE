@@ -271,6 +271,7 @@ describe('Events creation', () => {
             }
         });
 
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('ends');
@@ -1138,6 +1139,24 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test.each(['notFound', 'forbidden'])('should return 422 if an organizing body cannot be fetched (%s)', async (failure) => {
+        mock.mockAll({ body: { [failure]: true } });
+        const event = generator.generateEvent();
+
+        const res = await request({
+            path: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
+        expect(await Event.count()).toEqual(0);
+    });
+
     it('should return an error if organizers is not an array', async () => {
         const event = generator.generateEvent({ organizers: false });
         event.locations = false;
@@ -1155,25 +1174,15 @@ describe('Events creation', () => {
     });
 
     it('should return an error if body name is not a string', async () => {
-        try {
-            await generator.createEvent({
-                organizing_bodies: [{ body_id: 3, body_name: false }]
-            });
-            expect(1).toEqual(0);
-        } catch (err) {
-            expect(1).toEqual(1);
-        }
+        await expect(generator.createEvent({
+            organizing_bodies: [{ body_id: 3, body_name: false }]
+        })).rejects.toThrow('Validation error');
     });
 
     it('should return an error if body name is empty', async () => {
-        try {
-            await generator.createEvent({
-                organizing_bodies: [{ body_id: 3, body_name: '\t\t  \t' }]
-            });
-            expect(1).toEqual(0);
-        } catch (err) {
-            expect(1).toEqual(1);
-        }
+        await expect(generator.createEvent({
+            organizing_bodies: [{ body_id: 3, body_name: '\t\t  \t' }]
+        })).rejects.toThrow('Validation error');
     });
 
     it('should return 403 if the user does not have create:event', async () => {

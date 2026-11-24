@@ -74,4 +74,53 @@ describe('Events application status', () => {
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.status).toEqual('accepted');
     });
+    test.each([
+        ['no status', {}],
+        ['a null status', { status: null }],
+        ['an unknown status', { status: 'maybe' }]
+    ])('should return 422 for %s', async (name, body) => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { status: 'pending' });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/' + application.id + '/status',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
+
+        await application.reload();
+        expect(application.status).toEqual('pending');
+    });
+    describe.each([
+        ['/attended', { attended: null }],
+        ['/confirmed', { confirmed: null }],
+        ['/comment', { board_comment: 42 }]
+    ])('PUT %s without a valid value', (subpath, invalid) => {
+        test.each([
+            ['no value', {}],
+            ['an invalid value', invalid]
+        ])('should return 422 for %s and change nothing', async (name, body) => {
+            const event = await generator.createEvent();
+            const application = await generator.createApplication(event, { body_id: 34, confirmed: true, attended: false, board_comment: 'Kept' });
+            const before = application.toJSON();
+
+            const res = await request({
+                path: '/single/' + event.id + '/applications/' + application.id + subpath,
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
+            await application.reload();
+            expect(application.toJSON()).toEqual(before);
+        });
+    });
 });

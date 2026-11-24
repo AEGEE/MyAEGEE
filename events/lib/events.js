@@ -11,6 +11,11 @@ const mailer = require('./mailer');
 const config = require('../config');
 
 exports.listEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
 
@@ -37,6 +42,11 @@ exports.listEvents = async (req, res) => {
 
 // TODO: See if we want to you this function for something else than the AC check
 exports.listMostRecentEuropeanEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const queryObj = {
         where: {
             deleted: false,
@@ -86,6 +96,11 @@ exports.listBodyApplications = async (req, res) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -104,6 +119,11 @@ exports.listUserOrganizedEvents = async (req, res) => {
 
 // List all the event where the user is participant at.
 exports.listUserAppliedEvents = async (req, res) => {
+    const queryError = helpers.validateListQuery(req.query);
+    if (queryError) {
+        return errors.makeValidationError(res, queryError);
+    }
+
     const defaultQueryObj = helpers.getDefaultQuery(req);
     const queryObj = merge(defaultQueryObj, {
         where: {
@@ -227,10 +247,36 @@ const sameIds = (a, b) => {
     return left.length === right.length && left.every((id, index) => id === right[index]);
 };
 
-const makeOrganizersError = (res, message) => res.status(422).json({
-    success: false,
-    errors: { organizers: [message] }
-});
+// Fetches the names of the bodies in `bodies` from core. Bodies core does not know or does
+// not show (deleted ones) are listed in `missing` instead of failing the request.
+async function fetchBodies(bodies, token) {
+    const fetched = await Promise.all(bodies.map((body) => core.fetchBody(body, token)));
+    const missing = bodies.filter((body, index) => fetched[index] === null).map((body) => body.body_id);
+    return { bodies: fetched, missing };
+}
+
+const missingBodiesMessage = (ids) => `These bodies do not exist: ${ids.join(', ')}.`;
+
+// Replaces the bodies in the given fields of `target` (the new event or the edit) with the
+// ones fetched from core. Returns the validation errors for bodies that do not exist, or null.
+async function resolveBodies(target, fields, token) {
+    const bodyErrors = {};
+    for (const field of fields) {
+        if (Array.isArray(target[field])) {
+            const { bodies, missing } = await fetchBodies(target[field], token);
+            target[field] = bodies;
+            if (missing.length > 0) {
+                bodyErrors[field] = [missingBodiesMessage(missing)];
+            }
+        }
+    }
+
+    return Object.keys(bodyErrors).length > 0 ? bodyErrors : null;
+}
+
+const BODY_FIELDS = ['organizing_bodies'];
+
+const makeOrganizersError = (res, message) => helpers.makeFieldError(res, 'organizers', message);
 
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event) {
@@ -247,10 +293,10 @@ exports.addEvent = async (req, res) => {
 
     const event = new Event(data);
 
-    // we'll catch these on validation inside the Event model.
-    if (Array.isArray(event.organizing_bodies)) {
-        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(event, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     if (Array.isArray(event.organizers)) {
@@ -348,9 +394,10 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    if (Array.isArray(data.organizing_bodies)) {
-        data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
-            core.fetchBody(body, req.headers['x-auth-token'])));
+    // Malformed bodies are caught by the Event model validation; unknown ones here.
+    const bodyErrors = await resolveBodies(data, BODY_FIELDS, req.headers['x-auth-token']);
+    if (bodyErrors) {
+        return helpers.makeFieldErrors(res, bodyErrors);
     }
 
     const newBodies = Array.isArray(data.organizing_bodies) ? data.organizing_bodies : null;
@@ -414,7 +461,13 @@ exports.deleteEvent = async (req, res) => {
     });
 };
 
+const EVENT_STATUSES = ['draft', 'submitted', 'published'];
+
 exports.setApprovalStatus = async (req, res) => {
+    if (!EVENT_STATUSES.includes(req.body.status)) {
+        return errors.makeValidationError(res, `The status should be one of: ${EVENT_STATUSES.join(', ')}.`);
+    }
+
     if (!req.permissions.change_status[req.body.status]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }

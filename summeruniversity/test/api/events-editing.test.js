@@ -420,6 +420,44 @@ describe('Events editing', () => {
         expect(event[field]).toEqual(stored);
     });
 
+    describe('dates on partial edits', () => {
+        test.each([
+            ['starts before the application period ends', { starts: generator.daysFromNow(20) }, 'application_ends'],
+            ['starts after the event ends', { starts: generator.daysFromNow(80) }, 'ends']
+        ])('should return 422 if only %s is changed', async (name, body, field) => {
+            const event = await generator.createEvent({
+                application_ends: generator.daysFromNow(30),
+                starts: generator.daysFromNow(60),
+                ends: generator.daysFromNow(70)
+            });
+
+            const res = await editEvent(event, body);
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors).toHaveProperty(field);
+
+            const startsBefore = event.starts.getTime();
+            await event.reload();
+            expect(event.starts.getTime()).toEqual(startsBefore);
+        });
+
+        test('should accept a partial edit that keeps the dates in order', async () => {
+            const event = await generator.createEvent({
+                application_ends: generator.daysFromNow(30),
+                starts: generator.daysFromNow(60),
+                ends: generator.daysFromNow(70)
+            });
+            const starts = generator.daysFromNow(50);
+
+            const res = await editEvent(event, { starts });
+
+            expect(res.statusCode).toEqual(200);
+            await event.reload();
+            expect(event.starts.getTime()).toEqual(starts.getTime());
+        });
+    });
+
     test('should return 422 on an empty body', async () => {
         const event = await generator.createEvent();
 
@@ -527,6 +565,24 @@ describe('Events editing', () => {
         expect(res.statusCode).toEqual(500);
         await event.reload();
         expect(event.name).not.toEqual('Changed');
+    });
+
+    test.each([
+        ['organizing_bodies', 'notFound'],
+        ['organizing_bodies', 'forbidden'],
+        ['cooperation', 'notFound']
+    ])('should return 422 if a body in %s cannot be fetched (%s)', async (field, failure) => {
+        mockAndCapture({ body: { [failure]: true } });
+        const event = await generator.createEvent();
+
+        const res = await editEvent(event, { [field]: [{ body_id: 4242 }] });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty(field);
+        expect(res.body.message).toEqual(Object.values(res.body.errors).flat().join(' '));
+        const before = event[field];
+        await event.reload();
+        expect(event[field]).toEqual(before);
     });
 
     test('should return 500 if fetching a body fails', async () => {

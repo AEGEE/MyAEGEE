@@ -3,6 +3,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event } = require('../../models');
+const { sequelize } = require('../../lib/sequelize');
+const config = require('../../config');
 
 const unauthorizedMocks = {
     core: { unauthorized: true },
@@ -197,26 +199,22 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.statusCode).toEqual(403);
         });
 
-        test('should return 403 on an unknown status', async () => {
+        test.each([
+            ['an unknown status', { status: 'totally approved' }],
+            ['an inherited property name', { status: 'constructor' }],
+            ['a status that is not a string', { status: 42 }],
+            ['no status', {}]
+        ])('should return 422 for %s', async (name, body) => {
             mockAndCapture(approverMocks);
             const event = await generator.createEvent({ status: 'first submission', published: 'none' });
 
-            const res = await put(event, '/status', { status: 'totally approved' });
+            const res = await put(event, '/status', body);
 
-            expect(res.statusCode).toEqual(403);
-        });
-
-        // BUG: setApprovalStatus calls req.body.status.replace() without checking that
-        // the status is set, so a missing status crashes with a 500 instead of a 4xx.
-        test('should currently return 500 if the status is missing', async () => {
-            mockAndCapture(approverMocks);
-            const event = await generator.createEvent({ status: 'first submission', published: 'none' });
-
-            const res = await put(event, '/status', {});
-
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
             await event.reload();
             expect(event.status).toEqual('first submission');
+            expect(mails).toHaveLength(0);
         });
 
         test('should return 500 and roll back if the mailer fails', async () => {
@@ -383,6 +381,18 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.body.errors.application_ends).toEqual(['Application period cannot end before or at the same time the event starts.']);
         });
 
+        test.each([
+            ['application_starts', 'Event application starts date should be valid.'],
+            ['application_ends', 'Event application end date should be valid.']
+        ])('should return 422 if %s is not a date', async (field, message) => {
+            const event = await generator.createEvent();
+
+            const res = await put(event, '/application_period', { application_ends: generator.daysFromNow(10), [field]: 'garbage' });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors[field]).toEqual([message]);
+        });
+
         test('should return 422 if the application period ends before it starts', async () => {
             const event = await generator.createEvent();
 
@@ -475,15 +485,51 @@ describe('Events status, publication, periods and deletion', () => {
             expect(event.open_call).toEqual(true);
         });
 
-        test('should close the open call in the database if no spots are left', async () => {
-            const event = await generator.createEvent({ max_participants: 1 });
+        test('should not open the call if no spots would be left', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: false });
             await generator.createApplication(event, { user_id: 10, status: 'accepted' });
 
             const res = await put(event, '/open_call', { open_call: true, max_participants: 1 });
 
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The open call needs a free spot: max_participants should be more than the 1 accepted participants.']);
+            await event.reload();
+            expect(event.max_participants).toEqual(5);
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should not open the call with the stored maximum if no spots are left', async () => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: true });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('open_call');
+            await event.reload();
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should leave a negative max_participants to the model validation', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: false });
+
+            const res = await put(event, '/open_call', { open_call: true, max_participants: -1 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toHaveProperty('max_participants');
+            expect(res.body.errors).not.toHaveProperty('open_call');
+        });
+
+        test('should lower max_participants under the accepted count when closing the call', async () => {
+            const event = await generator.createEvent({ max_participants: 5, open_call: true });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+            await generator.createApplication(event, { user_id: 11, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: false, max_participants: 1 });
+
             expect(res.statusCode).toEqual(200);
             await event.reload();
-            expect(event.available_spots).toEqual(0);
+            expect(event.max_participants).toEqual(1);
             expect(event.open_call).toEqual(false);
         });
 
@@ -505,6 +551,60 @@ describe('Events status, publication, periods and deletion', () => {
             expect(res.statusCode).toEqual(200);
             await event.reload();
             expect(event.open_call).toEqual(false);
+        });
+
+        // Sequelize would read "true" and 1 as true, past the free-spot check.
+        test.each([
+            ['the text "true"', 'true'],
+            ['the number 1', 1],
+            ['the text "false"', 'false'],
+            ['the number 0', 0],
+            ['null', null]
+        ])('should return 422 and change nothing for open_call as %s', async (_name, value) => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+
+            const res = await put(event, '/open_call', { open_call: value, max_participants: 3 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The value should be true or false.']);
+            expect(res.body.message).toEqual('The value should be true or false.');
+            await event.reload();
+            expect(event.open_call).toEqual(false);
+            expect(event.max_participants).toEqual(1);
+        });
+
+        test('should answer 503 and change nothing while another change holds the event', async () => {
+            const event = await generator.createEvent({ open_call: false });
+            const lockTimeout = config.lock_timeout;
+            config.lock_timeout = 100;
+
+            const t = await sequelize.transaction();
+            try {
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.UPDATE });
+
+                const res = await put(event, '/open_call', { open_call: true });
+
+                expect(res.statusCode).toEqual(503);
+                expect(res.body.message).toEqual('Another change to this event is in progress. Please try again.');
+            } finally {
+                await t.rollback();
+                config.lock_timeout = lockTimeout;
+            }
+
+            await event.reload();
+            expect(event.open_call).toEqual(false);
+        });
+
+        test('should return 422 and change nothing without open_call', async () => {
+            const event = await generator.createEvent({ max_participants: 1, open_call: false });
+
+            const res = await put(event, '/open_call', { max_participants: 3 });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors.open_call).toEqual(['The value should be true or false.']);
+            await event.reload();
+            expect(event.max_participants).toEqual(1);
         });
     });
 

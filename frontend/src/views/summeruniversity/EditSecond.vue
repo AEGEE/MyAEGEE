@@ -240,6 +240,10 @@
             </template>
           </b-table>
           <p class="help is-danger" v-if="errors.organizers">{{ errors.organizers.join(', ') }}</p>
+          <!-- The form sends the bodies and dates of the first part back unchanged; they can still be refused. -->
+          <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.cooperation">{{ errors.cooperation.join(', ') }}</p>
+          <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
 
           <div class="field">
             <label class="label">Add organiser</label>
