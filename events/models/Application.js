@@ -1,6 +1,8 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
-const { isOneOf } = require('../lib/validators');
+const {
+    INT4_MAX, isOneOf, isInteger, plainSetter
+} = require('../lib/validators');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -15,7 +17,6 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             async isValid(value) {
-                /* istanbul ignore next */
                 if (typeof value !== 'number') {
                     throw new Error('User ID must be a number.');
                 }
@@ -25,7 +26,6 @@ const Application = sequelize.define('application', {
                     user_id: this.user_id
                 } });
 
-                /* istanbul ignore next */
                 if (application) {
                     throw new Error('The application for this event from this user already exists.');
                 }
@@ -38,7 +38,7 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Body should be set.' },
-            isInt: { msg: 'Body ID should be a number.' }
+            isInteger: isInteger(-INT4_MAX - 1, INT4_MAX, 'Body ID should be a number.')
         },
     },
     first_name: {
@@ -46,7 +46,8 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'First name should be set.' }
+            notEmpty: { msg: 'First name should be set.' },
+            len: { args: [0, 255], msg: 'First name should be at most 255 characters long.' }
         }
     },
     last_name: {
@@ -54,19 +55,24 @@ const Application = sequelize.define('application', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Last name should be set.' }
+            notEmpty: { msg: 'Last name should be set.' },
+            len: { args: [0, 255], msg: 'Last name should be at most 255 characters long.' }
         }
     },
     email: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            len: { args: [0, 255], msg: 'Email should be at most 255 characters long.' }
+        }
     },
     body_name: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Body name should be set.' }
+            notEmpty: { msg: 'Body name should be set.' },
+            len: { args: [0, 255], msg: 'Body name should be at most 255 characters long.' }
         }
     },
     status: {
@@ -80,6 +86,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        set: plainSetter('confirmed'),
         validate: {
             isBoolean,
             notAllowIfAttended(value) {
@@ -93,6 +100,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        set: plainSetter('attended'),
         validate: {
             isBoolean,
             notAllowIfNotConfirmed(value) {
@@ -116,7 +124,6 @@ const Application = sequelize.define('application', {
                 }
 
                 const event = await Event.findOne({ where: { id: this.event_id } });
-                /* istanbul ignore next */
                 if (!event) {
                     throw new Error('Could not find event.');
                 }
@@ -156,7 +163,7 @@ const Application = sequelize.define('application', {
                             throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): you should agree.`);
                         }
                         break;
-                    /* istanbul ignore next */
+                    /* istanbul ignore next -- the Event model only stores the known question types */
                     default:
                         throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`);
                     }
@@ -168,6 +175,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         type: Sequelize.BOOLEAN,
         defaultValue: '',
+        set: plainSetter('agreed_to_privacy_policy'),
         validate: {
             isValid(value) {
                 if (value !== true) {

@@ -71,13 +71,15 @@ const fetchUser = async (user, adminToken) => {
     };
 };
 
-const fetchApplicationUser = async (user) => {
-    const adminToken = await getAdminToken();
+// Fetches an applicant with the service account. Pass `adminToken` (from getAdminToken)
+// when fetching several applicants, so that the service logs in only once.
+const fetchApplicationUser = async (user, adminToken) => {
+    const token = adminToken || await getAdminToken();
 
     // Fetching user
     const userResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/' + user,
-        token: adminToken,
+        token,
     });
 
     if (typeof userResponse !== 'object') {
@@ -94,7 +96,7 @@ const fetchApplicationUser = async (user) => {
 // Returns { body_id, body_name }, or null if core does not know or does not show the body.
 const fetchBody = async (body, token) => {
     // return invalid body as it is, will catch it in Event validation.
-    if (typeof body !== 'object' || typeof body.body_id !== 'number') {
+    if (typeof body !== 'object' || body === null || typeof body.body_id !== 'number') {
         return body;
     }
 

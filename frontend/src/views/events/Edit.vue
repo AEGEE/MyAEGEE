@@ -853,7 +853,7 @@ export default {
       // but nothing reads it: a new one gets one, an existing one keeps the stored one.
       if (!this.event.has_applications && !this.$route.params.id) {
         this.event.application_starts = moment()
-        this.event.application_ends = this.event.starts - moment.duration(1, 'minutes')
+        this.event.application_ends = moment(this.event.starts).subtract(1, 'minutes').toDate()
       }
 
       // we don't need to pass body objects there

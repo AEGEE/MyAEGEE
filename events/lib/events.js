@@ -248,10 +248,11 @@ const sameIds = (a, b) => {
 };
 
 // Fetches the names of the bodies in `bodies` from core. Bodies core does not know or does
-// not show (deleted ones) are listed in `missing` instead of failing the request.
+// not show (deleted ones) are listed in `missing` instead of failing the request. Malformed
+// entries (null among them) are kept as they are, for the Event model to refuse.
 async function fetchBodies(bodies, token) {
     const fetched = await Promise.all(bodies.map((body) => core.fetchBody(body, token)));
-    const missing = bodies.filter((body, index) => fetched[index] === null).map((body) => body.body_id);
+    const missing = bodies.filter((body, index) => body !== null && fetched[index] === null).map((body) => body.body_id);
     return { bodies: fetched, missing };
 }
 
@@ -290,6 +291,9 @@ exports.addEvent = async (req, res) => {
     delete data.status;
     delete data.deleted;
     delete data.is_european_event;
+    delete data.publication_date;
+    delete data.created_at;
+    delete data.updated_at;
 
     const event = new Event(data);
 
@@ -389,6 +393,9 @@ exports.editEvent = async (req, res) => {
     delete data.status;
     delete data.deleted;
     delete data.is_european_event;
+    delete data.publication_date;
+    delete data.created_at;
+    delete data.updated_at;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
@@ -440,6 +447,9 @@ exports.editEvent = async (req, res) => {
             }
         });
     });
+
+    // Answer with what was stored, not with the values as they were sent.
+    await event.reload();
 
     return res.json({
         success: true,
@@ -524,10 +534,13 @@ exports.setEuropeanEventStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change the European Event status.');
     }
 
+    const wasEuropean = req.event.is_european_event;
+
     await sequelize.transaction(async (t) => {
         await req.event.update({ is_european_event: req.body.is_european_event }, { transaction: t });
 
-        if (req.body.is_european_event === false) {
+        // The organizers hear about it only when the event becomes European.
+        if (req.body.is_european_event !== true || wasEuropean) {
             return;
         }
 

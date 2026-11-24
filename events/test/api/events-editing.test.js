@@ -5,6 +5,7 @@ const generator = require('../scripts/generator');
 const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
 const coOrganizingBody = require('../assets/oms-core-body.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events editing', () => {
     let event;
@@ -20,6 +21,112 @@ describe('Events editing', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    const putEvent = (id, body) => request({ path: '/single/' + id, headers: { 'X-Auth-Token': 'foobar' }, method: 'PUT', body });
+
+    test.each(['submitted', 'published'])('should not let an organizer without permissions edit a %s event', async (status) => {
+        callers.asMember();
+        const own = await generator.createEvent({ status, organizers: [callers.organizer(callers.member)] });
+
+        const res = await putEvent(own.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(403);
+        expect((await Event.findByPk(own.id)).description).toEqual(own.description);
+    });
+
+    it('should let an organizer without permissions edit a draft', async () => {
+        callers.asMember();
+        const own = await generator.createEvent({ status: 'draft', organizers: [callers.organizer(callers.member)] });
+
+        const res = await putEvent(own.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.description).toEqual('Changed');
+    });
+
+    it('should let a manager of the type edit a published event', async () => {
+        callers.asMember(['global:manage_event:nwm']);
+        const published = await generator.createEvent({ status: 'published', type: 'nwm' });
+
+        const res = await putEvent(published.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.description).toEqual('Changed');
+    });
+
+    it('should still let a manager edit a deleted event', async () => {
+        const deleted = await generator.createEvent({ deleted: true });
+
+        const res = await putEvent(deleted.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+    });
+
+    it('should return 422 with a message if no field can be changed', async () => {
+        const res = await putEvent(event.id, { status: 'published', deleted: true });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.message).toEqual('No valid field changes requested');
+        expect((await Event.findByPk(event.id)).status).toEqual('draft');
+    });
+
+    it('should answer with the stored values, not the ones sent', async () => {
+        const res = await putEvent(event.id, { max_participants: '7' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.max_participants).toEqual(7);
+    });
+
+    it('should return 422 if the URL belongs to another event', async () => {
+        await generator.createEvent({ url: 'taken' });
+
+        const res = await putEvent(event.id, { url: 'taken' });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
+    it('should not change the event if the mail cannot be sent', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+
+        const res = await putEvent(event.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(500);
+        expect((await Event.findByPk(event.id)).description).toEqual(event.description);
+    });
+
+    it('should mail the organizers about the change', async () => {
+        const mails = mock.captureMails(mock.mockAll().omsMailerStub);
+
+        const res = await putEvent(event.id, { description: 'Changed' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(mails).toHaveLength(1);
+        expect(mails[0].template).toEqual('events_event_updated.html');
+        expect(mails[0].to).toEqual([user.notification_email]);
+        expect(mails[0].parameters.event.description).toEqual('Changed');
+    });
+
+    it('should not let an organizer without permissions delete their draft', async () => {
+        callers.asMember();
+        const own = await generator.createEvent({ status: 'draft', organizers: [callers.organizer(callers.member)] });
+
+        const res = await request({ path: '/single/' + own.id, headers: { 'X-Auth-Token': 'foobar' }, method: 'DELETE' });
+
+        expect(res.statusCode).toEqual(403);
+        expect((await Event.findByPk(own.id)).deleted).toEqual(false);
+    });
+
+    it('should let a manager of the type delete an event, without a mail', async () => {
+        const mails = mock.captureMails(callers.asMember(['global:manage_event:nwm']).omsMailerStub);
+        const nwm = await generator.createEvent({ type: 'nwm', status: 'published' });
+
+        const res = await request({ path: '/single/' + nwm.id, headers: { 'X-Auth-Token': 'foobar' }, method: 'DELETE' });
+
+        expect(res.statusCode).toEqual(200);
+        expect((await Event.findByPk(nwm.id)).deleted).toEqual(true);
+        expect(mails).toEqual([]);
     });
 
     it('should disallow event editing if the user doesn\'t have rights to do it', async () => {

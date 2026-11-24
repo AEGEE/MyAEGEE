@@ -2,7 +2,9 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
-const { isOneOf } = require('../lib/validators');
+const {
+    INT4_MAX, isOneOf, isText, isInteger, isDecimal, dateSetter, dateValidator, plainSetter, isPlainObject, pickKeys
+} = require('../lib/validators');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -19,14 +21,18 @@ const Event = sequelize.define(
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event name should be set.' },
+                isText: isText('Event name should be a text.'),
+                len: { args: [0, 255], msg: 'Event name should be at most 255 characters long.' }
             }
         },
         url: {
             type: Sequelize.STRING,
             allowNull: true,
             validate: {
+                len: { args: [0, 255], msg: 'Event URL should be at most 255 characters long.' },
+                isText: isText('Event URL should be a text.'),
                 isValid(value) {
-                    if (!value) {
+                    if (!value || typeof value !== 'string') {
                         return;
                     }
 
@@ -43,7 +49,10 @@ const Event = sequelize.define(
         },
         image: {
             type: Sequelize.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: { args: [0, 255], msg: 'Image file name should be at most 255 characters long.' }
+            }
         },
         description: {
             type: Sequelize.TEXT,
@@ -51,13 +60,16 @@ const Event = sequelize.define(
             defaultValue: '',
             validate: {
                 notEmpty: { msg: 'Event description should be set.' },
+                isText: isText('Event description should be a text.'),
             }
         },
         application_starts: {
             type: Sequelize.DATE,
             allowNull: false,
             defaultValue: '',
+            set: dateSetter('application_starts'),
             validate: {
+                isDateInput: dateValidator('Event application starts date should be a date (YYYY-MM-DD, with a time if needed).'),
                 notEmpty: { msg: 'Event application starts date should be set.' },
                 isDate: { msg: 'Event application starts date should be set.' }
             }
@@ -66,7 +78,9 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: false,
             defaultValue: '',
+            set: dateSetter('application_ends'),
             validate: {
+                isDateInput: dateValidator('Event application ends date should be a date (YYYY-MM-DD, with a time if needed).'),
                 notEmpty: { msg: 'Event application ends date should be set.' },
                 isDate: { msg: 'Event application ends date should be set.' },
                 laterThanApplicationStart(val) {
@@ -93,7 +107,9 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: false,
             defaultValue: '',
+            set: dateSetter('starts'),
             validate: {
+                isDateInput: dateValidator('Event start date should be a date (YYYY-MM-DD, with a time if needed).'),
                 notEmpty: { msg: 'Event start date should be set.' },
                 isDate: { msg: 'Event start date should be valid.' }
             }
@@ -102,7 +118,9 @@ const Event = sequelize.define(
             type: Sequelize.DATE,
             allowNull: false,
             defaultValue: '',
+            set: dateSetter('ends'),
             validate: {
+                isDateInput: dateValidator('Event end date should be a date (YYYY-MM-DD, with a time if needed).'),
                 notEmpty: { msg: 'Event end date should be set.' },
                 isDate: { msg: 'Event end date should be valid.' },
                 laterThanStart(val) {
@@ -117,7 +135,7 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: 0,
             validate: {
-                isNumeric: { msg: 'Fee should be valid.' },
+                isDecimal: isDecimal('Fee should be valid.'),
                 min: { args: [0], msg: 'Fee cannot be negative' },
             }
         },
@@ -126,7 +144,7 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: 0,
             validate: {
-                isNumeric: { msg: 'Optional fee should be valid.' },
+                isDecimal: isDecimal('Optional fee should be valid.'),
                 min: { args: [0], msg: 'Optional fee cannot be negative' },
             }
         },
@@ -168,6 +186,17 @@ const Event = sequelize.define(
             type: Sequelize.JSONB,
             allowNull: false,
             defaultValue: [],
+            // Only the documented keys are stored.
+            set(value) {
+                this.setDataValue('locations', Array.isArray(value)
+                    ? value.map((location) => {
+                        const picked = pickKeys(location, ['name', 'position']);
+                        return isPlainObject(picked) && 'position' in picked
+                            ? { ...picked, position: pickKeys(picked.position, ['lat', 'lng']) }
+                            : picked;
+                    })
+                    : value);
+            },
             validate: {
                 isValid(value) {
                     if (!Array.isArray(value)) {
@@ -175,7 +204,7 @@ const Event = sequelize.define(
                     }
 
                     for (const position of value) {
-                        if (typeof position !== 'object' || position === null) {
+                        if (!isPlainObject(position)) {
                             throw new Error('Position is malformed.');
                         }
 
@@ -187,7 +216,7 @@ const Event = sequelize.define(
                             throw new Error('Name should be presented.');
                         }
 
-                        if (typeof position.position !== 'object' || position.position === null) {
+                        if (!isPlainObject(position.position)) {
                             throw new Error('Position.position is malformed.');
                         }
 
@@ -222,7 +251,9 @@ const Event = sequelize.define(
         publication_date: {
             type: Sequelize.DATE,
             allowNull: true,
+            set: dateSetter('publication_date'),
             validate: {
+                isDateInput: dateValidator('Event publication date should be valid.'),
                 isDate: { msg: 'Event publication date should be valid.' }
             }
         },
@@ -230,6 +261,7 @@ const Event = sequelize.define(
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: false,
+            set: plainSetter('deleted'),
             validate: {
                 isBoolean
             }
@@ -240,7 +272,6 @@ const Event = sequelize.define(
             defaultValue: [],
             validate: {
                 isValid(value) {
-                /* istanbul ignore next */
                     if (!Array.isArray(value)) {
                         throw new Error('Organizers should be an array.');
                     }
@@ -249,7 +280,6 @@ const Event = sequelize.define(
                         throw new Error('At least 1 organizer should be presented.');
                     }
 
-                    /* istanbul ignore next */
                     for (const organizer of value) {
                         if (typeof organizer !== 'object' || organizer === null) {
                             throw new Error('Organizer is malformed.');
@@ -278,6 +308,12 @@ const Event = sequelize.define(
             type: Sequelize.JSONB,
             allowNull: false,
             defaultValue: [],
+            // Only the documented keys are stored (the edit form adds a `name` of its own).
+            set(value) {
+                this.setDataValue('questions', Array.isArray(value)
+                    ? value.map((question) => pickKeys(question, ['type', 'description', 'required', 'values']))
+                    : value);
+            },
             validate: {
                 isValid(value) {
                     if (!Array.isArray(value)) {
@@ -295,7 +331,7 @@ const Event = sequelize.define(
                     }
                     */
 
-                        if (typeof question !== 'object') {
+                        if (!isPlainObject(question)) {
                             throw new Error(`Question ${index + 1}: should be an object.`);
                         }
 
@@ -340,7 +376,8 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: null,
             validate: {
-                isNumeric: { msg: 'Max amount of participants should be valid.' },
+                isInteger: isInteger(-INT4_MAX - 1, INT4_MAX, 'Max amount of participants should be valid.'),
+                max: { args: [INT4_MAX], msg: `Max amount of participants cannot be more than ${INT4_MAX}.` },
                 min: { args: [0], msg: 'Max amount of participants cannot be negative' }
             }
         },
@@ -369,7 +406,10 @@ const Event = sequelize.define(
         },
         optional_programme: {
             type: Sequelize.TEXT,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                isText: isText('Optional programme should be a text.')
+            }
         },
         link_info_travel_country: {
             type: Sequelize.TEXT, // some links can reach 255 chars
@@ -381,7 +421,7 @@ const Event = sequelize.define(
             allowNull: true,
             defaultValue: 0,
             validate: {
-                isNumeric: { msg: 'Number of meals per day should be valid.' },
+                isInteger: isInteger(-INT4_MAX - 1, INT4_MAX, 'Number of meals per day should be valid.'),
                 min: { args: [0], msg: 'Number of meals per day cannot be negative.' },
                 max: { args: [4], msg: 'You cannot offer more than 4 meals per day.' }
             }
@@ -390,6 +430,7 @@ const Event = sequelize.define(
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: false,
+            set: plainSetter('vegetarian'),
             validate: {
                 isBoolean
             }
@@ -397,7 +438,11 @@ const Event = sequelize.define(
         accommodation_type: {
             type: Sequelize.STRING,
             allowNull: true,
-            defaultValue: ''
+            defaultValue: '',
+            validate: {
+                len: { args: [0, 255], msg: 'Accommodation type should be at most 255 characters long.' },
+                isText: isText('Accommodation type should be a text.')
+            }
         },
         method: {
             type: Sequelize.ENUM('in person', 'online'),
@@ -411,6 +456,7 @@ const Event = sequelize.define(
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: true,
+            set: plainSetter('is_european_event'),
             validate: {
                 isBoolean
             }
@@ -419,6 +465,7 @@ const Event = sequelize.define(
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: true,
+            set: plainSetter('has_applications'),
             validate: {
                 isBoolean
             }
@@ -496,7 +543,11 @@ Event.beforeValidate(async (event) => {
         if (event.fee === null || event.fee === undefined) event.fee = 0;
         if (event.meals_per_day === null || event.meals_per_day === undefined) event.meals_per_day = 0;
         if (event.accommodation_type === null || event.accommodation_type === undefined) event.accommodation_type = '';
-        event.has_applications = true;
+        // In-person events always take applications; a value that is not a boolean is
+        // left for the validator.
+        if (typeof event.has_applications === 'boolean' || event.has_applications === null || event.has_applications === undefined) {
+            event.has_applications = true;
+        }
     }
 });
 

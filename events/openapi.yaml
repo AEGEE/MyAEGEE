@@ -1,0 +1,1421 @@
+openapi: 3.1.1
+info:
+  title: MyAEGEE events
+  version: '1'
+  description: |
+    Events of the AEGEE network other than statutory events and Summer Universities
+    (trainings, network meetings, conferences, cultural and thematic events), and the
+    applications to them.
+
+    Every request with an `X-Auth-Token` is checked against core (`GET /members/me`,
+    `GET /my_permissions` and `POST /my_permissions` for the bodies where the caller may
+    approve members). The permissions below are core permissions: `approve_event:<type>`,
+    `manage_event:<type>` and so on stand for `global:approve_event:<type>` and the like.
+    "Board" means a member of the body who holds `approve_members:events` in a circle of that
+    body.
+
+    Errors are `{success: false, message}`, or `{success: false, errors: {<field>: [<message>]}}`
+    for validation errors (with `message` too when a handler made the check). Some 422 answers
+    use the first shape (see each operation).
+  license: {name: ISC, identifier: ISC}
+servers:
+  - url: /api/events
+security:
+  - XAuthToken: []
+tags:
+  - name: general
+    description: Health check (lib/middlewares.js).
+  - name: metrics
+    description: Prometheus metrics (lib/metrics.js and lib/endpoints_metrics.js).
+  - name: events
+    description: Events (lib/events.js).
+  - name: images
+    description: Event header images (lib/imageserv.js).
+  - name: applications
+    description: Applications to events (lib/applications.js).
+paths:
+  /healthcheck:
+    get:
+      operationId: getHealthcheck
+      summary: Health check
+      tags: [general]
+      x-permission: none
+      security: []
+      responses:
+        '200':
+          description: The service is up. Name, description and version come from package.json.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthcheckResponse'}
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics of events and applications
+      description: Counts of events per type, status and deleted flag, and of applications per event, status and body. The gateway protects this path with basic auth.
+      tags: [metrics]
+      x-permission: none (basic auth at the gateway)
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /metrics/requests:
+    get:
+      operationId: getEndpointMetrics
+      summary: Prometheus metrics of the requests this service answered
+      tags: [metrics]
+      x-permission: none (basic auth at the gateway)
+      security: []
+      responses:
+        '200':
+          description: Metrics in the Prometheus text format.
+          content:
+            text/plain:
+              schema: {type: string}
+  /:
+    get:
+      operationId: listEvents
+      summary: List published events
+      description: |
+        Published events that are not deleted, with the public fields only, ordered by start
+        date. Works with and without a token.
+      tags: [events]
+      x-permission: none
+      security: [{}, {XAuthToken: []}]
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/EventTypeFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The events. `meta` repeats the offset and limit that were applied (a key is left out when its parameter was not given or not valid).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventPublicListResponse'}
+        '422':
+          description: A filter has a value that is not allowed (an unknown type, a date that is not YYYY-MM-DD). The answer has a message, not field errors.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      operationId: createEvent
+      summary: Create an event
+      description: |
+        Creates a draft event and mails the organizers (the "event created" mail and the
+        safe space information, with a copy to the safe person). The creator must be one of the
+        organizers. Organizers must be members of one of the organizing bodies, unless the
+        creator may manage events of this type. Body names and organizer names are taken from
+        core; a body core does not know or does not show (a deleted one) answers 422 on
+        `organizing_bodies`. `id`, `image`, `status`, `deleted` and `is_european_event` are
+        ignored. Online events are never European events.
+      tags: [events]
+      x-permission: create:event; the creator is one of the organizers
+      requestBody:
+        $ref: '#/components/requestBodies/EventCreateInput'
+      responses:
+        '201':
+          description: The created event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventCreatedResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not create events, or is not one of the organizers.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /mine/organizing:
+    get:
+      operationId: listMyOrganizedEvents
+      summary: List the events the caller organizes
+      description: Events that are not deleted and list the caller as an organizer, with all fields, in every status.
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/EventTypeFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The events.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422':
+          description: A filter has a value that is not allowed (an unknown type, a date that is not YYYY-MM-DD). The answer has a message, not field errors.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /mine/participating:
+    get:
+      operationId: listMyAppliedEvents
+      summary: List the events the caller applied to
+      description: Events that are not deleted and have an application of the caller, with the public fields and the caller's application (user id and status).
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/EventTypeFilter'
+        - $ref: '#/components/parameters/StartsFilter'
+        - $ref: '#/components/parameters/EndsFilter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The events.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventWithApplicationsListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422':
+          description: A filter has a value that is not allowed (an unknown type, a date that is not YYYY-MM-DD). The answer has a message, not field errors.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /mine/approvable:
+    get:
+      operationId: listApprovableEvents
+      summary: List the events the caller may approve
+      description: Events that are not deleted and not published, of the types the caller may approve (an empty list without any approve permission).
+      tags: [events]
+      x-permission: approve_event:<type> (filters the list)
+      responses:
+        '200':
+          description: The events.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /boardview/{body_id}:
+    parameters:
+      - name: body_id
+        in: path
+        required: true
+        description: The body whose members' applications are listed.
+        schema: {type: integer}
+    get:
+      operationId: listBodyApplications
+      summary: List the applications of a body's members
+      description: Applications to any event made with this body (also to deleted events), each with the public fields of its event.
+      tags: [events]
+      x-permission: board of the body (approve_members:events in a circle of the body, and member of the body)
+      responses:
+        '200':
+          description: The applications.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationWithEventListResponse'}
+        '400':
+          description: The body id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller is not on the board of this body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /applications/future/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: The member whose applications are listed.
+        schema: {type: integer}
+    get:
+      operationId: listFutureApplicationsForUser
+      summary: List a member's applications to events that have not started
+      description: |
+        Pending and accepted applications of the member to events that start in the future and
+        are not deleted, ordered by start date. Core's member page shows them when a ban is set.
+        Holders of `update_application_ban:member` see every type; holders of
+        `manage_event:<type>` see the types they manage.
+      tags: [applications]
+      x-permission: update_application_ban:member, or manage_event:<type> for those types
+      responses:
+        '200':
+          description: The applications.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FutureApplicationListResponse'}
+        '400':
+          description: The user id is not a number.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller holds neither permission.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /recents:
+    get:
+      operationId: listMostRecentEuropeanEvents
+      summary: Latest European event per group of organizing bodies
+      description: |
+        For published, not deleted European events: the end of the latest event per list of
+        organizing bodies. Events organized together form their own group (the list is compared
+        as a whole). Used by the antenna criteria check.
+      tags: [events]
+      x-permission: authenticated
+      parameters:
+        - name: ends
+          in: query
+          description: Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
+          schema: {type: string, format: date}
+      responses:
+        '200':
+          description: One entry per group of organizing bodies.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RecentEventListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422':
+          description: A filter has a value that is not allowed (an unknown type, a date that is not YYYY-MM-DD). The answer has a message, not field errors.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /single/{event_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: getEvent
+      summary: One event
+      description: |
+        Published events that are not deleted are public. Other events are visible to their
+        organizers and to those who may approve events of their type. Organizers and those who
+        may manage or approve events of the type get every field (`Event`), others the public
+        fields (`EventPublic`). `permissions` says what the caller may do with the event.
+      tags: [events]
+      x-permission: none for published events; organizer or approve_event:<type> otherwise
+      security: [{}, {XAuthToken: []}]
+      responses:
+        '200':
+          description: The event and the caller's permissions on it.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventDetailsResponse'}
+        '403':
+          description: The event is not published or is deleted, and the caller is neither an organizer nor an approver.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateEvent
+      summary: Edit an event
+      description: |
+        Changes the fields sent and mails the organizers. `id`, `image`, `status`, `deleted` and
+        `is_european_event` are ignored; a body with nothing else is a 422 with a message. Unless
+        the caller may manage events of the old and the new type, new organizers must be
+        members of one of the organizing bodies, and when the organizers or the organizing
+        bodies change, at least one organizer must be a member of one of them (422 on
+        `organizers`). Unknown or deleted bodies answer 422 on `organizing_bodies`. When one
+        date changes, all four are checked against each other. Answers with the stored event.
+      tags: [events]
+      x-permission: organizer while the event is a draft, or manage_event:<type>
+      requestBody:
+        $ref: '#/components/requestBodies/EventUpdateInput'
+      responses:
+        '200':
+          description: The event after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EventResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not edit this event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+    delete:
+      operationId: deleteEvent
+      summary: Delete an event
+      description: Marks the event as deleted. It stays in the database and its applications are kept. No mail is sent.
+      tags: [events]
+      x-permission: manage_event:<type>
+      responses:
+        '200':
+          description: Deleted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not delete this event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventStatus
+      summary: Change the status of an event
+      description: |
+        Allowed transitions: draft to submitted (organizers and approvers), submitted to draft or
+        published, and published to submitted (approvers of the type). Publishing sets
+        `publication_date`. The organizers get a mail on every change; a submission from draft
+        also mails the events approval team (and NetCom for network meetings). Submitting
+        needs a budget (not for online events) and a programme. A status that is not one of
+        the three answers 422 with a message, before the permission check.
+      tags: [events]
+      x-permission: organizer (draft to submitted only), or approve_event:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventStatusInput'}
+      responses:
+        '200':
+          description: Changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not make this transition (also to the current status).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/upload:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      operationId: uploadEventImage
+      summary: Upload the header image of an event
+      description: Replaces the event's image with a PNG or JPEG of at most 5 MB and removes the old file. The 422 answers have a message, not field errors.
+      tags: [images]
+      x-permission: organizer while the event is a draft, or manage_event:<type>
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [head_image]
+              properties:
+                head_image:
+                  type: string
+                  contentMediaType: application/octet-stream
+                  description: A .png, .jpg or .jpeg file whose content matches its extension.
+      responses:
+        '200':
+          description: Uploaded. `data` is the new file name.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImageUploadResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not edit this event.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+  /single/{event_id}/status/european_event:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    put:
+      operationId: setEventEuropeanStatus
+      summary: Mark an event as European or not
+      description: Sets `is_european_event`. When it becomes true, the organizers get a mail. A body without the field changes nothing.
+      tags: [events]
+      x-permission: change_european_event_status:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EventEuropeanStatusInput'}
+      responses:
+        '200':
+          description: Changed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MessageResponse'}
+        '400': {$ref: '#/components/responses/BodyNotObject'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not change the European status of events of this type.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: listEventApplications
+      summary: List the applications to an event
+      description: Every application to the event, oldest first.
+      tags: [applications]
+      x-permission: organizer, or manage_event:<type>
+      responses:
+        '200':
+          description: The applications.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationListResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not list the applications.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      operationId: createApplication
+      summary: Apply to an event
+      description: |
+        Applies the caller with one of their bodies and mails them. The application period must
+        be open, the event published and with an application process, and the caller not banned
+        from applying. Names and the body name come from core; other fields than `body_id`,
+        `answers` and `agreed_to_privacy_policy` are ignored. One application per member.
+        Answers the created application with 200, not 201.
+      tags: [applications]
+      x-permission: authenticated, while the event takes applications
+      requestBody:
+        $ref: '#/components/requestBodies/ApplicationCreateInput'
+      responses:
+        '200':
+          description: The created application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationSavedResponse'}
+        '400':
+          description: 'The caller is not a member of the body in `body_id`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The event takes no applications now, or the caller is banned from applying.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications/export:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      operationId: exportEventApplications
+      summary: Export the applications to an event as a spreadsheet
+      description: One row per application with the applicant's notification email (from core) and one column per question. The file is called `stats.xlsx`.
+      tags: [applications]
+      x-permission: organizer, or manage_event:<type>
+      responses:
+        '200':
+          description: The spreadsheet.
+          headers:
+            Content-Disposition:
+              description: '`attachment; filename=stats.xlsx`'
+              schema: {type: string}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not export the applications.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /single/{event_id}/applications/{application_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: getApplication
+      summary: One application
+      description: The application with the applicant's notification email from core.
+      tags: [applications]
+      x-permission: the applicant, or organizer, or manage_event:<type>
+      responses:
+        '200':
+          description: The application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationId'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not see this application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: updateApplication
+      summary: Edit an application
+      description: |
+        Changes `body_id`, `answers` or `agreed_to_privacy_policy` and mails the applicant (also
+        when someone else edits). Names come from core again. A new body must be one of the
+        applicant's bodies; the applicant may keep a body they have left.
+      tags: [applications]
+      x-permission: the applicant while the event takes applications, or whoever may edit the event
+      requestBody:
+        $ref: '#/components/requestBodies/ApplicationUpdateInput'
+      responses:
+        '200':
+          description: The application after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationSavedResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not edit this application, or the applicant is not a member of the new body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications/{application_id}/attended:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationAttended
+      summary: Mark whether an applicant attended
+      description: Only a confirmed application can be marked as attended. `attended` must be a boolean (422 with field errors otherwise).
+      tags: [applications]
+      x-permission: organizer, or manage_event:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [attended]
+              properties:
+                attended: {type: boolean}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The application after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not change this application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications/{application_id}/confirmed:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationConfirmed
+      summary: Mark whether an applicant confirmed
+      description: An application marked as attended cannot be unconfirmed. `confirmed` must be a boolean (422 with field errors otherwise).
+      tags: [applications]
+      x-permission: organizer, or manage_event:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmed]
+              properties:
+                confirmed: {type: boolean}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The application after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not change this application.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications/{application_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationStatus
+      summary: Accept or reject an application
+      description: Sets the status at any time; no mail is sent and the number of places is not checked. A missing or unknown status answers 422 with field errors.
+      tags: [applications]
+      x-permission: organizer, or manage_event:<type>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {$ref: '#/components/schemas/ApplicationStatus'}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The application after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller may not accept or reject applicants.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+  /single/{event_id}/applications/{application_id}/comment:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/ApplicationId'
+    put:
+      operationId: setApplicationBoardComment
+      summary: Set the board comment of an application
+      description: '`board_comment` must be a text or null (422 with field errors otherwise).'
+      tags: [applications]
+      x-permission: board of the application's body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [board_comment]
+              properties:
+                board_comment: {type: [string, 'null']}
+              additionalProperties: true
+      responses:
+        '200':
+          description: The application after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/BadApplicationIdOrBody'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403':
+          description: The caller is not on the board of the application's body.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
+components:
+  securitySchemes:
+    XAuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: Access token issued by core. Other services check it against core on every request.
+  parameters:
+    Limit: {name: limit, in: query, description: 'Ignored unless an integer from 1 to 2147483647.', schema: {type: integer, minimum: 1, maximum: 2147483647}}
+    Offset: {name: offset, in: query, description: 'Ignored unless an integer from 0 to 2147483647.', schema: {type: integer, minimum: 0, maximum: 2147483647}}
+    Search:
+      name: search
+      in: query
+      description: Case-insensitive search in the name and the description.
+      schema: {type: string}
+    EventTypeFilter:
+      name: type
+      in: query
+      description: One type, or several as `type[]=a&type[]=b`.
+      style: form
+      explode: true
+      schema:
+        oneOf:
+          - $ref: '#/components/schemas/EventType'
+          - {type: array, items: {$ref: '#/components/schemas/EventType'}}
+    StartsFilter:
+      name: starts
+      in: query
+      description: Only events that start on or after this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
+      schema: {type: string, format: date}
+    EndsFilter:
+      name: ends
+      in: query
+      description: Only events that end on or before this day (YYYY-MM-DD, or an ISO 8601 timestamp, read by its day; from the year 1000).
+      schema: {type: string, format: date}
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: |
+        The event's id, or its `url` in any letter case (Express routes both through this path).
+        A value that is not a whole number within the id range is looked up as a url, so `1.5`
+        answers 404.
+      schema: {type: [integer, string]}
+    ApplicationId:
+      name: application_id
+      in: path
+      required: true
+      description: The application's id, or `me` for the caller's own application (Express routes both through this path).
+      schema: {type: [integer, string]}
+  requestBodies:
+    EventCreateInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/EventCreateInput'}
+    EventUpdateInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/EventInput'}
+    ApplicationCreateInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApplicationCreateInput'}
+    ApplicationUpdateInput:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApplicationInput'}
+  responses:
+    BadApplicationId: {description: 'The application id is neither a number nor `me`.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadApplicationIdOrBody: {description: 'The application id is neither a number nor `me`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The body is larger than 1 MB ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyUnsupported: {description: 'The body is in another charset than UTF-8 or in an unknown encoding ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyNotObject: {description: 'The body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  schemas:
+    ErrorResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ErrorWithMessage'
+        - $ref: '#/components/schemas/ErrorWithFields'
+    ErrorWithMessage:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: false}
+        message: {type: string}
+      additionalProperties: false
+    ErrorWithFields:
+      type: object
+      required: [success, errors]
+      properties:
+        success: {const: false}
+        message: {type: string, description: 'The field messages joined. Sent by the checks of the handlers, not by model validation.'}
+        errors:
+          type: object
+          additionalProperties: {type: array, items: {type: string}}
+      additionalProperties: false
+    MessageResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: {const: true}
+        message: {type: string}
+      additionalProperties: false
+    Decimal:
+      description: Sequelize DECIMAL. A string when read from Postgres, the input value right after create or update.
+      type: [string, number]
+      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+    HealthcheckResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: object
+          required: [name, description, version]
+          properties:
+            name: {type: string}
+            description: {type: string}
+            version: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+    EventType:
+      type: string
+      enum: [training, nwm, conference, cultural, thematic]
+    EventStatus:
+      type: string
+      enum: [draft, submitted, published]
+    EventMethod:
+      type: string
+      enum: [in person, online]
+    ApplicationStatus:
+      type: string
+      enum: [pending, accepted, rejected]
+    OrganizingBody:
+      type: object
+      required: [body_id, body_name]
+      properties:
+        body_id: {type: integer}
+        body_name: {type: string}
+      additionalProperties: false
+    Organizer:
+      type: object
+      required: [user_id, first_name, last_name]
+      properties:
+        user_id: {type: integer}
+        first_name: {type: string}
+        last_name: {type: string}
+        comment: {type: string}
+      additionalProperties: false
+    Location:
+      description: A map marker.
+      type: object
+      required: [name, position]
+      properties:
+        name: {type: string}
+        position:
+          type: object
+          required: [lat, lng]
+          properties:
+            lat: {type: number}
+            lng: {type: number}
+          additionalProperties: false
+      additionalProperties: false
+    Question:
+      type: object
+      required: [type, description, required]
+      properties:
+        type:
+          type: string
+          enum: [string, text, number, checkbox, select]
+        description: {type: string}
+        required: {type: boolean}
+        values:
+          description: The choices of a `select` question.
+          type: array
+          items: {type: string}
+      additionalProperties: false
+    EventPublicFields:
+      description: The fields every caller sees.
+      type: object
+      required: [id, name, url, image, description, application_starts, application_ends, starts, ends, fee, optional_fee, organizing_bodies, locations, type, status, publication_date, questions, max_participants, application_status, optional_programme, link_info_travel_country, meals_per_day, vegetarian, accommodation_type, method, has_applications, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        url:
+          description: The short name used in links instead of the id (lower case).
+          type: [string, 'null']
+        image:
+          description: File name of the header image under the service's media path.
+          type: [string, 'null']
+        description: {type: string}
+        application_starts: {type: string, format: date-time}
+        application_ends: {type: string, format: date-time}
+        starts: {type: string, format: date-time}
+        ends: {type: string, format: date-time}
+        fee:
+          oneOf:
+            - $ref: '#/components/schemas/Decimal'
+            - {type: 'null'}
+        optional_fee:
+          oneOf:
+            - $ref: '#/components/schemas/Decimal'
+            - {type: 'null'}
+        organizing_bodies:
+          type: array
+          items: {$ref: '#/components/schemas/OrganizingBody'}
+        locations:
+          type: array
+          items: {$ref: '#/components/schemas/Location'}
+        type: {$ref: '#/components/schemas/EventType'}
+        status: {$ref: '#/components/schemas/EventStatus'}
+        publication_date:
+          description: When the event was last published.
+          type: [string, 'null']
+          format: date-time
+        questions:
+          type: array
+          items: {$ref: '#/components/schemas/Question'}
+        max_participants: {type: [integer, 'null']}
+        application_status:
+          description: '`open` while now is within the application period (both ends included); always `closed` for an event without applications.'
+          type: string
+          enum: [open, closed]
+        optional_programme: {type: [string, 'null']}
+        link_info_travel_country: {type: [string, 'null']}
+        meals_per_day: {type: [integer, 'null']}
+        vegetarian: {type: boolean}
+        accommodation_type: {type: [string, 'null']}
+        method: {$ref: '#/components/schemas/EventMethod'}
+        has_applications: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    EventPublic:
+      description: An event with the fields every caller sees.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPublicFields'
+      unevaluatedProperties: false
+    Event:
+      description: An event with every field, for organizers, managers and approvers.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPublicFields'
+      required: [budget, programme, deleted, organizers, is_european_event]
+      properties:
+        budget:
+          description: Link to the budget.
+          type: [string, 'null']
+        programme:
+          description: Link to the programme.
+          type: [string, 'null']
+        deleted: {type: boolean}
+        organizers:
+          type: array
+          items: {$ref: '#/components/schemas/Organizer'}
+        is_european_event: {type: boolean}
+      unevaluatedProperties: false
+    EventWithApplications:
+      description: An event with the public fields and the caller's application.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventPublicFields'
+      required: [applications]
+      properties:
+        applications:
+          type: array
+          items:
+            type: object
+            required: [user_id, status]
+            properties:
+              user_id: {type: integer}
+              status: {$ref: '#/components/schemas/ApplicationStatus'}
+            additionalProperties: false
+      unevaluatedProperties: false
+    EventPermissionsByType:
+      type: object
+      required: [training, nwm, conference, cultural, thematic]
+      properties:
+        training: {type: boolean}
+        nwm: {type: boolean}
+        conference: {type: boolean}
+        cultural: {type: boolean}
+        thematic: {type: boolean}
+      additionalProperties: false
+    EventPermissions:
+      description: What the caller may do. `set_board_comment` and `see_boardview` are keyed by the ids of the caller's bodies.
+      type: object
+      required: [approve_event, manage_event, change_european_event_status, create_event, set_board_comment, see_boardview, see_event, edit_event, delete_event, apply, list_applications, approve_participants, set_participants_attended, set_participants_confirmed, export, change_status]
+      properties:
+        approve_event: {$ref: '#/components/schemas/EventPermissionsByType'}
+        manage_event: {$ref: '#/components/schemas/EventPermissionsByType'}
+        change_european_event_status: {$ref: '#/components/schemas/EventPermissionsByType'}
+        create_event: {type: boolean}
+        set_board_comment:
+          type: object
+          additionalProperties: {type: boolean}
+        see_boardview:
+          type: object
+          additionalProperties: {type: boolean}
+        see_event: {type: boolean}
+        edit_event: {type: boolean}
+        delete_event: {type: boolean}
+        apply: {type: boolean}
+        list_applications: {type: boolean}
+        approve_participants: {type: boolean}
+        set_participants_attended: {type: boolean}
+        set_participants_confirmed: {type: boolean}
+        export: {type: boolean}
+        change_status:
+          description: The statuses the caller may move the event to.
+          type: object
+          required: [draft, submitted, published]
+          properties:
+            draft: {type: boolean}
+            submitted: {type: boolean}
+            published: {type: boolean}
+          additionalProperties: false
+      additionalProperties: false
+    DateInput:
+      description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a whole number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999.
+      type: [string, number]
+    DecimalInput:
+      description: "A number, or its text: digits with an optional sign, decimal point and exponent ('5', '+5', '.5', '2.50', '1e2'), at most 308 digits before the point and 16383 after it."
+      type: [number, string, 'null']
+    EventInputFields:
+      type: object
+      properties:
+        name: {type: string, maxLength: 255}
+        url: {type: [string, 'null'], maxLength: 255, description: 'Letters, digits and dashes, not only digits; stored in lower case.'}
+        description: {type: string}
+        application_starts: {$ref: '#/components/schemas/DateInput'}
+        application_ends: {$ref: '#/components/schemas/DateInput'}
+        starts: {$ref: '#/components/schemas/DateInput'}
+        ends: {$ref: '#/components/schemas/DateInput'}
+        fee: {$ref: '#/components/schemas/DecimalInput'}
+        optional_fee: {$ref: '#/components/schemas/DecimalInput'}
+        organizing_bodies:
+          description: Only `body_id` is read; the name comes from core.
+          type: array
+          items:
+            type: object
+            required: [body_id]
+            properties:
+              body_id: {type: integer}
+        locations:
+          type: array
+          items:
+            description: A map marker, as in Location. Other keys are not stored.
+            type: object
+            required: [name, position]
+            properties:
+              name: {type: string}
+              position:
+                type: object
+                required: [lat, lng]
+                properties:
+                  lat: {type: number}
+                  lng: {type: number}
+        type: {$ref: '#/components/schemas/EventType'}
+        organizers:
+          description: Only `user_id` and `comment` are read; the names come from core.
+          type: array
+          items:
+            type: object
+            required: [user_id]
+            properties:
+              user_id: {type: integer}
+              comment: {type: string}
+        questions:
+          type: array
+          items:
+            description: A question, as in Question. Other keys (the edit form sends `name`) are not stored.
+            type: object
+            required: [type, description, required]
+            properties:
+              type: {type: string, enum: [string, text, number, checkbox, select]}
+              description: {type: string}
+              required: {type: boolean}
+              values: {type: array, items: {type: string}}
+        max_participants: {type: [integer, string, 'null'], description: 'A whole number up to 2147483647, or a string of digits.'}
+        budget: {type: [string, 'null']}
+        programme: {type: [string, 'null']}
+        optional_programme: {type: [string, 'null']}
+        link_info_travel_country: {type: [string, 'null']}
+        meals_per_day: {type: [integer, string, 'null']}
+        vegetarian: {type: boolean}
+        accommodation_type: {type: [string, 'null'], maxLength: 255, description: 'Required for in-person events; "none" if there is none.'}
+        method: {$ref: '#/components/schemas/EventMethod'}
+        has_applications: {type: boolean, description: 'Always true for in-person events. The application dates of an event without applications are not checked against each other or the event dates; they are checked again when it starts to take applications.'}
+    EventCreateInput:
+      description: Unknown keys are ignored.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventInputFields'
+      required: [name, description, application_starts, application_ends, starts, ends, type, organizing_bodies, organizers]
+      additionalProperties: true
+    EventInput:
+      description: The fields to change. Unknown keys are ignored.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EventInputFields'
+      additionalProperties: true
+    EventStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: {$ref: '#/components/schemas/EventStatus'}
+      additionalProperties: true
+    EventEuropeanStatusInput:
+      type: object
+      properties:
+        is_european_event: {type: boolean}
+      additionalProperties: true
+    ApplicationFields:
+      type: object
+      required: [id, event_id, user_id, body_id, body_name, first_name, last_name, email, status, confirmed, attended, answers, agreed_to_privacy_policy, created_at, updated_at]
+      properties:
+        id: {type: integer}
+        event_id: {type: integer}
+        user_id: {type: integer}
+        body_name: {type: string}
+        first_name: {type: string}
+        last_name: {type: string}
+        email:
+          description: Not set any more (older applications may have it).
+          type: [string, 'null']
+        status: {$ref: '#/components/schemas/ApplicationStatus'}
+        confirmed: {type: boolean}
+        attended: {type: boolean}
+        answers:
+          description: One answer per question of the event, in order.
+          type: array
+          items: {type: [string, number, boolean]}
+        agreed_to_privacy_policy: {type: boolean}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    BoardComment:
+      description: |
+        The board's comment on the applicant. Left out of the answers the applicant gets about
+        their own application (the ForApplicant variants), unless they may also list the
+        event's applications or set board comments for the application's body. Not in the
+        answer to a create (the column has no default).
+      type: [string, 'null']
+    Application:
+      description: An application as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      properties:
+        body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationListed:
+      description: An application in the list of an event's applications (organizers and managers).
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [board_comment]
+      properties:
+        body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationForApplicant:
+      description: An application as its applicant gets it, without the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      properties:
+        body_id: {type: integer}
+      unevaluatedProperties: false
+    ApplicationWithEmail:
+      description: An application with the applicant's notification email from core, as organizers, managers and boards get it.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [notification_email]
+      properties:
+        body_id: {type: integer}
+        notification_email: {type: string}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+      unevaluatedProperties: false
+    ApplicationWithEmailForApplicant:
+      description: An application with the applicant's notification email from core, as its applicant gets it, without the board comment.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [notification_email]
+      properties:
+        body_id: {type: integer}
+        notification_email: {type: string}
+      unevaluatedProperties: false
+    ApplicationWithEvent:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationFields'
+      required: [event, board_comment]
+      properties:
+        body_id: {type: integer}
+        board_comment: {$ref: '#/components/schemas/BoardComment'}
+        event: {$ref: '#/components/schemas/EventPublic'}
+      unevaluatedProperties: false
+    ApplicationInputFields:
+      type: object
+      properties:
+        body_id: {type: [integer, string]}
+        answers:
+          type: array
+          items: {type: [string, number, boolean]}
+        agreed_to_privacy_policy: {type: boolean}
+    ApplicationCreateInput:
+      description: Other keys are ignored.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationInputFields'
+      required: [body_id, answers, agreed_to_privacy_policy]
+      additionalProperties: true
+    ApplicationInput:
+      description: The fields to change. Other keys are ignored.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApplicationInputFields'
+      additionalProperties: true
+    FutureApplication:
+      type: object
+      required: [service, application_id, application_status, event_id, event_name, event_type, event_starts]
+      properties:
+        service: {const: events}
+        application_id: {type: integer}
+        application_status: {$ref: '#/components/schemas/ApplicationStatus'}
+        event_id: {type: integer}
+        event_name: {type: string}
+        event_type: {$ref: '#/components/schemas/EventType'}
+        event_starts: {type: string, format: date-time}
+      additionalProperties: false
+    RecentEvent:
+      type: object
+      required: [organizing_bodies, latest_event]
+      properties:
+        organizing_bodies:
+          type: array
+          items: {$ref: '#/components/schemas/OrganizingBody'}
+        latest_event:
+          description: When the latest event of these organizing bodies ends.
+          type: string
+          format: date-time
+      additionalProperties: false
+    EventPublicListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/EventPublic'}}
+        meta:
+          type: object
+          properties:
+            offset: {type: integer}
+            limit: {type: integer}
+          additionalProperties: false
+      additionalProperties: false
+    EventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/Event'}}
+      additionalProperties: false
+    EventWithApplicationsListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/EventWithApplications'}}
+      additionalProperties: false
+    EventResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventCreatedResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {$ref: '#/components/schemas/Event'}
+      additionalProperties: false
+    EventDetailsResponse:
+      type: object
+      required: [success, data, permissions]
+      properties:
+        success: {const: true}
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Event'
+            - $ref: '#/components/schemas/EventPublic'
+        permissions: {$ref: '#/components/schemas/EventPermissions'}
+      additionalProperties: false
+    ImageUploadResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data: {type: string, description: The new file name.}
+      additionalProperties: false
+    RecentEventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/RecentEvent'}}
+      additionalProperties: false
+    ApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/ApplicationListed'}
+      additionalProperties: false
+    ApplicationWithEventListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/ApplicationWithEvent'}}
+      additionalProperties: false
+    FutureApplicationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/FutureApplication'}}
+      additionalProperties: false
+    ApplicationResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: {const: true}
+        data:
+          description: The applicant gets ApplicationWithEmailForApplicant, unless they may see the board comment.
+          anyOf:
+            - $ref: '#/components/schemas/ApplicationWithEmail'
+            - $ref: '#/components/schemas/ApplicationWithEmailForApplicant'
+      additionalProperties: false
+    ApplicationSavedResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: {const: true}
+        message: {type: string}
+        data:
+          description: The created application has no notification email; an edited one has. The applicant gets a ForApplicant variant, unless they may see the board comment.
+          anyOf:
+            - $ref: '#/components/schemas/Application'
+            - $ref: '#/components/schemas/ApplicationWithEmail'
+            - $ref: '#/components/schemas/ApplicationForApplicant'
+            - $ref: '#/components/schemas/ApplicationWithEmailForApplicant'
+      additionalProperties: false

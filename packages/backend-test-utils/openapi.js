@@ -235,7 +235,10 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, a
     }
 
     // Called by test/scripts/helpers.js after every request. Throws on a violation.
-    function check({ method = 'GET', path: urlPath, requestBody, statusCode, headers = {}, body }) {
+    // `variant`, for a response that depends on the caller: the name of a schema in
+    // components/schemas that the response's `data` must also match (the documented schema
+    // is a oneOf of the callers' variants, so on its own it cannot tell which caller got which).
+    function check({ method = 'GET', path: urlPath, requestBody, statusCode, headers = {}, body, variant }) {
         const upper = method.toUpperCase();
         const { pathname, template, operation } = findOperation(method, urlPath);
         if (!operation) {
@@ -313,6 +316,17 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, a
             fail([`${label}: response body does not match ${responsePointer}:`,
                 ...formatErrors(validate.errors), `body: ${shorten(json)}`]);
         }
+        if (variant !== undefined) {
+            const variantPointer = `/components/schemas/${escapePointer(variant)}`;
+            if (resolvePointer('#' + variantPointer) === undefined) {
+                fail([`${label}: the test expects the variant ${variant}, which is not in components/schemas.`]);
+            }
+            const validateVariant = compile(variantPointer);
+            if (!json || typeof json !== 'object' || !validateVariant(json.data)) {
+                fail([`${label}: data does not match the variant ${variant} the test expects:`,
+                    ...(validateVariant.errors ? formatErrors(validateVariant.errors) : ['no data']), `body: ${shorten(json)}`]);
+            }
+        }
     }
 
     return { spec, check, findOperation };
@@ -327,6 +341,8 @@ function createContract({ serviceRoot, specFile = 'openapi.yaml', requireFrom, a
 //
 // options.skipOpenApi: '<reason>' skips the check, for requests to routes that deliberately
 // do not exist (the not-found handler tests). A skip without a reason throws.
+// options.openApiVariant: '<schema name>' also checks the response's `data` against that
+// schema, for responses that depend on the caller (see check()).
 function createRequestHook(contractOptions) {
     let contract;
     return function checkResponse(options, fetchOptions, result) {
@@ -342,6 +358,7 @@ function createRequestHook(contractOptions) {
             path: options.path,
             // Multipart requests (options.files) are not validated.
             requestBody: options.files ? undefined : options.body,
+            variant: options.openApiVariant,
             ...result
         });
     };

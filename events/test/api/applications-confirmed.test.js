@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const callers = require('../scripts/callers');
 
 describe('Applications confirmation', () => {
     beforeAll(async () => {
@@ -19,6 +20,45 @@ describe('Applications confirmation', () => {
     afterEach(async () => {
         await generator.clearAll();
         mock.cleanAll();
+    });
+
+    const putConfirmed = (event, application, confirmed) => request({
+        path: '/single/' + event.id + '/applications/' + application.id + '/confirmed',
+        headers: { 'X-Auth-Token': 'foobar' },
+        method: 'PUT',
+        body: { confirmed }
+    });
+
+    test('should succeed for an organizer without permissions', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({ organizers: [callers.organizer(callers.member)] });
+        const application = await generator.createApplication(event);
+
+        const res = await putConfirmed(event, application, true);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.confirmed).toEqual(true);
+    });
+
+    test('should return 403 for a manager of another event type', async () => {
+        callers.asMember(['global:manage_event:nwm']);
+        const event = await generator.createEvent({ type: 'training' });
+        const application = await generator.createApplication(event);
+
+        const res = await putConfirmed(event, application, true);
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    test('should confirm an application that is not accepted', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication(event, { status: 'rejected' });
+
+        const res = await putConfirmed(event, application, true);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.confirmed).toEqual(true);
+        expect(res.body.data.status).toEqual('rejected');
     });
 
     test('should succeed when the permissions are okay', async () => {

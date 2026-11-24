@@ -1,4 +1,5 @@
 const moment = require('moment');
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
@@ -6,6 +7,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Application } = require('../../models');
 const user = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Events application creating', () => {
     beforeEach(async () => {
@@ -18,6 +20,129 @@ describe('Events application creating', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    // A published event whose application period is open.
+    const openEvent = (fields = {}) => generator.createEvent({
+        application_starts: moment().subtract(1, 'week').toDate(),
+        application_ends: moment().add(1, 'week').toDate(),
+        status: 'published',
+        questions: [],
+        ...fields
+    });
+    const apply = (event, body = { body_id: user.bodies[0].id, answers: [], agreed_to_privacy_policy: true }) => request({
+        path: '/single/' + event.id + '/applications',
+        headers: { 'X-Auth-Token': 'foobar' },
+        method: 'POST',
+        body
+    });
+
+    it('should create the application with 200 and mail the applicant', async () => {
+        const mails = mock.captureMails(mock.mockAll().omsMailerStub);
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.user_id).toEqual(user.id);
+        expect(res.body.data.body_id).toEqual(user.bodies[0].id);
+        expect(res.body.data.status).toEqual('pending');
+        expect(mails).toHaveLength(1);
+        expect(mails[0].template).toEqual('events_applied.html');
+        expect(mails[0].to).toEqual(user.notification_email);
+        expect(mails[0].parameters.event.id).toEqual(event.id);
+    });
+
+    it('should not keep the application if the mail cannot be sent', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(500);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    it('should return 422 if the member applied to the event already', async () => {
+        const event = await openEvent();
+        await generator.createApplication(event, { user_id: user.id, body_id: user.bodies[0].id, answers: [] });
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('user_id');
+        expect(await Application.count()).toEqual(1);
+    });
+
+    test.each(['draft', 'submitted'])('should disallow applications to a %s event with an open application period', async (status) => {
+        const event = await openEvent({ status });
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(403);
+        expect(await Application.count()).toEqual(0);
+    });
+
+    it('should disallow applications before the application period starts', async () => {
+        const event = await openEvent({ application_starts: moment().add(1, 'day').toDate(), application_ends: moment().add(1, 'week').toDate() });
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(403);
+    });
+
+    it('should accept applications at the moment the application period ends, and not after', async () => {
+        const event = await openEvent();
+        try {
+            tk.freeze(event.application_ends);
+            expect((await apply(event)).statusCode).toEqual(200);
+
+            await Application.destroy({ where: {} });
+            tk.freeze(new Date(event.application_ends.getTime() + 1));
+            expect((await apply(event)).statusCode).toEqual(403);
+        } finally {
+            tk.reset();
+        }
+    });
+
+    it('should accept applications from a member whose ban has ended', async () => {
+        callers.asSuperadminWith({ event_application_ban: { ban_until: moment().subtract(1, 'day').toDate() } });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(200);
+    });
+
+    it('should return 422 if core gives a first name longer than its column', async () => {
+        callers.asSuperadminWith({ first_name: 'a'.repeat(256) });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('first_name');
+    });
+
+    it('should return 422 if core gives a user id that is not a number', async () => {
+        callers.asSuperadminWith({ id: 'not-a-number' });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('user_id');
+        expect(await Application.count()).toEqual(0);
+    });
+
+    it('should return 422 if core has no first name for the applicant', async () => {
+        callers.asSuperadminWith({ first_name: '' });
+        const event = await openEvent();
+
+        const res = await apply(event);
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toHaveProperty('first_name');
     });
 
     it('should disallow application when user has an active event application ban', async () => {

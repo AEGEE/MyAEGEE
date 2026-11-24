@@ -24,14 +24,16 @@ const server = express();
 // lowers qs's array limit to 20. Keep Express 4's behaviour: nested and bracketed
 // parameters (filter[status]=..., type[]=...) with up to 1000 array items.
 server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, arrayLimit: 1000 }));
-server.use(bodyParser.json());
+// The edit forms send every long text of an event in one request.
+server.use(bodyParser.json({ limit: '1mb' }));
+server.use(middlewares.checkBody);
 server.use(morgan);
 server.use(queryBoolean());
 
-/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
+    /* istanbul ignore if -- Bugsnag is off in tests */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
@@ -103,7 +105,6 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-        /* istanbul ignore next */
         localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -111,7 +112,7 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
-    /* istanbul ignore next */
+    /* istanbul ignore if -- outside tests only; in tests, test/setup.js closes the pool after each file */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }

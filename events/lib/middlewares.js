@@ -8,10 +8,81 @@ const { Event, Application } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
 const constants = require('./constants');
+const { isPlainObject } = require('./validators');
 
 const packageInfo = require('../package.json');
 
+// What core answers to a request without a token, so that ensureAuthorized() rejects it.
+const ANONYMOUS = { statusCode: 401, body: { success: false } };
+
+// Keys that JSON.parse makes own keys of a body, which Sequelize would read as setters.
+const PROTOTYPE_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+// The deepest nesting a body may have: an object or list in the body is one level.
+const BODY_DEPTH_MAX = 64;
+
+// The message for the first value of the body that no route can take, or null. Postgres refuses
+// U+0000 in a JSON column, and a deeply nested body made the validation run out of stack. The
+// body is walked with a stack of its own, so that no nesting can overflow this check either.
+const findBodyProblem = (body) => {
+    const stack = [[body, 1]];
+    while (stack.length > 0) {
+        const [value, depth] = stack.pop();
+        if (typeof value === 'string' && value.includes('\u0000')) {
+            return 'The body should not contain the character U+0000.';
+        }
+
+        if (typeof value === 'object' && value !== null) {
+            if (depth > BODY_DEPTH_MAX) {
+                return 'The body is nested too deeply.';
+            }
+
+            for (const [key, item] of Object.entries(value)) {
+                stack.push([key, depth], [item, depth + 1]);
+            }
+        }
+    }
+
+    return null;
+};
+
+// A request body is an object. A request without JSON has an empty one, which the routes read
+// like any other. Express also parses a JSON array as a body, which no route reads.
+exports.checkBody = (req, res, next) => {
+    if (req.body === undefined) {
+        req.body = {};
+        return next();
+    }
+
+    if (!isPlainObject(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an object.');
+    }
+
+    const problem = findBodyProblem(req.body);
+    if (problem) {
+        return errors.makeBadRequestError(res, problem);
+    }
+
+    for (const key of PROTOTYPE_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+            delete req.body[key];
+        }
+    }
+
+    return next();
+};
+
 exports.authenticateUser = async (req, res, next) => {
+    // Without a token core can only answer 401: the caller is anonymous, and public routes
+    // keep working when core is down.
+    if (!req.headers['x-auth-token']) {
+        req.userRequest = ANONYMOUS;
+        req.permissionsRequest = ANONYMOUS;
+        req.approveRequest = ANONYMOUS;
+        req.permissions = helpers.getPermissions(undefined, undefined, undefined);
+        return next();
+    }
+
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
@@ -140,7 +211,6 @@ exports.fetchSingleApplication = async (req, res, next) => {
     return next();
 };
 
-/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -162,18 +232,22 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
+    // Body-parser's own refusals (http-errors with a 4xx to show): too large, another charset or
+    // encoding, broken compression.
+    if (err.expose === true && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
+    }
+
     // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
 
-    /* istanbul ignore next */
+    /* istanbul ignore if -- Bugsnag is off in tests */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
-    /* istanbul ignore next */
     logger.error({ err }, 'Request error');
-    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };

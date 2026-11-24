@@ -8,8 +8,8 @@
   },
   "scripts": {
     "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
-    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/api/*.js --runInBand --forceExit",
-    "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/api/*.js --runInBand",
+    "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "db:create": "sequelize db:create",
@@ -27,12 +27,13 @@
     "testEnvironment": "node",
     "verbose": true,
     "collectCoverage": true,
+    "globalSetup": "<rootDir>/../packages/backend-test-utils/jest-global-setup.js",
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ],
     "collectCoverageFrom": [
       "lib/**/*.js",
-      "models/**/*.js",
-      "!lib/run.js",
-      "!lib/sequelize.js",
-      "!lib/logger.js"
+      "models/**/*.js"
     ],
     "reporters": [
       "default",
@@ -40,7 +41,15 @@
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/scripts/mail-contract.js"
-    ]
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
   },
   "author": "Nico Westerbeck",
   "license": "ISC",

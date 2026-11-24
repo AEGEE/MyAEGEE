@@ -5,6 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid.json').data;
+const callers = require('../scripts/callers');
 
 describe('Export all', () => {
     beforeEach(async () => {
@@ -16,6 +17,79 @@ describe('Export all', () => {
         await stopServer();
         await generator.clearAll();
         mock.cleanAll();
+    });
+
+    test('should log in to core once per export, not once per application', async () => {
+        const { omsCoreLoginStub } = mock.mockAll();
+        let logins = 0;
+        omsCoreLoginStub.on('request', () => { logins += 1; });
+        const event = await generator.createEvent({ questions: [] });
+        for (const userId of [1, 2, 3]) {
+            await generator.createApplication(event, { user_id: userId, answers: [] });
+        }
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/export',
+            responseType: 'buffer',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(xlsx.parse(res.body)[0].data).toHaveLength(4);
+        expect(logins).toEqual(1);
+    });
+
+    test('should export one row per application for an organizer without permissions', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({
+            organizers: [callers.organizer(callers.member)],
+            questions: [
+                { type: 'checkbox', description: 'Vegan?', required: false },
+                { type: 'string', description: 'Why?', required: true }
+            ]
+        });
+        await generator.createApplication(event, {
+            user_id: regularUser.id,
+            body_id: 34,
+            body_name: 'AEGEE-Example',
+            status: 'accepted',
+            answers: [true, 'Because']
+        });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/export',
+            responseType: 'buffer',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-disposition']).toEqual('attachment; filename=stats.xlsx');
+
+        const [header, row] = xlsx.parse(res.body)[0].data;
+        expect(header).toContain('Answer 1: Vegan?');
+        expect(header).toContain('Answer 2: Why?');
+        const cell = (name) => row[header.indexOf(name)];
+        expect(cell('User ID')).toEqual(regularUser.id);
+        expect(cell('Body name')).toEqual('AEGEE-Example');
+        expect(cell('Email')).toEqual(regularUser.notification_email);
+        expect(cell('Status')).toEqual('accepted');
+        expect(cell('Confirmed')).toEqual('No');
+        expect(cell('Answer 1: Vegan?')).toEqual('Yes');
+        expect(cell('Answer 2: Why?')).toEqual('Because');
+    });
+
+    test('should return 500 if core cannot give an applicant', async () => {
+        mock.mockAll({ member: { unsuccessfulResponse: true } });
+        const event = await generator.createEvent({ questions: [] });
+        await generator.createApplication(event, { answers: [] });
+
+        const res = await request({
+            path: '/single/' + event.id + '/applications/export',
+            responseType: 'buffer',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
     });
 
     test('should return nothing if no applications', async () => {

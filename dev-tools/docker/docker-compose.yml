@@ -54,8 +54,9 @@ services:
     volumes:
       - ./discounts/openapi.yaml:/usr/share/nginx/html/specs/discounts.yaml:ro
       - ./network/openapi.yaml:/usr/share/nginx/html/specs/network.yaml:ro
+      - ./events/openapi.yaml:/usr/share/nginx/html/specs/events.yaml:ro
     environment:
-      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}]"
+      URLS: "[{url: './specs/discounts.yaml', name: 'discounts'}, {url: './specs/network.yaml', name: 'network'}, {url: './specs/events.yaml', name: 'events'}]"
     labels:
       - traefik.enable=true
       - traefik.backend=swagger

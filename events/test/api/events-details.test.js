@@ -2,6 +2,8 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const callers = require('../scripts/callers');
+const constants = require('../../lib/constants');
 
 describe('Events details', () => {
     beforeEach(async () => {
@@ -14,6 +16,64 @@ describe('Events details', () => {
         mock.cleanAll();
 
         await generator.clearAll();
+    });
+
+    const privateFields = ['budget', 'programme', 'deleted', 'organizers', 'is_european_event'];
+
+    it('should show every field of a draft to its organizer without permissions', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({ status: 'draft', organizers: [callers.organizer(callers.member)] });
+
+        const res = await request({ path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        for (const field of privateFields) expect(res.body.data).toHaveProperty(field);
+        expect(res.body.permissions.edit_event).toEqual(true);
+        expect(res.body.permissions.change_status).toEqual({ draft: false, published: false, submitted: true });
+    });
+
+    it('should show every field of a draft to an approver of its type', async () => {
+        callers.asMember(['global:approve_event:nwm']);
+        const event = await generator.createEvent({ status: 'draft', type: 'nwm' });
+
+        const res = await request({ path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        for (const field of privateFields) expect(res.body.data).toHaveProperty(field);
+        expect(res.body.permissions.edit_event).toEqual(false);
+    });
+
+    it('should not show a draft to an approver of another type', async () => {
+        callers.asMember(['global:approve_event:training']);
+        const event = await generator.createEvent({ status: 'draft', type: 'nwm' });
+
+        const res = await request({ path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should show the public fields and the permissions of a published event without a valid session', async () => {
+        callers.asAnonymous();
+        const event = await generator.createEvent({ status: 'published' });
+
+        const res = await request({ path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(Object.keys(res.body.data).sort()).toEqual([...constants.EVENT_PUBLIC_FIELDS].sort());
+        expect(res.body.permissions.see_event).toEqual(true);
+        expect(res.body.permissions.edit_event).toEqual(false);
+        expect(res.body.permissions.set_board_comment).toEqual({});
+    });
+
+    it('should show a deleted event to its organizer', async () => {
+        callers.asMember();
+        const event = await generator.createEvent({ status: 'published', deleted: true, organizers: [callers.organizer(callers.member)] });
+
+        const res = await request({ path: '/single/' + event.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.deleted).toEqual(true);
     });
 
     it('should return a single event on /single/<eventid> GET by ID', async () => {

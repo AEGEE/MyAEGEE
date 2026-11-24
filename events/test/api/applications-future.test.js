@@ -17,6 +17,36 @@ describe('Events future applications', () => {
         await generator.clearAll();
     });
 
+    it('should leave out rejected applications and events that started or are deleted', async () => {
+        mock.mockAll({ mainPermissions: { applicationBanPermission: true }, approvePermissions: { noPermissions: true } });
+        const future = {
+            application_starts: moment().subtract(1, 'week').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            starts: moment().add(1, 'month').toDate(),
+            ends: moment().add(1, 'month').add(1, 'day').toDate(),
+            status: 'published'
+        };
+        const kept = await generator.createEvent(future);
+        await generator.createApplication(kept, { user_id: user.id, status: 'accepted' });
+        const rejected = await generator.createEvent(future);
+        await generator.createApplication(rejected, { user_id: user.id, status: 'rejected' });
+        const deleted = await generator.createEvent({ ...future, deleted: true });
+        await generator.createApplication(deleted, { user_id: user.id, status: 'pending' });
+        const started = await generator.createEvent({
+            application_starts: moment().subtract(3, 'weeks').toDate(),
+            application_ends: moment().subtract(2, 'weeks').toDate(),
+            starts: moment().subtract(1, 'day').toDate(),
+            ends: moment().add(1, 'day').toDate(),
+            status: 'published'
+        });
+        await generator.createApplication(started, { user_id: user.id, status: 'accepted' });
+
+        const res = await request({ path: '/applications/future/' + user.id, headers: { 'X-Auth-Token': 'foobar' } });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.map((a) => a.event_id)).toEqual([kept.id]);
+    });
+
     it('should allow application ban managers to list future applications without event management permissions', async () => {
         mock.mockAll({ mainPermissions: { applicationBanPermission: true }, approvePermissions: { noPermissions: true } });
 

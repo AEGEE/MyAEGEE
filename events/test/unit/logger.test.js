@@ -14,3 +14,23 @@ describe('Logger', () => {
         expect(JSON.stringify(serialized)).not.toContain('error-log-marker-7f3a');
     });
 });
+
+describe('Logger level', () => {
+    const levelWith = (logger) => {
+        let level;
+        jest.isolateModules(() => {
+            const config = require('../../config'); // eslint-disable-line global-require
+            Object.assign(config.logger, logger);
+            level = require('../../lib/logger').level(); // eslint-disable-line global-require
+        });
+        return level;
+    };
+
+    test('logs nothing when silent', () => {
+        expect(levelWith({ silent: true })).toBeGreaterThan(60);
+    });
+
+    test('logs from the configured level otherwise', () => {
+        expect(levelWith({ silent: false, level: 'warn' })).toEqual(40);
+    });
+});
