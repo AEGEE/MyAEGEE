@@ -622,16 +622,135 @@ describe('Applications status changes', () => {
             expect(event.accepted_participants).toEqual(PARALLEL);
         });
 
+        // Waits until a transaction other than the test's holds the lock that a new row of
+        // another table takes on the events table (an application's event_id).
+        const untilEventsRowShared = async () => {
+            for (let tries = 0; tries < 100; tries++) {
+                const [[row]] = await sequelize.query("SELECT count(*)::int AS locks FROM pg_locks l JOIN pg_class c ON c.oid = l.relation WHERE c.relname = 'events' AND l.mode = 'RowShareLock' AND l.pid <> pg_backend_pid()");
+                if (row.locks > 0) {
+                    return;
+                }
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+            }
+            throw new Error('No transaction took the lock');
+        };
+
+        // Each decides from the application as it is once the other one is done: the second one
+        // finds the application taking a spot and the event full.
+        test.each(ROUNDS)('should refuse the second of an acceptance and a taken-back cancellation of one application on a full event (round %i)', async () => {
+            await generator.clearAll();
+            event = await generator.createEvent({ max_participants: 1, accepted_participants: 1 });
+            await generator.createApplication(event, { user_id: 10, status: 'accepted' });
+            const one = await generator.createApplication(event, { user_id: 11, status: 'pending', cancelled: true });
+
+            const t = await sequelize.transaction();
+            let results;
+            try {
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.NO_KEY_UPDATE });
+                const both = Promise.all([put('/status', { status: 'accepted' }, one.id), put('/cancelled', { cancelled: false }, one.id)]);
+                await new Promise((resolve) => { setTimeout(resolve, 300); });
+                await t.commit();
+                results = await both;
+            } catch (err) {
+                await t.rollback();
+                throw err;
+            }
+
+            expect(results.map((res) => res.statusCode).sort()).toEqual([200, 422]);
+            expect(await acceptedCount()).toEqual(1);
+            await event.reload();
+            expect(event.accepted_participants).toEqual(1);
+        });
+
+        // The confirmation and attendance wait for the status change as well, and decide from
+        // the application it left: a rejected application is neither confirmed nor attended.
+        test.each([
+            ['/attended', { attended: true }],
+            ['/confirmed', { confirmed: true }]
+        ])('should not leave a rejected application with PUT %s sent during the rejection', async (subpath, body) => {
+            await application.update({ status: 'accepted', confirmed: subpath === '/attended' });
+
+            const t = await sequelize.transaction();
+            let results;
+            try {
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.NO_KEY_UPDATE });
+                const rejecting = put('/status', { status: 'rejected' });
+                await new Promise((resolve) => { setTimeout(resolve, 150); });
+                const flagging = put(subpath, body);
+                await new Promise((resolve) => { setTimeout(resolve, 150); });
+                await t.commit();
+                results = await Promise.all([rejecting, flagging]);
+            } catch (err) {
+                await t.rollback();
+                throw err;
+            }
+
+            expect(results.map((res) => res.statusCode)).toEqual([200, 422]);
+            await application.reload();
+            expect(application.status).toEqual('rejected');
+            expect(application.confirmed).toEqual(false);
+            expect(application.attended).toEqual(false);
+        });
+
+        // The application is read again under the lock; the answer still has the applicant's
+        // details from core.
+        test.each([
+            ['/confirmed', { confirmed: true }],
+            ['/attended', { attended: false }],
+            ['/cancelled', { cancelled: true }],
+            ['/status', { status: 'accepted' }]
+        ])('PUT %s answers with the applicant\'s details from core', async (subpath, body) => {
+            await application.update({ status: 'accepted' });
+
+            const res = await put(subpath, body);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.notification_email).toEqual(coreUser.notification_email);
+            expect(res.body.data).toHaveProperty('gender');
+            expect(res.body.data).toHaveProperty('date_of_birth');
+        });
+
+        // A new application holds a lock on the event row until its mails are sent; changes of
+        // other applications do not wait for it.
+        test('should change an application while another member applies and the mailer is slow', async () => {
+            const lockTimeout = config.lock_timeout;
+            config.lock_timeout = 300;
+            mockAndCapture({ mailer: { delay: 1000 } });
+            try {
+                event = await generator.createEvent({ organizers: generator.generateOrganizers(9999), max_participants: 20, accepted_participants: 0 });
+                const other = await generator.createApplication(event, { user_id: 10 });
+
+                const applying = request({
+                    path: '/single/' + event.id + '/applications',
+                    method: 'POST',
+                    headers: { 'X-Auth-Token': 'foobar' },
+                    body: generator.generateApplicationBody(event, { body_id: 34 })
+                });
+                await untilEventsRowShared();
+
+                const res = await put('/status', { status: 'accepted' }, other.id);
+
+                expect(res.statusCode).toEqual(200);
+                expect((await applying).statusCode).toEqual(200);
+                await event.reload();
+                expect(event.accepted_participants).toEqual(1);
+            } finally {
+                config.lock_timeout = lockTimeout;
+            }
+        });
+
         test.each([
             ['/status', { status: 'accepted' }],
-            ['/cancelled', { cancelled: true }]
+            ['/cancelled', { cancelled: true }],
+            ['/confirmed', { confirmed: false }],
+            ['/attended', { attended: false }]
         ])('PUT %s should answer 503 and change nothing while another change holds the event', async (subpath, body) => {
             const lockTimeout = config.lock_timeout;
             config.lock_timeout = 100;
 
             const t = await sequelize.transaction();
             try {
-                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.UPDATE });
+                await Event.findByPk(event.id, { transaction: t, lock: t.LOCK.NO_KEY_UPDATE });
 
                 const res = await put(subpath, body);
 

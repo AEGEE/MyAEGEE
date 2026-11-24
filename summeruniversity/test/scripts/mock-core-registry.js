@@ -18,11 +18,17 @@ exports.cleanAll = () => nock.cleanAll();
 // - notFound / forbidden: HTTP 404 / 403 with { success: false } (core's answers for an unknown or a deleted body)
 // - noPermissions: HTTP 200 with an empty data array (permission endpoints)
 // - data: HTTP 200 with { success: true, data } (custom payload)
+// - delay: answer after this many milliseconds
 // Otherwise the default reply is used.
 const intercept = (baseUrl, method, endpoint, options, defaultReply) => {
     let interceptor = nock(baseUrl).persist()[method](endpoint);
     if (endpoint instanceof RegExp) {
         interceptor = interceptor.query(true);
+    }
+
+    // Answers after this many milliseconds, e.g. a slow mailer.
+    if (options.delay) {
+        interceptor = interceptor.delay(options.delay);
     }
 
     if (options.netError) {
