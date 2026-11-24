@@ -116,9 +116,14 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(this.services['core'] + '/campaigns/' + this.$route.params.id).then(() => {
+      // A campaign of a body is deleted through that body.
+      const url = this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
+        : this.services['core'] + '/campaigns/' + this.$route.params.id
+
+      this.axios.delete(url).then(() => {
         this.$root.showSuccess('Campaign is deleted.')
-        this.$router.push({ name: 'oms.campaigns.list' })
+        this.$router.push(this.listRoute)
       }).catch((err) => this.$root.showError('Could not delete campaign', err))
     }
   },
@@ -158,6 +163,13 @@ export default {
     })
   },
   computed: {
+    // Where the member goes when the campaign is gone: the campaigns of the body of the page, or
+    // all campaigns.
+    listRoute () {
+      return this.$route.params.body_id
+        ? { name: 'oms.bodies.campaigns', params: { id: this.$route.params.body_id } }
+        : { name: 'oms.campaigns.list' }
+    },
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
