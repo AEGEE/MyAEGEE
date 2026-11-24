@@ -31,7 +31,7 @@
                   @click="exportAll()"
                   class="button is-primary"
                   :class="{ 'is-loading': isExporting }"
-                  :disabled="isExporting">
+                  :disabled="isExporting || filterKeys().length === 0">
                   Export candidates data
                 </button>
               </div>
