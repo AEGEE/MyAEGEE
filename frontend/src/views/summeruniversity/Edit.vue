@@ -486,7 +486,7 @@
             :loading="isLoading">
             <b-table-column field="first_name" label="First and last name" sortable v-slot="props">
               <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                {{ props.row.first_name }} {{ props.row.last_name }}
+                {{ organizerName(props.row) }}
               </router-link>
             </b-table-column>
 
@@ -921,9 +921,9 @@ export default {
         last_name: organizer.last_name
       })
     },
-    // The name of an organiser for the labels of their row, once core has given it.
+    // The name of an organiser, once core has given it, and otherwise their user id.
     organizerName (organizer) {
-      return [organizer.first_name, organizer.last_name].filter(Boolean).join(' ')
+      return [organizer.first_name, organizer.last_name].filter(Boolean).join(' ') || 'Member ' + organizer.user_id
     },
     deleteOrganizer (index) {
       this.event.organizers.splice(index, 1)
@@ -1177,7 +1177,7 @@ export default {
           this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
             this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
             this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
-          })
+          }).catch((err) => this.$root.showError('Could not fetch an organiser', err))
 
           if (this.loginUser.id === organizer.user_id) {
             this.$set(organizer, 'disableEdit', true)
