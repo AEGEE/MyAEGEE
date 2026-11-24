@@ -202,6 +202,16 @@ test.describe('member page', () => {
         await expect(page.getByRole('link', { name: 'Change password' })).toBeVisible();
     });
 
+    test('members who may suspend others get no button to suspend themselves', async ({ page, api, me }) => {
+        // Core refuses it: "You cannot suspend yourself."
+        showMember(api, me, me!, { global: [...SUSPEND] }, 'me');
+
+        await page.goto('/members/me');
+
+        await expect(page.getByRole('link', { name: 'Change password' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Suspend user' })).toHaveCount(0);
+    });
+
     test('an empty Workspace account gives no primary email choice', async ({ page, api, me }) => {
         me!.gsuite_id = '';
         showMember(api, me, me!, {}, 'me');
@@ -558,6 +568,17 @@ test.describe('member page', () => {
             await expect(page.getByText(message)).toBeVisible();
             await page.getByRole('button', { name: 'Close' }).click();
             await expect(page.getByText(message)).toHaveCount(0);
+        });
+
+        test('an email change whose mail could not be sent says so', async ({ page, api, me }) => {
+            showMember(api, me, ALEX(), { global: ['global:update:member'] });
+            api.on('PUT core /members/:id/email', { status: 503, json: { success: false, message: 'The mail could not be sent, so nothing was saved. Please try again later.' } });
+            await page.goto('/members/alex.member');
+
+            await askChange(page, 'alex.new@example.org');
+
+            await expect(toast(page, /The mail could not be sent, so nothing was saved\. Please try again later\./)).toBeVisible();
+            expect(api.callsTo('PUT core /members/:id/email').map((call) => call.body)).toEqual([{ new_email: 'alex.new@example.org' }]);
         });
 
         test('the own email change gets the general message when the server sends none', async ({ page, api, me }) => {
