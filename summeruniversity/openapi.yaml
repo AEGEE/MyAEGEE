@@ -952,6 +952,23 @@ components:
         description: {type: string, description: The question.}
         required: {type: boolean, description: Whether the frontend asks for an answer.}
       additionalProperties: false
+    SocialMediumInput:
+      description: A social media entry as sent. Keys other than name and description are dropped.
+      type: object
+      required: [description]
+      properties:
+        name: {type: string}
+        description: {type: string}
+      additionalProperties: true
+    QuestionInput:
+      description: A question as sent. Keys other than name, description and required are dropped.
+      type: object
+      required: [description]
+      properties:
+        name: {type: string}
+        description: {type: string}
+        required: {type: boolean}
+      additionalProperties: true
     Answer:
       description: The answer to the question at the same place in the Summer University's questions.
       type: string
@@ -1588,8 +1605,8 @@ components:
         organizing_bodies: {type: array}
         cooperation: {type: [array, 'null']}
         organizers: {type: array}
-        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/Question'}}
-        social_media: {type: [array, 'null'], items: {$ref: '#/components/schemas/SocialMedium'}}
+        questions: {type: [array, 'null'], items: {$ref: '#/components/schemas/QuestionInput'}}
+        social_media: {type: [array, 'null'], items: {$ref: '#/components/schemas/SocialMediumInput'}}
         photos: {type: [array, 'null']}
         learning_objectives: {type: [array, 'null']}
         max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}

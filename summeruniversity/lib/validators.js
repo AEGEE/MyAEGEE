@@ -67,10 +67,28 @@ function isList(msg) {
     };
 }
 
-// Whether every key of the object is one of `types` and has that type ('string', 'boolean').
-const hasOnly = (object, types) => Object.entries(object)
-    // eslint-disable-next-line valid-typeof -- the types are typeof names
-    .every(([key, value]) => Object.prototype.hasOwnProperty.call(types, key) && typeof value === types[key]);
+const isPlainObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// Keeps only the given keys of a plain object; anything else is returned as it is, for the
+// validators to refuse.
+function pickKeys(value, keys) {
+    if (!isPlainObject(value)) {
+        return value;
+    }
+
+    return Object.fromEntries(keys
+        .filter((key) => Object.prototype.hasOwnProperty.call(value, key))
+        .map((key) => [key, value[key]]));
+}
+
+// The setter of a JSONB list of objects: each entry that is a plain object keeps only the
+// given keys (the forms and older versions add keys of their own); anything else is stored as
+// sent, for the validators to refuse.
+function listOfKeysSetter(field, keys) {
+    return function setListOfKeys(value) {
+        this.setDataValue(field, Array.isArray(value) ? value.map((entry) => pickKeys(entry, keys)) : value);
+    };
+}
 
 // The most digits after the decimal point that a Postgres NUMERIC without a precision keeps.
 const DECIMAL_SCALE_MAX = 16383;
@@ -131,5 +149,17 @@ function isDate(msg) {
 }
 
 module.exports = {
-    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
+    isOneOf,
+    isInteger,
+    plainSetter,
+    isBoolean,
+    isText,
+    isDecimal,
+    isList,
+    isPlainObject,
+    pickKeys,
+    listOfKeysSetter,
+    dateSetter,
+    isDate,
+    areDates
 };

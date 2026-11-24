@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const { isWebLink } = require('../lib/links');
 const {
-    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, hasOnly, dateSetter, isDate, areDates
+    isOneOf, isInteger, plainSetter, isBoolean, isText, isDecimal, isList, isPlainObject, listOfKeysSetter, dateSetter, isDate, areDates
 } = require('../lib/validators');
 
 // Every STRING column is a varchar(255): longer values are a validation error, not a database error.
@@ -133,6 +133,8 @@ const Event = sequelize.define(
         // TODO: change this to an array of strings since we do not store anything else than the URL itself
             type: Sequelize.JSONB,
             allowNull: true,
+            // The frontend sends a name (left empty) next to the link; other keys are dropped.
+            set: listOfKeysSetter('social_media', ['name', 'description']),
             validate: {
                 isValid(socialMedia) {
                     if (socialMedia === null || socialMedia === undefined) {
@@ -147,18 +149,23 @@ const Event = sequelize.define(
                         throw new Error('At most 3 social media links can be set.');
                     }
 
-                    for (const medium of socialMedia) {
-                        if (!medium || typeof medium.description !== 'string' || medium.description.trim() === '') {
+                    socialMedia.forEach((medium, index) => {
+                        const entry = `Social media entry ${index + 1}`;
+                        if (!isPlainObject(medium) || medium.description === undefined
+                            || (typeof medium.description === 'string' && medium.description.trim() === '')) {
                             throw new Error('Every social media entry should have a link.');
                         }
 
-                        // The frontend sends a name (left empty) next to the link.
-                        if (!hasOnly(medium, { name: 'string', description: 'string' })) {
-                            throw new Error('A social media entry can only have a name (text) and a description (the link).');
+                        if (typeof medium.description !== 'string') {
+                            throw new Error(`${entry}: the link should be a text.`);
+                        }
+
+                        if (medium.name !== undefined && typeof medium.name !== 'string') {
+                            throw new Error(`${entry}: the name should be a text.`);
                         }
 
                         isWebLink(medium.description);
-                    }
+                    });
                 }
             }
         },
@@ -441,6 +448,9 @@ const Event = sequelize.define(
             type: Sequelize.JSONB,
             allowNull: true,
             defaultValue: [],
+            // The frontend sends a name (left empty) and whether an answer is required; other keys
+            // (older Summer Universities hold a type) are dropped.
+            set: listOfKeysSetter('questions', ['name', 'description', 'required']),
             validate: {
             // TODO: validate for maximum of 3 questions
                 isValid(value) {
@@ -448,15 +458,25 @@ const Event = sequelize.define(
                         throw new Error('Event questions should be a list.');
                     }
 
-                    // The applications export reads the description of every question.
-                    if (!value.every((question) => typeof question === 'object' && question !== null && typeof question.description === 'string')) {
-                        throw new Error('Every question should have a description.');
-                    }
+                    value.forEach((question, index) => {
+                        const entry = `Question ${index + 1}`;
+                        // The applications export reads the description of every question.
+                        if (!isPlainObject(question) || question.description === undefined) {
+                            throw new Error('Every question should have a description.');
+                        }
 
-                    // The frontend sends a name (left empty) and whether an answer is required.
-                    if (!value.every((question) => hasOnly(question, { name: 'string', description: 'string', required: 'boolean' }))) {
-                        throw new Error('A question can only have a name (text), a description (text) and required (true or false).');
-                    }
+                        if (typeof question.description !== 'string') {
+                            throw new Error(`${entry}: the description should be a text.`);
+                        }
+
+                        if (question.name !== undefined && typeof question.name !== 'string') {
+                            throw new Error(`${entry}: the name should be a text.`);
+                        }
+
+                        if (question.required !== undefined && typeof question.required !== 'boolean') {
+                            throw new Error(`${entry}: required should be true or false.`);
+                        }
+                    });
                 }
             }
         },
