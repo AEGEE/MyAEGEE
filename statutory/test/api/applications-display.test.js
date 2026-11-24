@@ -68,10 +68,13 @@ describe('Applications displaying', () => {
     });
 
     test('should return editable bodies for the application owner instead of the logged-in user', async () => {
+        // A body as core sends it with a member, of which only the id, name, type and code are passed on.
         const applicantBody = {
+            ...regularUser.bodies[0],
             id: 777,
             name: 'AEGEE-Test',
-            type: 'antenna'
+            type: 'antenna',
+            code: 'TST'
         };
         const applicantUser = {
             ...regularUser,
@@ -98,7 +101,8 @@ describe('Applications displaying', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data.editable_bodies).toEqual([applicantBody]);
+        expect(res.body.data.editable_bodies).toEqual([{ id: 777, name: 'AEGEE-Test', type: 'antenna', code: 'TST' }]);
+        expect(Object.keys(res.body.data.editable_bodies[0]).sort()).toEqual(['code', 'id', 'name', 'type']);
     });
 
     test('should succeed for those who has permissions to see applications', async () => {
