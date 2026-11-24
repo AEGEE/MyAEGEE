@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 const logger = require('./logger');
 const { Sequelize } = require('./sequelize');
 const constants = require('./constants');
-const { Event, Application, Image, PaxLimit } = require('../models');
+const { Event, Application, Image, PaxLimit, MembersList } = require('../models');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
 const cron = require('./cron');
@@ -350,6 +350,12 @@ exports.errorHandler = (err, req, res, next) => {
     // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
+    }
+
+    // The currency rates server did not answer in time or failed: nothing was saved.
+    if (err instanceof MembersList.RatesUnavailable) {
+        logger.warn({ err }, 'Could not fetch the currency rates');
+        return errors.makeServiceUnavailableError(res, 'The currency rates could not be fetched, so nothing was saved. Please try again later.');
     }
 
     // A lock that other requests held for longer than the lock timeout: nothing was changed.

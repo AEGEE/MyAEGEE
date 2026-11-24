@@ -141,15 +141,25 @@ exports.uploadMembersList = async (req, res) => {
         body_id: req.params.body_id
     } });
 
+    // The conversion rate of the currency the list will have, fetched before the transaction
+    // starts: no database connection waits for the rates server. A currency that is no text
+    // is refused by the validation, before the rate would be needed.
+    const fetchRate = (currency) => (typeof currency === 'string' && currency !== ''
+        ? MembersList.fetchConversionRate(currency)
+        : undefined);
+
     if (existingMembersList) {
         if (!req.permissions.edit_memberslist.global && !req.permissions.edit_memberslist[req.params.body_id]) {
             return errors.makeForbiddenError(res, 'You are not allowed to edit memberslist.');
         }
 
+        // An edit without a currency keeps the stored one.
+        const conversionRate = await fetchRate(req.body.currency === undefined ? existingMembersList.currency : req.body.currency);
+
         // The members list and the votes of the body change together, or not at all.
         // returning: the answer has the values as they were stored, not as they were sent.
         const result = await sequelize.transaction(async (t) => {
-            const updated = await existingMembersList.update(req.body, { returning: true, transaction: t });
+            const updated = await existingMembersList.update(req.body, { returning: true, transaction: t, conversionRate });
             await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
             return updated;
         });
@@ -176,9 +186,11 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
+    const conversionRate = await fetchRate(req.body.currency);
+
     // The members list and the votes of the body change together, or not at all.
     const newMembersList = await sequelize.transaction(async (t) => {
-        const created = await MembersList.create(req.body, { transaction: t });
+        const created = await MembersList.create(req.body, { transaction: t, conversionRate });
         await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
         return created;
     });

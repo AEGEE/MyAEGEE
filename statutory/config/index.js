@@ -38,7 +38,9 @@ const config = {
         // The monthly currency conversion rates of the European Commission, which
         // memberslist fees are converted to euro with.
         conversion_rate_api: {
-            host: process.env.CONVERSION_RATE_API_HOST || 'https://ec.europa.eu'
+            host: process.env.CONVERSION_RATE_API_HOST || 'https://ec.europa.eu',
+            // Milliseconds to wait for the rates.
+            timeout: 10000
         },
         logger: {
             silent: false,

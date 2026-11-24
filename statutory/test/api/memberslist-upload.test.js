@@ -1180,7 +1180,7 @@ describe('Memberslist uploading', () => {
             expect(memberslistFromDb.currency).toEqual('EU');
         });
 
-        test('should return 500 on conversion rate API\'s net error ', async () => {
+        test('should return 503 on conversion rate API\'s net error', async () => {
             mock.mockAll({ conversion: { netError: true } });
 
             const event = await generator.createEvent({
@@ -1197,13 +1197,13 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'HU' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
             expect(res.body).toHaveProperty('message');
         });
 
-        test('should return 500 on conversion rate API\'s bad response ', async () => {
+        test('should return 503 on conversion rate API\'s bad response', async () => {
             mock.mockAll({ conversion: { badResponse: true } });
 
             const event = await generator.createEvent({
@@ -1220,7 +1220,7 @@ describe('Memberslist uploading', () => {
                 body: generator.generateMembersList({ currency: 'HU' }, event)
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
             expect(res.body.success).toEqual(false);
             expect(res.body).not.toHaveProperty('data');
             expect(res.body).toHaveProperty('message');
