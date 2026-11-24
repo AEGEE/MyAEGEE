@@ -9,8 +9,9 @@ const { Application, VotesPerAntenna, PaxLimit, Event } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const getQuorumStats = require('./quorum');
-const { sequelize, Sequelize } = require('./sequelize');
+const { Sequelize } = require('./sequelize');
 const logger = require('./logger');
+const locks = require('./locks');
 
 async function getEditableBodiesForUser(req, user) {
     const limits = await Promise.all(
@@ -515,7 +516,7 @@ exports.updateApplication = async (req, res) => {
 
     // The edit and the votes per delegate of the old and the new body change together.
     // returning: the answer has the values as they were stored, not as they were sent.
-    await sequelize.transaction(async (t) => {
+    await locks.transaction(async (t) => {
         await req.application.update(fields, { transaction: t, returning: true });
 
         // The votes of the two bodies are locked in the order of their ids, as by every request,
@@ -586,7 +587,7 @@ function setApplicationBoolean(key) {
         toUpdate[key] = req.body[key];
 
         // The flag and the votes per delegate for this antenna change together, or not at all.
-        const dbResult = await sequelize.transaction(async (t) => {
+        const dbResult = await locks.transaction(async (t) => {
             const updated = await req.application.update(
                 toUpdate,
                 { returning: ['*'], hooks: false, transaction: t }
@@ -625,7 +626,7 @@ exports.setApplicationStatus = async (req, res) => {
     }
 
     // The status and the votes per delegate for this antenna change together, or not at all.
-    const dbResult = await sequelize.transaction(async (t) => {
+    const dbResult = await locks.transaction(async (t) => {
         const updated = await req.application.update(
             { status: req.body.status },
             { returning: ['*'], transaction: t }
@@ -677,7 +678,7 @@ exports.setApplicationBoard = async (req, res) => {
     // about validations, they'll fail the transaction.
     let application;
     try {
-        application = await sequelize.transaction(async (t) => {
+        application = await locks.transaction(async (t) => {
             // First, saving the application.
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
@@ -761,7 +762,7 @@ exports.setBoardForBody = async (req, res) => {
 
     // Same as in above.
     try {
-        await sequelize.transaction(async (t) => {
+        await locks.transaction(async (t) => {
             // First, resetting all applications' pax type, order and board comment.
             // (will re-set them later).
             await Application.update(
@@ -880,7 +881,7 @@ exports.postApplication = async (req, res) => {
     fields.date_of_birth = req.user.date_of_birth;
 
     // In a transaction for the lock of the statutory ID (see the model).
-    const newApplication = await sequelize.transaction((t) => Application.create(fields, { transaction: t }));
+    const newApplication = await locks.transaction((t) => Application.create(fields, { transaction: t }));
 
     // We don't need to recalculate the votes amount, as the pax type is not set here.
 

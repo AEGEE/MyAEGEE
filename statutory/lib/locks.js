@@ -8,6 +8,13 @@ exports.limitLockWait = (transaction) => sequelize.query(
     { transaction }
 );
 
+// A transaction whose waits for locks (rows it changes, the locks it takes) are limited from
+// its first query on.
+exports.transaction = (work) => sequelize.transaction(async (t) => {
+    await exports.limitLockWait(t);
+    return work(t);
+});
+
 // Postgres answers lock_not_available (55P03) when the lock timeout runs out, and
 // deadlock_detected (40P01) when it ends a wait that would never end. Either way the
 // transaction was rolled back and nothing was changed.

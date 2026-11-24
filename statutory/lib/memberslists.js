@@ -7,7 +7,7 @@ const config = require('../config');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { MembersList, VotesPerAntenna } = require('../models');
-const { sequelize } = require('./sequelize');
+const locks = require('./locks');
 
 exports.checkIfAgora = async (req, res, next) => {
     if (req.event.type !== 'agora') {
@@ -158,7 +158,7 @@ exports.uploadMembersList = async (req, res) => {
 
         // The members list and the votes of the body change together, or not at all.
         // returning: the answer has the values as they were stored, not as they were sent.
-        const result = await sequelize.transaction(async (t) => {
+        const result = await locks.transaction(async (t) => {
             const updated = await existingMembersList.update(req.body, { returning: true, transaction: t, conversionRate });
             await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
             return updated;
@@ -189,7 +189,7 @@ exports.uploadMembersList = async (req, res) => {
     const conversionRate = await fetchRate(req.body.currency);
 
     // The members list and the votes of the body change together, or not at all.
-    const newMembersList = await sequelize.transaction(async (t) => {
+    const newMembersList = await locks.transaction(async (t) => {
         const created = await MembersList.create(req.body, { transaction: t, conversionRate });
         await VotesPerAntenna.recalculateVotesForAntenna(body, req.event, t);
         return created;
