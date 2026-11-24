@@ -41,6 +41,8 @@
             <input id="season-application-period-ends" class="input" type="datetime-local" v-model="dates.application_period_ends" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
+          <!-- The check that the period ends after it starts is on the season, not on one field. -->
+          <p class="help is-danger" v-if="errors.applicationPeriodOrder">{{ errors.applicationPeriodOrder.join(', ') }}</p>
         </div>
 
         <timezone-notification />
