@@ -296,6 +296,7 @@
             v-if="this.event.locations.length > 0"
           >
             <MglMap
+              :mapboxGl="mapboxgl"
               id="map"
               :accessToken="accessToken"
               :mapStyle="map.style"
@@ -328,6 +329,7 @@
 <script>
 import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
+import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
@@ -571,6 +573,11 @@ export default {
       })
   },
   computed: {
+    // vue-mapbox loads mapbox-gl on demand unless it is given: a map taken away before that had
+    // loaded threw when it arrived.
+    mapboxgl () {
+      return mapboxgl
+    },
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
