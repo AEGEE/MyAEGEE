@@ -134,6 +134,41 @@ describe('Locks', () => {
         }, 20000);
     });
 
+    describe('two bodies at once', () => {
+        test('applications that move between two bodies in opposite directions at the same time all answer 200', async () => {
+            // The lock timeout of production: with a shorter one the waits end before Postgres
+            // looks for deadlocks.
+            const lockTimeout = config.postgres.lock_timeout;
+            config.postgres.lock_timeout = 5000;
+
+            try {
+                const [first, second] = regularUser.bodies.map((body) => body.id);
+                const event = await generator.createEvent({ type: 'agora', applications: [] });
+                for (const bodyId of [first, second]) {
+                    await generator.createPaxLimit({ body_id: bodyId, event_type: 'agora' });
+                    await VotesPerAntenna.create({ event_id: event.id, body_id: bodyId, votes: 2 });
+                }
+
+                for (let round = 0; round < 10; round++) {
+                    await Application.destroy({ where: {} });
+                    const fromFirst = await generator.createApplication({ user_id: 1001, body_id: first, participant_type: null, participant_order: null }, event);
+                    const fromSecond = await generator.createApplication({ user_id: 1002, body_id: second, participant_type: null, participant_order: null }, event);
+
+                    const responses = await Promise.all([[fromFirst, second], [fromSecond, first]].map(([application, bodyId]) => request({
+                        path: '/events/' + event.id + '/applications/' + application.id,
+                        method: 'PUT',
+                        headers: { 'X-Auth-Token': 'blablabla' },
+                        body: { body_id: bodyId }
+                    })));
+
+                    expect({ round, statuses: responses.map((res) => res.statusCode) }).toEqual({ round, statuses: [200, 200] });
+                }
+            } finally {
+                config.postgres.lock_timeout = lockTimeout;
+            }
+        }, 60000);
+    });
+
     describe('the votes of a body after its members list', () => {
         test.each([
             ['a first members list', false],
