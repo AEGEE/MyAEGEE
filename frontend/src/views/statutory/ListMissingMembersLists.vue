@@ -2,25 +2,27 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">List all missing memberslists for {{ event.name }}</h4>
+        <h1 class="title">List all missing memberslists for {{ event.name }}</h1>
 
-        <b-table
-          :data="memberslists"
-          :loading="isLoading">
-          <b-table-column field="body_name" label="Body name" sortable v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-              {{ props.row.body ? props.row.body.name : 'Loading...' }}
-            </router-link>
-          </b-table-column>
+        <section aria-label="Missing members lists" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="memberslists"
+            :loading="isLoading">
+            <b-table-column field="body_name" label="Body name" sortable v-slot="props">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                {{ props.row.body ? props.row.body.name : 'Loading...' }}
+              </router-link>
+            </b-table-column>
 
-          <b-table-column field="type" label="Type" sortable v-slot="props">
-            {{ props.row.type | capitalize }}
-          </b-table-column>
+            <b-table-column field="type" label="Type" sortable v-slot="props">
+              {{ props.row.type | capitalize }}
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </article>
     </div>
   </div>
