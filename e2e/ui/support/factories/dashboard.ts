@@ -1,7 +1,9 @@
 // Factories for what the dashboard and the events calendar read from events, statutory and
 // summeruniversity. Only these pages read these answers (the member's applied events, the latest
 // statutory event and the calendar's lists), so they are kept here rather than in the files of
-// those areas. See base.ts for the rules.
+// those areas. Their names start with `dashboard` where the statutory and summeruniversity areas
+// have (or will have) a factory of the same entity under the plain name: factory names are unique
+// across all files. See base.ts for the rules.
 import { id, iso } from './base.ts';
 import { eventSummary, type EventSummary } from './events.ts';
 
@@ -26,7 +28,7 @@ export type StatutoryType = 'agora' | 'epm' | 'spm';
 
 // A published statutory event as `GET statutory /` lists it: every column of the model and its
 // computed flags. By default an Agora that is open for applications.
-export interface StatutoryEvent {
+export interface DashboardStatutoryEvent {
     id: number;
     name: string;
     url: string;
@@ -52,7 +54,7 @@ export interface StatutoryEvent {
     updated_at: string;
 }
 
-export const statutoryEvent = (overrides: Partial<StatutoryEvent> = {}): StatutoryEvent => {
+export const dashboardStatutoryEvent = (overrides: Partial<DashboardStatutoryEvent> = {}): DashboardStatutoryEvent => {
     const eventId = overrides.id ?? id();
     return {
         id: eventId,
@@ -84,7 +86,7 @@ export const statutoryEvent = (overrides: Partial<StatutoryEvent> = {}): Statuto
 
 // What statutory says the member may do with an event (`permissions` of
 // `GET statutory /events/:id`), here for a member who may apply and nothing else.
-export interface StatutoryPermissions {
+export interface DashboardStatutoryPermissions {
     edit_event: boolean;
     change_event_status: boolean;
     delete_event: boolean;
@@ -97,7 +99,7 @@ export interface StatutoryPermissions {
     see_participants_list: boolean;
 }
 
-export const statutoryPermissions = (overrides: Partial<StatutoryPermissions> = {}): StatutoryPermissions => ({
+export const dashboardStatutoryPermissions = (overrides: Partial<DashboardStatutoryPermissions> = {}): DashboardStatutoryPermissions => ({
     edit_event: false,
     change_event_status: false,
     delete_event: false,
@@ -113,24 +115,24 @@ export const statutoryPermissions = (overrides: Partial<StatutoryPermissions> = 
 
 // `GET statutory /events/latest`: the published statutory event that starts last, with what
 // the member may do with it.
-export interface LatestStatutoryEvent extends StatutoryEvent {
-    permissions: StatutoryPermissions;
+export interface LatestStatutoryEvent extends DashboardStatutoryEvent {
+    permissions: DashboardStatutoryPermissions;
 }
 
 export const latestStatutoryEvent = (overrides: Partial<LatestStatutoryEvent> = {}): LatestStatutoryEvent => {
     const { permissions, ...fields } = overrides;
-    return { ...statutoryEvent(fields), permissions: permissions ?? statutoryPermissions() };
+    return { ...dashboardStatutoryEvent(fields), permissions: permissions ?? dashboardStatutoryPermissions() };
 };
 
 // An event of `GET statutory /mine`: the event, and the member's application.
-export interface AppliedStatutoryEvent extends StatutoryEvent {
+export interface AppliedStatutoryEvent extends DashboardStatutoryEvent {
     applications: { user_id: number; cancelled: boolean; status: 'pending' | 'accepted' | 'rejected' }[];
 }
 
 export const appliedStatutoryEvent = (overrides: Partial<AppliedStatutoryEvent> = {}): AppliedStatutoryEvent => {
     const { applications, ...fields } = overrides;
     return {
-        ...statutoryEvent(fields),
+        ...dashboardStatutoryEvent(fields),
         applications: applications ?? [{ user_id: 2, cancelled: false, status: 'pending' }]
     };
 };
@@ -140,7 +142,7 @@ export type SummerUniversityType = 'regular' | 'pilot';
 // A Summer University with the fields that are public once it is published
 // (EVENT_MINIMAL_FIELDS in summeruniversity/lib/constants.js): what `GET summeruniversity /`
 // lists for most of them.
-export interface SummerUniversity {
+export interface DashboardSummerUniversity {
     id: number;
     name: string;
     // Not required before the Summer University is published.
@@ -167,7 +169,7 @@ export interface SummerUniversity {
     updated_at: string;
 }
 
-export const summerUniversity = (overrides: Partial<SummerUniversity> = {}): SummerUniversity => {
+export const dashboardSummerUniversity = (overrides: Partial<DashboardSummerUniversity> = {}): DashboardSummerUniversity => {
     const eventId = overrides.id ?? id();
     return {
         id: eventId,
@@ -199,14 +201,14 @@ export const summerUniversity = (overrides: Partial<SummerUniversity> = {}): Sum
 
 // An event of `GET summeruniversity /mine/participating`: the public fields, and the member's
 // application (without `cancelled`, which summeruniversity doesn't send here).
-export interface AppliedSummerUniversity extends SummerUniversity {
+export interface AppliedSummerUniversity extends DashboardSummerUniversity {
     applications: { user_id: number; status: 'pending' | 'accepted' | 'rejected' }[];
 }
 
 export const appliedSummerUniversity = (overrides: Partial<AppliedSummerUniversity> = {}): AppliedSummerUniversity => {
     const { applications, ...fields } = overrides;
     return {
-        ...summerUniversity(fields),
+        ...dashboardSummerUniversity(fields),
         applications: applications ?? [{ user_id: 2, status: 'pending' }]
     };
 };

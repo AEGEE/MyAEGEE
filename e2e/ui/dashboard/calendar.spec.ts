@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 
 import { ok } from '../support/factories/base.ts';
 import { eventSummary } from '../support/factories/events.ts';
-import { ics, statutoryEvent, summerUniversity, type IcsEvent } from '../support/factories/dashboard.ts';
+import { ics, dashboardStatutoryEvent, dashboardSummerUniversity, type IcsEvent } from '../support/factories/dashboard.ts';
 import type { ApiMock } from '../support/api-mock.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { dialog, freezeTime, toast } from '../support/shell.ts';
@@ -25,10 +25,10 @@ const answerAll = (api: ApiMock, online: IcsEvent[] = [workshop]): void => {
     ]));
     api.json('GET summeruniversity /', ok([
         // Without a URL the link uses the id.
-        summerUniversity({ id: 77, name: 'Summer University Lisbon', url: null, starts: '2027-03-16T08:00:00Z', ends: '2027-03-18T16:00:00Z' })
+        dashboardSummerUniversity({ id: 77, name: 'Summer University Lisbon', url: null, starts: '2027-03-16T08:00:00Z', ends: '2027-03-18T16:00:00Z' })
     ]));
     api.json('GET statutory /', ok([
-        statutoryEvent({ id: 21, name: 'Agora Utrecht', url: 'agora-utrecht', starts: '2027-03-23T08:00:00Z', ends: '2027-03-25T16:00:00Z' })
+        dashboardStatutoryEvent({ id: 21, name: 'Agora Utrecht', url: 'agora-utrecht', starts: '2027-03-23T08:00:00Z', ends: '2027-03-25T16:00:00Z' })
     ]));
     api.url('GET', ONLINE, { body: ics(online), contentType: 'text/calendar' });
 };

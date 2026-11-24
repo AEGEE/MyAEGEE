@@ -7,7 +7,7 @@ import { expectShape } from '../support/contract.ts';
 import type { TestAntenna } from '../support/core-data.ts';
 import { asAdmin, uploadPicture } from '../support/core-data.ts';
 import {
-    appliedEvent, appliedStatutoryEvent, appliedSummerUniversity, latestStatutoryEvent, statutoryEvent, statutoryPermissions, summerUniversity
+    appliedEvent, appliedStatutoryEvent, appliedSummerUniversity, latestStatutoryEvent, dashboardStatutoryEvent, dashboardStatutoryPermissions, dashboardSummerUniversity
 } from '../ui/support/factories/dashboard.ts';
 
 type Row = Record<string, unknown> & { id: number };
@@ -117,7 +117,7 @@ test.describe('dashboard factories match the real API', () => {
             // The calendar's list.
             const list = await api.call<Envelope<Row[]>>(null, 'GET', '/api/summeruniversity/');
             expectStatus(list, 200);
-            expectShape('summerUniversity', summerUniversity({ ...filled, published: 'full' }), list.body.data.find((item) => item.id === suId));
+            expectShape('dashboardSummerUniversity', dashboardSummerUniversity({ ...filled, published: 'full' }), list.body.data.find((item) => item.id === suId));
         } finally {
             expectStatus(await api.call('admin', 'DELETE', `/api/summeruniversity/single/${suId}`), 200);
         }
@@ -129,12 +129,12 @@ test.describe('dashboard factories match the real API', () => {
 
         const list = await api.call<Envelope<Row[]>>(null, 'GET', '/api/statutory/');
         expectStatus(list, 200);
-        expectShape('statutoryEvent', statutoryEvent(), list.body.data.find((item) => item.id === agora.id));
+        expectShape('dashboardStatutoryEvent', dashboardStatutoryEvent(), list.body.data.find((item) => item.id === agora.id));
 
         const latest = await api.call<Envelope<Row & { permissions: unknown }>>('member', 'GET', '/api/statutory/events/latest');
         expectStatus(latest, 200);
         expect(latest.body.data.status).toBe('published');
         expectShape('latestStatutoryEvent', latestStatutoryEvent(), latest.body.data);
-        expectShape('statutoryPermissions', statutoryPermissions(), latest.body.data.permissions);
+        expectShape('dashboardStatutoryPermissions', dashboardStatutoryPermissions(), latest.body.data.permissions);
     });
 });

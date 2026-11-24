@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 
 import { FIXED_NOW, iso, notFound, ok } from '../support/factories/base.ts';
 import { body, circle } from '../support/factories/core.ts';
-import { appliedEvent, appliedStatutoryEvent, appliedSummerUniversity, latestStatutoryEvent, statutoryPermissions } from '../support/factories/dashboard.ts';
+import { appliedEvent, appliedStatutoryEvent, appliedSummerUniversity, latestStatutoryEvent, dashboardStatutoryPermissions } from '../support/factories/dashboard.ts';
 import type { ApiMock } from '../support/api-mock.ts';
 import { freezeTime, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
@@ -213,7 +213,7 @@ test.describe('dashboard', () => {
             application_period_starts: iso(-1, NOW),
             application_period_ends: iso(10, NOW),
             can_apply: true,
-            permissions: statutoryPermissions({ see_participants_list: true })
+            permissions: dashboardStatutoryPermissions({ see_participants_list: true })
         })));
 
         await page.goto('/dashboard');
@@ -229,7 +229,7 @@ test.describe('dashboard', () => {
             application_period_starts: iso(-20, NOW),
             application_period_ends: iso(-10, NOW),
             can_apply: false,
-            permissions: statutoryPermissions({ see_participants_list: false })
+            permissions: dashboardStatutoryPermissions({ see_participants_list: false })
         })));
 
         await page.goto('/dashboard');
