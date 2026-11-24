@@ -439,16 +439,16 @@ describe('Candidates editing', () => {
 
     test('should refuse a new body when core gives the candidate without their bodies', async () => {
         // Core gives a member without the list of bodies to a caller who may only see part of the profile.
-        const otherUser = { ...regularUser, id: 1337 };
-        delete otherUser.bodies;
-        mock.mockAll({ member: { user: otherUser } });
+        const withoutBodies = { ...regularUser, id: 1337 };
+        delete withoutBodies.bodies;
+        mock.mockAll({ member: { user: withoutBodies } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             starts: moment().subtract(1, 'week').toDate(),
             ends: moment().add(1, 'week').toDate(),
             candidates: [
-                generator.generateCandidate({ user_id: otherUser.id, body_id: 1337, body_name: 'AEGEE-Elsewhere' })
+                generator.generateCandidate({ user_id: withoutBodies.id, body_id: 1337, body_name: 'AEGEE-Elsewhere' })
             ]
         }, event);
 
