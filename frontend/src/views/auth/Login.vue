@@ -14,7 +14,7 @@
 
             <hr>
             <p class="buttons is-centered">
-              <button type="submit" class="button is-primary">Login</button>
+              <button type="submit" class="button is-primary" :disabled="isLoggingIn">Login</button>
               <router-link :to="{ name: 'oms.register', params: { id: 'default' } }" class="button">Register</router-link>
               <router-link :to="{ name: 'oms.password_reset' }" class="button">Forgot your password?</router-link>
             </p>
@@ -37,16 +37,20 @@ export default {
         username: '',
         password: ''
       },
-      error: null
+      error: null,
+      isLoggingIn: false
     }
   },
   methods: {
     login () {
       this.error = null
+      // Off until core has answered: a double click logs in once.
+      this.isLoggingIn = true
       this.$auth.login(this.data).then(() => {
         // The guard may send a member whose profile is incomplete on to complete it.
-        this.$router.replace(afterLogin(this.$route.query)).catch(ignoreNavigationFailure)
+        this.$router.replace(afterLogin(this.$route.query)).catch(ignoreNavigationFailure).finally(() => { this.isLoggingIn = false })
       }).catch((err) => {
+        this.isLoggingIn = false
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message
         } else {
