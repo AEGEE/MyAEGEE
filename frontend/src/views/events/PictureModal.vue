@@ -10,7 +10,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -27,7 +27,7 @@
         </div>
 
         <div class="control">
-          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+          <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
         </div>
       </div>
     </section>
