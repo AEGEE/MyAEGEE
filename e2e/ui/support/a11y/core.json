@@ -29,9 +29,6 @@
   "oms.bodies.new_member": {
     "color-contrast": 1
   },
-  "oms.bodies.view": {
-    "color-contrast": 1
-  },
   "oms.campaigns.create": {
     "color-contrast": 3
   },
