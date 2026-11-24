@@ -117,25 +117,31 @@ test.describe('creating a campaign', () => {
 
     test('shows the service\'s reasons under the fields', async ({ page, api }) => {
         offering(api);
-        api.on('POST core /campaigns', {
-            status: 422,
-            json: validationError({
-                name: ['Name should be set.'],
-                description_long: ['Description should be set.'],
-                url: ['url must be unique'],
-                autojoin_body_id: ['The body does not exist.'],
-                active: ['Active should be a boolean.']
-            })
-        });
+        // Core checks the body that new members join before the model, and answers each on its own.
+        let asked = 0;
+        api.on('POST core /campaigns', () => (++asked === 1
+            ? { status: 422, json: validationError({ autojoin_body_id: ['The body does not exist.'] }) }
+            : {
+                status: 422,
+                json: validationError({
+                    name: ['Name should be set.'],
+                    description_long: ['Description should be set.'],
+                    active: ['Active should be true or false.']
+                })
+            }));
 
         await page.goto('/campaigns/new');
         await fillIn(page);
         await save(page).click();
 
         await expect(toast(page, 'Some of the campaign data is invalid.')).toBeVisible();
-        for (const message of ['Name should be set.', 'Description should be set.', 'url must be unique', 'The body does not exist.', 'Active should be a boolean.']) {
+        await expect(page.getByText('The body does not exist.')).toBeVisible();
+
+        await save(page).click();
+        for (const message of ['Name should be set.', 'Description should be set.', 'Active should be true or false.']) {
             await expect(page.getByText(message)).toBeVisible();
         }
+        await expect(page.getByText('The body does not exist.')).toHaveCount(0);
         await expect(page).toHaveURL('/campaigns/new');
         await expect(save(page)).toBeEnabled();
     });
@@ -159,24 +165,24 @@ test.describe('creating a campaign', () => {
 
     test('saving is disabled until the service answers', async ({ page, api }) => {
         offering(api);
-        api.on('POST core /campaigns', { status: 500, json: { success: false, message: 'Database is down' }, delayMs: 1500 });
+        api.on('POST core /campaigns', { status: 500, json: { success: false, message: 'Something went wrong on the server.' }, delayMs: 1500 });
 
         await page.goto('/campaigns/new');
         await fillIn(page);
         await save(page).click();
 
         await expect(save(page)).toBeDisabled();
-        await expect(toast(page, 'Could not save campaign: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not save campaign: Something went wrong on the server.')).toBeVisible();
         await expect(save(page)).toBeEnabled();
         await expect.poll(() => api.callsTo('POST core /campaigns')).toHaveLength(1);
     });
 
     test('says why the bodies could not be loaded', async ({ page, api }) => {
-        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/campaigns/new');
 
-        await expect(toast(page, 'Could not fetch bodies list: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch bodies list: Something went wrong on the server.')).toBeVisible();
         await expect(page.getByText('Not set.')).toBeVisible();
     });
 });
@@ -236,12 +242,12 @@ test.describe('editing a campaign', () => {
 
     test('a failing campaign says why and sends the member to the campaigns list', async ({ page, api }) => {
         offering(api);
-        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         api.json('GET core /campaigns', ok([]));
 
         await page.goto('/campaigns/7/edit');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns');
     });
 });
@@ -271,11 +277,11 @@ test.describe('the campaigns of one body', () => {
     });
 
     test('says why the body could not be loaded', async ({ page, api }) => {
-        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /bodies/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/bodies/5/campaigns/new');
 
-        await expect(toast(page, 'Could not fetch body: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch body: Something went wrong on the server.')).toBeVisible();
         await expect(page.getByText('Not set.')).toBeVisible();
     });
 

@@ -150,11 +150,11 @@ test.describe('campaigns list', () => {
         let asked = 0;
         api.on('GET core /my_permissions', () => (++asked === 1
             ? { json: ok(myPermissions) }
-            : { status: 500, json: { success: false, message: 'Database is down' } }));
+            : { status: 500, json: { success: false, message: 'Something went wrong on the server.' } }));
 
         await page.goto('/campaigns');
 
-        await expect(toast(page, 'Could not fetch campaign list: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch campaign list: Something went wrong on the server.')).toBeVisible();
         await expect(tableRows(campaignsTable(page))).toHaveCount(30);
         await expect(loadMore(page)).toBeEnabled();
         await expect(page.getByRole('link', { name: 'Create campaign' })).toHaveCount(0);

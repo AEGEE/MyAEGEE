@@ -101,13 +101,13 @@ test.describe('the page of a campaign', () => {
     test('a refused delete says why and stays on the campaign', async ({ page, api, myPermissions }) => {
         myPermissions.push(...MANAGER.map(permission));
         api.json('GET core /campaigns/:id', ok(publicCampaign({ id: 7, name: 'Autumn recruitment' })));
-        api.on('DELETE core /campaigns/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('DELETE core /campaigns/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
 
         await page.goto('/campaigns/7');
         await page.getByRole('button', { name: 'Delete campaign' }).click();
         await dialog(page, 'Deleting a campaign').getByRole('button', { name: 'Delete campaign' }).click();
 
-        await expect(toast(page, 'Could not delete campaign: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not delete campaign: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns/7');
         await expect(page.getByRole('heading', { name: 'Autumn recruitment' })).toBeVisible();
     });
@@ -123,12 +123,12 @@ test.describe('the page of a campaign', () => {
     });
 
     test('a failing campaign says why and sends the member to the campaigns list', async ({ page, api }) => {
-        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         answerList(api);
 
         await page.goto('/campaigns/7');
 
-        await expect(toast(page, 'Some error happened: Database is down')).toBeVisible();
+        await expect(toast(page, 'Some error happened: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns');
     });
 
@@ -138,11 +138,11 @@ test.describe('the page of a campaign', () => {
         let asked = 0;
         api.on('GET core /my_permissions', () => (++asked === 1
             ? { json: ok(myPermissions) }
-            : { status: 500, json: { success: false, message: 'Database is down' } }));
+            : { status: 500, json: { success: false, message: 'Something went wrong on the server.' } }));
 
         await page.goto('/campaigns/7');
 
-        await expect(toast(page, 'Could not fetch your permissions for this campaign: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch your permissions for this campaign: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/campaigns/7');
         await expect(page.getByRole('heading', { name: 'Autumn recruitment' })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Delete campaign' })).toHaveCount(0);

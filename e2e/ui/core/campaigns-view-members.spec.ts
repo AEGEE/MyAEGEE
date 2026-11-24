@@ -126,12 +126,12 @@ test.describe('the members of a campaign', () => {
     });
 
     test('lists the members also when the campaign could not be loaded', async ({ page, api }) => {
-        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Database is down' } });
+        api.on('GET core /campaigns/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         api.json('GET core /campaigns/:id/members', okList([JANE]));
 
         await page.goto('/campaigns/7/members');
 
-        await expect(toast(page, 'Could not fetch campaign: Database is down')).toBeVisible();
+        await expect(toast(page, 'Could not fetch campaign: Something went wrong on the server.')).toBeVisible();
         await expect(tableRows(membersTable(page)).filter({ hasText: 'Jane Doe' })).toBeVisible();
     });
 });
