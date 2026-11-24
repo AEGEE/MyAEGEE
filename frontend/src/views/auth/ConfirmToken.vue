@@ -31,6 +31,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { ignoreRedirect } from '../../methods/navigation'
 
 export default {
   name: 'ConfirmToken',
@@ -47,7 +48,7 @@ export default {
         .then(() => {
           this.$root.showSuccess('Your email is verified.')
           // A member who is logged in is sent on to the dashboard instead: that is no error.
-          this.$router.push({ name: 'oms.login' }).catch(() => {})
+          this.$router.push({ name: 'oms.login' }).catch(ignoreRedirect)
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {
