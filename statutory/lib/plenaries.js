@@ -133,11 +133,14 @@ exports.listPlenariesStats = async (req, res) => {
         include: [Attendance]
     });
 
-    // The statistics are about those who can be marked as attending: delegates and envoys.
+    // The statistics are about those who can be marked as attending: delegates and envoys
+    // whose application is accepted and not cancelled.
     const applications = await Application.findAll({
         where: {
             event_id: req.event.id,
-            participant_type: { [Sequelize.Op.in]: ['delegate', 'envoy'] }
+            participant_type: { [Sequelize.Op.in]: ['delegate', 'envoy'] },
+            status: 'accepted',
+            cancelled: false
         },
         order: [['id', 'ASC']],
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
@@ -327,19 +330,26 @@ exports.markPlenaryAttendance = async (req, res) => {
     }
 
     // First, fetch application.
-    const application = await Application.findOne({
+    const found = await Application.findOne({
         where: whereClause,
-        attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
+        attributes: [...constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS, 'status', 'cancelled']
     });
 
-    if (!application) {
+    if (!found) {
         return errors.makeNotFoundError(res, 'The application is not found.');
     }
 
     // Only delegates and envoys (of CAs) are allowed.
-    if (!['delegate', 'envoy'].includes(application.participant_type)) {
+    if (!['delegate', 'envoy'].includes(found.participant_type)) {
         return errors.makeForbiddenError(res, 'The applicant is not a delegate or envoy.');
     }
+
+    // Who takes part: the application is accepted and not cancelled.
+    if (found.status !== 'accepted' || found.cancelled) {
+        return errors.makeForbiddenError(res, 'The application is not accepted, or it is cancelled.');
+    }
+
+    const application = helpers.whitelistObject(found.toJSON(), constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS);
 
     // Second, there can be 2 cases:
     // 1) there is the attendance for this user where ends = null, if so, updating it (marking user as left)
