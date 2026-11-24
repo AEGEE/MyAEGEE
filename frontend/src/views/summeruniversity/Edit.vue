@@ -397,8 +397,8 @@
             class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
-            <button type="button" class="delete is-small" :aria-label="'Remove ' + (body ? body.body.name : 'Loading...')" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
+            {{ bodyName(body) }}
+            <button type="button" class="delete is-small" :aria-label="'Remove ' + bodyName(body)" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
           </span>
           <span class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</span>
         </div>
@@ -438,8 +438,8 @@
             class="tag is-primary is-medium"
             v-for="(body, index) in event.cooperation"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
-            <button type="button" class="delete is-small" :aria-label="'Remove ' + (body ? body.body.name : 'Loading...')" @click.prevent="body => event.cooperation.splice(index, 1)" />
+            {{ bodyName(body) }}
+            <button type="button" class="delete is-small" :aria-label="'Remove ' + bodyName(body)" @click.prevent="body => event.cooperation.splice(index, 1)" />
           </span>
           <span class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</span>
         </div>
@@ -983,6 +983,11 @@ export default {
 
       this.event.locations[index].position.lat = newCoords.lat
       this.event.locations[index].position.lng = newCoords.lng
+    },
+    // The name of an organising or cooperation body: from core's list, or the name the SU
+    // stored for a body that core doesn't list any more.
+    bodyName (body) {
+      return body.body ? body.body.name : body.body_name
     },
     addOrganizingBody () {
       if (!this.selectedBody) {
