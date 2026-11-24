@@ -5,8 +5,8 @@ import type { ApiMock } from '../support/api-mock.ts';
 import { forbidden, notFound, ok, unprocessable, validationError } from '../support/factories/base.ts';
 import { body, memberSearchResult } from '../support/factories/core.ts';
 import { eventOrganizerPermissions, organizedEvent, organizer, question, type Event } from '../support/factories/events.ts';
-import { mockMap } from '../support/map.ts';
-import { cellOf, fillDate, tableRows, toast } from '../support/shell.ts';
+import { delayMapLibrary, mockMap } from '../support/map.ts';
+import { cellOf, fillDate, openAccountMenu, tableRows, toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const ANTENNA = body({ id: 1, name: 'AEGEE-Antenna' });
@@ -42,6 +42,8 @@ const addBody = async (page: Page, name: string) => {
 const fillRequired = async (page: Page) => {
     await textbox(page, /^Title/).fill('Spring Training');
     await textbox(page, /^Description/).fill('Learn **things**.');
+    // The service refuses an event without a type.
+    await page.getByRole('combobox', { name: /^Event type/ }).selectOption({ label: 'Training Event' });
     await page.getByRole('spinbutton', { name: /^Fee/ }).fill('50');
     await page.getByRole('spinbutton', { name: /^Number of meals provided per day/ }).fill('3');
     await textbox(page, /^Accommodation type/).fill('Hostel');
@@ -298,21 +300,28 @@ test.describe('event editor', () => {
             await fillDates(page);
             await addBody(page, 'AEGEE-Antenna');
 
-            await page.getByRole('button', { name: 'Add new question' }).click();
-            await textbox(page, 'Question 1 description').fill('Why?');
-            await page.getByRole('combobox', { name: 'Question 1 type' }).selectOption({ label: 'Text' });
-            await page.getByRole('button', { name: 'Add new location' }).click();
-            await textbox(page, 'Location 1 name').fill('Main square');
-            await expect(page.getByText('No questions are set.')).toHaveCount(0);
-            await expect(page.getByText('No locations added.')).toHaveCount(0);
+            for (const [index, description] of ['Why?', 'Size'].entries()) {
+                await page.getByRole('button', { name: 'Add new question' }).click();
+                await textbox(page, `Question ${index + 1} description`).fill(description);
+                await page.getByRole('combobox', { name: `Question ${index + 1} type` }).selectOption({ label: 'Text' });
+            }
+            for (const [index, name] of ['Main square', 'Station'].entries()) {
+                await page.getByRole('button', { name: 'Add new location' }).click();
+                await textbox(page, `Location ${index + 1} name`).fill(name);
+            }
+            // The rows don't make the page wider than the screen.
+            expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
 
+            // The first of two rows: its button stays on the page when the row goes.
             await page.getByRole('button', { name: 'Delete question 1' }).click();
             await page.getByRole('button', { name: 'Delete location 1' }).click();
 
-            await expect(page.getByText('No questions are set.')).toBeVisible();
-            await expect(page.getByText('No locations added.')).toBeVisible();
+            await expect(textbox(page, 'Question 1 description')).toHaveValue('Size');
+            await expect(textbox(page, 'Location 1 name')).toHaveValue('Station');
+            await expect(textbox(page, 'Question 2 description')).toHaveCount(0);
+            await expect(textbox(page, 'Location 2 name')).toHaveCount(0);
             await expect(page).toHaveURL('/events/new');
-            await expect(page.getByRole('alert')).toHaveCount(0);
+            expect(await page.getByRole('alert').count()).toBe(0);
             expect(api.callsTo('POST events /')).toHaveLength(0);
         });
 
@@ -405,6 +414,46 @@ test.describe('event editor', () => {
             await expect(page).toHaveURL('/events/new');
         });
 
+        test('a request the service can\'t read shows its message', async ({ page, api }) => {
+            api.on('POST events /', { status: 413, json: { success: false, message: 'The request body could not be read.' } });
+            await page.goto('/events/new');
+            await fillRequired(page);
+            await fillDates(page);
+            await addBody(page, 'AEGEE-Antenna');
+
+            await page.getByRole('button', { name: 'Save event' }).click();
+
+            await expect(toast(page, 'Could not save event: The request body could not be read.')).toBeVisible();
+            await expect(page).toHaveURL('/events/new');
+        });
+
+        test('a saved event without a URL opens by its id', async ({ page, api }) => {
+            api.on('POST events /', { status: 201, json: created({ url: '' }) });
+            eventPage(api, organizedEvent({ id: 30, url: '', name: 'Spring Training', status: 'draft' }));
+            await page.goto('/events/new');
+            await fillRequired(page);
+            await fillDates(page);
+            await addBody(page, 'AEGEE-Antenna');
+
+            await page.getByRole('button', { name: 'Save event' }).click();
+
+            await expect(page).toHaveURL('/events/30');
+            await expect(page.getByRole('heading', { name: 'Spring Training', level: 1 })).toBeVisible();
+        });
+
+        test('choosing "Online" before the map has loaded leaves the page working', async ({ page, api }) => {
+            const arrived = delayMapLibrary(page, api);
+            await page.goto('/events/new');
+
+            await page.getByRole('combobox', { name: /^How will the event take place/ }).selectOption({ label: 'Online' });
+            await expect(page.getByRole('region', { name: 'Map' })).toHaveCount(0);
+
+            // The library arrives after the map is gone, and nothing breaks (an uncaught error fails the test).
+            await arrived;
+            await textbox(page, /^Title/).fill('Online Talk');
+            await expect(textbox(page, /^Event URL/)).toHaveValue('online-talk');
+        });
+
         test('"Save event" is disabled while saving', async ({ page, api }) => {
             api.on('POST events /', { status: 201, json: created(), delayMs: 1000 });
             eventPage(api, organizedEvent({ id: 30, url: 'spring-training', status: 'draft' }));
@@ -467,6 +516,7 @@ test.describe('event editor', () => {
             questions: [question({ type: 'string', description: 'Why?', required: true })],
             ...overrides
         });
+        const dana = organizer({ user_id: 9, first_name: 'Dana', last_name: 'Third', comment: 'Programme' });
 
         test.beforeEach(({ api }) => bodies(api));
 
@@ -493,19 +543,21 @@ test.describe('event editor', () => {
         });
 
         test('the current member can\'t remove themselves as organiser, others can be removed', async ({ page, api }) => {
-            api.json('GET events /single/:id', ok(stored(), { permissions: eventOrganizerPermissions('draft') }));
+            api.json('GET events /single/:id', ok(stored({ organizers: [...stored().organizers!, dana] }), { permissions: eventOrganizerPermissions('draft') }));
             await page.goto('/events/spring-training/edit');
 
             const rows = tableRows(organisers(page));
-            await expect(rows).toHaveCount(2);
+            await expect(rows).toHaveCount(3);
             await expect(rows.filter({ hasText: 'Alex Member' }).getByRole('button', { name: /^Delete organiser/ })).toHaveCount(0);
             const chris = rows.filter({ hasText: 'Chris Organiser' });
             await expect(await cellOf(organisers(page), chris, 'Comment')).toBeVisible();
             await expect(chris.getByRole('textbox', { name: 'Comment for Chris Organiser' })).toHaveValue('Treasurer');
 
+            // Not the last row: its button stays on the page when the row goes.
             await page.getByRole('button', { name: 'Delete organiser Chris Organiser' }).click();
 
-            await expect(rows).toHaveCount(1);
+            await expect(rows).toHaveCount(2);
+            await expect(rows.filter({ hasText: 'Dana Third' })).toBeVisible();
             await expect(page).toHaveURL('/events/spring-training/edit');
             expect(api.callsTo('PUT events /single/:id')).toHaveLength(0);
         });
@@ -548,6 +600,55 @@ test.describe('event editor', () => {
             expect(api.callsTo('PUT events /single/:id')).toHaveLength(0);
         });
 
+        test('the map centres on the only location, and dragging its marker moves it', async ({ page, api }) => {
+            api.json('GET events /single/:id', ok(stored({ locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }] }), { permissions: eventOrganizerPermissions('draft') }));
+            await page.goto('/events/spring-training/edit');
+            await expect(textbox(page, 'Location 1 name')).toHaveValue('Brussels');
+            await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
+            const row = page.getByRole('row').filter({ has: textbox(page, 'Location 1 name') });
+            await expect(row).toContainText(/^50\.85\s*4\.35/);
+
+            const map = page.getByRole('region', { name: 'Map' });
+            await map.scrollIntoViewIfNeeded();
+            // eslint-disable-next-line no-restricted-syntax -- a Mapbox marker has no role or name; it is only an image on the map
+            const marker = map.locator('.mapboxgl-marker');
+            await expect(marker).toBeVisible();
+            const box = await marker.boundingBox();
+            expect(box).not.toBeNull();
+            await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+            await page.mouse.down();
+            await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2 - 100, { steps: 5 });
+            await page.mouse.up();
+
+            // Up is north: the latitude grows, the longitude stays (give or take the float).
+            await expect(row).toContainText(/^50\.(8[6-9]|9)\d*\s*4\.3[45]\d*/);
+        });
+
+        test('the map shows every location of an event that has several', async ({ page, api }) => {
+            api.json('GET events /single/:id', ok(stored({
+                locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }, { name: 'Utrecht', position: { lat: 52.09, lng: 5.12 } }]
+            }), { permissions: eventOrganizerPermissions('draft') }));
+            await page.goto('/events/spring-training/edit');
+            await expect(textbox(page, 'Location 2 name')).toHaveValue('Utrecht');
+            await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
+
+            const map = page.getByRole('region', { name: 'Map' });
+            await map.scrollIntoViewIfNeeded();
+            // eslint-disable-next-line no-restricted-syntax -- a Mapbox marker has no role or name; it is only an image on the map
+            await expect(map.locator('.mapboxgl-marker')).toHaveCount(2);
+        });
+
+        test('an online event whose map library arrives after the event opens without an error', async ({ page, api }) => {
+            const arrived = delayMapLibrary(page, api);
+            api.json('GET events /single/:id', ok(stored({ method: 'online', has_applications: true }), { permissions: eventOrganizerPermissions('draft') }));
+            await page.goto('/events/spring-training/edit');
+
+            await expect(textbox(page, /^Title/)).toHaveValue('Spring Training');
+            await expect(page.getByRole('region', { name: 'Map' })).toHaveCount(0);
+            await arrived;
+            await expect(page.getByRole('button', { name: 'Save event' })).toBeEnabled();
+        });
+
         test('an organising body that is no longer listed is shown by its stored name', async ({ page, api }) => {
             api.json('GET events /single/:id', ok(stored({ organizing_bodies: [{ body_id: 99, body_name: 'AEGEE-Closed' }] }), { permissions: eventOrganizerPermissions('draft') }));
             await page.goto('/events/spring-training/edit');
@@ -573,6 +674,30 @@ test.describe('event editor', () => {
 
             await expect(toast(page, 'Some error happened: You cannot see this event.')).toBeVisible();
             await expect(page).toHaveURL('/events');
+        });
+    });
+    test.describe('logging out', () => {
+        test.beforeEach(({ api }) => bodies(api));
+
+        test('logging out while creating an event goes to the login page without errors', async ({ page, api, layout }) => {
+            await page.goto('/events/new');
+            await expect(textbox(page, /^Title/)).toBeVisible();
+
+            await (await openAccountMenu(page, layout)).getByRole('button', { name: 'Logout' }).click();
+
+            await expect(page).toHaveURL(/\/login/);
+            expect(api.callsTo('POST core /logout')).toHaveLength(1);
+        });
+
+        test('logging out while editing an event goes to the login page without errors', async ({ page, api, layout }) => {
+            api.json('GET events /single/:id', ok(organizedEvent({ id: 12, url: 'spring-training', name: 'Spring Training', status: 'draft' }), { permissions: eventOrganizerPermissions('draft') }));
+            await page.goto('/events/spring-training/edit');
+            await expect(textbox(page, /^Title/)).toHaveValue('Spring Training');
+
+            await (await openAccountMenu(page, layout)).getByRole('button', { name: 'Logout' }).click();
+
+            await expect(page).toHaveURL(/\/login/);
+            expect(api.callsTo('POST core /logout')).toHaveLength(1);
         });
     });
 });
