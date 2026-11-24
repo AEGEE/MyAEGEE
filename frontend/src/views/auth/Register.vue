@@ -251,7 +251,8 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
+      // A birthday that was removed again is none, not "Invalid date".
+      this.user.date_of_birth = this.birthday ? moment(this.birthday).format('YYYY-MM-DD') : null
     },
     register () {
       this.errors = {}
