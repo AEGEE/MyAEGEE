@@ -41,16 +41,33 @@ function isInteger(min, max, msg) {
     };
 }
 
-// A DECIMAL: a finite number or a string that is one.
+// A number for a DECIMAL column, as a number or as its text: digits with an optional sign,
+// decimal point and exponent ('5', '-5', '+5', '.5', '2.50', '1e2'). An <input type="number">
+// can submit all but the plus sign. At most 308 digits before the decimal point, so that the
+// API can read the stored value back as a number (larger ones became Infinity, sent as null),
+// and at most 16383 after it, which is what a Postgres NUMERIC keeps (more answered 500). The
+// summeruniversity service has the same rule.
+const DECIMAL_FORMAT = /^[+-]?(?:([0-9]+)|([0-9]*)\.([0-9]+))(?:[eE]([+-]?[0-9]+))?$/;
+const DECIMAL_INTEGER_DIGITS_MAX = 308;
+const DECIMAL_SCALE_MAX = 16383;
+
+function isDecimalNumber(value) {
+    const text = typeof value === 'number' ? String(value) : value;
+    const match = typeof text === 'string' ? DECIMAL_FORMAT.exec(text) : null;
+    if (!match) {
+        return false;
+    }
+
+    const [, whole, beforePoint, fraction = '', exponentText = '0'] = match;
+    const exponent = Number(exponentText);
+    const integerDigits = (whole === undefined ? beforePoint : whole).replace(/^0+/, '').length + exponent;
+    const scale = fraction.length - exponent;
+    return integerDigits <= DECIMAL_INTEGER_DIGITS_MAX && scale <= DECIMAL_SCALE_MAX;
+}
+
 function isDecimal(msg) {
     return function isDecimalValue(value) {
-        if (value === null || value === undefined) {
-            return;
-        }
-
-        const isNumber = typeof value === 'number' && Number.isFinite(value);
-        const isNumericString = typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(value);
-        if (!isNumber && !isNumericString) {
+        if (value !== null && value !== undefined && !isDecimalNumber(value)) {
             throw new Error(msg);
         }
     };

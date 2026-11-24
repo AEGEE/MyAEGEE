@@ -1050,6 +1050,9 @@ components:
     DateInput:
       description: A date (YYYY-MM-DD), with a time if needed ('YYYY-MM-DD HH:mm', as the frontend sends it), an ISO 8601 timestamp, or a number of milliseconds since 1970 (the edit form sends the application end of an event without applications as one), within the years 0001 to 9999.
       type: [string, number]
+    DecimalInput:
+      description: "A number, or its text: digits with an optional sign, decimal point and exponent ('5', '+5', '.5', '2.50', '1e2'), at most 308 digits before the point and 16383 after it."
+      type: [number, string, 'null']
     EventInputFields:
       type: object
       properties:
@@ -1060,8 +1063,8 @@ components:
         application_ends: {$ref: '#/components/schemas/DateInput'}
         starts: {$ref: '#/components/schemas/DateInput'}
         ends: {$ref: '#/components/schemas/DateInput'}
-        fee: {type: [number, string, 'null']}
-        optional_fee: {type: [number, string, 'null']}
+        fee: {$ref: '#/components/schemas/DecimalInput'}
+        optional_fee: {$ref: '#/components/schemas/DecimalInput'}
         organizing_bodies:
           description: Only `body_id` is read; the name comes from core.
           type: array
