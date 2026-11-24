@@ -49,10 +49,6 @@ export default {
         this.members = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
         this.$root.showError('Could not fetch members', err)
         this.$router.push({ name: 'oms.permissions.view', params: { id: this.$route.params.id } })
       })

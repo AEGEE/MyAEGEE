@@ -73,7 +73,6 @@ export default {
         filters: [],
         circles: []
       },
-      isOwnProfile: false,
       isLoading: false,
       permissions: [],
       can: {
@@ -125,9 +124,6 @@ export default {
       this.$router.push({ name: 'oms.permissions.list' })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: mapGetters(['services'])
 }
 </script>
