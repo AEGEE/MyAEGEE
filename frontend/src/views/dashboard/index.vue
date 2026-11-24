@@ -189,7 +189,11 @@ export default {
       services: 'services'
     }),
     // The member as the app fetched them when it started, with their bodies and circles sorted.
+    // Nobody while the page is left after logging out.
     user () {
+      if (!this.loginUser) {
+        return { first_name: '', last_name: '', bodies: [], circles: [], primary_body: null }
+      }
       return {
         ...this.loginUser,
         bodies: sortBodies(this.loginUser.bodies, this.loginUser.primary_body_id),
