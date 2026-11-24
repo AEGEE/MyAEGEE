@@ -115,6 +115,20 @@ describe('Input types', () => {
         });
     });
 
+    // A null entry reached core.fetchBody, which read its body_id (500).
+    test.each([
+        ['create', 'POST', () => '/'],
+        ['edit', 'PUT', (event) => '/single/' + event.id]
+    ])('answers 422 for a null organizing body on %s', async (_name, method, pathOf) => {
+        const event = await generator.createEvent();
+
+        const res = await request({ path: pathOf(event), method, headers: { 'X-Auth-Token': 'foobar' }, body: method === 'POST' ? newEvent({ organizing_bodies: [null] }) : { organizing_bodies: [null] } });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors.organizing_bodies).toEqual(['Body is malformed.']);
+        expect(await Event.count()).toEqual(1);
+    });
+
     test('every writable field of Event is in the table above', () => {
         // Set by the server, not by the client: on create and edit they are dropped or
         // replaced (organizers and organizing bodies are rebuilt from core and checked in
