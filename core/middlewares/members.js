@@ -647,8 +647,7 @@ exports.confirmEmailChange = async (req, res) => {
                 name: user.first_name,
                 surname: user.last_name,
                 new_email: mailChange.new_email,
-                changed_by: requester ? `${requester.first_name} ${requester.last_name}` : 'yourself',
-                changed_by_email: requester ? requester.email : null
+                changed_by: requester ? `${requester.first_name} ${requester.last_name}` : 'yourself'
             }
         });
 
