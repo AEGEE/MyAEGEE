@@ -75,6 +75,16 @@ test.describe('where the app lets visitors and members go', () => {
             await expect(page).toHaveURL('/events/participating?a=1&b=2');
         });
 
+        test('a login link that names the page to go back to twice goes on to the dashboard', async ({ page, api }) => {
+            answerLogin(api);
+            await page.goto('/login?to=/events&to=/calendar');
+
+            await logIn(page);
+
+            await expect(page).toHaveURL('/dashboard');
+            await expect(page).toHaveTitle('MyAEGEE | Dashboard');
+        });
+
         test('a public page opens without asking who is logged in', async ({ page, api }) => {
             await page.goto('/events');
 
@@ -149,6 +159,13 @@ test.describe('where the app lets visitors and members go', () => {
         await expect(page).toHaveURL('/dashboard');
     });
 
+    test('opening the login page with a session and two pages to go back to goes to the dashboard', async ({ page }) => {
+        await page.goto('/login?to=/events&to=/calendar');
+
+        await expect(page).toHaveURL('/dashboard');
+        await expect(page).toHaveTitle('MyAEGEE | Dashboard');
+    });
+
     test('a target outside the app is never followed', async ({ page }) => {
         for (const target of ['//example.org', '/\\example.org', 'https://example.org']) {
             await page.goto(`/login?to=${encodeURIComponent(target)}`);
@@ -158,8 +175,8 @@ test.describe('where the app lets visitors and members go', () => {
 
     test.describe('a member whose profile is incomplete', () => {
         const reasons = [
-            { what: 'an address of AEGEE itself', change: { email: 'alex@aegee.org' }, reason: 'Your email can not be in one of the following domains: aegee.org, aegee.eu.' },
-            { what: 'an address on a subdomain of AEGEE', change: { email: 'alex@lists.aegee.eu' }, reason: 'Your email can not be in one of the following domains: aegee.org, aegee.eu.' },
+            { what: 'an address of AEGEE itself', change: { email: 'made-up-alex@aegee.org' }, reason: 'Your email can not be in one of the following domains: aegee.org, aegee.eu.' },
+            { what: 'an address on a subdomain of AEGEE', change: { email: 'made-up-alex@lists.aegee.eu' }, reason: 'Your email can not be in one of the following domains: aegee.org, aegee.eu.' },
             { what: 'no local', change: { bodies: [body({ type: 'working group' })] }, reason: 'You should be a member of at least 1 local.' },
             { what: 'no consent to the privacy policy', change: { privacy_consent: null }, reason: 'You should agree to the Privacy Policy.' },
             { what: 'a username of numbers only', change: { username: '12345' }, reason: 'Your username cannot consist of numbers only.' }
@@ -177,7 +194,7 @@ test.describe('where the app lets visitors and members go', () => {
         }
 
         test('with an address on another domain that ends like AEGEE\'s is not', async ({ page, me }) => {
-            me!.email = 'alex@notaegee.org';
+            me!.email = 'made-up-alex@notaegee.org';
 
             await page.goto('/events/participating');
 
@@ -198,17 +215,20 @@ test.describe('where the app lets visitors and members go', () => {
             await expect(page).toHaveURL('/profile/update');
             await expect(page.getByRole('listitem').filter({ hasText: 'You should agree to the Privacy Policy.' })).toBeVisible();
 
-            // A members-only page from a link of the app still sends it back there.
+            // A members-only page from a link of the app, on a public page, still sends it there.
+            await page.getByRole('link', { name: 'About MyAEGEE' }).click();
+            await expect(page).toHaveURL('/about');
             const account = await openAccountMenu(page, layout);
             await account.getByRole('link', { name: 'See my account' }).click();
             await expect(page).toHaveURL('/profile/update');
+            await expect(page.getByRole('listitem').filter({ hasText: 'You should agree to the Privacy Policy.' })).toBeVisible();
         });
 
         test.describe('as a superadmin', () => {
             test.use({ session: 'superadmin' });
 
             test('is let through', async ({ page, me }) => {
-                Object.assign(me!, { privacy_consent: null, email: 'admin@aegee.org', username: '1' });
+                Object.assign(me!, { privacy_consent: null, email: 'made-up-admin@aegee.org', username: '1' });
 
                 await page.goto('/events/participating');
 
@@ -250,6 +270,6 @@ test.describe('where the app lets visitors and members go', () => {
 
         await page.getByRole('link', { name: 'About MyAEGEE' }).click();
         await expect(page).toHaveTitle('MyAEGEE | About MyAEGEE');
-        await expect(page.getByRole('main').getByRole('heading', { name: 'About MyAEGEE' }).first()).toBeVisible();
+        await expect(page.getByRole('main').getByRole('heading', { name: 'About MyAEGEE', exact: true })).toBeVisible();
     });
 });

@@ -3,6 +3,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { ok } from '../support/factories/base.ts';
+import { permission } from '../support/factories/core.ts';
 import { openMenu } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
@@ -141,6 +142,28 @@ test.describe('sidebar menu', () => {
         });
     });
 
+    test.describe('a member with one of the permissions an entry lists', () => {
+        test('gets "Change event status" with only the permission to approve trainings', async ({ page, layout, myPermissions }) => {
+            myPermissions.splice(0, myPermissions.length, permission('global:approve_event:training'));
+            await openAboutPage(page);
+            const menu = await openMenu(page, layout);
+
+            const events = section(menu, 'Events');
+            await openGroup(events, 'Events admin');
+            await expect(events.getByRole('link', { name: 'Change event status', exact: true })).toHaveAttribute('href', '/events/change_status');
+            await expect(events.getByRole('link', { name: 'Board view', exact: true })).toHaveCount(0);
+        });
+
+        test('gets "Permissions" with only the permission to create permissions', async ({ page, layout, myPermissions }) => {
+            myPermissions.splice(0, myPermissions.length, permission('global:create:permission'));
+            await openAboutPage(page);
+            const menu = await openMenu(page, layout);
+
+            await expect(section(menu, 'Core').getByRole('link', { name: 'Permissions', exact: true })).toHaveAttribute('href', '/permissions');
+            await expect(section(menu, 'Core').getByRole('link', { name: 'Circles', exact: true })).toHaveCount(0);
+        });
+    });
+
     test('the group of the page that is shown is open', async ({ page, api, layout }) => {
         api.json('GET events /', ok([]));
         api.json('GET events /mine/participating', ok([]));
@@ -149,7 +172,8 @@ test.describe('sidebar menu', () => {
 
         let menu = await openMenu(page, layout);
         await expect(menu.getByRole('button', { name: 'Events listing' })).toHaveAttribute('aria-expanded', 'true');
-        await expect(menu.getByRole('link', { name: 'Participating', exact: true }).first()).toBeVisible();
+        // The Summer University group has a "Participating" entry too, closed.
+        await expect(section(menu, 'Events').getByRole('link', { name: 'Participating', exact: true })).toBeVisible();
         await expect(menu.getByRole('button', { name: 'SU listing' })).toHaveAttribute('aria-expanded', 'false');
 
         // Another page of the same group: it stays open.
