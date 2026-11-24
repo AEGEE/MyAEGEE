@@ -53,6 +53,7 @@
         <label class="label" for="statutory-position-body">Associated body</label>
         <div class="select">
           <select id="statutory-position-body" v-model="form.body_id">
+            <option :value="null">None</option>
             <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
           </select>
         </div>
@@ -130,7 +131,7 @@ export default {
         starts: this.position.starts,
         ends: this.position.ends,
         places: this.position.places,
-        body_id: this.position.body_id,
+        body_id: this.position.body_id === undefined ? null : this.position.body_id,
         start_term: this.position.start_term,
         end_term: this.position.end_term,
         requirements: this.position.requirements
