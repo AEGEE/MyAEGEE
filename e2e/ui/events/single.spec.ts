@@ -10,6 +10,9 @@ import { freezeTime, openAccountMenu, openMenu, toast } from '../support/shell.t
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
+// Lets the page handle an answer that has just come in (its handlers and the next render).
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+
 // The value next to a label in the event's facts table.
 const fact = (page: Page, label: string | RegExp) => page.getByRole('row')
     .filter({ has: page.getByRole('rowheader', { name: label, exact: typeof label === 'string' }) })
@@ -509,5 +512,21 @@ test.describe('event page', () => {
             // No ban notice without a member.
             await expect(page.getByText(/You are temporarily banned/)).toHaveCount(0);
         });
+    });
+    test('a load that fails after the member left the page neither shows an error nor moves them', async ({ page, api, layout }) => {
+        api.on('GET events /single/:id', { status: 403, json: forbidden('You cannot see this event.'), delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => /^\/api\/events\/single\/hidden-1$/.test(new URL(response.url()).pathname));
+        await page.goto('/events/hidden-1');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await settle(page);
+        // The member stays where they went, without an error about the page they left (counted
+        // at once: a retried assertion would wait until a toast is gone).
+        await expect(page).toHaveURL('/calendar');
+        expect(await toast(page, /Some error happened/).count()).toBe(0);
     });
 });

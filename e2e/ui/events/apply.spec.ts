@@ -1,11 +1,17 @@
 // Applying to an event (/events/:id/applications/me): the form built from the event's questions,
 // editing while applications are open, and what's shown once they're closed.
+import type { Page } from '@playwright/test';
+
 import type { ApiMock } from '../support/api-mock.ts';
 import { badRequest, forbidden, iso, notFound, ok, validationError } from '../support/factories/base.ts';
 import { body } from '../support/factories/core.ts';
 import { application, event, eventPermissions, question, type Application, type Event } from '../support/factories/events.ts';
-import { cellOf, openAccountMenu, toast } from '../support/shell.ts';
+import { cellOf, openAccountMenu, openMenu, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
+
+// Lets the page handle an answer that has just come in (its handlers and the next render).
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
 
 const QUESTIONS = [
     question({ type: 'string', description: 'Why do you want to join?', required: true }),
@@ -383,5 +389,21 @@ test.describe('applying to an event', () => {
             await expect(page).toHaveURL(/\/login/);
             expect(api.callsTo('POST core /logout')).toHaveLength(1);
         });
+    });
+    test('a load that fails after the member left the form neither shows an error nor moves them', async ({ page, api, layout }) => {
+        api.on('GET events /single/:id', { status: 403, json: forbidden('You cannot see this event.'), delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => /^\/api\/events\/single\/spring$/.test(new URL(response.url()).pathname));
+        await page.goto('/events/spring/applications/me');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await settle(page);
+        // The member stays where they went, without an error about the page they left (counted
+        // at once: a retried assertion would wait until a toast is gone).
+        await expect(page).toHaveURL('/calendar');
+        expect(await toast(page, /Some error happened/).count()).toBe(0);
     });
 });

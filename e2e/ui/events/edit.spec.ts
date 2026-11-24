@@ -6,7 +6,8 @@ import { forbidden, notFound, ok, unprocessable, validationError } from '../supp
 import { body, memberSearchResult } from '../support/factories/core.ts';
 import { eventOrganizerPermissions, organizedEvent, organizer, question, type Event } from '../support/factories/events.ts';
 import { delayMapLibrary, mockMap } from '../support/map.ts';
-import { cellOf, fillDate, openAccountMenu, tableRows, toast } from '../support/shell.ts';
+import { cellOf, fillDate, openAccountMenu, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
 const ANTENNA = body({ id: 1, name: 'AEGEE-Antenna' });
@@ -743,5 +744,23 @@ test.describe('event editor', () => {
             await expect(page).toHaveURL(/\/login/);
             expect(api.callsTo('POST core /logout')).toHaveLength(1);
         });
+    });
+
+    test('a load that fails after the member left the editor neither shows an error nor moves them', async ({ page, api, layout }) => {
+        bodies(api);
+        api.on('GET events /single/:id', { status: 403, json: forbidden('You cannot see this event.'), delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/events/single/hidden');
+        await page.goto('/events/hidden/edit');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+        // The member stays where they went, without an error about the page they left (counted
+        // at once: a retried assertion would wait until a toast is gone).
+        await expect(page).toHaveURL('/calendar');
+        expect(await toast(page, /Some error happened/).count()).toBe(0);
     });
 });

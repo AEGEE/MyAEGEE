@@ -4,8 +4,12 @@ import type { Page } from '@playwright/test';
 import type { ApiMock } from '../support/api-mock.ts';
 import { forbidden, notFound, ok } from '../support/factories/base.ts';
 import { application, eventOrganizerPermissions, organizedEvent, participantRow, question, type Application } from '../support/factories/events.ts';
-import { cellOf, dialog, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
+import { cellOf, dialog, expectEmptyTable, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
+
+// Lets the page handle an answer that has just come in (its handlers and the next render).
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
 
 const EVENT = organizedEvent({
     id: 9,
@@ -223,5 +227,22 @@ test.describe('participants of an event', () => {
 
         await expect(toast(page, 'Some error happened: You cannot see applications for this event.')).toBeVisible();
         await expect(page).toHaveURL('/events');
+    });
+    test('a load that fails after the member left the page neither shows an error nor moves them', async ({ page, api, layout }) => {
+        api.json('GET events /single/:id', ok(EVENT, { permissions: eventOrganizerPermissions() }));
+        api.on('GET events /single/:id/applications', { status: 403, json: forbidden('You cannot see applications for this event.'), delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => /^\/api\/events\/single\/spring\/applications$/.test(new URL(response.url()).pathname));
+        await page.goto('/events/spring/participants');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await settle(page);
+        // The member stays where they went, without an error about the page they left (counted
+        // at once: a retried assertion would wait until a toast is gone).
+        await expect(page).toHaveURL('/calendar');
+        expect(await toast(page, /Some error happened/).count()).toBe(0);
     });
 });

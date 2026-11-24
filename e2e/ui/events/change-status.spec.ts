@@ -4,8 +4,12 @@ import type { Page } from '@playwright/test';
 
 import { forbidden, ok } from '../support/factories/base.ts';
 import { organizedEvent } from '../support/factories/events.ts';
-import { cellOf, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
+import { cellOf, expectEmptyTable, openMenu, tableRows, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
+
+// Lets the page handle an answer that has just come in (its handlers and the next render).
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
 
 const STATUS_CHANGED = { success: true, message: 'Successfully changed approval status' };
 
@@ -127,5 +131,21 @@ test.describe('changing events\' statuses', () => {
 
         await expect.poll(() => api.callsTo('GET events /mine/approvable').length).toBe(1);
         await expectEmptyTable(table(page));
+    });
+    test('a load that fails after the member left the page shows no error', async ({ page, api, layout }) => {
+        api.on('GET events /mine/approvable', { status: 500, json: { success: false, message: 'connect ECONNREFUSED 127.0.0.1:5432' }, delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => /^\/api\/events\/mine\/approvable$/.test(new URL(response.url()).pathname));
+        await page.goto('/events/change_status');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await settle(page);
+        // The member stays where they went, without an error about the page they left (counted
+        // at once: a retried assertion would wait until a toast is gone).
+        await expect(page).toHaveURL('/calendar');
+        expect(await toast(page, /Could not fetch events list/).count()).toBe(0);
     });
 });
