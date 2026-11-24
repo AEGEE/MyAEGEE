@@ -185,10 +185,6 @@ router.beforeEach((to, from, next) => {
       return next(loggedInRedirectPath)
     }
 
-    if (!state.login.isLoggedIn && to.meta.auth) {
-      throw new Error('Trying to access the auth-only page while being unauthorized.')
-    }
-
     if (!state.login.isValid && to.meta.auth) {
       console.debug('User is invalid (user not fetched):', state.login.validationErrors)
       return next('/profile/update')
