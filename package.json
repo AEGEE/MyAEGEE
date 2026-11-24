@@ -53,6 +53,7 @@
     "lint": "echo 'Run linters in individual modules'",
     "openapi:lint": "redocly lint && node packages/backend-test-utils/spec-lint.js",
     "openapi:types": "openapi-typescript",
-    "openapi:check": "redocly lint && node packages/backend-test-utils/spec-lint.js && openapi-typescript --check && node --test packages/backend-test-utils/test/"
+    "openapi:types:check": "openapi-typescript && git diff --exit-code -- 'packages/api-types/*.ts' packages/backend-test-utils/test/fixtures/openapi.ts && test -z \"$(git status --porcelain -- 'packages/api-types/*.ts' packages/backend-test-utils/test/fixtures/openapi.ts)\"",
+    "openapi:check": "redocly lint && node packages/backend-test-utils/spec-lint.js && npm run openapi:types:check && node --test packages/backend-test-utils/test/"
   }
 }

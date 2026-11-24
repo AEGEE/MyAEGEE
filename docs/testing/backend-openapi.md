@@ -14,7 +14,7 @@ service's existing jest tests prove that it is right:
 | Route parity | A route in `lib/server.js` that the spec lacks, a spec operation that Express does not register, or a mount the recorder cannot see into | `test/unit/openapi-routes.test.js` in the service |
 | Never exercised | A documented `(operation, status)` that no test produced, or an `x-untested` exemption for one that a test did produce | The service's `<service>-coverage` CI job |
 | Lint | Invalid OpenAPI, an operation without `summary`, `operationId` or `x-permission`, unused components | `openapi` CI job (`npx redocly lint`) |
-| Generated types | `packages/api-types/<service>.ts` out of date | `openapi` CI job (`npx openapi-typescript --check`) |
+| Generated types | `packages/api-types/<service>.ts` out of date | `openapi` CI job (`npm run openapi:types:check`: generates the types and fails on any difference to the committed files; `openapi-typescript --check` cannot be used, because it stops at the first API in `redocly.yaml` that is up to date) |
 | Coverage ratchet | Coverage of all CI shards together below the numbers in `<service>/package.json` | The service's `<service>-coverage` CI job, and a local unsharded `npm run test:ci` |
 | Ratchet lowered | A pull request that lowers those numbers without an approved `Coverage-lowered` trailer | `openapi` CI job (`check-coverage-lowered.js`, all six services) |
 
