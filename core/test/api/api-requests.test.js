@@ -163,7 +163,8 @@ describe('API requests', () => {
             const res = await request({
                 path: '/login',
                 method: 'POST',
-                rawBody: nestedBody(10000, 'text').replace('"username":"x","password":"x"', '"username":"deep-member","password":"deep-password"')
+                rawBody: nestedBody(10000, 'text').replace('"username":"x","password":"x"', '"username":"deep-member","password":"deep-password"'),
+                skipRequestCheck: 'the fields that are nested this deep are not ones a client sends'
             });
 
             expect(res.statusCode).toEqual(200);
