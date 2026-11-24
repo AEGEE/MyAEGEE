@@ -299,7 +299,7 @@
         <div class="field">
           <label class="label" for="su-email">Email <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input id="su-email" class="input" type="email" v-model="event.email" />
+            <input id="su-email" class="input" type="email" v-model="event.email" required />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ') }}</p>
         </div>
