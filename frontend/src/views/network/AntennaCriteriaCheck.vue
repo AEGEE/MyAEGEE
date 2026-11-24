@@ -36,11 +36,11 @@
                   <span v-else>{{ bodyTypeLabel(props.row.type) }}</span>
                 </b-table-column>
 
-                <b-table-column sortable field="netcom" label="NetCom" v-slot="props">
+                <b-table-column sortable field="netcom.first_name" label="NetCom" v-slot="props">
                   {{ props.row.netcom?.first_name }}
                 </b-table-column>
 
-                <b-table-column sortable field="status" label="Status" v-slot="props">
+                <b-table-column sortable field="status" label="Status" :custom-sort="sortByStatus" v-slot="props">
                   <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
                 </b-table-column>
 
@@ -346,6 +346,11 @@ export default {
         const fulfilment = local.antennaCriteria[criterion]
         return fulfilment === 'true' || fulfilment === 'exception'
       }) ? 'is-success' : 'is-warning'
+    },
+    // By Danger or Safe; the bodies' own `status` is always "active" here.
+    sortByStatus (a, b, isAsc) {
+      const order = this.statusValue(a).localeCompare(this.statusValue(b))
+      return isAsc ? order : -order
     },
     statusValue (local) {
       return this.antennaCriteriaMapping[local.type].every(criterion => {
