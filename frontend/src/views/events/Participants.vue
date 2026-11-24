@@ -186,6 +186,8 @@ export default {
             participant: response.data.data
           }
         })
+      }).catch((err) => {
+        this.$root.showError('Could not fetch the application', err)
       })
     }
   },
