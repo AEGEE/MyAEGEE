@@ -160,7 +160,8 @@ export default {
     }))).then((results) => {
       for (const event of [].concat(...results)) {
         if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
-          if (moment().isSameOrBefore(event.starts)) {
+          // An event that has started counts as upcoming until it ends.
+          if (moment().isSameOrBefore(event.ends)) {
             this.events.future.push(event)
           } else {
             this.events.past.push(event)
