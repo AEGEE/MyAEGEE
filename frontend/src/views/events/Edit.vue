@@ -407,51 +407,53 @@
             </div>
           </div>
 
-          <table class="table is-fullwidth is-narrowed">
-            <thead>
-              <tr>
-                <th>Description <span class="has-text-danger">*</span></th>
-                <th>Type <span class="has-text-danger">*</span></th>
-                <th>Required?</th>
-                <th>Values (for select)</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(question, index) in event.questions" v-bind:key="index">
-                <td>
-                  <input class="input" type="text" required :aria-label="'Question ' + (index + 1) + ' description'" v-model="event.questions[index].description" />
-                </td>
-                <td>
-                  <div class="select">
-                    <select :aria-label="'Question ' + (index + 1) + ' type'" v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
-                      <option value="string">String</option>
-                      <option value="text">Text</option>
-                      <option value="number">Number</option>
-                      <option value="checkbox">Checkbox</option>
-                      <option value="select">Select</option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <input type="checkbox" :aria-label="'Question ' + (index + 1) + ' is required'" v-model="event.questions[index].required" />
-                </td>
-                <td>
-                  <input-tag
-                    v-if="event.questions[index].type === 'select'"
-                    placeholder="Add a value"
-                    v-model="event.questions[index].values"
-                    :before-adding="value => value.trim()" />
-                </td>
-                <td>
-                  <button type="button" class="button is-danger" :aria-label="'Delete question ' + (index + 1)" @click="deleteQuestion(index)">Delete question</button>
-                </td>
-              </tr>
-              <tr v-if="event.questions.length === 0">
-                <td colspan="5">No questions are set.</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrowed">
+              <thead>
+                <tr>
+                  <th>Description <span class="has-text-danger">*</span></th>
+                  <th>Type <span class="has-text-danger">*</span></th>
+                  <th>Required?</th>
+                  <th>Values (for select)</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(question, index) in event.questions" v-bind:key="index">
+                  <td>
+                    <input class="input" type="text" required :aria-label="'Question ' + (index + 1) + ' description'" v-model="event.questions[index].description" />
+                  </td>
+                  <td>
+                    <div class="select">
+                      <select :aria-label="'Question ' + (index + 1) + ' type'" v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
+                        <option value="string">String</option>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="select">Select</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td>
+                    <input type="checkbox" :aria-label="'Question ' + (index + 1) + ' is required'" v-model="event.questions[index].required" />
+                  </td>
+                  <td>
+                    <input-tag
+                      v-if="event.questions[index].type === 'select'"
+                      placeholder="Add a value"
+                      v-model="event.questions[index].values"
+                      :before-adding="value => value.trim()" />
+                  </td>
+                  <td>
+                    <button type="button" class="button is-danger" :aria-label="'Delete question ' + (index + 1)" @click="deleteQuestion(index)">Delete question</button>
+                  </td>
+                </tr>
+                <tr v-if="event.questions.length === 0">
+                  <td colspan="5">No questions are set.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="notification is-danger" v-if="errors.questions">
             <div class="content">
@@ -501,31 +503,33 @@
             </MglMap>
           </div>
 
-          <table class="table is-narrowed is-stripped is-fullwidth">
-            <thead>
-              <tr>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Name</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(marker, index) in event.locations" v-bind:key="index">
-                <td>{{ marker.position.lat }}</td>
-                <td>{{ marker.position.lng }}</td>
-                <td>
-                  <input type="text" class="input" required :aria-label="'Location ' + (index + 1) + ' name'" v-model="marker.name" />
-                </td>
-                <td>
-                  <button class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
-                </td>
-              </tr>
-              <tr v-if="event.locations.length === 0">
-                <td colspan="4">No locations added.</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="table is-narrowed is-stripped is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Name</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+                  <td>{{ marker.position.lat }}</td>
+                  <td>{{ marker.position.lng }}</td>
+                  <td>
+                    <input type="text" class="input" required :aria-label="'Location ' + (index + 1) + ' name'" v-model="marker.name" />
+                  </td>
+                  <td>
+                    <button class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                  </td>
+                </tr>
+                <tr v-if="event.locations.length === 0">
+                  <td colspan="4">No locations added.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="field">
             <div class="control">
