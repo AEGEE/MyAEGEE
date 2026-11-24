@@ -2,6 +2,8 @@
 // 401 renews the session once (`POST core /renew`) and repeats the request, and a session that
 // can't be renewed ends on the login page. The renewal without a new refresh token is in
 // session.spec.ts.
+import type { Page } from '@playwright/test';
+
 import { storedTokens, UNAUTHORIZED } from '../support/auth-helpers.ts';
 import { tokens } from '../support/factories/auth.ts';
 import { forbidden, ok } from '../support/factories/base.ts';
@@ -12,6 +14,16 @@ import { ACCESS_TOKEN, REFRESH_TOKEN, test, expect } from '../support/test.ts';
 // What events, statutory and summeruniversity answer a request that needs a login when the
 // access token is no longer valid. (Their public lists answer it as a visitor instead.)
 const NOT_AUTHENTICATED = { success: false, message: 'Error fetching data: user is not authenticated.' };
+
+const SESSION_ENDED = 'Your session has ended. Please log in again. Changes that were not saved are lost.';
+
+// The page has received the answer for `path` and had the chance to act on it: the browser
+// records a resource once its answer has arrived in the page, and two frames later the app's
+// handlers and Vue's re-render have run.
+const pageHasHandled = async (page: Page, path: string): Promise<void> => {
+    await page.waitForFunction((part) => performance.getEntriesByType('resource').some((entry) => entry.name.includes(part)), path);
+    await page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
+};
 
 const renewed = tokens({ access_token: 'renewed-access-token', refresh_token: 'renewed-refresh-token' });
 const withRenewedToken = (headers: Record<string, string>): boolean => headers['x-auth-token'] === renewed.access_token;
@@ -130,6 +142,24 @@ test.describe('tokens and their renewal', () => {
         await expect(account.getByRole('link', { name: 'Login', exact: true })).toBeVisible();
     });
 
+    test('a refusal that arrives after the login page is shown shows nothing over it', async ({ page, api }) => {
+        // The dashboard asks three services at once; one of them answers late.
+        api.fallback(mockEverything);
+        api.on('GET events /mine/participating', { status: 401, json: NOT_AUTHENTICATED });
+        api.on('GET summeruniversity /mine/participating', { status: 401, json: NOT_AUTHENTICATED });
+        api.on('GET statutory /mine', { status: 401, json: NOT_AUTHENTICATED, delayMs: 1500 });
+        api.on('POST core /renew', { status: 403, json: forbidden('Token is not found.') });
+
+        await page.goto('/dashboard');
+        await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/dashboard');
+        await expect(page.getByLabel('Email / Username')).toBeVisible();
+        await pageHasHandled(page, '/api/statutory/mine');
+
+        await expect(toast(page, /Could not/)).toHaveCount(0);
+        await expect(toast(page, SESSION_ENDED)).toHaveCount(1);
+        await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/dashboard');
+    });
+
     test.describe('with only an access token', () => {
         test.use({ tokens: 'access' });
 
@@ -143,6 +173,22 @@ test.describe('tokens and their renewal', () => {
             expect(api.callsTo('POST core /renew')).toEqual([]);
         });
 
+        test('several requests refused at once go to the login page once, with one warning', async ({ page, api }) => {
+            // The dashboard asks three services at once, and there is no refresh token: each
+            // refusal ends the session on its own.
+            api.fallback(mockEverything);
+            for (const route of ['GET events /mine/participating', 'GET summeruniversity /mine/participating', 'GET statutory /mine'] as const) {
+                api.on(route, { status: 401, json: NOT_AUTHENTICATED });
+            }
+
+            await page.goto('/dashboard');
+
+            await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/dashboard');
+            await expect(page.getByLabel('Email / Username')).toBeVisible();
+            await expect(toast(page, SESSION_ENDED)).toHaveCount(1);
+            expect(api.callsTo('POST core /renew')).toEqual([]);
+        });
+
         test('a members-only page that finds the session gone sends to the login page once', async ({ page, api }) => {
             api.on('GET core /members/me', { status: 401, json: UNAUTHORIZED });
             // The events list behind the login page would be a second, wrong way there.
@@ -153,6 +199,8 @@ test.describe('tokens and their renewal', () => {
             await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === '/events/participating');
             await expect(page).toHaveTitle('MyAEGEE | Login');
             expect(api.callsTo('POST core /renew')).toEqual([]);
+            // The session was over before a page opened: nothing was lost, nothing to warn about.
+            await expect(toast(page, SESSION_ENDED)).toHaveCount(0);
             // The blank page the browser starts on, the page asked for and the login page.
             expect(await page.evaluate(() => window.history.length)).toBe(3);
         });

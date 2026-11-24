@@ -3,9 +3,11 @@
 // while the page is still on screen, so every page that reads the member has to cope with
 // there being none. Each page of the small areas and of the shell ends on the login page,
 // without an error in the page (their areas are enforced: a console.error fails the test).
+// When the session ends by itself, the page's requests are stopped: no error of the page shows
+// over the login page, the progress bar at the top finishes, and the member is told why.
 import { FIXED_NOW, ok } from '../support/factories/base.ts';
 import { ROUTES, prepareProfile, redirectOf } from '../support/routes.ts';
-import { freezeTime, openAccountMenu } from '../support/shell.ts';
+import { freezeTime, openAccountMenu, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
 
@@ -19,6 +21,8 @@ const ASK_NOTHING = [
     'oms.about', 'oms.status', 'oms.bug_report', 'oms.confluence', 'oms.calendar',
     'oms.resources.categories.create', 'oms.discounts.categories.create', 'oms.discounts.create'
 ];
+
+const SESSION_ENDED = 'Your session has ended. Please log in again. Changes that were not saved are lost.';
 
 const prepare = (route: (typeof PAGES)[number]) => {
     test.use({ session: 'superadmin', area: route.area });
@@ -42,6 +46,8 @@ for (const route of PAGES) {
 
             await expect(page).toHaveURL('/login');
             await expect(page.getByRole('button', { name: 'Login', exact: true })).toBeVisible();
+            // The member chose to log out: nothing to warn about.
+            await expect(toast(page, SESSION_ENDED)).toHaveCount(0);
         });
     });
 }
@@ -52,12 +58,16 @@ for (const route of PAGES.filter((item) => item.auth && !ASK_NOTHING.includes(it
         prepare(route);
 
         test('ends on the login page', async ({ page, api, me, myPermissions }) => {
-            // Every request of the page answers that the member is not logged in (with each
-            // service's own text), and the refresh token is refused too (core's answer for an
+            // Every request of the page answers that the member is not logged in, with each
+            // service's own text, and the refresh token is refused too (core's answer for an
             // unknown one). The app already knows the member: it fetched them before the page
             // opened.
             const reason = { optional: 'one answer for every request, whichever services the page asks' };
+            // network and discounts
             api.on('* * *', { status: 401, json: { success: false, message: 'Error fetching user: user is not authenticated.' } }, reason);
+            for (const service of ['events', 'statutory', 'summeruniversity'] as const) {
+                api.on(`* ${service} *`, { status: 401, json: { success: false, message: 'Error fetching data: user is not authenticated.' } }, reason);
+            }
             api.on('* core *', { status: 401, json: { success: false, message: 'You are not authorized.' } }, reason);
             const known = { optional: 'asked when the app starts, but not by every page of the app' };
             api.on('GET core /members/me', () => ({ json: ok(me) }), known);
@@ -69,6 +79,15 @@ for (const route of PAGES.filter((item) => item.auth && !ASK_NOTHING.includes(it
             await expect(page).toHaveURL((url) => url.pathname === '/login' && url.searchParams.get('to') === route.url);
             await expect(page.getByRole('button', { name: 'Login', exact: true })).toBeVisible();
             expect(await page.evaluate(() => localStorage.getItem('refresh-token'))).toBeNull();
+            await expect(toast(page, SESSION_ENDED)).toHaveCount(1);
+            await expect(toast(page, /Could not|Some error/)).toHaveCount(0);
+
+            // The progress bar at the top counts every request: the stopped ones have ended too,
+            // so after going on to another page it finishes.
+            await page.getByRole('link', { name: 'Forgot your password?' }).click();
+            await expect(page).toHaveURL('/password_reset');
+            // eslint-disable-next-line no-restricted-syntax -- the progress bar has no role or name; nprogress renders it as #nprogress
+            await expect(page.locator('#nprogress')).toHaveCount(0);
         });
     });
 }

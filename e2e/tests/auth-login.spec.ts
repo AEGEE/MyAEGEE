@@ -44,6 +44,31 @@ test.describe('logging in against core', () => {
         await expect(page).toHaveURL('/login');
     });
 
+    test('a session core no longer knows ends on the login page, says so, and the progress bar finishes', async ({ page, otherAntenna }) => {
+        await page.goto('/login');
+        await logInThroughPage(page, otherAntenna.member.username);
+        await expect(page).toHaveURL('/dashboard');
+
+        // Tokens core doesn't know: it refuses to renew them (403), so the session is over.
+        await page.evaluate(() => {
+            localStorage.setItem('access-token', 'an-access-token-core-does-not-know');
+            localStorage.setItem('refresh-token', 'a-refresh-token-core-does-not-know');
+        });
+        const menu = page.getByRole('navigation', { name: 'Main menu' });
+        await menu.getByRole('button', { name: 'Events listing' }).click();
+        await menu.getByRole('link', { name: 'Participating', exact: true }).click();
+
+        await expect(page).toHaveURL('/login?to=%2Fevents%2Fparticipating');
+        await expect(page.getByRole('alert').filter({ hasText: 'Your session has ended. Please log in again. Changes that were not saved are lost.' })).toBeVisible();
+        await expect(page.getByRole('alert').filter({ hasText: /Could not/ })).toHaveCount(0);
+
+        // The bar at the top counts every request; one that the app stopped must count as ended.
+        await page.getByRole('link', { name: 'Forgot your password?' }).click();
+        await expect(page).toHaveURL('/password_reset');
+        // eslint-disable-next-line no-restricted-syntax -- the progress bar has no role or name; nprogress renders it as #nprogress
+        await expect(page.locator('#nprogress')).toHaveCount(0);
+    });
+
     test('an expired access token is renewed with core, which rotates the refresh token', async ({ page, api, otherAntenna }) => {
         const { username } = otherAntenna.member;
         const tokens = await freshTokens(api, username);
