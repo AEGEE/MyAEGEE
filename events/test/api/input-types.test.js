@@ -16,7 +16,9 @@ const ABOVE_INT4 = 2 ** 31;
 // are refused, also as text.
 const WRONG_DATES = [
     'garbage', '1', '2020-02-31', [], {}, true, '0000-07-01',
-    1e20, -1e16, Date.parse('0001-01-01T00:00:00.000Z') - 1, Date.parse('9999-12-31T23:59:59.999Z') + 1
+    1e20, -1e16, Date.parse('0001-01-01T00:00:00.000Z') - 1, Date.parse('9999-12-31T23:59:59.999Z') + 1,
+    // A fraction of a millisecond is not a time a client sends.
+    Date.parse('2026-12-01T00:00:00.000Z') + 0.5
 ];
 const NOT_TEXT = [[], {}, 5, true];
 // More than 16383 digits after the point (what a Postgres NUMERIC keeps) or 308 before it
