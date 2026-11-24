@@ -75,6 +75,12 @@ export default {
       if (this.query) queryObj.query = this.query
       return queryObj
     },
+    // A campaign of a body, and who signed up through it, are asked for through that body.
+    campaignUrl () {
+      return this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
+        : this.services['core'] + '/campaigns/' + this.$route.params.id
+    },
     ...mapGetters(['services'])
   },
   methods: {
@@ -90,7 +96,7 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       try {
-        const response = await this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id + '/members', {
+        const response = await this.axios.get(this.campaignUrl + '/members', {
           params: this.queryObject,
           cancelToken: this.source.token
         })
@@ -111,11 +117,7 @@ export default {
     async fetchCampaign () {
       this.isLoading = true
       try {
-        const campaignUrl = this.$route.params.body_id
-          ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
-          : this.services['core'] + '/campaigns/' + this.$route.params.id
-
-        const campaignsResponse = await this.axios.get(campaignUrl)
+        const campaignsResponse = await this.axios.get(this.campaignUrl)
         this.campaign = campaignsResponse.data.data
 
         this.isLoading = false
