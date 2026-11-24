@@ -344,6 +344,8 @@ export default {
         this.$root.showSuccess(`Successfully updated the status of question line "${questionLine.name}" to ${questionLine.status}.`)
       }).catch((err) => {
         questionLine.isSaving = false
+        // The select shows the stored status again.
+        questionLine.newStatus = questionLine.status
         this.$root.showError('Could not update question line status', err)
       })
     }
