@@ -12,7 +12,17 @@ const regularUser = require('../assets/core-valid.json').data;
 // anyone writing them, and fails them until it has a request here.
 const { spec } = createContract({ serviceRoot: path.join(__dirname, '..', '..') });
 
+exports.spec = spec;
 exports.operations = listOperations(spec);
+
+// The operations that take a JSON body, with the schema of that body.
+exports.jsonBodyOperations = exports.operations
+    .map((operation) => {
+        const { requestBody } = spec.paths[operation.template][operation.method.toLowerCase()];
+        const json = requestBody && requestBody.content && requestBody.content['application/json'];
+        return json ? { ...operation, bodySchema: json.schema } : null;
+    })
+    .filter(Boolean);
 
 // Everything statutory asks core about, so that only the request itself decides the answer.
 exports.ALL_PERMISSIONS = [
@@ -152,6 +162,18 @@ exports.createFixtures = async () => {
             question_id: question.id
         }
     };
+};
+
+// The path of an operation with the values of the fixtures, some of them replaced.
+exports.pathFor = (operation, fixtures, pathValues = {}) => {
+    const values = { ...fixtures.pathValues, ...pathValues };
+    return operation.template.replace(/\{(\w+)\}/g, (_, name) => encodeURIComponent(values[name]));
+};
+
+// What the valid request of an operation sends besides its path.
+exports.validRequestOf = (operation, fixtures) => {
+    const build = requests[operation.operationId];
+    return build ? build(fixtures) : {};
 };
 
 // Sends the valid request of an operation, with some path values replaced.

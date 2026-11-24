@@ -3,6 +3,7 @@ const { rimraf } = require('rimraf');
 const { startServer, stopServer } = require('../../lib/server');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const { request } = require('../scripts/helpers');
 const {
     operations,
     createFixtures,
@@ -98,7 +99,7 @@ describe('Path parameters', () => {
             .toEqual([...Object.keys(invalidBodyId), 'getPaxLimit'].sort());
     });
 
-    test.each(rows('event_id', [UNKNOWN_ID, 'no-such-event']))('%s answers 404 for the event %s', async (_, value, operation) => {
+    test.each(rows('event_id', [UNKNOWN_ID, 'no-such-event', 'a\u0000b', '%', '50%_']))('%s answers 404 for the event %j', async (_, value, operation) => {
         const res = await requestFor(operation, fixtures, { pathValues: { event_id: value } });
 
         expect(res.statusCode).toEqual(404);
@@ -122,7 +123,7 @@ describe('Path parameters', () => {
     });
 
     // application_id is an id when it is all digits, otherwise a statutory id, so no value is malformed.
-    test.each(rows('application_id', [UNKNOWN_ID, '999-9999']))('%s answers 404 for the application %s', async (_, value, operation) => {
+    test.each(rows('application_id', [UNKNOWN_ID, '999-9999', 'a\u0000b']))('%s answers 404 for the application %j', async (_, value, operation) => {
         const res = await requestFor(operation, fixtures, { pathValues: { application_id: value } });
 
         expect(res.statusCode).toEqual(404);
@@ -172,4 +173,20 @@ describe('Path parameters', () => {
             message: 'Prefix should be one of these: "all", "incoming", but received everything'
         });
     });
+
+    // The sweeps above encode their values; a path can also come with an encoding that is broken.
+    test.each(operations.filter((operation) => operation.pathParams.length > 0).map((operation) => [`${operation.method} ${operation.template}`, operation]))(
+        '%s answers 400 for a path that cannot be decoded',
+        async (_, operation) => {
+            const [first] = operation.pathParams;
+            const path = operation.template
+                .replace(`{${first}}`, '%E0%A4%A')
+                .replace(/\{(\w+)\}/g, (__, name) => encodeURIComponent(fixtures.pathValues[name]));
+
+            const res = await request({ path, method: operation.method, headers: { 'X-Auth-Token': 'blablabla' } });
+
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({ success: false, message: 'The path could not be read.' });
+        }
+    );
 });

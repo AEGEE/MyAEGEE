@@ -1073,8 +1073,8 @@ export interface paths {
          *     the applicant could apply from (`editable_bodies`, empty unless the caller may edit
          *     the application). Three shapes:
          *
-         *     - the whole application, for those who manage applications and the board of the
-         *       applicant's body;
+         *     - the whole application, for those who manage applications, those who approve the
+         *       members of all bodies and the board of the applicant's body;
          *     - the whole application without `board_comment`, for the applicant;
          *     - the fields of the local organisers' list, for those who only hold
          *       `manage_incoming`, and only for accepted applications that are not cancelled
@@ -1945,8 +1945,10 @@ export interface paths {
          * @description Closes the open attendance of the application at this plenary, or starts one when
          *     none is open. Attendance can be marked from before the plenary starts until the
          *     moment it ends, that moment included; an attendance that is still open then is
-         *     closed by the service. 403 is also the answer when the plenary is over, and when the
-         *     applicant is not a delegate or an envoy. 404 is also the answer when the event has
+         *     closed by the service. A member has at most one open attendance at a plenary: a mark
+         *     that meets another mark of the same member answers with the attendance that one
+         *     opened. 403 is also the answer when the plenary is over, when the applicant is not a
+         *     delegate or an envoy, and when the application is not accepted or is cancelled. 404 is also the answer when the event has
          *     no such application. 422 is the answer when the attendance would end at the moment
          *     it started.
          */
@@ -3423,6 +3425,51 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
+        /** @description The path has a broken percent encoding ("The path could not be read."). */
+        PathUnreadable: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body could not be read ("The request body could not be read." for a broken compression or a body nested more than 32 levels deep, "Invalid JSON." for text that is not JSON), holds a text or a key with characters that cannot be stored ("The request body contains characters that cannot be stored.": NUL, an unpaired surrogate), or is not an object ("The body should be an object."). Checked before the route, so also without a token. */
+        UnreadableBody: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is larger than 1 MB ("The request body could not be read."). Checked before the route. */
+        BodyTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description The body is in a charset or a content encoding that is not supported ("The request body could not be read."). Checked before the route. */
+        BodyUnsupported: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body) for longer than the lock timeout of 5 seconds: "The server is busy, please try again." Nothing was changed. */
+        Busy: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
         /** @description Validation failed. */
         ValidationFailed: {
             headers: {
@@ -3437,7 +3484,7 @@ export interface components {
         /** @description A limit of 0 answers an empty page with the count of all rows. */
         Limit: number;
         Offset: number;
-        /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
+        /** @description `sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list. */
         ApplicationSort: {
             field?: string;
             /** @enum {string} */
@@ -3615,8 +3662,11 @@ export interface operations {
                     "application/json": components["schemas"]["EventResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3884,6 +3934,8 @@ export interface operations {
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3912,6 +3964,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventWithPermissionsResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             404: components["responses"]["NotFound"];
         };
     };
@@ -3944,9 +3997,12 @@ export interface operations {
                     "application/json": components["schemas"]["EventWithImageResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -3975,6 +4031,7 @@ export interface operations {
                     "application/json": components["schemas"]["FieldNamesResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             404: components["responses"]["NotFound"];
         };
     };
@@ -4003,6 +4060,7 @@ export interface operations {
                     "application/json": components["schemas"]["FieldNamesResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             404: components["responses"]["NotFound"];
         };
     };
@@ -4031,6 +4089,7 @@ export interface operations {
                     "application/json": components["schemas"]["FieldNamesResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             404: components["responses"]["NotFound"];
         };
     };
@@ -4075,6 +4134,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -4103,6 +4164,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventWithImageResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -4146,10 +4208,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationPresentedResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     listApplications: {
@@ -4158,7 +4224,7 @@ export interface operations {
                 /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
-                /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
+                /** @description `sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list. */
                 sort?: components["parameters"]["ApplicationSort"];
                 /** @description Part of the first name, the last name or the statutory id, case-insensitive. */
                 query?: components["parameters"]["ApplicationQuery"];
@@ -4218,6 +4284,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationParticipantListResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -4229,7 +4296,7 @@ export interface operations {
                 /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
-                /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
+                /** @description `sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list. */
                 sort?: components["parameters"]["ApplicationSort"];
                 /** @description Part of the first name, the last name or the statutory id, case-insensitive. */
                 query?: components["parameters"]["ApplicationQuery"];
@@ -4268,7 +4335,7 @@ export interface operations {
                 /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
-                /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
+                /** @description `sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list. */
                 sort?: components["parameters"]["ApplicationSort"];
                 /** @description Part of the first name, the last name or the statutory id, case-insensitive. */
                 query?: components["parameters"]["ApplicationQuery"];
@@ -4307,7 +4374,7 @@ export interface operations {
                 /** @description A limit of 0 answers an empty page with the count of all rows. */
                 limit?: components["parameters"]["Limit"];
                 offset?: components["parameters"]["Offset"];
-                /** @description `sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`). */
+                /** @description `sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list. */
                 sort?: components["parameters"]["ApplicationSort"];
                 /** @description Part of the first name, the last name or the statutory id, case-insensitive. */
                 query?: components["parameters"]["ApplicationQuery"];
@@ -4365,6 +4432,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationStatsResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
         };
@@ -4395,6 +4463,7 @@ export interface operations {
                     "text/csv": unknown;
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -4426,6 +4495,7 @@ export interface operations {
                     "text/csv": unknown;
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -4546,7 +4616,10 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationCancelled: {
@@ -4583,10 +4656,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationPresentedResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationAttended: {
@@ -4623,10 +4700,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationIncomingFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationRegistered: {
@@ -4663,10 +4744,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationJuridicalFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationDeparted: {
@@ -4703,10 +4788,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationJuridicalFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationConfirmed: {
@@ -4743,10 +4832,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationIncomingFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationIncoming: {
@@ -4783,10 +4876,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationIncomingFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationIsOnMemberslist: {
@@ -4823,10 +4920,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationNetworkFlagResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationStatus: {
@@ -4863,10 +4964,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setApplicationBoard: {
@@ -4903,10 +5008,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     getApplication: {
@@ -4939,6 +5048,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationWithPermissionsResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -4978,10 +5088,14 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationPresentedResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     listMemberslists: {
@@ -5169,7 +5283,10 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
+            503: components["responses"]["Busy"];
         };
     };
     setMemberslistFeePaid: {
@@ -5223,6 +5340,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5259,6 +5378,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
         };
     };
     listVotesPerAntenna: {
@@ -5424,6 +5545,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5568,6 +5691,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5606,6 +5731,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5697,6 +5824,7 @@ export interface operations {
                     "application/json": components["schemas"]["QuestionLineWithQuestionsListResponse"];
                 };
             };
+            400: components["responses"]["PathUnreadable"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
@@ -5731,9 +5859,12 @@ export interface operations {
                     "application/json": components["schemas"]["QuestionLineResponse"];
                 };
             };
+            400: components["responses"]["UnreadableBody"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5772,6 +5903,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5810,6 +5943,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5881,6 +6016,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -5956,6 +6093,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6029,6 +6168,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6104,6 +6245,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6190,6 +6333,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6257,6 +6402,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6360,6 +6507,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };
@@ -6398,6 +6547,8 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["BodyTooLarge"];
+            415: components["responses"]["BodyUnsupported"];
             422: components["responses"]["ValidationFailed"];
         };
     };

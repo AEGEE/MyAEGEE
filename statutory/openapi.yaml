@@ -145,8 +145,11 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /tasks:
     get:
@@ -319,6 +322,8 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     get:
       operationId: listPaxLimits
@@ -354,6 +359,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventWithPermissionsResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '404': {$ref: '#/components/responses/NotFound'}
     put:
       operationId: updateEvent
@@ -375,9 +381,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventWithImageResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/fields/applications/all:
     parameters:
@@ -397,6 +406,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '404': {$ref: '#/components/responses/NotFound'}
   /events/{event_id}/fields/applications/incoming:
     parameters:
@@ -413,6 +423,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '404': {$ref: '#/components/responses/NotFound'}
   /events/{event_id}/fields/candidates:
     parameters:
@@ -429,6 +440,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/FieldNamesResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '404': {$ref: '#/components/responses/NotFound'}
   /events/{event_id}/status:
     parameters:
@@ -462,6 +474,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/image:
     parameters:
@@ -480,6 +494,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/EventWithImageResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -518,10 +533,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/all:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -562,6 +581,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationParticipantListResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -656,6 +676,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationStatsResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
   /events/{event_id}/applications/export/openslides:
@@ -675,6 +696,7 @@ paths:
               schema: {type: string}
           content:
             text/csv: {}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -695,6 +717,7 @@ paths:
               schema: {type: string}
           content:
             text/csv: {}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -790,7 +813,10 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/cancel:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -814,10 +840,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/attended:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -842,10 +872,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/registered:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -870,10 +904,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationJuridicalFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/departed:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -898,10 +936,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationJuridicalFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/confirmed:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -926,10 +968,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/incoming:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -954,10 +1000,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationIncomingFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/is_on_memberslist:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -982,10 +1032,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationNetworkFlagResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/status:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1007,10 +1061,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}/board:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1034,10 +1092,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/applications/{application_id}:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1050,8 +1112,8 @@ paths:
         the applicant could apply from (`editable_bodies`, empty unless the caller may edit
         the application). Three shapes:
 
-        - the whole application, for those who manage applications and the board of the
-          applicant's body;
+        - the whole application, for those who manage applications, those who approve the
+          members of all bodies and the board of the applicant's body;
         - the whole application without `board_comment`, for the applicant;
         - the fields of the local organisers' list, for those who only hold
           `manage_incoming`, and only for accepted applications that are not cancelled
@@ -1060,13 +1122,14 @@ paths:
         `status` reads `pending` until the event reveals the statuses, unless the caller
         manages the applications.
       tags: [applications]
-      x-permission: 'the applicant, global:manage_applications:<type>, approve_members:<type> in the applicant''s body, or global:manage_incoming:<type>'
+      x-permission: 'the applicant, global:manage_applications:<type>, global:approve_members:<type> or approve_members:<type> in the applicant''s body, or global:manage_incoming:<type>'
       responses:
         '200':
           description: The application as the caller may see it.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationWithPermissionsResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -1094,10 +1157,14 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationPresentedResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/memberslists:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1209,7 +1276,10 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/Busy'}
   /events/{event_id}/memberslists/{body_id}/fee_paid:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1242,6 +1312,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/massmailer:
     parameters:
@@ -1273,6 +1345,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /events/{event_id}/votes-amounts/antenna:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -1374,6 +1448,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/positions/export:
     parameters:
@@ -1475,6 +1551,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/positions/{position_id}:
     parameters:
@@ -1517,6 +1595,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/positions/candidates/mine:
     parameters:
@@ -1544,13 +1624,14 @@ paths:
       summary: List the question lines of an event with their questions
       description: The oldest question line first, each question with a few fields of the application of the member who asked it.
       tags: [question_lines]
-      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, or a confirmed application to the event'
+      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, or an application to the event that is confirmed and not cancelled'
       responses:
         '200':
           description: The question lines.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/QuestionLineWithQuestionsListResponse'}
+        '400': {$ref: '#/components/responses/PathUnreadable'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
@@ -1571,9 +1652,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/QuestionLineResponse'}
+        '400': {$ref: '#/components/responses/UnreadableBody'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/question-lines/{question_line_id}/status:
     parameters:
@@ -1600,6 +1684,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/question-lines/{question_line_id}:
     parameters:
@@ -1626,6 +1712,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteQuestionLine
@@ -1651,7 +1739,7 @@ paths:
       summary: Ask a question in a question line
       description: The question is stored for the caller's application. 403 is also the answer when the question line is closed.
       tags: [questions]
-      x-permission: a confirmed application to the event, while the question line is open
+      x-permission: an application to the event that is confirmed and not cancelled, while the question line is open
       requestBody:
         required: true
         content:
@@ -1667,6 +1755,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/question-lines/{question_line_id}/questions/{question_id}:
     parameters:
@@ -1677,7 +1767,7 @@ paths:
       operationId: getQuestion
       summary: One question
       tags: [questions]
-      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, or a confirmed application to the event'
+      x-permission: 'global:manage_question_lines:<type>, global:see_question_lines:<type>, an application to the event that is confirmed and not cancelled, or the member who asked it'
       responses:
         '200':
           description: The question with a few fields of the application of the member who asked it.
@@ -1711,6 +1801,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     delete:
       operationId: deleteQuestion
@@ -1755,6 +1847,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/positions/{position_id}/candidates/{candidate_id}:
     parameters:
@@ -1799,6 +1893,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/positions/{position_id}/candidates/{candidate_id}/{image}:
     parameters:
@@ -1859,6 +1955,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/plenaries:
     parameters:
@@ -1899,6 +1997,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
   /events/{event_id}/plenaries/stats:
     parameters:
@@ -1945,6 +2045,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
     get:
       operationId: getPlenary
@@ -1973,8 +2075,10 @@ paths:
         Closes the open attendance of the application at this plenary, or starts one when
         none is open. Attendance can be marked from before the plenary starts until the
         moment it ends, that moment included; an attendance that is still open then is
-        closed by the service. 403 is also the answer when the plenary is over, and when the
-        applicant is not a delegate or an envoy. 404 is also the answer when the event has
+        closed by the service. A member has at most one open attendance at a plenary: a mark
+        that meets another mark of the same member answers with the attendance that one
+        opened. 403 is also the answer when the plenary is over, when the applicant is not a
+        delegate or an envoy, and when the application is not accepted or is cancelled. 404 is also the answer when the event has
         no such application. 422 is the answer when the attendance would end at the moment
         it started.
       tags: [plenaries]
@@ -1994,6 +2098,8 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
 components:
   securitySchemes:
@@ -2010,7 +2116,7 @@ components:
       in: query
       style: deepObject
       explode: true
-      description: '`sort[field]` is one of the fields the list returns (default `id`), `sort[order]` the direction (default `desc`).'
+      description: '`sort[field]` is one of the fields the list returns (default `id`; another field answers 400 "Sorting by this field is not supported."), `sort[order]` the direction (default `desc`). Each is one text, not a list.'
       schema:
         type: object
         properties:
@@ -2106,6 +2212,11 @@ components:
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    PathUnreadable: {description: 'The path has a broken percent encoding ("The path could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    UnreadableBody: {description: 'The body could not be read ("The request body could not be read." for a broken compression or a body nested more than 32 levels deep, "Invalid JSON." for text that is not JSON), holds a text or a key with characters that cannot be stored ("The request body contains characters that cannot be stored.": NUL, an unpaired surrogate), or is not an object ("The body should be an object."). Checked before the route, so also without a token.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The body is larger than 1 MB ("The request body could not be read."). Checked before the route.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyUnsupported: {description: 'The body is in a charset or a content encoding that is not supported ("The request body could not be read."). Checked before the route.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Busy: {description: 'Other requests held a lock on the same rows (the statutory IDs of the event, the votes of the body) for longer than the lock timeout of 5 seconds: "The server is busy, please try again." Nothing was changed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   schemas:
     ErrorResponse:
