@@ -403,12 +403,12 @@ test.describe('Summer University list', () => {
 
             const asked = page.waitForRequest(isTo('/summeruniversity'));
             await page.goto('/summeruniversity');
-            await asked;
+            const request = await asked;
             await goToAllEvents(page, layout);
 
-            const late = page.waitForResponse((response) => isTo('/summeruniversity')(response.request()));
             list.release();
-            await late;
+            // The late answer, or nothing if the page gave the request up when the member left.
+            await request.response();
             await settle(page);
 
             // Counted at once: a retrying matcher would only wait until a toast has gone.
