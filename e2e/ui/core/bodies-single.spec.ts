@@ -608,6 +608,21 @@ test.describe('adding a board from the body page', () => {
         await expect.poll(() => api.callsTo('POST network /bodies/:id/boards')[0].body).toMatchObject({ other_members: [] });
     });
 
+    test('says why the body details could not be saved, and saves no board then', async ({ page, api }) => {
+        answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
+        api.on('PUT core /bodies/:id', { status: 403, json: forbidden('Permission update:body is required, but not present.') });
+
+        await page.goto('/bodies/1');
+        await page.getByRole('button', { name: 'Change board' }).click();
+        const modal = dialog(page, 'Add board');
+        await modal.getByRole('button', { name: 'Save changes' }).click();
+
+        await expect(toast(page, 'Could not save the body details: Permission update:body is required, but not present.')).toBeVisible();
+        await expect(modal.getByRole('button', { name: 'Save changes' })).toBeEnabled();
+        await expect.poll(() => api.callsTo('PUT core /bodies/:id').length).toBe(1);
+        expect(api.callsTo('POST network /bodies/:id/boards')).toHaveLength(0);
+    });
+
     test('says why the people could not be searched', async ({ page, api }) => {
         answer(api, antenna(), { permissions: ['local:manage_network:boards'] });
         api.on('GET core /bodies/:id/members', { status: 500, json: { success: false, message: 'Database is down' } });
