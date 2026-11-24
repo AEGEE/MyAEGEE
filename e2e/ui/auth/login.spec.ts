@@ -2,6 +2,7 @@
 // logging in.
 import { answerLogin, storedTokens } from '../support/auth-helpers.ts';
 import { forbidden } from '../support/factories/base.ts';
+import { member } from '../support/factories/core.ts';
 import { openAccountMenu } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
@@ -50,6 +51,20 @@ test.describe('login page', () => {
         await expect(page).toHaveURL('/events/participating');
         await expect(page).toHaveTitle("MyAEGEE | List events I'm participating at");
         expect(api.callsTo('POST core /login').map((call) => call.body)).toEqual([{ username: 'member@example.com', password: '5ecr3t5ecr3t' }]);
+    });
+
+    test('a member whose profile is incomplete goes on to complete it', async ({ page, api }) => {
+        answerLogin(api, { member: member({ id: 2, username: 'member', privacy_consent: null }) });
+        api.fallback(mockEverything);
+        await page.goto('/login?to=/events/participating');
+
+        await page.getByLabel('Email / Username').fill('member');
+        await page.getByLabel('Password', { exact: true }).fill('5ecr3t5ecr3t');
+        await page.getByRole('button', { name: 'Login', exact: true }).click();
+
+        await expect(page).toHaveURL('/profile/update');
+        await expect(page.getByRole('listitem').filter({ hasText: 'You should agree to the Privacy Policy.' })).toBeVisible();
+        await expect(page.getByRole('alert').filter({ hasText: 'An error occured while logging in.' })).toBeHidden();
     });
 
     test('shows core\'s message for a wrong password or an unknown name, and clears it on the next try', async ({ page, api }) => {
