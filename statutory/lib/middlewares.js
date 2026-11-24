@@ -2,6 +2,7 @@ const core = require('./core');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
+const { Sequelize } = require('./sequelize');
 const constants = require('./constants');
 const { Event, Application, Image, PaxLimit } = require('../models');
 const Bugsnag = require('./bugsnag');
@@ -63,11 +64,13 @@ exports.ensureAuthorized = async (req, res, next) => {
 };
 
 exports.fetchEvent = async (req, res, next) => {
-    // The URL as it is written, in any case: URLs are stored in lower case.
+    // The URL as it is written, in any case. Both sides are compared in lower case:
+    // the URLs of older events are stored with the capitals they were written with.
     let query = {
-        where: {
-            url: req.params.event_id.toLowerCase(),
-        }
+        where: Sequelize.where(
+            Sequelize.fn('lower', Sequelize.col('event.url')),
+            req.params.event_id.toLowerCase()
+        )
     };
 
     // If event_id is not an integer, assuming it's the event URL.
