@@ -14,7 +14,7 @@ exports.listCircleMembers = async (req, res) => {
             circle_id: req.currentCircle.id
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, CircleMembership),
         include: [User]
     });
 
@@ -30,11 +30,12 @@ exports.createMembership = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission add_member:circle is required, but not present.');
     }
 
-    if (!helpers.isNumber(req.body.user_id)) {
+    const userId = helpers.parseId(req.body.user_id);
+    if (!userId) {
         return errors.makeBadRequestError(res, 'The user ID is not valid.');
     }
 
-    const user = await User.findByPk(req.body.user_id);
+    const user = await User.findByPk(userId);
     if (!user) {
         return errors.makeNotFoundError(res, 'The user is not found.');
     }
@@ -44,7 +45,7 @@ exports.createMembership = async (req, res) => {
         const membership = await BodyMembership.findOne({
             where: {
                 body_id: req.currentCircle.body_id,
-                user_id: req.body.user_id
+                user_id: user.id
             }
         });
         if (!membership) {
@@ -80,6 +81,7 @@ exports.updateMembership = async (req, res) => {
     }
 
     await req.currentCircleMembership.update({ position: req.body.position });
+    await req.currentCircleMembership.reload();
     return res.json({
         success: true,
         data: req.currentCircleMembership

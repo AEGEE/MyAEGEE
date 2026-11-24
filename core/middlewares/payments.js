@@ -11,7 +11,7 @@ exports.listAllPayments = async (req, res) => {
     const result = await Payment.findAndCountAll({
         where: { body_id: req.currentBody.id },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Payment)
     });
 
     return res.json({
@@ -26,8 +26,13 @@ exports.createPayment = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission create:payment is required, but not present.');
     }
 
+    const userId = helpers.parseId(req.body.user_id);
+    if (!userId) {
+        return errors.makeBadRequestError(res, 'The user ID is not valid.');
+    }
+
     const user = await User.findOne({
-        where: { id: req.body.user_id },
+        where: { id: userId },
         include: [BodyMembership]
     });
 
@@ -57,6 +62,7 @@ exports.updatePayment = async (req, res) => {
     }
 
     await req.currentPayment.update(req.body, { fields: constants.FIELDS_TO_UPDATE.PAYMENT.UPDATE });
+    await req.currentPayment.reload();
     return res.json({
         success: true,
         data: req.currentPayment

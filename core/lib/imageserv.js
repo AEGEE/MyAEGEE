@@ -35,7 +35,9 @@ const upload = multer({
         const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
             const allowed = allowedExtensions.map((e) => `'${e}'`).join(', ');
-            return cb(new Error(`Allowed extensions: ${allowed}, but '${extension}' was passed.`));
+            const err = new Error(`Allowed extensions: ${allowed}.`);
+            err.code = 'WRONG_EXTENSION';
+            return cb(err);
         }
 
         return cb(null, true);
@@ -82,7 +84,13 @@ exports.uploadImage = async (req, res) => {
             return errors.makeValidationError(res, 'No head_image is specified.');
         }
 
-        return errors.makeValidationError(res, err);
+        // A wrong extension and multer's other refusals are about the request.
+        if (err.code === 'WRONG_EXTENSION' || err.name === 'MulterError') {
+            return errors.makeValidationError(res, err.message);
+        }
+
+        // Anything else failed on the server's disk, and its text can name paths on it.
+        return errors.makeInternalError(res);
     }
 
     // If the head_image field is missing, do nothing.

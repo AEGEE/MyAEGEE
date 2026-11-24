@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
+const { reportMailFailure } = require('../lib/mail-failures');
 const {
     User,
     AccessToken,
@@ -52,7 +53,8 @@ exports.maybeAuthorize = async (req, res, next) => {
 
     req.user = accessToken.user;
 
-    const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id', 'body_id'] });
+    // Only what the permissions are computed from, of every circle there is.
+    const circles = await Circle.findAll({ attributes: ['id', 'parent_circle_id', 'body_id'] });
 
     req.permissions = new PermissionManager({ user: req.user });
     req.permissions.addCircles(circles);
@@ -88,13 +90,49 @@ exports.healthcheck = (req, res) => {
 };
 
 /* eslint-disable no-unused-vars */
-exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+// The query is left out: it is the client's input, and can carry a token.
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl.split('?')[0]);
+
+// The ids of what a request is about, as far as the routes found it: who sent it, the member,
+// the body and the join request.
+const requestIds = (req) => {
+    const ids = {
+        user_id: req.user && req.user.id,
+        member_id: req.currentUser && req.currentUser.id,
+        body_id: req.currentBody && req.currentBody.id,
+        join_request_id: req.currentJoinRequest && req.currentJoinRequest.id
+    };
+
+    return Object.fromEntries(Object.entries(ids).filter(([, id]) => id !== undefined));
+};
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
     // Handling invalid JSON
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
+    }
+
+    // Handling a body the JSON parser could not read (too large, an unknown charset or
+    // encoding, a compressed body that does not decompress): its own status, a fixed text.
+    if (err.expose && err.status >= 400 && err.status < 500) {
+        return errors.makeError(res, err.status, 'The request body could not be read.');
+    }
+
+    // Handling input that a helper refused (like a field that a list can't be sorted by)
+    if (err instanceof errors.BadRequestError) {
+        return errors.makeBadRequestError(res, err.message);
+    }
+
+    // Handling a mail that could not be sent: the route rolled back, so trying again may work
+    if (errors.isMailError(err)) {
+        reportMailFailure(err, 'Could not send a mail', requestIds(req));
+        return errors.makeMailError(res);
+    }
+
+    // Handling a request that gave up waiting for another one (see helpers.setLockTimeout)
+    if (errors.isLockTimeout(err)) {
+        return errors.makeBusyError(res);
     }
 
     // Handling validation errors
@@ -106,5 +144,5 @@ exports.errorHandler = (err, req, res, next) => {
     /* istanbul ignore next */
     logger.error({ err }, 'Request error');
     /* istanbul ignore next */
-    return errors.makeInternalError(res, err);
+    return errors.makeInternalError(res);
 };

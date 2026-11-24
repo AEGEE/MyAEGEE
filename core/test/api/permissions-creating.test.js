@@ -102,4 +102,37 @@ describe('Permissions creating', () => {
         expect(permissionFromDb.filters).toEqual(['name']);
         expect(permissionFromDb.combined).toEqual(`global:${permission.action}:${permission.object}`);
     });
+
+    test('should refuse a filter that is longer than its column', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
+
+        const res = await request({
+            path: '/permissions',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: generator.generatePermission({ filters: ['name', 'a'.repeat(256)] })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({ filters: ['Each filter should be at most 255 characters long.'] });
+        expect(await Permission.count()).toEqual(1);
+    });
+
+    test('should accept a filter of 255 characters', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
+
+        const res = await request({
+            path: '/permissions',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: generator.generatePermission({ filters: ['a'.repeat(255)] })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.filters).toEqual(['a'.repeat(255)]);
+    });
 });

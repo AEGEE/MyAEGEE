@@ -55,6 +55,24 @@ describe('User editing', () => {
         expect(res.body.errors).toHaveProperty('username');
     });
 
+    test('should not repeat the sent names in the validation messages', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { first_name: 'Some1', last_name: 'Other2' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.errors).toEqual({
+            first_name: ['First name should only contain letters, spaces and dashes.'],
+            last_name: ['Last name should only contain letters, spaces and dashes.']
+        });
+    });
+
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);

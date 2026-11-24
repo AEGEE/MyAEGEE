@@ -81,4 +81,20 @@ describe('Mail confirmation', () => {
         const userFromDb = await User.findByPk(user.id);
         expect(userFromDb.mail_confirmed_at).not.toEqual(null);
     });
+
+    test.each([
+        ['a number', 5],
+        ['a list', ['a']],
+        ['an object', { a: 1 }],
+        ['a boolean', true]
+    ])('should answer 400 if the token is %s', async (name, value) => {
+        const res = await request({
+            path: '/confirm-email',
+            method: 'POST',
+            body: { token: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'No token specified.' });
+    });
 });

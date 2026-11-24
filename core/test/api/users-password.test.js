@@ -163,4 +163,52 @@ describe('User activation', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test.each([
+        ['is missing', {}],
+        ['is a number', { old_password: 5 }],
+        ['is a list', { old_password: ['testtest'] }],
+        ['is an object', { old_password: { a: 1 } }],
+        ['is null', { old_password: null }]
+    ])('should fail if the old password %s', async (name, fields) => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { ...fields, password: 'testtest2' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, message: 'The old password is invalid.' });
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('testtest')).toEqual(true);
+    });
+
+    test.each([
+        ['a number', 12345678],
+        ['a list', ['testtest2']],
+        ['an object', { a: 'testtest2' }],
+        ['a boolean', true]
+    ])('should fail if the new password is %s', async (name, value) => {
+        const user = await generator.createUser({ password: 'testtest' });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/password',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { old_password: 'testtest', password: value }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('password');
+
+        const userFromDb = await User.scope('withPassword').findByPk(user.id);
+        expect(await userFromDb.checkPassword('testtest')).toEqual(true);
+    });
 });

@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const validators = require('../lib/validators');
 
 const Campaign = sequelize.define('campaign', {
     name: {
@@ -21,7 +22,10 @@ const Campaign = sequelize.define('campaign', {
     active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: true,
+        validate: {
+            isBoolean: validators.isBoolean('Active should be true or false.')
+        }
     },
     description_short: {
         type: Sequelize.TEXT,
@@ -38,10 +42,15 @@ const Campaign = sequelize.define('campaign', {
             notNull: { msg: 'Description should be set.' }
         }
     },
+    // The column does not take null.
     activate_user: {
         type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: true
+        allowNull: false,
+        defaultValue: true,
+        validate: {
+            notNull: { msg: 'Activate user should be true or false.' },
+            isBoolean: validators.isBoolean('Activate user should be true or false.')
+        }
     }
 }, {
     underscored: true,

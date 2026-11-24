@@ -293,4 +293,102 @@ describe('User subscribe listserv', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
     });
+
+    describe('for another member', () => {
+        const subscribeOther = async () => {
+            const user = await generator.createUser({ first_name: 'Board', last_name: 'Member', email: 'board@example.com' });
+            const token = await generator.createAccessToken(user);
+
+            const permission = await generator.createPermission({ scope: 'global', action: 'subscribe', object: 'listserv' });
+            const circle = await generator.createCircle();
+            await generator.createCircleMembership(circle, user);
+            await generator.createCirclePermission(circle, permission);
+
+            const otherUser = await generator.createUser({ first_name: 'Some', last_name: 'One', email: 'someone@example.com' });
+
+            return request({
+                path: '/members/' + otherUser.id + '/listserv',
+                method: 'POST',
+                headers: { 'X-Auth-Token': token.value },
+                body: { mailinglists: ['ANNOUNCE-L', 'aegee-l'] }
+            });
+        };
+
+        test('should subscribe that member, not the one who asks', async () => {
+            let sent;
+            nock(config.listserv_endpoint).post('', (body) => {
+                sent = body;
+                return true;
+            }).reply(200, 'OK');
+
+            const res = await subscribeOther();
+
+            expect(res.statusCode).toEqual(200);
+            expect(sent).toEqual({
+                token: config.listserv_token,
+                email: 'someone@example.com',
+                name: 'Some One',
+                lists: 'ANNOUNCE-L,AEGEE-L'
+            });
+        });
+    });
+
+    test('should send the own address and name when subscribing oneself', async () => {
+        let sent;
+        nock(config.listserv_endpoint).post('', (body) => {
+            sent = body;
+            return true;
+        }).reply(200, 'OK');
+
+        const user = await generator.createUser({ first_name: 'Some', last_name: 'One', email: 'someone@example.com' });
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(sent.email).toEqual('someone@example.com');
+        expect(sent.name).toEqual('Some One');
+    });
+
+    test('should name the permission that is needed for another member', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+        const otherUser = await generator.createUser();
+
+        const res = await request({
+            path: '/members/' + otherUser.id + '/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L'] }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Permission global:subscribe:listserv is required, but not present.');
+    });
+
+    test.each([
+        ['a number', 1],
+        ['an object', { a: 1 }],
+        ['a list', ['ANNOUNCE-L']],
+        ['null', null]
+    ])('should fail if a mailing list is %s', async (name, value) => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            path: '/members/me/listserv',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { mailinglists: ['ANNOUNCE-L', value] }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toContain('Mailinglists must be one of the following');
+    });
 });

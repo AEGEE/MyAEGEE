@@ -5,6 +5,7 @@ const moment = require('moment');
 const logger = require('./logger');
 const config = require('../config');
 const {
+    MailChange,
     MailConfirmation,
     RefreshToken,
     User,
@@ -42,6 +43,16 @@ const JobCallbacks = {
         });
 
         logger.info({ deleted }, 'Deleted rotated refresh tokens');
+    },
+    // An email change that was not confirmed in time can't be confirmed anymore, and nothing else removes it.
+    DELETE_EXPIRED_MAIL_CHANGES: async () => {
+        const deleted = await MailChange.destroy({
+            where: {
+                expires_at: { [Sequelize.Op.lt]: new Date() }
+            }
+        });
+
+        logger.info({ deleted }, 'Deleted expired email changes');
     }
 };
 
@@ -62,6 +73,12 @@ class JobManager {
                 description: 'Deleting rotated refresh tokens after their grace period.',
                 rule: '0 * * * *',
                 callback: JobCallbacks.DELETE_ROTATED_REFRESH_TOKENS
+            },
+            DELETE_EXPIRED_MAIL_CHANGES: {
+                key: 'DELETE_EXPIRED_MAIL_CHANGES',
+                description: 'Deleting email changes that were not confirmed in time.',
+                rule: '30 * * * *',
+                callback: JobCallbacks.DELETE_EXPIRED_MAIL_CHANGES
             }
         };
     }
@@ -113,6 +130,7 @@ class JobManager {
     async registerAllTasks() {
         this.addJob(this.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
         this.addJob(this.JOB_TYPES.DELETE_ROTATED_REFRESH_TOKENS);
+        this.addJob(this.JOB_TYPES.DELETE_EXPIRED_MAIL_CHANGES);
     }
 
     cancelJob(id) {

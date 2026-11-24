@@ -1,6 +1,8 @@
 const crypto = require('crypto');
-const { sequelize, Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
+const config = require('../config');
 const constants = require('./constants');
+const { BadRequestError } = require('./errors');
 
 // A helper to traverse indirect circles (so if a person is a member
 // of a circle which is a child circle, it should return both of the circles.)
@@ -26,42 +28,53 @@ function traverseIndirectCircles(allCirclesMap, circlesIds) {
     return Object.keys(indirectCircles);
 }
 
-// Figure out if the value is a number or a string containing only numbers
-function isNumber(value) {
-    /* istanbul ignore if */
-    if (typeof value === 'number') {
-        return true;
-    }
+// The highest ID (and the highest limit and offset) that fits the integer columns of the database.
+const MAX_ID = 2147483647;
 
-    /* istanbul ignore else */
-    if (typeof value === 'string') {
-        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
-        return !Number.isNaN(valueAsNumber);
-    }
+// For a value that should be the ID of something: returns it as a number, or null if it's not
+// a positive whole number that an ID can be (given as a number or as a text of digits).
+const parseId = (value) => {
+    const id = typeof value === 'string' && /^[0-9]+$/.test(value) ? Number(value) : value;
+    return Number.isSafeInteger(id) && id > 0 && id <= MAX_ID ? id : null;
+};
 
-    // Is not covered, probably will be in the future.
-    /* istanbul ignore next */
-    return false;
-}
-
+// A limit or an offset that is not a positive whole number is left out, like one that is not given.
 function getPagination(query) {
     const result = {};
 
-    if (query.limit && isNumber(query.limit) && query.limit > 0) {
-        result.limit = +query.limit;
+    const limit = parseId(query.limit);
+    if (limit) {
+        result.limit = limit;
     }
 
-    if (query.offset && isNumber(query.offset) && query.offset > 0) {
-        result.offset = +query.offset;
+    const offset = parseId(query.offset);
+    if (offset) {
+        result.offset = offset;
     }
 
     return result;
 }
 
-function getSorting(query) {
+// The fields a list of this model can be sorted by: the columns that its rows have.
+// That leaves out what the model never returns (the password of a member), so the order
+// of a list tells nothing about it, and what is computed and not stored.
+function getSortableFields(model) {
+    const { defaultScope } = model.options;
+    const hidden = (defaultScope && defaultScope.attributes && defaultScope.attributes.exclude) || [];
+
+    return Object.keys(model.rawAttributes).filter((field) => {
+        return !hidden.includes(field) && !(model.rawAttributes[field].type instanceof Sequelize.VIRTUAL);
+    });
+}
+
+function getSorting(query, model) {
     const result = [['id', 'ASC']];
 
     if (typeof query.sort === 'string') {
+        if (!getSortableFields(model).includes(query.sort)) {
+            throw new BadRequestError('The list cannot be sorted by this field.');
+        }
+
         result[0][0] = query.sort;
     }
 
@@ -108,16 +121,15 @@ function filterBy(query, fields) {
 
 /*
     Given a object like { field1: 'value1', field2: 'value2', field3: 'value3 }
-    and fields like [{field1: 'boolean'}, {field2: 'string'},...],
-    returns an array like following:
+    and fields like { field1: 'string', field2: 'array' },
+    returns an object like following:
 
-    [
-        { field1: value1 },
-        { field2: value2 },
-        ...
-    ]
+    {
+        field1: value1,
+        field2: { [Sequelize.Op.in]: [value2a, value2b] }
+    }
 
-    Also validates the field to be correct.
+    A value that is not a text is refused with a BadRequestError.
     Required for filtering stuff.
 */
 function findBy(query, fields) {
@@ -136,22 +148,12 @@ function findBy(query, fields) {
             continue;
         }
 
-        /* istanbul ignore next */
-        if (type === 'boolean' && !['true', 'false'].includes(queryField)) {
-            throw new Error(`The "${field}" value should be boolean, but received "${queryField}.`);
+        // Both kinds of filters come as a text; a list is a text with commas.
+        if (typeof queryField !== 'string' || queryField.trim().length === 0) {
+            throw new BadRequestError(`The "${field}" filter should be a text.`);
         }
 
-        /* istanbul ignore if */
-        if (type === 'string' && (typeof queryField !== 'string' || queryField.trim().length === 0)) {
-            throw new Error(`The "${field}" value should be string, but received "${queryField}`);
-        }
-
-        /* istanbul ignore next */
         if (type === 'array') {
-            if (typeof queryField !== 'string' || queryField.trim().length === 0) {
-                throw new Error(`The "${field}" value should be string, but received "${queryField}`);
-            }
-
             whereObject[field] = { [Sequelize.Op.in]: queryField.split(',') };
             continue;
         }
@@ -161,6 +163,9 @@ function findBy(query, fields) {
 
     return whereObject;
 }
+
+// For a field of a request body that should be a text: anything else counts as not given.
+const stringOrEmpty = (value) => (typeof value === 'string' ? value : '');
 
 // A helper to whilelist object's properties.
 function whitelistObject(object, allowedFields) {
@@ -216,6 +221,14 @@ const equalsIgnoreCase = (column, value) => Sequelize.where(
     String(value).toLowerCase()
 );
 
+// For a transaction that takes a lock another request may hold: it waits for that lock at most
+// `config.lock_timeout` milliseconds. Postgres then fails the statement with `lock_not_available`,
+// which the error handler answers with a 503.
+const setLockTimeout = (transaction) => sequelize.query(
+    `SET LOCAL lock_timeout = ${Number(config.lock_timeout)}`,
+    { transaction }
+);
+
 // Blocks the restricted domains and their subdomains, but not e.g. 'notaegee.org'.
 const isRestrictedEmail = (email) => {
     const normalized = email.trim().toLowerCase();
@@ -226,13 +239,44 @@ const isRestrictedEmail = (email) => {
 // lock does that without locking the member's row, which every request of that member
 // writes to (last_active), so the member is not held up while the mails are sent.
 const MAIL_CHANGE_LOCK_NAMESPACE = 1;
-const lockMailChanges = (userId, transaction) => sequelize.query(
-    'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
-    { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
-);
+// A request that would wait for longer than the lock timeout is answered with a 503.
+const lockMailChanges = async (userId, transaction) => {
+    await setLockTimeout(transaction);
+    await sequelize.query(
+        'SELECT pg_advisory_xact_lock(:namespace, :user_id)',
+        { replacements: { namespace: MAIL_CHANGE_LOCK_NAMESPACE, user_id: userId }, transaction }
+    );
+};
+
+// Whether a text anywhere in a parsed JSON value (a value, an item of a list or a key) contains
+// U+0000, which Postgres cannot store in a text column. The value is walked with a list of what
+// is left to look at, not by recursion, so that a value nested however deep fits on the stack.
+const containsNulCharacter = (value) => {
+    const pending = [value];
+
+    while (pending.length) {
+        const item = pending.pop();
+
+        if (typeof item === 'string') {
+            if (item.includes('\u0000')) {
+                return true;
+            }
+        } else if (item && typeof item === 'object') {
+            for (const [key, child] of Object.entries(item)) {
+                if (key.includes('\u0000')) {
+                    return true;
+                }
+
+                pending.push(child);
+            }
+        }
+    }
+
+    return false;
+};
 
 module.exports = {
-    isNumber,
+    containsNulCharacter,
     traverseIndirectCircles,
     getPagination,
     getSorting,
@@ -244,5 +288,8 @@ module.exports = {
     addGaugeData,
     equalsIgnoreCase,
     isRestrictedEmail,
-    lockMailChanges
+    lockMailChanges,
+    parseId,
+    setLockTimeout,
+    stringOrEmpty
 };

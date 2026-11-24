@@ -8,6 +8,8 @@ const morgan = require('./morgan');
 const db = require('./sequelize');
 const log = require('./logger');
 const config = require('../config');
+const helpers = require('./helpers');
+const errors = require('./errors');
 const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
@@ -55,6 +57,20 @@ server.set('query parser', (str) => qs.parse(str, { allowPrototypes: true, array
 // Requests come through Traefik, which appends the client IP to X-Forwarded-For.
 server.set('trust proxy', 1);
 server.use(bodyParser.json());
+// The routes read fields from `req.body`. The JSON parser leaves it unset for a request without
+// a body, and a JSON list has no fields, so both are handled like an empty object.
+server.use((req, res, next) => {
+    if (typeof req.body === 'undefined' || Array.isArray(req.body)) {
+        req.body = {};
+    }
+
+    // Postgres cannot store U+0000 in a text, so a body with one is refused before any model sees it.
+    if (helpers.containsNulCharacter(req.body)) {
+        return errors.makeBadRequestError(res, 'Texts in the request body cannot contain the character U+0000.');
+    }
+
+    return next();
+});
 server.use(morgan);
 server.use(queryBoolean());
 server.use(cors());
@@ -186,7 +202,6 @@ CampaignsRouter.use(middlewares.maybeAuthorize, fetch.fetchCampaign);
 CampaignsRouter.get('/', campaigns.getCampaign);
 CampaignsRouter.use(middlewares.ensureAuthorized);
 CampaignsRouter.get('/members', campaigns.listCampaignMembers);
-CampaignsRouter.get('/', campaigns.getCampaign);
 CampaignsRouter.put('/', campaigns.updateCampaign);
 CampaignsRouter.delete('/', campaigns.deleteCampaign);
 

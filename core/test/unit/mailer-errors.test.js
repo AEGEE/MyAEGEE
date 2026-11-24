@@ -30,6 +30,7 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Unsuccessful response from mailer (status 422)');
+        expect(err.template).toEqual('custom.html');
     });
 
     test('should name only the status for a malformed response', async () => {
@@ -39,6 +40,7 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 500)');
+        expect(err.template).toEqual('custom.html');
     });
 
     test('should name only the status for an empty response', async () => {
@@ -48,5 +50,15 @@ describe('Mailer client errors', () => {
 
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toEqual('Malformed response from mailer (status 502)');
+        expect(err.template).toEqual('custom.html');
+    });
+
+    test('should name the template of a mail the mailer could not be reached for', async () => {
+        nock(`${config.mailer.url}:${config.mailer.port}`).post('/').replyWithError('connection refused');
+
+        const err = await mailer.sendMail(mail).catch((e) => e);
+
+        expect(err.message).toEqual('Could not reach the mailer');
+        expect(err.template).toEqual('custom.html');
     });
 });

@@ -159,4 +159,27 @@ describe('Bodies status', () => {
         expect(await JoinRequest.findByPk(approvedJoinRequest.id)).toEqual(null);
         expect(await Payment.count({ where: { body_id: body.id } })).toEqual(0);
     });
+
+    test('should answer with the body as it is after it was deleted, without its circles', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        await body.update({ shadow_circle_id: circle.id });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'deleted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.status).toEqual('deleted');
+        expect(res.body.data.circles).toEqual([]);
+        expect(res.body.data.shadow_circle_id).toEqual(null);
+        expect(res.body.data.shadow_circle).toEqual(null);
+    });
 });

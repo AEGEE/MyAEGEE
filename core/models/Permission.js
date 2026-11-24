@@ -1,8 +1,9 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const validators = require('../lib/validators');
 
 const Permission = sequelize.define('permission', {
     scope: {
-        type: Sequelize.ENUM('global', 'global'),
+        type: Sequelize.ENUM('global', 'local', 'join_request'),
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Scope should be set.' },
@@ -35,8 +36,9 @@ const Permission = sequelize.define('permission', {
         type: Sequelize.STRING,
         allowNull: true
     },
+    // A text without a limit, as the column is: some descriptions are longer than 255 characters.
     description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
         validate: {
             notEmpty: { msg: 'Description should be set.' },
@@ -46,7 +48,16 @@ const Permission = sequelize.define('permission', {
     filters: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
-        defaultValue: []
+        defaultValue: [],
+        validate: {
+            isListOfTexts: validators.isListOfTexts('Filters should be a list of field names.'),
+            // The items are STRING(255) in the database.
+            itemsAreShortEnough(value) {
+                if (Array.isArray(value) && value.some((item) => typeof item === 'string' && item.length > 255)) {
+                    throw new Error('Each filter should be at most 255 characters long.');
+                }
+            }
+        }
     }
 }, {
     underscored: true,

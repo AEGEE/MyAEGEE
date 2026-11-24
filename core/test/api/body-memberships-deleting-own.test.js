@@ -1,6 +1,9 @@
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const mock = require('../scripts/mock');
+const config = require('../../config');
+const constants = require('../../lib/constants');
 const { BodyMembership, CircleMembership, User } = require('../../models');
 
 describe('Body memberships deleting own', () => {
@@ -12,8 +15,15 @@ describe('Body memberships deleting own', () => {
         await stopServer();
     });
 
+    let mails;
+
+    beforeEach(async () => {
+        mails = mock.captureMails();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should return 404 if the membership is not found', async () => {
@@ -97,5 +107,80 @@ describe('Body memberships deleting own', () => {
 
         const memberFromDb = await User.findByPk(user.id);
         expect(memberFromDb.primary_body_id).toEqual(null);
+    });
+
+    describe('notice to the Google Workspace administrators', () => {
+        const leave = (body, token) => request({
+            path: '/bodies/' + body.id + '/members',
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        test('should be sent when a member leaves their last body', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser({
+                first_name: 'Some',
+                last_name: 'One',
+                gsuite_id: 'some.one@aegee.eu'
+            });
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+
+            const res = await leave(body, token);
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails).toEqual([{
+                to: config.google_workspace_notifications,
+                subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
+                template: 'workspace_deleted_member.html',
+                parameters: {
+                    member_firstname: 'Some',
+                    member_lastname: 'One',
+                    user_id: user.id,
+                    member_workspace_email: 'some.one@aegee.eu'
+                }
+            }]);
+        });
+
+        test('should not be sent when the member is still in another body', async () => {
+            const body = await generator.createBody();
+            const otherBody = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            await generator.createBodyMembership(body, user);
+            await generator.createBodyMembership(otherBody, user);
+
+            const res = await leave(body, token);
+
+            expect(res.statusCode).toEqual(200);
+            expect(mails).toEqual([]);
+        });
+
+        test('should not be sent when there is no membership to leave', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+
+            const res = await leave(body, token);
+
+            expect(res.statusCode).toEqual(404);
+            expect(mails).toEqual([]);
+        });
+
+        // The same as when a board removes the member: the membership is gone, the request reports the failure.
+        test('should answer 200 if the notice cannot be sent, with the membership removed', async () => {
+            mock.mockAll({ mailer: { netError: true } });
+
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            const token = await generator.createAccessToken(user);
+            const membership = await generator.createBodyMembership(body, user);
+
+            const res = await leave(body, token);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(await BodyMembership.findByPk(membership.id)).toEqual(null);
+        });
     });
 });

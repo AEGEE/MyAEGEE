@@ -38,7 +38,7 @@ exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Body)
     });
 
     return res.json({
@@ -102,6 +102,8 @@ exports.updateBody = async (req, res) => {
     }
 
     await req.currentBody.update(values);
+    // The answer shows the body as it is stored now, with the shadow circle that is set now.
+    await req.currentBody.reload();
     return res.json({
         success: true,
         data: req.currentBody
@@ -132,6 +134,9 @@ exports.setBodyStatus = async (req, res) => {
         await Circle.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
         await Payment.destroy({ where: { body_id: req.currentBody.id }, transaction: t });
     });
+
+    // The answer shows the body as it is stored now: a deleted one has no circles anymore.
+    await req.currentBody.reload();
 
     return res.json({
         success: true,

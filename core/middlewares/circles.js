@@ -15,7 +15,7 @@ exports.listAllCircles = async (req, res) => {
     const result = await Circle.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Circle)
     });
 
     return res.json({
@@ -36,7 +36,9 @@ exports.getCirclePermissions = async (req, res) => {
     const indirectChildCircles = req.permissions.getIndirectParentCircles(req.currentCircle.id);
     const result = await Permission.findAndCountAll({
         where: { '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectChildCircles } },
-        include: [CirclePermission]
+        include: [CirclePermission],
+        // Counts the permissions, not the circles through which the circle has them.
+        distinct: true
     });
 
     return res.json({
@@ -66,6 +68,7 @@ exports.updateCircle = async (req, res) => {
 
     // TODO: check if the parent circle's joinable is the same as child circle's one
     await req.currentCircle.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CIRCLE.UPDATE));
+    await req.currentCircle.reload();
     return res.json({
         success: true,
         data: req.currentCircle
@@ -99,11 +102,12 @@ exports.setParentCircle = async (req, res) => {
     }
 
     // setting parent circle
-    if (!helpers.isNumber(req.body.parent_circle_id)) {
+    const parentCircleId = helpers.parseId(req.body.parent_circle_id);
+    if (!parentCircleId) {
         return errors.makeBadRequestError(res, 'The circle ID is not valid.');
     }
 
-    const parentCircle = await Circle.findByPk(req.body.parent_circle_id);
+    const parentCircle = await Circle.findByPk(parentCircleId);
     if (!parentCircle) {
         return errors.makeNotFoundError(res, 'No parent circle found.');
     }

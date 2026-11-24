@@ -1,6 +1,7 @@
 const {
     User,
     MailConfirmation,
+    Body,
     BodyMembership,
     Campaign
 } = require('../models');
@@ -9,6 +10,8 @@ const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const { sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
+const { reportMailFailure } = require('../lib/mail-failures');
+const metrics = require('./metrics');
 
 exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
@@ -19,10 +22,10 @@ exports.registerUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Campaign is not active.');
     }
 
-    let user;
-
-    await sequelize.transaction(async (t) => {
-        user = await User.scope('noExtraFields').create({
+    // The member, the membership and the confirmation are stored and committed first, and
+    // mailed after that, so that a slow mailer holds no database connection.
+    const { user, confirmation } = await sequelize.transaction(async (t) => {
+        const created = await User.scope('noExtraFields').create({
             ...req.body,
             campaign_id: campaign.id
         }, {
@@ -36,13 +39,15 @@ exports.registerUser = async (req, res) => {
         // Adding a person to a body if campaign has the autojoin body.
         if (campaign.autojoin_body_id) {
             await BodyMembership.create({
-                user_id: user.id,
+                user_id: created.id,
                 body_id: campaign.autojoin_body_id
             }, { transaction: t });
         }
 
-        const confirmation = await MailConfirmation.createForUser(user.id, t);
+        return { user: created, confirmation: await MailConfirmation.createForUser(created.id, t) };
+    });
 
+    try {
         await mailer.sendMail({
             to: user.notification_email,
             subject: constants.MAIL_SUBJECTS.MAIL_CONFIRMATION,
@@ -53,11 +58,26 @@ exports.registerUser = async (req, res) => {
                 token: confirmation.value
             }
         });
-    });
+    } catch (err) {
+        reportMailFailure(err, 'Could not send the confirmation of a signup', { user_id: user.id, campaign_id: campaign.id });
+        metrics.signupMailFailures.inc();
 
+        // A member who cannot confirm their address is of no use: the signup is undone, so that
+        // the same username and address can sign up again. The circle membership that joining
+        // the body gave goes with the member.
+        await sequelize.transaction(async (t) => {
+            await MailConfirmation.destroy({ where: { user_id: user.id }, transaction: t });
+            await BodyMembership.destroy({ where: { user_id: user.id }, transaction: t });
+            await User.destroy({ where: { id: user.id }, transaction: t });
+        });
+
+        return errors.makeMailError(res);
+    }
+
+    // The member as every other route returns it: as stored, and without the password.
     return res.json({
         success: true,
-        data: user
+        data: await User.findByPk(user.id)
     });
 };
 
@@ -69,7 +89,7 @@ exports.listAllCampaigns = async (req, res) => {
     const result = await Campaign.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CAMPAIGN),
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Campaign)
     });
 
     return res.json({
@@ -80,18 +100,38 @@ exports.listAllCampaigns = async (req, res) => {
 };
 
 exports.getCampaign = async (req, res) => {
+    // A plain object: a field that is set on the model instance would not reach the answer.
+    let campaign = req.currentCampaign.toJSON();
+
     if (!req.user || !req.permissions.hasPermission('global:create:campaign')) {
-        req.currentCampaign = helpers.whitelistObject(req.currentCampaign, constants.PUBLIC_FIELDS.CAMPAIGN);
+        campaign = helpers.whitelistObject(campaign, constants.PUBLIC_FIELDS.CAMPAIGN);
     }
 
-    if (req.currentCampaign.autojoin_body) {
-        req.currentCampaign.autojoin_body = helpers.whitelistObject(req.currentCampaign.autojoin_body, ['id', 'name', 'email', 'phone', 'address', 'website']);
+    if (campaign.autojoin_body) {
+        campaign.autojoin_body = helpers.whitelistObject(campaign.autojoin_body, ['id', 'name', 'email', 'phone', 'address', 'website']);
     }
 
     return res.json({
         success: true,
-        data: req.currentCampaign
+        data: campaign
     });
+};
+
+// The fields of a campaign from a request body. The body that new members join is looked up:
+// `autojoinBodyError` is set if it's given and not the ID of a body.
+const getCampaignFields = async (body, allowedFields) => {
+    const fields = helpers.whitelistObject(body, [...allowedFields, 'autojoin_body_id']);
+
+    if (fields.autojoin_body_id === undefined || fields.autojoin_body_id === null) {
+        return { fields };
+    }
+
+    const bodyId = helpers.parseId(fields.autojoin_body_id);
+    if (!bodyId || await Body.count({ where: { id: bodyId } }) === 0) {
+        return { autojoinBodyError: { autojoin_body_id: ['The body does not exist.'] } };
+    }
+
+    return { fields: { ...fields, autojoin_body_id: bodyId } };
 };
 
 exports.createCampaign = async (req, res) => {
@@ -99,7 +139,12 @@ exports.createCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:create:campaign is required, but not present.');
     }
 
-    const campaign = await Campaign.create(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE, 'autojoin_body_id']));
+    const { fields, autojoinBodyError } = await getCampaignFields(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.CREATE);
+    if (autojoinBodyError) {
+        return errors.makeValidationError(res, autojoinBodyError);
+    }
+
+    const campaign = await Campaign.create(fields);
     return res.json({
         success: true,
         data: campaign
@@ -111,7 +156,14 @@ exports.updateCampaign = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update:campaign is required, but not present.');
     }
 
-    await req.currentCampaign.update(helpers.whitelistObject(req.body, [...constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE, 'autojoin_body_id']));
+    const { fields, autojoinBodyError } = await getCampaignFields(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE);
+    if (autojoinBodyError) {
+        return errors.makeValidationError(res, autojoinBodyError);
+    }
+
+    await req.currentCampaign.update(fields);
+    // The answer shows the body that is stored now, not the one that was loaded before the update.
+    await req.currentCampaign.reload();
     return res.json({
         success: true,
         data: req.currentCampaign
@@ -141,7 +193,7 @@ exports.listCampaignMembers = async (req, res) => {
             campaign_id: req.currentCampaign.id
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({

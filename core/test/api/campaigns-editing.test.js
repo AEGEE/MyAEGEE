@@ -120,4 +120,95 @@ describe('Campaign editing', () => {
         const campaignFromDb = await Campaign.findByPk(campaign.id);
         expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
     });
+
+    test.each([
+        ['does not exist', 2147483647],
+        ['is a text that is not a number', 'abc'],
+        ['is a list', [1]],
+        ['is an object', { id: 1 }],
+        ['is a fraction', 1.5]
+    ])('should fail if the body that new members join %s', async (name, value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const body = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { name: 'Renamed', autojoin_body_id: value }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body).toEqual({ success: false, errors: { autojoin_body_id: ['The body does not exist.'] } });
+
+        const campaignFromDb = await Campaign.findByPk(campaign.id);
+        expect(campaignFromDb.autojoin_body_id).toEqual(body.id);
+        expect(campaignFromDb.name).toEqual(campaign.name);
+    });
+
+    test('should change and unset the body that new members join', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const changed = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: String(otherBody.id) }
+        });
+
+        expect(changed.statusCode).toEqual(200);
+        expect((await Campaign.findByPk(campaign.id)).autojoin_body_id).toEqual(otherBody.id);
+
+        const unset = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: null }
+        });
+
+        expect(unset.statusCode).toEqual(200);
+        expect((await Campaign.findByPk(campaign.id)).autojoin_body_id).toEqual(null);
+    });
+
+    test('should answer with the body that new members join now', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
+
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const changed = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: String(otherBody.id) }
+        });
+
+        expect(changed.statusCode).toEqual(200);
+        expect(changed.body.data.autojoin_body_id).toEqual(otherBody.id);
+        expect(changed.body.data.autojoin_body.id).toEqual(otherBody.id);
+
+        const unset = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { autojoin_body_id: null }
+        });
+
+        expect(unset.statusCode).toEqual(200);
+        expect(unset.body.data.autojoin_body_id).toEqual(null);
+        expect(unset.body.data.autojoin_body).toEqual(null);
+    });
 });

@@ -65,4 +65,23 @@ describe('Logout', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('errors');
     });
+
+    test.each([
+        ['a number', 5],
+        ['a list', ['a']],
+        ['an object', { a: 1 }],
+        ['a boolean', true]
+    ])('should answer 400 if the token is %s', async (name, value) => {
+        const user = await generator.createUser();
+        await generator.createRefreshToken(user);
+
+        const res = await request({
+            path: '/logout',
+            method: 'POST',
+            body: { refresh_token: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'Token is not provided.' });
+    });
 });

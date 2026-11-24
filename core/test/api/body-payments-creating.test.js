@@ -198,4 +198,31 @@ describe('Body payments creating', () => {
         expect(paymentFromDb.body_id).toEqual(body.id);
         expect(paymentFromDb.user_id).toEqual(otherUser.id);
     });
+
+    test.each([
+        ['missing', undefined],
+        ['a text that is not a number', 'abc'],
+        ['an empty text', ''],
+        ['a list', [1]],
+        ['an object', { id: 1 }],
+        ['a fraction', 1.5],
+        ['a boolean', true],
+        ['null', null]
+    ])('should return 400 if the user id is %s', async (name, value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
+        const body = await generator.createBody();
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/payments',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { ...generator.generatePayment(), user_id: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The user ID is not valid.' });
+        expect(await Payment.count()).toEqual(0);
+    });
 });

@@ -251,6 +251,79 @@ describe('Password reset', () => {
         expect(resets[0].id).not.toEqual(existingReset.id);
     });
 
+    // A reset ends the earlier ones only once its own mail went out, so a reset whose mail
+    // fails leaves the link that was mailed before working.
+    describe('two resets of which one cannot be mailed', () => {
+        const requestReset = (user) => request({ path: '/password_reset', method: 'POST', body: { email: user.email } });
+        const confirm = (token) => sendRequest({ path: '/password_confirm', method: 'POST', body: { token, password: 'a-new-password' } });
+
+        test('should keep the reset that was mailed when the later one fails', async () => {
+            const user = await generator.createUser();
+
+            await requestReset(user);
+            const [mailed] = await PasswordReset.findAll({ where: { user_id: user.id } });
+
+            mock.cleanAll();
+            mock.mockAll({ mailer: { netError: true } });
+            await requestReset(user);
+
+            const resets = await PasswordReset.findAll({ where: { user_id: user.id } });
+            expect(resets.map((reset) => reset.id)).toEqual([mailed.id]);
+            expect((await confirm(mailed.value)).statusCode).toEqual(200);
+        });
+
+        test('should keep the reset that was mailed when the earlier one failed', async () => {
+            const user = await generator.createUser();
+
+            mock.cleanAll();
+            mock.mockAll({ mailer: { netError: true } });
+            await requestReset(user);
+            expect(await PasswordReset.count()).toEqual(0);
+
+            mock.cleanAll();
+            mock.mockAll();
+            await requestReset(user);
+
+            const resets = await PasswordReset.findAll({ where: { user_id: user.id } });
+            expect(resets.length).toEqual(1);
+            expect((await confirm(resets[0].value)).statusCode).toEqual(200);
+        });
+
+        test('should end the earlier reset when the later one is mailed', async () => {
+            const user = await generator.createUser();
+
+            await requestReset(user);
+            const [first] = await PasswordReset.findAll({ where: { user_id: user.id } });
+            await requestReset(user);
+
+            const resets = await PasswordReset.findAll({ where: { user_id: user.id } });
+            expect(resets.length).toEqual(1);
+            expect(resets[0].id).not.toEqual(first.id);
+            expect((await confirm(first.value)).statusCode).toEqual(404);
+            expect((await confirm(resets[0].value)).statusCode).toEqual(200);
+        });
+
+        test('should keep the reset that was mailed when the earlier ones cannot be ended', async () => {
+            const user = await generator.createUser();
+            const earlier = await generator.createPasswordReset(user);
+            const destroySpy = jest.spyOn(PasswordReset, 'destroy').mockRejectedValueOnce(new Error('Database is gone'));
+            const notifySpy = jest.spyOn(Bugsnag, 'notify').mockImplementation(() => {});
+            const failuresBefore = await countFailures();
+            try {
+                await requestReset(user);
+
+                const resets = await PasswordReset.findAll({ where: { user_id: user.id }, order: [['id', 'ASC']] });
+                expect(resets.map((reset) => reset.id)).toEqual([earlier.id, expect.any(Number)]);
+                expect(resets[1].id).toBeGreaterThan(earlier.id);
+                expect(notifySpy).toHaveBeenCalledTimes(1);
+                expect(await countFailures()).toEqual(failuresBefore);
+            } finally {
+                destroySpy.mockRestore();
+                notifySpy.mockRestore();
+            }
+        });
+    });
+
     test('should send the mail to a user', async () => {
         const user = await generator.createUser();
 

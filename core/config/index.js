@@ -12,7 +12,9 @@ const config = {
         },
         mailer: {
             url: 'http://mailer',
-            port: 4000
+            port: 4000,
+            // How long a mail may take; after that the request fails like any mailer error.
+            timeout: 10 * 1000 // 10 seconds
         },
         listserv_email: process.env.LISTSERV_EMAIL || 'listserv@example.com',
         listserv_endpoint: process.env.LISTSERV_ENDPOINT || 'https://lists.example.com/subscribe',
@@ -27,6 +29,10 @@ const config = {
                 max: 10
             }
         },
+        // How long a request waits for another request that holds a lock on the same data
+        // (the same refresh token, the email changes of the same member) before it answers 503.
+        // Each waiting request holds a database connection.
+        lock_timeout: 3 * 1000, // 3 seconds
         google_workspace_notifications: [
             'workspace-admins@aegee.eu'
         ],

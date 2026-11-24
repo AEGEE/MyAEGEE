@@ -5,9 +5,8 @@ const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
-const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
-const Bugsnag = require('../lib/bugsnag');
+const { reportMailFailure } = require('../lib/mail-failures');
 const metrics = require('./metrics');
 const constants = require('../lib/constants');
 const config = require('../config');
@@ -143,10 +142,15 @@ module.exports.login = async (req, res) => {
 // };
 
 module.exports.renew = async (req, res) => {
-    const tokens = await sequelize.transaction(async (t) => {
+    // No token, or something that can't be one, is answered like a token that doesn't exist.
+    const value = helpers.stringOrEmpty(req.body.refresh_token);
+
+    const tokens = value && await sequelize.transaction(async (t) => {
+        await helpers.setLockTimeout(t);
+
         // Locking the row so parallel renews with the same token are processed one by one.
         const token = await RefreshToken.findOne({
-            where: { value: req.body.refresh_token },
+            where: { value },
             lock: t.LOCK.UPDATE,
             transaction: t
         });
@@ -191,9 +195,27 @@ module.exports.renew = async (req, res) => {
     });
 };
 
+// Once the member has the link of a new reset, the earlier ones end. Only the earlier ones: of
+// two resets that are mailed at the same time, the later one stays. A failure here leaves the
+// earlier resets working next to the new one, which was mailed and stays.
+const endEarlierPasswordResets = async (userId, resetId) => {
+    try {
+        await sequelize.transaction(async (t) => {
+            await helpers.lockMailChanges(userId, t);
+            await PasswordReset.destroy({
+                where: { user_id: userId, id: { [Sequelize.Op.lt]: resetId } },
+                transaction: t
+            });
+        });
+    } catch (err) {
+        reportMailFailure(err, 'Could not end the earlier password resets', { user_id: userId, password_reset_id: resetId });
+    }
+};
+
 // Creates a password reset for the account with this login email, if there is one, and mails it.
 const sendPasswordReset = async (email) => {
     let user;
+    let reset;
 
     try {
         user = email
@@ -205,7 +227,9 @@ const sendPasswordReset = async (email) => {
             return;
         }
 
-        await sequelize.transaction(async (t) => {
+        // The reset is stored first and mailed after the commit, so that a slow mailer
+        // holds neither a database connection nor the member's lock.
+        reset = await sequelize.transaction(async (t) => {
             // A change of the login email that is being confirmed finishes first, and the
             // reset only goes out if the account still has the address it was asked for.
             await helpers.lockMailChanges(user.id, t);
@@ -214,28 +238,46 @@ const sendPasswordReset = async (email) => {
                 transaction: t
             });
             if (!current) {
-                return;
+                return null;
             }
 
-            await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
-            const currentReset = await PasswordReset.createForUser(user.id, t);
+            // The earlier resets stay until this one is mailed: if its mail fails, the link
+            // the member got before still works.
+            const created = await PasswordReset.createForUser(user.id, t);
 
-            await mailer.sendMail({
-                to: current.email,
-                subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
-                template: 'password_reset.html',
-                parameters: {
-                    token: currentReset.value
-                }
-            });
+            return { id: created.id, value: created.value, email: current.email };
+        });
+
+        if (!reset) {
+            return;
+        }
+
+        await mailer.sendMail({
+            to: reset.email,
+            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+            template: 'password_reset.html',
+            parameters: {
+                token: reset.value
+            }
         });
     } catch (err) {
         // Nobody is waiting for the result anymore, so a failure only shows up here:
         // in the log, in the error tracker and in the counter on /metrics.
-        logger.error({ err, user_id: user ? user.id : null }, 'Could not send a password reset');
+        reportMailFailure(err, 'Could not send a password reset', {
+            user_id: user ? user.id : null,
+            password_reset_id: reset ? reset.id : null
+        });
         metrics.passwordResetFailures.inc();
-        Bugsnag.notify(err);
+
+        // A reset whose mail did not go out is of no use. Only this one ends.
+        if (reset) {
+            await PasswordReset.destroy({ where: { id: reset.id } });
+        }
+
+        return;
     }
+
+    await endEarlierPasswordResets(user.id, reset.id);
 };
 
 const pendingPasswordResets = new Set();
@@ -264,7 +306,7 @@ module.exports.passwordReset = async (req, res) => {
 
 module.exports.passwordConfirm = async (req, res) => {
     const token = await PasswordReset.findOne({
-        where: { value: (req.body.token || '').trim() },
+        where: { value: helpers.stringOrEmpty(req.body.token).trim() },
         include: [User]
     });
 
@@ -277,7 +319,7 @@ module.exports.passwordConfirm = async (req, res) => {
         return errors.makeNotFoundError(res, 'Token is expired.');
     }
 
-    await token.user.update({ password: req.body.password || '' });
+    await token.user.update({ password: helpers.stringOrEmpty(req.body.password) });
     await AccessToken.destroy({ where: { user_id: token.user.id } });
     await RefreshToken.destroy({ where: { user_id: token.user.id } });
     await token.destroy();
@@ -291,7 +333,7 @@ module.exports.passwordConfirm = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-    const value = req.body.refresh_token;
+    const value = helpers.stringOrEmpty(req.body.refresh_token);
     if (!value) {
         return errors.makeBadRequestError(res, 'Token is not provided.');
     }

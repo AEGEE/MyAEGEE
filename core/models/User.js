@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
+const validators = require('../lib/validators');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
@@ -48,6 +49,8 @@ const User = sequelize.define('user', {
         validate: {
             notNull: { msg: 'Password should be set.' },
             notEmpty: { msg: 'Password should be set.' },
+            // It is hashed before it is stored, and the hash takes only a text.
+            isText: validators.isText('Password should be a text.'),
             len: { args: [8], msg: 'Password should be at least 8 characters long.' }
         }
     },
@@ -60,7 +63,7 @@ const User = sequelize.define('user', {
         allowNull: false,
         defaultValue: true,
         validate: {
-            isBoolean: { msg: 'Active should be valid.' }
+            isBoolean: validators.isBoolean('Active should be valid.')
         }
     },
     superadmin: {
@@ -68,12 +71,16 @@ const User = sequelize.define('user', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean: { msg: 'Superadmin should be valid.' }
+            isBoolean: validators.isBoolean('Superadmin should be valid.')
         }
     },
     privacy_consent: {
         type: Sequelize.DATE,
-        allowNull: true
+        set: validators.setDate('privacy_consent'),
+        allowNull: true,
+        validate: {
+            isDate: validators.isDate('Privacy consent should be a valid date.')
+        }
     },
     first_name: {
         type: Sequelize.STRING,
@@ -83,7 +90,7 @@ const User = sequelize.define('user', {
             notNull: { msg: 'First name should be set.' },
             isValid(value) {
                 if (!NAME_REGEX.test(value)) {
-                    throw new Error(`First name should only contain letters, spaces and dashes, got "${value}".`);
+                    throw new Error('First name should only contain letters, spaces and dashes.');
                 }
             }
         }
@@ -96,15 +103,17 @@ const User = sequelize.define('user', {
             notNull: { msg: 'Last name should be set.' },
             isValid(value) {
                 if (!NAME_REGEX.test(value)) {
-                    throw new Error(`Last name should only contain letters, spaces and dashes, got "${value}".`);
+                    throw new Error('Last name should only contain letters, spaces and dashes.');
                 }
             }
         }
     },
     date_of_birth: {
         type: Sequelize.DATEONLY,
+        set: validators.setDate('date_of_birth'),
         allowNull: true,
         validate: {
+            isDate: validators.isDate('Birthday should be a valid date.'),
             isPast(value) {
                 if (!value) {
                     return;
@@ -143,7 +152,10 @@ const User = sequelize.define('user', {
     primary_email: {
         type: Sequelize.ENUM('personal', 'gsuite'),
         allowNull: false,
-        defaultValue: 'personal'
+        defaultValue: 'personal',
+        validate: {
+            isOneOf: validators.isOneOf(['personal', 'gsuite'], 'Primary email should be one of these: "personal", "gsuite".')
+        }
     },
     notification_email: {
         type: Sequelize.VIRTUAL,

@@ -14,7 +14,7 @@ exports.listAllCampaigns = async (req, res) => {
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CAMPAIGN)
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, Campaign)
     });
 
     return res.json({
@@ -57,6 +57,7 @@ exports.updateCampaign = async (req, res) => {
     }
 
     await req.currentBodyCampaign.update(helpers.whitelistObject(req.body, constants.FIELDS_TO_UPDATE.CAMPAIGN.UPDATE));
+    await req.currentBodyCampaign.reload();
     return res.json({
         success: true,
         data: req.currentBodyCampaign
@@ -86,7 +87,7 @@ exports.listCampaignMembers = async (req, res) => {
             campaign_id: req.currentBodyCampaign.id
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({

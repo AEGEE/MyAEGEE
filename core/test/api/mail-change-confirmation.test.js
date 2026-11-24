@@ -213,7 +213,8 @@ describe('Mail change confirm', () => {
 
             const res = await confirm(mailChange.value);
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
+            expect(res.body.message).toEqual('The mail could not be sent, so nothing was saved. Please try again later.');
             expect(res.body.success).toEqual(false);
 
             const userFromDb = await User.findByPk(user.id);

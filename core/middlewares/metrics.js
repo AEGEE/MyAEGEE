@@ -51,6 +51,12 @@ exports.passwordResetFailures = new Counter({
     help: 'Total amount of password resets that could not be created or mailed'
 });
 
+// Signups whose confirmation could not be mailed. They are undone and answered with a 503.
+exports.signupMailFailures = new Counter({
+    name: 'core_signup_mail_failures_total',
+    help: 'Total amount of signups that were undone because their confirmation could not be mailed'
+});
+
 exports.getMetrics = async (req, res) => {
     const [
         members,

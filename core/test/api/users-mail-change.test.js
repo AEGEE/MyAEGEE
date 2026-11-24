@@ -266,7 +266,7 @@ describe('User mail change', () => {
         expect(changeFromDb.new_email).toEqual('test@notaegee.org');
     });
 
-    test('should fail if mailer fails', async () => {
+    test('should answer 503 when the mail cannot be sent', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const user = await generator.createUser({ superadmin: true });
@@ -281,7 +281,8 @@ describe('User mail change', () => {
             body: { new_email: 'test@test.io' }
         });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(503);
+        expect(res.body.message).toEqual('The mail could not be sent, so nothing was saved. Please try again later.');
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
@@ -666,7 +667,8 @@ describe('User mail change', () => {
                 body: { new_email: 'new@example.com' }
             });
 
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).toEqual(503);
+            expect(res.body.message).toEqual('The mail could not be sent, so nothing was saved. Please try again later.');
             expect(res.body.success).toEqual(false);
             expect(await MailChange.count()).toEqual(0);
         });

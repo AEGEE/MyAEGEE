@@ -131,4 +131,40 @@ describe('Campaign details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.url).toEqual(campaign.url);
     });
+
+    test('should return everything about the campaign to those who manage campaigns, and the same about the body', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'create', object: 'campaign' });
+
+        const body = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({
+            path: '/campaigns/' + campaign.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual(expect.objectContaining({
+            id: campaign.id,
+            activate_user: true,
+            autojoin_body_id: body.id
+        }));
+        expect(res.body.data).toHaveProperty('created_at');
+        expect(res.body.data).toHaveProperty('updated_at');
+        expect(Object.keys(res.body.data.autojoin_body).sort()).toEqual(['address', 'email', 'id', 'name', 'phone', 'website']);
+    });
+
+    test('should return the same about the body to everybody else', async () => {
+        const body = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({ path: '/campaigns/' + campaign.url, method: 'GET' });
+
+        expect(res.statusCode).toEqual(200);
+        expect(Object.keys(res.body.data).sort()).toEqual(['active', 'autojoin_body', 'description_long', 'description_short', 'id', 'name', 'url']);
+        expect(Object.keys(res.body.data.autojoin_body).sort()).toEqual(['address', 'email', 'id', 'name', 'phone', 'website']);
+    });
 });

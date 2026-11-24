@@ -154,4 +154,26 @@ describe('Tokens renewal', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body).toHaveProperty('access_token');
     });
+
+    test.each([
+        ['is missing', {}],
+        ['is a number', { refresh_token: 5 }],
+        ['is a list', { refresh_token: ['a'] }],
+        ['is an object', { refresh_token: { a: 1 } }],
+        ['is a boolean', { refresh_token: true }],
+        ['is null', { refresh_token: null }]
+    ])('should answer like for an unknown token if the token %s', async (name, body) => {
+        const user = await generator.createUser();
+        await generator.createRefreshToken(user);
+
+        const res = await request({
+            path: '/renew',
+            method: 'POST',
+            body
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body).toEqual({ success: false, message: 'Token is not found.' });
+        expect(await RefreshToken.count()).toEqual(1);
+    });
 });

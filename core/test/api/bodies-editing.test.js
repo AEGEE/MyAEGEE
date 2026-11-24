@@ -521,4 +521,39 @@ describe('Bodies editing', () => {
             expect(bodyFromDb.shadow_circle_id).toEqual(null);
         });
     });
+
+    test('should answer with the shadow circle that is set now', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        const otherCircle = await generator.createCircle({ body_id: body.id });
+        await body.update({ shadow_circle_id: circle.id });
+
+        const changed = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { shadow_circle_id: String(otherCircle.id), founded_at: '2001-02-03T10:00:00.000Z' }
+        });
+
+        expect(changed.statusCode).toEqual(200);
+        expect(changed.body.data.shadow_circle_id).toEqual(otherCircle.id);
+        expect(changed.body.data.shadow_circle.id).toEqual(otherCircle.id);
+        expect(changed.body.data.founded_at).toEqual('2001-02-03');
+        expect(changed.body.data.circles.length).toEqual(2);
+
+        const unset = await request({
+            path: '/bodies/' + body.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { shadow_circle_id: null }
+        });
+
+        expect(unset.statusCode).toEqual(200);
+        expect(unset.body.data.shadow_circle_id).toEqual(null);
+        expect(unset.body.data.shadow_circle).toEqual(null);
+    });
 });

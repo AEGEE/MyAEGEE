@@ -201,4 +201,32 @@ describe('Circle setting parent circle', () => {
         const circleFromDb = await Circle.findByPk(otherCircle.id);
         expect(circleFromDb.parent_circle_id).toEqual(null);
     });
+
+    test.each([
+        ['missing', undefined],
+        ['an empty text', ''],
+        ['a list', [1]],
+        ['an object', { id: 1 }],
+        ['a fraction', 1.5],
+        ['a boolean', true]
+    ])('should return 400 if the parent circle id is %s', async (name, value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
+        const parentCircle = await generator.createCircle();
+        const circle = await generator.createCircle({ parent_circle_id: parentCircle.id });
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/parent',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { parent_circle_id: value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The circle ID is not valid.' });
+
+        const circleFromDb = await Circle.findByPk(circle.id);
+        expect(circleFromDb.parent_circle_id).toEqual(parentCircle.id);
+    });
 });

@@ -7,6 +7,7 @@ const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 
@@ -34,7 +35,7 @@ exports.listAllUsers = async (req, res) => {
     const result = await User.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({
@@ -128,7 +129,7 @@ exports.searchAllUsers = async (req, res) => {
 
     // Only sort by returned fields: sorting by anything else (like email) would leak its order.
     const fields = canViewMembers ? constants.MEMBERS_SEARCH.FIELDS_WITH_VIEW_MEMBER : constants.MEMBERS_SEARCH.FIELDS;
-    const order = helpers.getSorting(req.query);
+    const order = helpers.getSorting(req.query, User);
     if (!fields.includes(order[0][0])) {
         order[0][0] = 'id';
     }
@@ -172,7 +173,7 @@ exports.listAllUnconfirmedUsers = async (req, res) => {
             mail_confirmed_at: null
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query, User)
     });
 
     return res.json({
@@ -230,15 +231,15 @@ exports.lookupUser = async (req, res) => {
 
 exports.getUsersEmail = async (req, res) => {
     const correctQuery = req.query.query && typeof req.query.query === 'string' && req.query.query.trim().length > 0 && req.query.query.match(/^\d+(?:,\d+)*$/g);
+    // Each id also has to be one that a member can have.
+    const userIds = correctQuery ? req.query.query.split(',').map(helpers.parseId) : [];
 
-    if (!correctQuery) {
+    if (!correctQuery || userIds.includes(null)) {
         return errors.makeBadRequestError(res, 'Query should be a string of 1 id or multiple ids seperated by commas.');
     }
 
-    const userIds = req.query.query.split(',');
-
     // Without the permission, a member can only look up their own id.
-    const onlyOwnId = userIds.every((id) => Number(id) === req.user.id);
+    const onlyOwnId = userIds.every((id) => id === req.user.id);
     if (!req.permissions.hasPermission('global:mail:member') && !onlyOwnId) {
         return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
     }
@@ -281,6 +282,7 @@ exports.updateUser = async (req, res) => {
     }
 
     await req.currentUser.update(req.body, { fields });
+    await req.currentUser.reload();
     return res.json({
         success: true,
         data: req.currentUser
@@ -306,11 +308,12 @@ exports.setUserPassword = async (req, res) => {
 
     const userWithPassword = await User.scope('withPassword').findByPk(req.currentUser.id);
 
-    if (!await userWithPassword.checkPassword(req.body.old_password)) {
+    // A password that is missing or not a text never matches, and can't be set.
+    if (!await userWithPassword.checkPassword(helpers.stringOrEmpty(req.body.old_password))) {
         return errors.makeValidationError(res, 'The old password is invalid.');
     }
 
-    await userWithPassword.update({ password: req.body.password });
+    await userWithPassword.update({ password: helpers.stringOrEmpty(req.body.password) });
 
     // TODO: add a mail that the password was changed.
 
@@ -354,7 +357,9 @@ exports.setEventApplicationBan = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update_application_ban:member is required, but not present.');
     }
 
-    const banUntil = moment(req.body.ban_until);
+    // A date in ISO notation, with or without a time. Anything else is not read as a date:
+    // not a missing value as now, and not what only JavaScript's own date parsing understands.
+    const banUntil = moment(helpers.stringOrEmpty(req.body.ban_until), moment.ISO_8601, true);
     if (!banUntil.isValid()) {
         return errors.makeValidationError(res, { ban_until: ['Ban end date should be valid.'] });
     }
@@ -432,13 +437,15 @@ exports.confirmUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:confirm:member is required, but not present.');
     }
 
-    await req.currentUser.update({ mail_confirmed_at: new Date() });
+    await sequelize.transaction(async (t) => {
+        // A member who is confirmed already keeps the date.
+        if (!req.currentUser.mail_confirmed_at) {
+            await req.currentUser.update({ mail_confirmed_at: new Date() }, { transaction: t });
+        }
 
-    const confirmation = await MailConfirmation.findOne({
-        where: { user_id: req.currentUser.id }
+        // There's none for a member who was created by a board, or who is confirmed already.
+        await MailConfirmation.destroy({ where: { user_id: req.currentUser.id }, transaction: t });
     });
-
-    await confirmation.destroy();
 
     return res.json({
         success: true,
@@ -452,7 +459,12 @@ exports.setPrimaryBody = async (req, res) => {
     }
 
     if (req.body.primary_body_id) {
-        const body = await Body.findByPk(req.body.primary_body_id);
+        const bodyId = helpers.parseId(req.body.primary_body_id);
+        if (!bodyId) {
+            return errors.makeBadRequestError(res, 'The body ID is not valid.');
+        }
+
+        const body = await Body.findByPk(bodyId);
         if (!body) {
             return errors.makeNotFoundError(res, 'Body is not found.');
         }
@@ -465,6 +477,9 @@ exports.setPrimaryBody = async (req, res) => {
     } else {
         await req.currentUser.update({ primary_body_id: null });
     }
+
+    // The answer shows the primary body that is stored now, not the one that was loaded before the update.
+    req.currentUser.setDataValue('primary_body', await req.currentUser.getPrimary_body());
 
     return res.json({
         success: true,
@@ -645,6 +660,11 @@ exports.confirmEmailChange = async (req, res) => {
         // Including the other pending changes of the member: they were requested for the previous address.
         await MailChange.destroy({ where: { user_id: user.id }, transaction: t });
 
+        // A password reset goes to the login address, so the ones which were sent to the
+        // previous address end here. The member's sessions stay. This comes before the
+        // notice, so that a wait for a lock fails the change before anybody is told about it.
+        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+
         // The notice is sent before the member's row is written, so that row is not locked
         // while the mailer answers. If the mail fails, nothing is changed.
         await mailer.sendMail({
@@ -660,10 +680,6 @@ exports.confirmEmailChange = async (req, res) => {
         });
 
         await user.update({ email: mailChange.new_email }, { transaction: t });
-
-        // A password reset goes to the login address, so the ones which were sent to the
-        // previous address end here. The member's sessions stay.
-        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
 
         return { changed: true };
     });
@@ -695,7 +711,7 @@ exports.confirmEmailChange = async (req, res) => {
 
 exports.subscribeListserv = async (req, res) => {
     if (!req.permissions.hasPermission('global:subscribe:listserv') && req.user.id !== req.currentUser.id) {
-        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+        return errors.makeForbiddenError(res, 'Permission global:subscribe:listserv is required, but not present.');
     }
 
     if (!req.body.mailinglists) {
@@ -710,7 +726,7 @@ exports.subscribeListserv = async (req, res) => {
         return errors.makeValidationError(res, 'Mailinglists must not be empty.');
     }
 
-    const mailinglists = req.body.mailinglists.map((list) => list.toUpperCase());
+    const mailinglists = req.body.mailinglists.map((list) => helpers.stringOrEmpty(list).toUpperCase());
 
     if (mailinglists.some((list) => !constants.LISTSERV_LISTS.includes(list))) {
         return errors.makeValidationError(res, `Mailinglists must be one of the following: ${constants.LISTSERV_LISTS.join(', ')}.`);
@@ -722,8 +738,8 @@ exports.subscribeListserv = async (req, res) => {
             method: 'POST',
             form: {
                 token: config.listserv_token,
-                email: req.user.notification_email,
-                name: `${req.user.first_name} ${req.user.last_name}`,
+                email: req.currentUser.notification_email,
+                name: `${req.currentUser.first_name} ${req.currentUser.last_name}`,
                 lists: mailinglists.join(','),
             },
             fullResponse: true
@@ -733,7 +749,8 @@ exports.subscribeListserv = async (req, res) => {
             throw new Error(`Listserv responded with status ${response.statusCode}.`);
         }
     } catch (err) {
-        return errors.makeInternalError(res, err);
+        logger.error({ err }, 'Could not subscribe to the mailing lists');
+        return errors.makeInternalError(res);
     }
 
     return res.json({

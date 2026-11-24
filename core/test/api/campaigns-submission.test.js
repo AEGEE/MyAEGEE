@@ -180,6 +180,24 @@ describe('Campaign submission', () => {
         expect(res.body).not.toHaveProperty('errors');
     });
 
+    test('should refuse a password that is not a text', async () => {
+        const campaign = await generator.createCampaign();
+
+        for (const password of [12345678, 12345678901, 2147483648, 1e300]) {
+            const res = await request({
+                path: '/signup/' + campaign.url,
+                method: 'POST',
+                body: generator.generateUser({ password })
+            });
+
+            expect({ password, status: res.statusCode, fields: Object.keys(res.body.errors || {}) })
+                .toEqual({ password, status: 422, fields: ['password'] });
+            expect(res.body.errors.password).toContain('Password should be a text.');
+        }
+
+        expect(await User.count()).toEqual(0);
+    });
+
     test('should fail if the password is not set', async () => {
         const campaign = await generator.createCampaign();
         const user = generator.generateUser({ password: null });
@@ -294,7 +312,7 @@ describe('Campaign submission', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body.superadmin).not.toEqual(true);
+        expect(res.body.data.superadmin).toEqual(false);
     });
 
     test('should send a mail to user', async () => {
@@ -322,7 +340,7 @@ describe('Campaign submission', () => {
         expect(requestsMock.mailer.isDone()).toEqual(true);
     });
 
-    test('should fail when mailer fails', async () => {
+    test('should answer 503 and create nobody when the mail cannot be sent', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const campaign = await generator.createCampaign({});
@@ -335,9 +353,45 @@ describe('Campaign submission', () => {
             body: user
         });
 
-        expect(res.statusCode).toEqual(500);
+        expect(res.statusCode).toEqual(503);
+        expect(res.body.message).toEqual('The mail could not be sent, so nothing was saved. Please try again later.');
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should answer with the new member as stored, without the password', async () => {
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser({
+            email: 'New.Member@Example.com',
+            password: 'a-secret-password',
+            superadmin: true,
+            active: false,
+            mail_confirmed_at: new Date()
+        });
+
+        const res = await request({
+            path: '/signup/' + campaign.url,
+            method: 'POST',
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).not.toHaveProperty('password');
+        expect(JSON.stringify(res.body)).not.toContain('a-secret-password');
+
+        const userFromDb = await User.scope('withPassword').findOne({ where: { email: 'new.member@example.com' } });
+        expect(JSON.stringify(res.body)).not.toContain(userFromDb.password);
+
+        // What a member can't choose is not taken from the request.
+        expect(res.body.data).toEqual(expect.objectContaining({
+            id: userFromDb.id,
+            email: 'new.member@example.com',
+            notification_email: 'new.member@example.com',
+            superadmin: false,
+            active: true,
+            mail_confirmed_at: null,
+            campaign_id: campaign.id
+        }));
     });
 });

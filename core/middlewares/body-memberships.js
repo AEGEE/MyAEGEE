@@ -10,6 +10,7 @@ const { sequelize, Sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
+const { reportMailFailure } = require('../lib/mail-failures');
 const config = require('../config');
 
 exports.listAllMemberships = async (req, res) => {
@@ -33,7 +34,7 @@ exports.listAllMemberships = async (req, res) => {
             ),
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, BodyMembership),
         include: [User],
     });
 
@@ -74,27 +75,41 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
         return errors.makeNotFoundError(res, 'Permission is not found.');
     }
 
+    // The circles of this body that have the permission, directly or through a parent circle.
     const circles = await req.permissions.fetchPermissionCircles(permission);
-    const circleIds = circles.map((circle) => circle.id);
+    const circleIds = circles
+        .filter((circle) => circle.body_id === req.currentBody.id)
+        .map((circle) => circle.id);
+
+    // The members of those circles are looked up first, so the list itself can be counted and
+    // cut into pages by membership, and not by the rows of the tables that are joined to it.
+    const holders = await CircleMembership.findAll({
+        where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+        attributes: ['user_id'],
+    });
+    const holderIds = [...new Set(holders.map((membership) => membership.user_id))];
 
     const result = await BodyMembership.findAndCountAll({
         where: {
             body_id: req.currentBody.id,
-            '$user.circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
-            '$user.circle_memberships.circle.body_id$': req.currentBody.id,
+            user_id: { [Sequelize.Op.in]: holderIds },
             ...helpers.filterBy(
                 req.query.query,
                 constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP
             ),
         },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query),
+        order: helpers.getSorting(req.query, BodyMembership),
         include: [
             {
                 model: User,
                 include: [
+                    // Only the memberships that give the permission.
                     {
                         model: CircleMembership,
+                        where: { circle_id: { [Sequelize.Op.in]: circleIds } },
+                        required: false,
+                        separate: true,
                         include: [Circle],
                     },
                 ],
@@ -131,7 +146,12 @@ exports.createMembership = async (req, res) => {
         );
     }
 
-    const user = await User.findByPk(req.body.user_id);
+    const userId = helpers.parseId(req.body.user_id);
+    if (!userId) {
+        return errors.makeBadRequestError(res, 'The user ID is not valid.');
+    }
+
+    const user = await User.findByPk(userId);
     if (!user) {
         return errors.makeNotFoundError(res, 'User is not found');
     }
@@ -193,28 +213,31 @@ exports.updateMembership = async (req, res) => {
     }
 
     await req.currentBodyMembership.update({ comment: req.body.comment });
+
+    // Read again, so the answer shows what is stored. Not with reload(): that leaves out
+    // the computed fields of the member that comes with the membership.
+    const membership = await BodyMembership.findByPk(req.currentBodyMembership.id, { include: [User] });
+
     return res.json({
         success: true,
-        data: req.currentBodyMembership,
+        data: membership,
     });
 };
 
-exports.deleteMembership = async (req, res) => {
-    if (!req.permissions.hasPermission('delete_member:body')) {
-        return errors.makeForbiddenError(
-            res,
-            'Permission delete_member:body is required, but not present.'
-        );
-    }
+// A member who is in no body anymore has no right to a Google Workspace account. The Workspace
+// administrators are told, so they can remove the account by hand; nothing is removed here.
+// The membership is gone by then, so a failure is reported and does not change the answer.
+const notifyWorkspaceAdminsIfLastBody = async (userId) => {
+    try {
+        const bodyCount = await BodyMembership.count({
+            where: { user_id: userId },
+        });
 
-    await req.currentBodyMembership.destroy();
+        if (bodyCount > 0) {
+            return;
+        }
 
-    const bodyCount = await BodyMembership.count({
-        where: { user_id: req.currentBodyMembership.user_id },
-    });
-
-    if (bodyCount === 0) {
-        const user = await User.findByPk(req.currentBodyMembership.user_id);
+        const user = await User.findByPk(userId);
 
         await mailer.sendMail({
             to: config.google_workspace_notifications,
@@ -227,7 +250,21 @@ exports.deleteMembership = async (req, res) => {
                 member_workspace_email: user.gsuite_id,
             },
         });
+    } catch (err) {
+        reportMailFailure(err, 'Could not tell the Workspace administrators about a member without a body', { user_id: userId });
     }
+};
+
+exports.deleteMembership = async (req, res) => {
+    if (!req.permissions.hasPermission('delete_member:body')) {
+        return errors.makeForbiddenError(
+            res,
+            'Permission delete_member:body is required, but not present.'
+        );
+    }
+
+    await req.currentBodyMembership.destroy();
+    await notifyWorkspaceAdminsIfLastBody(req.currentBodyMembership.user_id);
 
     return res.json({
         success: true,
@@ -245,6 +282,7 @@ exports.deleteOwnMembership = async (req, res) => {
     }
 
     await bodyMembership.destroy();
+    await notifyWorkspaceAdminsIfLastBody(req.user.id);
 
     return res.json({
         success: true,

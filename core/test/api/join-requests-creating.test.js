@@ -1,7 +1,16 @@
 const { startServer, stopServer } = require('../../lib/server');
-const { request } = require('../scripts/helpers');
+const { request: sendRequest } = require('../scripts/helpers');
+const joinRequests = require('../../middlewares/join-requests');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
+const { JoinRequest } = require('../../models');
+
+// The mail to the board is sent after the answer. The tests look at the mail, so they wait for it.
+const request = async (options) => {
+    const res = await sendRequest(options);
+    await joinRequests.waitForBoardMails();
+    return res;
+};
 
 describe('Join request creating', () => {
     beforeAll(async () => {
@@ -62,7 +71,7 @@ describe('Join request creating', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
-    test('should fail if mailer fails', async () => {
+    test('should keep the request if the mail to the board cannot be sent', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
@@ -84,10 +93,10 @@ describe('Join request creating', () => {
             body: { motivation: 'test' }
         });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.user_id).toEqual(user.id);
+        expect(await JoinRequest.count({ where: { user_id: user.id, body_id: body.id } })).toEqual(1);
     });
 
     test('should send mail to body email if no permission', async () => {
@@ -215,5 +224,73 @@ describe('Join request creating', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(requestMock.mailer.isDone()).toEqual(true);
+    });
+
+    test('should fail for somebody who is a member of the body already', async () => {
+        const mails = mock.captureMails();
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        await generator.createBodyMembership(body, user);
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('You are already a member of this body.');
+        expect(res.body).not.toHaveProperty('data');
+
+        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
+    test('should fail for a deleted body', async () => {
+        const mails = mock.captureMails();
+
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('This body is deleted and does not take join requests.');
+        expect(res.body).not.toHaveProperty('data');
+
+        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(mails.length).toEqual(0);
+    });
+
+    test('should work for a member of another body', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        await generator.createBodyMembership(otherBody, user);
+
+        const res = await request({
+            path: '/bodies/' + body.id + '/join-requests',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { motivation: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(await JoinRequest.count({ where: { body_id: body.id, user_id: user.id } })).toEqual(1);
     });
 });

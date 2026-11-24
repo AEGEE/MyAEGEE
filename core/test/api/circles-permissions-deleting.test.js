@@ -127,4 +127,23 @@ describe('Circle add permission', () => {
         expect(res.body.message).toEqual('Permission global:put_permissions:circle is required, but not present.');
         expect(await CirclePermission.count({ where: { circle_id: boardCircle.id, permission_id: permission.id } })).toEqual(1);
     });
+
+    test.each(['abc', '1.5', '1e3', '-1'])('should return 400 if the permission id is "%s"', async (value) => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+        await generator.createPermission({ scope: 'global', action: 'put_permissions', object: 'circle' });
+        const circle = await generator.createCircle();
+        const permission = await generator.createPermission();
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            path: '/circles/' + circle.id + '/permissions/' + value,
+            method: 'DELETE',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body).toEqual({ success: false, message: 'The permission ID is not valid.' });
+        expect(await CirclePermission.count({ where: { circle_id: circle.id } })).toEqual(1);
+    });
 });
