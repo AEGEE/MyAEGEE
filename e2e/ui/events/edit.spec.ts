@@ -175,6 +175,28 @@ test.describe('event editor', () => {
             await expect(page.getByRole('link', { name: 'You can take the template for the program here.' })).toBeVisible();
         });
 
+        test('a new online event without applications gets an application period that ends before it starts', async ({ page, api }) => {
+            test.slow();
+            api.on('POST events /', { status: 201, json: created({ method: 'online', has_applications: false }) });
+            eventPage(api, organizedEvent({ id: 30, url: 'spring-training', method: 'online', has_applications: false, status: 'draft' }));
+            await page.goto('/events/new');
+            await page.getByRole('combobox', { name: /^How will the event take place/ }).selectOption({ label: 'Online' });
+            await page.getByRole('combobox', { name: /^Do you want people to apply/ }).selectOption({ label: 'No' });
+            await textbox(page, /^Title/).fill('Online Talk');
+            await textbox(page, /^Description/).fill('A talk.');
+            await page.getByRole('combobox', { name: /^Event type/ }).selectOption({ label: 'Training Event' });
+            await fillDate(page.getByLabel(/^Event start date/), '2027-05-01 18:00');
+            await fillDate(page.getByLabel(/^Event end date/), '2027-05-01 20:00');
+            await addBody(page, 'AEGEE-Antenna');
+
+            await page.getByRole('button', { name: 'Save event' }).click();
+
+            await expect(page).toHaveURL('/events/spring-training');
+            const [sent] = api.callsTo('POST events /').map((call) => call.body as Record<string, unknown>);
+            expect(sent).toMatchObject({ method: 'online', has_applications: false, starts: '2027-05-01T16:00:00.000Z', application_ends: '2027-05-01T15:59:00.000Z' });
+            expect(Date.parse(sent.application_starts as string)).toBeLessThan(Date.parse('2027-05-01T15:59:00.000Z'));
+        });
+
         test('an online event with applications asks for the period, participants and questions', async ({ page }) => {
             await page.goto('/events/new');
 
@@ -481,6 +503,25 @@ test.describe('event editor', () => {
 
             await expect(page).toHaveURL('/events/spring-training');
             expect(api.callsTo('POST events /').map((call) => call.body)).toEqual([expect.objectContaining({ max_participants: null, optional_fee: null })]);
+        });
+
+        test('cleared dates are asked for again before anything is sent', async ({ page, api }) => {
+            await page.goto('/events/new');
+            await fillRequired(page);
+            await fillDates(page);
+            await addBody(page, 'AEGEE-Antenna');
+
+            for (const field of [/^Application period starts/, /^Application period ends/, /^Event start date/]) {
+                await page.getByLabel(field).fill('');
+                await page.getByLabel(field).press('Enter');
+            }
+            await page.getByRole('button', { name: 'Save event' }).click();
+
+            // The browser asks for them itself.
+            for (const field of [/^Application period starts/, /^Application period ends/, /^Event start date/]) {
+                expect(await page.getByLabel(field).evaluate((input: HTMLInputElement) => input.validity.valueMissing), String(field)).toBe(true);
+            }
+            expect(api.callsTo('POST events /')).toHaveLength(0);
         });
 
         test('a cleared end date is asked for again', async ({ page, api }) => {
