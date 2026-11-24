@@ -9,7 +9,7 @@
       <div class="field">
         <label class="label" for="statutory-position-name">Name</label>
         <div class="control">
-          <input id="statutory-position-name" class="input" type="text" required v-model="position.name" />
+          <input id="statutory-position-name" class="input" type="text" required v-model="form.name" />
         </div>
         <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
       </div>
@@ -44,7 +44,7 @@
       <div class="field">
         <label class="label" for="statutory-position-places">Places available</label>
         <div class="control">
-          <input id="statutory-position-places" type="number" class="input" v-model.number="position.places" min="1">
+          <input id="statutory-position-places" type="number" class="input" v-model.number="form.places" min="1">
         </div>
         <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
@@ -52,7 +52,7 @@
       <div class="field">
         <label class="label" for="statutory-position-body">Associated body</label>
         <div class="select">
-          <select id="statutory-position-body" v-model="position.body_id">
+          <select id="statutory-position-body" v-model="form.body_id">
             <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
           </select>
         </div>
@@ -78,7 +78,7 @@
       </b-message>
 
       <b-field label="Position term ends" label-for="statutory-position-end-term">
-        <b-input id="statutory-position-end-term" type="text" required v-model="position.end_term" />
+        <b-input id="statutory-position-end-term" type="text" required v-model="form.end_term" />
       </b-field>
 
       <b-message type="is-success" v-if="dateFound">
@@ -88,11 +88,11 @@
       <div class="field">
         <label class="label" for="statutory-position-requirements">Requirements for the position</label>
         <div class="control">
-          <b-input id="statutory-position-requirements" type="textarea" v-model="position.requirements" />
+          <b-input id="statutory-position-requirements" type="textarea" v-model="form.requirements" />
         </div>
         <p class="label">Preview <MarkdownTooltip /></p>
         <div class="content">
-          <span v-html="$options.filters.markdown(position.requirements)" />
+          <span v-html="$options.filters.markdown(form.requirements)" />
         </div>
       </div>
     </section>
@@ -119,6 +119,19 @@ export default {
   props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router', 'bodies'],
   data () {
     return {
+      // The form works on a copy of the position's own fields: what isn't saved stays out of
+      // the list, and only these fields are sent.
+      form: {
+        id: this.position.id,
+        name: this.position.name,
+        starts: this.position.starts,
+        ends: this.position.ends,
+        places: this.position.places,
+        body_id: this.position.body_id,
+        start_term: this.position.start_term,
+        end_term: this.position.end_term,
+        requirements: this.position.requirements
+      },
       errors: {},
       // Typed dates are accepted, and phones get the same picker.
       dateConfig: {
@@ -136,27 +149,26 @@ export default {
         starts: null,
         ends: null,
         start_term: null
-      },
-      dateFound: null
+      }
     }
   },
   watch: {
     'dates.starts': function (newDate) {
-      this.position.starts = new Date(newDate)
+      this.form.starts = new Date(newDate)
     },
     'dates.ends': function (newDate) {
-      this.position.ends = new Date(newDate)
+      this.form.ends = new Date(newDate)
     },
     'dates.start_term': function (newDate) {
-      this.position.start_term = new Date(newDate)
-    },
-    'position.end_term': function () {
-      this.dateFound = (moment(this.position.end_term, 'YYYY-MM-DD').isValid() && this.position.end_term !== '' && this.position.end_term.length === 10)
+      this.form.start_term = new Date(newDate)
     }
   },
   computed: {
+    dateFound () {
+      return typeof this.form.end_term === 'string' && this.form.end_term.length === 10 && moment(this.form.end_term, 'YYYY-MM-DD').isValid()
+    },
     isNew () {
-      return !this.position.id
+      return !this.form.id
     }
   },
   methods: {
@@ -164,8 +176,8 @@ export default {
       this.isLoading = true
 
       const action = this.isNew
-        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/positions/', this.position)
-        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/positions/' + this.position.id, this.position)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/positions/', this.form)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/positions/' + this.form.id, this.form)
 
       action.then(() => {
         this.showSuccess('Position is created.')
@@ -185,9 +197,9 @@ export default {
     }
   },
   mounted () {
-    this.dates.starts = this.position.starts = new Date(this.position.starts)
-    this.dates.ends = this.position.ends = new Date(this.position.ends)
-    this.dates.start_term = this.position.start_term = new Date(this.position.start_term)
+    this.dates.starts = this.form.starts = new Date(this.form.starts)
+    this.dates.ends = this.form.ends = new Date(this.form.ends)
+    this.dates.start_term = this.form.start_term = new Date(this.form.start_term)
   }
 }
 </script>
