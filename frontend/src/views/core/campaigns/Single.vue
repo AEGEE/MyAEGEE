@@ -141,17 +141,21 @@ export default {
         requests.push(this.axios.get(this.services['core'] + '/bodies/' + this.campaign.autojoin_body_id + '/my_permissions'))
       }
 
-      return Promise.all(requests)
-    }).then((responses) => {
-      this.permissions = responses
-        .map((response) => response.data.data)
-        .flat()
+      return Promise.all(requests).then((responses) => {
+        this.permissions = responses
+          .map((permissionsResponse) => permissionsResponse.data.data)
+          .flat()
 
-      this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
-      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
-      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
+        this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
+        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
 
-      this.isLoading = false
+        this.isLoading = false
+      }).catch((err) => {
+        // The page stays, without the actions that need permissions.
+        this.isLoading = false
+        this.$root.showError('Could not fetch your permissions for this campaign', err)
+      })
     }).catch((err) => {
       if (err.response && err.response.status === 404) {
         this.$root.showError('Campaign is not found')
