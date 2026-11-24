@@ -138,9 +138,12 @@ const nprogress = new NProgress({ parent: '.nprogress-container' })
 
 const { state } = store
 
+// The login page, with the page to go on to after logging in. vue-router encodes the target,
+// so its own query string and hash survive the round trip.
+const loginFor = (route) => (route.name === 'oms.login' ? { path: '/login' } : { path: '/login', query: { to: route.fullPath } })
+
 router.beforeEach((to, from, next) => {
-  const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
-  const loggedInRedirectPath = to.query.to ? decodeURI(to.query.to) : '/dashboard'
+  const loggedInRedirectPath = to.query.to || '/dashboard'
 
   // Fuck my life.
   if (state.login.user) {
@@ -202,7 +205,7 @@ router.beforeEach((to, from, next) => {
     }
 
     console.debug('Error fetching user, redirect to /login. Error: ' + err)
-    return next('/login' + prefix)
+    return next(loginFor(to))
   })
 })
 
@@ -231,8 +234,7 @@ axios.interceptors.response.use(
 
       // Workaround indicating that we don't need to redirect (it's an auth request)
       if (!originalRequest.headers['X-For-Auth']) {
-        const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
-        router.push('/login' + prefix)
+        router.push(loginFor(app.$route))
       }
       return Promise.reject(error)
     }
@@ -252,8 +254,7 @@ axios.interceptors.response.use(
           window.localStorage.removeItem('access-token')
           window.localStorage.removeItem('refresh-token')
           if (!originalRequest.headers['X-For-Auth']) {
-            const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
-            router.push('/login' + prefix)
+            router.push(loginFor(app.$route))
           }
           throw renewError
         })

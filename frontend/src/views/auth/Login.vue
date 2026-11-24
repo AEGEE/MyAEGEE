@@ -48,7 +48,7 @@ export default {
       }
 
       if (this.$route.query.to) {
-        this.$router.replace(decodeURI(this.$route.query.to))
+        this.$router.replace(this.$route.query.to)
       } else {
         this.$router.replace('/dashboard')
       }
