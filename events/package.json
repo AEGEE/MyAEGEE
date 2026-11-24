@@ -33,10 +33,7 @@
     ],
     "collectCoverageFrom": [
       "lib/**/*.js",
-      "models/**/*.js",
-      "!lib/run.js",
-      "!lib/sequelize.js",
-      "!lib/logger.js"
+      "models/**/*.js"
     ],
     "reporters": [
       "default",
