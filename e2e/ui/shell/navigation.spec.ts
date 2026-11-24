@@ -9,9 +9,9 @@ import { test, expect } from '../support/test.ts';
 test.describe('navigation', () => {
     test('a member reaches the events list through the menu', async ({ page, api, layout }) => {
         api.json('GET events /', ok([]));
-        api.json('GET events /mine/participating', ok([]));
-        await page.goto('/events/participating');
-        await expect(page.getByRole('heading', { name: 'Events list' })).toBeVisible();
+        // A page outside the groups of the menu, so that "Events listing" starts closed.
+        await page.goto('/about');
+        await expect(page).toHaveTitle('MyAEGEE | About MyAEGEE');
 
         const menu = await openMenu(page, layout);
         await menu.getByRole('button', { name: 'Events listing' }).click();
@@ -23,9 +23,8 @@ test.describe('navigation', () => {
         await expect(page.getByText('No events found.')).toBeVisible();
     });
 
-    test('a group of the menu opens and closes', async ({ page, api, layout }) => {
-        api.json('GET events /', ok([]));
-        await page.goto('/events');
+    test('a group of the menu opens and closes', async ({ page, layout }) => {
+        await page.goto('/about');
 
         const menu = await openMenu(page, layout);
         const group = menu.getByRole('button', { name: 'Events listing' });
