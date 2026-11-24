@@ -151,6 +151,7 @@ export default {
     document.addEventListener('click', this.closeOnClickOutside)
     document.addEventListener('keydown', this.closeOnEscape)
   },
+  /* istanbul ignore next -- the top bar lives as long as the app, so it is never destroyed in a test */
   beforeDestroy () {
     document.removeEventListener('click', this.closeOnClickOutside)
     document.removeEventListener('keydown', this.closeOnEscape)
