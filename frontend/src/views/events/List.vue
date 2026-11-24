@@ -303,19 +303,21 @@ export default {
         participating: this.services['events'] + '/mine/participating'
       }
 
-      this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      // The scope of this request: the route may have changed by the time the answer comes in.
+      const scope = this.scope
+      this.axios.get(urls[scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
-        this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
+        this.canLoadMore = scope === 'all' && response.data.data.length === this.limit
 
         this.isLoading.events = false
       }).catch((err) => {
-        this.isLoading.events = false
-
+        // A request is cancelled by a newer one, which is loading now, or by leaving the page.
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading.events = false
         this.$root.showError('Could not fetch events list', err)
       })
     },
@@ -345,6 +347,10 @@ export default {
   mounted () {
     this.refetch()
     this.fetchPermissions()
+  },
+  beforeDestroy () {
+    // An answer that comes in after the member left the list is dropped (mounting started one).
+    this.source.cancel()
   }
 }
 </script>
