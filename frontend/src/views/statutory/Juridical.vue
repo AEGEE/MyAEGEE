@@ -156,6 +156,8 @@ export default {
         this.$root.showSuccess(`Successfully updated registration info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingRegistered = false
+        // Showing what is still stored.
+        pax.newRegistered = pax.registered
         this.$root.showError('Could not update participant registration info', err)
       })
     },
@@ -169,6 +171,8 @@ export default {
         this.$root.showSuccess(`Successfully updated departure info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingDeparted = false
+        // Showing what is still stored.
+        pax.newDeparted = pax.departed
         this.$root.showError('Could not update participant departure info', err)
       })
     },
