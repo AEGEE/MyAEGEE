@@ -358,6 +358,9 @@ export default {
 
     this.axios.get(this.services['core'] + '/bodies').then((bodiesResponse) => {
       this.bodies = bodiesResponse.data.data
+    }).catch((err) => {
+      // The positions are shown without the descriptions of their bodies.
+      this.$root.showError('Could not fetch bodies', err)
     })
 
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
