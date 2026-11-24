@@ -25,12 +25,6 @@
             {{ props.row.position }}
           </b-table-column>
 
-          <!-- <b-table-column field="circle_admin" label="Is circle admin?" v-slot="props">
-            <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
-              {{ props.row.circle_admin | beautify}}
-            </span>
-          </b-table-column> -->
-
           <b-table-column label="Edit" :visible="can.edit" centered v-slot="props">
             <button
               type="button"
@@ -47,7 +41,7 @@
               type="button"
               class="button is-small is-danger"
               :aria-label="'Delete ' + props.row.user.first_name + ' ' + props.row.user.last_name"
-              @click="askDeleteMember(props.row, false)">
+              @click="askDeleteMember(props.row)">
               <span class="icon"><font-awesome-icon icon="minus" /></span>
               <span>Delete</span>
             </button>
@@ -91,8 +85,7 @@ export default {
       permissions: [],
       can: {
         edit: false,
-        delete: false,
-        create: false
+        delete: false
       }
     }
   },

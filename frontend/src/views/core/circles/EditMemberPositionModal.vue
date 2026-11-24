@@ -10,15 +10,7 @@
         <div class="control">
           <input id="circle-membership-position" class="input" type="text" v-model="position" />
         </div>
-        <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
       </div>
-
-      <!-- <div class="field">
-        <label class="label">Circle admin?
-          <input class="checkbox" type="checkbox" v-model="user.circle_admin" />
-        </label>
-        <p class="help is-danger" v-if="userErrors.circle_admin">{{ userErrors.circle_admin.join(', ')}}</p>
-      </div> -->
     </section>
     <footer class="modal-card-foot">
       <button type="button" class="button is-primary" :disabled="isLoading" @click="updateMembership()">Save changes</button>
@@ -35,8 +27,7 @@ export default {
     return {
       // A copy: the list shows the position of the membership, which changes only once it is saved.
       position: this.membership.position,
-      isLoading: false,
-      userErrors: {}
+      isLoading: false
     }
   },
   methods: {

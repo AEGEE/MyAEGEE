@@ -73,8 +73,7 @@ export default {
       permissions: [],
       includeBoundCircles: false,
       can: {
-        createFree: false,
-        createBound: false
+        createFree: false
       }
     }
   },
@@ -117,7 +116,6 @@ export default {
         this.permissions = response.data.data
 
         this.can.createFree = this.permissions.some(permission => permission.combined.endsWith('create:free_circle'))
-        this.can.createBound = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {

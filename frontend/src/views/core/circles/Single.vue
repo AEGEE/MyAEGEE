@@ -116,13 +116,9 @@ export default {
         body_id: null
       },
       inheritedPermissions: [],
-      isOwnProfile: false,
       isLoading: false,
       permissions: [],
       isMember: false,
-      isLoadingMembers: false,
-      cancelToken: null,
-      members: [],
       can: {
         edit: false,
         delete: false,
