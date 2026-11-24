@@ -25,13 +25,6 @@
             </router-link>
           </div>
 
-          <!--<div class="field is-grouped" v-if="can.view_applications">
-            <router-link :to="{ name: 'oms.events.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
-              <span>View participants</span>
-              <span class="icon"><font-awesome-icon icon="users" /></span>
-            </router-link>
-          </div>-->
-
           <div
             class="field is-grouped"
             v-if="event.status === 'published' && event.has_applications"
