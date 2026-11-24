@@ -8,6 +8,8 @@ const morgan = require('./morgan');
 const db = require('./sequelize');
 const log = require('./logger');
 const config = require('../config');
+const helpers = require('./helpers');
+const errors = require('./errors');
 const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
@@ -60,6 +62,11 @@ server.use(bodyParser.json());
 server.use((req, res, next) => {
     if (typeof req.body === 'undefined' || Array.isArray(req.body)) {
         req.body = {};
+    }
+
+    // Postgres cannot store U+0000 in a text, so a body with one is refused before any model sees it.
+    if (helpers.containsNulCharacter(req.body)) {
+        return errors.makeBadRequestError(res, 'Texts in the request body cannot contain the character U+0000.');
     }
 
     return next();

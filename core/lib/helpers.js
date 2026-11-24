@@ -248,7 +248,22 @@ const lockMailChanges = async (userId, transaction) => {
     );
 };
 
+// Whether a text anywhere in a parsed JSON value (a value, an item of a list or a key) contains
+// U+0000, which Postgres cannot store in a text column.
+const containsNulCharacter = (value) => {
+    if (typeof value === 'string') {
+        return value.includes('\u0000');
+    }
+
+    if (value && typeof value === 'object') {
+        return Object.entries(value).some(([key, item]) => key.includes('\u0000') || containsNulCharacter(item));
+    }
+
+    return false;
+};
+
 module.exports = {
+    containsNulCharacter,
     traverseIndirectCircles,
     getPagination,
     getSorting,
