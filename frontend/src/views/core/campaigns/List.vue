@@ -69,7 +69,6 @@ export default {
       offset: 0,
       canLoadMore: true,
       source: null,
-      permissions: [],
       can: {
         create: false
       }
@@ -103,12 +102,6 @@ export default {
         this.campaigns = this.campaigns.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
-
-        return this.axios.get(this.services['core'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:campaign'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -118,10 +111,20 @@ export default {
         this.$root.showError('Could not fetch campaign list', err)
         this.isLoading = false
       })
+    },
+    fetchPermissions () {
+      this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
+        const permissions = response.data.data
+
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:campaign'))
+      }).catch((err) => {
+        this.$root.showError('Could not fetch campaign list', err)
+      })
     }
   },
   mounted () {
     this.fetchData()
+    this.fetchPermissions()
   }
 }
 </script>
