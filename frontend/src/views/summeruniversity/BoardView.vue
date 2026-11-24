@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="boardBodiesLoaded && boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div class="notification is-warning" v-if="selectedBody && boardBodies.length > 0">
@@ -98,6 +98,7 @@ export default {
     return {
       applications: [],
       boardBodies: [],
+      boardBodiesLoaded: false,
       isLoading: false,
       selectedBody: null
     }
@@ -183,10 +184,13 @@ export default {
         .filter((elt, index, array) => array.indexOf(elt) === index)
 
       this.boardBodies = this.loginUser.bodies.filter((body) => boardIds.includes(body.id))
+      this.boardBodiesLoaded = true
 
       if (this.boardBodies.length === 1) {
         this.selectedBody = this.boardBodies[0].id
       }
+    }).catch((err) => {
+      this.$root.showError('Could not fetch your board bodies', err)
     })
   }
 }
