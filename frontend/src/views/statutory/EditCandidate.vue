@@ -6,9 +6,9 @@
       </span>
       <form @submit.prevent="saveCandidate()">
         <div class="field">
-          <label class="label">Body <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-candidate-body">Body <span class="has-text-danger">*</span></label>
           <div class="select" v-show="bodies.length > 0">
-            <select v-model="candidate.body_id">
+            <select id="statutory-candidate-body" v-model="candidate.body_id">
               <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
             </select>
           </div>
@@ -17,7 +17,7 @@
         <event-no-body-notification v-show="bodies.length == 0" />
 
         <div v-if="$route.params.candidate_id">
-          <div class="subtitle">Update candidature image</div>
+          <h2 class="subtitle">Update candidature image</h2>
 
           <div class="field is-grouped">
             <div class="control">
@@ -40,7 +40,7 @@
             </div>
 
             <div class="control">
-              <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+              <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
             </div>
           </div>
 
@@ -55,9 +55,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Date of birth</label>
+          <label class="label" for="statutory-candidate-date-of-birth">Date of birth</label>
           <div class="control">
             <flat-pickr
+              id="statutory-candidate-date-of-birth"
               placeholder="Select date"
               class="input"
               required
@@ -68,9 +69,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Member since</label>
+          <label class="label" for="statutory-candidate-member-since">Member since</label>
           <div class="control">
             <flat-pickr
+              id="statutory-candidate-member-since"
               placeholder="Select date"
               class="input"
               required
@@ -81,10 +83,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Nationality</label>
+          <label class="label" for="statutory-candidate-nationality">Nationality</label>
           <div class="control">
             <div class="select">
-              <select v-model="candidate.nationality">
+              <select id="statutory-candidate-nationality" v-model="candidate.nationality">
                 <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
               </select>
             </div>
@@ -93,13 +95,15 @@
         </div>
 
         <div class="field">
-          <label class="label">
+          <p class="label">
             Languages
             <tooltip text="To add a language to the list, press either 'tab' or 'enter', or add a comma" />
-          </label>
+          </p>
           <div class="control">
+            <!-- The component puts its attributes on its wrapper; its text field is named by the placeholder. -->
             <input-tag
               v-if="!isLoading"
+              placeholder="Add a language"
               v-model="candidate.languages"
               :before-adding="value => value.trim()" />
           </div>
@@ -107,11 +111,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Studies</label>
+          <label class="label" for="statutory-candidate-studies">Studies</label>
           <div class="control">
-            <input class="input" type="text" required v-model="candidate.studies" />
+            <input id="statutory-candidate-studies" class="input" type="text" required v-model="candidate.studies" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.studies)" />
           </div>
@@ -119,11 +123,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended Agorae</label>
+          <label class="label" for="statutory-candidate-attended-agorae">Attended Agorae</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_agorae" />
+            <textarea id="statutory-candidate-attended-agorae" class="textarea" required v-model="candidate.attended_agorae" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_agorae)" />
           </div>
@@ -131,11 +135,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended EPMs</label>
+          <label class="label" for="statutory-candidate-attended-epm">Attended EPMs</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_epm" />
+            <textarea id="statutory-candidate-attended-epm" class="textarea" required v-model="candidate.attended_epm" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_epm)" />
           </div>
@@ -143,11 +147,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended European Events</label>
+          <label class="label" for="statutory-candidate-attended-conferences">Attended European Events</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_conferences" />
+            <textarea id="statutory-candidate-attended-conferences" class="textarea" required v-model="candidate.attended_conferences" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_conferences)" />
           </div>
@@ -155,11 +159,11 @@
         </div>
 
         <div class="field">
-          <label class="label">European level experience</label>
+          <label class="label" for="statutory-candidate-european-experience">European level experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.european_experience" />
+            <textarea id="statutory-candidate-european-experience" class="textarea" required v-model="candidate.european_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.european_experience)" />
           </div>
@@ -167,11 +171,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Local level experience</label>
+          <label class="label" for="statutory-candidate-local-experience">Local level experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.local_experience" />
+            <textarea id="statutory-candidate-local-experience" class="textarea" required v-model="candidate.local_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.local_experience)" />
           </div>
@@ -179,11 +183,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Task-related experience</label>
+          <label class="label" for="statutory-candidate-related-experience">Task-related experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.related_experience" />
+            <textarea id="statutory-candidate-related-experience" class="textarea" required v-model="candidate.related_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.related_experience)" />
           </div>
@@ -191,11 +195,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Non-AEGEE experience</label>
+          <label class="label" for="statutory-candidate-external-experience">Non-AEGEE experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.external_experience" />
+            <textarea id="statutory-candidate-external-experience" class="textarea" required v-model="candidate.external_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.external_experience)" />
           </div>
@@ -203,11 +207,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Motivation</label>
+          <label class="label" for="statutory-candidate-motivation">Motivation</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.motivation" />
+            <textarea id="statutory-candidate-motivation" class="textarea" required v-model="candidate.motivation" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.motivation)" />
           </div>
@@ -215,11 +219,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Program</label>
+          <label class="label" for="statutory-candidate-program">Program</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.program" />
+            <textarea id="statutory-candidate-program" class="textarea" required v-model="candidate.program" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.program)" />
           </div>
@@ -281,7 +285,11 @@ export default {
         agreed_to_privacy_policy: false
       },
       nationalities,
-      dateConfig: {},
+      // Typed dates are accepted, and phones get the same picker.
+      dateConfig: {
+        allowInput: true,
+        disableMobile: true
+      },
       options: [],
       newValue: '',
       bodies: [],
