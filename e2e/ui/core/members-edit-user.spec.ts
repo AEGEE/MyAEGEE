@@ -2,7 +2,7 @@
 // own profile.
 import type { Page } from '@playwright/test';
 
-import { forbidden, ok, validationError } from '../support/factories/base.ts';
+import { ok, validationError } from '../support/factories/base.ts';
 import { permissionsFor, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
@@ -75,7 +75,7 @@ test.describe('changing the password', () => {
     });
 
     test('says so when the old password is wrong', async ({ page, api }) => {
-        api.on('PUT core /members/:id/password', { status: 422, json: { success: false, message: 'Old password is invalid.' } });
+        api.on('PUT core /members/:id/password', { status: 422, json: { success: false, message: 'The old password is invalid.' } });
         await page.goto('/members/edituser');
 
         await fillPasswords(page, 'not the old one', 'a new password');
@@ -90,31 +90,26 @@ test.describe('changing the password', () => {
     test('shows what the server says about each field', async ({ page, api }) => {
         api.on('PUT core /members/:id/password', {
             status: 422,
-            json: validationError({
-                old_password: ['Old password should be set.'],
-                password: ['Password is too weak.', 'Password is too common.'],
-                password_confirmation: ['Confirm the password.']
-            })
+            json: validationError({ password: ['Password should be set.'] })
         });
         await page.goto('/members/edituser');
 
-        await fillPasswords(page, 'the old one', 'password');
+        // Long enough for the field, but core counts only spaces as no password.
+        await fillPasswords(page, 'the old one', '        ');
         await save(page).click();
 
         await expect(toast(page, 'Some of the user data is invalid.')).toBeVisible();
-        await expect(page.getByText('Old password should be set.')).toBeVisible();
-        await expect(page.getByText('Password is too weak., Password is too common.')).toBeVisible();
-        await expect(page.getByText('Confirm the password.')).toBeVisible();
+        await expect(page.getByText('Password should be set.')).toBeVisible();
     });
 
     test('shows the server message when saving fails otherwise', async ({ page, api }) => {
-        api.on('PUT core /members/:id/password', { status: 403, json: forbidden('You are not allowed to do that.') });
+        api.on('PUT core /members/:id/password', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/members/edituser');
 
         await fillPasswords(page, 'the old one', 'a new password');
         await save(page).click();
 
-        await expect(toast(page, 'Could not save user: You are not allowed to do that.')).toBeVisible();
+        await expect(toast(page, 'Could not save user: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/members/edituser');
     });
 

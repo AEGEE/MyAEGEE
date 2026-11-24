@@ -193,12 +193,8 @@ test.describe('editing a member', () => {
             json: validationError({
                 first_name: ['First name should be set.'],
                 last_name: ['Last name should be set.'],
-                username: ['Username is already taken.'],
-                phone: ['Phone is too long.'],
-                date_of_birth: ['Birthday should be in the past.'],
-                gender: ['Gender is too long.'],
-                address: ['Address is too long.'],
-                about_me: ['About me is too long.']
+                username: ['Username should have at least 1 letter.'],
+                date_of_birth: ['Birthday should be in the past.']
             })
         });
         await page.goto('/members/alex.member/edit');
@@ -207,8 +203,7 @@ test.describe('editing a member', () => {
         await save(page).click();
 
         await expect(toast(page, 'Some of the user data is invalid.')).toBeVisible();
-        for (const message of ['First name should be set.', 'Last name should be set.', 'Username is already taken.', 'Phone is too long.',
-            'Birthday should be in the past.', 'Gender is too long.', 'Address is too long.', 'About me is too long.']) {
+        for (const message of ['First name should be set.', 'Last name should be set.', 'Username should have at least 1 letter.', 'Birthday should be in the past.']) {
             await expect(page.getByText(message, { exact: true })).toBeVisible();
         }
         await expect(page).toHaveURL('/members/alex.member/edit');

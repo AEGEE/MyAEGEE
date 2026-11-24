@@ -4,7 +4,7 @@
 import type { Page } from '@playwright/test';
 
 import type { ApiMock } from '../support/api-mock.ts';
-import { forbidden, ok, validationError } from '../support/factories/base.ts';
+import { ok, validationError } from '../support/factories/base.ts';
 import { body, type Body } from '../support/factories/core.ts';
 import { dialog, freezeTime, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
@@ -112,14 +112,14 @@ test.describe('completing the profile', () => {
     test('shows why the server refused the username', async ({ page, api, me }) => {
         me!.username = '12345';
         showBodies(api);
-        api.on('PUT core /members/:id', { status: 422, json: validationError({ username: ['Username is already taken.'] }) });
+        api.on('PUT core /members/:id', { status: 422, json: validationError({ username: ['username must be unique'] }) });
         await page.goto('/profile/update');
 
         await page.getByLabel('Username').fill('taken');
         await save(page).click();
 
         await expect(toast(page, 'Some of the user data is invalid.')).toBeVisible();
-        await expect(page.getByText('Username is already taken.', { exact: true })).toBeVisible();
+        await expect(page.getByText('username must be unique', { exact: true })).toBeVisible();
         await expect(page).toHaveURL('/profile/update');
         await expect(save(page)).toBeEnabled();
     });
@@ -127,13 +127,13 @@ test.describe('completing the profile', () => {
     test('shows the server message when saving fails otherwise', async ({ page, api, me }) => {
         me!.privacy_consent = null;
         showBodies(api);
-        api.on('PUT core /members/:id', { status: 403, json: forbidden('You are not allowed to do that.') });
+        api.on('PUT core /members/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/profile/update');
 
         await page.getByRole('checkbox', { name: /I agree to the/ }).check();
         await save(page).click();
 
-        await expect(toast(page, 'Could not save user: You are not allowed to do that.')).toBeVisible();
+        await expect(toast(page, 'Could not save user: Something went wrong on the server.')).toBeVisible();
         await expect(page).toHaveURL('/profile/update');
     });
 
@@ -270,7 +270,7 @@ test.describe('completing the profile', () => {
         test('a second request to the same local says so', async ({ page, api, me }) => {
             me!.bodies = [];
             showBodies(api);
-            api.on('POST core /bodies/:id/join-requests', { status: 422, json: validationError({ body_id: ['There\'s already a join request.'] }) });
+            api.on('POST core /bodies/:id/join-requests', { status: 422, json: validationError({ body_id: ['body_id must be unique'], user_id: ['user_id must be unique'] }) });
             await page.goto('/profile/update');
 
             await page.getByRole('combobox', { name: /^Body/ }).selectOption({ label: 'AEGEE-Antenna' });
@@ -283,14 +283,14 @@ test.describe('completing the profile', () => {
         test('a join request that fails otherwise shows the server message', async ({ page, api, me }) => {
             me!.bodies = [];
             showBodies(api);
-            api.on('POST core /bodies/:id/join-requests', { status: 403, json: forbidden('You are not allowed to do that.') });
+            api.on('POST core /bodies/:id/join-requests', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
             await page.goto('/profile/update');
 
             await page.getByRole('combobox', { name: /^Body/ }).selectOption({ label: 'AEGEE-Antenna' });
             await page.getByRole('button', { name: 'Join body' }).click();
             await dialog(page, 'Join body').getByRole('button', { name: 'OK' }).click();
 
-            await expect(toast(page, 'Could not send join request: You are not allowed to do that.')).toBeVisible();
+            await expect(toast(page, 'Could not send join request: Something went wrong on the server.')).toBeVisible();
             await expect(page.getByRole('status').filter({ hasText: 'Your request to join' })).toHaveCount(0);
         });
     });
@@ -334,13 +334,13 @@ test.describe('completing the profile', () => {
     test('the form can still be used when the bodies cannot be loaded', async ({ page, api, me }) => {
         me!.privacy_consent = null;
         api.on('GET core /bodies', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
-        api.on('PUT core /members/:id', { status: 403, json: forbidden('You are not allowed to do that.') });
+        api.on('PUT core /members/:id', { status: 500, json: { success: false, message: 'Something went wrong on the server.' } });
         await page.goto('/profile/update');
 
         await expect(toast(page, 'Some error happened: Something went wrong on the server.')).toBeVisible();
         await expect(page.getByRole('form', { name: 'Your profile' })).toHaveAttribute('aria-busy', 'false');
         await page.getByRole('checkbox', { name: /I agree to the/ }).check();
         await save(page).click();
-        await expect(toast(page, 'Could not save user: You are not allowed to do that.')).toBeVisible();
+        await expect(toast(page, 'Could not save user: Something went wrong on the server.')).toBeVisible();
     });
 });

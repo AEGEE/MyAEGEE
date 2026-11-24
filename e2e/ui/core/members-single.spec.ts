@@ -334,15 +334,16 @@ test.describe('member page', () => {
     });
 
     test('a refused suspension says why and changes nothing', async ({ page, api, me }) => {
-        showMember(api, me, ALEX({ active: true }), { global: SUSPEND });
-        api.on('PUT core /members/:id/active', { status: 403, json: forbidden('Permission update_active:user is required, but not present.') });
+        // The page shows the button for update_active:member; core needs update_active:user.
+        showMember(api, me, ALEX({ active: true }), { global: ['global:update_active:member'] });
+        api.on('PUT core /members/:id/active', { status: 403, json: forbidden('Permission global:update_active:user is required, but not present.') });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Suspend user' }).click();
         await dialog(page, 'Suspend user').getByRole('button', { name: 'Suspend user' }).click();
 
         await expect(dialog(page, 'Suspend user')).toBeHidden();
-        await expect(toast(page, 'Error changing user status: Permission update_active:user is required, but not present.')).toBeVisible();
+        await expect(toast(page, 'Error changing user status: Permission global:update_active:user is required, but not present.')).toBeVisible();
         await expect(fact(page, 'Login suspended?')).toHaveText('No');
         await expect(page.getByRole('button', { name: 'Suspend user' })).toBeEnabled();
     });

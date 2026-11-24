@@ -44,7 +44,7 @@ const memberLoads = (api: ApiMock) => api.callsTo('GET core /members/:id').filte
 test.describe('changing the picture', () => {
     test('uploads the chosen picture and shows the page again', async ({ page, api, me }) => {
         showMember(api, me, ALEX());
-        api.json('POST core /members/:id/upload', ok(ALEX({ image: 'alex.png' })));
+        api.json('POST core /members/:id/upload', { success: true, message: 'File uploaded successfully', data: 'alex.png' });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Change picture' }).click();
@@ -67,7 +67,7 @@ test.describe('changing the picture', () => {
 
     test('a refused upload says why and keeps the dialog open', async ({ page, api, me }) => {
         showMember(api, me, ALEX());
-        api.on('POST core /members/:id/upload', { status: 422, json: { success: false, message: 'File is not an image.' } });
+        api.on('POST core /members/:id/upload', { status: 422, json: { success: false, message: 'Malformed file content.' } });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Change picture' }).click();
@@ -75,7 +75,7 @@ test.describe('changing the picture', () => {
         await modal.getByLabel('Choose a picture').setInputFiles(PICTURE);
         await modal.getByRole('button', { name: 'Upload' }).click();
 
-        await expect(toast(page, 'Could not update image: File is not an image.')).toBeVisible();
+        await expect(toast(page, 'Could not update image: Malformed file content.')).toBeVisible();
         await expect(modal).toBeVisible();
         expect(memberLoads(api)).toBe(1);
     });
@@ -83,7 +83,7 @@ test.describe('changing the picture', () => {
     test('deletes the picture and shows the page again', async ({ page, api, me }) => {
         showMember(api, me, ALEX({ image: 'alex.png' }));
         api.url('GET', '/media/core/headimages/*', { status: 404, json: { success: false, message: 'Not found' } });
-        api.json('DELETE core /members/:id/image', { success: true, message: 'Image was removed.' });
+        api.json('DELETE core /members/:id/image', { success: true, message: 'File removed successfully', data: null });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Change picture' }).click();
