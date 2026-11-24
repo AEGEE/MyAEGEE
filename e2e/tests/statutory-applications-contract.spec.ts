@@ -9,7 +9,6 @@ import {
     applicationPermissions,
     incomingApplication,
     listedApplication,
-    paxLimit,
     singleStatutoryApplication,
     statutoryApplication
 } from '../ui/support/factories/statutory-applications.ts';
@@ -95,10 +94,5 @@ test.describe('statutory application factories match the real API', () => {
         expectShape('incomingApplication', incomingApplication(), incoming.body.data[0], {
             gaps: Object.fromEntries(Object.entries(unfilled).filter(([path]) => path !== '$.email'))
         });
-
-        // The member's antenna has no limit of its own: the default of an antenna.
-        const limit = await api.call<Envelope<unknown>>('member', 'GET', `/api/statutory/limits/agora/${bodyId}`);
-        expectStatus(limit, 200);
-        expectShape('paxLimit', paxLimit(), limit.body.data);
     });
 });

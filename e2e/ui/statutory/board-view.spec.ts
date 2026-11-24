@@ -6,8 +6,10 @@ import type { Locator, Page } from '@playwright/test';
 import type { ApiMock } from '../support/api-mock.ts';
 import { forbidden, notFound, ok, okList, validationError } from '../support/factories/base.ts';
 import { body } from '../support/factories/core.ts';
-import { listedApplication, paxLimit, type ListedApplication, type PaxLimit } from '../support/factories/statutory-applications.ts';
-import { statutoryEvent, statutoryEventPermissions, type StatutoryEvent, type StatutoryEventPermissions } from '../support/factories/statutory-events.ts';
+import { listedApplication, type ListedApplication } from '../support/factories/statutory-applications.ts';
+import {
+    defaultPaxLimit, statutoryEvent, statutoryEventPermissions, type PaxLimit, type StatutoryEvent, type StatutoryEventPermissions
+} from '../support/factories/statutory-events.ts';
 import { cellOf, expectEmptyTable, tableRows, toast } from '../support/shell.ts';
 import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect } from '../support/test.ts';
@@ -43,6 +45,9 @@ const ALEX = listedApplication({
 });
 const JAN = listedApplication({ id: 13, statutory_id: '001-0002', user_id: 7, first_name: 'Jan', last_name: 'Jansen', status: 'accepted', answers: ['To learn'] });
 const KIM = listedApplication({ id: 14, statutory_id: '001-0003', user_id: 8, first_name: 'Kim', last_name: 'Visitor', cancelled: true, status: 'rejected', answers: ['Why not'] });
+
+// The generated limit of the antenna (body 1) for an Agora, with what the test changes.
+const paxLimit = (overrides: Partial<PaxLimit> = {}): PaxLimit => ({ ...defaultPaxLimit(), ...overrides });
 
 const mockPage = (api: ApiMock, {
     event = agora(),

@@ -182,28 +182,3 @@ export const incomingApplication = (overrides: Partial<IncomingApplication> = {}
     const picked = Object.fromEntries(INCOMING_FIELDS.map((field) => [field, full[field]])) as Pick<StatutoryApplication, typeof INCOMING_FIELDS[number]>;
     return { ...picked, notification_email: overrides.notification_email ?? `member${full.user_id}@example.com` };
 };
-
-// How many participants of each type a body may send to an event of a type
-// (GET /limits/:event_type/:body_id). `null` is "unlimited". A body without a limit of its own
-// gets the default of its body type (models/PaxLimit.js), which is not stored: `default` is
-// true. By default an antenna's for an Agora.
-export interface PaxLimit {
-    body_id: number;
-    event_type: 'agora' | 'epm' | 'spm';
-    delegate: number | null;
-    envoy: number | null;
-    observer: number | null;
-    visitor: number | null;
-    default: boolean;
-}
-
-export const paxLimit = (overrides: Partial<PaxLimit> = {}): PaxLimit => ({
-    body_id: 1,
-    event_type: 'agora',
-    delegate: 3,
-    envoy: 0,
-    observer: 0,
-    visitor: 30,
-    default: true,
-    ...overrides
-});
