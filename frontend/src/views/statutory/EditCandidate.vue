@@ -1,6 +1,7 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <h1 class="title">{{ $route.params.candidate_id ? 'Edit the candidature for' : 'Apply for' }} {{ position ? position.name : 'a position' }}</h1>
       <span class="notification is-info" v-if="$route.params.candidate_id">
         To withdraw your candidature, you should send an email to the <a href="mailto:juridical@aegee.eu">Juridical Commission</a>.
       </span>
@@ -286,6 +287,8 @@ export default {
         languages: [],
         agreed_to_privacy_policy: false
       },
+      // The position applied for, which the title names.
+      position: null,
       nationalities,
       // Typed dates are accepted, and phones get the same picker.
       dateConfig: {
@@ -368,6 +371,12 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/').then((response) => {
+      this.position = response.data.data.find(position => position.id === Number(this.$route.params.position_id))
+    }).catch((err) => {
+      this.$root.showError('Could not fetch the position', err)
+    })
+
     this.bodies = sortBodies(
       this.loginUser.bodies.filter(body => ['contact', 'contact antenna', 'antenna'].includes(body.type)),
       this.loginUser.primary_body_id
