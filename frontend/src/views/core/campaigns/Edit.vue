@@ -196,7 +196,9 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.campaigns.list' })
+      this.$router.push(this.$route.params.body_id
+        ? { name: 'oms.bodies.campaigns', params: { id: this.$route.params.body_id } }
+        : { name: 'oms.campaigns.list' })
     })
   }
 }
