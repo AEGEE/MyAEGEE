@@ -9,6 +9,35 @@ defmodule Omsmailer.Page do
     end
   end
 
+  @required_fields ["template", "parameters", "to", "subject"]
+
+  # Checks the fields of a request before anything is rendered or sent. Empty or
+  # missing recipients and subjects are checked by create_mails/3.
+  def check_request(body) do
+    missing = Enum.reject(@required_fields, &Map.has_key?(body, &1))
+
+    cond do
+      missing != [] ->
+        {:error, :unprocessable_entity, "Missing field(s): " <> Enum.join(missing, ", ")}
+
+      not (is_binary(body["template"]) and body["template"] != "") ->
+        {:error, :unprocessable_entity, "Template must be a non-empty string"}
+
+      body["parameters"] == [] ->
+        # Rendering no bodies would send the mails without text.
+        {:error, :unprocessable_entity, "Parameters must not be an empty list"}
+
+      not valid_parameters?(body["parameters"]) ->
+        {:error, :unprocessable_entity, "Parameters must be an object or a list of objects"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp valid_parameters?(parameters) when is_list(parameters), do: Enum.all?(parameters, &is_map/1)
+  defp valid_parameters?(parameters), do: is_map(parameters)
+
   # Renders either a list of templates or a single template
   def render_template(template, [cur_params | parameters]) do
     with {:ok, content} <- render_template(template, cur_params),
@@ -27,13 +56,18 @@ defmodule Omsmailer.Page do
     rescue
       e in KeyError -> {:error, :unprocessable_entity, "Missing key " <> Kernel.inspect(e.key)}  # Missing key in template, caused by Map.fetch!
       e in Phoenix.Template.UndefinedError -> {:error, :not_found, "Template " <> template <> " not found, available are: " <> Kernel.inspect(e.available)}
-      e -> throw e 
+      # A value the template needs is missing or has the wrong type: nil in the subject
+      # line (ArgumentError), nil where it loops over a list, or an object where it
+      # prints text (Protocol.UndefinedError). The message leaves out the value, which
+      # can hold personal data.
+      e in [ArgumentError, Protocol.UndefinedError] ->
+        {:error, :unprocessable_entity, "Could not render " <> template <> ": a parameter is missing or has the wrong type (" <> Kernel.inspect(e.__struct__) <> ")"}
     end
   end
 
   # Delivers a list of mails (or a single mail). Bamboo 2 returns errors instead of
-  # raising them, so every mail is checked first: if any has an empty sender or
-  # recipient, nothing is sent and the request fails with 422.
+  # raising them, so every mail is checked first: if any has an empty sender,
+  # recipient, cc or bcc address, nothing is sent and the request fails with 422.
   def deliver_all_mails(mails) do
     mails = List.wrap(mails)
 
@@ -44,7 +78,11 @@ defmodule Omsmailer.Page do
     end
   end
 
-  defp missing_address?(mail), do: blank_address?(mail.from) or blank_address?(mail.to)
+  defp missing_address?(mail) do
+    blank_address?(mail.from) or blank_address?(mail.to) or
+      Enum.any?(List.wrap(mail.cc), &blank_address?/1) or
+      Enum.any?(List.wrap(mail.bcc), &blank_address?/1)
+  end
 
   defp blank_address?(nil), do: true
   defp blank_address?(""), do: true
