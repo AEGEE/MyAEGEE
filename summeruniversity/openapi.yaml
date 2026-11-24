@@ -543,8 +543,9 @@ paths:
       summary: Open or close the open call of a Summer University
       description: |
         Only for a fully published Summer University. With max_participants, the maximum changes
-        too and the accepted participants are counted again. The open call closes by itself when
-        no spot is left.
+        too and the accepted participants are counted again. Opening the call needs a free spot.
+        The open call closes by itself when no spot is left. Runs while it holds the Summer
+        University, like the application changes that take a spot.
       tags: [events]
       x-permission: organizer or manage_summeruniversity:<type>
       requestBody:
@@ -562,6 +563,7 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -694,7 +696,7 @@ paths:
     put:
       operationId: setApplicationCancelled
       summary: Cancel an application, or take the cancellation back
-      description: The accepted participants of the Summer University are counted again. The applicant gets the application without the board comment, unless they may see it.
+      description: The accepted participants of the Summer University are counted again, while the change holds the Summer University (see 503). Taking back the cancellation of an accepted application needs a free spot, except for managers of the type. The applicant gets the application without the board comment, unless they may see it.
       tags: [applications]
       x-permission: organizer or manage_summeruniversity:<type>, or the applicant while they may apply
       requestBody:
@@ -713,6 +715,7 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications/{application_id}/confirmed:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -746,7 +749,7 @@ paths:
     put:
       operationId: setApplicationStatus
       summary: Accept or reject an application
-      description: The applicant gets a mail, and the accepted participants are counted again.
+      description: The applicant gets a mail, and the accepted participants are counted again, while the change holds the Summer University (see 503). Accepting an application that is not cancelled needs a free spot, except for managers of the type.
       tags: [applications]
       x-permission: organizer or manage_summeruniversity:<type>
       requestBody:
@@ -765,6 +768,7 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '503': {$ref: '#/components/responses/EventBusy'}
   /single/{event_id}/applications/{application_id}/comment:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -847,6 +851,7 @@ components:
     Forbidden: {description: 'Authenticated but not allowed (see x-permission).', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    EventBusy: {description: 'Another change of the Summer University held it for longer than config.lock_timeout ms ("Another change to this event is in progress. Please try again."). Nothing changed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   schemas:
     ErrorResponse:
       oneOf:
@@ -1666,6 +1671,7 @@ components:
       additionalProperties: true
     OpenCallInput:
       type: object
+      required: [open_call]
       properties:
         open_call: {type: boolean}
         max_participants: {type: [integer, string, 'null'], pattern: '^[0-9]+$', minimum: 0, maximum: 2147483647}
