@@ -131,6 +131,8 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /mine/organizing:
     get:
       operationId: listMyOrganizedEvents
@@ -344,6 +346,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
     delete:
       operationId: deleteEvent
       summary: Delete an event
@@ -398,6 +402,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/upload:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -462,6 +468,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -504,7 +512,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/ApplicationSavedResponse'}
         '400':
-          description: The caller is not a member of the body in `body_id`, or the body is not an object ("The body should be an object.").
+          description: 'The caller is not a member of the body in `body_id`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").'
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
@@ -516,6 +524,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/export:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -591,6 +601,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/attended:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -626,6 +638,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/confirmed:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -661,6 +675,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/status:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -696,6 +712,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
   /single/{event_id}/applications/{application_id}/comment:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -731,6 +749,8 @@ paths:
               schema: {$ref: '#/components/schemas/ErrorResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
         '422': {$ref: '#/components/responses/ValidationFailed'}
+        '413': {$ref: '#/components/responses/BodyTooLarge'}
+        '415': {$ref: '#/components/responses/BodyUnsupported'}
 components:
   securitySchemes:
     XAuthToken:
@@ -804,8 +824,10 @@ components:
           schema: {$ref: '#/components/schemas/ApplicationInput'}
   responses:
     BadApplicationId: {description: 'The application id is neither a number nor `me`.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
-    BadApplicationIdOrBody: {description: 'The application id is neither a number nor `me`, or the body is not an object ("The body should be an object.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
-    BodyNotObject: {description: 'The body is not an object ("The body should be an object."), for example a list.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BadApplicationIdOrBody: {description: 'The application id is neither a number nor `me`, or the body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyTooLarge: {description: 'The body is larger than 1 MB ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyUnsupported: {description: 'The body is in another charset than UTF-8 or in an unknown encoding ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    BodyNotObject: {description: 'The body is not an object ("The body should be an object."), contains U+0000 ("The body should not contain the character U+0000."), is nested more than 64 levels deep ("The body is nested too deeply."), is not JSON ("Invalid JSON.") or cannot be decompressed ("The request body could not be read.").', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     Unauthorized: {description: 'No token, or the token was rejected.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: 'A resource in the path does not exist.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     ValidationFailed: {description: 'Validation failed.', content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
