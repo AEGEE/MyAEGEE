@@ -1,7 +1,8 @@
 // Answers for the pages of the area `events` in the smoke and accessibility runs (see index.ts).
 import type { ApiMock } from '../api-mock.ts';
-import { ok } from '../factories/base.ts';
-import { event, eventPermissions, eventSummary, question } from '../factories/events.ts';
+import { notFound, ok } from '../factories/base.ts';
+import { event, eventPermissions, eventSummary, organizer, participatingEvent, question } from '../factories/events.ts';
+import { mockMap } from '../map.ts';
 
 export const smoke = (api: ApiMock): void => {
     // A few events of different kinds, so lists and cards render (and get checked by axe).
@@ -13,12 +14,12 @@ export const smoke = (api: ApiMock): void => {
     api.json('GET events /', ok(events));
     api.json('GET events /mine/organizing', ok(events));
     // "Mine" also has the member's application (events/lib/events.js, listUserAppliedEvents).
-    api.json('GET events /mine/participating', ok(events.map((item) => ({ ...item, applications: [{ user_id: 1, status: 'pending' }] }))));
+    api.json('GET events /mine/participating', ok(events.map((item) => participatingEvent(item))));
 
     api.json('GET events /single/:id', ok(event({
         id: 1,
         url: '1',
-        organizers: [{ user_id: 1, first_name: 'Ada', last_name: 'Admin' }],
+        organizers: [organizer({ user_id: 1, first_name: 'Ada', last_name: 'Admin' })],
         budget: null,
         programme: null,
         is_european_event: false,
@@ -28,6 +29,10 @@ export const smoke = (api: ApiMock): void => {
             question({ type: 'select', description: 'T-shirt size', values: ['S', 'M', 'L'] })
         ]
     }), { permissions: eventPermissions() }));
+    // The member hasn't applied yet: the application form.
+    api.on('GET events /single/:id/applications/:application_id', { status: 404, json: notFound('Application with id me not found') });
+    // The editor shows a map for in-person events.
+    mockMap(api);
 };
 
 // Route name -> values for the parameters of its path (the default is '1').
