@@ -127,37 +127,30 @@ describe('Answers hold the stored values', () => {
         expect(Number(res.body.data.fee_paid)).toEqual(300);
     });
 
-    test.each([
-        ['plenary', (e) => generator.createPlenary({}, e), (e, plenary) => '/events/' + e.id + '/plenaries/' + plenary.id, { name: 2026 }, { name: '2026' }],
-        ['question line', (e) => generator.createQuestionLine({}, e), (e, line) => '/events/' + e.id + '/question-lines/' + line.id, { name: 2026 }, { name: '2026' }],
-        ['position', (e) => generator.createPosition({}, e), (e, position) => '/events/' + e.id + '/positions/' + position.id, { name: 2026, end_term: 2027 }, { name: '2026', end_term: '2027' }]
-    ])('should answer with text when a %s gets a number for a text field', async (name, create, path, body, expected) => {
-        const record = await create(event);
+    // A number for a text field answers 422 (see field-types); values that are converted are
+    // answered as stored.
+    test('should answer with the stored moments when a plenary gets times in another time zone', async () => {
+        const plenary = await generator.createPlenary({}, event);
 
-        const res = await send('PUT', path(event, record), body);
+        const res = await send('PUT', '/events/' + event.id + '/plenaries/' + plenary.id, {
+            starts: '2031-07-01T12:00:00+02:00',
+            ends: '2031-07-01T14:00:00+02:00'
+        });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data).toMatchObject(expected);
+        expect(res.body.data.starts).toEqual('2031-07-01T10:00:00.000Z');
+        expect(res.body.data.ends).toEqual('2031-07-01T12:00:00.000Z');
     });
 
-    test('should answer with text when a candidature gets a number for a text field', async () => {
+    test('should answer with a number when a candidature gets its body as text', async () => {
         const position = await generator.createPosition({}, event);
-        const candidate = await generator.createCandidate({ user_id: regularUser.id }, position);
+        const candidate = await generator.createCandidate({ user_id: regularUser.id, body_id: regularUser.bodies[0].id }, position);
 
-        const res = await send('PUT', '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id, { nationality: 2026 });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.data.nationality).toStrictEqual('2026');
-    });
-
-    test('should answer with text when a question gets a number as its text', async () => {
-        const application = await generator.createApplication({ user_id: regularUser.id, confirmed: true }, event);
-        const questionLine = await generator.createQuestionLine({}, event);
-        const question = await generator.createQuestion({ application_id: application.id }, questionLine);
-
-        const res = await send('PUT', '/events/' + event.id + '/question-lines/' + questionLine.id + '/questions/' + question.id, { text: 2026 });
+        const res = await send('PUT', '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id, {
+            body_id: String(regularUser.bodies[0].id)
+        });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body.data.text).toStrictEqual('2026');
+        expect(res.body.data.body_id).toStrictEqual(regularUser.bodies[0].id);
     });
 });
