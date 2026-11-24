@@ -2,24 +2,16 @@
 // (see index.ts).
 import type { ApiMock } from '../api-mock.ts';
 import { ok } from '../factories/base.ts';
-import { event, eventPermissions } from '../factories/events.ts';
+import { suEvent, suPermissions, suSeason } from '../factories/summeruniversity.ts';
 
 export const smoke = (api: ApiMock): void => {
-    api.json('GET summeruniversity /single/:id', ok({
-        ...event({ id: 1, url: '1', organizers: [{ user_id: 1, first_name: 'Ada', last_name: 'Admin' }], budget: null, programme: null }),
-        status: 'first draft',
-        questions: [],
-        cooperation: [],
-        courses: []
-    }, { permissions: eventPermissions() }));
-    api.json('GET summeruniversity /seasons', ok([{
-        year: 2027,
-        name: 'Summer University 2027',
-        active: true,
-        event_submission_deadline: '2026-12-01T00:00:00.000Z',
-        application_period_starts: '2027-03-01T00:00:00.000Z',
-        application_period_ends: '2027-04-01T00:00:00.000Z'
-    }]));
+    // An SU in its first draft, without locations (a map needs its own answers), photos and
+    // social media links.
+    api.json('GET summeruniversity /single/:id', ok(
+        suEvent({ id: 1, url: '1', status: 'first draft', locations: [], photos: [], social_media: [] }),
+        { permissions: suPermissions({ apply: false }) }
+    ));
+    api.json('GET summeruniversity /seasons', ok([suSeason({ year: 2027 })]));
 };
 
 // Route name -> values for the parameters of its path (the default is '1').
