@@ -49,6 +49,8 @@ const User = sequelize.define('user', {
         validate: {
             notNull: { msg: 'Password should be set.' },
             notEmpty: { msg: 'Password should be set.' },
+            // It is hashed before it is stored, and the hash takes only a text.
+            isText: validators.isText('Password should be a text.'),
             len: { args: [8], msg: 'Password should be at least 8 characters long.' }
         }
     },

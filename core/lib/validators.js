@@ -14,6 +14,13 @@ exports.isBoolean = (message) => function isBoolean(value) {
     }
 };
 
+// For a STRING field that has to be a text, such as one that is hashed before it is stored.
+exports.isText = (message) => function isText(value) {
+    if (isSet(value) && typeof value !== 'string') {
+        throw new Error(message);
+    }
+};
+
 // For a DATE or DATEONLY field. Sequelize has made a date of the value by now, which is
 // an invalid one (or the text 'Invalid date') if the value was not a date. The year has
 // to be 1 or later: Postgres takes no year 0, and Sequelize sends a timestamp in UTC.
