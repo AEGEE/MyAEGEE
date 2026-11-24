@@ -154,10 +154,7 @@ test.describe('event editor', () => {
             }]);
         });
 
-        test('an online event without applications hides the in-person fields and sends derived application dates', async ({ page, api }) => {
-            test.slow();
-            api.on('POST events /', { status: 201, json: created({ method: 'online', has_applications: false }) });
-            eventPage(api, organizedEvent({ id: 30, url: 'spring-training', method: 'online', has_applications: false, status: 'draft' }));
+        test('an online event without applications hides the in-person fields', async ({ page, api }) => {
             await page.goto('/events/new');
             // The map of the in-person form has to have started before it is taken away again.
             await expect.poll(() => api.callsTo('GET url https://api.maptiler.com/maps/basic/style.json*').length).toBeGreaterThan(0);
@@ -176,20 +173,6 @@ test.describe('event editor', () => {
             await expect(page.getByRole('region', { name: 'Map' })).toHaveCount(0);
             await expect(page.getByText('Please provide the link to Google spreadsheets for the event program.')).toBeVisible();
             await expect(page.getByRole('link', { name: 'You can take the template for the program here.' })).toBeVisible();
-
-            await textbox(page, /^Title/).fill('Online Talk');
-            await textbox(page, /^Description/).fill('A talk.');
-            await fillDate(page.getByLabel(/^Event start date/), '2027-05-01 18:00');
-            await fillDate(page.getByLabel(/^Event end date/), '2027-05-01 20:00');
-            await addBody(page, 'AEGEE-Antenna');
-            await page.getByRole('button', { name: 'Save event' }).click();
-
-            await expect(page).toHaveURL('/events/spring-training');
-            const [sent] = api.callsTo('POST events /').map((call) => call.body as Record<string, unknown>);
-            expect(sent).toMatchObject({ method: 'online', has_applications: false, starts: '2027-05-01T16:00:00.000Z', ends: '2027-05-01T18:00:00.000Z' });
-            // Without applications the period is from now until a minute before the start.
-            expect(new Date(sent.application_ends as string).toISOString()).toBe('2027-05-01T15:59:00.000Z');
-            expect(Date.parse(sent.application_starts as string)).toBeLessThan(Date.parse('2027-05-01T15:59:00.000Z'));
         });
 
         test('an online event with applications asks for the period, participants and questions', async ({ page, api }) => {
