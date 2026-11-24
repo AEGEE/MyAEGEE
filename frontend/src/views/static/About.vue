@@ -54,7 +54,7 @@
               </tr>
 
               <tr>
-                <td><a href="https://fontawesome.com/">FontAwesone</a></td>
+                <td><a href="https://fontawesome.com/">Font Awesome</a></td>
                 <td>Fancy icons you can see at the sidebar, for example.</td>
               </tr>
 
