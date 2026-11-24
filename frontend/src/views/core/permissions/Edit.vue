@@ -44,7 +44,7 @@
 
         <div class="field">
           <label class="label">Filters</label>
-          <div class="control" v-if="permission.filters.length > 0">
+          <div class="control">
             <span v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
               {{ filter }}
               <button type="button" class="delete is-small" :aria-label="'Remove filter ' + filter" @click="deleteFilter(index)" />
