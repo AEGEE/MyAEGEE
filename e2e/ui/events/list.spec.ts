@@ -5,7 +5,11 @@ import type { Page } from '@playwright/test';
 import { FIXED_NOW, iso, ok } from '../support/factories/base.ts';
 import { eventSummary, participatingEvent } from '../support/factories/events.ts';
 import { freezeTime, openMenu, toast } from '../support/shell.ts';
+import { mockEverything } from '../support/smoke/index.ts';
 import { test, expect, type Layout } from '../support/test.ts';
+
+// Lets the page handle an answer that has just come in (its handlers and the next render).
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); }));
 
 const NOW = Date.parse(FIXED_NOW);
 
@@ -310,7 +314,7 @@ test.describe('events list', () => {
         // The first answer would have come in by now; it was dropped, and no error is shown.
         await expect.poll(() => api.callsTo('GET events /').find((call) => call.query.get('search') === 'w')?.status).toBeDefined();
         await expect(page.getByRole('article', { name: 'Wrong Result' })).toHaveCount(0);
-        await expect(page.getByRole('alert')).toHaveCount(0);
+        expect(await page.getByRole('alert').count()).toBe(0);
     });
 
     test('moving between all, participating and organising events in the menu reloads the list', async ({ page, api, layout }) => {
@@ -344,6 +348,22 @@ test.describe('events list', () => {
         await expect(more).toBeDisabled();
         await expect(page.getByText('Event 31', { exact: true })).toBeVisible();
         await expect(more).toBeHidden();
+    });
+
+    test('an answer that arrives after the member left the list shows no error', async ({ page, api, layout }) => {
+        api.on('GET events /', { json: ok([eventSummary({ name: 'Late Event' })]), delayMs: 1500 });
+        api.fallback(mockEverything);
+        const late = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/events');
+        await page.goto('/events');
+
+        await (await openMenu(page, layout)).getByRole('link', { name: 'Events calendar' }).click();
+        await expect(page).toHaveURL('/calendar');
+
+        await late;
+        await settle(page);
+        await expect(page).toHaveURL('/calendar');
+        // Counted at once: a retried assertion would wait until a toast is gone.
+        expect(await toast(page, /Could not fetch events list/).count()).toBe(0);
     });
 
     test.describe('anonymously', () => {
