@@ -24,6 +24,9 @@ const config = {
             // Milliseconds to wait for the mailer before the request fails.
             timeout: 10000
         },
+        // Milliseconds a change of an application's status or cancellation waits for another
+        // change of the same Summer University before it answers 503.
+        lock_timeout: 5000,
         new_event_notifications: [
             'suct@aegee.eu'
         ],

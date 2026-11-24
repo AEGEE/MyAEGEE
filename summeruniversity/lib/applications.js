@@ -335,21 +335,33 @@ exports.setApplicationAttended = async (req, res) => {
 };
 
 const NO_SPOTS_LEFT = 'There are no spots left: the event already has max_participants accepted participants.';
-
-// Whether the accepted, not cancelled applications other than this one fill max_participants.
-// Without max_participants there is no limit.
-const isFull = async (req) => {
-    if (req.event.max_participants === null) {
+// Whether the accepted, not cancelled applications other than this one fill max_participants
+// of the locked event. Without max_participants there is no limit.
+const isFull = async (event, application, transaction) => {
+    if (event.max_participants === null) {
         return false;
     }
 
-    const acceptedOthers = await Application.count({ where: {
-        event_id: req.event.id,
-        status: 'accepted',
-        cancelled: false,
-        id: { [Sequelize.Op.ne]: req.application.id }
-    } });
-    return acceptedOthers >= req.event.max_participants;
+    const acceptedOthers = await Application.count({
+        where: {
+            event_id: event.id,
+            status: 'accepted',
+            cancelled: false,
+            id: { [Sequelize.Op.ne]: application.id }
+        },
+        transaction
+    });
+    return acceptedOthers >= event.max_participants;
+};
+
+// Counts the accepted participants that did not cancel, inside the transaction that changed an
+// application, so that the count and the application are saved together.
+const recountAcceptedParticipants = async (event, transaction) => {
+    const acceptedParticipants = await Application.count({
+        where: { event_id: event.id, status: 'accepted', cancelled: false },
+        transaction
+    });
+    await event.update({ accepted_participants: acceptedParticipants }, { transaction });
 };
 
 // Managers of the Summer University's type are not limited by max_participants.
@@ -373,23 +385,24 @@ exports.setApplicationCancelled = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are temporarily banned from applying to events.');
     }
 
-    // An accepted application that comes back from cancelled takes a spot again.
-    const takesSpotBack = req.body.cancelled === false && req.application.cancelled && req.application.status === 'accepted';
-    if (takesSpotBack && !mayExceedLimit(req) && await isFull(req)) {
-        return helpers.makeFieldError(res, 'cancelled', NO_SPOTS_LEFT);
+    let dbResult;
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        // An accepted application that comes back from cancelled takes a spot again.
+        const takesSpotBack = req.body.cancelled === false && req.application.cancelled && req.application.status === 'accepted';
+        if (takesSpotBack && !mayExceedLimit(req) && await isFull(event, req.application, t)) {
+            throw new helpers.FieldError('cancelled', NO_SPOTS_LEFT);
+        }
+
+        dbResult = await req.application.update(
+            { cancelled: req.body.cancelled },
+            { returning: ['*'], transaction: t }
+        );
+
+        await recountAcceptedParticipants(event, t);
+    });
+    if (answered) {
+        return undefined;
     }
-
-    const dbResult = await req.application.update(
-        { cancelled: req.body.cancelled },
-        { returning: ['*'] }
-    );
-
-    const acceptedParticipants = await Application.count({ where: {
-        event_id: req.event.id,
-        status: 'accepted',
-        cancelled: false
-    } });
-    await req.event.update({ accepted_participants: acceptedParticipants });
 
     return res.json({
         success: true,
@@ -407,13 +420,6 @@ exports.setApplicationStatus = async (req, res) => {
         return helpers.makeFieldError(res, 'status', `The status should be one of: ${APPLICATION_STATUSES.join(', ')}.`);
     }
 
-    // Accepting needs a free spot. A cancelled application does not count, so accepting it
-    // takes none.
-    const takesSpot = req.body.status === 'accepted' && !req.application.cancelled;
-    if (takesSpot && !mayExceedLimit(req) && await isFull(req)) {
-        return helpers.makeFieldError(res, 'status', NO_SPOTS_LEFT);
-    }
-
     // Only accepted applications can be confirmed, so the confirmation goes when it stops being
     // accepted. Attendance needs the confirmation, so it has to be taken back first.
     const stopsBeingAccepted = req.application.status === 'accepted' && req.body.status !== 'accepted';
@@ -422,8 +428,15 @@ exports.setApplicationStatus = async (req, res) => {
     }
     const changes = stopsBeingAccepted ? { status: req.body.status, confirmed: false } : { status: req.body.status };
 
-    await sequelize.transaction(async (t) => {
-        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        // Accepting needs a free spot. A cancelled application does not count, so accepting it
+        // takes none.
+        const takesSpot = req.body.status === 'accepted' && !req.application.cancelled;
+        if (takesSpot && !mayExceedLimit(req) && await isFull(event, req.application, t)) {
+            throw new helpers.FieldError('status', NO_SPOTS_LEFT);
+        }
+
+        // In the transaction, so if mail sending fails, the update is reverted.
         await req.application.update(changes, { transaction: t });
 
         const adminToken = await core.getAdminToken();
@@ -439,14 +452,12 @@ exports.setApplicationStatus = async (req, res) => {
                 event: req.event
             }
         });
-    });
 
-    const acceptedParticipants = await Application.count({ where: {
-        event_id: req.event.id,
-        status: 'accepted',
-        cancelled: false
-    } });
-    await req.event.update({ accepted_participants: acceptedParticipants });
+        await recountAcceptedParticipants(event, t);
+    });
+    if (answered) {
+        return undefined;
+    }
 
     return res.json({
         success: true,

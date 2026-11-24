@@ -661,31 +661,30 @@ exports.setOpenCallPeriod = async (req, res) => {
         return helpers.makeFieldError(res, 'open_call', 'The value should be true or false.');
     }
 
-    const acceptedParticipants = await Application.count({ where: {
-        event_id: req.event.id,
-        status: 'accepted',
-        cancelled: false
-    } });
+    // Locked like the application changes that take a spot, so that the call is not opened
+    // while an acceptance fills the last spot.
+    const answered = await helpers.changeWithLockedEvent(req, res, async (event, t) => {
+        const acceptedParticipants = await Application.count({
+            where: { event_id: event.id, status: 'accepted', cancelled: false },
+            transaction: t
+        });
 
-    // Opening the call needs a free spot; without one the call would close again at once.
-    // A maximum that is not a number of at least 0 is left to the model validation.
-    const maxParticipants = req.body.max_participants || req.event.max_participants;
-    const isFull = maxParticipants !== null && Number(maxParticipants) >= 0 && Number(maxParticipants) <= acceptedParticipants;
-    if (req.body.open_call === true && isFull) {
-        return helpers.makeFieldError(res, 'open_call', `The open call needs a free spot: max_participants should be more than the ${acceptedParticipants} accepted participants.`);
+        // Opening the call needs a free spot; without one the call would close again at once.
+        // A maximum that is not a number of at least 0 is left to the model validation.
+        const maxParticipants = req.body.max_participants || event.max_participants;
+        const isFull = maxParticipants !== null && Number(maxParticipants) >= 0 && Number(maxParticipants) <= acceptedParticipants;
+        if (req.body.open_call === true && isFull) {
+            throw new helpers.FieldError('open_call', `The open call needs a free spot: max_participants should be more than the ${acceptedParticipants} accepted participants.`);
+        }
+
+        const changes = req.body.max_participants
+            ? { max_participants: req.body.max_participants, open_call: req.body.open_call, accepted_participants: acceptedParticipants }
+            : { open_call: req.body.open_call };
+        await event.update(changes, { transaction: t });
+    });
+    if (answered) {
+        return undefined;
     }
-
-    if (req.body.max_participants) {
-        req.body = {
-            max_participants: req.body.max_participants,
-            open_call: req.body.open_call,
-            accepted_participants: acceptedParticipants
-        };
-    } else {
-        req.body = { open_call: req.body.open_call };
-    }
-
-    await req.event.update(req.body);
 
     return res.json({
         success: true,

@@ -1,8 +1,10 @@
 const moment = require('moment');
 
 const constants = require('./constants');
+const errors = require('./errors');
 const { Application, Event } = require('../models');
-const { Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
+const config = require('../config');
 
 // Dates are read as YYYY-MM-DD; a longer ISO string (the frontend sends one to /recents) is
 // read by its date part, as the list queries do.
@@ -103,6 +105,47 @@ exports.makeFieldErrors = (res, fieldErrors) => res.status(422).json({
 });
 
 exports.makeFieldError = (res, field, message) => exports.makeFieldErrors(res, { [field]: [message] });
+
+// Thrown inside changeWithLockedEvent to answer 422 on `field` with the error's message.
+class FieldError extends Error {
+    constructor(field, message) {
+        super(message);
+        this.field = field;
+    }
+}
+exports.FieldError = FieldError;
+
+// Postgres's error code when lock_timeout passes before a lock is granted.
+const LOCK_NOT_AVAILABLE = '55P03';
+
+// Runs `change(event, transaction)` in a transaction that first locks the event's row, so that
+// changes of the same event that check its free spots run one after the other: the check, the
+// change and the count of accepted participants see each other's results. A request waits at
+// most config.lock_timeout ms for the lock, and then answers 503. A FieldError from `change`
+// answers 422. Returns whether it answered.
+exports.changeWithLockedEvent = async (req, res, change) => {
+    try {
+        await sequelize.transaction(async (t) => {
+            await sequelize.query(`SET LOCAL lock_timeout = ${Number(config.lock_timeout)}`, { transaction: t });
+            const event = await Event.findByPk(req.event.id, { transaction: t, lock: t.LOCK.UPDATE });
+            await change(event, t);
+        });
+    } catch (err) {
+        if (err instanceof FieldError) {
+            exports.makeFieldError(res, err.field, err.message);
+            return true;
+        }
+
+        if (err.parent && err.parent.code === LOCK_NOT_AVAILABLE) {
+            errors.makeError(res, 503, 'Another change to this event is in progress. Please try again.');
+            return true;
+        }
+
+        throw err;
+    }
+
+    return false;
+};
 
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {
