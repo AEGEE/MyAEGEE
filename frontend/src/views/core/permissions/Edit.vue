@@ -37,7 +37,7 @@
         <div class="field">
           <label class="label" for="permission-description">Description</label>
           <div class="control">
-            <input id="permission-description" class="input" type="text" v-model="permission.description" />
+            <input id="permission-description" class="input" type="text" required v-model="permission.description" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
         </div>
