@@ -79,4 +79,19 @@ describe('Event rules', () => {
             expect(res.body.data.map((application) => application.id)).toEqual([found.id]);
         });
     });
+
+    describe('the questions of an event', () => {
+        test.each([[null], [[null]]])('refuses %j as a question with a message per question', async (question) => {
+            const res = await request({
+                path: '/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateEvent({ type: 'epm', questions: [generator.generateQuestionForEvent(), question] })
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.errors).toEqual({ questions: ['Question 2: should be an object.'] });
+            expect(await Event.count()).toEqual(0);
+        });
+    });
 });
