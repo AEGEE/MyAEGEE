@@ -94,7 +94,7 @@
             <p>If you are swapping 2 applications, please swap their board comments as well.</p>
           </div>
 
-          <button class="button is-fullwidth is-primary" :disabled="isSaving" @click="updateParticipants()">Save!</button>
+          <button class="button is-fullwidth is-primary" :disabled="isSaving || isLoading || bodyStatuses.length === 0" @click="updateParticipants()">Save!</button>
         </div>
 
         <div v-show="scope === 'view' && selectedBody" role="tabpanel" aria-label="View applications">
@@ -357,17 +357,17 @@ export default {
     },
     fetchBoardview () {
       // Only the answers for the body chosen last count: a late answer for a body chosen before
-      // is dropped.
+      // is dropped. The applicants and the places come together, so no place can be given
+      // before both are there.
       const bodyId = this.selectedBody
       const request = ++this.boardviewRequest
       this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + bodyId).then((application) => {
-        if (request !== this.boardviewRequest) return null
-        this.applications = application.data.data
-
-        return this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + bodyId)
-      }).then((limitResponse) => {
+      Promise.all([
+        this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + bodyId),
+        this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + bodyId)
+      ]).then(([boardviewResponse, limitResponse]) => {
         if (request !== this.boardviewRequest) return
+        this.applications = boardviewResponse.data.data
         this.limits = limitResponse.data.data
 
         // setting the selected body statuses to send to the endpoint
@@ -403,6 +403,9 @@ export default {
       }).catch((err) => {
         if (request !== this.boardviewRequest) return
         this.isLoading = false
+        // Nothing of another body stays on the page.
+        this.applications = []
+        this.bodyStatuses = []
 
         this.$root.showError('Could not fetch boardview', err)
       })
@@ -420,6 +423,10 @@ export default {
       this.errors = {}
       this.query = ''
       this.scope = 'edit'
+      // The applicants and places of the body before go first.
+      this.applications = []
+      this.bodyStatuses = []
+      this.limits = { delegate: 0, observer: 0, visitor: 0, envoy: 0 }
       this.fetchBoardview()
     }
   },
