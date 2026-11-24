@@ -73,10 +73,13 @@ describe('Login', () => {
                 message: 'If this email belongs to an account, a password reset was sent to it.'
             });
             expect(errorLog).toHaveBeenCalledTimes(1);
-            expect(errorLog).toHaveBeenCalledWith({ err: failure, user_id: null }, 'Could not send a password reset');
+            expect(errorLog).toHaveBeenCalledWith(
+                { err: failure, template: undefined, user_id: null, password_reset_id: null },
+                'Could not send a password reset'
+            );
             expect(count).toHaveBeenCalledTimes(1);
             expect(notify).toHaveBeenCalledTimes(1);
-            expect(notify).toHaveBeenCalledWith(failure);
+            expect(notify).toHaveBeenCalledWith(failure, expect.any(Function));
         });
     });
 });
