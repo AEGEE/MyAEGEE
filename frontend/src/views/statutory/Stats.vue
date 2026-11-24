@@ -48,19 +48,10 @@
             {{ stats.quorum.accepted_only ? 'accepted non-cancelled delegate applications' : 'non-cancelled applications' }}.
             Required: {{ quorum.required }} (50%).
           </p>
-          <div class="chart">
-            <line-chart
-              v-if="chart.line"
-              :data="chart.data"
-              :options="chart.options"
-              :aria-label="chart.name"
-              :aria-describedby="'stats-' + chart.key + '-data'" />
-            <pie-chart
-              v-else
-              :data="chart.data"
-              :options="chart.options"
-              :aria-label="chart.name"
-              :aria-describedby="'stats-' + chart.key + '-data'" />
+          <!-- vue-chartjs can't set the attributes of its canvas under Vue 2, so the chart is named here. -->
+          <div class="chart" role="img" :aria-label="chart.name" :aria-describedby="'stats-' + chart.key + '-data'">
+            <line-chart v-if="chart.line" :data="chart.data" :options="chart.options" />
+            <pie-chart v-else :data="chart.data" :options="chart.options" />
           </div>
           <div class="content" v-if="chart.key === 'by-body'">
             <div class="tags" role="list" aria-label="Bodies">
