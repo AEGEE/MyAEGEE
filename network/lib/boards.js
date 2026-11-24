@@ -11,13 +11,15 @@ const config = require('../config');
 const constants = require('./constants');
 const logger = require('./logger');
 
-// Looks up every member of a valid board in core, for creating and editing it. Returns
-// the positions with the members' names, and the errors of the fields whose member core
-// does not know.
+const OFFICERS = [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']];
+
+// Looks up the members of a valid board in core: every member on creation, and on an edit
+// those the edit adds or changes (see changedMembers). Returns the positions with the
+// members' names, and the errors of the fields whose member core does not know.
 const lookUpMembers = async (boardData, token) => {
     const positions = [];
     const fieldErrors = {};
-    for (const [field, position] of [['president', 'President'], ['secretary', 'Secretary'], ['treasurer', 'Treasurer']]) {
+    for (const [field, position] of OFFICERS.filter(([officer]) => officer in boardData)) {
         const member = await core.fetchUser(boardData[field], token);
         if (member) {
             positions.push({ function: position, name: member.name });
@@ -36,6 +38,26 @@ const lookUpMembers = async (boardData, token) => {
     }
 
     return { positions, fieldErrors };
+};
+
+// The members of an edited board that are new or changed against the stored one. A board
+// keeps its former members (people who have left the body, whom a board manager of the
+// body may no longer see in core, or whose account is gone) until someone replaces them,
+// so the members an edit leaves in place are not looked up. An officer is compared by
+// position: a stored treasurer who becomes president is a changed president. Another
+// member is compared by member only: one whose function text changes is unchanged.
+const changedMembers = (stored, board) => {
+    const changed = {};
+    for (const [field] of OFFICERS) {
+        if (Number(board[field]) !== stored[field]) {
+            changed[field] = board[field];
+        }
+    }
+
+    const storedOthers = (stored.other_members || []).map((other) => other.user_id);
+    changed.other_members = (board.other_members || []).filter((other) => !storedOthers.includes(other.user_id));
+
+    return changed;
 };
 
 exports.createBoard = async (req, res) => {
@@ -255,12 +277,13 @@ exports.updateBoard = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
     }
 
-    // The board as it would be stored: checked as a whole, then its members, unchanged
-    // ones too, as on creation.
+    // The board as it would be stored is checked as a whole; then the members the edit
+    // adds or changes are looked up in core, as on creation.
+    const stored = req.board.get({ clone: true });
     req.board.set({ ...req.body, body_id: req.board.body_id });
     await req.board.validate();
 
-    const { fieldErrors } = await lookUpMembers(req.board.get(), req.headers['x-auth-token']);
+    const { fieldErrors } = await lookUpMembers(changedMembers(stored, req.board.get()), req.headers['x-auth-token']);
     if (Object.keys(fieldErrors).length > 0) {
         return res.status(422).json({ success: false, errors: fieldErrors });
     }
