@@ -11,8 +11,7 @@ import { toast } from '../support/shell.ts';
 import { test, expect } from '../support/test.ts';
 
 const form = (page: Page, name: 'Create category' | 'Edit category') => page.getByRole('form', { name });
-// The category's own name comes before the names of its discounts.
-const categoryName = (page: Page) => page.getByLabel('Name', { exact: true }).first();
+const categoryName = (page: Page) => page.getByLabel('Category name', { exact: true });
 
 const fillDiscount = async (group: Locator, { name, icon, shortDescription, longDescription }: Discount): Promise<void> => {
     await group.getByLabel('Name', { exact: true }).fill(name);
