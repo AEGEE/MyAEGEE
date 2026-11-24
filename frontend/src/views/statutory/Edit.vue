@@ -740,8 +740,8 @@ export default {
         this.isSaving = false
 
         if (err.response && err.response.status === 422) { // validation errors
-          // statutory always says per field what it refuses.
-          this.errors = err.response.data.errors
+          // statutory says per field what it refuses; an answer without that shows none.
+          this.errors = err.response.data.errors || /* istanbul ignore next -- statutory sends a 422 only with its reasons per field; this keeps the form usable if that ever changes */ {}
           return this.$root.showError('Some of the event data is invalid.')
         }
 
