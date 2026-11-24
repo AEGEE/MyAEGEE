@@ -43,6 +43,9 @@
   "oms.statutory.memberslist.list.missing": {
     "color-contrast": 1
   },
+  "oms.statutory.memberslist.list.without_fee": {
+    "color-contrast": 1
+  },
   "oms.statutory.network": {
     "color-contrast": 1
   },
