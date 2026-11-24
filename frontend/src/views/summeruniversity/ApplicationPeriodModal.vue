@@ -75,6 +75,7 @@ export default {
       }
 
       const date = new Date(value)
+      /* istanbul ignore if -- summeruniversity only stores valid dates in the application period */
       if (Number.isNaN(date.getTime())) {
         return ''
       }

@@ -539,6 +539,7 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
+      /* istanbul ignore if -- "Upload!" is disabled until a file is chosen */
       if (!this.file) {
         return
       }

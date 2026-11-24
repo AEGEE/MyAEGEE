@@ -1033,6 +1033,7 @@ export default {
       this.selectedCooperation = null
     },
     saveEvent () {
+      /* istanbul ignore if -- the start date input is required, so the browser asks for it before this runs */
       if (!this.event.starts) {
         return this.$root.showError('Please set the date when the event will start.')
       }

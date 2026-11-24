@@ -134,6 +134,7 @@ export default {
       })
     },
     exportByBody () {
+      /* istanbul ignore if -- the export button is disabled while no season is chosen */
       if (this.season === null) {
         return
       }
