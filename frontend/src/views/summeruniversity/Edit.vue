@@ -726,7 +726,6 @@
           <div class="control">
             <input id="su-budget" class="input" type="url" v-model="event.budget" />
           </div>
-          <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
@@ -735,7 +734,6 @@
           <div class="control">
             <input id="su-programme-suct" class="input" type="url" v-model="event.programme_suct" required />
           </div>
-          <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.programme_suct">{{ errors.programme_suct.join(', ') }}</p>
         </div>
 
@@ -857,7 +855,6 @@ export default {
       themeCategories: constants.SUMMERUNIVERSITY_THEMES_NAMES,
       roles: constants.SUMMERUNIVERSITY_ROLES,
       courseLevels: constants.SUMMERUNIVERSITY_COURSE_LEVELS,
-      file: null,
       bodies: [],
       selectedBody: null,
       selectedCooperation: null,
