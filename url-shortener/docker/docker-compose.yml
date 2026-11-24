@@ -17,7 +17,7 @@ services:
 
   yourls:
     restart: on-failure
-    image: yourls:1.7
+    image: yourls:1.10
 #       image: yourls:1.7-fpm-alpine
     environment:
       YOURLS_DB_HOST: "maria-yourls"
