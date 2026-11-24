@@ -237,5 +237,40 @@ describe('A mailer that fails', () => {
             expect(silentMailer.requests).toEqual(1);
             expect(await PasswordReset.count()).toEqual(0);
         });
+
+        // A reset is stored and committed before its mail is sent, so a mailer that hangs
+        // holds no database connection and no lock.
+        test('password resets do not hold up the requests of other members', async () => {
+            config.mailer.timeout = 5000;
+            const user = await generator.createUser();
+            const otherUser = await generator.createUser();
+            const otherToken = await generator.createAccessToken(otherUser);
+
+            const resets = await Promise.all([1, 2, 3, 4, 5, 6].map(() => request({
+                path: '/password_reset',
+                method: 'POST',
+                body: { email: user.email }
+            })));
+            expect(resets.map((res) => res.statusCode)).toEqual([200, 200, 200, 200, 200, 200]);
+
+            // Until all six resets wait for the mailer.
+            for (let i = 0; i < 100 && silentMailer.requests < 6; i++) {
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+            }
+
+            const started = Date.now();
+            const res = await request({
+                path: '/members/me',
+                headers: { 'X-Auth-Token': otherToken.value }
+            });
+            const took = Date.now() - started;
+
+            expect(res.statusCode).toEqual(200);
+            expect(silentMailer.requests).toEqual(6);
+            expect(took).toBeLessThan(1000);
+
+            await login.waitForPasswordResets();
+            expect(await PasswordReset.count()).toEqual(0);
+        }, 20000);
     });
 });
