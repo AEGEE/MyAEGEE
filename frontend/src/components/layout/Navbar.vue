@@ -12,7 +12,7 @@
         :aria-expanded="sidebar.opened ? 'true' : 'false'"
         @click="toggleSidebar({ opened: !sidebar.opened })"
       >
-        <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
+        <font-awesome-icon icon="bars" aria-hidden="true" />
       </button>
       <a href="/" class="logo" aria-label="MyAEGEE home">
         <img src="../../images/AEGEE_logo.png" class="image" alt="" />
@@ -82,12 +82,10 @@ export default {
     }
   },
   computed: mapGetters({
-    pkginfo: 'pkg',
     sidebar: 'sidebar',
     navbar: 'navbar',
     loggedIn: 'loggedIn',
-    user: 'user',
-    permissions: 'permissions'
+    user: 'user'
   }),
   methods: {
     ...mapActions(['toggleSidebar', 'toggleNavbarMenu']),

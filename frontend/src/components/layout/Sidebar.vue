@@ -14,7 +14,7 @@
             <button type="button" class="menu-toggle" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-else-if="!item.link" @click="toggle(item.index, category.index, item)">
               <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
               {{ item.label }}
-              <span class="icon is-small is-angle" v-if="item.children && item.children.length">
+              <span class="icon is-small is-angle">
                 <font-awesome-icon :icon="['fa', 'angle-down']" />
               </span>
             </button>

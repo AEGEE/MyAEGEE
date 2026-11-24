@@ -29,7 +29,6 @@ import moment from 'moment'
 export default {
   data () {
     return {
-      pkg: this.$store.state.pkg,
       year: moment().format('YYYY')
     }
   }
