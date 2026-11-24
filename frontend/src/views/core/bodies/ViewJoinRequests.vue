@@ -160,7 +160,12 @@ export default {
 
         this.isLoading = false
       }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return
+        }
+
         this.$root.showError('Could not fetch join requests', err)
+        this.isLoading = false
       })
     }
   },
