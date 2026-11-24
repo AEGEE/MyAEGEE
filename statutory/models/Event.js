@@ -372,7 +372,7 @@ const Event = sequelize.define('event', {
                     }
                     */
 
-                    if (typeof question !== 'object') {
+                    if (typeof question !== 'object' || question === null || Array.isArray(question)) {
                         throw new Error(`Question ${index + 1}: should be an object.`);
                     }
 
