@@ -81,7 +81,7 @@
           </b-table-column>
 
           <b-table-column label="View" v-slot="props">
-            <button type="button" class="button is-small" @click="showModal(props.row.id)">View</button>
+            <button type="button" class="button is-small" :aria-label="'View the application of ' + props.row.first_name + ' ' + props.row.last_name" @click="showModal(props.row.id)">View</button>
           </b-table-column>
 
           <template slot="empty">
