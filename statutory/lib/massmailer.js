@@ -19,9 +19,16 @@ exports.sendAll = async (req, res) => {
         return errors.makeBadRequestError(res, 'Please provide an email subject.');
     }
 
-    // If the user haven't provide the filter, use the default one.
-    if (typeof req.body.filter !== 'object' || req.body.filter === null) {
+    // Without a filter, the mails go to every application that is not cancelled. A filter of
+    // another kind is refused, so that a broken filter does not mail everybody.
+    if (req.body.filter === undefined) {
         req.body.filter = {};
+    } else if (!helpers.isObject(req.body.filter) || Array.isArray(req.body.filter)) {
+        return errors.makeBadRequestError(res, 'The filter should be an object.');
+    }
+
+    if (req.body.reply_to !== undefined && typeof req.body.reply_to !== 'string') {
+        return errors.makeBadRequestError(res, 'The reply-to address should be a text.');
     }
 
     const filterError = helpers.getFilterError(req.body.filter, constants.ALLOWED_APPLICATION_FILTER_FIELDS);
