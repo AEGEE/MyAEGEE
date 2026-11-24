@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 
@@ -41,7 +41,8 @@ exports.captureMails = () => {
     nock(`${config.mailer.url}:${config.mailer.port}`)
         .persist()
         .post('/')
-        .reply(200, (uri, body) => {
+        .reply(200, async (mockRequest) => {
+            const body = await mockRequest.json();
             mails.push(body);
             return { success: true };
         });

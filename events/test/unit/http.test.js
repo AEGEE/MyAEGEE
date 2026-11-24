@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const { request } = require('../../lib/http');
 

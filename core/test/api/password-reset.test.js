@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { PasswordReset, User } = require('../../models');
@@ -423,8 +423,10 @@ describe('Password reset', () => {
         const mails = [];
         nock(`${config.mailer.url}:${config.mailer.port}`)
             .post('/')
-            .delay(300)
-            .reply(200, (uri, body) => {
+            .reply(200, async (mockRequest) => {
+                // Nock 15 calls the reply before delaying its body; delay delivery here.
+                await new Promise((resolve) => { setTimeout(resolve, 300); });
+                const body = await mockRequest.json();
                 mails.push(body);
                 return { success: true };
             });

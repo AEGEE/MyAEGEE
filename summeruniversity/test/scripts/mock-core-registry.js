@@ -1,5 +1,5 @@
 const path = require('path');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const regularUser = require('../assets/oms-core-valid.json').data;
@@ -122,7 +122,8 @@ exports.mockCoreApprovePermissions = (options) => intercept(coreUrl, 'post', '/m
 exports.mockCoreMember = (options) => {
     if (options.bodiesById) {
         return nock(coreUrl).persist().get(/^\/members\/[0-9]+/).query(true)
-            .reply((uri) => {
+            .reply((mockRequest) => {
+                const uri = new URL(mockRequest.url).pathname;
                 const id = Number(uri.match(/^\/members\/([0-9]+)/)[1]);
                 const bodyIds = options.bodiesById[id];
                 const bodies = bodyIds ? bodyIds.map((bodyId) => ({ ...body, id: bodyId })) : regularUser.bodies;
@@ -142,7 +143,8 @@ exports.mockCoreBodyMembers = (options) => intercept(coreUrl, 'get', /^\/bodies\
 exports.mockCoreBody = (options) => {
     if (options.echoId) {
         return nock(coreUrl).persist().get(/^\/bodies\/[0-9]+$/).query(true)
-            .reply((uri) => {
+            .reply((mockRequest) => {
+                const uri = new URL(mockRequest.url).pathname;
                 const id = Number(uri.match(/^\/bodies\/([0-9]+)/)[1]);
                 return [200, { success: true, data: { ...body, id } }];
             });

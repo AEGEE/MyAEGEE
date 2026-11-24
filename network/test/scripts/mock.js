@@ -1,5 +1,5 @@
 const path = require('path');
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const body = require('../assets/core-local.json').data;
@@ -204,7 +204,8 @@ exports.mockCoreMember = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/members\/[0-9].*/)
-            .reply((uri) => {
+            .reply((mockRequest) => {
+                const uri = new URL(mockRequest.url).pathname;
                 const id = Number(uri.split('/').pop());
                 if ((options.notFound || []).includes(id)) return [404, { success: false, message: 'User is not found.' }];
                 if ((options.forbidden || []).includes(id)) return [403, { success: false, message: 'You are not allowed to see this user.' }];

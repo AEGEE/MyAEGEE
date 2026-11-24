@@ -1,4 +1,4 @@
-const nock = require('nock');
+const { default: nock } = require('nock');
 
 const config = require('../../config');
 const mailer = require('../../lib/mailer');
@@ -63,14 +63,17 @@ describe('Mailer client errors', () => {
     });
 
     test('should fail with a mail error that keeps the error of the request if the mailer cannot be reached', async () => {
-        nock(`${config.mailer.url}:${config.mailer.port}`)
-            .post('/')
-            .replyWithError(new Error('getaddrinfo ENOTFOUND mailer'));
+        const requestError = new Error('getaddrinfo ENOTFOUND mailer');
+        const fetchSpy = jest.spyOn(global, 'fetch').mockRejectedValueOnce(requestError);
 
-        const err = await mailer.sendMail(mail).catch((e) => e);
+        try {
+            const err = await mailer.sendMail(mail).catch((e) => e);
 
-        expect(err.name).toEqual('MailError');
-        expect(err.message).toEqual('Could not reach the mailer');
-        expect(err.cause.message).toEqual('getaddrinfo ENOTFOUND mailer');
+            expect(err.name).toEqual('MailError');
+            expect(err.message).toEqual('Could not reach the mailer');
+            expect(err.cause).toBe(requestError);
+        } finally {
+            fetchSpy.mockRestore();
+        }
     });
 });

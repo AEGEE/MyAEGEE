@@ -15,8 +15,8 @@
     "istanbul-lib-coverage": "^3.2.2",
     "jest": "^30.5.2",
     "jest-junit": "^17.0.0",
-    "lint-staged": "^16.4.0",
-    "nock": "^14.0.14",
+    "lint-staged": "^17.6.1",
+    "nock": "^15.0.6",
     "rimraf": "^6.1.4",
     "yaml": "^2.9.1"
   },
@@ -63,7 +63,8 @@
       "jest-junit"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/test/scripts/mail-contract.js"
+      "<rootDir>/test/scripts/mail-contract.js",
+      "<rootDir>/test/scripts/nock-cleanup.js"
     ]
   },
   "dependencies": {

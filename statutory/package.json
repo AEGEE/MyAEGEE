@@ -29,7 +29,8 @@
     "globalSetup": "<rootDir>/test/scripts/faker-global-setup.js",
     "setupFilesAfterEnv": [
       "<rootDir>/test/scripts/faker-seed.js",
-      "<rootDir>/test/scripts/mail-contract.js"
+      "<rootDir>/test/scripts/mail-contract.js",
+      "<rootDir>/test/scripts/nock-cleanup.js"
     ],
     "coverageThreshold": {
       "global": {
@@ -83,8 +84,8 @@
     "istanbul-lib-coverage": "^3.2.2",
     "jest": "^30.5.2",
     "jest-junit": "^17.0.0",
-    "lint-staged": "^16.4.0",
-    "nock": "^14.0.14",
+    "lint-staged": "^17.6.1",
+    "nock": "^15.0.6",
     "rimraf": "^6.1.4",
     "timekeeper": "^2.3.1",
     "yaml": "^2.9.1"

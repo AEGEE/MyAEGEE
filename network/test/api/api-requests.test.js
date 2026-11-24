@@ -153,8 +153,8 @@ describe('API requests', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(manageRequests.length).toEqual(1);
-        expect(manageRequests[0].headers['x-service']).toEqual('network');
-        expect(manageRequests[0].headers['x-auth-token']).toEqual('blablabla');
+        expect(manageRequests[0].headers.get('x-service')).toEqual('network');
+        expect(manageRequests[0].headers.get('x-auth-token')).toEqual('blablabla');
     });
 
     test('should go on without local board permissions if core fails to list them', async () => {

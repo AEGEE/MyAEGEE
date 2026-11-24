@@ -185,7 +185,10 @@ describe('Candidates editing', () => {
     // Collects the paths of the members fetched from core.
     const trackMemberRequests = (stubs) => {
         const paths = [];
-        stubs.coreMemberStub.on('request', (req) => paths.push(req.path));
+        stubs.coreMemberStub.on('request', (mockRequest) => {
+            const url = new URL(mockRequest.url);
+            paths.push(url.pathname + url.search);
+        });
         return paths;
     };
 

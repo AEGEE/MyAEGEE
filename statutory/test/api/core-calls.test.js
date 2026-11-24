@@ -70,7 +70,10 @@ describe('Calls to core per request', () => {
     ])('should ask core once for the user and the event on the %s route', async (name, others) => {
         const requests = [];
         for (const stub of Object.values(mock.mockAll())) {
-            stub.on('request', (req) => requests.push(`${req.method} ${req.path}`));
+            stub.on('request', (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                requests.push(`${mockRequest.method} ${url.pathname}${url.search}`);
+            });
         }
 
         const res = await request({
@@ -86,7 +89,10 @@ describe('Calls to core per request', () => {
     test('should ask core once for the user on a route without an event', async () => {
         const requests = [];
         for (const stub of Object.values(mock.mockAll())) {
-            stub.on('request', (req) => requests.push(`${req.method} ${req.path}`));
+            stub.on('request', (mockRequest) => {
+                const url = new URL(mockRequest.url);
+                requests.push(`${mockRequest.method} ${url.pathname}${url.search}`);
+            });
         }
 
         const res = await request({
