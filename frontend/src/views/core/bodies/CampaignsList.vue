@@ -22,7 +22,7 @@
             </b-table-column>
 
             <b-table-column label="Link" v-slot="props">
-              {{ '/signup/' + props.row.url }}
+              <router-link :to="{ name: 'oms.register', params: { id: props.row.url } }">/signup/{{ props.row.url }}</router-link>
             </b-table-column>
 
             <template slot="empty">
