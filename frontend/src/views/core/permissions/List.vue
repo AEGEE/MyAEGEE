@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Permissions list</h4>
+        <h1 class="title">Permissions list</h1>
         <div class="field">
-          <label class="label">Search permission</label>
+          <label class="label" for="permissions-search">Search permission</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search permissions" @input="refetch()">
+            <input id="permissions-search" class="input" type="text" v-model="query" placeholder="Search permissions" @input="refetch()">
           </div>
         </div>
 
@@ -30,7 +30,6 @@
           </b-table-column>
 
           <b-table-column label="Additional info" v-slot="props">
-            <span class="tag is-info" v-if="props.row.always_assigned">Always assigned</span>
             <span class="tag is-warning" v-if="props.row.filters.length > 0">Has filters</span>
           </b-table-column>
 

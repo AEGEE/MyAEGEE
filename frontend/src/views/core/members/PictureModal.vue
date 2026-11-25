@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Change picture</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
@@ -10,7 +10,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" name="head_image" aria-label="Choose a picture" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -27,11 +27,11 @@
         </div>
 
         <div class="control">
-          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload</a>
+          <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload</button>
         </div>
 
         <div class="control">
-          <a class="button is-danger" :disabled="!user.image" @click="removeImage()">Delete</a>
+          <button type="button" class="button is-danger" :disabled="!user.image" @click="removeImage()">Delete</button>
         </div>
       </div>
     </section>
@@ -43,7 +43,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['user', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['user', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       file: null
@@ -53,9 +53,8 @@ export default {
     setFile (event) {
       this.file = event.target.files[0]
     },
+    // Both buttons are disabled while there is nothing to upload or delete.
     updateImage () {
-      if (!this.file) return
-
       const data = new FormData()
       data.append('head_image', this.file)
 
@@ -67,8 +66,6 @@ export default {
       })
     },
     removeImage () {
-      if (!this.user.image) return
-
       this.axios.delete(this.services['core'] + '/members/' + this.user.id + '/image').then(() => {
         this.showSuccess('User image is removed.')
         this.router.go(0)

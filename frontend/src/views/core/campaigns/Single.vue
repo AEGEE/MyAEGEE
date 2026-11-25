@@ -3,26 +3,26 @@
     <div class="tile is-vertical">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ campaign.name }}</p>
+          <h1 class="title">{{ campaign.name }}</h1>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Name</th>
+                  <th scope="row">Name</th>
                   <td>{{ campaign.name}}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>
                     <span v-html="$options.filters.markdown(campaign.description_long)" />
                   </td>
                 </tr>
                 <tr>
-                  <th>URL</th>
+                  <th scope="row">URL</th>
                   <td>/signup/{{ campaign.url }}</td>
                 </tr>
                 <tr>
-                  <th>Body</th>
+                  <th scope="row">Body</th>
                   <td v-if="campaign.autojoin_body">
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: campaign.autojoin_body.id } }">
                       {{ campaign.autojoin_body.name }}
@@ -31,7 +31,7 @@
                   <td v-if="!campaign.autojoin_body">This campaign will not create a join request to a body after signup </td>
                 </tr>
                 <tr>
-                  <th>Status</th>
+                  <th scope="row">Status</th>
                   <td v-if="campaign.active">Active</td>
                   <td v-if="!campaign.active">Inactive</td>
                 </tr>
@@ -48,7 +48,7 @@
                 <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
-              <router-link v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-warning">
+              <router-link v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: $route.params.body_id, id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
@@ -58,7 +58,7 @@
                 <span class="icon"><font-awesome-icon icon="users" /></span>
               </router-link>
 
-              <router-link v-if="can.viewMembers && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.members', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button">
+              <router-link v-if="can.viewMembers && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.members', params: { body_id: $route.params.body_id, id: campaign.id } }" class="button">
                 <span>View members</span>
                 <span class="icon"><font-awesome-icon icon="users" /></span>
               </router-link>
@@ -93,8 +93,6 @@ export default {
         autojoin_body: null,
         active: null
       },
-      query: '',
-      limit: 50,
       isLoading: false,
       permissions: [],
       can: {
@@ -116,9 +114,14 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(this.services['core'] + '/campaigns/' + this.$route.params.id).then(() => {
+      // A campaign of a body is deleted through that body.
+      const url = this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
+        : this.services['core'] + '/campaigns/' + this.$route.params.id
+
+      this.axios.delete(url).then(() => {
         this.$root.showSuccess('Campaign is deleted.')
-        this.$router.push({ name: 'oms.campaigns.list' })
+        this.$router.push(this.listRoute)
       }).catch((err) => this.$root.showError('Could not delete campaign', err))
     }
   },
@@ -136,17 +139,21 @@ export default {
         requests.push(this.axios.get(this.services['core'] + '/bodies/' + this.campaign.autojoin_body_id + '/my_permissions'))
       }
 
-      return Promise.all(requests)
-    }).then((responses) => {
-      this.permissions = responses
-        .map((response) => response.data.data)
-        .flat()
+      return Promise.all(requests).then((responses) => {
+        this.permissions = responses
+          .map((permissionsResponse) => permissionsResponse.data.data)
+          .flat()
 
-      this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
-      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
-      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
+        this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
+        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
 
-      this.isLoading = false
+        this.isLoading = false
+      }).catch((err) => {
+        // The page stays, without the actions that need permissions.
+        this.isLoading = false
+        this.$root.showError('Could not fetch your permissions for this campaign', err)
+      })
     }).catch((err) => {
       if (err.response && err.response.status === 404) {
         this.$root.showError('Campaign is not found')
@@ -154,14 +161,18 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.campaigns.list' })
+      this.$router.push(this.listRoute)
     })
   },
   computed: {
-    ...mapGetters({
-      loginUser: 'user',
-      services: 'services'
-    })
+    // Where the member goes when the campaign is gone: the campaigns of the body of the page, or
+    // all campaigns.
+    listRoute () {
+      return this.$route.params.body_id
+        ? { name: 'oms.bodies.campaigns', params: { id: this.$route.params.body_id } }
+        : { name: 'oms.campaigns.list' }
+    },
+    ...mapGetters(['services'])
   }
 }
 </script>

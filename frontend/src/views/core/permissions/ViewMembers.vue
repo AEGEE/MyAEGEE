@@ -2,13 +2,13 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Members who have the permission</h4>
+        <h1 class="title">Members who have the permission {{ permission.combined }}</h1>
 
         <b-table
           :data="members"
           :loading="isLoading">
           <b-table-column field="first_name" label="Name and surname" sortable v-slot="props">
-            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
               {{ props.row.first_name }} {{ props.row.last_name }}
             </router-link>
           </b-table-column>
@@ -31,7 +31,7 @@ export default {
     return {
       members: [],
       permission: {
-        name: ''
+        combined: ''
       },
       isLoading: false
     }
@@ -49,10 +49,6 @@ export default {
         this.members = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
         this.$root.showError('Could not fetch members', err)
         this.$router.push({ name: 'oms.permissions.view', params: { id: this.$route.params.id } })
       })

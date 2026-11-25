@@ -19,7 +19,7 @@ The mailer (Elixir) and the dispatcher (Python) have their own tests in their fo
 3. Does it only fail when two services, or the frontend and a real service, disagree? A real-stack
    test (`e2e/README.md`). Keep these few: they are slow and need everything running.
 4. Did you add or change a factory in `e2e/ui/support/factories/`? It needs a contract check in
-   `e2e/tests/<area>-contract.spec.ts`, so the mocked answers can't drift away from the real ones.
+   `e2e/tests/<area>-contract.spec.ts` (or `<area>-<part>-contract.spec.ts`), so the mocked answers can't drift away from the real ones.
    Every field has to be compared with a value on both sides: a field that was null or an empty
    list in every comparison of a test fails it, unless it is listed in `gaps` with the reason.
 
@@ -54,7 +54,7 @@ Each area has its own files, so changes in one area don't touch a shared list:
 | Answers for the smoke and axe runs | `e2e/ui/support/smoke/<area>.ts` |
 | Axe baseline | `e2e/ui/support/a11y/<area>.json` |
 | Coverage gate | `e2e/ui/support/coverage/<area>.json` |
-| Real-stack flows and contract checks | `e2e/tests/<area>-<flow>.spec.ts`, `e2e/tests/<area>-contract.spec.ts` |
+| Real-stack flows and contract checks | `e2e/tests/<area>-<flow>.spec.ts`, `e2e/tests/<area>-contract.spec.ts` (or `<area>-<part>-contract.spec.ts`) |
 | Real-stack data helpers | `e2e/support/<area>-data.ts` |
 | Files that specs upload | `e2e/ui/fixtures/<area>/` |
 

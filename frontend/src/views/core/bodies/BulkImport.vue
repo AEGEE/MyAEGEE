@@ -9,8 +9,9 @@
         </div>
 
         <div class="field is-grouped">
+          <label class="label" for="bulk-import-file">CSV file</label>
           <div class="control">
-            <input type="file" @change="openFileDialog($event)">
+            <input id="bulk-import-file" type="file" accept=".csv,text/csv" @change="openFileDialog($event)">
           </div>
         </div>
 
@@ -32,10 +33,10 @@
           </b-table-column>
 
           <b-table-column label="Delete user" v-slot="props">
-            <a v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
+            <button type="button" v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
               <span class="icon"><font-awesome-icon icon="minus" /></span>
               <span>Delete user</span>
-            </a>
+            </button>
           </b-table-column>
 
           <b-table-column label="Status" v-slot="props">
@@ -53,7 +54,7 @@
 
         <div class="field" v-show="members.length">
           <div class="control">
-            <a type="submit" @click="createMembers()" class="button is-primary is-fullwidth">Create members</a>
+            <button type="button" @click="createMembers()" class="button is-primary is-fullwidth">Create members</button>
           </div>
         </div>
       </article>
@@ -68,12 +69,7 @@ export default {
   name: 'BulkImportMembers',
   data () {
     return {
-      members: [],
-      source: null,
-      permissions: [],
-      can: {
-        create: false
-      }
+      members: []
     }
   },
   computed: mapGetters(['services']),
@@ -110,23 +106,58 @@ export default {
         return
       }
 
-      if (file) {
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = (evt) => this.processFileContent(evt.target.result)
-        reader.onerror = (err) => {
-          this.$root.showError('Could not open file', err)
+      const reader = new FileReader()
+      reader.readAsText(file, 'UTF-8')
+      reader.onload = (evt) => this.processFileContent(evt.target.result)
+      reader.onerror = (err) => {
+        this.$root.showError('Could not open file', err)
+      }
+    },
+    parseCsv (input) {
+      // Fields are separated by commas or semicolons; a field in double quotes may contain
+      // separators, line breaks and doubled quotes (""). Lines end in \n, \r\n or \r.
+      const rows = []
+      let row = []
+      let field = ''
+      let quoted = false
+
+      for (let index = 0; index < input.length; index++) {
+        const char = input[index]
+
+        if (quoted) {
+          if (char === '"' && input[index + 1] === '"') {
+            field += '"'
+            index++
+          } else if (char === '"') {
+            quoted = false
+          } else {
+            field += char
+          }
+        } else if (char === '"') {
+          quoted = true
+        } else if (char === ',' || char === ';') {
+          row.push(field)
+          field = ''
+        } else if (char === '\n' || char === '\r') {
+          if (char === '\r' && input[index + 1] === '\n') index++
+          rows.push([...row, field])
+          row = []
+          field = ''
+        } else {
+          field += char
         }
       }
+      rows.push([...row, field])
+
+      return rows
+        .map((fields) => fields.map((value) => value.trim()))
+        .filter((fields) => fields.some((value) => value.length > 0)) // blank lines
     },
     processFileContent (input) {
       // CSV content: first_name,last_name,email
-      const csvArray = input
-        .replace(/;/g, ',') // replacing all semicolons with commas
-        .replace(/"/g, '') // removing all quotes
-        .split('\n') // splitting by new lime
-        .filter(line => line.length > 0) // removing empty strings
-        .map(elt => elt.split(','))
+      const csvArray = this.parseCsv(input.replace(/^\uFEFF/, ''))
+        // A header line naming the columns is not a member.
+        .filter((fields, index) => index > 0 || fields.slice(0, 3).join(',').toLowerCase() !== 'first_name,last_name,email')
 
       // Checking if each line has at least 3 columns.
       if (csvArray.some(elt => elt.length < 3)) {
@@ -147,9 +178,6 @@ export default {
         }
       })
     }
-  },
-  mounted () {
-
   }
 }
 </script>

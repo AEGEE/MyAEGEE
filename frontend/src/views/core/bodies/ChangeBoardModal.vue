@@ -3,16 +3,18 @@
     <header class="modal-card-head">
       <p class="modal-card-title" v-if="edit">Edit board</p>
       <p class="modal-card-title" v-else>Add board</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
 
       <div class="field">
-        <label class="label">
+        <label class="label" for="board-elected-date">
           Board election date <span style="color: red;">*</span>
         </label>
         <div class="control">
           <flat-pickr
+            id="board-elected-date"
+            :config="dateConfig"
             placeholder="Select date"
             class="input"
             required
@@ -21,12 +23,14 @@
       </div>
 
       <b-field grouped>
-        <b-field expanded>
+        <b-field expanded label-for="board-start-date">
           <template slot="label">
             Term start date <span style="color: red;">*</span>
           </template>
           <div class="control">
             <flat-pickr
+              id="board-start-date"
+              :config="dateConfig"
               placeholder="Select date"
               class="input"
               required
@@ -34,9 +38,11 @@
           </div>
         </b-field>
 
-        <b-field expanded label="Term end date">
+        <b-field expanded label="Term end date" label-for="board-end-date">
           <div class="control">
             <flat-pickr
+              id="board-end-date"
+              :config="dateConfig"
               placeholder="Select date"
               class="input"
               v-model="board.end_date" />
@@ -44,13 +50,13 @@
         </b-field>
       </b-field>
 
-      <b-field label="Board name">
-        <b-input v-model="board.name" />
+      <b-field label="Board name" label-for="board-name">
+        <b-input id="board-name" v-model="board.name" />
       </b-field>
 
       <hr>
 
-      <b-field grouped v-for="(position, index) in board.positions" v-bind:key="index" style="height: 36px;">
+      <b-field grouped v-for="(position, index) in board.positions" v-bind:key="index" style="height: 36px;" role="group" :aria-label="position.function || 'New position'">
         <b-field>
           <template v-if="position.required">
             <strong>{{ position.function }} <span style="color: red;">*</span></strong>
@@ -77,13 +83,13 @@
           </template>
         </b-autocomplete>
 
-        <b-button v-if="!position.required" class="button is-danger" @click="deletePosition(index)">
+        <b-button v-if="!position.required" class="button is-danger" :aria-label="'Remove the position ' + (position.function || 'New position')" @click="deletePosition(index)">
           <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
         </b-button>
       </b-field>
 
       <b-field>
-        <button class="button is-primary" @click="addPosition()">Add new position</button>
+        <button type="button" class="button is-primary" @click="addPosition()">Add new position</button>
       </b-field>
 
       <hr>
@@ -95,24 +101,24 @@
           </div>
         </div>
 
-        <b-field horizontal label="Email">
-          <b-input v-model="body.email" expanded />
+        <b-field horizontal label="Email" label-for="board-body-email">
+          <b-input id="board-body-email" v-model="body.email" expanded />
         </b-field>
 
-        <b-field horizontal label="Phone">
-          <b-input v-model="body.phone" expanded />
+        <b-field horizontal label="Phone" label-for="board-body-phone">
+          <b-input id="board-body-phone" v-model="body.phone" expanded />
         </b-field>
 
-        <b-field horizontal label="Address">
-          <b-input v-model="body.address" expanded />
+        <b-field horizontal label="Address" label-for="board-body-address">
+          <b-input id="board-body-address" v-model="body.address" expanded />
         </b-field>
 
-        <b-field horizontal label="Postal address">
-          <b-input v-model="body.postal_address" expanded />
+        <b-field horizontal label="Postal address" label-for="board-body-postal-address">
+          <b-input id="board-body-postal-address" v-model="body.postal_address" expanded />
         </b-field>
 
-        <b-field horizontal label="Website">
-          <b-input v-model="body.website" expanded />
+        <b-field horizontal label="Website" label-for="board-body-website">
+          <b-input id="board-body-website" v-model="body.website" expanded />
         </b-field>
 
         <hr>
@@ -134,12 +140,12 @@
       </template>
 
       <div class="field">
-        <label class="label">Message</label>
+        <label class="label" for="board-message">Message</label>
         <div class="control">
-          <b-input type="textarea" v-model="board.message" />
+          <b-input id="board-message" type="textarea" v-model="board.message" />
         </div>
-        <label class="label">Preview <MarkdownTooltip /></label>
-        <div class="content">
+        <p class="label">Preview <MarkdownTooltip /></p>
+        <div class="content" role="region" aria-label="Preview of the message">
           <span v-html="$options.filters.markdown(board.message)" />
         </div>
       </div>
@@ -157,7 +163,10 @@
 <script>
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
+import escapeHtml from 'src/methods/escape-html'
 import MarkdownTooltip from '../../../components/tooltips/MarkdownTooltip'
+
+const DATE_CONFIG = { allowInput: true, disableMobile: true }
 
 export default {
   components: {
@@ -185,13 +194,33 @@ export default {
       isSaving: false
     }
   },
+  computed: {
+    // Typed dates, and the same fields on a phone.
+    dateConfig: () => DATE_CONFIG
+  },
   methods: {
     deleteBoard () {
+      const term = this.oldBoard.start_date + ' - ' + (this.oldBoard.end_date || '')
+      const name = this.oldBoard.name ? this.oldBoard.name + ' (' + term + ')' : term
+
+      this.$buefy.dialog.confirm({
+        title: 'Deleting a board',
+        message: 'Are you sure you want to <b>delete</b> the board ' + escapeHtml(name) + '? This action cannot be undone.',
+        confirmText: 'Delete board',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.confirmDeleteBoard()
+      })
+    },
+    confirmDeleteBoard () {
       this.isSaving = true
       this.axios.delete(this.services['network'] + '/bodies/' + this.body.id + '/boards/' + this.oldBoard.id).then(() => {
         this.isSaving = false
         this.showSuccess('Board is deleted.')
         this.router.go(0)
+      }).catch((err) => {
+        this.isSaving = false
+        this.showError('Could not delete board', err)
       })
     },
     saveChangeBoard () {
@@ -246,6 +275,9 @@ export default {
           }
           this.showError('Something went wrong', err)
         })
+      }).catch((err) => {
+        this.isSaving = false
+        this.showError('Could not save the body details', err)
       })
     },
     addPosition () {

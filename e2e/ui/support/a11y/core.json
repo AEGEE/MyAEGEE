@@ -3,31 +3,19 @@
     "color-contrast": 1
   },
   "oms.bodies.bulk_import": {
-    "color-contrast": 3,
-    "label": 1
+    "color-contrast": 3
   },
   "oms.bodies.campaigns": {
     "color-contrast": 1
   },
   "oms.bodies.campaigns.edit": {
-    "color-contrast": 2,
-    "label": 3
+    "color-contrast": 2
   },
   "oms.bodies.campaigns.members": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.bodies.campaigns.new": {
-    "color-contrast": 3,
-    "label": 3
-  },
-  "oms.bodies.create": {
-    "label": 8,
-    "select-name": 2
-  },
-  "oms.bodies.edit": {
-    "label": 7,
-    "select-name": 2
+    "color-contrast": 3
   },
   "oms.bodies.join_requests": {
     "color-contrast": 2
@@ -36,37 +24,25 @@
     "color-contrast": 1
   },
   "oms.bodies.members": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.bodies.new_member": {
-    "color-contrast": 1,
-    "label": 7
-  },
-  "oms.bodies.view": {
-    "image-alt": 1
+    "color-contrast": 1
   },
   "oms.campaigns.create": {
-    "color-contrast": 3,
-    "label": 3
+    "color-contrast": 3
   },
   "oms.campaigns.edit": {
-    "color-contrast": 2,
-    "label": 3
+    "color-contrast": 1
   },
   "oms.campaigns.list": {
     "color-contrast": 1
   },
   "oms.campaigns.members": {
-    "color-contrast": 1,
-    "link-name": 2
-  },
-  "oms.circles.create": {
-    "label": 2
+    "color-contrast": 1
   },
   "oms.circles.edit": {
-    "color-contrast": 1,
-    "label": 5
+    "color-contrast": 1
   },
   "oms.circles.list": {
     "color-contrast": 2
@@ -74,29 +50,11 @@
   "oms.circles.members": {
     "color-contrast": 1
   },
-  "oms.members.edit": {
-    "label": 4
-  },
   "oms.members.list": {
-    "color-contrast": 1,
-    "link-name": 2
+    "color-contrast": 1
   },
   "oms.members.list.unconfirmed": {
-    "color-contrast": 1,
-    "link-name": 2
-  },
-  "oms.members.view": {
-    "image-alt": 1
-  },
-  "oms.permissions.create": {
-    "color-contrast": 1,
-    "label": 4,
-    "select-name": 1
-  },
-  "oms.permissions.edit": {
-    "color-contrast": 1,
-    "label": 4,
-    "select-name": 1
+    "color-contrast": 1
   },
   "oms.permissions.list": {
     "color-contrast": 1

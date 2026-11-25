@@ -5,22 +5,23 @@
         <h4 class="title">Bodies list</h4>
 
         <div class="field">
-          <label class="label">Search by name, body code or abbreviation</label>
+          <label class="label" for="bodies-search">Search by name, body code or abbreviation</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
+              <input id="bodies-search" class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
             </div>
             <div class="control" v-if="can.viewDeleted">
-              <a class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</a>
-              <a class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</a>
+              <button type="button" class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</button>
+              <button type="button" class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</button>
             </div>
           </div>
         </div>
 
         <div class="field" v-if="loginUser">
-          <label class="label">Filter on body type</label>
+          <label class="label" id="bodies-type-filter-label">Filter on body type</label>
           <div class="control">
             <multiselect
+              aria-labelledby="bodies-type-filter-label"
               v-model="selectedTypes"
               :multiple="true"
               :searchable="false"
@@ -34,7 +35,7 @@
               <template
                 slot="selection"
                 slot-scope="{ values, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} {{ values.length === 1 ? 'type' : 'types' }} selected</span>
               </template>
             </multiselect>
           </div>
@@ -127,10 +128,8 @@ export default {
       query: '',
       limit: 30,
       offset: 0,
-      type: null,
       canLoadMore: true,
       source: null,
-      permissions: [],
       includeDeleted: false,
       can: {
         create: false,
@@ -186,28 +185,30 @@ export default {
         this.bodies = this.bodies.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
-
-        if (this.loginUser) {
-          return this.axios.get(this.services['core'] + '/my_permissions').then((permissionsResponse) => {
-            this.permissions = permissionsResponse.data.data
-
-            this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
-            this.can.viewDeleted = this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
-            this.isLoading = false
-          })
-        }
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading = false
+        this.$root.showError('Could not fetch bodies list', err)
+      })
+    },
+    fetchPermissions () {
+      this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
+        const permissions = response.data.data
+
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:body'))
+        this.can.viewDeleted = permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
+      }).catch((err) => {
         this.$root.showError('Could not fetch bodies list', err)
       })
     }
   },
   mounted () {
     this.fetchData()
+    if (this.loginUser) this.fetchPermissions()
   }
 }
 </script>

@@ -3,24 +3,20 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ permission.combined }}</p>
+          <h1 class="title">{{ permission.combined }}</h1>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Code</th>
+                  <th scope="row">Code</th>
                   <td>{{ permission.combined }}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>{{ permission.description }}</td>
                 </tr>
                 <tr>
-                  <th>Always assigned?</th>
-                  <td>{{ permission.always_assigned ? 'Yes' : 'No' }}</td>
-                </tr>
-                <tr>
-                  <th>Filters</th>
+                  <th scope="row">Filters</th>
                   <td v-if="permission.filters.length === 0"><i>Not set</i></td>
                   <td v-if="permission.filters.length > 0">
                     <ul>
@@ -29,7 +25,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Directly attached to:</th>
+                  <th scope="row">Directly attached to:</th>
                   <td v-if="permission.circles.length === 0"><i>Not attached</i></td>
                   <td v-if="permission.circles.length > 0">
                     <ul>
@@ -54,9 +50,9 @@
           Edit permission
         </router-link>
 
-        <a class="button is-danger" @click="askDeletePermission()" v-if="can.delete">
+        <button type="button" class="button is-danger" @click="askDeletePermission()" v-if="can.delete">
           Delete permission
-        </a>
+        </button>
       </article>
     </div>
 
@@ -74,11 +70,9 @@ export default {
       permission: {
         combined: null,
         description: null,
-        always_assigned: null,
         filters: [],
         circles: []
       },
-      isOwnProfile: false,
       isLoading: false,
       permissions: [],
       can: {
@@ -130,9 +124,6 @@ export default {
       this.$router.push({ name: 'oms.permissions.list' })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: mapGetters(['services'])
 }
 </script>

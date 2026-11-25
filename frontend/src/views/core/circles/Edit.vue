@@ -1,28 +1,23 @@
 <template>
   <div class="tile is-ancestor is-vertical">
     <div class="tile is-child">
+      <h1 class="title">{{ $route.params.id ? 'Edit circle' : 'Create circle' }}</h1>
+
       <form @submit.prevent="saveCircle()">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="circle-name">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="circle.name" />
+            <input id="circle-name" class="input" type="text" required v-model="circle.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="circle-description">Description</label>
           <div class="control">
-            <input class="input" type="text" required v-model="circle.description" />
+            <input id="circle-description" class="input" type="text" required v-model="circle.description" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Joinable?
-            <input type="checkbox" class="checkbox" v-model="circle.joinable" />
-          </label>
-          <p class="help is-danger" v-if="errors.joinable">{{ errors.joinable.join(', ')}}</p>
         </div>
 
         <b-loading is-full-page="false" :active.sync="isLoading" />
@@ -39,10 +34,11 @@
 
     <div class="tile is-child" v-if="$route.params.id">
       <div class="field">
-        <label class="label">Parent circle</label>
+        <label class="label" for="circle-parent">Parent circle</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-parent"
               v-model="autoComplete.parentCircle.name"
               :data="autoComplete.parentCircle.values"
               open-on-focus="true"
@@ -60,11 +56,12 @@
               </template>
             </b-autocomplete>
             <p class="control">
-              <a
+              <button
+                type="button"
                 class="button is-danger"
                 @click="setParentCircle(null)"
-                v-if="circle.parent_circle">{{ circle.parent_circle.name }} (Click to unset)</a>
-              <a class="button is-static" v-if="!circle.parent_circle">Not set.</a>
+                v-if="circle.parent_circle">{{ circle.parent_circle.name }} (Click to unset)</button>
+              <span class="button is-static" v-if="!circle.parent_circle">Not set.</span>
             </p>
           </div>
         </div>
@@ -75,7 +72,11 @@
         <ul>
           <li v-for="childCircle in circle.child_circles" v-bind:key="childCircle.id">
             <span class="tag is-danger">{{ childCircle.name }}
-              <button class="delete is-small" @click="unsetAsParentCircle(childCircle)" />
+              <button
+                type="button"
+                class="delete is-small"
+                :aria-label="'Remove child circle ' + childCircle.name"
+                @click="unsetAsParentCircle(childCircle)" />
             </span>
           </li>
           <li v-if="circle.child_circles.length === 0">
@@ -85,10 +86,11 @@
       </div>
 
       <div class="field">
-        <label class="label">Add child circle</label>
+        <label class="label" for="circle-add-child">Add child circle</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-add-child"
               v-model="autoComplete.childCircles.name"
               :data="autoComplete.childCircles.values"
               open-on-focus="true"
@@ -114,7 +116,11 @@
         <ul>
           <li v-for="permission in circle.permissions" v-bind:key="permission.id">
             <span class="tag is-danger">{{ permission.combined }}
-              <button class="delete is-small" @click="deletePermission(permission)" />
+              <button
+                type="button"
+                class="delete is-small"
+                :aria-label="'Remove permission ' + permission.combined"
+                @click="deletePermission(permission)" />
             </span>
           </li>
           <li v-if="circle.permissions.length === 0">
@@ -124,10 +130,11 @@
       </div>
 
       <div class="field">
-        <label class="label">Add permission</label>
+        <label class="label" for="circle-add-permission">Add permission</label>
         <div class="control">
           <div class="field has-addons">
             <b-autocomplete
+              id="circle-add-permission"
               v-model="autoComplete.permissions.name"
               :data="autoComplete.permissions.values"
               open-on-focus="true"
@@ -175,7 +182,8 @@ export default {
         childCircles: { name: '', values: [], loading: false },
         permissions: { name: '', values: [], loading: false }
       },
-      token: null,
+      // One search per field: typing in one field doesn't cancel the search of another.
+      tokens: {},
       errors: {},
       isLoading: false,
       isSaving: false
@@ -189,11 +197,11 @@ export default {
       this.autoComplete[key].values = []
       this.autoComplete[key].loading = true
 
-      if (this.token) this.token.cancel()
-      this.token = this.axios.CancelToken.source()
+      if (this.tokens[key]) this.tokens[key].cancel()
+      this.tokens[key] = this.axios.CancelToken.source()
 
       this.axios.get(this.services['core'] + '/' + context, {
-        cancelToken: this.token.token,
+        cancelToken: this.tokens[key].token,
         params: { query }
       }).then((response) => {
         this.autoComplete[key].values = response.data.data
@@ -205,7 +213,7 @@ export default {
 
         this.autoComplete[key].loading = false
 
-        this.$root.showError('Could not fetch ' + context + 's', err)
+        this.$root.showError('Could not fetch ' + context, err)
       })
     },
     setParentCircle (circle) {
@@ -220,12 +228,6 @@ export default {
         this.$root.showSuccess('Parent circle is ' + (circle ? 'set.' : 'unset.'))
       }).catch((err) => {
         this.autoComplete.parentCircle.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
-        }
-
         this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle', err)
       })
     },
@@ -241,12 +243,6 @@ export default {
         this.$root.showSuccess('Permission is added.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not add permission: ' + errors)
-        }
-
         this.$root.showError('Could not add permission', err)
       })
     },
@@ -261,12 +257,6 @@ export default {
         this.$root.showSuccess('Permission is deleted.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not delete permission: ' + errors)
-        }
-
         this.$root.showError('Could not delete permission', err)
       })
     },
@@ -277,18 +267,13 @@ export default {
         parent_circle_id: this.circle.id
       }).then(() => {
         this.autoComplete.childCircles.loading = false
-        this.circle.child_circles.push(circle)
+        if (!this.circle.child_circles.some(child => child.id === circle.id)) {
+          this.circle.child_circles.push(circle)
+        }
 
         this.$root.showSuccess('Child circle is added.')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-        if (err.response && err.response.status === 422) {
-          const errors = err.response.data.errors
-            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-            : err.response.data.message
-          return this.$root.showError('Could not add child circle: ' + errors)
-        }
-
         this.$root.showError('Could not add child circle', err)
       })
     },
@@ -306,14 +291,6 @@ export default {
         this.$root.showSuccess('Child circle is removed')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-
-        if (err.response && err.response.status === 422) {
-          const errors = err.response.data.errors
-            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-            : err.response.data.message
-          return this.$root.showError('Could not remove child circle: ' + errors)
-        }
-
         this.$root.showError('Could not remove child circle', err)
       })
     },

@@ -2,11 +2,12 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">User list</h4>
+        <h1 class="title">User list</h1>
         <div class="field">
-          <label class="label">Search by name or surname</label>
+          <label class="label" for="members-search">Search by name or surname</label>
           <div class="control">
             <input
+              id="members-search"
               class="input"
               type="text"
               v-model="query"
@@ -19,11 +20,16 @@
         <b-table
           :data="users"
           :loading="isLoading"
+          ariaNextLabel="Next page"
+          ariaPreviousLabel="Previous page"
+          ariaPageLabel="Page"
+          ariaCurrentLabel="Current page"
           paginated
           backend-pagination
           backend-sorting
           :total="total"
           :per-page="limit"
+          :current-page.sync="page"
           @page-change="onPageChange"
           :default-sort="[sortField, sortOrder]"
           @sort="onSort"
@@ -96,11 +102,11 @@ export default {
       isLoading: false,
       query: '',
       limit: 30,
-      page: 0,
+      // The page of the pager, from 1.
+      page: 1,
       total: 0,
       sortField: 'id',
       sortOrder: 'asc',
-      canLoadMore: true,
       source: null
     }
   },
@@ -108,7 +114,7 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.page * this.limit,
+        offset: (this.page - 1) * this.limit,
         sort: this.sortField,
         direction: this.sortOrder
       }
@@ -121,19 +127,18 @@ export default {
   methods: {
     refetch () {
       this.users = []
-      this.page = 0
+      this.page = 1
       this.total = 0
-      this.canLoadMore = true
       this.fetchData()
     },
     onPageChange (page) {
-      this.page = page - 1
+      this.page = page
       this.fetchData()
     },
     onSort (field, order) {
       this.sortField = field
       this.sortOrder = order
-      this.page = 0
+      this.page = 1
       this.fetchData()
     },
     fetchData () {
@@ -149,8 +154,6 @@ export default {
         .then((response) => {
           this.users = response.data.data
           this.total = response.data.meta.count
-          this.page++
-          this.canLoadMore = response.data.data.length === this.limit
           this.isLoading = false
         })
         .catch((err) => {

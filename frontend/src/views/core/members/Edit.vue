@@ -3,9 +3,10 @@
     <div class="tile is-child">
       <form @submit.prevent="saveUser()">
         <div class="field">
-          <label class="label">First name</label>
+          <label class="label" for="member-first-name">First name</label>
           <div class="control">
             <input
+              id="member-first-name"
               class="input"
               type="text"
               required
@@ -17,9 +18,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Last name</label>
+          <label class="label" for="member-last-name">Last name</label>
           <div class="control">
             <input
+              id="member-last-name"
               class="input"
               type="text"
               required
@@ -31,9 +33,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Username</label>
+          <label class="label" for="member-username">Username</label>
           <div class="control">
             <input
+              id="member-username"
               class="input"
               type="text"
               required
@@ -45,12 +48,12 @@
         </div>
 
         <div class="field" v-if="can.editGsuite">
-          <label class="label">Google Workspace account</label>
+          <label class="label" for="member-gsuite-id">Google Workspace account</label>
           <div class="control">
             <input
+              id="member-gsuite-id"
               class="input"
               type="email"
-              required
               v-model="user.gsuite_id"
               placeholder="Type the Google Workspace email of the user"
             />
@@ -59,17 +62,20 @@
         </div>
 
         <div class="field">
-          <label class="label">Phone</label>
+          <label class="label" for="member-phone">Phone</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-            <input class="input" type="text" v-model="user.phone" />
+            <input id="member-phone" class="input" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Birthday</label>
+          <label class="label" for="member-birthday">Birthday</label>
           <b-datepicker
+            id="member-birthday"
+            editable
+            :mobile-native="false"
             :date-formatter="formatDate"
             :date-parser="parseDate"
             v-model="birthday"
@@ -80,18 +86,6 @@
           </p>
         </div>
 
-        <!-- <div class="field">
-          <label class="label">Primary body</label>
-          <p class="control">
-            <div class="field has-addons select is-fullwidth">
-              <select v-model="user.primary_body_id">
-                <option :value="null">Not set</option>
-                <option v-for="body in user.bodies" :key="body.id" :value="body.id">{{ body.name }}</option>
-              </select>
-            </div>
-          <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
-        </div> -->
-
         <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
             <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ') }}</p>
@@ -99,17 +93,17 @@
         </select-or-custom>
 
         <div class="field">
-          <label class="label">Address</label>
+          <label class="label" for="member-address">Address</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.address" />
+            <input id="member-address" class="input" type="text" v-model="user.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">About me</label>
+          <label class="label" for="member-about-me">About me</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
+            <input id="member-about-me" class="input" type="text" v-model="user.about_me" />
           </div>
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ') }}</p>
         </div>
@@ -154,7 +148,6 @@ export default {
         phone: null,
         address: null,
         about_me: null,
-        user: {},
         bodies: []
       },
       errors: {},
@@ -174,7 +167,8 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
+      // A cleared field is no birthday, not an invalid one.
+      this.user.date_of_birth = this.birthday ? moment(this.birthday).format('YYYY-MM-DD') : null
     },
     saveUser () {
       this.isSaving = true
@@ -198,6 +192,10 @@ export default {
       }
 
       const body = pick(this.user, fields)
+      // An empty field means the member has no Workspace account.
+      if (this.can.editGsuite && !body.gsuite_id) {
+        body.gsuite_id = null
+      }
 
       this.axios
         .put(this.services['core'] + '/members/' + this.$route.params.id, body)

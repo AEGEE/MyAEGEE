@@ -2,18 +2,19 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add member</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body" style="height:200px;">
       <div class="field has-addons">
         <b-autocomplete
           v-model="memberName"
           :data="members"
-          field="title"
+          :custom-formatter="(option) => option.first_name + ' ' + option.last_name"
           :loading="isLoadingMembers"
-          @input="fetchMembers"
+          @typing="fetchMembers"
           :expanded="true"
           @select="option => addMember(option)"
+          aria-label="Search by name or email"
           placeholder="Search by name or email">
 
           <template slot-scope="props">
@@ -25,7 +26,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -43,7 +44,7 @@ export default {
     }
   },
   methods: {
-    fetchMembers () {
+    fetchMembers (query) {
       this.isLoadingMembers = true
       this.members = []
 
@@ -52,7 +53,7 @@ export default {
 
       this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,
-        params: { query: this.memberName }
+        params: { query }
       }).then((response) => {
         this.members = response.data.data
         this.isLoadingMembers = false

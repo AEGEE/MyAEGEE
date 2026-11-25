@@ -2,13 +2,15 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add fee payment for {{member.user.first_name }} {{ member.user.last_name }}</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Starts at <span class="has-text-danger">*</span></label>
+        <label class="label" for="fee-payment-starts">Starts at <span class="has-text-danger">*</span></label>
         <div class="control">
           <flat-pickr
+            id="fee-payment-starts"
+            :config="dateConfig"
             placeholder="Select date"
             class="input"
             required
@@ -18,9 +20,11 @@
       </div>
 
       <div class="field">
-        <label class="label">Expires on <span class="has-text-danger">*</span></label>
+        <label class="label" for="fee-payment-expires">Expires on <span class="has-text-danger">*</span></label>
         <div class="control">
           <flat-pickr
+            id="fee-payment-expires"
+            :config="dateConfig"
             placeholder="Select date"
             class="input"
             required
@@ -30,18 +34,18 @@
       </div>
 
       <div class="field">
-        <label class="label">Amount <span class="has-text-danger">*</span></label>
+        <label class="label" for="fee-payment-amount">Amount <span class="has-text-danger">*</span></label>
         <div class="control">
-          <input type="number" required min="0" class="input" v-model.number="tmpPayment.amount" />
+          <input id="fee-payment-amount" type="number" required min="0" class="input" v-model.number="tmpPayment.amount" />
         </div>
         <p class="help is-danger" v-if="errors.amount">{{ errors.amount.join(', ') }}</p>
       </div>
 
       <div class="field">
-        <label class="label">Currency <span class="has-text-danger">*</span></label>
+        <label class="label" for="fee-payment-currency">Currency <span class="has-text-danger">*</span></label>
         <div class="control">
           <div class="select">
-            <select v-model="tmpPayment.currency">
+            <select id="fee-payment-currency" v-model="tmpPayment.currency">
               <option v-for="(currency, key) in currencies" v-bind:key="key" :value="key">{{ currency }}</option>
             </select>
           </div>
@@ -50,24 +54,24 @@
       </div>
 
       <div class="field">
-        <label class="label">Invoice address</label>
+        <label class="label" for="fee-payment-invoice-address">Invoice address</label>
         <div class="control">
-          <input type="text" class="input" v-model.number="tmpPayment.invoice_address" />
+          <input id="fee-payment-invoice-address" type="text" class="input" v-model="tmpPayment.invoice_address" />
         </div>
         <p class="help is-danger" v-if="errors.invoice_address">{{ errors.invoice_address.join(', ') }}</p>
       </div>
 
       <div class="field">
-        <label class="label">Invoice name</label>
+        <label class="label" for="fee-payment-invoice-name">Invoice name</label>
         <div class="control">
-          <input type="text" class="input" v-model.number="tmpPayment.invoice_name" />
+          <input id="fee-payment-invoice-name" type="text" class="input" v-model="tmpPayment.invoice_name" />
         </div>
         <p class="help is-danger" v-if="errors.invoice_name">{{ errors.invoice_name.join(', ') }}</p>
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="saveFeePayment()">Add fee payment</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="saveFeePayment()">Add fee payment</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -88,7 +92,10 @@ export default {
   data () {
     return {
       currencies,
+      // Typed dates, and the same field on a phone.
+      dateConfig: { allowInput: true, disableMobile: true },
       errors: {},
+      isLoading: false,
       tmpPayment: {
         starts: '',
         expires: '',
@@ -101,7 +108,10 @@ export default {
   },
   watch: {
     'tmpPayment.starts': function () {
-      this.tmpPayment.expires = moment(this.tmpPayment.starts, 'YYYY-MM-DD').add(1, 'year').format('YYYY-MM-DD')
+      const starts = moment(this.tmpPayment.starts, 'YYYY-MM-DD', true)
+      if (!starts.isValid()) return
+
+      this.tmpPayment.expires = starts.add(1, 'year').format('YYYY-MM-DD')
     }
   },
   methods: {
@@ -119,6 +129,8 @@ export default {
         body_id: this.body.id
       }).then((response) => {
         this.showSuccess('Payment is added.')
+        // Those who may add payments but not see them have no list of payments yet.
+        if (!this.member.payments) this.$set(this.member, 'payments', [])
         this.member.payments.push(response.data.data)
         this.isLoading = false
         this.$parent.close()

@@ -15,44 +15,33 @@
         </div>
       </template>
 
+      <div class="notification is-info" role="status" v-if="pendingJoinRequests.length">
+        <p v-for="request in pendingJoinRequests" :key="request.body_id">
+          Your request to join {{ bodyName(request.body_id) }} is waiting for its board.
+          You can use MyAEGEE once a board member has accepted it.
+        </p>
+      </div>
+
       <form
         @submit.prevent="saveUser()"
         v-if="validationErrors.privacy || validationErrors.username"
+        aria-label="Your profile"
+        :aria-busy="isLoading ? 'true' : 'false'"
       >
-        <!-- <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
-          <template slot="errors-slot">
-            <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
-          </template>
-        </select-or-custom>
-
-        <div class="field">
-          <label class="label">Address</label>
-          <div class="control">
-            <input class="input" type="text" v-model="user.address" />
-          </div>
-          <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">About me</label>
-          <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
-          </div>
-          <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
-        </div> -->
-
         <div class="field" v-if="validationErrors.username">
-          <label class="label">Username <span class="has-text-danger">*</span></label>
+          <label class="label" for="profile-username">Username <span class="has-text-danger">*</span></label>
           <div class="control">
             <input
+              id="profile-username"
               v-model="user.username"
               class="input"
               type="text"
-              pattern="^(?![0-9._-]*$)[a-zA-Z0-9._-]+$"
+              pattern="^(?![0-9._\-]*$)[a-zA-Z0-9._\-]+$"
               title="Username can only contain English letters, numbers, dots and dashes and should contain at least 1 letter."
               placeholder="You will be able to login with it."
             />
           </div>
+          <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ') }}</p>
         </div>
 
         <div class="field" v-if="validationErrors.privacy">
@@ -85,13 +74,13 @@
       <hr v-if="validationErrors.email" />
 
       <div class="field" v-if="validationErrors.email">
-        <label class="label">Email <span class="has-text-danger">*</span></label>
+        <label class="label" for="profile-email">Email <span class="has-text-danger">*</span></label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="email" v-model="tmpEmail" />
+            <input id="profile-email" class="input" type="email" v-model="tmpEmail" />
           </div>
           <div class="control">
-            <button class="button is-info" @click="changeEmail(tmpEmail)">Change email</button>
+            <button type="button" class="button is-info" @click="changeEmail(tmpEmail)">Change email</button>
           </div>
         </div>
       </div>
@@ -99,14 +88,14 @@
       <hr v-if="validationErrors.bodies" />
 
       <div class="field" v-if="validationErrors.bodies">
-        <label class="label">
+        <label class="label" for="profile-body">
           Body <span class="has-text-danger">*</span>
-          <tooltip text="You can change your notification email in your profile" />
+          <tooltip text="Choose the local you want to join. Its board accepts you as a member." />
         </label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">
-              <select v-model="tmpBodyId">
+              <select id="profile-body" v-model="tmpBodyId">
                 <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">
                   {{ body.name }}
                 </option>
@@ -114,7 +103,7 @@
             </div>
           </div>
           <div class="control">
-            <button class="button is-info" @click="askToJoinBody(tmpBodyId)">Join body</button>
+            <button type="button" class="button is-info" :disabled="!tmpBodyId" @click="askToJoinBody(tmpBodyId)">Join body</button>
           </div>
         </div>
         <p class="help">
@@ -157,14 +146,15 @@ export default {
         privacy_consent: null,
         address: null,
         about_me: null,
-        user: {},
-        bodies: []
+        bodies: [],
+        join_requests: []
       },
+      // Every body, for the names of the join requests; `bodies` are the ones a member may join.
+      allBodies: [],
       bodies: [],
       tmpBodyId: null,
       tmpEmail: '',
       errors: {},
-      birthday: null,
       isLoading: true,
       isSaving: false,
       agreedToPrivacyPolicy: false
@@ -222,6 +212,7 @@ export default {
         title: 'Join body',
         message: this.getJoinRequestMessage(selectedBody),
         inputAttrs: {
+          'aria-label': 'Motivation',
           placeholder: 'Motivation',
           required: false
         },
@@ -239,28 +230,32 @@ export default {
             'Join request is sent. Please wait until a board members accepts it.'
           )
           this.isLoading = false
-          this.isRequestingMembership = true
+          // The member stays here until the board accepts; the page says so.
+          this.user.join_requests.push({ body_id: bodyId, status: 'pending' })
         })
         .catch((err) => {
           this.isLoading = false
           if (err.response && err.response.status === 422) {
             this.$root.showError("You've already requested to join this body.")
           } else {
-            this.$root.showError('Could not sent join request', err)
+            this.$root.showError('Could not send join request', err)
           }
         })
     },
     getJoinRequestMessage (body) {
-      const contactDetails = body
-        ? [
-          'Local email: ' + this.escapeHtml(body.email),
-          body.website ? 'Website: ' + this.escapeHtml(body.website) : null
-        ].filter(Boolean).join('<br>')
-        : 'Local email: automatically filled after selecting a Local'
+      // A body is always chosen: the button waits for it.
+      const contactDetails = [
+        'Local email: ' + this.escapeHtml(body.email),
+        body.website ? 'Website: ' + this.escapeHtml(body.website) : null
+      ].filter(Boolean).join('<br>')
 
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
     escapeHtml,
+    bodyName (bodyId) {
+      const body = this.allBodies.find((b) => b.id === bodyId)
+      return body ? body.name : 'a body'
+    },
     changeEmail (newEmail) {
       if (isRestrictedEmail(newEmail)) {
         return this.$root.showError(
@@ -282,13 +277,16 @@ export default {
         })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loggedIn: 'loggedIn',
-    loginUser: 'user',
-    isValid: 'isValid',
-    validationErrors: 'validationErrors'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      isValid: 'isValid',
+      validationErrors: 'validationErrors'
+    }),
+    pendingJoinRequests () {
+      return this.user.join_requests.filter((request) => request.status === 'pending')
+    }
+  },
   mounted () {
     if (this.isValid) {
       console.debug('User is valid, redirecting.')
@@ -303,10 +301,12 @@ export default {
         return this.axios.get(this.services['core'] + '/bodies')
       })
       .then((response) => {
+        this.allBodies = response.data.data
         this.bodies = response.data.data.filter((b) => ALLOWED_BODY_TYPES.includes(b.type))
         this.isLoading = false
       })
       .catch((err) => {
+        this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('User is not found')
         } else {

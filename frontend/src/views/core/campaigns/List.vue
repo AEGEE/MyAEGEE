@@ -4,9 +4,9 @@
       <article class="tile is-child">
         <h4 class="title">Recruitment campaigns list</h4>
         <div class="field">
-          <label class="label">Search</label>
+          <label class="label" for="campaigns-search">Search</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            <input id="campaigns-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
           </div>
         </div>
 
@@ -30,11 +30,11 @@
           </b-table-column>
 
           <b-table-column field="description_long" label="Description" v-slot="props">
-            <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
+            <div class="description" v-html="$options.filters.markdown(props.row.description_long)" />
           </b-table-column>
 
           <b-table-column label="Link" v-slot="props">
-            {{ '/signup/' + props.row.url }}
+            <router-link :to="{ name: 'oms.register', params: { id: props.row.url } }">/signup/{{ props.row.url }}</router-link>
           </b-table-column>
 
           <template slot="empty">
@@ -69,7 +69,6 @@ export default {
       offset: 0,
       canLoadMore: true,
       source: null,
-      permissions: [],
       can: {
         create: false
       }
@@ -103,12 +102,6 @@ export default {
         this.campaigns = this.campaigns.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
-
-        return this.axios.get(this.services['core'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:campaign'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -118,10 +111,20 @@ export default {
         this.$root.showError('Could not fetch campaign list', err)
         this.isLoading = false
       })
+    },
+    fetchPermissions () {
+      this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
+        const permissions = response.data.data
+
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:campaign'))
+      }).catch((err) => {
+        this.$root.showError('Could not fetch campaign list', err)
+      })
     }
   },
   mounted () {
     this.fetchData()
+    this.fetchPermissions()
   }
 }
 </script>

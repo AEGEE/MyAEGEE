@@ -1,21 +1,21 @@
 <template>
-  <div class="tile is-ancestor">
+  <div class="tile is-ancestor" :aria-busy="isLoading ? 'true' : 'false'">
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!user.image" src="/images/logo.png" />
-            <img v-if="user.image" :src="services['core-static'] + '/headimages/' + user.image" />
+            <img v-if="!user.image" src="/images/logo.png" alt="" />
+            <img v-if="user.image" :src="services['core-static'] + '/headimages/' + user.image" :alt="'Profile picture of ' + user.first_name + ' ' + user.last_name" />
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info" v-if="can.edit || can.setActive || can.setEventApplicationBan || can.setSuperadmin || can.delete">
           <div class="field is-grouped" v-if="can.edit">
-            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
+            <button type="button" class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
@@ -39,7 +39,7 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
-            <button class="button is-fullwidth is-warning" @click="askChangeEmail()">
+            <button type="button" class="button is-fullwidth is-warning" @click="askChangeEmail()">
               <span>Change email</span>
               <span class="icon"><font-awesome-icon icon="envelope" /></span>
             </button>
@@ -49,90 +49,102 @@
             class="field is-grouped"
             v-if="can.edit && this.user.gsuite_id != null && this.user.gsuite_id != ''"
           >
-            <button class="button is-fullwidth is-warning" @click="editPrimaryEmail()">
+            <button type="button" class="button is-fullwidth is-warning" @click="editPrimaryEmail()">
               <span>Set primary email</span>
               <span class="icon"><font-awesome-icon icon="envelope" /></span>
             </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
-            <button class="button is-fullwidth is-warning" @click="editPrimaryBodyModal()">
+            <button type="button" class="button is-fullwidth is-warning" @click="editPrimaryBodyModal()">
               <span>Set primary body</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </button>
           </div>
 
-          <div class="field is-grouped" v-if="can.setActive">
-            <a
+          <div class="field is-grouped" v-if="can.setActive && !isOwnProfile">
+            <button
               v-if="user.active"
+              type="button"
               class="button is-fullwidth is-danger"
               :class="{ 'is-loading': isSwitchingStatus }"
+              :disabled="isSwitchingStatus"
               @click="askToggleActive()"
             >
               <span>Suspend user</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
-            </a>
+            </button>
 
-            <a
+            <button
               v-if="!user.active"
+              type="button"
               class="button is-fullwidth is-primary"
               :class="{ 'is-loading': isSwitchingStatus }"
+              :disabled="isSwitchingStatus"
               @click="askToggleActive()"
             >
               <span>Activate user</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.setEventApplicationBan && !activeEventApplicationBan">
-            <a
+            <button
+              type="button"
               class="button is-fullwidth is-danger"
               :class="{ 'is-loading': isSwitchingEventApplicationBan }"
+              :disabled="isSwitchingEventApplicationBan"
               @click="askSetEventApplicationBan()"
             >
               <span>Ban event applications</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.setEventApplicationBan && activeEventApplicationBan">
-            <a
+            <button
+              type="button"
               class="button is-fullwidth is-primary"
               :class="{ 'is-loading': isSwitchingEventApplicationBan }"
+              :disabled="isSwitchingEventApplicationBan"
               @click="askLiftEventApplicationBan()"
             >
               <span>Lift event application ban</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.setSuperadmin">
-            <a
+            <button
               v-if="!user.superadmin"
+              type="button"
               class="button is-fullwidth is-danger"
               :class="{ 'is-loading': isSwitchingSuperadmin }"
+              :disabled="isSwitchingSuperadmin"
               @click="askToggleSuperadmin()"
             >
               <span>Add superadmin status</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
-            </a>
+            </button>
 
-            <a
+            <button
               v-if="user.superadmin"
+              type="button"
               class="button is-fullwidth is-danger"
               :class="{ 'is-loading': isSwitchingSuperadmin }"
+              :disabled="isSwitchingSuperadmin"
               @click="askToggleSuperadmin()"
             >
               <span>Remove superadmin status</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.delete">
-            <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
+            <button type="button" class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
               <span class="icon"><font-awesome-icon icon="times" /></span>
-            </a>
+            </button>
           </div>
         </article>
       </div>
@@ -144,13 +156,13 @@
           {{ emailChangeNotice }}
         </div>
         <div class="content">
-          <p class="title">{{ user.first_name }}</p>
+          <p class="title" role="heading" aria-level="1">{{ user.first_name }}</p>
           <p class="subtitle">{{ user.last_name }}</p>
           <div class="content">
-            <table class="table is-narrow">
+            <table class="table is-narrow facts">
               <tbody>
                 <tr>
-                  <th>Profile link</th>
+                  <th scope="row">Profile link</th>
                   <td>
                     <router-link
                       :to="{ name: 'oms.members.view', params: { id: user.username || user.id } }"
@@ -161,7 +173,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Primary body</th>
+                  <th scope="row">Primary body</th>
                   <td v-if="user.primary_body">
                     <router-link
                       :to="{ name: 'oms.bodies.view', params: { id: user.primary_body.id } }"
@@ -171,48 +183,48 @@
                   <td v-if="!user.primary_body"><i>Not set.</i></td>
                 </tr>
                 <tr>
-                  <th>Phone</th>
+                  <th scope="row">Phone</th>
                   <td>{{ user.phone }}</td>
                 </tr>
                 <tr>
-                  <th>Date of birth</th>
+                  <th scope="row">Date of birth</th>
                   <td>{{ user.date_of_birth }}</td>
                 </tr>
                 <tr>
-                  <th>Gender</th>
+                  <th scope="row">Gender</th>
                   <td>{{ user.gender }}</td>
                 </tr>
                 <tr>
-                  <th>Address</th>
+                  <th scope="row">Address</th>
                   <td>{{ user.address }}</td>
                 </tr>
                 <tr>
-                  <th>About me</th>
+                  <th scope="row">About me</th>
                   <td>{{ user.about_me }}</td>
                 </tr>
                 <tr>
-                  <th>Is superadmin?</th>
+                  <th scope="row">Is superadmin?</th>
                   <td>{{ user.superadmin ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
-                  <th>Notification email</th>
+                  <th scope="row">Notification email</th>
                   <td>
-                    <a :href="'mailto:' + user.email">{{ user.notification_email }}</a>
+                    <a :href="'mailto:' + user.notification_email">{{ user.notification_email }}</a>
                   </td>
                 </tr>
                 <tr>
-                  <th>Google Workspace account</th>
+                  <th scope="row">Google Workspace account</th>
                   <td v-if="user.gsuite_id">
                     <a :href="'mailto:' + user.gsuite_id">{{ user.gsuite_id }}</a>
                   </td>
                   <td v-if="!user.gsuite_id"><i>Not set.</i></td>
                 </tr>
                 <tr>
-                  <th>Login suspended?</th>
+                  <th scope="row">Login suspended?</th>
                   <td>{{ user.active ? 'No' : 'Yes' }}</td>
                 </tr>
                 <tr v-if="can.viewEventApplicationBan">
-                  <th>Event application ban</th>
+                  <th scope="row">Event application ban</th>
                   <td v-if="activeEventApplicationBan">
                     Until {{ user.event_application_ban.ban_until | datetime }}
                   </td>
@@ -226,15 +238,17 @@
 
       <article class="tile is-child" v-if="user.bodies.length">
         <div class="content">
-          <p class="subtitle">Bodies</p>
+          <p class="subtitle" role="heading" aria-level="2">Bodies</p>
           <div class="content">
             <table class="table is-narrow">
-              <tbody>
+              <thead>
                 <tr>
-                  <th>Code</th>
-                  <th>Name</th>
-                  <th>Description</th>
+                  <th scope="col">Code</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
                 </tr>
+              </thead>
+              <tbody>
                 <tr v-for="body in sortedBodies" v-bind:key="body.id">
                   <td>
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{
@@ -255,14 +269,16 @@
 
       <article class="tile is-child" v-if="user.circles.length">
         <div class="content">
-          <p class="subtitle">Circles</p>
+          <p class="subtitle" role="heading" aria-level="2">Circles</p>
           <div class="content">
             <table class="table is-narrow">
-              <tbody>
+              <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Description</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
                 </tr>
+              </thead>
+              <tbody>
                 <tr v-for="circle in user.circles" v-bind:key="circle.id">
                   <td>
                     <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{
@@ -296,8 +312,6 @@ export default {
   data () {
     return {
       user: {
-        name: '',
-        surname: '',
         id: null,
         primary_body: null,
         bodies: [],
@@ -317,6 +331,7 @@ export default {
       isLoading: false,
       isSwitchingStatus: false,
       isSwitchingEventApplicationBan: false,
+      isSwitchingSuperadmin: false,
       permissions: [],
       can: {
         edit: false,
@@ -333,9 +348,9 @@ export default {
       this.$buefy.modal.open({
         component: PictureModal,
         hasModalCard: true,
+        ariaLabel: 'Change picture',
         props: {
           user: this.user,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -366,6 +381,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPrimaryBodyModal,
         hasModalCard: true,
+        ariaLabel: 'Edit primary body',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -412,6 +428,7 @@ export default {
         title: 'Ban event applications',
         message: 'Set the end date of the temporary ban. The maximum is 3 months from today.',
         inputAttrs: {
+          'aria-label': 'Ban until',
           type: 'date',
           min: moment().add(1, 'day').format('YYYY-MM-DD'),
           max: moment().add(3, 'months').format('YYYY-MM-DD'),
@@ -532,6 +549,7 @@ export default {
       this.$buefy.dialog.prompt({
         message: 'Change email',
         inputAttrs: {
+          'aria-label': 'New email',
           type: 'email',
           placeholder: 'Change email'
         },
@@ -565,6 +583,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPrimaryEmailModal,
         hasModalCard: true,
+        ariaLabel: 'Set primary email',
         props: {
           member: this.user,
           services: this.services,
@@ -641,3 +660,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Long values (the profile link, addresses) wrap instead of making the page wider than a phone. */
+.facts td {
+  overflow-wrap: anywhere;
+}
+</style>

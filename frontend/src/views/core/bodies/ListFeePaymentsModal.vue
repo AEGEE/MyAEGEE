@@ -2,10 +2,10 @@
   <div class="modal-card" style="width: 90%; max-width: 1200px;">
     <header class="modal-card-head">
       <p class="modal-card-title">Fee payments for {{ member.user.first_name }} {{ member.user.last_name }}</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
-      <b-table :data="member.payments" v-if="member.payments.length > 0">
+      <b-table :data="member.payments" v-if="member.payments && member.payments.length > 0">
         <b-table-column field="id" label="#" numeric sortable v-slot="props">
           {{ props.row.id }}
         </b-table-column>
@@ -35,10 +35,10 @@
         </b-table-column>
 
         <b-table-column label="Delete" centered :visible="canDelete" v-slot="props">
-          <a class="button is-small is-danger" @click="askDeleteMemberPaymentFee(props.row, false)">
+          <button type="button" class="button is-small is-danger" @click="askDeleteMemberPaymentFee(props.row)">
             <span class="icon"><font-awesome-icon icon="minus" /></span>
             <span>Delete</span>
-          </a>
+          </button>
         </b-table-column>
 
         <template slot="empty">
@@ -60,20 +60,15 @@ export default {
   name: 'ListFeePaymentsModal',
   props: [
     'member',
-    'payments',
     'canDelete',
     'route',
     'services',
     'root'
   ],
-  data () {
-    return {
-
-    }
-  },
   methods: {
     askDeleteMemberPaymentFee (fee) {
-      const message = `Are you sure you want to <b>delete</b> ${escapeHtml(fee.id)} from ${escapeHtml(this.member.user.first_name + ' ' + this.member.user.last_name)}? This action cannot be undone.`
+      const payment = `${fee.amount} ${fee.currency} (${fee.starts} to ${fee.expires})`
+      const message = `Are you sure you want to <b>delete</b> the payment of ${escapeHtml(payment)} from ${escapeHtml(this.member.user.first_name + ' ' + this.member.user.last_name)}? This action cannot be undone.`
 
       this.$buefy.dialog.confirm({
         title: 'Deleting a fee',

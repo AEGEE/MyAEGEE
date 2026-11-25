@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Circle members</h4>
+        <h1 class="title">Circle members</h1>
         <div class="field">
-          <label class="label">Search</label>
+          <label class="label" for="circle-members-search">Search</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            <input id="circle-members-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
           </div>
         </div>
 
@@ -25,24 +25,26 @@
             {{ props.row.position }}
           </b-table-column>
 
-          <!-- <b-table-column field="circle_admin" label="Is circle admin?" v-slot="props">
-            <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
-              {{ props.row.circle_admin | beautify}}
-            </span>
-          </b-table-column> -->
-
           <b-table-column label="Edit" :visible="can.edit" centered v-slot="props">
-            <a class="button is-small is-warning" @click="editMemberModal(props.row)">
+            <button
+              type="button"
+              class="button is-small is-warning"
+              :aria-label="'Edit ' + props.row.user.first_name + ' ' + props.row.user.last_name"
+              @click="editMemberModal(props.row)">
               <span class="icon"><font-awesome-icon icon="edit" /></span>
               <span>Edit</span>
-            </a>
+            </button>
           </b-table-column>
 
           <b-table-column label="Delete" :visible="can.delete" centered v-slot="props">
-            <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+            <button
+              type="button"
+              class="button is-small is-danger"
+              :aria-label="'Delete ' + props.row.user.first_name + ' ' + props.row.user.last_name"
+              @click="askDeleteMember(props.row)">
               <span class="icon"><font-awesome-icon icon="minus" /></span>
               <span>Delete</span>
-            </a>
+            </button>
           </b-table-column>
 
           <template slot="empty">
@@ -83,8 +85,7 @@ export default {
       permissions: [],
       can: {
         edit: false,
-        delete: false,
-        create: false
+        delete: false
       }
     }
   },
@@ -105,6 +106,7 @@ export default {
       this.$buefy.modal.open({
         component: EditMemberPositionModal,
         hasModalCard: true,
+        ariaLabel: 'Edit user membership',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -138,6 +140,7 @@ export default {
 
         const index = this.members.findIndex(m => m.id === membership.id)
         this.members.splice(index, 1)
+        this.total -= 1
       }).catch((err) => this.$root.showError('Could not delete member', err))
     },
     refetch () {
@@ -172,6 +175,7 @@ export default {
           return
         }
 
+        this.isLoading = false
         this.$root.showError('Could not fetch members', err)
       })
     }

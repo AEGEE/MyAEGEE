@@ -1,34 +1,44 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <p class="subtitle">Campaign submissions</p>
+      <h1 class="title" v-if="campaign.name">{{ campaign.name }}</h1>
+      <h2 class="subtitle">Campaign submissions</h2>
 
       <div class="field">
-        <label class="label">Search by name or surname</label>
+        <label class="label" for="campaign-members-search">Search by name or surname</label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()" />
+            <input id="campaign-members-search" class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()" />
           </div>
         </div>
       </div>
 
       <b-table
         :data="members"
+        ariaNextLabel="Next page"
+        ariaPreviousLabel="Previous page"
+        ariaPageLabel="Page"
+        ariaCurrentLabel="Current page"
         paginated
+        backend-pagination
+        backend-sorting
+        :total="total"
         :per-page="limit"
-        default-sort="id"
-        default-sort-direction="desc">
+        :current-page.sync="page"
+        @page-change="onPageChange"
+        :default-sort="[sortField, sortOrder]"
+        @sort="onSort">
         <b-table-column field="id" label="#" numeric sortable v-slot="props">
           {{ props.row.id }}
         </b-table-column>
 
         <b-table-column field="first_name" label="User" sortable v-slot="props">
-          <router-link :to="{ name: 'oms.members.view', params: { id: props.row.url || props.row.id } }">
+          <router-link :to="{ name: 'oms.members.view', params: { id: props.row.id } }">
             {{ props.row.first_name }} {{ props.row.last_name }}
           </router-link>
         </b-table-column>
 
-        <b-table-column field="mail_confirmed" label="Email confirmed?" sortable v-slot="props">
+        <b-table-column field="mail_confirmed_at" label="Email confirmed?" sortable v-slot="props">
           <span class="tag is-small" :class="(props.row.mail_confirmed_at) ? 'is-primary' : 'is-danger'">
             {{ !!props.row.mail_confirmed_at | beautify }}
           </span>
@@ -56,8 +66,11 @@ export default {
       isLoading: false,
       query: '',
       limit: 30,
-      offset: 0,
-      canLoadMore: true,
+      // The page of the pager, from 1.
+      page: 1,
+      total: 0,
+      sortField: 'id',
+      sortOrder: 'desc',
       source: null
     }
   },
@@ -65,19 +78,37 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.offset
+        offset: (this.page - 1) * this.limit,
+        sort: this.sortField,
+        direction: this.sortOrder
       }
 
       if (this.query) queryObj.query = this.query
       return queryObj
+    },
+    // A campaign of a body, and who signed up through it, are asked for through that body.
+    campaignUrl () {
+      return this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
+        : this.services['core'] + '/campaigns/' + this.$route.params.id
     },
     ...mapGetters(['services'])
   },
   methods: {
     refetch () {
       this.members = []
-      this.offset = 0
-      this.canLoadMore = true
+      this.page = 1
+      this.total = 0
+      this.fetchMembers()
+    },
+    onPageChange (page) {
+      this.page = page
+      this.fetchMembers()
+    },
+    onSort (field, order) {
+      this.sortField = field
+      this.sortOrder = order
+      this.page = 1
       this.fetchMembers()
     },
     async fetchMembers () {
@@ -86,14 +117,13 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       try {
-        const response = await this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id + '/members', {
+        const response = await this.axios.get(this.campaignUrl + '/members', {
           params: this.queryObject,
           cancelToken: this.source.token
         })
 
-        this.members = this.members.concat(response.data.data)
-        this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
+        this.members = response.data.data
+        this.total = response.data.meta.count
         this.isLoading = false
       } catch (err) {
         if (this.axios.isCancel(err)) {
@@ -107,11 +137,7 @@ export default {
     async fetchCampaign () {
       this.isLoading = true
       try {
-        const campaignUrl = this.$route.params.body_id
-          ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
-          : this.services['core'] + '/campaigns/' + this.$route.params.id
-
-        const campaignsResponse = await this.axios.get(campaignUrl)
+        const campaignsResponse = await this.axios.get(this.campaignUrl)
         this.campaign = campaignsResponse.data.data
 
         this.isLoading = false

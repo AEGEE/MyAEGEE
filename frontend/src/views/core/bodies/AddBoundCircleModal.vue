@@ -2,21 +2,21 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add circle</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Name</label>
+        <label class="label" for="bound-circle-name">Name</label>
         <div class="control">
-          <input class="input" type="text" required v-model="tmpCircle.name" />
+          <input id="bound-circle-name" class="input" type="text" required v-model="tmpCircle.name" />
         </div>
         <p class="help is-danger" v-if="circleErrors.name">{{ circleErrors.name.join(', ')}}</p>
       </div>
 
       <div class="field">
-        <label class="label">Description</label>
+        <label class="label" for="bound-circle-description">Description</label>
         <div class="control">
-          <input class="input" type="text" required v-model="tmpCircle.description" />
+          <input id="bound-circle-description" class="input" type="text" required v-model="tmpCircle.description" />
         </div>
         <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
       </div>
@@ -28,8 +28,8 @@
       </div> -->
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="saveBoundCircle()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="saveBoundCircle()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -41,6 +41,7 @@ export default {
   data () {
     return {
       circleErrors: {},
+      isLoading: false,
       tmpCircle: {
         name: '',
         description: '',

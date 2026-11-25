@@ -55,6 +55,19 @@ async function findGlobalCircle(api: Api, name: string): Promise<Circle> {
     return circle as Circle;
 }
 
+// Core refuses a body code another body has, deleted bodies included, and three letters give
+// only 17,576 codes, so a run that creates many antennas can draw a taken one. Draw again then.
+async function createBodyWithFreeCode(api: Api, fields: Record<string, unknown>): Promise<Body> {
+    for (let attempt = 1; ; attempt += 1) {
+        const res = await api.call<Envelope<Body>>('admin', 'POST', '/api/core/bodies', { ...fields, code: randomLetters(3) });
+        const codeTaken = res.status === 422 && JSON.stringify(res.body).includes('code must be unique');
+        if (!codeTaken || attempt === 5) {
+            expect(res.status, `admin POST /api/core/bodies: ${JSON.stringify(res.body)}`).toBe(200);
+            return res.body.data;
+        }
+    }
+}
+
 // Runs the undo steps of a helper in reverse order. Helpers add a step right after creating
 // something, so a helper that fails halfway still removes what it created before rethrowing.
 function undoStack(): { add: (step: Cleanup) => void; run: Cleanup } {
@@ -77,9 +90,8 @@ export async function createAntenna(api: Api): Promise<[TestAntenna, Cleanup]> {
     const undo = undoStack();
 
     try {
-        const body = await asAdmin<Body>(api, 'POST', '/bodies', {
+        const body = await createBodyWithFreeCode(api, {
             name: `AEGEE-E2E-${suffix}`,
-            code: randomLetters(3),
             description: 'Antenna created by an e2e test',
             type: 'antenna',
             phone: '1-800-111-11-11',

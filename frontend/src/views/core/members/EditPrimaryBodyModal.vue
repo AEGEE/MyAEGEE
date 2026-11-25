@@ -2,20 +2,19 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Edit primary body</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Primary body</label>
+        <label class="label" for="primary-body">Primary body</label>
         <div class="control">
           <div class="select">
-            <select v-model="primaryBodyId" class="select">
+            <select id="primary-body" v-model="primaryBodyId" class="select">
               <option :value="null">Not set</option>
               <option v-for="body in sortedBodies" :value="body.id" v-bind:key="body.id">{{ body.name }}</option>
             </select>
           </div>
         </div>
-        <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
       </div>
 
     </section>
@@ -34,7 +33,6 @@ export default {
   props: ['member', 'services', 'showSuccess', 'showError'],
   data () {
     return {
-      userErrors: {},
       primaryBodyId: null
     }
   },
@@ -45,19 +43,14 @@ export default {
   },
   methods: {
     updatePrimaryBody () {
-      this.isLoading = true
-
       this.axios.put(this.services['core'] + '/members/' + this.member.id + '/primary-body', {
         primary_body_id: this.primaryBodyId
       }).then(() => {
         this.member.primary_body_id = this.primaryBodyId
         this.member.primary_body = this.member.bodies.find((body) => body.id === this.primaryBodyId && ['antenna', 'contact antenna', 'contact'].includes(body.type))
         this.showSuccess('Primary body is updated')
-        this.isLoading = false
         this.$parent.close()
       }).catch((err) => {
-        this.isLoading = false
-
         this.showError('Error updating primary body', err)
       })
     }

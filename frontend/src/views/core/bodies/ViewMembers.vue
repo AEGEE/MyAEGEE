@@ -4,15 +4,15 @@
       <article class="tile is-child">
         <h4 class="title">Members</h4>
         <div class="field">
-          <label class="label">Search</label>
+          <label class="label" for="body-members-search">Search</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            <input id="body-members-search" class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
           </div>
         </div>
 
-        <div class="field is-grouped" v-if="can.create">
+        <div class="field is-grouped is-grouped-multiline" v-if="can.create">
           <div class="control">
-            <a @click="openAddMemberModal()" class="button is-primary">Add member</a>
+            <button type="button" @click="openAddMemberModal()" class="button is-primary">Add member</button>
           </div>
           <div class="control">
             <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button is-primary">Create member</router-link>
@@ -24,62 +24,65 @@
 
         <p>Total members: {{ members.length }}</p>
 
-        <b-table
-          :data="members"
-          :loading="isLoading"
-          paginated
-          :per-page="limit"
-          default-sort="user.first_name"
-          default-sort-direction="asc">
-          <b-table-column field="user.first_name" label="First and last name" sortable v-slot="props">
-            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }" v-if="can.viewMember">
-              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-            </router-link>
-            <span v-if="!can.viewMember">
-              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-            </span>
-          </b-table-column>
+        <div role="region" aria-label="Members of the body" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="members"
+            :loading="isLoading"
+            paginated
+            v-bind="pagerLabels"
+            :per-page="limit"
+            default-sort="user.first_name"
+            default-sort-direction="asc">
+            <b-table-column field="user.first_name" label="First and last name" sortable v-slot="props">
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }" v-if="can.viewMember">
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+              </router-link>
+              <span v-if="!can.viewMember">
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+              </span>
+            </b-table-column>
 
-          <b-table-column field="comment" label="Comment" v-slot="props">
-            {{ props.row.comment }}
-          </b-table-column>
+            <b-table-column field="comment" label="Comment" v-slot="props">
+              {{ props.row.comment }}
+            </b-table-column>
 
-          <b-table-column field="lastPaymentExpires" sortable label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees" v-slot="props">
-            <span v-if="props.row.payments && props.row.payments.length > 0">{{ getLastPaymentExpiration(props.row) | date }}</span>
-          </b-table-column>
+            <b-table-column field="lastPaymentExpires" sortable :custom-sort="sortByLastPayment" label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees" v-slot="props">
+              <span v-if="props.row.payments && props.row.payments.length > 0">{{ getLastPaymentExpiration(props.row) | date }}</span>
+            </b-table-column>
 
-          <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees" v-slot="props">
-            <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)">
-              <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
-              <span>View or manage payments</span>
-            </a>
-          </b-table-column>
+            <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees" v-slot="props">
+              <button type="button" class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)">
+                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
+                <span>View or manage payments</span>
+              </button>
+            </b-table-column>
 
-          <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees" v-slot="props">
-            <a class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
-              <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
-              <span>Add fee payment</span>
-            </a>
-          </b-table-column>
+            <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees" v-slot="props">
+              <button type="button" class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
+                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
+                <span>Add fee payment</span>
+              </button>
+            </b-table-column>
 
-          <b-table-column label="Edit" centered :visible="can.edit" v-slot="props">
-            <a class="button is-small is-warning" @click="askToChangeComment(props.row)">
-              <span class="icon"><font-awesome-icon icon="edit" /></span>
-              <span>Edit</span>
-            </a>
-          </b-table-column>
+            <b-table-column label="Edit" centered :visible="can.edit" v-slot="props">
+              <button type="button" class="button is-small is-warning" @click="askToChangeComment(props.row)">
+                <span class="icon"><font-awesome-icon icon="edit" /></span>
+                <span>Edit</span>
+              </button>
+            </b-table-column>
 
-          <b-table-column label="Delete" centered :visible="can.delete" v-slot="props">
-            <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
-              <span class="icon"><font-awesome-icon icon="minus" /></span>
-              <span>Delete</span>
-            </a>
-          </b-table-column>
+            <b-table-column label="Delete" centered :visible="can.delete" v-slot="props">
+              <button type="button" class="button is-small is-danger" @click="askDeleteMember(props.row)">
+                <span class="icon"><font-awesome-icon icon="minus" /></span>
+                <span>Delete</span>
+              </button>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </div>
       </article>
     </div>
   </div>
@@ -112,7 +115,14 @@ export default {
         createPayment: false,
         deletePayment: false
       },
-      PAST_DATE_PLACEHOLDER: '1900-01-1'
+      PAST_DATE_PLACEHOLDER: '1900-01-1',
+      // Names for the buttons of the table's pager.
+      pagerLabels: {
+        'aria-next-label': 'Next page',
+        'aria-previous-label': 'Previous page',
+        'aria-page-label': 'Page',
+        'aria-current-label': 'Current page'
+      }
     }
   },
   computed: {
@@ -126,9 +136,9 @@ export default {
       this.$buefy.modal.open({
         component: ListFeePaymentsModal,
         hasModalCard: true,
+        ariaLabel: 'Fee payments for ' + member.user.first_name + ' ' + member.user.last_name,
         props: {
           member,
-          payments: this.payments,
           canDelete: this.can.deletePayment,
           route: this.$route,
           services: this.services,
@@ -140,6 +150,7 @@ export default {
       this.$buefy.modal.open({
         component: AddFeePaymentModal,
         hasModalCard: true,
+        ariaLabel: 'Add fee payment for ' + member.user.first_name + ' ' + member.user.last_name,
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -157,6 +168,7 @@ export default {
       this.$buefy.modal.open({
         component: AddMemberModal,
         hasModalCard: true,
+        ariaLabel: 'Add member',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -172,6 +184,12 @@ export default {
     },
     getLastPaymentExpiration (member) {
       return member.payments[member.payments.length - 1].expires
+    },
+    sortByLastPayment (first, second, isAsc) {
+      // Members without payments count as having paid long ago.
+      const expires = (member) => (member.payments && member.payments.length ? this.getLastPaymentExpiration(member) : this.PAST_DATE_PLACEHOLDER)
+      const order = expires(first).localeCompare(expires(second))
+      return isAsc ? order : -order
     },
     askDeleteMember (member) {
       const message = 'Are you sure you want to <b>delete</b> '
@@ -197,9 +215,13 @@ export default {
     },
     askToChangeComment (member) {
       this.$buefy.dialog.prompt({
-        message: 'Change comment',
+        title: 'Change comment',
+        message: 'The comment on ' + escapeHtml(member.user.first_name + ' ' + member.user.last_name) + ' in this body. Leave it empty to remove it.',
+        confirmText: 'Save comment',
         inputAttrs: {
-          placeholder: 'Comment'
+          value: member.comment || '',
+          placeholder: 'Comment',
+          required: false
         },
         onConfirm: (comment) => this.changeComment(member, comment)
       })
@@ -279,6 +301,7 @@ export default {
             return
           }
 
+          this.isLoading = false
           this.$root.showError('Could not fetch members', err)
         })
     }

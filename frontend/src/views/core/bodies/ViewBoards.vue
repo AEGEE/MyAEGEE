@@ -6,7 +6,7 @@
 
         <div class="field is-grouped" v-if="can.manageBoards">
           <div class="control">
-            <a class="button is-primary" @click="openCreateBoardModal()">Add board</a>
+            <button type="button" class="button is-primary" @click="openCreateBoardModal()">Add board</button>
           </div>
         </div>
 
@@ -21,12 +21,12 @@
                   <p class="card-header-title" v-else>
                     {{ board.name }} ({{ board.start_date }} - {{ board.end_date }})
                   </p>
-                  <a class="card-header-icon">
+                  <span class="card-header-icon">
                     <span class="icon is-small is-angle">
                       <font-awesome-icon :icon="['fa', 'angle-down']" v-if="!props.open" />
                       <font-awesome-icon :icon="['fa', 'angle-up']" v-else />
                     </span>
-                  </a>
+                  </span>
                 </div>
               </template>
 
@@ -56,9 +56,9 @@
               </div>
 
               <footer class="card-footer" v-if="can.manageBoards">
-                <a @click="openChangeBoardModal(index)" :class="['button', 'is-fullwidth', 'is-info']">
+                <button type="button" @click="openChangeBoardModal(index)" :class="['button', 'is-fullwidth', 'is-info']">
                   <span class="field-label">Edit board</span>
-                </a>
+                </button>
               </footer>
             </b-collapse>
             <br v-bind:key="index" /> <!-- just here to give the cards some nicer spacing -->
@@ -91,9 +91,6 @@ export default {
     }
   },
   computed: {
-    queryObject () {
-      return this.query ? { query: this.query } : {}
-    },
     ...mapGetters({
       services: 'services'
     })
@@ -103,6 +100,7 @@ export default {
       this.$buefy.modal.open({
         component: ChangeBoardModal,
         hasModalCard: true,
+        ariaLabel: 'Add board',
         props: {
           body: this.$route.params,
           services: this.services,
@@ -115,6 +113,7 @@ export default {
     openChangeBoardModal (index) {
       this.$buefy.modal.open({
         component: ChangeBoardModal,
+        ariaLabel: 'Edit board',
         hasModalCard: true,
         props: {
           edit: true,

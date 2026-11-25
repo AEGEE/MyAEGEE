@@ -9,33 +9,26 @@
           </div>
         </div>
 
-        <b-table :data="campaigns">
-          <b-table-column field="name" label="Campaign name" v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.campaigns.view', params: { body_id: $route.params.id, id: props.row.id } }">
-              {{ props.row.name }}
-            </router-link>
-          </b-table-column>
+        <div role="region" aria-label="Campaigns of the body" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table :data="campaigns" :loading="isLoading">
+            <b-table-column field="name" label="Campaign name" v-slot="props">
+              <router-link :to="{ name: 'oms.bodies.campaigns.view', params: { body_id: $route.params.id, id: props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
 
-          <b-table-column field="description_long" label="Description" v-slot="props">
-            <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
-          </b-table-column>
+            <b-table-column field="description_long" label="Description" v-slot="props">
+              <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
+            </b-table-column>
 
-          <b-table-column label="Link" v-slot="props">
-            {{ '/signup/' + props.row.url }}
-          </b-table-column>
+            <b-table-column label="Link" v-slot="props">
+              <router-link :to="{ name: 'oms.register', params: { id: props.row.url } }">/signup/{{ props.row.url }}</router-link>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more campaigns</button>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
         </div>
       </article>
     </div>
@@ -51,7 +44,6 @@ export default {
     return {
       campaigns: [],
       isLoading: false,
-      permissions: [],
       can: {
         create: false
       }
@@ -61,10 +53,6 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    refetch () {
-      this.campaigns = []
-      this.fetchData()
-    },
     fetchData () {
       this.isLoading = true
 
@@ -73,15 +61,11 @@ export default {
 
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
-        this.permissions = response.data.data
+        const permissions = response.data.data
 
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:campaign'))
+        this.can.create = permissions.some(permission => permission.combined.endsWith('create:campaign'))
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
         this.$root.showError('Could not fetch campaign list', err)
         this.isLoading = false
       })

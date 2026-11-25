@@ -3,19 +3,19 @@
     <div class="tile is-child">
       <form @submit.prevent="saveCampaign()">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="campaign-name">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="campaign.name" />
+            <input id="campaign-name" class="input" type="text" required v-model="campaign.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label" for="campaign-description">Description</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long" />
+            <textarea id="campaign-description" class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(campaign.description_long)" />
           </div>
@@ -23,14 +23,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Campaign URL</label>
+          <label class="label" for="campaign-url">Campaign URL</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
-                <a class="button is-static">/signup/</a>
+                <span class="button is-static">/signup/</span>
               </div>
               <div class="control">
-                <input class="input" type="text" required v-model="campaign.url" />
+                <input id="campaign-url" class="input" type="text" required v-model="campaign.url" />
               </div>
             </div>
           </div>
@@ -38,13 +38,15 @@
         </div>
 
         <div class="field">
-          <label class="label">Autojoin body</label>
-          <p class="control" /><div class="field has-addons">
+          <label class="label" for="campaign-autojoin-body">Autojoin body</label>
+          <div class="field has-addons">
             <b-autocomplete
-              v-model="autocompleteCampaign"
-              :data="bodies"
+              id="campaign-autojoin-body"
+              field="name"
+              v-model="autocompleteBody"
+              :data="filteredBodies"
               :disabled="$route.params.body_id"
-              open-on-focus="true"
+              :open-on-focus="true"
               @select="body => { campaign.autojoin_body_id = body.id; campaign.autojoin_body = body }">
               <template slot-scope="props">
                 <div class="media">
@@ -57,16 +59,17 @@
               </template>
             </b-autocomplete>
             <p class="control">
-              <a
+              <button
+                type="button"
                 class="button is-danger"
                 @click="campaign.autojoin_body_id = null; campaign.autojoin_body = null"
                 v-if="campaign.autojoin_body && !$route.params.body_id">
                 {{ campaign.autojoin_body.name }} (Click to unset)
-              </a>
-              <a class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
+              </button>
+              <span class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
                 {{ campaign.autojoin_body.name }}
-              </a>
-              <a class="button is-static" v-if="!campaign.autojoin_body">Not set.</a>
+              </span>
+              <span class="button is-static" v-if="!campaign.autojoin_body">Not set.</span>
             </p>
           </div>
           <p class="help is-danger" v-if="errors.autojoin_body_id">{{ errors.autojoin_body_id.join(', ')}}</p>
@@ -116,6 +119,8 @@ export default {
         active: true
       },
       bodies: [],
+      // The text typed into the body picker.
+      autocompleteBody: '',
       errors: {},
       isLoading: false,
       isSaving: false
@@ -127,8 +132,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['core'] + '/campaigns/' + this.$route.params.id, this.campaign)
-        : this.axios.post(this.services['core'] + '/campaigns/', this.campaign)
+        ? this.axios.put(this.campaignsUrl + '/' + this.$route.params.id, this.campaign)
+        : this.axios.post(this.campaignsUrl, this.campaign)
 
       promise.then((response) => {
         this.isSaving = false
@@ -151,25 +156,43 @@ export default {
       })
     }
   },
-  computed: mapGetters(['services']),
+  computed: {
+    filteredBodies () {
+      const typed = (this.autocompleteBody || '').toLowerCase()
+      return this.bodies.filter((body) => body.name.toLowerCase().includes(typed))
+    },
+    // The campaigns of the body of the route are saved through that body.
+    campaignsUrl () {
+      return this.$route.params.body_id
+        ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns'
+        : this.services['core'] + '/campaigns'
+    },
+    ...mapGetters(['services'])
+  },
   mounted () {
-    this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
-      this.bodies = response.data.data
-
-      if (this.$route.params.body_id) {
-        this.campaign.autojoin_body_id = parseInt(this.$route.params.body_id, 10)
-        this.campaign.autojoin_body = this.bodies.find(body => body.id === this.campaign.autojoin_body_id)
-      }
-    }).catch((err) => {
-      this.$root.showError('Could not fetch bodies list', err)
-    })
+    if (!this.$route.params.body_id) {
+      // The bodies to pick the autojoin body from.
+      this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => {
+        this.bodies = response.data.data
+      }).catch((err) => {
+        this.$root.showError('Could not fetch bodies list', err)
+      })
+    } else if (!this.$route.params.id) {
+      // A new campaign of a body joins that body; an existing one comes with its body.
+      this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.body_id).then((response) => {
+        this.campaign.autojoin_body_id = response.data.data.id
+        this.campaign.autojoin_body = response.data.data
+      }).catch((err) => {
+        this.$root.showError('Could not fetch body', err)
+      })
+    }
 
     if (!this.$route.params.id) {
       return // if creating new campaign
     }
 
     this.isLoading = true
-    this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.campaignsUrl + '/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {
@@ -179,7 +202,9 @@ export default {
         this.$root.showError('Some error happened', err)
       }
 
-      this.$router.push({ name: 'oms.campaigns.list' })
+      this.$router.push(this.$route.params.body_id
+        ? { name: 'oms.bodies.campaigns', params: { id: this.$route.params.body_id } }
+        : { name: 'oms.campaigns.list' })
     })
   }
 }

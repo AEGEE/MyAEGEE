@@ -4,7 +4,7 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
-            <img src="/images/logo.png" />
+            <img src="/images/logo.png" alt="" />
           </figure>
         </article>
       </div>
@@ -51,37 +51,38 @@
           </div>
 
           <div class="field is-grouped" v-if="!isMember">
-            <a
+            <button
+              type="button"
               @click="askToJoinBody()"
               v-if="!isRequestingMembership"
-              :class="['button', 'is-fullwidth', 'is-info']"
+              :class="['button', 'is-fullwidth', 'is-primary']"
             >
               <span class="field-icon icon"
               ><font-awesome-icon :icon="['fas', 'user-plus']"
               /></span>
               <span class="field-label">Ask to join body</span>
-            </a>
+            </button>
 
-            <a v-if="isRequestingMembership" :class="['button', 'is-fullwidth', 'is-static']">
+            <span v-if="isRequestingMembership" :class="['button', 'is-fullwidth', 'is-static']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'clock']" /></span>
               <span class="field-label">Join request sent</span>
-            </a>
+            </span>
           </div>
 
           <div class="field is-grouped" v-if="can.viewMembers && can.addMembers">
-            <a @click="openAddMemberModal()" :class="['button', 'is-fullwidth']">
+            <button type="button" @click="openAddMemberModal()" :class="['button', 'is-fullwidth']">
               <span class="field-icon icon"
               ><font-awesome-icon :icon="['fas', 'user-plus']"
               /></span>
               <span class="field-label">Add member</span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.createBoundCircles">
-            <a @click="openAddCircleModal()" :class="['button', 'is-fullwidth', 'is-warning']">
+            <button type="button" @click="openAddCircleModal()" :class="['button', 'is-fullwidth', 'is-warning']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
               <span class="field-label">Add bound circle</span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.updateBody">
@@ -95,39 +96,41 @@
           </div>
 
           <div class="field is-grouped" v-if="can.manageBoards">
-            <a @click="openChangeBoardModal()" :class="['button', 'is-fullwidth', 'is-primary']">
+            <button type="button" @click="openChangeBoardModal()" :class="['button', 'is-fullwidth', 'is-primary']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Change board</span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="isMember">
-            <a @click="askLeaveBody()" :class="['button', 'is-fullwidth', 'is-danger']">
+            <button type="button" @click="askLeaveBody()" :class="['button', 'is-fullwidth', 'is-danger']">
               <span class="field-icon icon"
               ><font-awesome-icon :icon="['fas', 'sign-out-alt']"
               /></span>
               <span class="field-label">Leave body</span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.deleteBody">
-            <a
+            <button
+              type="button"
               @click="askChangeStatus('deleted')"
               :class="['button', 'is-fullwidth', 'is-danger']"
               v-if="body.status === 'active'"
             >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'times']" /></span>
               <span class="field-label">Delete body</span>
-            </a>
+            </button>
 
-            <a
+            <button
+              type="button"
               @click="askChangeStatus('active')"
               :class="['button', 'is-fullwidth', 'is-info']"
               v-else
             >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'history']" /></span>
               <span class="field-label">Restore body</span>
-            </a>
+            </button>
           </div>
         </article>
       </div>
@@ -135,12 +138,12 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ body.name }}</p>
+          <h1 class="title">{{ body.name }}</h1>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Title</th>
+                  <th scope="row">Title</th>
                   <td>{{ body.name }}</td>
                 </tr>
                 <tr
@@ -149,69 +152,69 @@
                       && body.abbreviation
                   "
                 >
-                  <th>Abbreviation</th>
+                  <th scope="row">Abbreviation</th>
                   <td>{{ body.abbreviation }}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>
                     <span v-html="$options.filters.markdown(body.description)" />
                   </td>
                 </tr>
                 <tr v-if="body.task_description">
-                  <th>Task description</th>
+                  <th scope="row">Task description</th>
                   <td>
                     <span v-html="$options.filters.markdown(body.task_description)" />
                   </td>
                 </tr>
 
                 <tr>
-                  <th>Type</th>
+                  <th scope="row">Type</th>
                   <td>{{ body.type | capitalize }}</td>
                 </tr>
                 <tr>
-                  <th>Code</th>
+                  <th scope="row">Code</th>
                   <td>{{ body.code }}</td>
                 </tr>
                 <tr v-if="body.founded_at">
-                  <th>Foundation date</th>
+                  <th scope="row">Foundation date</th>
                   <td>{{ body.founded_at }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th>
+                  <th scope="row">Email</th>
                   <td v-if="body.email">
                     <a :href="'mailto:' + body.email">{{ body.email }}</a>
                   </td>
                   <td v-if="!body.email"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="can.editGsuite">
-                  <th>Google Workspace account</th>
+                  <th scope="row">Google Workspace account</th>
                   <td v-if="body.gsuite_id">
                     <a :href="'mailto:' + body.gsuite_id">{{ body.gsuite_id }}</a>
                   </td>
                   <td v-if="!body.gsuite_id"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="can.editGsuite">
-                  <th>Google Group</th>
+                  <th scope="row">Google Group</th>
                   <td v-if="body.google_group">
                     <a :href="'mailto:' + body.google_group">{{ body.google_group }}</a>
                   </td>
                   <td v-if="!body.google_group"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="body.phone">
-                  <th>Phone</th>
+                  <th scope="row">Phone</th>
                   <td>{{ body.phone }}</td>
                 </tr>
                 <tr v-if="body.address">
-                  <th>Address</th>
+                  <th scope="row">Address</th>
                   <td>{{ body.address }}</td>
                 </tr>
                 <tr v-if="body.postal_address">
-                  <th>Postal address</th>
+                  <th scope="row">Postal address</th>
                   <td>{{ body.postal_address }}</td>
                 </tr>
                 <tr v-if="body.website">
-                  <th>Website</th>
+                  <th scope="row">Website</th>
                   <td>
                     <a :href="body.website | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       body.website
@@ -219,7 +222,7 @@
                   </td>
                 </tr>
                 <tr v-if="can.viewShadowCircles">
-                  <th>Shadow circle</th>
+                  <th scope="row">Shadow circle</th>
                   <td v-if="body.shadow_circle">
                     <router-link
                       :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id } }"
@@ -236,9 +239,9 @@
 
       <article class="tile is-child" v-if="boards.length">
         <div class="content">
-          <p class="subtitle">Board</p>
+          <h2 class="subtitle">Board</h2>
           <div class="content" v-for="board in boards" v-bind:key="board.id">
-            <table class="table is-narrow">
+            <table class="table is-narrow" aria-label="Current board">
               <tbody>
                 <tr v-if="board.name">
                   <th>Name</th>
@@ -278,14 +281,16 @@
 
       <article class="tile is-child" v-if="body.circles.length">
         <div class="content">
-          <p class="subtitle">Bound circles</p>
+          <h2 class="subtitle">Bound circles</h2>
           <div class="content">
             <table class="table is-narrow">
-              <tbody>
+              <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Description</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
                 </tr>
+              </thead>
+              <tbody>
                 <tr v-for="circle in body.circles" v-bind:key="circle.id">
                   <td>
                     <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{
@@ -357,6 +362,7 @@ export default {
       this.$buefy.modal.open({
         component: AddBoundCircleModal,
         hasModalCard: true,
+        ariaLabel: 'Add circle',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -373,6 +379,7 @@ export default {
       this.$buefy.modal.open({
         component: AddMemberModal,
         hasModalCard: true,
+        ariaLabel: 'Add member',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -381,7 +388,8 @@ export default {
           body: this.body,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
@@ -389,6 +397,7 @@ export default {
       this.$buefy.modal.open({
         component: ChangeBoardModal,
         hasModalCard: true,
+        ariaLabel: 'Add board',
         props: {
           body: this.body,
           services: this.services,
@@ -409,7 +418,7 @@ export default {
         isDeleting ? 'delete' : 'restore'
       }</b> this body?`
       if (isDeleting) {
-        message += 'This action cannot be undone.'
+        message += ' This action cannot be undone.'
       }
 
       this.$buefy.dialog.confirm({
@@ -431,7 +440,7 @@ export default {
         })
         .then(() => {
           this.isLoading = false
-          this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored')
+          this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored.')
           this.body.status = newStatus
         })
         .catch((err) => {
@@ -451,6 +460,7 @@ export default {
         title: 'Join body',
         message: this.getJoinRequestMessage(),
         inputAttrs: {
+          'aria-label': 'Motivation',
           placeholder: 'Motivation',
           required: false
         },
@@ -473,7 +483,7 @@ export default {
           if (err.response && err.response.status === 422) {
             this.$root.showError("You've already requested to join this body.")
           } else {
-            this.$root.showError('Could not sent join request', err)
+            this.$root.showError('Could not send join request', err)
           }
         })
     },
@@ -486,6 +496,13 @@ export default {
       return 'To help the Local process your join request more efficiently, we strongly encourage you to also contact the Local board directly by email after submitting your request. Introducing yourself and expressing your motivation to join can help the Local get to know you, support the onboarding process, and avoid delays in communication.<br><br>' + contactDetails
     },
     escapeHtml,
+    fetchCurrentBoards () {
+      // Boards are for logged-in members only: the network service would answer a visitor
+      // with 401, which sends them to the login page.
+      if (!this.loginUser) return Promise.resolve({ data: { data: [] } })
+
+      return this.axios.get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current')
+    },
     askLeaveBody () {
       this.$buefy.dialog.confirm({
         title: 'Leaving a body',
@@ -506,7 +523,7 @@ export default {
           this.$root.showSuccess('You are not the member anymore.')
         })
         .catch((err) => {
-          this.$root.showError('Could not delete body', err)
+          this.$root.showError('Could not leave body', err)
         })
     }
   },
@@ -518,12 +535,14 @@ export default {
       .then((response) => {
         this.body = response.data.data
 
-        // Get current board(s) for this body
-        this.axios
-          .get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current')
+        // Get current board(s) for this body. They are shown once their members have names.
+        let boards = []
+        this.fetchCurrentBoards()
           .then((boardResponse) => {
-            this.boards = boardResponse.data.data
+            boards = boardResponse.data.data
 
+            // The members are only needed to put names to the board.
+            if (!boards.length) return { data: { data: [] } }
             return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
           })
           .then((memberResponse) => {
@@ -534,7 +553,7 @@ export default {
             }
 
             // Match members of a body to members on the board
-            for (const board of this.boards) {
+            for (const board of boards) {
               this.$set(
                 board,
                 'president_user',
@@ -567,6 +586,9 @@ export default {
             }
             this.$root.showError('Some error happened', err)
           })
+          .finally(() => {
+            this.boards = boards
+          })
 
         if (this.loginUser) {
           this.isMember = this.loginUser.bodies.some((body) => body.id === this.body.id)
@@ -592,6 +614,11 @@ export default {
               this.can.editGsuite = this.permissions.some((permission) => permission.combined.endsWith('global:update:body'))
 
               this.isLoading = false
+            })
+            .catch((err) => {
+              // The page stays, without the actions that need permissions.
+              this.isLoading = false
+              this.$root.showError('Could not fetch your permissions for this body', err)
             })
         }
         this.isLoading = false

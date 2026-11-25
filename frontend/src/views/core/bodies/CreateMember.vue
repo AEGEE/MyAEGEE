@@ -1,6 +1,7 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <h1 class="title">Create member</h1>
 
       <div class="notification is-info">
         This form is only for creating members that are not yet signed up to a system. If you want to add an existing member to your body, go back to the body page and press 'Add member'!
@@ -8,56 +9,56 @@
 
       <form @submit.prevent="createUser()">
         <div class="field">
-          <label class="label">First name</label>
+          <label class="label" for="new-member-first-name">First name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="user.first_name" placeholder="Type your first name..." />
+            <input id="new-member-first-name" class="input" type="text" required v-model="user.first_name" placeholder="Type your first name..." />
           </div>
           <p class="help is-danger" v-if="errors.first_name">{{ errors.first_name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Last name</label>
+          <label class="label" for="new-member-last-name">Last name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="user.last_name" placeholder="Type your last name..." />
+            <input id="new-member-last-name" class="input" type="text" required v-model="user.last_name" placeholder="Type your last name..." />
           </div>
           <p class="help is-danger" v-if="errors.last_name">{{ errors.last_name.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Phone</label>
+          <label class="label" for="new-member-phone">Phone</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-            <input class="input" type="text" v-model="user.phone" />
+            <input id="new-member-phone" class="input" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Birthday</label>
-          <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="birthday" @input="transformBirthday()" />
+          <label class="label" for="new-member-birthday">Birthday</label>
+          <b-datepicker id="new-member-birthday" editable :mobile-native="false" :date-formatter="formatDate" :date-parser="parseDate" v-model="birthday" @input="transformBirthday()" />
           <p class="help is-danger" v-if="errors.date_of_birth">{{ errors.date_of_birth.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Gender</label>
+          <label class="label" for="new-member-gender">Gender</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.gender" />
+            <input id="new-member-gender" class="input" type="text" v-model="user.gender" />
           </div>
           <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Address</label>
+          <label class="label" for="new-member-address">Address</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.address" />
+            <input id="new-member-address" class="input" type="text" v-model="user.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">About me</label>
+          <label class="label" for="new-member-about-me">About me</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
+            <input id="new-member-about-me" class="input" type="text" v-model="user.about_me" />
           </div>
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
         </div>
@@ -65,19 +66,19 @@
         <hr />
 
         <div class="field">
-          <label class="label">Email</label>
+          <label class="label" for="new-member-email">Email</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
-            <input class="input" type="email" required v-model="user.email" />
+            <input id="new-member-email" class="input" type="email" required v-model="user.email" />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
         </div>
 
         <div class="field">
-          <label class="label">Username</label>
+          <label class="label" for="new-member-username">Username</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="fa envelope" /></span>
-            <input class="input" type="text" required v-model="user.username" />
+            <input id="new-member-username" class="input" type="text" required v-model="user.username" />
           </div>
           <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
         </div>
@@ -118,13 +119,13 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     parseDate (date) {
-      return moment(date, 'YYYY-MM-DD').toDate()
+      return date ? moment(date, 'YYYY-MM-DD').toDate() : null
     },
     formatDate (date) {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday, 'YYYY-MM-DD').toDate()
+      this.user.date_of_birth = this.birthday ? moment(this.birthday).format('YYYY-MM-DD') : ''
     },
     createUser () {
       this.isSaving = true

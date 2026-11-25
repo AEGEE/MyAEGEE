@@ -77,6 +77,8 @@ export interface Member {
     about_me: string | null;
     image: string | null;
     primary_email: string;
+    // The Google Workspace address, for members who have one.
+    gsuite_id: string | null;
     primary_body_id: number | null;
     primary_body: Body | null;
     bodies: Body[];
@@ -108,6 +110,7 @@ export const member = (overrides: Partial<Member> = {}): Member => {
         about_me: null,
         image: null,
         primary_email: 'personal',
+        gsuite_id: null,
         primary_body_id: bodies[0]?.id ?? null,
         primary_body: bodies[0] ?? null,
         bodies,
