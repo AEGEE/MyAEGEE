@@ -2,21 +2,22 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">JC listing form</div>
+        <h1 class="title">JC listing form</h1>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="juridical-search">Search by name, surname or statutory ID</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+              <input id="juridical-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
             </div>
           </div>
 
           <div class="field is-grouped">
             <div class="control">
-              <a @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</a>
+              <button type="button" @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</button>
             </div>
-            <div class="control">
+            <!-- Only Agorae have votes. -->
+            <div class="control" v-if="event.type === 'agora'">
               <router-link :to="{ name: 'oms.statutory.votes', params: { id: this.$route.params.id } }" class="button is-primary">View amount of votes</router-link>
             </div>
           </div>
@@ -24,68 +25,72 @@
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            :current-page.sync="page"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            v-bind="paginationLabels"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
-            {{ props.row.first_name | beautify }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
-            {{ props.row.last_name | beautify }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+              {{ props.row.last_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="participant_type" label="Participant type and order" centered sortable v-slot="props">
-            {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
-          </b-table-column>
+            <b-table-column field="participant_type" label="Participant type and order" centered sortable v-slot="props">
+              {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed" centered sortable v-slot="props">
-            {{ props.row.confirmed | beautify }}
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed" centered sortable v-slot="props">
+              {{ props.row.confirmed | beautify }}
+            </b-table-column>
 
-          <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
-              <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
+                <select v-model="props.row.newRegistered" :aria-label="'JC registered of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="departed" label="Departed?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
-              <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="departed" label="Departed?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
+                <select v-model="props.row.newDeparted" :aria-label="'Departed of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -98,26 +103,34 @@ export default {
   name: 'JuridicalView',
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
-        questions: []
+        type: null
       },
       query: '',
       limit: 50,
       offset: 0,
+      page: 1,
       total: 0,
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
       isLoading: false,
-      isSaving: false
+      // Counts the list requests, so a late answer to an earlier one is dropped.
+      listRequest: 0
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
     queryObject () {
       const queryObj = {
@@ -131,7 +144,10 @@ export default {
     }
   },
   watch: {
+    // Another search starts from the first page.
     query () {
+      this.offset = 0
+      this.page = 1
       this.loadApplications()
     }
   },
@@ -146,6 +162,8 @@ export default {
         this.$root.showSuccess(`Successfully updated registration info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingRegistered = false
+        // Showing what is still stored.
+        pax.newRegistered = pax.registered
         this.$root.showError('Could not update participant registration info', err)
       })
     },
@@ -156,10 +174,12 @@ export default {
       this.axios.put(url, { departed: pax.newDeparted }).then(() => {
         pax.departed = pax.newDeparted
         pax.isSavingDeparted = false
-        this.$root.showSuccess(`Successfully updated departion info of application for user #${pax.user_id}`)
+        this.$root.showSuccess(`Successfully updated departure info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingDeparted = false
-        this.$root.showError('Could not update participant departion info', err)
+        // Showing what is still stored.
+        pax.newDeparted = pax.departed
+        this.$root.showError('Could not update participant departure info', err)
       })
     },
     onPageChange (page) {
@@ -171,13 +191,13 @@ export default {
       this.loadApplications()
     },
     loadApplications () {
+      // Only the answer to the last search, page or sort counts: a late one for an earlier
+      // request is dropped.
+      const request = ++this.listRequest
       this.isLoading = true
 
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-        this.event = event.data.data
-
-        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/juridical', { params: this.queryObject })
-      }).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/juridical', { params: this.queryObject }).then((application) => {
+        if (request !== this.listRequest) return
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -190,15 +210,19 @@ export default {
           this.$set(pax, 'isSavingDeparted', false)
         }
       }).catch((err) => {
-        this.isLoading = false
-        if (err.response && err.response.status === 404) {
-          this.$root.showError('Event is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
-
-        this.$router.push({ name: 'oms.statutory.list.all' })
+        if (request !== this.listRequest) return
+        this.showLoadError(err)
       })
+    },
+    showLoadError (err) {
+      this.isLoading = false
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
+
+      this.$router.push({ name: 'oms.statutory.list.all' })
     },
     exportDelegatesJc () {
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/export/delegates_jc', {
@@ -211,11 +235,35 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the service's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.$root.showError('Could not export the delegates', err)
       })
     }
   },
+  // A page left while its request runs drops the answer: no late error, no redirect.
+  beforeDestroy () {
+    this.listRequest++
+  },
   mounted () {
-    this.loadApplications()
+    this.isLoading = true
+
+    // The event is the same for every search and page, so it's loaded once.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.event = event.data.data
+      this.loadApplications()
+    }).catch(this.showLoadError)
   }
 }
 </script>

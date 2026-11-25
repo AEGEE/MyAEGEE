@@ -10,10 +10,10 @@
         <br />
 
         <div class="field">
-          <label class="label">Select event type</label>
+          <label class="label" for="pax-limits-event-type">Select event type</label>
           <div class="control">
             <div class="select">
-              <select v-model="eventType">
+              <select id="pax-limits-event-type" v-model="eventType">
                 <option value="agora">Agora</option>
                 <option value="epm">EPM</option>
                 <option value="spm">SPM</option>
@@ -25,7 +25,7 @@
         <p><strong>Total bodies listed:</strong> {{ limits.length }}</p>
         <p><strong>Bodies with custom limits: </strong>{{ limits.filter(l => !l.default).length }}</p>
 
-        <div class="table-responsive">
+        <div class="table-container">
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
@@ -35,22 +35,10 @@
                 <th>Envoys</th>
                 <th>Observers</th>
                 <th>Visitors</th>
-                <th />
-                <th />
+                <th><span class="is-sr-only">Edit</span></th>
+                <th><span class="is-sr-only">Use default</span></th>
               </tr>
             </thead>
-            <tfoot>
-              <tr>
-                <th>Body</th>
-                <th>Body type</th>
-                <th>Delegates</th>
-                <th>Envoys</th>
-                <th>Observers</th>
-                <th>Visitors</th>
-                <th />
-                <th />
-              </tr>
-            </tfoot>
             <tbody>
               <tr v-for="limit in limits" v-bind:key="limit.body_id">
                 <td>
@@ -64,28 +52,28 @@
                 <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.observer | numberOrUnlimited }} </td>
                 <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.visitor | numberOrUnlimited }} </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')">
+                  <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')" :aria-label="'Delegates of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')">
+                  <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')" :aria-label="'Envoys of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')">
+                  <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')" :aria-label="'Observers of ' + bodyName(limit)">
                 </td>
                 <td v-if="limit.isEditing">
-                  <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')">
+                  <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')" :aria-label="'Visitors of ' + bodyName(limit)">
                 </td>
                 <td>
-                  <button class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
-                  <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
+                  <button type="button" class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
+                  <button type="button" class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
                 </td>
                 <td>
-                  <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
+                  <button type="button" class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
                 </td>
               </tr>
               <tr v-show="isLoading">
                 <td colspan="8" class="has-text-centered">
-                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" />
+                  <font-awesome-icon style="font-size:24px" icon="spinner" spin title="Loading" />
                 </td>
               </tr>
             </tbody>
@@ -108,13 +96,24 @@ export default {
       limits: [],
       bodies: [],
       eventType: 'agora',
-      isLoading: false
+      isLoading: false,
+      request: 0
     }
   },
   computed: mapGetters(['services']),
   methods: {
+    bodyName (limit) {
+      return limit.body ? limit.body.name : 'body ' + limit.body_id
+    },
     saveLimit (limit) {
-      this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, limit).then(() => {
+      const payload = {
+        body_id: limit.body_id,
+        delegate: limit.delegate,
+        envoy: limit.envoy,
+        observer: limit.observer,
+        visitor: limit.visitor
+      }
+      this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, payload).then(() => {
         this.$root.showSuccess('Limit is saved.')
         this.$set(limit, 'isEditing', false)
         this.compareWithDefaults()
@@ -125,47 +124,35 @@ export default {
     deleteLimit (limit) {
       this.axios.delete(this.services['statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then(() => {
         this.$root.showSuccess('Limit is deleted.')
-        window.location.reload()
+        this.fetchData()
       }).catch((err) => {
         this.$root.showError('Error deleting limit', err)
       })
     },
-    fetchLimits () {
+    // The limits, the default limits and the bodies of the chosen event type, together. When
+    // another type is chosen before they are there, they are dropped for the newer ones.
+    fetchData () {
+      const request = ++this.request
       this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType).then((response) => {
-        this.limits = response.data.data
+      Promise.all([
+        this.axios.get(this.services['statutory'] + '/limits/' + this.eventType),
+        this.axios.get(this.services['statutory'] + '/limits/' + this.eventType + '/defaults/'),
+        this.axios.get(this.services['core'] + '/bodies/')
+      ]).then(([limits, defaultLimits, bodies]) => {
+        if (request !== this.request) return
 
-        return this.axios.get(this.services['core'] + '/bodies/')
-      }).then((response) => {
-        this.bodies = response.data.data
-
-        for (const limit of this.limits) {
-          this.$set(limit, 'body', this.bodies.find(body => body.id === limit.body_id))
-          this.$set(limit, 'isEditing', false)
+        this.bodies = bodies.data.data
+        for (const limit of limits.data.data) {
+          limit.body = this.bodies.find(body => body.id === limit.body_id)
+          limit.isEditing = false
         }
+        this.limits = limits.data.data
+        this.defaultLimits = defaultLimits.data.data
         this.compareWithDefaults()
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not fetch participants limits', err)
-      })
-    },
-    fetchDefaultLimits () {
-      this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType + '/defaults/').then((response) => {
-        this.defaultLimits = response.data.data
+        if (request !== this.request) return
 
-        return this.axios.get(this.services['core'] + '/bodies/')
-      }).then((response) => {
-        this.bodies = response.data.data
-
-        for (const defaultLimit of this.defaultLimits) {
-          this.$set(defaultLimit, 'body', this.bodies.find(body => body.id === defaultLimit.body_id))
-          this.$set(defaultLimit, 'isEditing', false)
-        }
-        this.compareWithDefaults()
-        this.isLoading = false
-      }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not fetch participants limits', err)
       })
@@ -197,13 +184,11 @@ export default {
   },
   watch: {
     eventType () {
-      this.fetchLimits()
-      this.fetchDefaultLimits()
+      this.fetchData()
     }
   },
   mounted () {
-    this.fetchLimits()
-    this.fetchDefaultLimits()
+    this.fetchData()
   }
 }
 </script>

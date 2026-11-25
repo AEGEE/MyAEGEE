@@ -2,16 +2,20 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Mass mailer</div>
+        <h1 class="title">Mass mailer</h1>
 
-        <form @submit.prevent="sendMassMailer()">
+        <div class="notification is-danger" v-if="event && !event.permissions.use_massmailer">
+          You are not allowed to use the mass mailer of this event.
+        </div>
+
+        <form @submit.prevent="sendMassMailer()" v-if="event && event.permissions.use_massmailer">
           <div class="tile is-parent">
             <div class="tile is-child">
 
               <div class="field is-fullwidth">
-                <label class="label">Filter on participant status</label>
+                <label class="label" for="massmailer-status">Filter on participant status</label>
                 <div class="select">
-                  <select v-model="status">
+                  <select id="massmailer-status" v-model="status">
                     <option :value="null">Everybody</option>
                     <option value="accepted">Accepted participants</option>
                     <option value="waiting_list">Waiting list participants</option>
@@ -22,9 +26,9 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Filter on confirmation</label>
+                <label class="label" for="massmailer-confirmed">Filter on confirmation</label>
                 <div class="select">
-                  <select v-model="confirmed">
+                  <select id="massmailer-confirmed" v-model="confirmed">
                     <option :value="null">Everybody</option>
                     <option :value="true">Confirmed participants</option>
                     <option :value="false">Not confirmed participants</option>
@@ -33,9 +37,9 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Filter on incoming form filled (LO)</label>
+                <label class="label" for="massmailer-incoming">Filter on incoming form filled (LO)</label>
                 <div class="select">
-                  <select v-model="incoming">
+                  <select id="massmailer-incoming" v-model="incoming">
                     <option :value="null">Everybody</option>
                     <option :value="true">Participants that did fill incoming form</option>
                     <option :value="false">Participants that did not fill incoming form</option>
@@ -44,9 +48,9 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Filter on participant type</label>
+                <label class="label" for="massmailer-participant-type">Filter on participant type</label>
                 <div class="select">
-                  <select v-model="participant_type">
+                  <select id="massmailer-participant-type" v-model="participant_type">
                     <option :value="null">Everybody</option>
                     <option value="envoy">Envoy</option>
                     <option value="delegate">Delegate</option>
@@ -81,29 +85,29 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Address to reply to</label>
+                <label class="label" for="massmailer-reply-to">Address to reply to</label>
                 <div class="control">
-                  <input class="input" type="email" required v-model="reply_to" />
+                  <input id="massmailer-reply-to" class="input" type="email" required v-model="reply_to" />
                 </div>
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Email subject</label>
+                <label class="label" for="massmailer-subject">Email subject</label>
                 <div class="control">
-                  <input class="input" type="text" required v-model="subject" />
+                  <input id="massmailer-subject" class="input" type="text" required v-model="subject" />
                 </div>
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Type the email text here</label>
+                <label class="label" for="massmailer-text">Type the email text here</label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="text" />
+                  <textarea id="massmailer-text" class="textarea" required v-model="text" />
                 </div>
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Preview:</label>
-                <div class="content box">
+                <p class="label" id="massmailer-preview">Preview:</p>
+                <div class="content box" role="region" aria-labelledby="massmailer-preview">
                   <div v-html="filledTemplate" />
                 </div>
               </div>
@@ -145,6 +149,7 @@ export default {
       participant_type: null,
       subject: '',
       reply_to: '',
+      event: null,
       isSending: false,
       stabUser: {
         first_name: 'Name',
@@ -159,6 +164,7 @@ export default {
       return this.$options.filters.markdown(this.text)
     },
     filledTemplate () {
+      /* istanbul ignore next -- the sample application always has a participant type */
       const typeAndOrder = this.stabApplication.participant_type
         ? (this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')')
         : 'not set'
@@ -187,6 +193,11 @@ export default {
   },
   methods: {
     sendMassMailer () {
+      // The browser lets a text of only spaces through.
+      if (!this.text.trim()) {
+        return this.$root.showError('Please type the email text.')
+      }
+
       this.isSending = true
 
       this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/massmailer/', {
@@ -204,7 +215,18 @@ export default {
     }
   },
   mounted () {
+    // The form is only for those who may use it.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
+      this.event = response.data.data
+    }).catch((err) => {
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
+      this.$router.push({ name: 'oms.statutory.list.all' })
+    })
   }
 }
 </script>

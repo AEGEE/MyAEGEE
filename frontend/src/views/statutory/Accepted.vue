@@ -2,55 +2,55 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Accepted applications</div>
+        <h1 class="title">Accepted applications</h1>
 
         <div>Total participants accepted: {{ applications.length }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          default-sort="statutory_id"
-          default-sort-direction="desc">
-          <b-table-column field="statutory_id" label="#" numeric v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading">
+            <b-table-column field="statutory_id" label="#" numeric v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="Name" v-slot="props">
-            {{ props.row.first_name }} {{ props.row.last_name }}
-          </b-table-column>
+            <b-table-column field="first_name" label="Name" v-slot="props">
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-              {{ props.row.body_name }}
-            </router-link>
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" v-slot="props">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                {{ props.row.body_name }}
+              </router-link>
+            </b-table-column>
 
-          <b-table-column field="participant_type" label="Participant type and order" v-slot="props">
-            {{ props.row.participant_type ? `${props.row.participant_type} (${props.row.participant_order})` : '' }}
-          </b-table-column>
+            <b-table-column field="participant_type" label="Participant type and order" v-slot="props">
+              {{ props.row.participant_type ? `${props.row.participant_type} (${props.row.participant_order})` : '' }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed?" centered v-slot="props">
-            <span :class="calculateClassForTag(props.row.confirmed)">
-              {{ props.row.confirmed | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed?" centered v-slot="props">
+              <span :class="calculateClassForTag(props.row.confirmed)">
+                {{ props.row.confirmed | beautify }}
+              </span>
+            </b-table-column>
 
-          <b-table-column field="attended" label="Attended?" centered v-slot="props">
-            <span :class="calculateClassForTag(props.row.attended)">
-              {{ props.row.attended | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="attended" label="Attended?" centered v-slot="props">
+              <span :class="calculateClassForTag(props.row.attended)">
+                {{ props.row.attended | beautify }}
+              </span>
+            </b-table-column>
 
-          <b-table-column field="registered" label="Registered?" centered v-slot="props">
-            <span :class="calculateClassForTag(props.row.registered)">
-              {{ props.row.registered | beautify }}
-            </span>
-          </b-table-column>
+            <b-table-column field="registered" label="Registered?" centered v-slot="props">
+              <span :class="calculateClassForTag(props.row.registered)">
+                {{ props.row.registered | beautify }}
+              </span>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -68,8 +68,7 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     calculateClassForTag (value) {
@@ -85,12 +84,17 @@ export default {
           return byBody
         }
 
-        const byParticipantType = (a.participant_type || 'unset').localeCompare(b.participant_type || 'unset')
+        // Who has no place yet comes after everyone with one, as statutory sorts them.
+        if (!a.participant_type || !b.participant_type) {
+          return Number(!a.participant_type) - Number(!b.participant_type)
+        }
+
+        const byParticipantType = a.participant_type.localeCompare(b.participant_type)
         if (byParticipantType !== 0) {
           return byParticipantType
         }
 
-        return (a.participant_order || 0) - (b.participant_order || 0)
+        return a.participant_order - b.participant_order
       })
       this.isLoading = false
     }).catch((err) => {

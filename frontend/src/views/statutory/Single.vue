@@ -4,23 +4,17 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png" />
+            <img v-if="!event.image" src="/images/logo.png" alt="" />
             <img
               v-if="event.image"
               :src="services['statutory-static'] + event.image.frontend_path"
+              :alt="event.name"
             />
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <!-- <div class="field is-grouped" v-if="duringAgora">
-            <a href="https://aegeeagora-streaming.westeurope.cloudapp.azure.com/" class="button is-danger is-fullwidth">
-              <span>Watch live</span>
-              <span class="icon"><font-awesome-icon icon="circle" /></span>
-            </a>
-          </div> -->
-
           <div class="field is-grouped" v-if="can.see_applications">
             <router-link
               :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }"
@@ -77,7 +71,7 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_plenaries || can.manage_plenaries">
+          <div class="field is-grouped" v-if="(can.see_plenaries || can.manage_plenaries) && event.type === 'agora'">
             <router-link
               :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }"
               class="button is-fullwidth"
@@ -241,10 +235,10 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
+            <button type="button" class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
@@ -258,23 +252,25 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a
+            <button
+              type="button"
               @click="askSwitchStatus('draft')"
               v-if="event.status === 'published'"
               class="button is-danger is-fullwidth"
             >
               <span>Unpublish</span>
               <span class="icon"><font-awesome-icon icon="pen" /></span>
-            </a>
+            </button>
 
-            <a
+            <button
+              type="button"
               @click="askSwitchStatus('published')"
               v-if="event.status === 'draft'"
               class="button is-info is-fullwidth"
             >
               <span>Publish</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
-            </a>
+            </button>
           </div>
         </article>
       </div>
@@ -282,7 +278,7 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ event.name }}</p>
+          <h1 class="title">{{ event.name }}</h1>
 
           <div class="notification is-warning" v-if="activeEventApplicationBan">
             You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
@@ -293,17 +289,17 @@
             <table class="table is-narrow">
               <tbody>
                 <tr>
-                  <th>Event name</th>
+                  <th scope="row">Event name</th>
                   <td>{{ event.name }}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th scope="row">Description</th>
                   <td>
                     <div class="content" v-html="$options.filters.markdown(event.description)" />
                   </td>
                 </tr>
                 <tr v-if="event.booklet_folder">
-                  <th>KMS page</th>
+                  <th scope="row">KMS page</th>
                   <td>
                     <a :href="event.booklet_folder | safeUrl" target="_blank" rel="noopener noreferrer">{{
                       event.booklet_folder
@@ -311,24 +307,24 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Type</th>
+                  <th scope="row">Type</th>
                   <td>{{ constants.STATUTORY_TYPES_NAMES[event.type] }}</td>
                 </tr>
                 <tr>
-                  <th>Starts</th>
+                  <th scope="row">Starts</th>
                   <td>{{ event.starts | date }}</td>
                 </tr>
                 <tr>
-                  <th>Ends</th>
+                  <th scope="row">Ends</th>
                   <td>{{ event.ends | date }}</td>
                 </tr>
                 <tr>
-                  <th>Fee</th>
+                  <th scope="row">Fee</th>
                   <td v-if="event.fee">€{{ event.fee }}</td>
                   <td v-if="!event.fee"><i>Free</i></td>
                 </tr>
                 <tr>
-                  <th>Organising body</th>
+                  <th scope="row">Organising body</th>
                   <td>
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: event.body_id } }">
                       {{ event.body ? event.body.name : 'Loading...' }}
@@ -347,7 +343,7 @@
 
       <article class="tile is-child">
         <div class="content">
-          <p class="subtitle">Deadlines</p>
+          <h2 class="subtitle">Deadlines</h2>
           <div class="content">
             <p>
               Please keep in mind that the dates are in your localtime, which is not necessarily
@@ -356,54 +352,54 @@
             <table class="table is-narrow">
               <thead>
                 <tr>
-                  <th />
-                  <th>From</th>
-                  <th>To</th>
+                  <th scope="col"><span class="is-sr-only">Deadline</span></th>
+                  <th scope="col">From</th>
+                  <th scope="col">To</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>Application period</th>
+                  <th scope="row">Application period</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.application_period_ends | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Board approval</th>
+                  <th scope="row">Board approval</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.board_approve_deadline | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Participants list publishing</th>
+                  <th scope="row">Participants list publishing</th>
                   <td colspan="2">{{ event.participants_list_publish_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Members list upload period</th>
+                  <th scope="row">Members list upload period</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.memberslist_submission_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Members list edit period</th>
+                  <th scope="row">Members list edit period</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.memberslist_edit_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Draft proposals</th>
+                  <th scope="row">Draft proposals</th>
                   <td colspan="2">{{ event.draft_proposal_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Final proposals</th>
+                  <th scope="row">Final proposals</th>
                   <td colspan="2">{{ event.final_proposal_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Candidatures</th>
+                  <th scope="row">Candidatures</th>
                   <td colspan="2">{{ event.candidature_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Documents publication</th>
+                  <th scope="row">Documents publication</th>
                   <td colspan="2">{{ event.booklet_publication_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Updated documents publication</th>
+                  <th scope="row">Updated documents publication</th>
                   <td colspan="2">{{ event.updated_booklet_publication_deadline | datetime }}</td>
                 </tr>
               </tbody>
@@ -450,7 +446,6 @@ import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
-import moment from 'moment'
 import credentials from '../../credentials'
 import PictureModal from './PictureModal.vue'
 import constants from '../../constants.js'
@@ -506,13 +501,15 @@ export default {
       this.$buefy.modal.open({
         component: PictureModal,
         hasModalCard: true,
+        ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          updated: (image) => { this.event.image = image }
         }
       })
     },
@@ -548,6 +545,7 @@ export default {
     centerMap () {
       // we don't know, what'll happen first, the map will load or the event will load.
       // and we need both to be loaded.
+      /* istanbul ignore if -- the map is only shown for an event with locations */
       if (this.event.locations.length === 0) {
         return
       }
@@ -581,11 +579,15 @@ export default {
         this.event = response.data.data
         this.can = response.data.data.permissions
 
-        return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
+        // An event whose body can't be loaded is shown all the same.
+        return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id).then((bodyResponse) => {
+          this.$set(this.event, 'body', bodyResponse.data.data)
+        }, (err) => {
+          this.$set(this.event, 'body', { id: this.event.body_id, name: 'Unknown body' })
+          this.$root.showError('Could not fetch the organising body', err)
+        })
       })
-      .then((response) => {
-        this.event.body = response.data.data
-
+      .then(() => {
         if (this.map.actions) {
           this.centerMap()
         }
@@ -617,12 +619,6 @@ export default {
       return (
         Object.keys(this.can.see_memberslist).filter((key) => this.can.see_memberslist[key])
           .length > 0
-      )
-    },
-    duringAgora () {
-      return (
-        this.event.type === 'agora'
-        && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
       )
     },
     activeEventApplicationBan () {

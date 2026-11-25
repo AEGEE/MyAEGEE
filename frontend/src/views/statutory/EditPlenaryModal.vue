@@ -1,25 +1,26 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Add plenary</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">{{ isNew ? 'Add plenary' : 'Edit plenary' }}</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
-        <label class="label">Name</label>
+        <label class="label" for="plenary-name">Name</label>
         <div class="control">
-          <input class="input" type="text" required v-model="plenary.name" />
+          <input id="plenary-name" class="input" type="text" required v-model="name" />
         </div>
         <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
       </div>
 
       <div class="field">
-        <label class="label">Starts</label>
+        <label class="label" for="plenary-starts">Starts</label>
         <div class="control">
           <flat-pickr
+            id="plenary-starts"
             placeholder="Select date"
             class="input"
-            required
+            aria-required="true"
             :config="dateConfig"
             v-model="dates.starts" />
         </div>
@@ -27,10 +28,12 @@
       </div>
 
       <div class="field">
-        <label class="label">Ends</label>
+        <label class="label" for="plenary-ends">Ends</label>
         <div class="control">
           <flat-pickr
+            id="plenary-ends"
             placeholder="Select date"
+            aria-required="true"
             class="input"
             :config="dateConfig"
             v-model="dates.ends" />
@@ -39,8 +42,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="savePlenary()">Save changes</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" :class="{ 'is-loading': isLoading }" :disabled="isLoading" @click="savePlenary()">Save changes</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -54,26 +57,24 @@ export default {
   components: {
     flatPickr
   },
-  props: ['event', 'plenary', 'services', 'showSuccess', 'showError', 'router'],
+  props: ['event', 'plenary', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       errors: {},
+      isLoading: false,
+      // The form works on a copy, so the list shows the plenary as it is stored until it is saved.
+      name: this.plenary.name,
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        // Typed dates are accepted, and phones get the same picker.
+        allowInput: true,
+        disableMobile: true
       },
       dates: {
-        starts: null,
-        ends: null
+        starts: new Date(this.plenary.starts),
+        ends: new Date(this.plenary.ends)
       }
-    }
-  },
-  watch: {
-    'dates.starts': function (newDate) {
-      this.plenary.starts = new Date(newDate)
-    },
-    'dates.ends': function (newDate) {
-      this.plenary.ends = new Date(newDate)
     }
   },
   computed: {
@@ -82,18 +83,30 @@ export default {
     }
   },
   methods: {
+    // An emptied picker gives null: the date is not set (new Date(null) would be 1970).
+    toDate (value) {
+      return value ? new Date(value) : null
+    },
     savePlenary () {
       this.isLoading = true
 
+      // Only the fields of the form.
+      const plenary = {
+        name: this.name,
+        starts: this.toDate(this.dates.starts),
+        ends: this.toDate(this.dates.ends)
+      }
       const action = this.isNew
-        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/', this.plenary)
-        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/', plenary)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, plenary)
 
       action.then(() => {
-        this.showSuccess('Plenary is created.')
+        this.showSuccess(this.isNew ? 'Plenary is created.' : 'Plenary is updated.')
 
         this.isLoading = false
-        this.router.go(0) // Reloading the page.
+        // The page shows the saved one from the service.
+        this.$emit('saved')
+        this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
         if (err.response && err.response.status === 422) {
@@ -105,10 +118,6 @@ export default {
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
-  },
-  mounted () {
-    this.dates.starts = this.plenary.starts = new Date(this.plenary.starts)
-    this.dates.ends = this.plenary.ends = new Date(this.plenary.ends)
   }
 }
 </script>

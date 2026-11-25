@@ -1,8 +1,8 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Change picture</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <h2 class="modal-card-title">Change picture</h2>
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
@@ -10,7 +10,7 @@
         <div class="control">
           <div class="file has-name">
             <label class="file-label">
-              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <input class="file-input" type="file" name="image" accept=".png,.jpg,.jpeg" @change="setFile($event)">
               <span class="file-cta">
                 <span class="file-icon">
                   <font-awesome-icon icon="upload" />
@@ -27,7 +27,7 @@
         </div>
 
         <div class="control">
-          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+          <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
         </div>
       </div>
     </section>
@@ -39,7 +39,7 @@
 <script>
 export default {
   name: 'PictureModal',
-  props: ['event', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['event', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       file: null
@@ -50,16 +50,14 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
-      if (!this.file) {
-        return
-      }
-
       const data = new FormData()
       data.append('image', this.file)
 
-      this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/image', data).then(() => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/image', data).then((response) => {
         this.showSuccess('Event image is updated.')
-        this.router.go(0)
+        // The service answers with the event and its new picture.
+        this.$emit('updated', response.data.data.image)
+        this.$parent.close()
       }).catch((err) => {
         this.showError('Could not update image', err)
       })

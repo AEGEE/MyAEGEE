@@ -2,11 +2,12 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">See application on {{ event.name }}</div>
+        <h1 class="title">See application on {{ event.name }}</h1>
 
-        <div class="tile is-parent" v-show="!this.application">
+        <div class="tile is-parent" v-if="notFound">
           <div class="tile is-child">
-            <div class="subtitle">You haven't applied to this event yet.</div>
+            <div class="subtitle" v-if="$route.params.application_id === 'me'">You haven't applied to this event yet.</div>
+            <div class="subtitle" v-else>There is no such application.</div>
           </div>
         </div>
 
@@ -15,118 +16,118 @@
             <p>
               <b v-show="this.application.user_id === this.loginUser.id">You applied from this body:</b>
               <b v-show="this.application.user_id !== this.loginUser.id">Application from the body:</b>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+              <router-link class="is-underlined" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
                 {{ application.body_name }}
               </router-link>
             </p>
             <p v-show="this.application.user_id !== this.loginUser.id">
               <b>Member name:</b>
-              <router-link :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
+              <router-link class="is-underlined" :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
                 {{ application.first_name }} {{ application.last_name }}
               </router-link>
             </p>
             <table class="table is-narrow is-fullwidth">
               <thead>
                 <tr>
-                  <th>Question</th>
-                  <th>Your answer</th>
+                  <th scope="col">Question</th>
+                  <th scope="col">Answer</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>Statutory ID</th>
+                  <th scope="row">Statutory ID</th>
                   <td>{{ application.statutory_id }}</td>
                 </tr>
                 <tr>
-                  <th>Applied on</th>
+                  <th scope="row">Applied on</th>
                   <td>{{ application.created_at | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Updated on</th>
+                  <th scope="row">Updated on</th>
                   <td>{{ application.updated_at | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>First name</th>
+                  <th scope="row">First name</th>
                   <td>{{ application.first_name }}</td>
                 </tr>
                 <tr>
-                  <th>Last name</th>
+                  <th scope="row">Last name</th>
                   <td>{{ application.last_name }}</td>
                 </tr>
                 <tr>
-                  <th>Gender</th>
+                  <th scope="row">Gender</th>
                   <td>{{ application.gender }}</td>
                 </tr>
                 <tr>
-                  <th>Date of birth</th>
+                  <th scope="row">Date of birth</th>
                   <td>{{ application.date_of_birth }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th>
+                  <th scope="row">Email</th>
                   <td>{{ application.notification_email }}</td>
                 </tr>
                 <tr>
-                  <th>Nationality</th>
+                  <th scope="row">Nationality</th>
                   <td>{{ application.nationality }}</td>
                 </tr>
                 <tr>
-                  <th>Meals</th>
+                  <th scope="row">Meals</th>
                   <td>{{ application.meals }}</td>
                 </tr>
                 <tr>
-                  <th>Allergies</th>
+                  <th scope="row">Allergies</th>
                   <td>{{ application.allergies }}</td>
                 </tr>
                 <tr>
-                  <th>Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited</th>
+                  <th scope="row">Number of {{ eventTypesPlural[event.type] }} visited</th>
                   <td>{{ application.number_of_events_visited | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Visa required?</th>
+                  <th scope="row">Visa required?</th>
                   <td>{{ application.visa_required | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport number</th>
+                  <th scope="row">Visa passport number</th>
                   <td>{{ application.visa_passport_number }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport issue date</th>
+                  <th scope="row">Visa passport issue date</th>
                   <td>{{ application.visa_passport_issue_date }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport expiration date</th>
+                  <th scope="row">Visa passport expiration date</th>
                   <td>{{ application.visa_passport_expiration_date }}</td>
                 </tr>
                 <tr>
-                  <th>Visa passport issue authority</th>
+                  <th scope="row">Visa passport issue authority</th>
                   <td>{{ application.visa_passport_issue_authority }}</td>
                 </tr>
                 <tr>
-                  <th>Place of birth</th>
+                  <th scope="row">Place of birth</th>
                   <td>{{ application.visa_place_of_birth }}</td>
                 </tr>
                 <tr>
-                  <th>Street and house number</th>
+                  <th scope="row">Street and house number</th>
                   <td>{{ application.visa_street_and_house }}</td>
                 </tr>
                 <tr>
-                  <th>Postal code</th>
+                  <th scope="row">Postal code</th>
                   <td>{{ application.visa_postal_code }}</td>
                 </tr>
                 <tr>
-                  <th>City</th>
+                  <th scope="row">City</th>
                   <td>{{ application.visa_city }}</td>
                 </tr>
                 <tr>
-                  <th>Country</th>
+                  <th scope="row">Country</th>
                   <td>{{ application.visa_country }}</td>
                 </tr>
                 <tr>
-                  <th>Embassy</th>
+                  <th scope="row">Embassy</th>
                   <td>{{ application.visa_embassy }}</td>
                 </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
-                  <th>{{ question.description }}</th>
+                  <th scope="row">{{ question.description }}</th>
                   <td class="has-text-pre-wrap" v-if="can.see_applications">{{ application.answers[index] | beautify }}</td>
                 </tr>
               </tbody>
@@ -135,30 +136,30 @@
             <table class="table is-narrow is-fullwidth">
               <tbody>
                 <tr>
-                  <th>Participant type</th>
+                  <th scope="row">Participant type</th>
                   <td v-if="application.participant_type">{{ application.participant_type }}</td>
                   <td v-if="!application.participant_type"><i>Not set yet.</i></td>
                 </tr>
                 <tr>
-                  <th>Participant order</th>
+                  <th scope="row">Participant order</th>
                   <td v-if="application.participant_order">{{ application.participant_order }}</td>
                   <td v-if="!application.participant_order"><i>Not set yet.</i></td>
                 </tr>
                 <!--<tr>
-                  <th>Board comment</th>
+                  <th scope="row">Board comment</th>
                   <td v-if="application.board_comment">{{ application.board_comment }}</td>
                   <td v-if="!application.board_comment"><i>Not set yet.</i></td>
                 </tr>-->
                 <tr>
-                  <th>Confirmed?</th>
+                  <th scope="row">Confirmed?</th>
                   <td>{{ application.confirmed | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Attended?</th>
+                  <th scope="row">Attended?</th>
                   <td>{{ application.attended | beautify }}</td>
                 </tr>
                 <tr>
-                  <th>Registered</th>
+                  <th scope="row">JC registered?</th>
                   <td>{{ application.registered | beautify }}</td>
                 </tr>
               </tbody>
@@ -194,20 +195,24 @@
             <div class="notification is-danger">
               <span v-if="isOwnApplication">Your application is cancelled.</span>
               <span v-else>This application is cancelled.</span>
-              <span v-if="showOwnDeadlineCancelHint">You can uncancel it till the application period ends.</span>
+              <span v-if="showOwnDeadlineCancelHint"> You can uncancel it till the application period ends.</span>
             </div>
           </div>
         </div>
 
         <!-- Explanation why you cannot apply -->
-        <div class="tile is-parent" v-if="!application && !can.apply ">
+        <div class="tile is-parent" v-if="notFound && !can.apply">
           <div class="tile is-child">
-            <div class="notification is-danger" v-show="new Date() < event.application_period_starts">
+            <div class="notification is-danger" v-if="applicationPeriod === 'not started'">
               You cannot apply to this event: application period hasn't started yet.
             </div>
 
-            <div class="notification is-danger" v-show="new Date() > event.application_period_ends">
+            <div class="notification is-danger" v-else-if="applicationPeriod === 'over'">
               You cannot apply to this event: application period is over.
+            </div>
+
+            <div class="notification is-danger" v-else>
+              You cannot apply to this event right now.
             </div>
           </div>
         </div>
@@ -226,16 +231,14 @@
 
         <div class="buttons" v-show="can.set_application_cancelled || can.edit || can.apply">
           <router-link
-            :to="{ name: 'oms.statutory.applications.new', params: { id: event.url || event.id } }"
-            type="submit"
+            :to="{ name: 'oms.statutory.applications.new', params: { id: event.url } }"
             class="button is-warning"
             v-if="!application && can.apply">
             Apply!
           </router-link>
 
           <router-link
-            :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
-            type="submit"
+            :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url, application_id: application.id } }"
             class="button is-warning"
             v-if="application && can.edit_application">
             {{ isOwnApplication ? 'Edit your application' : 'Edit application' }}
@@ -278,12 +281,12 @@ export default {
         spm: 'SPMs'
       },
       application: null,
+      // Statutory has no such application (or the member hasn't applied yet).
+      notFound: false,
       can: {
         edit: false
       },
-      errors: {},
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: {
@@ -300,6 +303,14 @@ export default {
       }
 
       return 'This application is recorded and waiting for organiser review.'
+    },
+    applicationPeriod () {
+      const now = new Date()
+      if (now < this.event.application_period_starts) {
+        return 'not started'
+      }
+
+      return now > this.event.application_period_ends ? 'over' : 'open'
     },
     showOwnDeadlineEditHint () {
       return this.isOwnApplication && this.can.edit_application && this.event.can_apply
@@ -350,10 +361,12 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        // if there's no application, just ignore, otherwise re-throw the error
+        // if there's no application, just say so, otherwise re-throw the error
         if (!err.response || err.response.status !== 404) {
           throw err
         }
+
+        this.notFound = true
       })
     }).catch((err) => {
       this.isLoading = false
@@ -368,3 +381,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Links inside a sentence are told apart from it by more than their colour. */
+.is-underlined {
+  text-decoration: underline;
+}
+</style>

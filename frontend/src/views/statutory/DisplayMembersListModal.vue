@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Display members list</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="Close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <b-table :data="memberslist.members">
@@ -38,14 +38,6 @@
 <script>
 export default {
   name: 'DisplayMembersListModal',
-  props: ['memberslist'],
-  data () {
-    return {
-
-    }
-  },
-  methods: {
-
-  }
+  props: ['memberslist']
 }
 </script>

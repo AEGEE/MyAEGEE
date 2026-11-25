@@ -2126,7 +2126,7 @@ jobs:
       - image: cimg/node:26.13.1
     resource_class: large
     # Enough for the suite as it is. The plan for the complete suite is 8.
-    parallelism: 2
+    parallelism: 4
     environment:
       E2E_COVERAGE: "1"
     steps:

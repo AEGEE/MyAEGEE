@@ -2,25 +2,27 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">List all missing memberslists for {{ event.name }}</h4>
+        <h1 class="title">List all missing memberslists for {{ event.name }}</h1>
 
-        <b-table
-          :data="memberslists"
-          :loading="isLoading">
-          <b-table-column field="body_name" label="Body name" sortable v-slot="props">
-            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-              {{ props.row.body ? props.row.body.name : 'Loading...' }}
-            </router-link>
-          </b-table-column>
+        <section aria-label="Missing members lists" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="memberslists"
+            :loading="isLoading">
+            <b-table-column field="name" label="Body name" sortable v-slot="props">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
 
-          <b-table-column field="type" label="Type" sortable v-slot="props">
-            {{ props.row.type | capitalize }}
-          </b-table-column>
+            <b-table-column field="type" label="Type" sortable v-slot="props">
+              {{ props.row.type | capitalize }}
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </article>
     </div>
   </div>
@@ -42,29 +44,13 @@ export default {
   mounted () {
     this.isLoading = true
 
-    let memberslists
-
+    // The rows are the bodies, with their name and type.
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.data.permissions
 
       return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/missing')
     }).then((response) => {
-      memberslists = response.data.data
-
-      return this.axios.get(this.services['core'] + '/bodies/')
-    }).then((response) => {
-      for (const memberslist of memberslists) {
-        const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.id)
-        memberslist.expanded = false
-        if (body) {
-          memberslist.body = body
-          memberslist.body_name = body.name
-        }
-      }
-
-      this.memberslists = memberslists
-
+      this.memberslists = response.data.data
       this.isLoading = false
     })
       .catch((err) => {

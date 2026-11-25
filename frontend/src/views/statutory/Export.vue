@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Export data for {{ event.name }}</div>
+        <h1 class="title">Export data for {{ event.name }}</h1>
         <div v-if="can.export.openslides">
           <div class="field">
             <div class="control">
-              <button @click="exportOpenSlides()" class="button is-primary">
+              <button type="button" @click="exportOpenSlides()" class="button is-primary">
                 Export OpenSlides data
               </button>
             </div>
@@ -23,9 +23,9 @@
 
         <div>
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on participant status</label>
+            <label class="label" for="export-status">Filter on participant status</label>
             <div class="select">
-              <select v-model="filter.status">
+              <select id="export-status" v-model="filter.status">
                 <option :value="null">Everybody</option>
                 <option value="accepted">Accepted participants</option>
                 <option value="rejected">Rejected participants</option>
@@ -35,10 +35,10 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on cancellation</label>
+            <label class="label" for="export-cancelled">Filter on cancellation</label>
             <div class="select">
-              <select v-model="filter.cancelled">
-                <option :value="null">Everybody</option>
+              <select id="export-cancelled" v-model="filter.cancelled">
+                <option :value="null">Not cancelled (default)</option>
                 <option :value="true">Cancelled participants</option>
                 <option :value="false">Not cancelled participants</option>
               </select>
@@ -46,9 +46,9 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on confirmation</label>
+            <label class="label" for="export-confirmed">Filter on confirmation</label>
             <div class="select">
-              <select v-model="filter.confirmed">
+              <select id="export-confirmed" v-model="filter.confirmed">
                 <option :value="null">Everybody</option>
                 <option :value="true">Confirmed participants</option>
                 <option :value="false">Not confirmed participants</option>
@@ -57,9 +57,9 @@
           </div>
 
           <div class="field is-fullwidth" v-if="this.can.export.all">
-            <label class="label">Filter on participant type</label>
+            <label class="label" for="export-participant-type">Filter on participant type</label>
             <div class="select">
-              <select v-model="filter.participant_type">
+              <select id="export-participant-type" v-model="filter.participant_type">
                 <option :value="null">Everybody</option>
                 <option value="delegate">Delegates</option>
                 <option value="envoy">Envoys</option>
@@ -79,7 +79,7 @@
 
             <div class="field">
               <div class="control">
-                <button @click="exportAll()" class="button is-primary">
+                <button type="button" @click="exportAll()" class="button is-primary" :disabled="filterKeys().length === 0">
                   Export participants data
                 </button>
               </div>
@@ -98,7 +98,6 @@ export default {
   name: 'ExportStatutoryData',
   data () {
     return {
-      applications: [],
       fields: {},
       selectedFields: {},
       event: {
@@ -120,8 +119,7 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     exportOpenSlides () {
@@ -135,7 +133,10 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
-      })
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+      }).catch((err) => this.showExportError('Could not export the OpenSlides data', err))
     },
     exportAll () {
       const prefix = this.can.export.all
@@ -159,7 +160,22 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
-      })
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+      }).catch((err) => this.showExportError('Could not export the participants', err))
+    },
+    async showExportError (message, err) {
+      // The error body is a Blob too, so reading the service's message out of it.
+      if (err.response && err.response.data instanceof Blob) {
+        try {
+          err.response.data = JSON.parse(await err.response.data.text())
+        } catch (parseError) {
+          err.response.data = null
+        }
+      }
+
+      this.$root.showError(message, err)
     },
     filterKeys () {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
@@ -176,8 +192,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
@@ -189,7 +203,6 @@ export default {
       return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/fields/applications/' + prefix)
     }).then((response) => {
       this.fields = response.data.data
-      this.isLoading = false
 
       // To not copypaste stuff.
       // Selecting all answers by default.
@@ -197,7 +210,6 @@ export default {
         this.$set(this.selectedFields, field, true)
       }
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {

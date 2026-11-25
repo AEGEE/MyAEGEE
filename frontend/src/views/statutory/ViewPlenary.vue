@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Plenary details</div>
+        <h1 class="title">Plenary details</h1>
 
         <div class="content">
           <ul>
@@ -14,13 +14,13 @@
 
         <form v-on:submit.prevent="addAttendance">
           <div class="field">
-            <label class="label">Search by name or description</label>
+            <label class="label" for="plenary-application-id">Application ID or statutory ID</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="text" v-model="applicationId" placeholder="Application ID" />
+                <input id="plenary-application-id" class="input" type="text" v-model="applicationId" placeholder="Application ID" />
               </div>
               <div class="control">
-                <input type="submit" class="button is-primary" value="Add attendance info" />
+                <input type="submit" class="button is-primary" value="Add attendance info" :disabled="isSaving" />
               </div>
             </div>
           </div>
@@ -64,7 +64,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'StatutoryPlenariesList',
+  name: 'StatutoryViewPlenary',
   data () {
     return {
       plenary: {
@@ -85,13 +85,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     })
   },
   methods: {
     addAttendance () {
-      this.isSaving = false
+      // The button is disabled meanwhile, so Enter doesn't mark the same member in and out.
+      this.isSaving = true
       this.axios.post(
         this.services['statutory']
           + '/events/' + this.$route.params.id
@@ -105,11 +105,11 @@ export default {
         if (existingAttendance) {
           // 1) there is unclosed attendance, then updating it
           existingAttendance.ends = response.data.data.ends
-          this.$root.showSuccess(`Successfully marked application ${existingAttendance.application.id} as NOT presented.`)
+          this.$root.showSuccess(`Successfully marked application ${existingAttendance.application.id} as left.`)
         } else {
           // 2) if either there's no attendances for this application or all of them are closed
           this.plenary.attendances.unshift(response.data.data)
-          this.$root.showSuccess(`Successfully marked application ${response.data.data.application.id} as presented.`)
+          this.$root.showSuccess(`Successfully marked application ${response.data.data.application.id} as present.`)
         }
         this.isSaving = false
         this.applicationId = ''
@@ -134,7 +134,8 @@ export default {
     }).catch((err) => {
       this.isLoading = false
       if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
+        // The event is there once it is loaded, so the plenary isn't.
+        this.$root.showError(this.event.id ? 'Plenary is not found' : 'Event is not found')
       } else {
         this.$root.showError('Some error happened', err)
       }

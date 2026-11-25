@@ -62,6 +62,7 @@ No Docker images or traefik are involved:
 | network | 18088 |
 | discounts | 18089 |
 | fake mailer | 18090 |
+| fake currency conversion rates (for statutory) | 18091 |
 
 `E2E_SLOT=n` (0 to 9) moves all ports by `n * 1000` and gives the databases and media folders a
 suffix, so several checkouts can run at once: see [docs/testing/running.md](../docs/testing/running.md).

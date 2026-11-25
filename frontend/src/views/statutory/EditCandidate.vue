@@ -1,23 +1,31 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <h1 class="title">{{ $route.params.candidate_id ? 'Edit the candidature for' : 'Apply for' }} {{ position ? position.name : 'a position' }}</h1>
       <span class="notification is-info" v-if="$route.params.candidate_id">
         To withdraw your candidature, you should send an email to the <a href="mailto:juridical@aegee.eu">Juridical Commission</a>.
       </span>
       <form @submit.prevent="saveCandidate()">
         <div class="field">
-          <label class="label">Body <span class="has-text-danger">*</span></label>
+          <label class="label" for="statutory-candidate-body">Body <span class="has-text-danger">*</span></label>
           <div class="select" v-show="bodies.length > 0">
-            <select v-model="candidate.body_id">
+            <select id="statutory-candidate-body" v-model="candidate.body_id">
               <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
             </select>
           </div>
+          <p class="help is-danger" v-if="errors.body_id">{{ errors.body_id.join(', ') }}</p>
         </div>
 
         <event-no-body-notification v-show="bodies.length == 0" />
 
         <div v-if="$route.params.candidate_id">
-          <div class="subtitle">Update candidature image</div>
+          <h2 class="subtitle">Update candidature image</h2>
+
+          <figure class="image is-128x128 field" v-if="candidate.image">
+            <img
+              :src="services['statutory-static'] + candidate.image.frontend_path"
+              :alt="'Photo of ' + candidate.first_name + ' ' + candidate.last_name">
+          </figure>
 
           <div class="field is-grouped">
             <div class="control">
@@ -40,7 +48,7 @@
             </div>
 
             <div class="control">
-              <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+              <button type="button" class="button is-info" :disabled="!file" @click="updateImage()">Upload!</button>
             </div>
           </div>
 
@@ -55,9 +63,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Date of birth</label>
+          <label class="label" for="statutory-candidate-date-of-birth">Date of birth</label>
           <div class="control">
             <flat-pickr
+              id="statutory-candidate-date-of-birth"
               placeholder="Select date"
               class="input"
               required
@@ -68,9 +77,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Member since</label>
+          <label class="label" for="statutory-candidate-member-since">Member since</label>
           <div class="control">
             <flat-pickr
+              id="statutory-candidate-member-since"
               placeholder="Select date"
               class="input"
               required
@@ -81,10 +91,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Nationality</label>
+          <label class="label" for="statutory-candidate-nationality">Nationality</label>
           <div class="control">
             <div class="select">
-              <select v-model="candidate.nationality">
+              <select id="statutory-candidate-nationality" v-model="candidate.nationality">
                 <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
               </select>
             </div>
@@ -93,13 +103,15 @@
         </div>
 
         <div class="field">
-          <label class="label">
+          <p class="label">
             Languages
             <tooltip text="To add a language to the list, press either 'tab' or 'enter', or add a comma" />
-          </label>
+          </p>
           <div class="control">
+            <!-- The component puts its attributes on its wrapper; its text field is named by the placeholder. -->
             <input-tag
               v-if="!isLoading"
+              placeholder="Add a language"
               v-model="candidate.languages"
               :before-adding="value => value.trim()" />
           </div>
@@ -107,11 +119,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Studies</label>
+          <label class="label" for="statutory-candidate-studies">Studies</label>
           <div class="control">
-            <input class="input" type="text" required v-model="candidate.studies" />
+            <input id="statutory-candidate-studies" class="input" type="text" required v-model="candidate.studies" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.studies)" />
           </div>
@@ -119,11 +131,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended Agorae</label>
+          <label class="label" for="statutory-candidate-attended-agorae">Attended Agorae</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_agorae" />
+            <textarea id="statutory-candidate-attended-agorae" class="textarea" required v-model="candidate.attended_agorae" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_agorae)" />
           </div>
@@ -131,11 +143,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended EPMs</label>
+          <label class="label" for="statutory-candidate-attended-epm">Attended EPMs</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_epm" />
+            <textarea id="statutory-candidate-attended-epm" class="textarea" required v-model="candidate.attended_epm" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_epm)" />
           </div>
@@ -143,11 +155,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended European Events</label>
+          <label class="label" for="statutory-candidate-attended-conferences">Attended European Events</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.attended_conferences" />
+            <textarea id="statutory-candidate-attended-conferences" class="textarea" required v-model="candidate.attended_conferences" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.attended_conferences)" />
           </div>
@@ -155,11 +167,11 @@
         </div>
 
         <div class="field">
-          <label class="label">European level experience</label>
+          <label class="label" for="statutory-candidate-european-experience">European level experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.european_experience" />
+            <textarea id="statutory-candidate-european-experience" class="textarea" required v-model="candidate.european_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.european_experience)" />
           </div>
@@ -167,11 +179,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Local level experience</label>
+          <label class="label" for="statutory-candidate-local-experience">Local level experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.local_experience" />
+            <textarea id="statutory-candidate-local-experience" class="textarea" required v-model="candidate.local_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.local_experience)" />
           </div>
@@ -179,11 +191,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Task-related experience</label>
+          <label class="label" for="statutory-candidate-related-experience">Position-related experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.related_experience" />
+            <textarea id="statutory-candidate-related-experience" class="textarea" required v-model="candidate.related_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.related_experience)" />
           </div>
@@ -191,11 +203,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Non-AEGEE experience</label>
+          <label class="label" for="statutory-candidate-external-experience">Non-AEGEE experience</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.external_experience" />
+            <textarea id="statutory-candidate-external-experience" class="textarea" required v-model="candidate.external_experience" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.external_experience)" />
           </div>
@@ -203,11 +215,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Motivation</label>
+          <label class="label" for="statutory-candidate-motivation">Motivation</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.motivation" />
+            <textarea id="statutory-candidate-motivation" class="textarea" required v-model="candidate.motivation" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.motivation)" />
           </div>
@@ -215,11 +227,11 @@
         </div>
 
         <div class="field">
-          <label class="label">Program</label>
+          <label class="label" for="statutory-candidate-program">Program</label>
           <div class="control">
-            <textarea class="textarea" required v-model="candidate.program" />
+            <textarea id="statutory-candidate-program" class="textarea" required v-model="candidate.program" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
+          <p class="label">Preview <MarkdownTooltip /></p>
           <div class="content">
             <span v-html="$options.filters.markdown(candidate.program)" />
           </div>
@@ -259,13 +271,35 @@ import moment from 'moment'
 
 import nationalities from '../../nationalities'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
+import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 import sortBodies from '../../methods/sort-bodies'
+
+// The fields that show statutory's reasons under them.
+const FIELDS_WITH_ERRORS = [
+  'body_id',
+  'date_of_birth',
+  'member_since',
+  'nationality',
+  'languages',
+  'studies',
+  'attended_agorae',
+  'attended_epm',
+  'attended_conferences',
+  'european_experience',
+  'local_experience',
+  'related_experience',
+  'external_experience',
+  'motivation',
+  'program',
+  'agreed_to_privacy_policy'
+]
 
 export default {
   components: {
     flatPickr,
     InputTag,
-    MarkdownTooltip
+    MarkdownTooltip,
+    EventNoBodyNotification
   },
   name: 'EditCandidate',
   data () {
@@ -280,10 +314,14 @@ export default {
         languages: [],
         agreed_to_privacy_policy: false
       },
+      // The position applied for, which the title names.
+      position: null,
       nationalities,
-      dateConfig: {},
-      options: [],
-      newValue: '',
+      // Typed dates are accepted, and phones get the same picker.
+      dateConfig: {
+        allowInput: true,
+        disableMobile: true
+      },
       bodies: [],
       file: null,
       errors: {},
@@ -296,10 +334,6 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
-      if (!this.file) {
-        return
-      }
-
       const data = new FormData()
       data.append('image', this.file)
 
@@ -310,8 +344,11 @@ export default {
         + '/candidates/' + this.$route.params.candidate_id
         + '/image',
         data
-      ).then(() => {
+      ).then((response) => {
         this.$root.showSuccess('Image is updated.')
+        // The service answers with the candidature and its new picture.
+        this.$set(this.candidate, 'image_id', response.data.data.image_id)
+        this.$set(this.candidate, 'image', response.data.data.image)
         this.file = null
       }).catch((err) => this.$root.showError('Could not update image', err))
     },
@@ -331,19 +368,25 @@ export default {
         this.isSaving = false
         this.$root.showSuccess('Candidate is saved.')
 
+        // Someone else's candidature is edited by the Juridical Commission, from its own list.
+        const prefix = this.$route.params.candidate_id && this.candidate.user_id !== this.loginUser.id ? 'all' : 'approved'
         return this.$router.push({
           name: 'oms.statutory.positions',
-          params: { id: this.$route.params.id, prefix: 'approved' }
+          params: { id: this.$route.params.id, prefix }
         })
       }).catch((err) => {
         this.isSaving = false
 
         if (err.response && err.response.status === 422) { // validation errors
-          if (!err.response.data.errors) {
-            return this.$root.showError('Some of the candidate data is invalid', err)
+          this.$set(this, 'errors', err.response.data.errors)
+
+          // Reasons that belong to no field of the form (a second candidature for the
+          // position) are in the message, also when fields have reasons of their own.
+          const other = Object.keys(this.errors).filter((key) => !FIELDS_WITH_ERRORS.includes(key))
+          if (other.length > 0) {
+            return this.$root.showError(`Some of the candidate data is invalid: ${other.map((key) => this.errors[key].join(', ')).join('; ')}`)
           }
 
-          this.$set(this, 'errors', err.response.data.errors)
           return this.$root.showError('Some of the candidate data is invalid.')
         }
 
@@ -356,6 +399,12 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/').then((response) => {
+      this.position = response.data.data.find(position => position.id === Number(this.$route.params.position_id))
+    }).catch((err) => {
+      this.$root.showError('Could not fetch the position', err)
+    })
+
     this.bodies = sortBodies(
       this.loginUser.bodies.filter(body => ['contact', 'contact antenna', 'antenna'].includes(body.type)),
       this.loginUser.primary_body_id
@@ -375,7 +424,6 @@ export default {
       return
     }
 
-    this.candidate.body = this.loginUser.bodies.find(body => body.id === this.candidate.body_id)
     this.isLoading = true
 
     this.axios.get(

@@ -2,98 +2,102 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Incoming</div>
+        <h1 class="title">Incoming</h1>
 
         <div class="field">
-          <label class="label">Search by name or statutory ID (search by email is currently broken but will return)</label>
+          <label class="label" for="incoming-search">Search by name, surname or statutory ID</label>
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
+            <input id="incoming-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
           </div>
         </div>
 
         <div>Total participants: {{ total }}</div>
 
-        <b-table
-          :data="applications"
-          :loading="isLoading"
-          paginated
-          backend-pagination
-          :total="total"
-          :per-page="limit"
-          @page-change="onPageChange"
-          backend-sorting
-          default-sort="statutory_id"
-          default-sort-direction="desc"
-          @sort="onSort">
-          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
-            {{ props.row.statutory_id }}
-          </b-table-column>
+        <section aria-label="Participants" :aria-busy="isLoading ? 'true' : 'false'">
+          <b-table
+            :data="applications"
+            :loading="isLoading"
+            paginated
+            backend-pagination
+            :total="total"
+            :per-page="limit"
+            :current-page.sync="page"
+            @page-change="onPageChange"
+            backend-sorting
+            default-sort="statutory_id"
+            default-sort-direction="desc"
+            v-bind="paginationLabels"
+            @sort="onSort">
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+              {{ props.row.statutory_id }}
+            </b-table-column>
 
-          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
-            {{ props.row.user_id }}
-          </b-table-column>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+              {{ props.row.user_id }}
+            </b-table-column>
 
-          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
-            {{ props.row.first_name | beautify }}
-          </b-table-column>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
-            {{ props.row.last_name | beautify }}
-          </b-table-column>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+              {{ props.row.last_name | beautify }}
+            </b-table-column>
 
-          <b-table-column field="email" label="Email" centered sortable v-slot="props">
-            {{ props.row.notification_email }}
-          </b-table-column>
+            <b-table-column label="Email" centered v-slot="props">
+              {{ props.row.notification_email }}
+            </b-table-column>
 
-          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
-            {{ props.row.body_name }}
-          </b-table-column>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+              {{ props.row.body_name }}
+            </b-table-column>
 
-          <b-table-column field="meals" label="Meals" centered sortable v-slot="props">
-            {{ props.row.meals }}
-          </b-table-column>
+            <b-table-column field="meals" label="Meals" centered sortable v-slot="props">
+              {{ props.row.meals }}
+            </b-table-column>
 
-          <b-table-column field="allergies" label="Allergies" centered sortable v-slot="props">
-            {{ props.row.allergies }}
-          </b-table-column>
+            <b-table-column field="allergies" label="Allergies" centered sortable v-slot="props">
+              {{ props.row.allergies }}
+            </b-table-column>
 
-          <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
-              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
+                <select v-model="props.row.newConfirmed" :aria-label="'Confirmed of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="incoming" label="Incoming form filled?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
-              <select v-model="props.row.newIncoming" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="incoming" label="Incoming form filled?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
+                <select v-model="props.row.newIncoming" :aria-label="'Incoming form filled of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
-            <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
-                <option :value="true">Yes</option>
-                <option :value="false">No</option>
-              </select>
-            </div>
-          </b-table-column>
+            <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
+              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
+                <select v-model="props.row.newAttended" :aria-label="'Attended of ' + props.row.first_name + ' ' + props.row.last_name" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
 
-          <b-table-column label="View" centered v-slot="props">
-            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-              View
-            </router-link>
-          </b-table-column>
+            <b-table-column label="View" centered v-slot="props">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url, application_id: props.row.statutory_id || props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
 
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+        </section>
       </div>
     </div>
   </div>
@@ -106,6 +110,13 @@ export default {
   name: 'StatutoryIncoming',
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       event: {
         questions: []
@@ -113,13 +124,15 @@ export default {
       query: '',
       limit: 50,
       offset: 0,
+      page: 1,
       total: 0,
       sort: {
         field: 'id',
-        direction: 'desc'
+        order: 'desc'
       },
       isLoading: false,
-      isSaving: false
+      // Counts the list requests, so a late answer to an earlier one is dropped.
+      listRequest: 0
     }
   },
   computed: {
@@ -139,7 +152,10 @@ export default {
     }
   },
   watch: {
+    // Another search starts from the first page.
     query () {
+      this.offset = 0
+      this.page = 1
       this.loadApplications()
     }
   },
@@ -154,6 +170,8 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingAttended = false
+        // Showing what is still stored.
+        pax.newAttended = pax.attended
         this.$root.showError('Could not update participant attendance info', err)
       })
     },
@@ -167,6 +185,8 @@ export default {
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingConfirmed = false
+        // Showing what is still stored.
+        pax.newConfirmed = pax.confirmed
         this.$root.showError('Could not update participant fee info', err)
       })
     },
@@ -180,6 +200,8 @@ export default {
         this.$root.showSuccess(`Successfully updated incoming info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingIncoming = false
+        // Showing what is still stored.
+        pax.newIncoming = pax.incoming
         this.$root.showError('Could not update participant incoming info', err)
       })
     },
@@ -192,13 +214,13 @@ export default {
       this.loadApplications()
     },
     loadApplications () {
+      // Only the answer to the last search, page or sort counts: a late one for an earlier
+      // request is dropped.
+      const request = ++this.listRequest
       this.isLoading = true
 
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
-        this.event = event.data.data
-
-        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject })
-      }).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject }).then((application) => {
+        if (request !== this.listRequest) return
         this.applications = application.data.data
         this.total = application.data.meta.count
         this.isLoading = false
@@ -213,19 +235,33 @@ export default {
           this.$set(pax, 'isSavingAttended', false)
         }
       }).catch((err) => {
-        this.isLoading = false
-        if (err.response && err.response.status === 404) {
-          this.$root.showError('Event is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
-
-        this.$router.push({ name: 'oms.statutory.list.all' })
+        if (request !== this.listRequest) return
+        this.showLoadError(err)
       })
+    },
+    showLoadError (err) {
+      this.isLoading = false
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
+
+      this.$router.push({ name: 'oms.statutory.list.all' })
     }
   },
+  // A page left while its request runs drops the answer: no late error, no redirect.
+  beforeDestroy () {
+    this.listRequest++
+  },
   mounted () {
-    this.loadApplications()
+    this.isLoading = true
+
+    // The event is the same for every search and page, so it's loaded once.
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.event = event.data.data
+      this.loadApplications()
+    }).catch(this.showLoadError)
   }
 }
 </script>

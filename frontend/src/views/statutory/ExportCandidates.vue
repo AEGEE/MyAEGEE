@@ -2,13 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
+        <h1 class="title">Export candidates</h1>
         <div>
           <div class="field is-fullwidth">
-            <label class="label">Filter on candidate status</label>
+            <label class="label" for="statutory-candidates-export-status">Filter on candidate status</label>
             <div class="select">
-              <select v-model="filter.status">
+              <select id="statutory-candidates-export-status" v-model="filter.status">
                 <option :value="null">Everybody</option>
-                <option value="accepted">Accepted candidates</option>
+                <option value="approved">Approved candidates</option>
                 <option value="rejected">Rejected candidates</option>
                 <option value="pending">Pending candidates</option>
               </select>
@@ -25,7 +26,12 @@
 
             <div class="field">
               <div class="control">
-                <button @click="exportAll()" class="button is-primary">
+                <button
+                  type="button"
+                  @click="exportAll()"
+                  class="button is-primary"
+                  :class="{ 'is-loading': isExporting }"
+                  :disabled="isExporting || filterKeys().length === 0">
                   Export candidates data
                 </button>
               </div>
@@ -44,7 +50,6 @@ export default {
   name: 'ExportStatutoryData',
   data () {
     return {
-      applications: [],
       fields: {},
       selectedFields: {},
       event: {
@@ -55,18 +60,19 @@ export default {
       },
       can: {
         manage_candidates: false
-      }
+      },
+      isExporting: false
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
   methods: {
     exportAll () {
       const select = this.filterKeys()
       const filter = this.filterApplications()
 
+      this.isExporting = true
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/export', {
         responseType: 'blob',
         params: {
@@ -81,6 +87,22 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+        this.isExporting = false
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the API's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.isExporting = false
+        this.$root.showError('Could not export candidates', err)
       })
     },
     filterKeys () {
@@ -95,8 +117,6 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
@@ -104,7 +124,6 @@ export default {
       return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/fields/candidates')
     }).then((response) => {
       this.fields = response.data.data
-      this.isLoading = false
 
       // To not copypaste stuff.
       // Selecting all answers by default.
@@ -112,7 +131,6 @@ export default {
         this.$set(this.selectedFields, field, true)
       }
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {

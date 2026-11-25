@@ -2,14 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Manage members list</div>
+        <h1 class="title">Manage members list</h1>
 
         <div class="field" v-if="boardBodies.length > 0">
-          <label>Select the body to manage members list for:</label>
+          <label for="memberslist-body">Select the body to manage members list for:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="memberslist-body" v-model="selectedBody" :disabled="isLoading">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -20,37 +20,21 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="!isLoadingBodies && boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div v-show="selectedBody && canEditMemberslist(selectedBody)">
-          <div class="field is-grouped">
+          <div class="field is-grouped is-grouped-multiline">
             <div class="control">
-              <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
+              <button type="button" class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
-            <!-- Disabled for now, probably will be enabled again later, therefore not deleted. -->
-            <!-- <div class="control">
-              <div class="file">
-                <label class="file-label">
-                  <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
-                  <span class="file-cta">
-                    <span class="file-icon">
-                      <font-awesome-icon icon="upload" />
-                    </span>
-                    <span class="file-label">
-                      Fetch members list from CSV
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div> -->
-
-            <div class="control">
-              <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
-              <button class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
+            <div class="control" v-if="memberslist">
+              <button type="button" class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
+              <button type="button" class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
             </div>
-            <div class="control">
+            <div class="control" v-if="memberslist">
               <button
+                type="button"
                 class="button is-warning"
                 @click="checkMemberslist()"
                 :disabled="isLoading">
@@ -62,8 +46,12 @@
 
         <article
           class="message is-warning"
-          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isBetweenMemberslistDeadlines">
-          <div class="message-body">
+          v-if="selectedBody && memberslist && !canEditMemberslist(selectedBody) && isAfterSubmissionDeadline">
+          <div class="message-body" v-if="isAfterEditDeadline">
+            The edit deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
+            <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
+          </div>
+          <div class="message-body" v-else>
             The upload deadline has passed. If you want to make changes to the members list, reach out to the Network Director at
             <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
           </div>
@@ -77,31 +65,34 @@
             <li v-if="memberslist.fee_to_aegee"><strong>Total fee paid to AEGEE-Europe: </strong>{{ memberslist.fee_to_aegee.toFixed(2) }} EUR</li>
           </ul>
           <div class="field">
-            <label class="label">Currency</label>
+            <label class="label" for="memberslist-currency">Currency</label>
             <div class="control">
               <div class="select">
-                <select v-model="memberslist.currency">
+                <select id="memberslist-currency" v-model="memberslist.currency">
                   <option v-for="(description, value) in currenciesList" v-bind:key="value" v-bind:value="value">{{ description }}</option>
                 </select>
               </div>
             </div>
           </div>
+          <div class="message is-warning" v-if="otherPaymentCurrencies.length > 0">
+            <div class="message-body">Some payments are in another currency ({{ otherPaymentCurrencies.join(', ') }}): their fees are not filled in, check them.</div>
+          </div>
 
           <hr v-if="isEditing" />
 
           <div class="field" v-if="isEditing">
-            <label class="label">Set fee for everyone</label>
+            <label class="label" for="memberslist-fee-for-everyone">Set fee for everyone</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="number" v-model.number="tempFee">
+                <input id="memberslist-fee-for-everyone" class="input" type="number" v-model.number="tempFee">
               </div>
               <div class="control">
-                <a class="button is-info" @click="setFee()">Set</a>
+                <button type="button" class="button is-info" @click="setFee()">Set</button>
               </div>
             </div>
           </div>
 
-          <table class="table is-narrow is-fullwidth">
+          <table class="table is-narrow is-fullwidth" aria-label="Members">
             <thead>
               <tr>
                 <th>Index</th>
@@ -125,13 +116,11 @@
                 <td v-if="!isEditing">{{ member.last_name }}</td>
                 <td v-if="!isEditing">{{ member.fee }}</td>
 
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name" /></td>
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name" /></td>
-                <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee" /></td>
+                <td v-if="isEditing"><input type="text" class="input" :aria-label="'First name of member ' + (index + 1)" v-model="member.first_name" /></td>
+                <td v-if="isEditing"><input type="text" class="input" :aria-label="'Last name of member ' + (index + 1)" v-model="member.last_name" /></td>
+                <td v-if="isEditing"><input type="number" class="input" :aria-label="'Fee of member ' + (index + 1)" v-model.number="member.fee" /></td>
 
-                <td>
-                  <span v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</span>
-                </td>
+                <td v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</td>
               </tr>
             </tbody>
           </table>
@@ -139,7 +128,7 @@
 
         <article
           class="message is-warning"
-          v-if="selectedBody && !memberslist && isBetweenMemberslistDeadlines">
+          v-if="selectedBody && !memberslist && !canEditMemberslist(selectedBody) && isAfterSubmissionDeadline">
           <div class="message-body">
             The submission deadline has passed. If your local still needs to submit a members list, reach out to the Network Director at
             <a href="mailto:network@aegee.eu">network@aegee.eu</a>.
@@ -167,9 +156,7 @@ export default {
       boardBodies: [],
       myBoards: [],
       selectedBody: null,
-      event: {
-        questions: []
-      },
+      event: {},
       currenciesList,
       can: {
         upload_memberslist: {}
@@ -177,34 +164,52 @@ export default {
       payments: [],
       tempFee: 0,
       isLoading: false,
+      isLoadingBodies: true,
       isEditing: false,
-      isSaving: false,
-      saved: true
+      // Counts the requests for a list, so a late answer for another local is dropped.
+      memberslistRequest: 0,
+      // For a list fetched from a body: the fee each member got from a payment, by user ID.
+      // Null for a stored list.
+      feesFromPayments: null
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     }),
-    isBetweenMemberslistDeadlines () {
-      if (!this.event.memberslist_submission_deadline || !this.event.memberslist_edit_deadline) {
-        return false
-      }
-
-      const now = moment()
-      return now.isAfter(this.event.memberslist_submission_deadline) && now.isSameOrBefore(this.event.memberslist_edit_deadline)
+    // For a list fetched from a body: the currencies of payments whose fee isn't filled in, as
+    // they are in another currency than the list's.
+    otherPaymentCurrencies () {
+      if (!this.feesFromPayments || !this.memberslist) return []
+      return this.currentPaymentCurrencies()
+        .filter(currency => currency !== this.memberslist.currency)
+        .map(currency => currenciesList[currency] || currency)
+    },
+    // Only an Agora has these deadlines; without them nothing is said about them.
+    isAfterSubmissionDeadline () {
+      return Boolean(this.event.memberslist_submission_deadline) && moment().isAfter(this.event.memberslist_submission_deadline)
+    },
+    // Read after the submission deadline only, so the event has its edit deadline.
+    isAfterEditDeadline () {
+      return moment().isAfter(this.event.memberslist_edit_deadline)
     }
   },
   methods: {
     fetchMembersList () {
+      // Only the answers for the local chosen last count: a late answer for a local chosen
+      // before is dropped.
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.memberslist = null
+      this.feesFromPayments = null
 
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
+        if (request !== this.memberslistRequest) return
         this.memberslist = response.data.data
+        this.feesFromPayments = null
         this.isLoading = false
       }).catch((err) => {
+        if (request !== this.memberslistRequest) return
         this.isLoading = false
         this.memberslist = null
 
@@ -219,10 +224,13 @@ export default {
       }
     },
     fetchFromBody () {
+      const bodyId = this.selectedBody
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.isEditing = false
 
-      this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/members').then((response) => {
+      this.axios.get(this.services['core'] + '/bodies/' + bodyId + '/members').then((response) => {
+        if (request !== this.memberslistRequest) return null
         this.memberslist = {
           currency: null,
           members: response.data.data.map(member => ({
@@ -233,36 +241,33 @@ export default {
           }))
         }
 
-        return this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/payments')
+        return this.axios.get(this.services['core'] + '/bodies/' + bodyId + '/payments')
           .then((paymentsResponse) => {
+            if (request !== this.memberslistRequest) return
             this.payments = paymentsResponse.data.data
 
-            // getting last payment for each user, setting it as a members' fee on newly-created memberslist
-            for (const member of this.memberslist.members) {
-              // for old memberslists that were uploaded through CSV and do not have the user ID, do nothing
-              if (!member.user_id) {
-                continue
-              }
-
-              // get member's current payment
-              const currentPayment = this.payments.find(payment => payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
-
-              // if there's no payment, do nothing, so it'd default to zero
-              // if there is one, setting it for the user.
-              if (currentPayment) {
-                const intFee = Number(currentPayment.amount)
-                member.fee = !Number.isNaN(intFee) ? intFee : 0
-              }
+            // The current payments of the members fill in their fees, but only those in the
+            // currency of the list: when they are all in one currency, that becomes the
+            // currency of the list.
+            this.feesFromPayments = {}
+            // A currency the board chose meanwhile stays, and only a currency the page knows
+            // can be taken; any other is named in the warning.
+            const currencies = this.currentPaymentCurrencies()
+            if (currencies.length === 1 && !this.memberslist.currency && currenciesList[currencies[0]]) {
+              this.memberslist.currency = currencies[0]
             }
+            this.fillFeesFromPayments()
 
             this.isLoading = false
           })
           .catch((err) => {
+            if (request !== this.memberslistRequest) return
             // not great, not terrible
             this.$root.showWarning('Could not fetch payments info: ' + err.message)
             this.isLoading = false
           })
       }).catch((err) => {
+        if (request !== this.memberslistRequest) return
         this.isLoading = false
         this.$root.showError('Some error happened', err)
       })
@@ -319,65 +324,62 @@ export default {
         }))
       }
 
+      // The list is saved for the local it was made for; its answer only shows if the page is
+      // still on that list.
+      const bodyId = this.selectedBody
+      const request = ++this.memberslistRequest
       this.isLoading = true
       this.isEditing = false
-      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + bodyId, body).then((response) => {
         this.$root.showSuccess('Members list is uploaded.')
+        if (request !== this.memberslistRequest) return
         this.memberslist = response.data.data
+        this.feesFromPayments = null
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request === this.memberslistRequest) this.isLoading = false
         this.$root.showError('Could not save memberslist', err)
       })
     },
-    openFileDialog (event) {
-      const file = event.target.files[0]
-      if (!file) {
-        return
-      }
-
-      if (file) {
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = (evt) => this.processFileContent(evt.target.result)
-        reader.onerror = (err) => {
-          this.$root.showError('Could not open file', err)
+    // The current payments of a member.
+    currentPaymentsOf (member) {
+      return this.payments.filter(payment => payment.user_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+    },
+    // The current payment of a member: the one in the list's currency if there is one.
+    currentPaymentOf (member) {
+      const current = this.currentPaymentsOf(member)
+      return current.find(payment => payment.currency === this.memberslist.currency) || current[0]
+    },
+    // The currencies of all current payments of the members on the list, without repeats.
+    currentPaymentCurrencies () {
+      const currencies = this.memberslist.members
+        .flatMap(member => this.currentPaymentsOf(member))
+        .map(payment => payment.currency)
+      return [...new Set(currencies)].sort()
+    },
+    // Sets the fee of every member whose current payment is in the list's currency to that
+    // payment, and takes back a fee filled in from a payment in another currency. A fee the
+    // board typed in is left alone.
+    fillFeesFromPayments () {
+      for (const member of this.memberslist.members) {
+        const filled = this.feesFromPayments[member.user_id]
+        if (member.fee !== (filled === undefined ? 0 : filled)) {
+          delete this.feesFromPayments[member.user_id]
+          continue
+        }
+        const payment = this.currentPaymentOf(member)
+        if (payment && payment.currency === this.memberslist.currency) {
+          const fee = Number(payment.amount)
+          member.fee = !Number.isNaN(fee) ? fee : 0
+          this.feesFromPayments[member.user_id] = member.fee
+        } else if (filled !== undefined) {
+          member.fee = 0
+          delete this.feesFromPayments[member.user_id]
         }
       }
     },
     isLocal (body) {
       return ['antenna', 'contact antenna', 'contact'].includes(body.type)
-    },
-    processFileContent (input) {
-      // CSV content: first_name,last_name,fee
-      const csvArray = input
-        .replace(/;/g, ',') // replacing all semicolons with commas
-        .replace(/"/g, '') // removing all quotes
-        .split('\n') // splitting by new lime
-        .filter(line => line.length > 0) // removing empty strings
-        .map(elt => elt.split(','))
-
-      // Checking if each line has at least 3 columns.
-      if (csvArray.some(elt => elt.length < 3)) {
-        return this.$root.showError('CSV is malformed.')
-      }
-
-      const members = csvArray.map((element) => {
-        const firstName = element[0].trim()
-        const lastName = element[1].trim()
-        const fee = parseInt(element[2].trim(), 10) || 0
-
-        return {
-          first_name: firstName,
-          last_name: lastName,
-          fee
-        }
-      })
-
-      this.memberslist = {
-        currency: null,
-        members
-      }
     },
     canEditMemberslist (bodyId) {
       if (this.memberslist) {
@@ -388,13 +390,19 @@ export default {
     }
   },
   watch: {
+    // Another currency for a list fetched from a body fills in the fees of the payments in it.
+    'memberslist.currency': function () {
+      if (this.feesFromPayments && this.memberslist) this.fillFeesFromPayments()
+    },
     selectedBody () {
       this.fetchMembersList()
     }
   },
+  // A page left while its request runs drops the answer.
+  beforeDestroy () {
+    this.memberslistRequest++
+  },
   mounted () {
-    this.isLoading = true
-
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
@@ -405,21 +413,24 @@ export default {
 
       // If user has global permission, fetch all bodies.
       // Otherwise, fetch only bodies that user is a member of.
-      if (!this.can.see_memberslist.global) {
-        for (const bodyId of this.myBoards) {
-          this.axios.get(this.services['core'] + '/bodies/' + bodyId).then((body) => {
-            if (this.isLocal(body.data.data)) {
-              this.boardBodies.push(body.data.data)
-            }
-          })
+      const requests = this.can.see_memberslist.global
+        ? [this.axios.get(this.services['core'] + '/bodies/').then((response) => response.data.data)]
+        : this.myBoards.map((bodyId) => this.axios.get(this.services['core'] + '/bodies/' + bodyId).then((body) => [body.data.data]))
+
+      // The page only says the member has no body once every body is in.
+      Promise.allSettled(requests).then((results) => {
+        this.boardBodies = results
+          .filter((result) => result.status === 'fulfilled')
+          .flatMap((result) => result.value)
+          .filter(body => this.isLocal(body))
+        this.isLoadingBodies = false
+
+        const failed = results.find((result) => result.status === 'rejected')
+        if (failed) {
+          this.$root.showError('Could not fetch bodies', failed.reason)
         }
-      } else {
-        this.axios.get(this.services['core'] + '/bodies/').then((response) => {
-          this.boardBodies = response.data.data.filter(body => this.isLocal(body))
-        })
-      }
+      })
     }).catch((err) => {
-      this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {

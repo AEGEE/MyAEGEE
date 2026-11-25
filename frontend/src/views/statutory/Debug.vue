@@ -2,9 +2,9 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Statutory service page</div>
+        <h1 class="title">Statutory service page</h1>
 
-        <div class="subtitle">Permissions</div>
+        <h2 class="subtitle">Permissions</h2>
 
         <b-table :data="flattenedPermissions" :loading="isLoading">
           <b-table-column field="permission" label="Permission" v-slot="props">

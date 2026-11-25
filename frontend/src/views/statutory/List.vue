@@ -4,32 +4,32 @@
       <article class="tile is-child">
         <h4 class="title">Statutory events list</h4>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="statutory-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+              <input id="statutory-search" class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
             </div>
           </div>
         </div>
 
         <div class="field">
           <div class="control">
-            <router-link class="button is-primary" v-if="can.create" :to="{ name: 'oms.statutory.create' }">Create event</router-link>
+            <router-link class="button is-primary" v-if="canCreate" :to="{ name: 'oms.statutory.create' }">Create event</router-link>
           </div>
         </div>
 
-        <div class="card" v-for="event in events" v-bind:key="event.id">
+        <article class="card" v-for="event in events" v-bind:key="event.id" :aria-labelledby="'statutory-event-title-' + event.id">
           <div class="card-content">
             <div class="media">
               <div class="media-left">
                 <figure class="image image-96px">
-                  <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path">
+                  <img v-if="!event.image" src="/images/logo.png" alt="">
+                  <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path" :alt="event.name">
                 </figure>
               </div>
               <div class="media-content">
                 <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }">
-                  <p class="title is-4">{{ event.name }}</p>
+                  <p class="title is-4" :id="'statutory-event-title-' + event.id">{{ event.name }}</p>
                 </router-link>
               </div>
             </div>
@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
         <div class="card" v-show="events.length === 0 && !isLoading">
           <div class="card-content">
@@ -72,15 +72,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more events</button>
         </div>
       </article>
     </div>
@@ -105,31 +96,25 @@ export default {
       events: [],
       isLoading: false,
       query: '',
-      limit: 30,
-      offset: 0,
-      canLoadMore: true,
-      source: null,
-      can: { create: false },
-      permissions: []
+      source: null
     }
   },
   computed: {
     queryObject () {
-      const queryObj = {
-        limit: this.limit,
-        offset: this.offset
-      }
+      const queryObj = {}
 
       if (this.query) queryObj.search = this.query
       return queryObj
     },
-    ...mapGetters(['services'])
+    // The member's permissions as the app loaded them when the member logged in.
+    canCreate () {
+      return this.permissions.some(permission => permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
+    },
+    ...mapGetters(['services', 'permissions'])
   },
   methods: {
     refetch () {
       this.events = []
-      this.offset = 0
-      this.canLoadMore = true
       this.fetchData()
     },
     fetchData () {
@@ -138,28 +123,16 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       this.axios.get(this.services['statutory'], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
-        this.events = this.events.concat(response.data.data)
-        this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
-
-        return this.axios.get(this.services['core'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
+        this.events = response.data.data
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading = false
         this.$root.showError('Could not fetch statutory events list', err)
       })
-    }
-  },
-  watch: {
-    '$route.name': function () {
-      this.fetchData()
     }
   },
   mounted () {

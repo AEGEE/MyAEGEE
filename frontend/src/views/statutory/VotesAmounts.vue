@@ -2,19 +2,19 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Votes amount</div>
+        <h1 class="title">Votes amount</h1>
 
-        <div class="subtitle">By antenna</div>
+        <h2 id="votes-by-antenna" class="subtitle">By antenna</h2>
 
         <div class="field">
           <div class="control">
-            <a :href="exportVotesTXT.content" :download="exportVotesTXT.filename"><button class="button is-primary">
+            <a v-if="exportVotesTXT.content" class="button is-primary" :href="exportVotesTXT.content" :download="exportVotesTXT.filename">
               Export list of votes
-            </button></a>
+            </a>
           </div>
         </div>
 
-        <table class="table is-narrow is-fullwidth">
+        <table class="table is-narrow is-fullwidth" aria-labelledby="votes-by-antenna">
           <thead>
             <tr>
               <th>Body Code</th>
@@ -24,30 +24,30 @@
           </thead>
           <tbody>
             <tr v-for="vote in antennae" v-bind:key="vote.id">
-              <td>{{ vote.body ? vote.body.code : 'Loading...' }}</td>
+              <td>{{ vote.body ? vote.body.code : (isLoadingBodies ? 'Loading...' : '-') }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">
-                  {{ vote.body ? vote.body.name : 'Loading...' }}
+                  {{ bodyName(vote) }}
                 </router-link>
               </td>
               <td>{{ vote.votes }}</td>
             </tr>
             <tr v-if="antennae.length == 0 && !isLoading">
-              <td colspan="2">No votes yet!</td>
+              <td colspan="3">No votes yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td colspan="2">Loading...</td>
+              <td colspan="3">Loading...</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="subtitle">By delegate</div>
+        <h2 id="votes-by-delegate" class="subtitle">By delegate</h2>
 
-        <table class="table is-narrow is-fullwidth">
+        <table class="table is-narrow is-fullwidth" aria-labelledby="votes-by-delegate">
           <thead>
             <tr>
-              <th>Application ID</th>
-              <th>User</th>
+              <th>Statutory ID</th>
+              <th>User ID</th>
               <th>Body</th>
               <th>Type</th>
               <th>Votes</th>
@@ -59,17 +59,17 @@
               <td>{{ vote.application.user_id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">
-                  {{ vote.body ? vote.body.name : 'Loading...' }}
+                  {{ bodyName(vote) }}
                 </router-link>
               </td>
               <td>{{ vote.type }}</td>
               <td>{{ vote.votes }}</td>
             </tr>
             <tr v-if="delegates.length == 0 && !isLoading">
-              <td colspan="4">No votes yet!</td>
+              <td colspan="5">No votes yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td colspan="4">Loading...</td>
+              <td colspan="5">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -83,13 +83,14 @@ import { mapGetters } from 'vuex'
 
 /**
  * Takes a list of antennas, and returns an object with two properties, TXT content and a filename
+ * An antenna whose body core doesn't list (any more) is exported by its body ID: '#12'.
  * @param antennae
  * @param eventShortLink the string 'aaa' in the URL http://my.appserver.test/statutory/aaa/votes. Since it's part of the URL, it does comport spaces.
  */
 function prepareExportTxt (antennae, eventShortLink) {
   // we're forced to use %09 for tabs and %0A for linebreak.
   const contentT = 'data:text/plain,' + antennae
-    .map(antenna => antenna.body.code + '%09' + antenna.votes + '%0A')
+    .map(antenna => (antenna.body ? antenna.body.code : '%23' + antenna.body_id) + '%09' + antenna.votes + '%0A')
     .join('')
   const filenameT = 'exportVotes_' + eventShortLink + '_' + new Date().toISOString() + '.txt'
   return {
@@ -105,7 +106,7 @@ export default {
       antennae: [],
       delegates: [],
       isLoading: false,
-      isSaving: false,
+      isLoadingBodies: true,
       exportVotesTXT: {
         content: '',
         filename: ''
@@ -113,9 +114,18 @@ export default {
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
+  methods: {
+    // Core lists the active bodies only, so the body of an old vote may not be among them.
+    bodyName (vote) {
+      if (vote.body) {
+        return vote.body.name
+      }
+
+      return this.isLoadingBodies ? 'Loading...' : `Unknown body (#${vote.body_id})`
+    }
+  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/antenna').then((votes) => {
@@ -135,8 +145,12 @@ export default {
         for (const antenna of this.antennae) {
           this.$set(antenna, 'body', bodies.data.data.find(b => b.id === antenna.body_id))
         }
+        this.isLoadingBodies = false
         this.exportVotesTXT = prepareExportTxt(this.antennae, this.$route.params.id)
-      }).catch(console.error)
+      }).catch((err) => {
+        this.isLoadingBodies = false
+        this.$root.showError('Could not fetch bodies', err)
+      })
     }).catch((err) => {
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')

@@ -2,11 +2,11 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Plenaries list</div>
+        <h1 class="title">Plenaries list</h1>
 
         <div class="buttons">
-          <button class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
-          <button class="button is-primary" @click="exportAll()">Export stats</button>
+          <button type="button" class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
+          <button type="button" class="button is-primary" :class="{ 'is-loading': isExporting }" :disabled="isExporting" @click="exportAll()">Export stats</button>
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">
@@ -27,7 +27,7 @@
           </b-table-column>
 
           <b-table-column label="Edit" centered :visible="!!can.manage_plenaries" v-slot="props">
-            <button class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
+            <button type="button" class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
           </b-table-column>
 
           <b-table-column label="Mark attendances" centered v-slot="props">
@@ -62,18 +62,19 @@ export default {
         see_plenaries: false,
         mark_attendance: false
       },
-      isLoading: false
+      isLoading: false,
+      isExporting: false
     }
   },
   computed: {
     ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
+      services: 'services'
     })
   },
   methods: {
     openEditPlenaryModal (plenary) {
-      if (!plenary) {
+      const isNew = !plenary
+      if (isNew) {
         plenary = {
           starts: new Date(),
           ends: new Date(),
@@ -83,6 +84,7 @@ export default {
       this.$buefy.modal.open({
         component: EditPlenaryModal,
         hasModalCard: true,
+        ariaLabel: isNew ? 'Add plenary' : 'Edit plenary',
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -92,12 +94,23 @@ export default {
           event: this.event,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
+        },
+        events: {
+          saved: () => this.reloadPlenaries()
         }
       })
     },
+    loadPlenaries () {
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/').then((plenaries) => {
+        this.plenaries = plenaries.data.data
+      })
+    },
+    reloadPlenaries () {
+      this.loadPlenaries().catch((err) => this.$root.showError('Could not load the plenaries', err))
+    },
     exportAll () {
+      this.isExporting = true
       this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/', {
         responseType: 'blob'
       }).then(response => {
@@ -108,6 +121,22 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+        this.isExporting = false
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the service's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.isExporting = false
+        this.$root.showError('Could not export the statistics', err)
       })
     }
   },
@@ -118,9 +147,8 @@ export default {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/')
-    }).then((plenary) => {
-      this.plenaries = plenary.data.data
+      return this.loadPlenaries()
+    }).then(() => {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false

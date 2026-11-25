@@ -2,14 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board view</div>
+        <h1 class="title">Board view</h1>
 
         <div class="field" v-if="boardBodies.length > 0">
-          <label>Select the body to view application from:</label>
+          <label for="boardview-body">Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="boardview-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -28,22 +28,22 @@
             <li v-if="limits.envoy !== 0"><strong>{{ limits.envoy | numberOrUnlimited }} envoys</strong></li>
             <li v-if="limits.observer !== 0"><strong>{{ limits.observer | numberOrUnlimited }} observers</strong></li>
             <li v-if="!allowedToSendAnyPax">
-              <strong>Your body cannot send any participants to Agora.</strong>
+              <strong>Your body cannot send any participants to {{ eventTypeNames[event.type] }}.</strong>
             </li>
           </ul>
           <p v-if="allowedToSendAnyPax">The deadline for board approval is: <strong>{{ event.board_approve_deadline | datetime }}</strong> (local time).</p>
         </div>
 
         <div class="tabs is-centered is-boxed">
-          <ul>
-            <li :class="{ 'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
-              <a>
+          <ul role="tablist">
+            <li role="presentation" :class="{ 'is-active': scope === 'edit' }" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
+              <a href="#" role="tab" :aria-selected="scope === 'edit' ? 'true' : 'false'" @click.prevent="scope = 'edit'">
                 <span class="icon is-small"><font-awesome-icon icon="pen" aria-hidden="true" /></span>
                 <span>Edit boardview</span>
               </a>
             </li>
-            <li :class="{ 'is-active': scope === 'view' }" @click="scope = 'view'">
-              <a>
+            <li role="presentation" :class="{ 'is-active': scope === 'view' }">
+              <a href="#" role="tab" :aria-selected="scope === 'view' ? 'true' : 'false'" @click.prevent="scope = 'view'">
                 <span class="icon is-small"><font-awesome-icon icon="users" aria-hidden="true" /></span>
                 <span>View applications</span>
               </a>
@@ -51,15 +51,12 @@
           </ul>
         </div>
 
-        <div v-show="scope === 'edit' && selectedBody">
+        <div v-show="scope === 'edit' && selectedBody" role="tabpanel" aria-label="Edit boardview">
           <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
             <div class="content">
-              <strong>This errors occured while trying to update the participant:</strong>
+              <strong>These errors occurred while trying to update the participant:</strong>
               <ul>
-                <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
-                <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
-                <li v-if="errors.participantTypeShouldBeSetWithOrder">{{ errors.participantTypeShouldBeSetWithOrder.join(', ') }}</li>
-                <li v-if="errors.board_comment">Board comment: {{ errors.board_comment.join(', ') }}</li>
+                <li v-for="(message, index) in errorMessages" v-bind:key="index">{{ message }}</li>
               </ul>
             </div>
           </div>
@@ -77,7 +74,7 @@
 
               <b-table-column field="user_id" label="User" v-slot="props">
                 <div class="select">
-                  <select v-model="props.row.user_id">
+                  <select v-model="props.row.user_id" :aria-label="'User for ' + props.row.participant_type + ' ' + props.row.participant_order">
                     <option :value="null">Not set</option>
                     <option v-for="application in applications" v-bind:key="application.user_id" v-bind:value="application.user_id">
                       {{ application.first_name }} {{ application.last_name }}
@@ -86,8 +83,8 @@
                 </div>
               </b-table-column>
 
-              <b-table-column field="board_comment" label="Board comment" sortable v-slot="props">
-                <textarea class="textarea" v-model="props.row.board_comment" />
+              <b-table-column field="board_comment" label="Board comment" v-slot="props">
+                <textarea class="textarea" v-model="props.row.board_comment" :aria-label="'Board comment for ' + props.row.participant_type + ' ' + props.row.participant_order" />
               </b-table-column>
             </b-table>
           </div>
@@ -97,15 +94,15 @@
             <p>If you are swapping 2 applications, please swap their board comments as well.</p>
           </div>
 
-          <button class="button is-fullwidth is-primary" @click="updateParticipants()">Save!</button>
+          <button class="button is-fullwidth is-primary" :disabled="isSaving || isLoading || bodyStatuses.length === 0" @click="updateParticipants()">Save!</button>
         </div>
 
-        <div v-show="scope === 'view' && selectedBody">
+        <div v-show="scope === 'view' && selectedBody" role="tabpanel" aria-label="View applications">
           <div class="field">
-            <label class="label">Search by name, surname or email</label>
+            <label class="label" for="boardview-search">Search by name, surname or email</label>
             <div class="field has-addons">
               <div class="control is-expanded">
-                <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+                <input id="boardview-search" class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
               </div>
               <div class="control">
                 <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
@@ -125,8 +122,10 @@
                 :preserve-search="true"
                 :options="fields"
                 placeholder="Select application fields"
-                track-by="name"
-                label="name">
+                aria-label="Application fields"
+                track-by="key"
+                label="name"
+                :custom-label="optionLabel">
                 <template
                   slot="selection"
                   slot-scope="{ values, isOpen }">
@@ -141,7 +140,8 @@
             :row-class="row => calculateClassForApplication(row)"
             :loading="isLoading"
             paginated
-            :per-page="limit">
+            :per-page="limit"
+            v-bind="paginationLabels">
             <b-table-column field="statutory_id" label="#" numeric v-slot="props">
               {{ props.row.statutory_id }}
             </b-table-column>
@@ -173,18 +173,18 @@
               <span v-if="props.row.status === 'pending'">Pending</span>
             </b-table-column>
 
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" v-slot="props">
+            <b-table-column v-for="field in selectedFields" v-bind:key="field.key" :label="field.name" v-slot="props">
               {{ field.get(props.row) | beautify }}
             </b-table-column>
 
             <b-table-column label="View" centered v-slot="props">
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url, application_id: props.row.statutory_id || props.row.id } }">
                 View
               </router-link>
             </b-table-column>
 
             <b-table-column label="Edit" centered v-slot="props" :visible="!!can.manage_applications">
-              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url, application_id: props.row.statutory_id || props.row.id } }">
                 Edit
               </router-link>
             </b-table-column>
@@ -207,6 +207,12 @@ import { mapGetters } from 'vuex'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import Multiselect from 'vue-multiselect'
 
+const ERROR_LABELS = {
+  participant_type: 'Participant type',
+  participant_order: 'Participant order',
+  board_comment: 'Board comment'
+}
+
 export default {
   name: 'StatutoryBoardView',
   components: {
@@ -214,6 +220,13 @@ export default {
   },
   data () {
     return {
+      // The names of the table's pagination buttons.
+      paginationLabels: {
+        ariaNextLabel: 'Next page',
+        ariaPreviousLabel: 'Previous page',
+        ariaPageLabel: 'Page',
+        ariaCurrentLabel: 'Current page'
+      },
       applications: [],
       boardBodies: [],
       myBoards: [],
@@ -233,24 +246,31 @@ export default {
         type: ''
       },
       can: {
-        see_boardview_of: {},
-        see_boardview_global: false
+        see_boardview: {},
+        set_board_comment_and_participant_type: {}
+      },
+      eventTypeNames: {
+        agora: 'Agora',
+        epm: 'EPM',
+        spm: 'SPM'
       },
       displayCancelled: false,
       errors: {},
       selectedFields: [],
       fields: [
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name },
-        { name: 'Gender', get: (pax) => pax.gender },
-        { name: 'Email', get: (pax) => pax.notification_email },
-        { name: 'Created at', get: (pax) => pax.created_at },
-        { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
+        { key: 'first_name', name: 'First name', get: (pax) => pax.first_name },
+        { key: 'last_name', name: 'Last name', get: (pax) => pax.last_name },
+        { key: 'gender', name: 'Gender', get: (pax) => pax.gender },
+        { key: 'email', name: 'Email', get: (pax) => pax.notification_email },
+        { key: 'created_at', name: 'Created at', get: (pax) => pax.created_at },
+        { key: 'updated_at', name: 'Updated at', get: (pax) => pax.updated_at },
+        { key: 'participant_type', name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
+        { key: 'board_comment', name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       isLoading: false,
-      isSaving: false
+      isSaving: false,
+      // Counts the board view requests, so a late answer for another body is dropped.
+      boardviewRequest: 0
     }
   },
   computed: {
@@ -268,7 +288,14 @@ export default {
 
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => (app[field] || '').toLowerCase().includes(lowercaseQuery)))
+    },
+    // Every reason statutory gave, with the name of the field it is about where it has one.
+    errorMessages () {
+      return Object.keys(this.errors).map((key) => {
+        const messages = this.errors[key].join(', ')
+        return ERROR_LABELS[key] ? `${ERROR_LABELS[key]}: ${messages}` : messages
+      })
     },
     canEditSelectedBody () {
       return this.can.set_board_comment_and_participant_type.global
@@ -276,6 +303,9 @@ export default {
     }
   },
   methods: {
+    optionLabel (field) {
+      return field.option || field.name
+    },
     calculateClassForApplication (pax) {
       switch (pax.status) {
       case 'accepted':
@@ -306,17 +336,22 @@ export default {
       // also checking if there's an entry with a board comment but without user (pointless)
       for (const entry of this.bodyStatuses) {
         if (!entry.user_id && entry.board_comment) {
-          return this.$root.showWarning('You\'ve specified a board comment but didn\'t select an appplication for it. Either remove the board comment or select an applicant for it.')
+          return this.$root.showWarning('You\'ve specified a board comment but didn\'t select an application for it. Either remove the board comment or select an applicant for it.')
         }
       }
 
       this.errors = {}
+      this.isSaving = true
       const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
       const body = this.bodyStatuses.filter(entry => entry.user_id !== null && typeof entry.user_id !== 'undefined')
 
       this.axios.post(url, body).then(() => {
+        this.isSaving = false
         this.$root.showSuccess('Participants info is successfully updated.')
+        // The places as statutory has them now, also in the list of applications.
+        this.fetchBoardview()
       }).catch((err) => {
+        this.isSaving = false
         if (err.response && err.response.data.errors) {
           this.errors = err.response.data.errors
         } else {
@@ -325,12 +360,18 @@ export default {
       })
     },
     fetchBoardview () {
+      // Only the answers for the body chosen last count: a late answer for a body chosen before
+      // is dropped. The applicants and the places come together, so no place can be given
+      // before both are there.
+      const bodyId = this.selectedBody
+      const request = ++this.boardviewRequest
       this.isLoading = true
-      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
-        this.applications = application.data.data
-
-        return this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
-      }).then((limitResponse) => {
+      Promise.all([
+        this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + bodyId),
+        this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + bodyId)
+      ]).then(([boardviewResponse, limitResponse]) => {
+        if (request !== this.boardviewRequest) return
+        this.applications = boardviewResponse.data.data
         this.limits = limitResponse.data.data
 
         // setting the selected body statuses to send to the endpoint
@@ -364,7 +405,11 @@ export default {
 
         this.isLoading = false
       }).catch((err) => {
+        if (request !== this.boardviewRequest) return
         this.isLoading = false
+        // Nothing of another body stays on the page.
+        this.applications = []
+        this.bodyStatuses = []
 
         this.$root.showError('Could not fetch boardview', err)
       })
@@ -376,9 +421,22 @@ export default {
     }
   },
   watch: {
+    // Another body starts afresh: without the errors and the search of the one before, and
+    // on the places (the boardview falls back to the applications if they can't be edited).
     selectedBody () {
+      this.errors = {}
+      this.query = ''
+      this.scope = 'edit'
+      // The applicants and places of the body before go first.
+      this.applications = []
+      this.bodyStatuses = []
+      this.limits = { delegate: 0, observer: 0, visitor: 0, envoy: 0 }
       this.fetchBoardview()
     }
+  },
+  // A page left while its request runs drops the answer.
+  beforeDestroy () {
+    this.boardviewRequest++
   },
   mounted () {
     this.isLoading = true
@@ -396,7 +454,10 @@ export default {
 
       for (const index in this.event.questions) {
         this.fields.push({
+          key: `question:${index}`,
           name: this.event.questions[index].description,
+          // In the picker a question is told apart from a field of the same name.
+          option: `${this.event.questions[index].description} (question ${Number(index) + 1})`,
           get: pax => pax.answers[index]
         })
       }
@@ -405,7 +466,7 @@ export default {
         // Fetching all bodies
         this.axios.get(this.services['core'] + '/bodies/').then((body) => {
           this.boardBodies = body.data.data
-        })
+        }).catch((err) => this.$root.showError('Could not fetch bodies', err))
       } else {
         // Using login user's bodies.
         this.boardBodies = this.myBoards.map(id => this.loginUser.bodies.find(body => body.id === id))
