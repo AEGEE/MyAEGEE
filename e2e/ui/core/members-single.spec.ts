@@ -68,8 +68,8 @@ const expectActions = async (page: Page, shown: string[]) => {
     }
 };
 
-// Both names of the permission to suspend members: the page checks one, the server the other.
-const SUSPEND = ['global:update_active:member', 'global:update_active:user'];
+// The permission to suspend members, which the page and core both check.
+const SUSPEND = ['global:update_active:user'];
 
 test.describe('member page', () => {
     test('shows the facts about the member', async ({ page, api, me }) => {
@@ -255,6 +255,15 @@ test.describe('member page', () => {
         await expectActions(page, []);
     });
 
+    test('the local scope and the old name of the suspend permission give no "Suspend user"', async ({ page, api, me }) => {
+        showMember(api, me, ALEX({ active: true }), { global: ['global:update_active:member'], perBody: { 1: ['local:update_active:user'] } });
+
+        await page.goto('/members/alex.member');
+
+        await expect(fact(page, 'Login suspended?')).toHaveText('No');
+        await expectActions(page, []);
+    });
+
     test('the ban row shows until when a ban runs, and nothing for an expired one', async ({ page, api, me }) => {
         await freezeTime(page);
         const now = Date.parse(FIXED_NOW);
@@ -334,16 +343,16 @@ test.describe('member page', () => {
     });
 
     test('a refused suspension says why and changes nothing', async ({ page, api, me }) => {
-        // The page shows the button for update_active:member; core needs update_active:user.
-        showMember(api, me, ALEX({ active: true }), { global: ['global:update_active:member'] });
-        api.on('PUT core /members/:id/active', { status: 403, json: forbidden('Permission global:update_active:user is required, but not present.') });
+        // Only a superadmin may suspend a superadmin; the page still offers it to every holder of the permission.
+        showMember(api, me, ALEX({ active: true, superadmin: true }), { global: SUSPEND });
+        api.on('PUT core /members/:id/active', { status: 403, json: forbidden('Only a superadmin can suspend or activate a superadmin.') });
         await page.goto('/members/alex.member');
 
         await page.getByRole('button', { name: 'Suspend user' }).click();
         await dialog(page, 'Suspend user').getByRole('button', { name: 'Suspend user' }).click();
 
         await expect(dialog(page, 'Suspend user')).toBeHidden();
-        await expect(toast(page, 'Error changing user status: Permission global:update_active:user is required, but not present.')).toBeVisible();
+        await expect(toast(page, 'Error changing user status: Only a superadmin can suspend or activate a superadmin.')).toBeVisible();
         await expect(fact(page, 'Login suspended?')).toHaveText('No');
         await expect(page.getByRole('button', { name: 'Suspend user' })).toBeEnabled();
     });
