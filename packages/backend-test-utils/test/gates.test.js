@@ -9,7 +9,7 @@ const { execFileSync, spawnSync } = require('node:child_process');
 const { checkCoverage, parseArgs } = require('../check-coverage');
 const { findUnexercised, readHits } = require('../unexercised');
 const { checkCoverageLowered, parseArgs: parseLoweredArgs } = require('../check-coverage-lowered');
-const { checkCodecovBuilds } = require('../check-codecov-builds');
+const { carriesForward, checkCodecovBuilds } = require('../check-codecov-builds');
 const { createContract } = require('../openapi');
 const { FIXTURES, REQUIRE_FROM, tmpDir } = require('./helpers');
 
@@ -182,7 +182,8 @@ describe('unexercised (documented but never exercised)', () => {
 });
 
 describe('check-codecov-builds (after_n_builds)', () => {
-    const codecov = (n) => ({ codecov: { notify: { after_n_builds: n } }, comment: { after_n_builds: n } });
+    const carried = { flag_management: { individual_flags: [{ name: 'd', carryforward: true }] } };
+    const codecov = (n, extra = carried) => ({ codecov: { notify: { after_n_builds: n } }, comment: { after_n_builds: n }, ...extra });
     const circle = {
         jobs: {
             'a-test': { parallelism: 3, steps: ['checkout', 'codecov/upload'] },
@@ -191,7 +192,7 @@ describe('check-codecov-builds (after_n_builds)', () => {
             'nightly-test': { parallelism: 2, steps: ['codecov/upload'] },
             'stable-test': { parallelism: 2, steps: ['codecov/upload'] },
             'd-test': { parallelism: 2, steps: ['checkout'] },
-            'd-coverage': { steps: ['checkout', { 'codecov/upload': { flags: 'd' } }] }
+            'd-coverage': { steps: ['checkout', { 'codecov/upload': { flags: 'd', disable_search: true } }] }
         },
         workflows: {
             a: { jobs: ['a-test'] },
@@ -203,35 +204,75 @@ describe('check-codecov-builds (after_n_builds)', () => {
     };
 
     test('counts parallelism 3, a job without parallelism as 1, and skips scheduled and stable-only uploads', () => {
-        const result = checkCodecovBuilds(circle, codecov(4));
-        assert.equal(result.ok, true);
+        const result = checkCodecovBuilds(circle, codecov(5));
+        assert.equal(result.ok, true, JSON.stringify(result.problems));
         assert.deepEqual(result.uploads.map((u) => `${u.job}:${u.parallelism}`), ['a-test:3', 'b-test:1']);
     });
 
-    test('does not count the upload of a job that only runs when the jobs it requires passed', () => {
-        // With it the number would be 5, and a failed d-test would leave Codecov waiting for
-        // an upload that never comes: no status at all for a-test and b-test either.
-        const result = checkCodecovBuilds(circle, codecov(4));
-        assert.equal(result.expected, 4);
-        assert.deepEqual(result.extra, [{ job: 'd-coverage', workflow: 'd', parallelism: 1 }]);
-        assert.equal(checkCodecovBuilds(circle, codecov(5)).ok, false);
+    test('counts the upload of a job that only runs when the jobs it requires passed, as its flag is carried forward', () => {
+        // Codecov counts the sessions of the commit's report. When d-coverage does not run,
+        // the carried-forward copy of flag d is its session; when it runs, its upload
+        // replaces the copy. So the report has 5 sessions once a-test and b-test are in,
+        // whether d-coverage ran or not, and never 5 before.
+        const result = checkCodecovBuilds(circle, codecov(5));
+        assert.equal(result.expected, 5);
+        assert.deepEqual(result.carried, [{ job: 'd-coverage', workflow: 'd', parallelism: 1, waitedFor: false, flags: ['d'] }]);
+        assert.equal(checkCodecovBuilds(circle, codecov(4)).ok, false);
 
-        // Without `requires` the same job uploads on every push and is waited for.
+        // Without `requires` the same job uploads on every push and is waited for as well.
         const independent = { ...circle, workflows: { ...circle.workflows, d: { jobs: ['d-test', 'd-coverage'] } } };
-        assert.equal(checkCodecovBuilds(independent, codecov(5)).ok, true);
-        assert.deepEqual(checkCodecovBuilds(independent, codecov(5)).extra, []);
+        assert.equal(checkCodecovBuilds(independent, codecov(5, {})).ok, true);
+        assert.deepEqual(checkCodecovBuilds(independent, codecov(5, {})).carried, []);
+    });
+
+    test('fails when the upload of a job that requires others is not carried forward', () => {
+        // Counted, Codecov would wait forever after a failed d-test; not counted, the upload
+        // of d-coverage could take the place of a shard of a-test that is not in yet.
+        const result = checkCodecovBuilds(circle, codecov(5, {}));
+        assert.equal(result.ok, false);
+        assert.deepEqual(result.mismatches, []);
+        assert.equal(result.problems.length, 1);
+        assert.match(result.problems[0], /^d-coverage \(workflow d\) runs only when the jobs it requires passed, so its upload needs a flag with carryforward: true .*; d has none\.$/);
+
+        const unflagged = { ...circle, jobs: { ...circle.jobs, 'd-coverage': { steps: ['codecov/upload'] } } };
+        assert.match(checkCodecovBuilds(unflagged, codecov(5)).problems[0], /and it has no flag\.$/);
+
+        // Every flag of the upload must be carried forward, or a session without it is missing.
+        const twoFlags = { ...circle, jobs: { ...circle.jobs, 'd-coverage': { steps: [{ 'codecov/upload': { flags: 'd, e' } }] } } };
+        assert.match(checkCodecovBuilds(twoFlags, codecov(5)).problems[0], /; e has none\.$/);
+    });
+
+    test('fails when an upload that runs on every push is carried forward', () => {
+        // Its copy would be in the report from the first upload on, and Codecov would report
+        // before b-test's own upload arrived.
+        const result = checkCodecovBuilds(circle, codecov(5, { flag_management: { default_rules: { carryforward: true } } }));
+        assert.equal(result.ok, false);
+        assert.equal(result.problems.length, 1);
+        assert.match(result.problems[0], /^b-test \(workflow b\) uploads on every push but its flag b has carryforward/);
+    });
+
+    test('resolves carryforward as Codecov does: flags first, then individual_flags, then default_rules', () => {
+        assert.equal(carriesForward({}, 'd'), false);
+        assert.equal(carriesForward(carried, 'd'), true);
+        assert.equal(carriesForward({ flag_management: { default_rules: { carryforward: true } } }, 'd'), true);
+        assert.equal(carriesForward({ flag_management: { default_rules: { carryforward: true }, individual_flags: [{ name: 'd', carryforward: false }] } }, 'd'), false);
+        assert.equal(carriesForward({ flag_management: { default_rules: { carryforward: true }, individual_flags: [{ name: 'd' }] } }, 'd'), true);
+        // A `flags:` entry wins, and without `carryforward` it means no carryforward.
+        assert.equal(carriesForward({ ...carried, flags: { d: { paths: ['d/'] } } }, 'd'), false);
+        assert.equal(carriesForward({ flags: { d: { carryforward: true } } }, 'd'), true);
     });
 
     test('fails on a mismatch, naming each wrong value', () => {
-        const result = checkCodecovBuilds(circle, { codecov: { notify: { after_n_builds: 4 } }, comment: { after_n_builds: 28 } });
+        const result = checkCodecovBuilds(circle, { ...carried, codecov: { notify: { after_n_builds: 5 } }, comment: { after_n_builds: 28 } });
         assert.equal(result.ok, false);
-        assert.equal(result.expected, 4);
+        assert.equal(result.expected, 5);
         assert.deepEqual(result.mismatches, [['comment.after_n_builds', 28]]);
     });
 
     test('the repository files agree', () => {
         const run = spawnSync(process.execPath, [path.join(__dirname, '..', 'check-codecov-builds.js')], { encoding: 'utf8' });
         assert.equal(run.status, 0, run.stdout + run.stderr);
+        assert.match(run.stdout, /frontend-coverage \(workflow frontend-tests\): 1, flag frontend: runs only when the jobs it requires passed, carried forward when it does not/);
     });
 });
 

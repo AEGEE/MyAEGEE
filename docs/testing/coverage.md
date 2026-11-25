@@ -164,35 +164,46 @@ project is. Until then they are shown on every pull request and block nothing. T
 in the same file (`component_management`) have no statuses of their own; they only split the
 numbers per service in Codecov's comment.
 
-### The frontend upload is not one Codecov waits for
+### The frontend upload is carried forward
 
-Codecov reports once it has `after_n_builds` uploads of a commit (`codecov.yml`). That number is
-24: the four containers of each of the six service test jobs. The upload of `frontend-coverage`
-is a 25th and is deliberately not counted. `frontend-coverage` only runs when
-`frontend-mocked-test` and `e2e-test` passed, so with 25 a single failing frontend test would
-leave Codecov waiting for an upload that never comes, and it would post no status at all: no
-`codecov/project` and no `codecov/patch` for the services either, on a pull request that may not
-have touched them.
+Codecov reports on a commit once its report has `after_n_builds` sessions (`codecov.yml`). Every
+upload is a session: one per container of the six service test jobs (core and statutory run
+four, the other four services one), one each from `mailer-test` and `dispatcher-test`, and one
+from `frontend-coverage`: 15.
 
-What happens instead:
+`frontend-coverage` only runs when `frontend-mocked-test` and `e2e-test` passed. The flag
+`frontend` is therefore carried forward (`flag_management` in `codecov.yml`): when the first
+upload of a commit arrives, Codecov copies the frontend's coverage of the parent commit into the
+new report as a session of its own, and when the frontend's upload arrives it replaces that
+copy. The report has one frontend session from the start, whether `frontend-coverage` runs or
+not, so the fifteenth session is always the last upload of the services, mailer or dispatcher:
 
-| `frontend-tests` | Uploads | Codecov posts |
+| `frontend-tests` | Sessions | Codecov posts |
 |---|---|---|
-| green | 24 and the frontend's | all four statuses. When the frontend's upload arrives after the 24th, Codecov has reported on the services already and reports again with the frontend's numbers |
-| red | 24 | `codecov/project` and `codecov/patch` for the services. The two frontend statuses have no upload of this commit to go by; they are informational, and the red workflow is what says the frontend is not fine |
+| green | 14 uploads and the frontend's, which replaced the copy | all statuses once all 14 are in. When the frontend's upload comes last, Codecov has reported with the copy and reports again with the commit's own numbers |
+| red, cancelled | 14 uploads and the copy | all statuses once all 14 are in; the two frontend statuses show the parent's numbers. They are informational, and the red workflow is what says the frontend is not fine |
 
-One upload more than Codecov waits for also means that it can report before everything is in:
-when the frontend's upload arrives before the last container of a service, the first report
-misses that container, and `codecov/project` can be lower for a moment. Codecov reports again
-with every later upload, so the statuses are right once all 25 are in. Running the upload after
-a failed test job instead (so that 25 would always be reached) was not chosen: the coverage of a
-run that stopped half-way is not a number to report, and a cancelled or crashed job would still
-leave Codecov silent.
+The two ways that were not chosen:
+
+- Waiting for 15 uploads without carrying the frontend forward: a single failing frontend test
+  would leave Codecov waiting for an upload that never comes, and it would post no status at
+  all, also no `codecov/project` for the services on a pull request that may not have touched
+  them.
+- Waiting for 14 and not counting the frontend (the setup before): when the frontend's upload
+  arrived before the last service container, it took that container's place, and Codecov
+  reported `codecov/project` with one container missing, a failing status for a minute or so.
+
+Limits: Codecov copies from the nearest parent commit with a finished report, at most ten
+commits back. A commit without such a parent and without a frontend upload of its own has 14
+sessions, and Codecov posts nothing for it until `frontend-coverage` runs (rerun it, or push
+again). A rerun of any job with an upload adds a session, so the commit can be reported before a
+later upload; the next upload reports again.
 
 `node packages/backend-test-utils/check-codecov-builds.js` (the `openapi` job) keeps the number
-honest. It counts the uploads of the jobs that run on every push, leaves out a job that
-`requires` others (it lists `frontend-coverage` as "not waited for"), and fails when either
-`after_n_builds` differs.
+honest. It counts the uploads of the jobs that run on every push and of the jobs that `requires`
+others, and fails when either `after_n_builds` differs, when the upload of a job that
+`requires` others has a flag that is not carried forward, or when an upload that runs on every
+push is carried forward (its copy would count before it arrives).
 
 After changing `codecov.yml`, check it: `curl --data-binary @codecov.yml https://codecov.io/validate`
 (it sends the file and nothing else), and `node packages/backend-test-utils/check-codecov-builds.js`
