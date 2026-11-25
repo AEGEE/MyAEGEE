@@ -44,6 +44,17 @@ test.describe('logging in against core', () => {
         await expect(page).toHaveURL('/login');
     });
 
+    test('a suspended member is told so and stays logged out', async ({ page }) => {
+        await page.goto('/login');
+
+        // Core's seed has a suspended member with the shared password.
+        await logInThroughPage(page, 'suspended');
+
+        await expect(page.getByRole('alert').filter({ hasText: 'This account is suspended.' })).toBeVisible();
+        await expect(page).toHaveURL('/login');
+        expect(await storedTokens(page)).toEqual([null, null]);
+    });
+
     test('a session core no longer knows ends on the login page, says so, and the progress bar finishes', async ({ page, otherAntenna }) => {
         await page.goto('/login');
         await logInThroughPage(page, otherAntenna.member.username);
