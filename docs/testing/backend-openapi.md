@@ -395,8 +395,8 @@ The pull request that writes a service's spec does all of this in one go:
      is that router's middleware and is fine. A handler that answers requests and shares its
      prefix with a router is not detected; register routes on routers.
 
-   HEAD is ignored. In four services `npm test` runs only `test/api`; `npm run test:ci`, which
-   CI runs, includes `test/unit`.
+   HEAD is ignored. The route test is in `test/unit`: `npm test` and `npm run test:ci` both run
+   it, with every other test of the service.
 5. `skipOpenApi: '<reason>'` on the not-found handler tests.
 6. The coverage ratchet in `package.json` and the CI changes below.
 7. Its two swagger-ui lines in `dev-tools/docker/docker-compose.yml` (the comment there shows

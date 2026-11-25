@@ -8,7 +8,7 @@
   },
   "scripts": {
     "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
-    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/api/*.js --runInBand",
+    "test": "npm run test:ci --",
     "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
