@@ -10,7 +10,7 @@ service's existing jest tests prove that it is right:
 |---|---|---|
 | Spec conventions | A response schema that is not closed, has no type or is empty, a JSON response without a schema, `x-free-form` without a reason, the `Todo` placeholder, a `4XX` range or `default` response, a misplaced or reasonless `x-untested` ("Spec conventions", below) | When the response check loads the spec, so in every jest run of the service; and `spec-lint.js` in the `openapi` CI job, for every spec in `redocly.yaml` |
 | Response check | A response whose path, method, status, content type or body the spec does not document, including any field the schema does not list | Every `request()` in the service's jest tests |
-| Request check | A JSON request body that the server accepted (2xx) but the spec rejects, or that went to an operation that documents no request body | Same |
+| Request check | A JSON request body that the server accepted (2xx) but the spec rejects, or that went to an operation that documents no request body. It judges the body the test's helper hands it, not the bytes sent ("What the check sees", below); path and query parameters are not checked | Same |
 | Route parity | A route in `lib/server.js` that the spec lacks, a spec operation that Express does not register, or a mount the recorder cannot see into | `test/unit/openapi-routes.test.js` in the service |
 | Never exercised | A documented `(operation, status)` that no test produced, or an `x-untested` exemption for one that a test did produce | The service's `<service>-coverage` CI job |
 | Lint | Invalid OpenAPI, an operation without `summary`, `operationId` or `x-permission`, unused components | `openapi` CI job (`npx redocly lint`) |
@@ -42,7 +42,8 @@ wires it up ("Wiring up a service", below). Until then its tests run as before.
 - `servers: [{url: /api/<service>}]`, the gateway prefix the frontend uses. Paths are the
   service-local paths that `lib/server.js` registers, the same ones the tests call.
 - The repository's yamllint config allows no spaces inside braces: write `{type: string}`,
-  not `{ type: string }`, and quote any flow-style value that contains a comma.
+  not `{ type: string }`, and quote any flow-style value that contains a comma. CI's
+  `yamllint` job checks it; "Running locally" has the command.
 - Describe what the code does today, including the odd parts (for example core's login
   response has no `data`). Changing behaviour that a client can see is a separate change with
   its own pull request.
@@ -95,10 +96,16 @@ Rules:
   columns after a create, so entity schemas normally require them all. A key that is only
   sometimes present is optional, which is different from nullable.
 - **Closed**: every schema a response uses is closed, so that a field the API returns but the
-  spec omits (a leaked password) fails the test. `Input` schemas stay open
-  (`additionalProperties: true`), because Sequelize ignores unknown keys. The spec
-  conventions check enforces this on every response schema, following `$ref`s ("Spec
-  conventions", below).
+  spec omits (a leaked password) fails the test. The spec conventions check enforces this on
+  every response schema, following `$ref`s ("Spec conventions", below).
+- **Input schemas say what the code does with unknown keys.** Where it ignores them (Sequelize
+  does on create and update), the `Input` schema stays open (`additionalProperties: true`).
+  Where a validator refuses them, the schema is closed too, so that the request check reports
+  a test that sends one and gets a 2xx: discounts' `PartnerInput` (the Joi schema of a
+  category's `discounts` answers 422 for an entry with another key), statutory's
+  `ApplicationFilter` (the mass mailer refuses a filter field it does not know) and the items
+  of statutory's `MembersListInput.members`. The conventions check does not look at request
+  schemas, so it accepts either.
 - **Formats in responses**: only `date-time` and `date`. `Input` schemas may use any format.
 - **Maps keyed by id**: `type: object, additionalProperties: <value schema>`, with fixed keys
   under `properties`. This counts as closed: every other key must match the value schema.
@@ -303,6 +310,32 @@ Fix the spec when the code is right, and the code (in its own pull request) when
 `skipOpenApi: '<reason>'` to `request()`. A skip without a reason throws. Use it for nothing
 else.
 
+### What the check sees
+
+The hook gets the options the test passed to `request()`, so step 2 judges `options.body`: the
+value the test passed, not the bytes `fetch` sent. The two differ wherever `JSON.stringify`
+changes a value: a `Date` travels as an ISO string, and a key set to `undefined` is not sent
+at all. Checked as passed, the `Date` fails `type: string` and the `undefined` key fails a
+closed schema, although the server never saw either. So a helper whose tests pass such values
+hands the check the body as it was sent, before it calls the hook:
+
+- core, statutory and summeruniversity pass `JSON.parse(JSON.stringify(options.body))`, events
+  `JSON.parse(fetchOptions.body)` (`test/scripts/helpers.js`);
+- core and summeruniversity pass the text of a `rawBody` (a body sent as it is), so that the
+  implicit 400 of a body that is not valid JSON is recognised;
+- core's `skipRequestCheck: '<reason>'` leaves out the request check, and only that, for its
+  sweeps that send values of the wrong type on purpose, some of which the server stores (a
+  number in a text field). A skip without a reason throws;
+- discounts and network pass `options.body` as it is: their tests send plain JSON values.
+
+Not checked at all:
+
+- **Path and query parameters.** A `{param}` matches any one path segment and the query string
+  is dropped before matching (step 1), so the parameters' schemas are documentation and
+  generated types only. A wrong ID or query is the route's own test and the path-parameter
+  sweep's ("The 401 and path-parameter sweeps", below).
+- **Headers**: none of the request's, and of the response's only `content-type`.
+
 ## Wiring up a service
 
 The pull request that writes a service's spec does all of this in one go:
@@ -400,12 +433,107 @@ The pull request that writes a service's spec does all of this in one go:
 5. `skipOpenApi: '<reason>'` on the not-found handler tests.
 6. The coverage ratchet in `package.json` and the CI changes below.
 7. Its two swagger-ui lines in `dev-tools/docker/docker-compose.yml` (the comment there shows
-   them).
+   them): the volume `./<service>/openapi.yaml:/usr/share/nginx/html/specs/<service>.yaml:ro`
+   and the entry `{url: './specs/<service>.yaml', name: '<service>'}` in `URLS`. The volume
+   path starts at the repository root, not at `dev-tools/docker/`: `helper.sh` passes
+   `base-docker-compose.yml` first, and Compose resolves the relative paths of every file from
+   the directory of the first one. With `dev-tools` in `ENABLED_SERVICES`, swagger-ui answers
+   at `${SUBDOMAIN_APIDOCS}${BASE_URL}`.
+8. The 401 and path-parameter sweeps (below).
 
-The table-driven 401 and 404 sweeps (`test/api/authentication-required.test.js`,
-`test/api/path-parameters.test.js`) take their rows from `listOperations(spec)` in
-`routes.js`, which gives each operation's `auth` (`none`, `optional` or `required`), statuses
-and path parameters.
+### The 401 and path-parameter sweeps
+
+`test/api/authentication-required.test.js` and `test/api/path-parameters.test.js` take their
+rows from the spec, so a new route gets its rows without anyone writing them.
+`listOperations(spec)` in `routes.js` gives each operation's `method`, `template`,
+`operationId`, `auth` (`none`, `optional` or `required`), `statuses` and `pathParams`. The
+smallest complete pair is discounts'; this is the shape of its 401 sweep:
+
+```js
+const path = require('path');
+
+const { createContract } = require('../../../packages/backend-test-utils/openapi');
+const { listOperations } = require('../../../packages/backend-test-utils/routes');
+const { startServer, stopServer } = require('../../lib/server');
+const { request } = require('../scripts/helpers');
+const mock = require('../scripts/mock');
+const generator = require('../scripts/generator');
+
+// Every operation that openapi.yaml marks as needing a token.
+const { spec } = createContract({ serviceRoot: path.join(__dirname, '..', '..') });
+const operations = listOperations(spec).filter((operation) => operation.auth === 'required');
+
+// A body each write would accept, so that only the token stops it.
+const bodies = {
+    createCategory: () => generator.generateCategory()
+};
+
+describe('Authentication required', () => {
+    let pathValues;
+
+    beforeEach(async () => {
+        mock.mockAll();
+        await startServer();
+
+        const category = await generator.createCategory();
+        pathValues = { category_id: category.id };
+    });
+
+    afterEach(async () => {
+        await stopServer();
+        mock.cleanAll();
+
+        await generator.clearAll();
+    });
+
+    const requestFor = (operation, headers) => {
+        const body = bodies[operation.operationId];
+        return request({
+            path: operation.template.replace(/\{(\w+)\}/g, (_, name) => pathValues[name]),
+            method: operation.method,
+            headers,
+            body: body ? body() : undefined
+        });
+    };
+
+    // Changes with every route that is added or loses its token, so a reviewer sees it.
+    test('covers every route except the health check and the metrics', () => {
+        expect(operations.map((operation) => operation.operationId).sort()).toEqual([
+            'createCategory',
+            'getCategory'
+        ]);
+    });
+
+    test.each(operations.map((operation) => [`${operation.method} ${operation.template}`, operation]))(
+        '%s answers 401 without a token and does not ask core',
+        async (_, operation) => {
+            const { omsCoreStub } = mock.mockAll();
+
+            const res = await requestFor(operation, {});
+
+            expect(res.statusCode).toEqual(401);
+            expect(res.body.success).toEqual(false);
+            expect(omsCoreStub.isDone()).toEqual(false);
+        }
+    );
+});
+```
+
+- The 401 sweep has two rows per operation: no token, and a token that core rejects
+  (`mock.mockAll({ core: { unauthorized: true } })`). Discounts also compares a snapshot of
+  every table before and after, so a refused write that stored something fails.
+- The path-parameter sweep filters on `operation.pathParams.length > 0` and builds rows per
+  parameter: an ID nothing has (`1337`), one past the largest `INTEGER` (`2147483648`), and
+  values that are not an ID (`abc`, `1.5`, `-1`), with what each route answers for them (404,
+  or 400 where the route checks the ID itself). It asserts the route's own message, so a row
+  cannot pass on the catch-all 404 of a path that is not a route. The caller holds every
+  permission the route asks for, so that only the path decides the answer.
+- Other shapes of the same idea: core's sweeps make their fixtures once and know which
+  parameters also take a name (a username, a body code); network keeps the rows of both
+  sweeps in `test/scripts/route-table.js`. Sweeps of request bodies, where a service has them:
+  statutory's `request-values-sweep.test.js` (every JSON body with values of every type; nothing
+  answers 500), events' `input-types.test.js`, network's `write-input.test.js`, and statutory's
+  `locks-sweep.test.js` (every operation that documents 503).
 
 ## Never exercised
 
@@ -471,8 +599,14 @@ from an earlier local run can never hide a response that no test produces any mo
   The trailer covers only that branch's commits, so the next pull request starts without it.
 - **Exclusions** are `istanbul ignore` comments in the source with a reason after `--`:
   `/* istanbul ignore next -- unhandledRejection is process-level */`, or
-  `/* istanbul ignore file -- process entry point */` for a whole file. `collectCoverageFrom`
-  keeps include globs only. A bare ignore without a reason fails the coverage job.
+  `/* istanbul ignore file -- process entry point */` for a whole file. A bare ignore without
+  a reason fails the coverage job.
+- `collectCoverageFrom` in `<service>/package.json` lists the include globs (`lib/**/*.js`,
+  `models/**/*.js`, and core's `middlewares/**/*.js`) and these exclusions, no others:
+  `!lib/sequelize.js` and `!lib/logger.js` in core, statutory, network and discounts, and
+  `!lib/run.js` in network (which also has a file-level ignore). Events and summeruniversity
+  have none and cover both files. A new exclusion is an `istanbul ignore` with its reason, not
+  another `!` glob: the coverage job's check for a reason cannot see a glob.
 - Codecov stays informational: its uploads and `target: auto` statuses are unchanged.
 
 ### CircleCI, per service
@@ -519,7 +653,22 @@ A new `<service>-coverage` job goes directly after it and joins the same workflo
 ```
 
 The small suites (events, summeruniversity, network, discounts) run unsharded:
-`parallelism: 1` and `--expect 1`.
+`parallelism: 1`, no `circleci tests split`, and `--expect 1` in the coverage job. Their run
+step (discounts) passes no file list, so the jest options follow `--` directly:
+
+```yaml
+      - run:
+          name: Run discounts tests
+          working_directory: ~/project/discounts
+          command: |
+            mkdir -p ~/shard
+            OPENAPI_HITS_FILE=$HOME/shard/openapi-hits-$CIRCLE_NODE_INDEX.txt \
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci -- \
+              --reporters=default --reporters=jest-junit --coverageThreshold='{}'
+            cp coverage/coverage-final.json ~/shard/coverage-$CIRCLE_NODE_INDEX.json
+```
+
+`$CIRCLE_NODE_INDEX` is `0` there, so the file names match the sharded jobs'.
 
 ### `after_n_builds`
 
@@ -553,14 +702,28 @@ DB_PORT=5432 DB_USERNAME=postgres npm run test:ci
 - `OPENAPI_ALLOW_TODO=1` accepts the `Todo` placeholder while a spec is being built (CI never
   does).
 
-At the repository root:
+At the repository root, after a full install or the one the `openapi` CI job makes:
+
+```sh
+npm ci --legacy-peer-deps --workspace core --workspace e2e --include-workspace-root
+```
 
 | Command | What |
 |---|---|
 | `npm run openapi:lint` | `redocly lint` and `spec-lint.js`, every spec in `redocly.yaml` |
+| `npx redocly lint` | Redocly's lint alone, the `openapi` job's first step |
+| `node packages/backend-test-utils/spec-lint.js [<file>…]` | The spec conventions alone: every spec in `redocly.yaml`, or the files given |
 | `npm run openapi:types` | Regenerates `packages/api-types/` |
+| `npm run openapi:types:check` | Regenerates them and fails on any difference to the committed files, as in CI |
 | `npm run openapi:check` | Both lints, the stale-types check and the helpers' unit tests, as in CI |
-| `node --test packages/backend-test-utils/test/` | The helpers' unit tests |
+| `node --test 'packages/backend-test-utils/test/*.test.js'` | The helpers' unit tests |
+| `npx eslint packages/backend-test-utils` | The helpers' lint |
+| `uvx yamllint -d .yamllint.yml .` | The `yamllint` job, every YAML file in the repository. Without `uv`: `pip install yamllint`, then `yamllint -d .yamllint.yml .`, as the job does |
+
+CI runs Node 26. On Node 24, `node --test <directory>` takes the directory for a module and
+fails with `Cannot find module '…/test'`; give it the quoted glob above, which node expands
+itself. `npm run openapi:check` and the `openapi` CI job use the directory form, so on Node 24
+the last step of `openapi:check` fails before it runs a test; run the glob instead.
 
 ## GitHub Actions (draft migration)
 
