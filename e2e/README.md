@@ -48,7 +48,12 @@ No Docker images or traefik are involved:
   `statutory-e2e`, `network-e2e`, `discounts-e2e`).
 - `core`, `events`, `summeruniversity`, `statutory`, `network` and `discounts` run as plain Node
   processes with `NODE_ENV=e2e` (see the `e2e` block in each service's `config/index.js`).
-- `support/fake-mailer.ts` replaces the mailer and records every mail, so tests can check recipients.
+- `support/fake-mailer.ts` replaces the mailer. It checks every mail against the mail contract
+  (`mailer/contract/mail-templates.json`) and answers like the real mailer: 404 for a template the
+  contract doesn't list, 422 for a mail that misses a parameter or has one of the wrong type. It
+  records the mails it accepted, so tests can check recipients, and the ones it refused. A test
+  during which a mail was refused fails (the `mailContract` fixture in `support/api.ts`), also when
+  the service only logged the mailer's error and answered as usual.
 - `support/gateway.ts` serves the frontend build and proxies `/api/<service>/` to the services.
 - Playwright starts all of these itself (`webServer` in `playwright.config.ts`).
 
@@ -92,6 +97,7 @@ Shared helpers, so a test file rarely needs its own setup code:
 | `asAdmin`, `createAntenna`, `createCircle`, `createCampaign`, `grantPermission` | `support/core-data.ts` | Core data made through the API as admin, each with a cleanup. `grantPermission(api, username, 'global:create:summeruniversity')` gives a user a permission through a new circle |
 | `fillAntenna`, `uploadPicture` | `support/core-data.ts` | Give the antenna of `createAntenna` and its member a value for every optional field (details, a picture, a primary body, a join request, an application ban), and upload a picture to a service, so a contract check has something to compare |
 | `api.waitForMail({ to, template })`, `mailLink(mail)` | `support/api.ts` | The mail the fake mailer received, and the frontend path its link leads to. Filter by your own address; never clear the mails of other tests |
+| `api.expectRefusedMail(template)` | `support/api.ts` | For a test that sends a mail breaking the contract on purpose: the refused mail with the answer, and the `mailContract` fixture lets it pass |
 | `expectShape(name, factoryObject, realAnswer, { gaps, ignore })` | `support/contract.ts` | The contract check of a factory. `gaps` and `ignore` map a path (`$.email`) to the reason it stays uncompared |
 
 Helpers for one area go in `support/<area>-data.ts`, so `api.ts` and `constants.ts` stay as they are.

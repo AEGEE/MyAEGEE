@@ -12,6 +12,7 @@ replace it. This file is what both sides are checked against.
 | ExUnit (`mailer/test/omsmailer_web/contract/`) | `mailer-test` | every example renders in the mailer, also with only its required keys and with every nullable value `null`; the paths each template reads are declared, and the ones it can't render without are required |
 | pytest (`dispatcher/tests/test_contract_templates.py`) | `dispatcher-test` | the same for the dispatcher's templates |
 | jest hook (`<service>/test/scripts/mail-contract.js`, `jest-hook.cjs`) | each service's `test` job | every mail a test sends matches its template's schema; the test fails afterwards otherwise. A test that sends an invalid mail on purpose calls `allowViolations()` of `jest-hook.cjs`. A mocked client is checked through the calls its mock recorded; a test file that mocks the client and gets no mail checked fails at its end, unless it calls `allowUncheckedMails('<reason>')`. `MAIL_CONTRACT_REPORT=<file>` writes how many mails each test file had checked |
+| fake mailer (`e2e/support/fake-mailer.ts`) | `e2e-test` | every mail the real stack sends: the fake answers 404 for a template the manifest doesn't list and 422 for a mail that breaks its schema, as the mailer does, and the `mailContract` fixture of `e2e/support/api.ts` fails the test during which a mail was refused. A spec that sends an invalid mail on purpose calls `api.expectRefusedMail(template)` |
 
 ## Schemas
 
