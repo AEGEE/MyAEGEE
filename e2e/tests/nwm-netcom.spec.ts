@@ -66,9 +66,9 @@ test.describe('NetCom and NWMs', () => {
         await loginInBrowser(page, api, 'member');
         await page.goto(`/events/${event.url}/edit`);
         // Only search once the event is loaded: before that the editor has no organizing bodies to search.
-        await expect(page.locator('table').getByText(`${member.first_name} ${member.last_name}`, { exact: true })).toBeVisible();
-        await page.locator('.field', { hasText: 'Add organiser' }).locator('input').fill(otherAntenna.member.last_name);
+        await expect(page.getByRole('link', { name: `${member.first_name} ${member.last_name}`, exact: true })).toBeVisible();
+        await page.getByRole('textbox', { name: 'Add organiser' }).fill(otherAntenna.member.last_name);
 
-        await expect(page.locator('.dropdown-item', { hasText: otherAntenna.member.last_name })).toBeVisible();
+        await expect(page.getByRole('main').getByRole('button', { name: new RegExp(otherAntenna.member.last_name) })).toBeVisible();
     });
 });

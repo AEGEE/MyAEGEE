@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board view</div>
+        <div class="title" role="heading" aria-level="1">Board view</div>
 
         <div class="field" v-if="boardBodies.length === 1">
           <label>You are currently viewing applications from </label>
@@ -10,11 +10,11 @@
         </div>
 
         <div class="field" v-if="boardBodies.length > 1">
-          <label>Select the body to view application from:</label>
+          <label for="board-body">Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="board-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="boardBodiesLoaded && boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div class="notification is-warning" v-if="selectedBody && boardBodies.length > 0">
@@ -64,12 +64,11 @@
           <b-table-column field="status" label="Status" sortable v-slot="props">
             <span v-if="props.row.status === 'accepted'">Accepted</span>
             <span v-if="props.row.status === 'rejected'">Rejected</span>
-            <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
             <span v-if="props.row.status === 'pending'">Pending</span>
           </b-table-column>
 
           <b-table-column field="board_comment" label="Board comment" v-slot="props">
-            <textarea class="textarea" v-model="props.row.board_comment" />
+            <textarea class="textarea" v-model="props.row.board_comment" :aria-label="'Board comment for ' + props.row.first_name + ' ' + props.row.last_name" />
           </b-table-column>
 
           <b-table-column label="Save" v-slot="props">
@@ -98,8 +97,12 @@ export default {
     return {
       applications: [],
       boardBodies: [],
+      boardBodiesLoaded: false,
       isLoading: false,
-      selectedBody: null
+      selectedBody: null,
+      // Counts the requests of the page, so an answer for a body chosen before, or one that
+      // arrives after the member left, is dropped.
+      request: 0
     }
   },
   methods: {
@@ -109,8 +112,6 @@ export default {
         return 'has-background-success'
       case 'rejected':
         return 'has-background-danger'
-      case 'waiting_list':
-        return 'has-background-warning'
       default:
         return ''
       }
@@ -130,17 +131,24 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
 
+      /* istanbul ignore if -- only the watcher of selectedBody calls this, once a body is selected */
       if (!this.selectedBody) {
         return
       }
 
+      const bodyId = this.selectedBody
+      const request = ++this.request
       this.isLoading = true
-      this.axios.get(this.services['summeruniversity'] + '/boardview/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['summeruniversity'] + '/boardview/' + bodyId).then((response) => {
+        if (request !== this.request) return
+
         this.applications = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request !== this.request) return
 
+        this.applications = []
+        this.isLoading = false
         this.$root.showError('Error fetching board view data', err)
       })
     },
@@ -149,6 +157,7 @@ export default {
         this.$buefy.modal.open({
           component: ViewParticipantModal,
           hasModalCard: true,
+          ariaLabel: 'View participant',
           props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -158,6 +167,8 @@ export default {
             participant: response.data.data
           }
         })
+      }).catch((err) => {
+        this.$root.showError('Could not fetch the application', err)
       })
     }
   },
@@ -166,11 +177,14 @@ export default {
     loginUser: 'user'
   }),
   watch: {
+    // The applications of the body chosen before are not shown (nor saved) under another one.
     selectedBody () {
+      this.applications = []
       this.fetchData()
     }
   },
   mounted () {
+    const request = this.request
     this.axios.post(this.services['core'] + '/my_permissions/', {
       action: 'approve_members',
       object: 'summeruniversity'
@@ -182,11 +196,20 @@ export default {
         .filter((elt, index, array) => array.indexOf(elt) === index)
 
       this.boardBodies = this.loginUser.bodies.filter((body) => boardIds.includes(body.id))
+      this.boardBodiesLoaded = true
 
       if (this.boardBodies.length === 1) {
         this.selectedBody = this.boardBodies[0].id
       }
+    }).catch((err) => {
+      if (request !== this.request) return
+
+      this.$root.showError('Could not fetch your board bodies', err)
     })
+  },
+  beforeDestroy () {
+    // An answer that arrives after the member left the page is not shown.
+    this.request++
   }
 }
 </script>

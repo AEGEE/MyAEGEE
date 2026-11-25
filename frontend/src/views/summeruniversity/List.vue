@@ -12,24 +12,24 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label" for="su-search">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+              <input id="su-search" class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
             </div>
             <div class="control">
-              <a class="button is-info" @click="toggleDisplayPast()">
+              <button type="button" class="button is-info" @click="toggleDisplayPast()">
                 {{ this.displayPast ? 'Display only future events' : 'Display past events' }}
-              </a>
+              </button>
             </div>
           </div>
         </div>
 
         <div class="field">
-          <label class="label">Select year</label>
+          <label class="label" for="su-season">Select year</label>
           <div class="control">
             <div class="select">
-              <select v-model="season" @change="refetch()">
+              <select id="su-season" v-model="season" @change="refetch()">
                 <option v-for="item in seasons" :key="item.year" :value="item.year">{{ item.year }}</option>
               </select>
             </div>
@@ -66,18 +66,18 @@
 
         <!-- Classic list view -->
         <template v-if="displayListView">
-          <div class="card" v-for="event in events" v-bind:key="event.id">
+          <article class="card" v-for="event in events" v-bind:key="event.id" :aria-labelledby="'su-title-' + event.id">
             <div class="card-content">
               <div class="media">
                 <div class="media-left">
                   <figure class="image is-96x96">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" :alt="event.name">
                   </figure>
                 </div>
                 <div class="media-content">
                   <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }">
-                    <p class="title is-4">{{ event.name }}</p>
+                    <p class="title is-4" :id="'su-title-' + event.id">{{ event.name }}</p>
                   </router-link>
                 </div>
               </div>
@@ -110,7 +110,7 @@
                       :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                       class="button">Go to event page</router-link>
                   </p>
-                  <p class="control" v-if="can.apply && event.application_status === 'open'">
+                  <p class="control" v-if="can.apply && event.application_status === 'open' && event.published === 'full'">
                     <router-link
                       :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                       class="button is-primary">
@@ -120,24 +120,24 @@
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </template>
 
         <!-- Card grid view -->
         <template v-else>
           <div class="columns is-multiline">
             <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
-              <div class="card">
+              <article class="card" :aria-labelledby="'su-title-' + event.id">
                 <div class="card-content">
                   <figure class="image is-square">
-                    <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" style="object-fit: contain; margin: auto">
+                    <img v-if="!event.image" src="/images/logo.png" alt="">
+                    <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image" :alt="event.name" style="object-fit: contain; margin: auto">
                   </figure>
 
                   <div class="content" style="padding-top: 1rem">
                     <ul style="list-style-type: none; padding: 0; margin: 0">
                       <li>
-                        <span class="title is-4">{{ event.name }}</span>
+                        <span class="title is-4" :id="'su-title-' + event.id">{{ event.name }}</span>
                       </li>
                       <li style="display: flex; justify-content: space-between; gap: 0.5rem; align-items: flex-start; flex-wrap: wrap;">
                         <span class="tag" :style="{ 'background-color': colors[event.type], color: '#FFFFFF' }">
@@ -185,7 +185,7 @@
                           :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                           class="button">Go to event page</router-link>
                       </p>
-                      <p class="control" v-if="can.apply && event.application_status === 'open'">
+                      <p class="control" v-if="can.apply && event.application_status === 'open' && event.published === 'full'">
                         <router-link
                           :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                           class="button is-primary">
@@ -195,7 +195,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
         </template>
@@ -265,6 +265,8 @@ export default {
       },
       canLoadMore: true,
       source: null,
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       can: {
         createEvent: false,
         apply: false
@@ -291,6 +293,7 @@ export default {
       if (this.$route.name === 'oms.summeruniversity.list.participating') return 'participating'
       if (this.$route.name === 'oms.summeruniversity.list.organizing') return 'organizing'
 
+      /* istanbul ignore next -- the view is only mounted by the three list routes above */
       throw new Error('Unknown scope: ' + this.$route.name)
     },
     isLoadingSomething () {
@@ -313,6 +316,8 @@ export default {
       this.fetchData()
     },
     fetchData () {
+      // The list asked for, also when the answer arrives on another route.
+      const scope = this.scope
       this.isLoading.events = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
@@ -323,19 +328,19 @@ export default {
         participating: this.services['summeruniversity'] + '/mine/participating'
       }
 
-      this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(urls[scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
-        this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
+        this.canLoadMore = scope === 'all' && response.data.data.length === this.limit
 
         this.isLoading.events = false
       }).catch((err) => {
-        this.isLoading.events = false
-
+        // A request given up for a newer one: that one is still loading.
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading.events = false
         this.$root.showError('Could not fetch events list', err)
       })
     },
@@ -354,6 +359,7 @@ export default {
       }).catch((err) => {
         this.isLoading.permissions = false
 
+        if (this.left) return
         this.$root.showWarning('Could not fetch permissions', err)
       })
     }
@@ -370,11 +376,17 @@ export default {
       const active = this.seasons.find((item) => item.active)
       this.season = active ? active.year : null
     }).catch((err) => {
+      if (this.left) return
       this.$root.showError('Could not fetch seasons', err)
     }).finally(() => {
-      this.refetch()
+      if (!this.left) this.refetch()
     })
     this.fetchPermissions()
+  },
+  beforeDestroy () {
+    // The member left: the list isn't asked for any more, and nothing still on its way is shown.
+    this.left = true
+    if (this.source) this.source.cancel()
   }
 }
 </script>

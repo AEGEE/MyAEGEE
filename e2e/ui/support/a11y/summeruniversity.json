@@ -1,54 +1,29 @@
 {
-  "oms.summeruniversity.apply": {
-    "label": 4,
-    "select-name": 4
-  },
   "oms.summeruniversity.change_status": {
     "color-contrast": 1
   },
   "oms.summeruniversity.create": {
-    "color-contrast": 36,
-    "label": 12,
-    "select-name": 7
+    "color-contrast": 36
   },
   "oms.summeruniversity.edit": {
-    "color-contrast": 23,
-    "label": 12,
-    "select-name": 6
+    "color-contrast": 22
   },
   "oms.summeruniversity.edit_second": {
-    "color-contrast": 23,
-    "label": 5,
-    "select-name": 3
+    "color-contrast": 21
   },
   "oms.summeruniversity.list.all": {
-    "color-contrast": 5,
-    "select-name": 1
+    "color-contrast": 5
   },
   "oms.summeruniversity.list.organizing": {
-    "color-contrast": 5,
-    "select-name": 1
+    "color-contrast": 5
   },
   "oms.summeruniversity.list.participating": {
-    "color-contrast": 5,
-    "select-name": 1
+    "color-contrast": 5
   },
   "oms.summeruniversity.participants": {
     "color-contrast": 6
   },
   "oms.summeruniversity.seasons": {
     "color-contrast": 1
-  },
-  "oms.summeruniversity.seasons.create": {
-    "label": 5
-  },
-  "oms.summeruniversity.seasons.edit": {
-    "label": 5
-  },
-  "oms.summeruniversity.stats": {
-    "select-name": 1
-  },
-  "oms.summeruniversity.view": {
-    "image-alt": 1
   }
 }

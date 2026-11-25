@@ -395,14 +395,6 @@ module.exports = [
   },
   /* Events management */
   {
-    name: 'oms.events.admin',
-    path: '/events/serviceadmin',
-    component: 'events/ServiceAdmin',
-    meta: {
-      label: 'Service admin page'
-    }
-  },
-  {
     name: 'oms.events.change_status',
     path: '/events/change_status',
     component: 'events/ChangeStatus',
@@ -457,14 +449,6 @@ module.exports = [
     component: 'events/Participants',
     meta: {
       label: 'List/manage participants of the event'
-    }
-  },
-  {
-    name: 'oms.events.accepted',
-    path: '/events/:id/accepted',
-    component: 'events/Accepted',
-    meta: {
-      label: 'List accepted participants for the event'
     }
   },
   {

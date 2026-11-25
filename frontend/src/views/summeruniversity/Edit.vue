@@ -20,21 +20,21 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Event details</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Event details</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Title <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-name">Title <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" v-model="event.name" required />
+            <input id="su-name" class="input" type="text" v-model="event.name" required />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Description <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-description">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="1-2 sentence long catchy description to be shown on the website before the second submission has been accepted" required v-model="event.description" />
+            <textarea id="su-description" class="textarea" placeholder="1-2 sentence long catchy description to be shown on the website before the second submission has been accepted" required v-model="event.description" />
           </div>
           <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
@@ -56,14 +56,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Event URL <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-url">Event URL <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">/summeruniversity/</a>
               </div>
               <div class="control">
-                <input class="input" type="text" v-model="event.url" />
+                <input id="su-url" class="input" type="text" v-model="event.url" />
               </div>
             </div>
           </div>
@@ -71,9 +71,9 @@
         </div>
 
         <div class="field" v-if="can.editEventType">
-          <label class="label">Event type <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-type">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.type">
+            <select id="su-type" v-model="event.type">
               <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
             </select>
           </div>
@@ -81,9 +81,9 @@
         </div>
 
         <div class="field" v-if="managedTypes.includes(event.type || 'regular')">
-          <label class="label">Season <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-season">Season <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.season">
+            <select id="su-season" v-model="event.season">
               <option v-for="season in seasons" :key="season.year" :value="season.year">{{ season.name }}</option>
             </select>
           </div>
@@ -94,9 +94,10 @@
 
         <!-- TODO: start with datePicker on first possible SU start date set by CIA/SUCT -->
         <div class="field">
-          <label class="label">Event start date <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-starts">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="su-starts"
               placeholder="Select date"
               class="input"
               required
@@ -110,9 +111,10 @@
 
         <!-- TODO: start with datePicker on 6 days after first possible SU start date (or set start date) set by CIA/SUCT -->
         <div class="field">
-          <label class="label">Event end date <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-ends">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
+              id="su-ends"
               placeholder="Select date"
               class="input"
               :config="dateConfig"
@@ -124,14 +126,14 @@
         <!-- TODO: If larger than max, show warning that higher fee can only be set by SUCT -->
         <!-- TODO: Have two inputs, one without a maximum for people with the proper permission and one with the maximum based on duration (max 20 euros per night) -->
         <div class="field" v-if="!event.status || event.status === 'first draft' || can.editFee">
-          <label class="label">Fee <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-fee">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0" required />
+                <input id="su-fee" class="input" type="number" v-model="event.fee" min="0" required />
               </div>
             </div>
           </div>
@@ -139,20 +141,20 @@
         </div>
 
         <div class="field">
-          <label class="label">Max. participants <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-max-participants">Max. participants <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
+            <input id="su-max-participants" class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Accommodation type <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-accommodation-type">Accommodation type <span class="has-text-danger">*</span></label>
           <div class="notification is-info">
             <p>Accommodation can be for instance camping, hostel, hosting by the members of the local, or in a gym.</p>
           </div>
           <div class="control">
-            <input class="input" v-model="event.accommodation_type" required />
+            <input id="su-accommodation-type" class="input" v-model="event.accommodation_type" required />
           </div>
           <p class="help is-danger" v-if="errors.accommodation_type">{{ errors.accommodation_type.join(', ') }}</p>
         </div>
@@ -166,9 +168,9 @@
         </div>
 
         <div class="field">
-          <label class="label">Theme category <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-theme-category">Theme category <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.theme_category">
+            <select id="su-theme-category" v-model="event.theme_category">
               <option v-for="(name, theme_category) in themeCategories" v-bind:key="theme_category" v-bind:value="theme_category">{{ name }}</option>
             </select>
           </div>
@@ -176,17 +178,17 @@
         </div>
 
         <div class="field">
-          <label class="label">Theme (including explanation) <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-theme">Theme (including explanation) <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain the theme here." required v-model="event.theme" />
+            <textarea id="su-theme" class="textarea" placeholder="Explain the theme here." required v-model="event.theme" />
           </div>
           <p class="help is-danger" v-if="errors.theme">{{ errors.theme.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Theme implementation (only visible for SUCT) <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-theme-implementation">Theme implementation (only visible for SUCT) <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain how you are going to implement the theme here." required v-model="event.theme_implementation" />
+            <textarea id="su-theme-implementation" class="textarea" placeholder="Explain how you are going to implement the theme here." required v-model="event.theme_implementation" />
           </div>
           <p class="help is-danger" v-if="errors.theme_implementation">{{ errors.theme_implementation.join(', ') }}</p>
         </div>
@@ -197,27 +199,27 @@
             <tbody>
               <tr v-for="(learning_objective, index) in event.learning_objectives" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="learning_objective.description" />
+                  <input class="input" type="text" required v-model="learning_objective.description" :aria-label="'Learning objective ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deleteLearningObjective(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete learning objective ' + (index + 1)" @click="deleteLearningObjective(index)">Delete</button>
                 </td>
                 <td v-if="event.learning_objectives.length < 5">
-                  <a class="button is-primary" @click="addLearningObjective()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add learning objective" @click="addLearningObjective()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.learning_objectives.length === 0">
-                <td>No learning objectives are set.</td>
+              <tr v-if="event.learning_objectives.length === 0">
+                <td colspan="3">No learning objectives are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.learning_objectives.length === 1">
-                <td><strong>At least 2 learning objectives have to be set.</strong></td>
+              <tr v-if="event.learning_objectives.length === 1">
+                <td colspan="3"><strong>At least 2 learning objectives have to be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.learning_objectives.length >= 5">
-                <td><strong>At most 5 learning objectives can be set.</strong></td>
+              <tr v-if="event.learning_objectives.length >= 5">
+                <td colspan="3"><strong>At most 5 learning objectives can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.learning_objectives.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addLearningObjective()">Add learning objective</a>
+              <tr v-if="event.learning_objectives.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addLearningObjective()">Add learning objective</button>
                 </td>
               </tr>
             </tbody>
@@ -226,9 +228,9 @@
         <p class="help is-danger" v-if="errors.learning_objectives">{{ errors.learning_objectives.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">List of activities <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-activities-list">List of activities <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list" />
+            <textarea id="su-activities-list" class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list" />
           </div>
           <p class="help is-danger" v-if="errors.activities_list">{{ errors.activities_list.join(', ') }}</p>
         </div>
@@ -253,14 +255,14 @@
         </div> -->
 
         <div class="field">
-          <label class="label">Trainers</label>
+          <label class="label" for="su-trainers">Trainers</label>
           <div class="control">
-            <textarea class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." v-model="event.trainers" />
+            <textarea id="su-trainers" class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." v-model="event.trainers" />
           </div>
           <p class="help is-danger" v-if="errors.trainers">{{ errors.trainers.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Optional Programme</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Optional Programme</h2>
         <hr />
 
         <div class="notification is-info">
@@ -269,14 +271,14 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Optional Fee</label>
+          <label class="label" for="su-optional-fee">Optional Fee</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.optional_fee" min="0" max="50" />
+                <input id="su-optional-fee" class="input" type="number" v-model="event.optional_fee" min="0" max="50" @input="$root.nullifyIfEmpty(event, 'optional_fee')" />
               </div>
             </div>
           </div>
@@ -284,28 +286,28 @@
         </div>
 
         <div class="field">
-          <label class="label">Optional Programme</label>
+          <label class="label" for="su-optional-programme">Optional Programme</label>
           <div class="control">
-            <textarea class="textarea" placeholder="List your optional programme here." v-model="event.optional_programme" />
+            <textarea id="su-optional-programme" class="textarea" placeholder="List your optional programme here." v-model="event.optional_programme" />
           </div>
           <p class="help is-danger" v-if="errors.optional_programme">{{ errors.optional_programme.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Contact information & promotion</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Contact information & promotion</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Email <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-email">Email <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="email" v-model="event.email" />
+            <input id="su-email" class="input" type="email" v-model="event.email" required />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Website <URLTooltip /></label>
+          <label class="label" for="su-website">Website <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.website" />
+            <input id="su-website" class="input" type="url" v-model="event.website" />
           </div>
           <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ') }}</p>
         </div>
@@ -316,24 +318,24 @@
             <tbody>
               <tr v-for="(social_medium, index) in event.social_media" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="social_medium.description" />
+                  <input class="input" type="url" required v-model="social_medium.description" :aria-label="'Social media link ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deleteSocialMedia(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete social media link ' + (index + 1)" @click="deleteSocialMedia(index)">Delete</button>
                 </td>
                 <td v-if="event.social_media.length < 3">
-                  <a class="button is-primary" @click="addSocialMedia()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add social media link" @click="addSocialMedia()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length === 0">
-                <td>No social media links are set.</td>
+              <tr v-if="event.social_media.length === 0">
+                <td colspan="3">No social media links are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length >= 3">
-                <td><strong>At most 3 social media links can be set.</strong></td>
+              <tr v-if="event.social_media.length >= 3">
+                <td colspan="3"><strong>At most 3 social media links can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.social_media.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addSocialMedia()">Add social media link</a>
+              <tr v-if="event.social_media.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addSocialMedia()">Add social media link</button>
                 </td>
               </tr>
             </tbody>
@@ -354,24 +356,24 @@
             <tbody>
               <tr v-for="(photo, index) in event.photos" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="photo.description" />
+                  <input class="input" type="url" required v-model="photo.description" :aria-label="'Photo link ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deletePhotos(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete photo link ' + (index + 1)" @click="deletePhotos(index)">Delete</button>
                 </td>
                 <td v-if="event.photos.length < 6">
-                  <a class="button is-primary" @click="addPhotos()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add link to photo" @click="addPhotos()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length === 0">
-                <td>No links to photos are set.</td>
+              <tr v-if="event.photos.length === 0">
+                <td colspan="3">No links to photos are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length >= 6">
-                <td><strong>At most 6 links to photos can be set.</strong></td>
+              <tr v-if="event.photos.length >= 6">
+                <td colspan="3"><strong>At most 6 links to photos can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.photos.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addPhotos()">Add link to photo</a>
+              <tr v-if="event.photos.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addPhotos()">Add link to photo</button>
                 </td>
               </tr>
             </tbody>
@@ -380,48 +382,48 @@
         <p class="help is-danger" v-if="errors.photos">{{ errors.photos.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">Video <URLTooltip /></label>
+          <label class="label" for="su-video">Video <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.video" />
+            <input id="su-video" class="input" type="url" v-model="event.video" />
           </div>
           <p class="help is-danger" v-if="errors.video">{{ errors.video.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organising bodies <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Organising bodies <span class="has-text-danger">*</span></h2>
         <hr />
 
         <div class="tags">
-          <a
+          <span
             class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
-            <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
-          </a>
-          <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
+            {{ bodyName(body) }}
+            <button type="button" class="delete is-small" :aria-label="'Remove ' + bodyName(body)" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
+          </span>
+          <span class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</span>
         </div>
         <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">Add organising body</label>
+          <label class="label" for="su-add-organizing-body">Add organising body</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <div class="select">
-                  <select v-model="selectedBody">
+                  <select id="su-add-organizing-body" v-model="selectedBody">
                     <option :value="null">--</option>
                     <option v-for="body in bodies" v-bind:key="body.id" v-bind:value="body">{{ body.name }}</option>
                   </select>
                 </div>
               </div>
               <div class="control">
-                <a class="button is-primary" @click="addOrganizingBody()">Add</a>
+                <button type="button" class="button is-primary" aria-label="Add organising body" @click="addOrganizingBody()">Add</button>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Cooperation with a body</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Cooperation with a body</h2>
         <hr />
 
         <div class="notification is-info">
@@ -432,37 +434,37 @@
           </div>
         </div>
         <div class="tags">
-          <a
+          <span
             class="tag is-primary is-medium"
             v-for="(body, index) in event.cooperation"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
-            <button class="delete is-small" @click.prevent="body => event.cooperation.splice(index, 1)" />
-          </a>
-          <a class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</a>
+            {{ bodyName(body) }}
+            <button type="button" class="delete is-small" :aria-label="'Remove ' + bodyName(body)" @click.prevent="body => event.cooperation.splice(index, 1)" />
+          </span>
+          <span class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</span>
         </div>
         <p class="help is-danger" v-if="errors.cooperation">{{ errors.cooperation.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">Add cooperation</label>
+          <label class="label" for="su-add-cooperation">Add cooperation</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <div class="select">
-                  <select v-model="selectedCooperation">
+                  <select id="su-add-cooperation" v-model="selectedCooperation">
                     <option :value="null">--</option>
                     <option v-for="body in bodies" v-bind:key="body.id" v-bind:value="body">{{ body.name }}</option>
                   </select>
                 </div>
               </div>
               <div class="control">
-                <a class="button is-primary" @click="addCooperation()">Add</a>
+                <button type="button" class="button is-primary" aria-label="Add cooperation body" @click="addCooperation()">Add</button>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></h2>
         <hr />
 
         <div class="notification is-info">
@@ -484,20 +486,20 @@
             :loading="isLoading">
             <b-table-column field="first_name" label="First and last name" sortable v-slot="props">
               <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                {{ props.row.first_name }} {{ props.row.last_name }}
+                {{ organizerName(props.row) }}
               </router-link>
             </b-table-column>
 
             <b-table-column field="role" label="Role" v-slot="props">
               <div class="select">
-                <select v-model="props.row.role">
+                <select v-model="props.row.role" :aria-label="'Role of ' + organizerName(props.row)">
                   <option v-for="(name, role) in roles" v-bind:key="role" v-bind:value="role">{{ name }}</option>
                 </select>
               </div>
             </b-table-column>
 
             <b-table-column label="Delete" v-slot="props">
-              <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
+              <button type="button" class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete ' + organizerName(props.row)" @click="deleteOrganizer(props.index)">
                 Delete
               </button>
             </b-table-column>
@@ -509,10 +511,11 @@
           <p class="help is-danger" v-if="errors.organizers">{{ errors.organizers.join(', ') }}</p>
 
           <div class="field">
-            <label class="label">Add organiser</label>
+            <label class="label" for="su-add-organizer">Add organiser</label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
+                  id="su-add-organizer"
                   v-model="autoComplete.members.name"
                   :data="autoComplete.members.values"
                   open-on-focus="true"
@@ -534,7 +537,7 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Locations <span class="has-text-danger">*</span></div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Locations <span class="has-text-danger">*</span></h2>
         <hr />
 
         <div class="notification is-info">
@@ -545,8 +548,9 @@
           </div>
         </div>
 
-        <div class="tile" style="position: relative; height: 400px">
+        <div class="tile" role="region" aria-label="Map" style="position: relative; height: 400px">
           <MglMap
+            :mapboxGl="mapboxgl"
             :accessToken="accessToken"
             :mapStyle="map.style"
             :zoom="map.zoom"
@@ -564,57 +568,60 @@
           </MglMap>
         </div>
 
-        <table class="table is-narrowed is-stripped is-fullwidth">
-          <thead>
-            <tr>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Name <span class="has-text-danger">*</span></th>
-              <th>Description</th>
-              <th>Starting city</th>
-              <th>Ending city</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(marker, index) in event.locations" v-bind:key="index">
-              <td>{{ marker.position.lat }}</td>
-              <td>{{ marker.position.lng }}</td>
-              <td>
-                <input type="text" class="input" required v-model="marker.name" />
-              </td>
-              <td>
-                <textarea class="textarea" v-model="marker.description" />
-              </td>
-              <td>
-                <input type="radio" name="start_loc" v-model="marker.start" :value="true" />
-              </td>
-              <td>
-                <input type="radio" name="end_loc" v-model="marker.end" :value="true" />
-              </td>
-              <td>
-                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
-              </td>
-            </tr>
-            <tr colspan="5" v-if="event.locations.length === 0">
-              <td>No locations added.</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Seven columns are wider than a phone: the table scrolls, not the page. -->
+        <div class="table-container">
+          <table class="table is-narrowed is-stripped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Name <span class="has-text-danger">*</span></th>
+                <th>Description</th>
+                <th>Starting city</th>
+                <th>Ending city</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+                <td>{{ marker.position.lat }}</td>
+                <td>{{ marker.position.lng }}</td>
+                <td>
+                  <input type="text" class="input" required v-model="marker.name" :aria-label="'Location ' + (index + 1) + ' name'" />
+                </td>
+                <td>
+                  <textarea class="textarea" v-model="marker.description" :aria-label="'Location ' + (index + 1) + ' description'" />
+                </td>
+                <td>
+                  <input type="radio" name="start_loc" v-model="marker.start" :value="true" @change="chooseCity(index, 'start')" :aria-label="'Location ' + (index + 1) + ' is the starting city'" />
+                </td>
+                <td>
+                  <input type="radio" name="end_loc" v-model="marker.end" :value="true" @change="chooseCity(index, 'end')" :aria-label="'Location ' + (index + 1) + ' is the ending city'" />
+                </td>
+                <td>
+                  <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                </td>
+              </tr>
+              <tr v-if="event.locations.length === 0">
+                <td colspan="5">No locations added.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addLocation()">Add new location</a>
+            <button type="button" class="button is-primary" @click="addLocation()">Add new location</button>
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Participant info</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Participant info</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Confirmation needed</label>
+          <label class="label" for="su-pax-confirmation">Confirmation needed</label>
           <div class="select">
-            <select v-model="event.pax_confirmation">
+            <select id="su-pax-confirmation" v-model="event.pax_confirmation">
               <option v-for="(name, pax_confirmation) in paxConfirmations" v-bind:key="pax_confirmation" v-bind:value="pax_confirmation">{{ name }}</option>
             </select>
           </div>
@@ -622,22 +629,22 @@
         </div>
 
         <div class="field">
-          <label class="label">Ideal participant</label>
+          <label class="label" for="su-pax-description">Ideal participant</label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain what should participants of your SU look like." v-model="event.pax_description" />
+            <textarea id="su-pax-description" class="textarea" placeholder="Explain what should participants of your SU look like." v-model="event.pax_description" />
           </div>
           <p class="help is-danger" v-if="errors.pax_description">{{ errors.pax_description.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Special equipment needed</label>
+          <label class="label" for="su-special-equipment">Special equipment needed</label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment" />
+            <textarea id="su-special-equipment" class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment" />
           </div>
           <p class="help is-danger" v-if="errors.special_equipment">{{ errors.special_equipment.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Questions</h2>
         <hr />
 
         <div class="notification is-info">
@@ -650,24 +657,24 @@
             <tbody>
               <tr v-for="(question, index) in event.questions" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="question.description" />
+                  <input class="input" type="text" required v-model="question.description" :aria-label="'Question ' + (index + 1)" />
                 </td>
                 <td>
-                  <a class="button is-danger" @click="deleteQuestion(index)">Delete</a>
+                  <button type="button" class="button is-danger" :aria-label="'Delete question ' + (index + 1)" @click="deleteQuestion(index)">Delete</button>
                 </td>
                 <td v-if="event.questions.length < 3">
-                  <a class="button is-primary" @click="addQuestion()">+</a>
+                  <button type="button" class="button is-primary" aria-label="Add question" @click="addQuestion()">+</button>
                 </td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length === 0">
-                <td>No questions are set.</td>
+              <tr v-if="event.questions.length === 0">
+                <td colspan="3">No questions are set.</td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length >= 3">
-                <td><strong>At most 3 questions can be set.</strong></td>
+              <tr v-if="event.questions.length >= 3">
+                <td colspan="3"><strong>At most 3 questions can be set.</strong></td>
               </tr>
-              <tr colspan="3" v-if="event.questions.length === 0">
-                <td>
-                  <a class="button is-primary" @click="addQuestion()">Add question</a>
+              <tr v-if="event.questions.length === 0">
+                <td colspan="3">
+                  <button type="button" class="button is-primary" @click="addQuestion()">Add question</button>
                 </td>
               </tr>
             </tbody>
@@ -675,26 +682,26 @@
         </div>
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.join(', ') }}</p>
 
-        <div class="subtitle is-fullwidth has-text-centered">Regulations</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">Regulations</h2>
         <hr />
 
         <div class="field">
-          <label class="label">Payment and cancellation rules <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-cancellation-rules">Payment and cancellation rules <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Payment and cancellation rules set by your SU." required v-model="event.cancellation_rules" />
+            <textarea id="su-cancellation-rules" class="textarea" placeholder="Payment and cancellation rules set by your SU." required v-model="event.cancellation_rules" />
           </div>
           <p class="help is-danger" v-if="errors.cancellation_rules">{{ errors.cancellation_rules.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">SU specific regulations <span class="has-text-danger">*</span></label>
+          <label class="label" for="su-additional-regulation">SU specific regulations <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Additional regulations set by your SU." required v-model="event.additional_regulation" />
+            <textarea id="su-additional-regulation" class="textarea" placeholder="Additional regulations set by your SU." required v-model="event.additional_regulation" />
           </div>
           <p class="help is-danger" v-if="errors.additional_regulation">{{ errors.additional_regulation.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">SUCT approval fields</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">SUCT approval fields</h2>
         <hr />
 
         <div class="notification is-info">
@@ -716,24 +723,22 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary budget <URLTooltip /></label>
+          <label class="label" for="su-budget">Link to preliminary budget <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.budget" />
+            <input id="su-budget" class="input" type="url" v-model="event.budget" />
           </div>
-          <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip /></label>
+          <label class="label" for="su-programme-suct">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip /></label>
           <div class="control">
-            <input class="input" type="url" v-model="event.programme_suct" required />
+            <input id="su-programme-suct" class="input" type="url" v-model="event.programme_suct" required />
           </div>
-          <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.programme_suct">{{ errors.programme_suct.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">SU terms</div>
+        <h2 class="subtitle is-fullwidth has-text-centered">SU terms</h2>
         <hr />
 
         <div class="notification is-info">
@@ -771,6 +776,7 @@ import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
+import mapboxgl from 'mapbox-gl'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -792,6 +798,9 @@ export default {
   name: 'EditEvent',
   data () {
     return {
+      // Counts the loads of the form, so the answers of an earlier one (for the SU of the page
+      // before, or after the member left) are dropped.
+      loads: 0,
       event: {
         id: null,
         name: null,
@@ -851,13 +860,16 @@ export default {
       themeCategories: constants.SUMMERUNIVERSITY_THEMES_NAMES,
       roles: constants.SUMMERUNIVERSITY_ROLES,
       courseLevels: constants.SUMMERUNIVERSITY_COURSE_LEVELS,
-      file: null,
       bodies: [],
       selectedBody: null,
       selectedCooperation: null,
       dateConfig: {
         enableTime: true,
-        time_24hr: true
+        time_24hr: true,
+        // Typing a date works, also with a keyboard only, and phones get the same picker
+        // instead of their own date input.
+        allowInput: true,
+        disableMobile: true
       },
       seasons: [],
       // The event types the user can manage. Only managers of the event's type can choose its season.
@@ -914,6 +926,10 @@ export default {
         last_name: organizer.last_name
       })
     },
+    // The name of an organiser, once core has given it, and otherwise their user id.
+    organizerName (organizer) {
+      return [organizer.first_name, organizer.last_name].filter(Boolean).join(' ') || 'Member ' + organizer.user_id
+    },
     deleteOrganizer (index) {
       this.event.organizers.splice(index, 1)
     },
@@ -967,11 +983,25 @@ export default {
     deleteLocation (index) {
       this.event.locations.splice(index, 1)
     },
+    // An SU starts in one location and ends in one: choosing another one unsets the one
+    // chosen before. Each row has its own value, so the radios alone would keep both.
+    chooseCity (index, key) {
+      this.event.locations.forEach((location, other) => {
+        if (other !== index && location[key] !== undefined) {
+          location[key] = false
+        }
+      })
+    },
     setMarkerPosition (event, index) {
       const newCoords = event.marker.getLngLat()
 
       this.event.locations[index].position.lat = newCoords.lat
       this.event.locations[index].position.lng = newCoords.lng
+    },
+    // The name of an organising or cooperation body: from core's list, or the name the SU
+    // stored for a body that core doesn't list any more.
+    bodyName (body) {
+      return body.body ? body.body.name : body.body_name
     },
     addOrganizingBody () {
       if (!this.selectedBody) {
@@ -1008,6 +1038,7 @@ export default {
       this.selectedCooperation = null
     },
     saveEvent () {
+      /* istanbul ignore if -- the start date input is required, so the browser asks for it before this runs */
       if (!this.event.starts) {
         return this.$root.showError('Please set the date when the event will start.')
       }
@@ -1030,7 +1061,8 @@ export default {
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
-      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, role: org.role }))
+      // Without the names; an organiser's body, when the SU has one for them, is kept.
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, role: org.role, ...(org.body_id ? { body_id: org.body_id } : {}) }))
       if (this.event.cooperation.length !== 0) {
         eventToSave.cooperation = eventToSave.cooperation.map(body => ({ body_id: body.body_id }))
       }
@@ -1093,92 +1125,130 @@ export default {
       }
 
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
+    },
+    // Loads the form: the SU of the page, or an empty SU with the member as its organiser.
+    load () {
+      const load = ++this.loads
+      this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
+        this.seasons = response.data.data
+      }).catch((err) => this.$root.showError('Could not fetch seasons', err))
+
+      this.axios.get(this.services['core'] + '/bodies/').then((response) => {
+        this.bodies = response.data.data
+
+        return this.axios.get(this.services['core'] + '/my_permissions/')
+      }).then((response) => {
+        if (load !== this.loads) return
+
+        this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+        this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
+        this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
+
+        if (!this.$route.params.id) {
+          this.isLoading = false
+          this.event.organizers.push({
+            user_id: this.loginUser.id,
+            first_name: this.loginUser.first_name,
+            last_name: this.loginUser.last_name,
+            disableEdit: true
+          })
+          return
+        }
+
+        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
+          if (load !== this.loads) return
+
+          this.event = eventsResponse.data.data
+          this.can = eventsResponse.data.permissions
+          this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+          this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
+
+          this.dates.starts = this.event.starts = new Date(this.event.starts)
+          this.dates.ends = this.event.ends = new Date(this.event.ends)
+
+          for (const body of this.event.organizing_bodies) {
+            const foundBody = this.bodies.find(b => b.id === body.body_id)
+            this.$set(body, 'body', foundBody)
+          }
+
+          for (const body of this.event.cooperation) {
+            const foundBody = this.bodies.find(b => b.id === body.body_id)
+            this.$set(body, 'body', foundBody)
+          }
+
+          for (const organizer of this.event.organizers) {
+            this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
+              this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
+              this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
+            }).catch((err) => this.$root.showError('Could not fetch an organiser', err))
+
+            if (this.loginUser.id === organizer.user_id) {
+              this.$set(organizer, 'disableEdit', true)
+            }
+          }
+
+          this.isLoading = false
+
+          // The map may have loaded before the SU: it is centred on the locations now.
+          if (this.map.actions) {
+            this.centerMap()
+          }
+        })
+      }).catch((err) => {
+        if (load !== this.loads) return
+
+        this.isLoading = false
+        if (err.response && err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
+
+        this.$router.push({ name: 'oms.summeruniversity.list.all' })
+      })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    // mapbox-gl itself, so the map is built as soon as it is shown: vue-mapbox would load it
+    // on its own after the map was created, and throw when the map is gone by then (the member
+    // left, or the map was taken away). A computed property, so Vue doesn't observe the library.
+    mapboxgl () {
+      return mapboxgl
+    }
+  },
   watch: {
+    // The editor and the creation form are one page: going from one to the other (the menu's
+    // "Create SU") starts the form afresh. The map stays, and with it its controls.
+    '$route.params.id': function () {
+      const { loads, map: { actions } } = this
+      Object.assign(this.$data, this.$options.data.call(this))
+      this.loads = loads
+      this.map.actions = actions
+      this.load()
+    },
     'event.name': function (newName) {
       if (!this.$route.params.id) {
-        this.event.url = this.$root.sluggify(newName)
+        // A form started afresh has no title.
+        this.event.url = this.$root.sluggify(newName || '')
       }
     },
+    // An emptied date picker gives null, which would be 1970 as a date.
     'dates.starts': function (newDate) {
-      this.event.starts = new Date(newDate)
+      this.event.starts = newDate ? new Date(newDate) : null
     },
     'dates.ends': function (newDate) {
-      this.event.ends = new Date(newDate)
+      this.event.ends = newDate ? new Date(newDate) : null
     }
   },
   mounted () {
-    this.axios.get(this.services['summeruniversity'] + '/seasons').then((response) => {
-      this.seasons = response.data.data
-    }).catch((err) => this.$root.showError('Could not fetch seasons', err))
-
-    this.axios.get(this.services['core'] + '/bodies/').then((response) => {
-      this.bodies = response.data.data
-
-      return this.axios.get(this.services['core'] + '/my_permissions/')
-    }).then((response) => {
-      this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-      this.managedTypes = Object.keys(this.eventTypes).filter(type => response.data.data.some(permission => permission.combined.endsWith('global:manage_summeruniversity:' + type)))
-      this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
-
-      if (!this.$route.params.id) {
-        this.isLoading = false
-        this.event.organizers.push({
-          user_id: this.loginUser.id,
-          first_name: this.loginUser.first_name,
-          last_name: this.loginUser.last_name,
-          disableEdit: true
-        })
-        return
-      }
-
-      return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
-        this.event = eventsResponse.data.data
-        this.can = eventsResponse.data.permissions
-        this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-        this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
-
-        this.dates.starts = this.event.starts = new Date(this.event.starts)
-        this.dates.ends = this.event.ends = new Date(this.event.ends)
-
-        for (const body of this.event.organizing_bodies) {
-          const foundBody = this.bodies.find(b => b.id === body.body_id)
-          this.$set(body, 'body', foundBody)
-        }
-
-        for (const body of this.event.cooperation) {
-          const foundBody = this.bodies.find(b => b.id === body.body_id)
-          this.$set(body, 'body', foundBody)
-        }
-
-        for (const organizer of this.event.organizers) {
-          this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
-            this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
-            this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
-          })
-
-          if (this.loginUser.id === organizer.user_id) {
-            this.$set(organizer, 'disableEdit', true)
-          }
-        }
-
-        this.isLoading = false
-      })
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
-
-      this.$router.push({ name: 'oms.summeruniversity.list.all' })
-    })
+    this.load()
+  },
+  beforeDestroy () {
+    this.loads++
   }
 }
 </script>

@@ -4,10 +4,11 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png" />
+            <img v-if="!event.image" src="/images/logo.png" alt="" />
             <img
               v-if="event.image"
               :src="services['summeruniversity-static'] + '/headimages/' + event.image"
+              :alt="event.name"
             />
           </figure>
         </article>
@@ -69,10 +70,10 @@
                 && event.available_spots != 0
             "
           >
-            <a class="button is-fullwidth is-warning" @click="askStartOpenCall()">
+            <button type="button" class="button is-fullwidth is-warning" @click="askStartOpenCall()">
               <span>Start open call</span>
               <span class="icon"><font-awesome-icon icon="play" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT & LOs: close Open Call period -->
@@ -80,17 +81,17 @@
             class="field is-grouped"
             v-if="can.edit_summeruniversity_open_call && event.open_call === true"
           >
-            <a class="button is-fullwidth is-danger" @click="askCloseOpenCall()">
+            <button type="button" class="button is-fullwidth is-danger" @click="askCloseOpenCall()">
               <span>Close open call</span>
               <span class="icon"><font-awesome-icon icon="stop" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
-            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
+            <button type="button" class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
@@ -114,10 +115,10 @@
             class="field is-grouped"
             v-if="can.change_status.first_submission && event.status === 'first draft'"
           >
-            <a class="button is-fullwidth is-warning" @click="askChangeStatus('first submission')">
+            <button type="button" class="button is-fullwidth is-warning" @click="askChangeStatus('first submission')">
               <span>Submit first draft</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: submit second draft (second draft -> second submission) -->
@@ -125,10 +126,10 @@
             class="field is-grouped"
             v-if="can.change_status.second_submission && event.status === 'second draft'"
           >
-            <a class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
+            <button type="button" class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
               <span>Submit second draft</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT & LOs: submit first approval (first approval -> second submission) -->
@@ -136,10 +137,10 @@
             class="field is-grouped"
             v-if="can.change_status.second_submission && event.status === 'first approval'"
           >
-            <a class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
+            <button type="button" class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
               <span>Submit event for second approval</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: approve first submission (first submission -> first approval) -->
@@ -147,10 +148,10 @@
             class="field is-grouped"
             v-if="can.change_status.first_approval && event.status === 'first submission'"
           >
-            <a class="button is-fullwidth is-primary" @click="askChangeStatus('first approval')">
+            <button type="button" class="button is-fullwidth is-primary" @click="askChangeStatus('first approval')">
               <span>Approve first submission</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: approve second submission (second submission -> second approval) -->
@@ -158,10 +159,10 @@
             class="field is-grouped"
             v-if="can.change_status.second_approval && event.status === 'second submission'"
           >
-            <a class="button is-fullwidth is-primary" @click="askChangeStatus('second approval')">
+            <button type="button" class="button is-fullwidth is-primary" @click="askChangeStatus('second approval')">
               <span>Approve second submission</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: reject first submission (first submission -> first draft) -->
@@ -169,10 +170,10 @@
             class="field is-grouped"
             v-if="can.change_status.first_draft && event.status === 'first submission'"
           >
-            <a class="button is-fullwidth is-danger" @click="askChangeStatus('first draft')">
+            <button type="button" class="button is-fullwidth is-danger" @click="askChangeStatus('first draft')">
               <span>Reject first submission</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: reject second submission (second submission -> second draft) -->
@@ -180,10 +181,10 @@
             class="field is-grouped"
             v-if="can.change_status.second_draft && event.status === 'second submission'"
           >
-            <a class="button is-fullwidth is-danger" @click="askChangeStatus('second draft')">
+            <button type="button" class="button is-fullwidth is-danger" @click="askChangeStatus('second draft')">
               <span>Reject second submission</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: publish minimal event -->
@@ -191,10 +192,10 @@
             class="field is-grouped"
             v-if="can.manage_summeruniversity[event.type] && event.published === 'none'"
           >
-            <a class="button is-fullwidth is-info" @click="askChangePublication('minimal')">
+            <button type="button" class="button is-fullwidth is-info" @click="askChangePublication('minimal')">
               <span>Publish minimal event</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: publish full event -->
@@ -202,10 +203,10 @@
             class="field is-grouped"
             v-if="can.manage_summeruniversity[event.type] && event.published === 'minimal'"
           >
-            <a class="button is-fullwidth is-info" @click="askChangePublication('full')">
+            <button type="button" class="button is-fullwidth is-info" @click="askChangePublication('full')">
               <span>Publish full event</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
-            </a>
+            </button>
           </div>
 
           <!-- For SUCT: unpublish event -->
@@ -213,17 +214,17 @@
             class="field is-grouped"
             v-if="can.manage_summeruniversity[event.type] && event.published !== 'none'"
           >
-            <a class="button is-fullwidth is-danger" @click="askChangePublication('none')">
+            <button type="button" class="button is-fullwidth is-danger" @click="askChangePublication('none')">
               <span>Unpublish event</span>
               <span class="icon"><font-awesome-icon icon="pen" /></span>
-            </a>
+            </button>
           </div>
 
           <div class="field is-grouped" v-if="can.delete_summeruniversity">
-            <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
+            <button type="button" class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
               <span class="icon"><font-awesome-icon icon="times" /></span>
-            </a>
+            </button>
           </div>
         </article>
       </div>
@@ -231,7 +232,7 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ event.name }}</p>
+          <p class="title" role="heading" aria-level="1">{{ event.name }}</p>
 
           <div class="notification is-warning" v-if="activeEventApplicationBan">
             You are temporarily banned from submitting new event applications until {{ loginUser.event_application_ban.ban_until | datetime }}.
@@ -289,8 +290,8 @@
                 </tr>
                 <tr>
                   <th>Starts in</th>
-                  <td v-if="event.startLocation">{{ event.startLocation }}</td>
-                  <td v-if="!event.startLocation"><i>Not specified</i></td>
+                  <td v-if="startLocation">{{ startLocation }}</td>
+                  <td v-if="!startLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Ends <timezone-tooltip /></th>
@@ -298,8 +299,8 @@
                 </tr>
                 <tr>
                   <th>Ends in</th>
-                  <td v-if="event.endLocation">{{ event.endLocation }}</td>
-                  <td v-if="!event.endLocation"><i>Not specified</i></td>
+                  <td v-if="endLocation">{{ endLocation }}</td>
+                  <td v-if="!endLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -450,10 +451,13 @@
           <div
             class="tile"
             style="position: relative; height: 400px"
+            role="region"
+            aria-label="Map"
             v-if="this.event.locations.length > 0"
           >
             <MglMap
               id="map"
+              :mapboxGl="mapboxgl"
               :accessToken="accessToken"
               :mapStyle="map.style"
               :zoom="map.zoom"
@@ -490,6 +494,7 @@
 import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import mapboxgl from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -507,6 +512,8 @@ export default {
   name: 'SingleEvent',
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       event: {
         name: '',
         description: '',
@@ -563,9 +570,9 @@ export default {
       this.$buefy.modal.open({
         component: PictureModal,
         hasModalCard: true,
+        ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -667,6 +674,7 @@ export default {
         inputAttrs: {
           type: 'number',
           required: true,
+          'aria-label': 'Maximum number of participants',
           value: this.event.max_participants
         },
         trapFocus: true,
@@ -697,7 +705,7 @@ export default {
           openCall
         )
         .then(() => {
-          this.$root.showInfo('Event open call is succesfully changed')
+          this.$root.showInfo('Event open call is successfully changed')
 
           // Refetching the event to renew the permissions.
           return this.axios.get(
@@ -718,6 +726,7 @@ export default {
       this.map.actions = event.component.actions
 
       // waiting till the event is loaded.
+      /* istanbul ignore else -- the map is only rendered once the event has loaded with locations */
       if (!this.isLoading && this.event.id) {
         this.centerMap()
       }
@@ -725,6 +734,7 @@ export default {
     centerMap () {
       // we don't know, what'll happen first, the map will load or the event will load.
       // and we need both to be loaded.
+      /* istanbul ignore if -- the map, and so this call, only exists for an event with locations */
       if (this.event.locations.length === 0) {
         return
       }
@@ -758,25 +768,16 @@ export default {
       .then((response) => {
         this.event = response.data.data
         this.can = response.data.permissions
-
-        const startLocation = this.event.locations.find((location) => location.start === 'true')
-          || this.event.locations.find((location) => location.start === true)
-        if (startLocation) {
-          this.event.startLocation = startLocation.name
-        }
-        const endLocation = this.event.locations.find((location) => location.end === 'true')
-          || this.event.locations.find((location) => location.end === true)
-        if (endLocation) {
-          this.event.endLocation = endLocation.name
-        }
-
         this.isLoading = false
 
+        /* istanbul ignore if -- the map is only rendered after this, so it can't have loaded yet */
         if (this.map.actions) {
           this.centerMap()
         }
       })
       .catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
@@ -792,12 +793,27 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
-    isOrganizer () {
-      return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
+    // mapbox-gl itself, so the map is built as soon as it is shown: vue-mapbox would load it
+    // on its own after the map was created, and throw when the map is gone by then (the member
+    // left, or the map was taken away). A computed property, so Vue doesn't observe the library.
+    mapboxgl () {
+      return mapboxgl
+    },
+    // The city where the SU starts or ends: the edit forms used to store the flag as the text 'true'.
+    startLocation () {
+      const location = this.event.locations.find((item) => item.start === 'true' || item.start === true)
+      return location ? location.name : null
+    },
+    endLocation () {
+      const location = this.event.locations.find((item) => item.end === 'true' || item.end === true)
+      return location ? location.name : null
     },
     activeEventApplicationBan () {
       return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>

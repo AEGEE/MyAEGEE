@@ -4,10 +4,11 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png" />
+            <img v-if="!event.image" src="/images/logo.png" alt="" />
             <img
               v-if="event.image"
               :src="services['events-static'] + '/headimages/' + event.image"
+              :alt="event.name"
             />
           </figure>
         </article>
@@ -23,13 +24,6 @@
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
-
-          <!--<div class="field is-grouped" v-if="can.view_applications">
-            <router-link :to="{ name: 'oms.events.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
-              <span>View participants</span>
-              <span class="icon"><font-awesome-icon icon="users" /></span>
-            </router-link>
-          </div>-->
 
           <div
             class="field is-grouped"
@@ -297,9 +291,12 @@
           <div
             class="tile"
             style="position: relative; height: 400px"
+            role="region"
+            aria-label="Map"
             v-if="this.event.locations.length > 0"
           >
             <MglMap
+              :mapboxGl="mapboxgl"
               id="map"
               :accessToken="accessToken"
               :mapStyle="map.style"
@@ -332,6 +329,7 @@
 <script>
 import escapeHtml from 'src/methods/escape-html'
 import { mapGetters } from 'vuex'
+import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
@@ -383,10 +381,10 @@ export default {
         zoom: 3
       },
       isLoading: false,
+      left: false,
       can: {
         edit_event: false,
         approve_event: {},
-        view_applications: false,
         apply: false,
         change_status: {
           draft: false,
@@ -402,9 +400,9 @@ export default {
       this.$buefy.modal.open({
         component: PictureModal,
         hasModalCard: true,
+        ariaLabel: 'Change picture',
         props: {
           event: this.event,
-          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -517,6 +515,7 @@ export default {
       this.map.actions = event.component.actions
 
       // waiting till the event is loaded.
+      /* istanbul ignore else -- the map is only rendered once the event has loaded with locations */
       if (!this.isLoading && this.event.id) {
         this.centerMap()
       }
@@ -524,6 +523,7 @@ export default {
     centerMap () {
       // we don't know, what'll happen first, the map will load or the event will load.
       // and we need both to be loaded.
+      /* istanbul ignore if -- the map, and so this call, only exists for an event with locations */
       if (this.event.locations.length === 0) {
         return
       }
@@ -560,11 +560,14 @@ export default {
 
         this.isLoading = false
 
+        /* istanbul ignore if -- the map is only rendered after this, so it can't have loaded yet */
         if (this.map.actions) {
           this.centerMap()
         }
       })
       .catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         if (err.response && err.response.status === 404) {
           this.$root.showError('Event is not found')
@@ -576,19 +579,25 @@ export default {
       })
   },
   computed: {
+    // vue-mapbox loads mapbox-gl on demand unless it is given: a map taken away before that had
+    // loaded threw when it arrived.
+    mapboxgl () {
+      return mapboxgl
+    },
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
     }),
-    isOrganizer () {
-      return this.loginUser && this.event.organizers.some((org) => org.user_id === this.loginUser.id)
-    },
     isOnlineEvent () {
       return this.event.method === 'online'
     },
     activeEventApplicationBan () {
       return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     }
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>

@@ -144,6 +144,8 @@ export default {
   name: 'ChangeEventsStatus',
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       events: [],
       isLoading: false,
       permissions: [],
@@ -178,6 +180,7 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: ApplicationPeriodModal,
+        ariaLabel: 'Set application period',
         hasModalCard: true,
         trapFocus: true,
         props: {
@@ -199,6 +202,8 @@ export default {
         this.events = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         this.$root.showError('Could not fetch events list', err)
       })
@@ -206,6 +211,9 @@ export default {
   },
   mounted () {
     this.fetchData()
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>

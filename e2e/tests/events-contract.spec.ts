@@ -6,7 +6,9 @@ import { test, expect, expectStatus } from '../support/api.ts';
 import { expectShape } from '../support/contract.ts';
 import { uploadPicture } from '../support/core-data.ts';
 import { notFound, validationError } from '../ui/support/factories/base.ts';
-import { application, event, eventPermissions, eventSummary, organizerPermissions, question } from '../ui/support/factories/events.ts';
+import {
+    application, boardviewApplication, event, eventPermissions, eventSummary, organizedEvent, organizer, organizerPermissions, participantRow, participatingEvent, question
+} from '../ui/support/factories/events.ts';
 
 type Single = Envelope<{ questions: unknown[] }> & { permissions: unknown };
 
@@ -74,6 +76,61 @@ test.describe('events factories match the real API', () => {
         const organizersView = await api.call<Envelope<unknown>>('admin', 'GET', `/api/events/single/${created.id}/applications/${applied.body.data.id}`);
         expectStatus(organizersView, 200);
         expectShape('application', application({ answers: ['S'], board_comment: 'x' }), organizersView.body.data, noEmail);
+    });
+
+    test('the organisers\' and boards\' lists, and what a member takes part in', async ({ api }) => {
+        const applicant = await api.me('member');
+        const created = await api.createEvent('admin', {
+            questions: [{ type: 'string', description: 'Why?', required: true }],
+            locations: [{ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } }],
+            optional_programme: 'A city tour on the day after',
+            link_info_travel_country: 'https://www.example.org/travel',
+            organizers: [{ user_id: (await api.me('admin')).id, comment: 'Main organiser' }]
+        });
+        await uploadPicture(api, 'admin', `/api/events/single/${created.id}/upload`);
+
+        // Not published yet: the approvers' list has it, with every field.
+        const approvable = await api.call<Envelope<{ id: number }[]>>('admin', 'GET', '/api/events/mine/approvable');
+        expectStatus(approvable, 200);
+        const filled = {
+            image: 'picture.png',
+            locations: [{ name: 'x', position: { lat: 1, lng: 1 } }],
+            optional_programme: 'x',
+            link_info_travel_country: 'x',
+            questions: [question({ type: 'string' })],
+            organizers: [organizer()]
+        };
+        expectShape('organizedEvent', organizedEvent({ ...filled, status: 'draft', publication_date: undefined }), approvable.body.data.find((item) => item.id === created.id));
+        await api.publishAsAdmin(created.id);
+
+        const asOrganizer = await api.call<Envelope<{ organizers: unknown[] }>>('admin', 'GET', `/api/events/single/${created.id}`);
+        expectStatus(asOrganizer, 200);
+        expectShape('organizedEvent', organizedEvent(filled), asOrganizer.body.data);
+        expectShape('organizer', organizer(), asOrganizer.body.data.organizers[0]);
+
+        const applied = await api.call<Envelope<{ id: number }>>('member', 'POST', `/api/events/single/${created.id}/applications`, {
+            body_id: applicant.bodies[0].id, answers: ['Because'], agreed_to_privacy_policy: true
+        });
+        expectStatus(applied, 200);
+        expectStatus(await api.call('board', 'PUT', `/api/events/single/${created.id}/applications/${applied.body.data.id}/comment`, { board_comment: 'Active member' }), 200);
+        const noEmail = { gaps: { '$.email': 'events keeps the column but nothing fills it: every application made today has null' } };
+
+        const participating = await api.call<Envelope<{ id: number }[]>>('member', 'GET', '/api/events/mine/participating?limit=200');
+        expectStatus(participating, 200);
+        expectShape('participatingEvent', participatingEvent({ image: 'x', locations: filled.locations, optional_programme: 'x', link_info_travel_country: 'x' }), participating.body.data.find((item) => item.id === created.id));
+
+        const rows = await api.call<Envelope<unknown[]>>('admin', 'GET', `/api/events/single/${created.id}/applications`);
+        expectStatus(rows, 200);
+        expectShape('participantRow', participantRow({ answers: ['x'], board_comment: 'x' }), rows.body.data[0], noEmail);
+
+        const boardview = await api.call<Envelope<{ event_id: number }[]>>('board', 'GET', `/api/events/boardview/${applicant.bodies[0].id}`);
+        expectStatus(boardview, 200);
+        expectShape(
+            'boardviewApplication',
+            boardviewApplication({ answers: ['x'], board_comment: 'x' }, { image: 'x', locations: filled.locations, optional_programme: 'x', link_info_travel_country: 'x' }),
+            boardview.body.data.find((item) => item.event_id === created.id),
+            noEmail
+        );
     });
 
     test('validation errors and unknown items', async ({ api }) => {

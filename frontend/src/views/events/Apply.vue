@@ -29,7 +29,7 @@
 
                 <event-no-body-notification v-show="bodies.length == 0" />
 
-                <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
+                <div class="notification is-danger" v-if="errors.answers || errors.body_id">
                   <div class="content">
                     Could not apply because of these reasons:
                     <ul>
@@ -37,12 +37,6 @@
                     </ul>
                     <ul>
                       <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
-                    </ul>
-                    <ul v-if="errors.gender">
-                      <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
-                    </ul>
-                    <ul v-if="errors.date_of_birth">
-                      <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
                     </ul>
                   </div>
                 </div>
@@ -116,7 +110,7 @@
                 <p>
                   <b>You applied from this body:</b>
                   <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                    {{ application.body ? application.body.name : 'Loading...' }}
+                    {{ application.body ? application.body.name : application.body_name }}
                   </router-link>
                 </p>
                 <table class="table is-narrow is-fullwidth">
@@ -128,7 +122,7 @@
                   </thead>
                   <tbody>
                     <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                      <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                      <td><b>{{ field.description }}</b><span class="has-text-danger" v-if="field.required">*</span></td>
                       <td>{{ application.answers[index] | beautify }}</td>
                     </tr>
                     <tr>
@@ -207,11 +201,13 @@ export default {
       },
       errors: {},
       isLoading: false,
+      left: false,
       isSaving: false
     }
   },
   methods: {
     saveApplication () {
+      /* istanbul ignore if -- the form is hidden from a banned member without an application; kept as a defence */
       if (this.isNew && this.activeEventApplicationBan) {
         return this.$root.showError('You are temporarily banned from submitting new event applications.')
       }
@@ -261,7 +257,8 @@ export default {
       return !this.application.id
     },
     activeEventApplicationBan () {
-      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+      // No member any more once they have logged out on this page.
+      return Boolean(this.loginUser && this.loginUser.event_application_ban) && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     },
     canSubmitApplication () {
       return this.can.apply && (!this.isNew || !this.activeEventApplicationBan)
@@ -308,6 +305,8 @@ export default {
         }
       })
     }).catch((err) => {
+      if (this.left) return
+
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
@@ -316,6 +315,10 @@ export default {
 
       this.$router.push({ name: 'oms.events.list.all' })
     })
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>

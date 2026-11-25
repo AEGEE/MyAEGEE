@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Applications</div>
+        <div class="title" role="heading" aria-level="1">Applications</div>
 
         <div class="notification is-info">
           <div class="content">
@@ -45,7 +45,7 @@
 
           <b-table-column label="Cancelled?" field="cancelled" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingCancelled }">
-              <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled">
+              <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled" :aria-label="'Cancelled? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -54,7 +54,7 @@
 
           <b-table-column label="Confirmed?" field="confirmed" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
-              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended" :aria-label="'Confirmed? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -63,7 +63,7 @@
 
           <b-table-column label="Attended?" field="attended" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed" :aria-label="'Attended? ' + props.row.first_name + ' ' + props.row.last_name">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
               </select>
@@ -72,7 +72,7 @@
 
           <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
             <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)" :aria-label="'Status of ' + props.row.first_name + ' ' + props.row.last_name">
                 <option value="pending">Pending</option>
                 <option value="accepted">Accepted</option>
                 <option value="rejected">Rejected</option>
@@ -81,7 +81,7 @@
           </b-table-column>
 
           <b-table-column label="View" v-slot="props">
-            <a href="#" @click.prevent="showModal(props.row.id)">View</a>
+            <button type="button" class="button is-small" :aria-label="'View the application of ' + props.row.first_name + ' ' + props.row.last_name" @click="showModal(props.row.id)">View</button>
           </b-table-column>
 
           <template slot="empty">
@@ -101,6 +101,8 @@ export default {
   name: 'ParticipantsList',
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       event: {
         name: null,
         questions: []
@@ -124,6 +126,20 @@ export default {
         link.setAttribute('download', filename)
         document.body.appendChild(link)
         link.click()
+        document.body.removeChild(link)
+        // Revoking it after the click is handled, so the download can start.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0)
+      }).catch(async (err) => {
+        // The error body is a Blob too, so reading the API's message out of it.
+        if (err.response && err.response.data instanceof Blob) {
+          try {
+            err.response.data = JSON.parse(await err.response.data.text())
+          } catch (parseError) {
+            err.response.data = null
+          }
+        }
+
+        this.$root.showError('Could not export participants', err)
       })
     },
     calculateClassForApplication (pax) {
@@ -132,8 +148,6 @@ export default {
         return 'has-background-success'
       case 'rejected':
         return 'has-background-danger'
-      case 'waiting_list':
-        return 'has-background-warning'
       default:
         return ''
       }
@@ -162,11 +176,11 @@ export default {
       this.axios.put(url, { cancelled: pax.newCancelled }).then(() => {
         pax.cancelled = pax.newCancelled
         pax.isSavingCancelled = false
-        this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
+        this.$root.showSuccess(`Successfully updated cancellation info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingCancelled = false
         pax.newCancelled = pax.cancelled
-        this.$root.showError('Could not update participant attendance info', err)
+        this.$root.showError('Could not update participant cancellation info', err)
       })
     },
     switchPaxAttended (pax) {
@@ -202,6 +216,7 @@ export default {
         this.$buefy.modal.open({
           component: ViewParticipantModal,
           hasModalCard: true,
+          ariaLabel: 'View participant',
           props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
@@ -211,18 +226,14 @@ export default {
             participant: response.data.data
           }
         })
+      }).catch((err) => {
+        this.$root.showError('Could not fetch the application', err)
       })
     }
   },
   computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
+    services: 'services'
   }),
-  filters: {
-    capitalize (value) {
-      return value.charAt(0).toUpperCase() + value.slice(1)
-    }
-  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((response) => {
@@ -246,6 +257,8 @@ export default {
 
       this.isLoading = false
     }).catch((err) => {
+      if (this.left) return
+
       this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
@@ -255,6 +268,9 @@ export default {
 
       this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>

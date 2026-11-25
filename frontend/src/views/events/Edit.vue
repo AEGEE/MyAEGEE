@@ -21,9 +21,9 @@
         <hr />
 
         <div class="field">
-          <label class="label">Title <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-name">Title <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" v-model="event.name" />
+            <input id="event-name" class="input" type="text" v-model="event.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
@@ -40,12 +40,12 @@
         </div>
 
         <div class="field">
-          <label class="label">Description <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-description">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
+            <textarea id="event-description" class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip /></label>
-          <div class="content">
+          <p class="label">Preview <MarkdownTooltip /></p>
+          <div class="content" role="region" aria-label="Preview of the description">
             <span v-html="$options.filters.markdown(event.description)" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
@@ -64,14 +64,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Event URL <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-url">Event URL <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">/events/</a>
               </div>
               <div class="control">
-                <input class="input" type="text" v-model="event.url" />
+                <input id="event-url" class="input" type="text" v-model="event.url" />
               </div>
             </div>
           </div>
@@ -83,9 +83,9 @@
         </div>
 
         <div class="field" v-if="!$route.params.id">
-          <label class="label">How will the event take place <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-method">How will the event take place <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.method">
+            <select id="event-method" v-model="event.method">
               <option value="in person">In person</option>
               <option value="online">Online</option>
             </select>
@@ -97,9 +97,9 @@
         </div>
 
         <div class="field" v-if="!$route.params.id && isOnlineEvent">
-          <label class="label">Do you want people to apply for this event? <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-has-applications">Do you want people to apply for this event? <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.has_applications" @change="event.has_applications = event.has_applications === 'true' || event.has_applications === true">
+            <select id="event-has-applications" v-model="event.has_applications" @change="event.has_applications = event.has_applications === 'true' || event.has_applications === true">
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
@@ -111,9 +111,9 @@
         </div>
 
         <div class="field" v-if="!$route.params.id">
-          <label class="label">Event type <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-type">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
-            <select v-model="event.type">
+            <select id="event-type" v-model="event.type">
               <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
             </select>
           </div>
@@ -121,14 +121,14 @@
         </div>
 
         <div class="field" v-if="!isOnlineEvent">
-          <label class="label">Fee <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-fee">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0" required />
+                <input id="event-fee" class="input" type="number" v-model="event.fee" min="0" required />
               </div>
             </div>
           </div>
@@ -136,15 +136,15 @@
         </div>
 
         <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
-          <label class="label">Max. participants</label>
+          <label class="label" for="event-max-participants">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
+            <input id="event-max-participants" class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
         <div class="field notification is-info" v-if="!isOnlineEvent">
-          <label class="label" style="color: white">Regarding water access</label>
+          <p class="label" style="color: white">Regarding water access</p>
           <p>
             Please make sure that the participants have access to a reasonable amount of water during the event.
           </p>
@@ -154,20 +154,20 @@
         </div>
 
         <div class="field" v-if="!isOnlineEvent">
-          <label class="label">Number of meals provided per day <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-meals">Number of meals provided per day <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="control">
-              <input class="input" type="number" v-model="event.meals_per_day" min="0" max="3" required />
+              <input id="event-meals" class="input" type="number" v-model="event.meals_per_day" min="0" max="3" required />
             </div>
           </div>
           <p class="help is-danger" v-if="errors.meals_per_day">{{ errors.meals_per_day.join(', ') }}</p>
         </div>
 
         <div class="field" v-if="!$route.params.id && !isOnlineEvent">
-          <label class="label">Is the event going to be fully vegetarian?</label>
+          <p class="label">Is the event going to be fully vegetarian?</p>
           <div class="control">
-            <input type="checkbox" v-model="event.vegetarian" />
-            <label class="checkbox"> Yes, the event will be without any meat</label>
+            <input id="event-vegetarian" type="checkbox" v-model="event.vegetarian" />
+            <label class="checkbox" for="event-vegetarian"> Yes, the event will be without any meat</label>
           </div>
         </div>
 
@@ -176,12 +176,12 @@
         </div>
 
         <div class="field" v-if="!isOnlineEvent">
-          <label class="label">Accommodation type <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-accommodation">Accommodation type <span class="has-text-danger">*</span></label>
           <div class="notification is-info" v-if="!$route.params.id">
             <p>Accommodation can be for instance camping, hostel, hosting by the members of the local, or in a gym. Write "none" for online events.</p>
           </div>
           <div class="control">
-            <input class="input" v-model="event.accommodation_type" required />
+            <input id="event-accommodation" class="input" v-model="event.accommodation_type" required />
           </div>
           <p class="help is-danger" v-if="errors.accommodation_type">{{ errors.accommodation_type.join(', ') }}</p>
         </div>
@@ -196,23 +196,23 @@
             </div>
           </div>
           <div class="field">
-            <label class="label">Optional Fee</label>
+            <label class="label" for="event-optional-fee">Optional Fee</label>
             <div class="control">
               <div class="field has-addons">
                 <div class="control">
                   <a class="button is-static">€</a>
                 </div>
                 <div class="control">
-                  <input class="input" type="number" v-model="event.optional_fee" min="0" />
+                  <input id="event-optional-fee" class="input" type="number" v-model="event.optional_fee" min="0" @input="$root.nullifyIfEmpty(event, 'optional_fee')" />
                 </div>
               </div>
             </div>
             <p class="help is-danger" v-if="errors.optional_fee">{{ errors.optional_fee.join(', ') }}</p>
           </div>
           <div class="field">
-            <label class="label">Optional Programme</label>
+            <label class="label" for="event-optional-programme">Optional Programme</label>
             <div class="control">
-              <input class="input" type="text" v-model="event.optional_programme" />
+              <input id="event-optional-programme" class="input" type="text" v-model="event.optional_programme" />
             </div>
             <p class="help is-danger" v-if="errors.optional_programme">{{ errors.optional_programme.join(', ') }}</p>
           </div>
@@ -224,51 +224,55 @@
         <timezone-notification />
 
         <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
-          <label class="label">Application period starts <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-application-starts">Application period starts <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
               class="input"
               required
               :config="dateConfig"
+              id="event-application-starts"
               v-model="dates.application_starts" />
           </div>
           <p class="help is-danger" v-if="errors.application_starts">{{ errors.application_starts.join(', ') }}</p>
         </div>
 
         <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
-          <label class="label">Application period ends <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-application-ends">Application period ends <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
               class="input"
               required
               :config="dateConfig"
+              id="event-application-ends"
               v-model="dates.application_ends" />
           </div>
           <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Event start date <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-starts">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
               class="input"
               required
               :config="dateConfig"
+              id="event-starts"
               v-model="dates.starts" />
           </div>
           <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Event end date <span class="has-text-danger">*</span></label>
+          <label class="label" for="event-ends">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
               class="input"
               :config="dateConfig"
+              id="event-ends"
               v-model="dates.ends" />
           </div>
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
@@ -278,31 +282,31 @@
         <hr />
 
         <div class="tags">
-          <a
+          <span
             class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
-            <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
-          </a>
-          <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</a>
+            {{ body.body ? body.body.name : body.body_name }}
+            <button type="button" class="delete is-small" :aria-label="'Remove ' + (body.body ? body.body.name : body.body_name)" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
+          </span>
+          <span class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</span>
         </div>
         <p class="help is-danger" v-if="errors.organizing_bodies">{{ errors.organizing_bodies.join(', ') }}</p>
 
         <div class="field">
-          <label class="label">Add organising body</label>
+          <label class="label" for="event-add-body">Add organising body</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
                 <div class="select">
-                  <select v-model="selectedBody">
+                  <select id="event-add-body" v-model="selectedBody">
                     <option :value="null">--</option>
                     <option v-for="body in bodies" v-bind:key="body.id" v-bind:value="body">{{ body.name }}</option>
                   </select>
                 </div>
               </div>
               <div class="control">
-                <a class="button is-primary" @click="addOrganizingBody()">Add</a>
+                <button type="button" class="button is-primary" @click="addOrganizingBody()">Add</button>
               </div>
             </div>
           </div>
@@ -336,12 +340,12 @@
 
             <b-table-column field="comment" label="Comment" v-slot="props">
               <div class="control">
-                <input class="input" type="text" v-model="props.row.comment" />
+                <input class="input" type="text" :aria-label="'Comment for ' + props.row.first_name + ' ' + props.row.last_name" v-model="props.row.comment" />
               </div>
             </b-table-column>
 
             <b-table-column label="Delete" v-slot="props">
-              <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
+              <button type="button" class="button is-small is-danger" v-if="!props.row.disableEdit" :aria-label="'Delete organiser ' + props.row.first_name + ' ' + props.row.last_name" @click="deleteOrganizer(props.index)">
                 Delete
               </button>
             </b-table-column>
@@ -353,10 +357,11 @@
           <p class="help is-danger" v-if="errors.organizers">{{ errors.organizers.join(', ') }}</p>
 
           <div class="field">
-            <label class="label">Add organiser</label>
+            <label class="label" for="event-add-organizer">Add organiser</label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
+                  id="event-add-organizer"
                   v-model="autoComplete.members.name"
                   :data="autoComplete.members.values"
                   open-on-focus="true"
@@ -402,50 +407,53 @@
             </div>
           </div>
 
-          <table class="table is-fullwidth is-narrowed">
-            <thead>
-              <tr>
-                <th>Description <span class="has-text-danger">*</span></th>
-                <th>Type <span class="has-text-danger">*</span></th>
-                <th>Required?</th>
-                <th>Values (for select)</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(question, index) in event.questions" v-bind:key="index">
-                <td>
-                  <input class="input" type="text" required v-model="event.questions[index].description" />
-                </td>
-                <td>
-                  <div class="select">
-                    <select v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
-                      <option value="string">String</option>
-                      <option value="text">Text</option>
-                      <option value="number">Number</option>
-                      <option value="checkbox">Checkbox</option>
-                      <option value="select">Select</option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <input type="checkbox" v-model="event.questions[index].required" />
-                </td>
-                <td>
-                  <input-tag
-                    v-if="event.questions[index].type === 'select'"
-                    v-model="event.questions[index].values"
-                    :before-adding="value => value.trim()" />
-                </td>
-                <td>
-                  <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
-                </td>
-              </tr>
-              <tr colspan="5" v-if="event.questions.length === 0">
-                <td>No questions are set.</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrowed">
+              <thead>
+                <tr>
+                  <th>Description <span class="has-text-danger">*</span></th>
+                  <th>Type <span class="has-text-danger">*</span></th>
+                  <th>Required?</th>
+                  <th>Values (for select)</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(question, index) in event.questions" v-bind:key="index">
+                  <td>
+                    <input class="input" type="text" required :aria-label="'Question ' + (index + 1) + ' description'" v-model="event.questions[index].description" />
+                  </td>
+                  <td>
+                    <div class="select">
+                      <select :aria-label="'Question ' + (index + 1) + ' type'" v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
+                        <option value="string">String</option>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="select">Select</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td>
+                    <input type="checkbox" :aria-label="'Question ' + (index + 1) + ' is required'" v-model="event.questions[index].required" />
+                  </td>
+                  <td>
+                    <input-tag
+                      v-if="event.questions[index].type === 'select'"
+                      placeholder="Add a value"
+                      v-model="event.questions[index].values"
+                      :before-adding="value => value.trim()" />
+                  </td>
+                  <td>
+                    <button type="button" class="button is-danger" :aria-label="'Delete question ' + (index + 1)" @click="deleteQuestion(index)">Delete question</button>
+                  </td>
+                </tr>
+                <tr v-if="event.questions.length === 0">
+                  <td colspan="5">No questions are set.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="notification is-danger" v-if="errors.questions">
             <div class="content">
@@ -458,7 +466,7 @@
 
           <div class="field">
             <div class="control">
-              <a class="button is-primary" @click="addQuestion()">Add new question</a>
+              <button type="button" class="button is-primary" @click="addQuestion()">Add new question</button>
             </div>
           </div>
 
@@ -476,8 +484,9 @@
             </div>
           </div>
 
-          <div class="tile" style="position: relative; height: 400px">
+          <div class="tile" style="position: relative; height: 400px" role="region" aria-label="Map">
             <MglMap
+              :mapboxGl="mapboxgl"
               :accessToken="accessToken"
               :mapStyle="map.style"
               :zoom="map.zoom"
@@ -495,43 +504,45 @@
             </MglMap>
           </div>
 
-          <table class="table is-narrowed is-stripped is-fullwidth">
-            <thead>
-              <tr>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Name</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(marker, index) in event.locations" v-bind:key="index">
-                <td>{{ marker.position.lat }}</td>
-                <td>{{ marker.position.lng }}</td>
-                <td>
-                  <input type="text" class="input" required v-model="marker.name" />
-                </td>
-                <td>
-                  <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
-                </td>
-              </tr>
-              <tr colspan="4" v-if="event.locations.length === 0">
-                <td>No locations added.</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="table is-narrowed is-stripped is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Name</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+                  <td>{{ marker.position.lat }}</td>
+                  <td>{{ marker.position.lng }}</td>
+                  <td>
+                    <input type="text" class="input" required :aria-label="'Location ' + (index + 1) + ' name'" v-model="marker.name" />
+                  </td>
+                  <td>
+                    <button type="button" class="button is-danger" :aria-label="'Delete location ' + (index + 1)" @click="deleteLocation(index)">Delete location</button>
+                  </td>
+                </tr>
+                <tr v-if="event.locations.length === 0">
+                  <td colspan="4">No locations added.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="field">
             <div class="control">
-              <a class="button is-primary" @click="addLocation()">Add new location</a>
+              <button type="button" class="button is-primary" @click="addLocation()">Add new location</button>
             </div>
           </div>
 
           <div class="field">
-            <label class="label">How to travel to your country</label>
+            <label class="label" for="event-travel-link">How to travel to your country</label>
             <p>You may provide an optional link to provide useful information about travelling to your country.</p>
             <div class="control">
-              <input class="input" type="url" v-model="event.link_info_travel_country" />
+              <input id="event-travel-link" class="input" type="url" v-model="event.link_info_travel_country" />
             </div>
             <p class="help is-danger" v-if="errors.link_info_travel_country">{{ errors.link_info_travel_country.join(', ') }}</p>
           </div>
@@ -562,18 +573,18 @@
         </div>
 
         <div class="field" v-if="!isOnlineEvent">
-          <label class="label">Link to event budget</label>
+          <label class="label" for="event-budget">Link to event budget</label>
           <div class="control">
-            <input class="input" type="url" v-model="event.budget" />
+            <input id="event-budget" class="input" type="url" v-model="event.budget" />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.budget">{{ errors.budget.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Link to event program</label>
+          <label class="label" for="event-programme">Link to event program</label>
           <div class="control">
-            <input class="input" type="url" v-model="event.programme" />
+            <input id="event-programme" class="input" type="url" v-model="event.programme" />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
           <p class="help is-danger" v-if="errors.programme">{{ errors.programme.join(', ') }}</p>
@@ -634,6 +645,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
@@ -673,8 +685,6 @@ export default {
         application_ends: null,
         starts: null,
         ends: null,
-        body_id: null,
-        body: null,
         optional_fee: null,
         meals_per_day: 0,
         vegetarian: false,
@@ -700,18 +710,17 @@ export default {
         zoom: 3
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
-      file: null,
       bodies: [],
       selectedBody: null,
       dateConfig: {
         enableTime: true,
-        time_24hr: true
-      },
-      can: {
-        edit_application_status: false
+        time_24hr: true,
+        allowInput: true,
+        disableMobile: true
       },
       errors: {},
       isLoading: false,
+      left: false,
       isSaving: false
     }
   },
@@ -814,14 +823,17 @@ export default {
       this.selectedBody = null
     },
     saveEvent () {
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.application_starts && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will start.')
       }
 
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.application_ends && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will end.')
       }
 
+      /* istanbul ignore if -- the date input is required, so the browser asks for it before this runs */
       if (!this.event.starts) {
         return this.$root.showError('Please set the date when the event will start.')
       }
@@ -859,7 +871,7 @@ export default {
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
-      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, comment: org.comment }))
 
       const promise = this.$route.params.id
         ? this.axios.put(this.services['events'] + '/single/' + this.$route.params.id, eventToSave)
@@ -922,6 +934,11 @@ export default {
     }
   },
   computed: {
+    // vue-mapbox loads mapbox-gl on demand unless it is given: a map taken away before that had
+    // loaded threw when it arrived.
+    mapboxgl () {
+      return mapboxgl
+    },
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
@@ -937,16 +954,16 @@ export default {
       }
     },
     'dates.application_starts': function (newDate) {
-      this.event.application_starts = new Date(newDate)
+      this.event.application_starts = newDate ? new Date(newDate) : null
     },
     'dates.application_ends': function (newDate) {
-      this.event.application_ends = new Date(newDate)
+      this.event.application_ends = newDate ? new Date(newDate) : null
     },
     'dates.starts': function (newDate) {
-      this.event.starts = new Date(newDate)
+      this.event.starts = newDate ? new Date(newDate) : null
     },
     'dates.ends': function (newDate) {
-      this.event.ends = new Date(newDate)
+      this.event.ends = newDate ? new Date(newDate) : null
     }
   },
   mounted () {
@@ -967,7 +984,6 @@ export default {
 
       return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
-        this.can = eventsResponse.data.permissions
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.ends = new Date(this.event.ends)
@@ -987,8 +1003,15 @@ export default {
         }
 
         this.isLoading = false
+
+        // The map may have loaded before the event: it is centred on the locations now.
+        if (this.map.actions) {
+          this.centerMap()
+        }
       })
     }).catch((err) => {
+      if (this.left) return
+
       this.isLoading = false
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
@@ -998,6 +1021,10 @@ export default {
 
       this.$router.push({ name: 'oms.events.list.all' })
     })
+  },
+  beforeDestroy () {
+    // A request that fails after the member left the page is not theirs to see any more.
+    this.left = true
   }
 }
 </script>

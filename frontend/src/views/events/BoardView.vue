@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board view</div>
+        <h1 class="title">Board view</h1>
 
         <div class="field" v-if="boardBodies.length === 1">
           <label>You are currently viewing applications from </label>
@@ -10,11 +10,11 @@
         </div>
 
         <div class="field" v-if="boardBodies.length > 1">
-          <label>Select the body to view application from:</label>
+          <label for="boardview-body">Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
-                <select v-model="selectedBody">
+                <select id="boardview-body" v-model="selectedBody">
                   <option v-for="body in boardBodies" v-bind:key="body.id" v-bind:value="body.id">{{ body.name }}</option>
                 </select>
               </div>
@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="boardBodies.length === 0 && boardBodiesLoaded">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
         <div class="notification is-warning" v-if="selectedBody && boardBodies.length > 0">
@@ -56,13 +56,12 @@
           </b-table-column>
 
           <b-table-column field="board_comment" label="Board comment" v-slot="props">
-            <textarea class="textarea" v-model="props.row.board_comment" />
+            <textarea class="textarea" :aria-label="'Board comment for ' + props.row.first_name + ' ' + props.row.last_name" v-model="props.row.board_comment" />
           </b-table-column>
 
           <b-table-column field="status" label="Status" sortable v-slot="props">
             <span v-if="props.row.status === 'accepted'">Accepted</span>
             <span v-if="props.row.status === 'rejected'">Rejected</span>
-            <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
             <span v-if="props.row.status === 'pending'">Pending</span>
           </b-table-column>
 
@@ -91,6 +90,10 @@ export default {
     return {
       applications: [],
       boardBodies: [],
+      boardBodiesLoaded: false,
+      // Counts the requests for a body's applications, so only the latest one is shown.
+      boardviewRequest: 0,
+      left: false,
       isLoading: false,
       selectedBody: null
     }
@@ -102,8 +105,6 @@ export default {
         return 'has-background-success'
       case 'rejected':
         return 'has-background-danger'
-      case 'waiting_list':
-        return 'has-background-warning'
       default:
         return ''
       }
@@ -113,7 +114,6 @@ export default {
         board_comment: application.board_comment
       }).then(() => {
         this.$root.showSuccess('Participant comment is updated.')
-        application.clean = true
       }).catch((err) => {
         this.$root.showError('Could not update participant comment', err)
       })
@@ -123,17 +123,25 @@ export default {
         this.selectedBody = this.boardBodies[0].id
       }
 
+      /* istanbul ignore if -- only the watcher calls it, once a body is chosen */
       if (!this.selectedBody) {
         return
       }
 
+      const request = ++this.boardviewRequest
+      const bodyId = this.selectedBody
+      // Nothing of the body chosen before stays on the page while the next one loads.
+      this.applications = []
       this.isLoading = true
-      this.axios.get(this.services['events'] + '/boardview/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['events'] + '/boardview/' + bodyId).then((response) => {
+        if (request !== this.boardviewRequest) return
+
         this.applications = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        this.isLoading = false
+        if (request !== this.boardviewRequest) return
 
+        this.isLoading = false
         this.$root.showError('Error fetching board view data', err)
       })
     }
@@ -159,11 +167,21 @@ export default {
         .filter((elt, index, array) => array.indexOf(elt) === index)
 
       this.boardBodies = this.loginUser.bodies.filter((body) => boardIds.includes(body.id))
+      this.boardBodiesLoaded = true
 
       if (this.boardBodies.length === 1) {
         this.selectedBody = this.boardBodies[0].id
       }
+    }).catch((err) => {
+      if (this.left) return
+
+      this.$root.showError('Could not fetch your board bodies', err)
     })
+  },
+  beforeDestroy () {
+    // Answers that come in after the member left the page are dropped.
+    this.left = true
+    this.boardviewRequest++
   }
 }
 </script>

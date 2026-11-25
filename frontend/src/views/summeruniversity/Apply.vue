@@ -2,9 +2,9 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
+        <div class="title" role="heading" aria-level="1" v-show="isNew">Apply to {{ event.name }}</div>
+        <div class="title" role="heading" aria-level="1" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
+        <div class="title" role="heading" aria-level="1" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
 
         <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply to this event.</div>
         <div class="notification is-warning" v-if="isNew && activeEventApplicationBan">
@@ -25,9 +25,9 @@
           <div class="tile is-parent" v-show="canSubmitApplication">
             <div class="tile is-child">
               <div class="field">
-                <label class="label">Body <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-body">Body <span class="has-text-danger">*</span></label>
                 <div class="select" v-show="bodies.length > 0">
-                  <select v-model="application.body_id">
+                  <select id="application-body" v-model="application.body_id">
                     <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                   </select>
                 </div>
@@ -54,10 +54,10 @@
               </div>
 
               <div class="field">
-                <label class="label">Nationality <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-nationality">Nationality <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
-                    <select v-model="application.nationality">
+                    <select id="application-nationality" v-model="application.nationality">
                       <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
                     </select>
                   </div>
@@ -66,10 +66,10 @@
               </div>
 
               <div class="field">
-                <label class="label">Travelling from <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-travelling-from">Travelling from <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
-                    <select v-model="application.travelling_from">
+                    <select id="application-travelling-from" v-model="application.travelling_from">
                       <option v-for="(travelling_from, index) in countries" v-bind:key="index">{{ travelling_from }}</option>
                     </select>
                   </div>
@@ -78,10 +78,10 @@
               </div>
 
               <div class="field">
-                <label class="label">Meals type <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-meals">Meals type <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
-                    <select v-model="application.meals">
+                    <select id="application-meals" v-model="application.meals">
                       <option>Meat-eater</option>
                       <option>Vegetarian</option>
                       <option>Vegan</option>
@@ -92,9 +92,10 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Allergies</label>
+                <label class="label" for="application-allergies">Allergies</label>
                 <div class="control">
                   <textarea
+                    id="application-allergies"
                     class="textarea"
                     v-model="application.allergies" />
                 </div>
@@ -111,11 +112,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-number">
                   Passport number <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-number"
                     class="input"
                     type="text"
                     required
@@ -124,11 +126,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-issue-date">
                   Passport issue date <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-issue-date"
                     class="input"
                     type="text"
                     required
@@ -137,11 +140,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-expiration-date">
                   Passport expiration date <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-expiration-date"
                     class="input"
                     type="text"
                     required
@@ -150,11 +154,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-passport-issue-authority">
                   Passport issue authority <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-passport-issue-authority"
                     class="input"
                     type="text"
                     required
@@ -163,11 +168,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-place-of-birth">
                   Place of birth <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-place-of-birth"
                     class="input"
                     type="text"
                     required
@@ -176,11 +182,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-embassy">
                   Embassy <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-embassy"
                     class="input"
                     type="text"
                     required
@@ -189,11 +196,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-street-and-house">
                   Street and house number <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-street-and-house"
                     class="input"
                     type="text"
                     required
@@ -202,11 +210,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-postal-code">
                   Postal code <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-postal-code"
                     class="input"
                     type="text"
                     required
@@ -215,11 +224,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-city">
                   City <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-city"
                     class="input"
                     type="text"
                     required
@@ -228,11 +238,12 @@
               </div>
 
               <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold" for="application-visa-country">
                   Country <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <input
+                    id="application-visa-country"
                     class="input"
                     type="text"
                     required
@@ -241,37 +252,38 @@
               </div>
 
               <div class="field">
-                <label class="label">AEGEE experience <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-aegee-experience">AEGEE experience <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.aegee_experience" />
+                  <textarea id="application-aegee-experience" class="textarea" required v-model="application.aegee_experience" />
                 </div>
                 <p class="help is-danger" v-if="errors.aegee_experience">{{ errors.aegee_experience.join(', ') }}</p>
               </div>
 
               <div class="field">
-                <label class="label">Ideal SU <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-ideal-su">Ideal SU <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.ideal_su" />
+                  <textarea id="application-ideal-su" class="textarea" required v-model="application.ideal_su" />
                 </div>
                 <p class="help is-danger" v-if="errors.ideal_su">{{ errors.ideal_su.join(', ') }}</p>
               </div>
 
               <div class="field">
-                <label class="label">Motivation <span class="has-text-danger">*</span></label>
+                <label class="label" for="application-motivation">Motivation <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.motivation" />
+                  <textarea id="application-motivation" class="textarea" required v-model="application.motivation" />
                 </div>
                 <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ') }}</p>
               </div>
 
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
-                  <label class="has-text-weight-bold">
+                  <label class="has-text-weight-bold" :for="'application-question-' + index">
                     {{ question.description }} <span class="has-text-danger">*</span>
                   </label>
                 </div>
                 <div class="control">
                   <textarea
+                    :id="'application-question-' + index"
                     class="textarea"
                     required
                     v-model="application.answers[index]" />
@@ -318,7 +330,7 @@
             <p>
               <b>You applied from this body:</b>
               <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                {{ application.body ? application.body.name : 'Loading...' }}
+                {{ application.body ? application.body.name : (application.body_name || 'Loading...') }}
               </router-link>
             </p>
             <table class="table is-narrow is-fullwidth">
@@ -458,7 +470,7 @@
                 </tr>
 
                 <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                  <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                  <td><b>{{ field.description }}</b><span class="is-danger">*</span></td>
                   <td>{{ application.answers[index] | beautify }}</td>
                 </tr>
               </tbody>
@@ -523,6 +535,8 @@ export default {
   },
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       event: {
         name: null,
         questions: []
@@ -552,6 +566,7 @@ export default {
   },
   methods: {
     saveApplication () {
+      /* istanbul ignore if -- the form is hidden from a banned member without an application; kept as a defence */
       if (this.isNew && this.activeEventApplicationBan) {
         return this.$root.showError('You are temporarily banned from submitting new event applications.')
       }
@@ -613,7 +628,7 @@ export default {
       return !this.application.id
     },
     activeEventApplicationBan () {
-      return this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
+      return this.loginUser && this.loginUser.event_application_ban && new Date(this.loginUser.event_application_ban.ban_until) > new Date()
     },
     canSubmitApplication () {
       return this.can.apply && (!this.isNew || !this.activeEventApplicationBan)
@@ -649,6 +664,8 @@ export default {
         }
       })
     }).catch((err) => {
+      if (this.left) return
+
       if (err.response && err.response.status === 404) {
         this.$root.showError('Event is not found')
       } else {
@@ -657,6 +674,9 @@ export default {
 
       this.$router.push({ name: 'oms.summeruniversity.list.all' })
     })
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>

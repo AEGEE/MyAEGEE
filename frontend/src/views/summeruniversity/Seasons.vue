@@ -57,6 +57,8 @@ export default {
   name: 'SummerUniversitySeasons',
   data () {
     return {
+      // Set once the member left the page: what arrives after that is not shown.
+      left: false,
       seasons: [],
       isLoading: false
     }
@@ -90,6 +92,8 @@ export default {
         this.seasons = response.data.data
         this.isLoading = false
       }).catch((err) => {
+        if (this.left) return
+
         this.isLoading = false
         this.$root.showError('Could not fetch seasons', err)
       })
@@ -97,6 +101,9 @@ export default {
   },
   mounted () {
     this.fetchData()
+  },
+  beforeDestroy () {
+    this.left = true
   }
 }
 </script>
