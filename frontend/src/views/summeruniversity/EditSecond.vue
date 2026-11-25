@@ -770,6 +770,11 @@ export default {
         }
 
         this.isLoading = false
+
+        // The map may have loaded before the SU: it is centred on the locations now.
+        if (this.map.actions) {
+          this.centerMap()
+        }
       })
     }).catch((err) => {
       if (this.left) return
