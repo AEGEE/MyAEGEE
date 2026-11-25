@@ -478,6 +478,7 @@
 
           <div class="tile" style="position: relative; height: 400px">
             <MglMap
+              :mapboxGl="mapboxgl"
               :accessToken="accessToken"
               :mapStyle="map.style"
               :zoom="map.zoom"
@@ -634,6 +635,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'flatpickr/dist/flatpickr.css'
 import flatPickr from 'vue-flatpickr-component'
@@ -922,6 +924,11 @@ export default {
     }
   },
   computed: {
+    // vue-mapbox loads mapbox-gl on demand unless it is given: a map taken away before that had
+    // loaded threw when it arrived.
+    mapboxgl () {
+      return mapboxgl
+    },
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
