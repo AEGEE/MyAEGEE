@@ -480,6 +480,23 @@ test.describe('Summer University second submission editor', () => {
         await expect(row).toContainText(/^50\.(8[6-9]|9)\d*\s*4\.3[45]\d*/);
     });
 
+    test('the map centres on the only location also when it loads before the SU', async ({ page, api, me }) => {
+        const su = { ...SECOND, locations: [suLocation({ name: 'Brussels', position: { lat: 50.85, lng: 4.35 } })] };
+        showForm(api, me, su);
+        showMap(api);
+        api.on('GET summeruniversity /single/:id', { json: ok(su, { permissions: suOrganizerPermissions(su.status) }), delayMs: 1500 });
+        await page.goto('/summeruniversity/lake-su/edit_second');
+        await mapLoaded(page);
+        await loaded(page);
+
+        const row = rowWith(page, 'Location 1 name');
+        await expect(row).toContainText(/^50\.85\s*4\.35/);
+        await dragTheMarker(page);
+        // Centred at zoom 10, 100 pixels are a few hundredths of a degree; on the whole of
+        // Europe they would be several degrees.
+        await expect(row).toContainText(/^50\.(8[6-9]|9)\d*\s*4\.3[45]\d*/);
+    });
+
     test('the map shows every location', async ({ page, api, me }) => {
         showMap(api);
         showForm(api, me);
