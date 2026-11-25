@@ -3,11 +3,12 @@ codecov:
   require_ci_to_pass: true
   notify:
     # The sum of parallelism over the six test jobs that upload (discounts, network, events and
-    # summeruniversity run unsharded), plus mailer-test and dispatcher-test. The upload of
-    # frontend-coverage is one more and is not waited for: that job only runs when the frontend
-    # tests passed, and Codecov must report on the services also when they did not
-    # (docs/testing/coverage.md). Checked by packages/backend-test-utils/check-codecov-builds.js.
-    after_n_builds: 14
+    # summeruniversity run unsharded), plus mailer-test and dispatcher-test, plus one for the
+    # frontend: Codecov counts the sessions of the commit's report, and the frontend flag is
+    # carried forward (flag_management below), so the report has exactly one frontend session
+    # whether frontend-coverage ran or not (docs/testing/coverage.md). Checked by
+    # packages/backend-test-utils/check-codecov-builds.js.
+    after_n_builds: 15
 
 coverage:
   status:
@@ -64,6 +65,17 @@ coverage:
         informational: true
         paths: *mailer
 
+# frontend-coverage only runs when the frontend tests passed. When it does not run, Codecov
+# copies the frontend's coverage from the parent commit, and that copy counts toward
+# after_n_builds in place of the upload; when it runs, its upload replaces the copy. The
+# uploads that run on every push must not be carried forward: their copy would count before
+# they arrive. No paths and no statuses here: the frontend statuses are the path-based ones
+# above.
+flag_management:
+  individual_flags:
+    - name: frontend
+      carryforward: true
+
 # mailer-test runs the mailer's tests in a container with mailer/ mounted at /app, so its
 # lcov.info names files /app/lib/...
 fixes:
@@ -71,7 +83,7 @@ fixes:
 
 comment:
   layout: "condensed_header, diff, components, condensed_files, condensed_footer"
-  after_n_builds: 14  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
+  after_n_builds: 15  # as above; checked by packages/backend-test-utils/check-codecov-builds.js
 
 component_management:
   individual_components:

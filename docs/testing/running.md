@@ -161,11 +161,11 @@ takes the build's own files from container 0 of the mocked job, and fails when t
 tested different builds).
 
 `after_n_builds` in `codecov.yml` does **not** change with these numbers. Codecov waits for a
-fixed number of uploads before it reports: every container of the six service test jobs uploads
-(six jobs with four containers each, 24). The frontend adds one upload, from
-`frontend-coverage`, whatever the `parallelism` of the two frontend test jobs is, and Codecov
-does not wait for that one: the job only runs when the frontend tests passed
-([coverage.md](coverage.md#the-frontend-upload-is-not-one-codecov-waits-for)). The number only
+fixed number of uploads before it reports: every container of the six service test jobs,
+`mailer-test` and `dispatcher-test` upload, and the frontend adds one, from `frontend-coverage`,
+whatever the `parallelism` of the two frontend test jobs is. That one is carried forward from
+the parent commit when the job does not run
+([coverage.md](coverage.md#the-frontend-upload-is-carried-forward)). The number only
 changes when a service test job gets more or fewer containers.
 `node packages/backend-test-utils/check-codecov-builds.js` (the `openapi` job) counts the
 uploads in the CircleCI config and fails when `after_n_builds` disagrees.
