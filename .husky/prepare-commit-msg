@@ -2,9 +2,10 @@
 if [ -z "$2" ]; then
   echo "# Commit format: <type>(<scope>): <subject>" >> $1
   echo "#" >> $1
-  echo "# Valid scopes: core, events, frontend, discounts," >> $1
-  echo "#                network, statutory, summeruniversity, mailer," >> $1
-  echo "#                e2e, ci, docker, deps, docs" >> $1
+  echo "# Valid scopes (commitlint.config.js):" >> $1
+  echo "#   modules: core, events, frontend, discounts, network, statutory," >> $1
+  echo "#            summeruniversity, mailer, dispatcher, e2e" >> $1
+  echo "#   other:   ci, docker, deps, deps-dev, monorepo, infra, docs, readme" >> $1
   echo "#" >> $1
   echo "# Examples:" >> $1
   echo "#   feat(core): add new user authentication" >> $1

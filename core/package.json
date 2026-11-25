@@ -22,7 +22,7 @@
   },
   "scripts": {
     "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
-    "test": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest test/**/*.test.js --runInBand --forceExit",
+    "test": "npm run test:ci --",
     "test:ci": "NODE_ENV=test npm run db:setup && NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --forceExit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
