@@ -131,23 +131,28 @@ export const applicationPermissions = (overrides: Partial<ApplicationPermissions
     ...overrides
 });
 
+// A body the applicant may move an application to: statutory sends only these keys of the body
+// core has.
+export type EditableBody = Pick<Body, 'id' | 'name' | 'type' | 'code'>;
+
 // GET /events/:id/applications/:application_id (also `me`): the application, the bodies the
 // applicant may move it to (empty unless it may be edited) and the permissions. By default the
 // applicant's own, without the board comment; pass `board_comment` for the view of a board
-// member or a manager.
+// member or a manager. Bodies of core given as `editable_bodies` are cut down to the keys
+// statutory sends.
 export interface SingleStatutoryApplication extends StatutoryApplication {
-    editable_bodies: Body[];
+    editable_bodies: EditableBody[];
     permissions: StatutoryEventPermissions & ApplicationPermissions;
 }
 
 export const singleStatutoryApplication = (
-    overrides: Partial<StatutoryApplication> & { editable_bodies?: Body[] } = {},
+    overrides: Partial<StatutoryApplication> & { editable_bodies?: EditableBody[] } = {},
     permissions: Partial<StatutoryEventPermissions & ApplicationPermissions> = {}
 ): SingleStatutoryApplication => {
     const { editable_bodies: editableBodies, ...rest } = overrides;
     return {
         ...statutoryApplication({ board_comment: undefined, ...rest }),
-        editable_bodies: editableBodies ?? [],
+        editable_bodies: (editableBodies ?? []).map(({ id, name, type, code }) => ({ id, name, type, code })),
         permissions: { ...statutoryEventPermissions(), ...applicationPermissions(), ...permissions }
     };
 };

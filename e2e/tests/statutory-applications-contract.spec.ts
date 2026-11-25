@@ -59,13 +59,14 @@ test.describe('statutory application factories match the real API', () => {
         expectStatus(managed, 200);
         expectShape('statutoryApplication', statutoryApplication({ board_comment: 'x', participant_type: 'delegate', participant_order: 1 }), managed.body.data, { gaps: unfilled });
 
-        // The applicant's own: no board comment (statutory #2399), the bodies they may move it to.
+        // The applicant's own: no board comment (statutory #2399), the bodies they may move it to
+        // with only the keys the form needs.
         const mine = await api.call<Envelope<{ permissions: unknown }>>('member', 'GET', `/api/statutory/events/${event.id}/applications/me`);
         expectStatus(mine, 200);
         expectShape('singleStatutoryApplication', singleStatutoryApplication({
             participant_type: 'delegate', participant_order: 1, editable_bodies: [body()]
         }), mine.body.data, {
-            ignore: { ...perBody.ignore, '$.editable_bodies': 'bodies of core, compared with the body factory in core-contract.spec.ts' },
+            ignore: perBody.ignore,
             gaps: unfilled
         });
         expectShape('applicationPermissions', applicationPermissions(), mine.body.data.permissions);
