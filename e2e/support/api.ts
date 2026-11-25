@@ -4,6 +4,7 @@ import { test as base, expect, type APIRequestContext, type Page } from '@playwr
 import { contractProblems, startContractCheck } from './contract.ts';
 import { createAntenna, type TestAntenna } from './core-data.ts';
 import { coverageFixtures, type CoverageFixtures, type CoverageWorkerFixtures } from './coverage.ts';
+import type { RefusedMail } from './fake-mailer.ts';
 import { PASSWORD, url, type Username } from './constants.ts';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -102,6 +103,10 @@ export class Api {
     readonly tokens: Partial<Record<Username, Tokens>> = {};
 
     private readonly users: Partial<Record<Username, Member>> = {};
+
+    // Refused mails this test caused on purpose (expectRefusedMail), which the `mailContract`
+    // fixture lets pass.
+    readonly expectedRefusals = new Set<number>();
 
     constructor(request: APIRequestContext) {
         this.request = request;
@@ -274,6 +279,23 @@ export class Api {
         return ((await res.json()) as Envelope<Mail[]>).data;
     }
 
+    // The mails the fake mailer refused because they break the mail contract, over the whole run.
+    async refusedMails(): Promise<RefusedMail[]> {
+        const res = await this.request.get(`${url('mailer')}/__mails/refused`);
+        return ((await res.json()) as Envelope<RefusedMail[]>).data;
+    }
+
+    // For a test that sends a mail that breaks the contract on purpose: returns the newest
+    // refused mail of `template`, so the test can check the answer, and keeps the `mailContract`
+    // fixture from failing the test for it.
+    async expectRefusedMail(template: unknown): Promise<RefusedMail> {
+        const mail = (await this.refusedMails()).findLast((refused) => refused.template === template && !this.expectedRefusals.has(refused.id));
+        expect(mail, `a refused ${String(template)} mail`).toBeDefined();
+        this.expectedRefusals.add(mail!.id);
+        return mail!;
+    }
+
+    // Clears the accepted mails only: refused mails stay for the `mailContract` fixture.
     async clearMails(): Promise<void> {
         await this.request.delete(`${url('mailer')}/__mails`);
     }
@@ -337,7 +359,7 @@ const knownBugErrors = new Map<string, RegExp>();
 
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
 
-export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void; contractCheck: void } & CoverageFixtures, CoverageWorkerFixtures>({
+export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugGuard: void; contractCheck: void; mailContract: void } & CoverageFixtures, CoverageWorkerFixtures>({
     // Frontend coverage of the tests that open a browser, and the routes they visit
     // (only with E2E_COVERAGE=1, see support/coverage.ts).
     ...coverageFixtures('real'),
@@ -387,6 +409,21 @@ export const test = base.extend<{ api: Api; otherAntenna: TestAntenna; knownBugG
                 description: `Expected the failure to match ${expectedError}, so this is reported as a real failure.`
             });
         }
+    }, { auto: true }],
+    // Fails a test during which the fake mailer refused a mail (support/fake-mailer.ts): a
+    // service sent a mail that the real mailer would refuse too, so it would never arrive.
+    // Many services only log a failed mail and answer the request as usual, so the test
+    // would not notice otherwise. Always checked, also after a failure, because a refused
+    // mail often explains it. Declared after knownBugGuard, so it runs before that guard
+    // after the test and a known-bug test that also sends a broken mail is reported as failed.
+    mailContract: [async ({ api }, use) => {
+        const before = Math.max(0, ...(await api.refusedMails()).map((mail) => mail.id));
+        await use();
+        const refused = (await api.refusedMails())
+            .filter((mail) => mail.id > before && !api.expectedRefusals.has(mail.id))
+            .map((mail) => `${String(mail.template)}: ${mail.status} ${mail.error}`);
+        expect(refused, 'mails the fake mailer refused because they break the mail contract in mailer/contract/mail-templates.json'
+            + ' (fix the sender, or the contract and both renderers; a mail a service sends late can show up in the test after its own)').toEqual([]);
     }, { auto: true }]
 });
 
