@@ -5,9 +5,10 @@
         <div class="box">
           <form v-on:submit.prevent="confirmToken">
             <div class="field">
-              <label class="label">Token</label>
+              <label class="label" for="confirm-token">Token</label>
               <div class="control">
                 <input
+                  id="confirm-token"
                   v-model="token"
                   required
                   class="input"
@@ -15,7 +16,6 @@
                   placeholder="Type the token you've received at your mailbox here."
                 />
               </div>
-              <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
 
             <hr />
@@ -31,25 +31,24 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { ignoreNavigationFailure } from '../../methods/navigation'
 
 export default {
   name: 'ConfirmToken',
   data () {
     return {
-      token: '',
-      error: ''
+      token: ''
     }
   },
   computed: mapGetters(['services']),
   methods: {
     confirmToken () {
-      this.error = ''
-
       this.axios
         .post(this.services['core'] + '/confirm-email', { token: this.token })
         .then(() => {
           this.$root.showSuccess('Your email is verified.')
-          return this.$router.push({ name: 'oms.login' })
+          // A member who is logged in is sent on to the dashboard instead: that is no error.
+          this.$router.push({ name: 'oms.login' }).catch(ignoreNavigationFailure)
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {

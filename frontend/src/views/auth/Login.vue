@@ -3,18 +3,18 @@
     <div class="columns is-vcentered">
       <div class="column is-6 is-offset-3">
         <div class="box">
-          <div v-show="error" style="color:red; word-wrap:break-word;">{{ error }}</div>
+          <div v-show="error" role="alert" style="color:red; word-wrap:break-word;">{{ error }}</div>
           <form v-on:submit.prevent="login">
-            <label class="label">Email / Username</label>
+            <label class="label" for="login-username">Email / Username</label>
             <p class="control">
-              <input v-model="data.username" required class="input" type="text" placeholder="username">
+              <input id="login-username" v-model="data.username" required class="input" type="text" placeholder="username">
             </p>
 
             <password-toggle required v-model="data.password" placeholder="password" label="Password" />
 
             <hr>
             <p class="buttons is-centered">
-              <button type="submit" class="button is-primary">Login</button>
+              <button type="submit" class="button is-primary" :disabled="isLoggingIn">Login</button>
               <router-link :to="{ name: 'oms.register', params: { id: 'default' } }" class="button">Register</router-link>
               <router-link :to="{ name: 'oms.password_reset' }" class="button">Forgot your password?</router-link>
             </p>
@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { afterLogin, ignoreNavigationFailure } from '../../methods/navigation'
+
 export default {
   name: 'Login',
   data () {
@@ -35,29 +37,20 @@ export default {
         username: '',
         password: ''
       },
-      error: null
+      error: null,
+      isLoggingIn: false
     }
   },
-  created () {
-    this.redirectIfAuthenticated()
-  },
   methods: {
-    redirectIfAuthenticated () {
-      if (!this.$store.state.login.isLoggedIn) {
-        return
-      }
-
-      if (this.$route.query.to) {
-        this.$router.replace(decodeURI(this.$route.query.to))
-      } else {
-        this.$router.replace('/dashboard')
-      }
-    },
     login () {
       this.error = null
+      // Off until core has answered: a double click logs in once.
+      this.isLoggingIn = true
       this.$auth.login(this.data).then(() => {
-        this.redirectIfAuthenticated()
+        // The guard may send a member whose profile is incomplete on to complete it.
+        this.$router.replace(afterLogin(this.$route.query)).catch(ignoreNavigationFailure).finally(() => { this.isLoggingIn = false })
       }).catch((err) => {
+        this.isLoggingIn = false
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message
         } else {

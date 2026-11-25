@@ -3,12 +3,13 @@
     <div class="columns is-vcentered">
       <div class="column is-6 is-offset-3">
         <div class="box">
-          <div class="notification is-info" v-if="notice">{{ notice }}</div>
+          <div class="notification is-info is-light" role="status" v-if="notice">{{ notice }}</div>
           <form v-on:submit.prevent="confirmToken">
             <div class="field">
-              <label class="label">Token</label>
+              <label class="label" for="mail-change-token">Token</label>
               <div class="control">
                 <input
+                  id="mail-change-token"
                   v-model="token"
                   required
                   class="input"
@@ -16,7 +17,6 @@
                   placeholder="Type the token you've received at your mailbox here."
                 />
               </div>
-              <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
 
             <hr />
@@ -32,36 +32,34 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { ignoreNavigationFailure } from '../../methods/navigation'
 
 export default {
   name: 'MailChange',
   data () {
     return {
       token: '',
-      error: '',
       notice: ''
     }
   },
   computed: mapGetters(['services']),
   methods: {
     confirmToken () {
-      this.error = ''
       this.notice = ''
 
       this.axios
         .post(this.services['core'] + '/confirm-email-change', { token: this.token })
         .then((response) => {
-          const result = response.data.data || {}
-
           // Some changes need a confirmation from both the current and the new address.
           // Until the other one confirms there's nothing to see on the profile, so staying here.
-          if (result.changed === false) {
+          if (response.data.data.changed === false) {
             this.notice = response.data.message
             return
           }
 
-          this.$root.showSuccess(response.data.message || 'Your email is changed.')
-          return this.$router.push({ name: 'oms.members.view', params: { id: 'me' } })
+          this.$root.showSuccess(response.data.message)
+          // Somebody who is logged out is sent to log in first: that is no error.
+          this.$router.push({ name: 'oms.members.view', params: { id: 'me' } }).catch(ignoreNavigationFailure)
         })
         .catch((err) => {
           if (err.response && err.response.status === 404) {

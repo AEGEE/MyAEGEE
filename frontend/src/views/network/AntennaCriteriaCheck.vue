@@ -1,28 +1,28 @@
 <template>
   <div class="tile is-ancestor antenna-criteria-check">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">Antenna Criteria Check</h4>
+      <article class="tile is-child" aria-labelledby="ac-check-title" :aria-busy="isLoading">
+        <h1 class="title" id="ac-check-title">Antenna Criteria Check</h1>
 
         <div class="antenna-criteria-check-content">
           <div class="antenna-criteria-check-inner">
             <div class="field">
-              <label class="label">Selected Agora</label>
+              <label class="label" for="ac-check-agora">Selected Agora</label>
               <div class="select">
-                <select v-model="selectedAgora" @change="fetchData()">
+                <select id="ac-check-agora" v-model="selectedAgora" @change="fetchData()">
                   <option v-for="agora in agorae" v-bind:key="agora.id" :value="agora">{{ agora.name }}</option>
                 </select>
               </div>
             </div>
 
             <div class="buttons">
-              <a class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</a>
-              <a class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</a>
+              <button type="button" class="button is-info" v-if="showDetails" @click="toggleShowDetails()">Show basic information</button>
+              <button type="button" class="button is-info" v-if="!showDetails" @click="toggleShowDetails()">Show detailed information</button>
 
-              <a class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</a>
-              <a class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</a>
+              <button type="button" class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</button>
+              <button type="button" class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</button>
 
-              <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
+              <button type="button" class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</button>
             </div>
 
             <div class="antenna-criteria-check-table-scroll">
@@ -36,17 +36,17 @@
                   <span v-else>{{ bodyTypeLabel(props.row.type) }}</span>
                 </b-table-column>
 
-                <b-table-column sortable field="netcom" label="NetCom" v-slot="props">
+                <b-table-column sortable field="netcom.first_name" label="NetCom" v-slot="props">
                   {{ props.row.netcom?.first_name }}
                 </b-table-column>
 
-                <b-table-column sortable field="status" label="Status" v-slot="props">
+                <b-table-column sortable field="status" label="Status" :custom-sort="sortByStatus" v-slot="props">
                   <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
                 </b-table-column>
 
                 <b-table-column field="communication" :label="criterionHeaderLabel('Communication', 'C')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Communication')" v-tooltip="compactHeaderTooltip('Communication')">C</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Communication')" v-tooltip="compactHeaderTooltip('Communication')">C</span>
                     <span v-else>Communication (C)</span>
                   </template>
                   <template v-slot="props">
@@ -56,7 +56,7 @@
 
                 <b-table-column field="boardElection" :label="criterionHeaderLabel('Board election', 'BE')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Board election')" v-tooltip="compactHeaderTooltip('Board election')">BE</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Board election')" v-tooltip="compactHeaderTooltip('Board election')">BE</span>
                     <span v-else>Board election (BE)</span>
                   </template>
                   <template v-slot="props">
@@ -66,7 +66,7 @@
 
                 <b-table-column field="membersList" :label="criterionHeaderLabel('Members list', 'ML')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Members list')" v-tooltip="compactHeaderTooltip('Members list')">ML</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Members list')" v-tooltip="compactHeaderTooltip('Members list')">ML</span>
                     <span v-else>Members list (ML)</span>
                   </template>
                   <template v-slot="props">
@@ -76,7 +76,7 @@
 
                 <b-table-column field="membershipFee" :label="criterionHeaderLabel('Membership fee', 'F')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Membership fee')" v-tooltip="compactHeaderTooltip('Membership fee')">F</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Membership fee')" v-tooltip="compactHeaderTooltip('Membership fee')">F</span>
                     <span v-else>Membership fee (F)</span>
                   </template>
                   <template v-slot="props">
@@ -86,7 +86,7 @@
 
                 <b-table-column field="mostRecentEvent" :label="criterionHeaderLabel('Events', 'E')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Events')" v-tooltip="compactHeaderTooltip('Events')">E</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Events')" v-tooltip="compactHeaderTooltip('Events')">E</span>
                     <span v-else>Events (E)</span>
                   </template>
                   <template v-slot="props">
@@ -96,7 +96,7 @@
 
                 <b-table-column field="attendance" :label="criterionHeaderLabel('Agora attendance', 'AA')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Agora attendance')" v-tooltip="compactHeaderTooltip('Agora attendance')">AA</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Agora attendance')" v-tooltip="compactHeaderTooltip('Agora attendance')">AA</span>
                     <span v-else>Agora attendance (AA)</span>
                   </template>
                   <template v-slot="props">
@@ -106,7 +106,7 @@
 
                 <b-table-column field="development" :label="criterionHeaderLabel('Development plan', 'DP')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Development plan')" v-tooltip="compactHeaderTooltip('Development plan')">DP</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Development plan')" v-tooltip="compactHeaderTooltip('Development plan')">DP</span>
                     <span v-else>Development plan (DP)</span>
                   </template>
                   <template v-slot="props">
@@ -116,7 +116,7 @@
 
                 <b-table-column field="fulfilment" :label="criterionHeaderLabel('Fulfilment report', 'FR')">
                   <template #header>
-                    <span v-if="isCompactTable" :title="compactHeaderTitle('Fulfilment report')" v-tooltip="compactHeaderTooltip('Fulfilment report')">FR</span>
+                    <span v-if="isCompactTable" tabindex="0" :title="compactHeaderTitle('Fulfilment report')" v-tooltip="compactHeaderTooltip('Fulfilment report')">FR</span>
                     <span v-else>Fulfilment report (FR)</span>
                   </template>
                   <template v-slot="props">
@@ -125,19 +125,19 @@
                 </b-table-column>
 
                 <b-table-column v-slot="props">
-                  <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link">
+                  <b-button @click="openAntennaCriteriaInfo(props.row)" class="button is-link" :aria-label="'Show comments for ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'eye']" /></span>
                   </b-button>
                 </b-table-column>
 
                 <b-table-column v-slot="props">
-                  <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning">
+                  <b-button @click="openAntennaCriteriaModal(props.row)" class="button is-warning" :aria-label="'Edit criteria for ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'pencil-alt']" /></span>
                   </b-button>
                 </b-table-column>
 
-                <b-table-column :visible="!!can.sendFulfilmentEmails" v-slot="props">
-                  <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
+                <b-table-column :visible="can.sendFulfilmentEmails" v-slot="props">
+                  <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger" :aria-label="'Send fulfilment mail to ' + props.row.name">
                     <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
                   </b-button>
                 </b-table-column>
@@ -176,12 +176,11 @@ export default {
       statutoryEvents: [],
       summerUniversities: [],
       isLoading: false,
-      isLoadingAgora: false,
+      // How many times the data was loaded: what an earlier load gets is dropped.
+      loads: 0,
+      // The texts of the fulfilment mail for the chosen Agora; none without the permission.
+      mailComponents: [],
       viewportWidth: window.innerWidth,
-      permissions: [],
-      can: {
-        sendFulfilmentEmails: false
-      },
       antennaCriteriaMapping: {
         'contact': ['communication'],
         'contact antenna': ['communication', 'membersList', 'membershipFee'],
@@ -190,10 +189,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
-    }),
+    ...mapGetters(['services', 'permissions']),
+    // From the permissions the app got when it started.
+    can () {
+      return {
+        sendFulfilmentEmails: this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
+      }
+    },
     tableHeight () {
       const viewportOffset = this.viewportWidth <= 1023 ? 18 * 16 : 24 * 16
       const maxHeight = Math.max(window.innerHeight - viewportOffset, 240)
@@ -211,13 +213,9 @@ export default {
   },
   methods: {
     bodyTypeLabel (type) {
-      if (!this.isCompactTable) return this.$options.filters.capitalize(type)
-
-      if (type === 'antenna') return 'A'
-      if (type === 'contact antenna') return 'CA'
-      if (type === 'contact') return 'C'
-
-      return this.$options.filters.capitalize(type)
+      // Only antennae, contact antennae and contacts are listed.
+      const short = { 'antenna': 'A', 'contact antenna': 'CA', 'contact': 'C' }
+      return this.isCompactTable ? short[type] : this.$options.filters.capitalize(type)
     },
     bodyTypeTitle (type) {
       return this.$options.filters.capitalize(type)
@@ -242,7 +240,8 @@ export default {
     openAntennaCriteriaModal (row) {
       this.$buefy.modal.open({
         component: AntennaCriteriaModal,
-        hasModaLCard: true,
+        hasModalCard: true,
+        ariaLabel: 'Criteria for ' + row.name,
         props: {
           local: row,
           agora: this.selectedAgora,
@@ -250,8 +249,7 @@ export default {
           permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
         }
       })
     },
@@ -259,13 +257,9 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaInfo,
         hasModalCard: true,
+        ariaLabel: 'Comments for ' + row.name,
         props: {
-          local: row,
-          agora: this.selectedAgora,
-          services: this.services,
-          showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          local: row
         }
       })
     },
@@ -273,13 +267,14 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaMail,
         hasModalCard: true,
+        ariaLabel: 'Change fulfilment email text',
         props: {
           agora: this.selectedAgora,
           mailComponents: this.mailComponents,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router
+          onSaved: this.reloadMailComponents
         }
       })
     },
@@ -287,6 +282,7 @@ export default {
       this.$buefy.modal.open({
         component: AntennaCriteriaMailSend,
         hasModalCard: true,
+        ariaLabel: 'Fulfilment mail to ' + row.name,
         props: {
           local: row,
           agora: this.selectedAgora,
@@ -294,8 +290,7 @@ export default {
           antennaCriteriaMapping: this.antennaCriteriaMapping,
           services: this.services,
           showError: this.$root.showError,
-          showSuccess: this.$root.showSuccess,
-          router: this.$router
+          showSuccess: this.$root.showSuccess
         }
       })
     },
@@ -342,6 +337,11 @@ export default {
         return fulfilment === 'true' || fulfilment === 'exception'
       }) ? 'is-success' : 'is-warning'
     },
+    // By Danger or Safe; the bodies' own `status` is always "active" here.
+    sortByStatus (a, b, isAsc) {
+      const order = this.statusValue(a).localeCompare(this.statusValue(b))
+      return isAsc ? order : -order
+    },
     statusValue (local) {
       return this.antennaCriteriaMapping[local.type].every(criterion => {
         const fulfilment = local.antennaCriteria[criterion]
@@ -349,7 +349,6 @@ export default {
       }) ? 'Safe' : 'Danger'
     },
     fetchAgorae () {
-      this.isLoadingAgora = true
       this.axios.get(this.services['statutory'], { params: { type: 'agora' } }).then((response) => {
         this.agorae = response.data.data
         if (this.agorae.length === 0) {
@@ -358,75 +357,101 @@ export default {
         // Automatically set the most recent Agora as the selected one
         this.selectedAgora = this.agorae[0]
         this.fetchData()
-        this.isLoadingAgora = false
       }).catch((err) => {
-        this.isLoadingAgora = false
         this.$root.showError('Could not fetch statutory data', err)
       })
     },
-    fetchData () {
+    // Loads everything for the chosen Agora. What a load gets after another Agora was chosen
+    // is dropped, errors included, so the table only shows the chosen Agora's data.
+    async fetchData () {
+      const load = ++this.loads
+      const isCurrent = () => load === this.loads
+      const context = {
+        agora: this.selectedAgora,
+        bodies: [],
+        netcommies: [],
+        mailComponents: undefined,
+        showError: (message, err) => {
+          if (isCurrent()) this.$root.showError(message, err)
+        }
+      }
       this.isLoading = true
 
-      this.axios.get(this.services['core'] + '/bodies').then(async (bodiesResponse) => {
-        this.bodies = bodiesResponse.data.data
-        this.bodies = this.bodies.filter(x => ['antenna', 'contact antenna', 'contact'].includes(x.type))
-        this.bodies.forEach(body => {
-          this.$set(body, 'antennaCriteria', {})
-          this.$set(body, 'comments', {})
-        })
-
-        const promises = []
-        promises.push(this.fetchNetcomAssignment())
-        promises.push(this.checkBoardCriterium())
-        promises.push(this.checkMembersListAndFeeCriteria())
-        promises.push(this.checkEventsCriterium())
-        promises.push(this.fetchMailComponents())
-
-        // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
-        await Promise.allSettled(promises)
-
-        // Do this after the rest, to make sure it also "overrides" automatically computed fields
-        await this.getAntennaCriteriaFulfilment()
-
-        this.isLoading = false
-      }).catch((err) => {
+      try {
+        const bodiesResponse = await this.axios.get(this.services['core'] + '/bodies')
+        context.bodies = bodiesResponse.data.data.filter(x => ['antenna', 'contact antenna', 'contact'].includes(x.type))
+      } catch (err) {
+        if (!isCurrent()) return
         this.isLoading = false
         this.$root.showError('Could not fetch bodies', err)
-      })
-    },
-    async fetchEvents () {
-      await this.axios.get(this.services['events'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((eventResponse) => {
-        this.events = eventResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch event data', err)
-      })
-    },
-    async fetchStatutoryEvents () {
-      await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((statutoryResponse) => {
-        this.statutoryEvents = statutoryResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch statutory event data', err)
-      })
-    },
-    async fetchSummerUniversities () {
-      await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((summerUniversityResponse) => {
-        this.summerUniversities = summerUniversityResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch Summer University data', err)
-      })
-    },
-    async checkEventsCriterium () {
-      const promises = []
-      promises.push(this.fetchEvents())
-      promises.push(this.fetchStatutoryEvents())
-      promises.push(this.fetchSummerUniversities())
+        return
+      }
 
-      await Promise.all(promises)
+      context.bodies.forEach(body => {
+        this.$set(body, 'antennaCriteria', {})
+        this.$set(body, 'comments', {})
+      })
+
+      const promises = []
+      promises.push(this.fetchNetcomAssignment(context))
+      promises.push(this.checkBoardCriterium(context))
+      promises.push(this.checkMembersListAndFeeCriteria(context))
+      promises.push(this.checkEventsCriterium(context))
+      // network lets only the holders of the fulfilment mail permission read the mail texts.
+      if (this.can.sendFulfilmentEmails) promises.push(this.fetchMailComponents(context))
+
+      // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
+      await Promise.allSettled(promises)
+
+      // Do this after the rest, to make sure it also "overrides" automatically computed fields
+      await this.getAntennaCriteriaFulfilment(context)
+
+      if (!isCurrent()) return
+      this.netcommies = context.netcommies
+      // Never the texts of another Agora.
+      this.mailComponents = context.mailComponents ?? []
+      this.bodies = context.bodies
+      this.isLoading = false
+    },
+    async fetchEvents ({ agora, showError }) {
+      try {
+        const eventResponse = await this.axios.get(this.services['events'] + '/recents', { params: { ends: agora.ends } })
+        return eventResponse.data.data
+      } catch (err) {
+        showError('Could not fetch event data', err)
+        return []
+      }
+    },
+    async fetchStatutoryEvents ({ agora, showError }) {
+      try {
+        const statutoryResponse = await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: agora.ends } })
+        return statutoryResponse.data.data
+      } catch (err) {
+        showError('Could not fetch statutory event data', err)
+        return []
+      }
+    },
+    async fetchSummerUniversities ({ agora, showError }) {
+      try {
+        const summerUniversityResponse = await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: agora.ends } })
+        return summerUniversityResponse.data.data
+      } catch (err) {
+        showError('Could not fetch Summer University data', err)
+        return []
+      }
+    },
+    async checkEventsCriterium (context) {
+      const { agora, bodies } = context
+      const [events, statutoryEvents, summerUniversities] = await Promise.all([
+        this.fetchEvents(context),
+        this.fetchStatutoryEvents(context),
+        this.fetchSummerUniversities(context)
+      ])
 
       // TODO: Make this code nicer and compacter ...
-      for (const event of this.events) {
+      for (const event of events) {
         for (const organizer of event.organizing_bodies) {
-          const body = this.bodies.find(x => x.id === organizer.body_id)
+          const body = bodies.find(x => x.id === organizer.body_id)
           if (body) {
             const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
               ? event.latest_event
@@ -436,8 +461,8 @@ export default {
         }
       }
 
-      for (const event of this.statutoryEvents) {
-        const body = this.bodies.find(x => x.id === event.body_id)
+      for (const event of statutoryEvents) {
+        const body = bodies.find(x => x.id === event.body_id)
         if (body) {
           const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
             ? event.latest_event
@@ -446,9 +471,9 @@ export default {
         }
       }
 
-      for (const event of this.summerUniversities) {
+      for (const event of summerUniversities) {
         for (const organizer of event.organizing_bodies) {
-          const body = this.bodies.find(x => x.id === organizer.body_id)
+          const body = bodies.find(x => x.id === organizer.body_id)
           if (body) {
             const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
               ? event.latest_event
@@ -460,54 +485,61 @@ export default {
       // ... until here
 
       // Check if the latest event is at most two years before the Agora
-      for (const body of this.bodies) {
+      for (const body of bodies) {
         if (body.latestEvent) {
-          const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestEvent), 'years', true)
+          const diffInYears = moment(agora.ends).diff(moment(body.latestEvent), 'years', true)
           this.$set(body.antennaCriteria, 'events', diffInYears >= 0 && diffInYears <= 2 ? 'true' : 'false')
           body.latestEvent = moment(body.latestEvent).format('M[/]YYYY')
         }
       }
     },
-    async checkBoardCriterium () {
-      await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: this.selectedAgora.ends } }).then((boardsResponse) => {
+    async checkBoardCriterium ({ agora, bodies, showError }) {
+      try {
+        const boardsResponse = await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: agora.ends } })
         for (const board of boardsResponse.data.data) {
-          const body = this.bodies.find(x => x.id === board.body_id)
+          const body = bodies.find(x => x.id === board.body_id)
           if (body) {
             this.$set(body, 'latestElection', board.latest_election)
           }
         }
 
         // Check if the current board was elected within the past year
-        for (const body of this.bodies) {
+        for (const body of bodies) {
           if (body.latestElection) {
-            const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestElection), 'years', true)
+            const diffInYears = moment(agora.ends).diff(moment(body.latestElection), 'years', true)
             this.$set(body.antennaCriteria, 'boardElection', diffInYears >= 0 && diffInYears <= 1 ? 'true' : 'false')
             body.latestElection = moment(body.latestElection).format('D[/]M[/]YYYY')
           }
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch boards data', err)
-      })
+      } catch (err) {
+        showError('Could not fetch boards data', err)
+      }
     },
-    async checkMembersListAndFeeCriteria () {
-      await this.axios.get(this.services['statutory'] + '/events/' + this.selectedAgora.id + '/memberslists').then((membersListsResponse) => {
+    async checkMembersListAndFeeCriteria ({ agora, bodies, showError }) {
+      try {
+        const membersListsResponse = await this.axios.get(this.services['statutory'] + '/events/' + agora.id + '/memberslists')
         for (const membersList of membersListsResponse.data.data) {
-          const body = this.bodies.find(x => x.id === membersList.body_id)
+          const body = bodies.find(x => x.id === membersList.body_id)
+          // A body that isn't listed: deleted, or of another type.
+          if (!body) continue
+
           this.$set(body.antennaCriteria, 'membersList', 'true')
 
           if (membersList.fee_not_paid <= 0) {
             this.$set(body.antennaCriteria, 'membershipFee', 'true')
           }
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch members list data', err)
-      })
+      } catch (err) {
+        showError('Could not fetch members list data', err)
+      }
     },
-    async getAntennaCriteriaFulfilment () {
-      await this.axios.get(this.services['network'] + '/antennaCriteria/' + this.selectedAgora.id).then((antennaCriteriaResponse) => {
+    async getAntennaCriteriaFulfilment ({ agora, bodies, showError }) {
+      try {
+        const antennaCriteriaResponse = await this.axios.get(this.services['network'] + '/antennaCriteria/' + agora.id)
         const antennaCriteriaFulfilment = antennaCriteriaResponse.data.data
         for (const criterion of antennaCriteriaFulfilment) {
-          const body = this.bodies.find(x => x.id === criterion.body_id)
+          const body = bodies.find(x => x.id === criterion.body_id)
+          if (!body) continue
 
           // Convert string to camelCase
           const criterionName = criterion.antenna_criterion.replace(/(?:^\w|\s\w)/g, match => match.trim().toUpperCase()).replace(/^\w/, match => match.toLowerCase())
@@ -515,54 +547,66 @@ export default {
           this.$set(body.antennaCriteria, criterionName, criterion.value)
           this.$set(body.comments, criterionName, criterion.comment)
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch manual Antenna Criteria fulfilment', err)
-      })
+      } catch (err) {
+        showError('Could not fetch manual Antenna Criteria fulfilment', err)
+      }
     },
-    async fetchNetcom () {
-      await this.axios.get(this.services['core'] + '/bodies?query=network%20commission').then(async (netcomBodyResponse) => {
-        await this.axios.get(this.services['core'] + '/bodies/' + netcomBodyResponse.data.data[0].id + '/members').then((netcomMembersResponse) => {
-          this.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
-            user_id: netcommie.user_id,
-            first_name: netcommie.user.first_name,
-            email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
-          }))
-          this.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
-        })
-      }).catch((err) => {
-        this.$root.showError('Could not fetch NetCom data', err)
-      })
-    },
-    async fetchNetcomAssignment () {
-      await this.axios.get(this.services['network'] + '/netcom').then(async (netcomResponse) => {
-        const netcomAssignment = netcomResponse.data.data
-        await this.fetchNetcom()
-
-        for (const body of this.bodies) {
-          const assignment = netcomAssignment.find(x => x.body_id === body.id)
-          const netcom = this.netcommies.find(x => x.user_id === assignment?.netcom_id)
-          this.$set(body, 'netcom', assignment !== undefined && netcom !== undefined ? netcom : this.netcommies[this.netcommies.length - 1])
+    async fetchNetcom (context) {
+      const notSet = { 'user_id': 0, 'first_name': 'Not set', 'email': '' }
+      try {
+        const netcomBodyResponse = await this.axios.get(this.services['core'] + '/bodies?query=network%20commission')
+        const [netcomBody] = netcomBodyResponse.data.data
+        // Without a Network Commission body nobody can be assigned.
+        if (!netcomBody) {
+          context.netcommies = [notSet]
+          return
         }
-      }).catch((err) => {
-        this.$root.showError('Could not fetch NetCom assignment', err)
-      })
+
+        const netcomMembersResponse = await this.axios.get(this.services['core'] + '/bodies/' + netcomBody.id + '/members')
+        context.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
+          user_id: netcommie.user_id,
+          first_name: netcommie.user.first_name,
+          email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
+        }))
+        context.netcommies.push(notSet)
+      } catch (err) {
+        context.showError('Could not fetch NetCom data', err)
+      }
     },
-    async fetchMailComponents () {
-      await this.axios.get(this.services['network'] + '/mailComponent/' + this.selectedAgora.id).then((mailResponse) => {
-        this.mailComponents = mailResponse.data.data
-      }).catch((err) => {
-        this.$root.showError('Could not fetch mail components', err)
-      })
+    async fetchNetcomAssignment (context) {
+      try {
+        const netcomResponse = await this.axios.get(this.services['network'] + '/netcom')
+        const netcomAssignment = netcomResponse.data.data
+        await this.fetchNetcom(context)
+
+        const { bodies, netcommies } = context
+        for (const body of bodies) {
+          const assignment = netcomAssignment.find(x => x.body_id === body.id)
+          const netcom = netcommies.find(x => x.user_id === assignment?.netcom_id)
+          this.$set(body, 'netcom', assignment !== undefined && netcom !== undefined ? netcom : netcommies[netcommies.length - 1])
+        }
+      } catch (err) {
+        context.showError('Could not fetch NetCom assignment', err)
+      }
+    },
+    // After the texts were changed: the new ones, for the Agora that is still chosen.
+    async reloadMailComponents () {
+      const context = { agora: this.selectedAgora, mailComponents: undefined, showError: this.$root.showError }
+      await this.fetchMailComponents(context)
+      if (context.mailComponents && context.agora === this.selectedAgora) this.mailComponents = context.mailComponents
+    },
+    async fetchMailComponents (context) {
+      try {
+        const mailResponse = await this.axios.get(this.services['network'] + '/mailComponent/' + context.agora.id)
+        context.mailComponents = mailResponse.data.data
+      } catch (err) {
+        context.showError('Could not fetch mail components', err)
+      }
     }
   },
   mounted () {
     window.addEventListener('resize', this.updateViewportWidth)
     this.fetchAgorae()
-
-    this.axios.get(this.services['core'] + '/my_permissions').then((permissionResponse) => {
-      this.permissions = permissionResponse.data.data
-      this.can.sendFulfilmentEmails = this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
-    })
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.updateViewportWidth)

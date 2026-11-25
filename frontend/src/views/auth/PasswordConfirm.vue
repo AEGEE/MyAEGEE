@@ -5,9 +5,10 @@
         <div class="box">
           <form v-on:submit.prevent="confirmPassword">
             <div class="field">
-              <label class="label">Token</label>
+              <label class="label" for="password-confirm-token">Token</label>
               <div class="control">
                 <input
+                  id="password-confirm-token"
                   v-model="token"
                   required
                   class="input"
@@ -15,7 +16,6 @@
                   placeholder="Type the token you've received by your email."
                 />
               </div>
-              <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
             </div>
 
             <password-toggle
@@ -50,7 +50,7 @@
           </form>
         </div>
 
-        <div class="notification is-info">
+        <div class="notification is-info is-light">
           Please make up your mind for a second why a
           <a
             href="https://howsecureismypassword.net/"
@@ -87,12 +87,12 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     confirmPassword () {
-      this.errors = {}
-
       if (this.password !== this.password_confirmation) {
-        this.errors.password = ['Password do not match.']
+        this.errors = { password: ['Passwords do not match.'] }
         return
       }
+
+      this.errors = {}
 
       this.axios
         .post(this.services['core'] + '/password_confirm', {
@@ -108,10 +108,6 @@ export default {
             // validation errors
             this.errors = err.response.data.errors
             return this.$root.showError('Some of the password data is invalid.')
-          }
-
-          if (err.response && err.response.status === 404) {
-            return this.$root.showError('Your token is invalid.')
           }
 
           this.$root.showError('Could not change password', err)

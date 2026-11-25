@@ -1,19 +1,20 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">My codes claimed</h4>
+      <article class="tile is-child" aria-labelledby="my-codes-title" :aria-busy="isLoading">
+        <h1 class="title" id="my-codes-title">My codes claimed</h1>
 
+        <label class="label" for="claim-partner">Partner</label>
         <div class="field has-addons">
           <p class="control">
             <span class="select">
-              <select v-model="selectedIntegration">
+              <select id="claim-partner" v-model="selectedIntegration">
                 <option v-for="integration in integrations" v-bind:key="integration.id" :value="integration.id">{{ integration.name }}</option>
               </select>
             </span>
           </p>
           <p class="control">
-            <button class="button is-primary" @click="claimCode()">Claim code!</button>
+            <button type="button" class="button is-primary" @click="claimCode()">Claim code!</button>
           </p>
 
         </div>
@@ -54,11 +55,7 @@ export default {
       codes: [],
       integrations: [],
       selectedIntegration: null,
-      isLoading: false,
-      permissions: [],
-      can: {
-        create: false
-      }
+      isLoading: false
     }
   },
   computed: {
@@ -78,11 +75,6 @@ export default {
         response.data.data.integration = integration
         this.codes.unshift(response.data.data)
       }).catch((err) => this.$root.showError('Could not claim code', err))
-    },
-    refetch () {
-      this.integrations = []
-      this.canLoadMore = true
-      this.fetchData()
     },
     fetchData () {
       this.isLoading = true

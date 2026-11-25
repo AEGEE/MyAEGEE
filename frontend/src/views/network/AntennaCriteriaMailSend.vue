@@ -2,28 +2,32 @@
   <div class="modal-card" style="height: 75vh">
     <header class="modal-card-head">
       <p class="modal-card-title">{{ local.name }}</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
-      <b-field label="From" horizontal>
-        <b-input v-model="from" />
+      <div class="notification is-warning" v-if="missingParts.length">
+        <p v-for="part in missingParts" :key="part">No text set for {{ part }}.</p>
+      </div>
+
+      <b-field label="From" label-for="ac-send-from" horizontal>
+        <b-input id="ac-send-from" v-model="from" />
       </b-field>
 
-      <b-field label="To" horizontal>
-        <b-input v-model="to" />
+      <b-field label="To" label-for="ac-send-to" horizontal>
+        <b-input id="ac-send-to" v-model="to" />
       </b-field>
 
-      <b-field label="Cc" horizontal>
-        <b-input v-model="cc" />
+      <b-field label="Cc" label-for="ac-send-cc" horizontal>
+        <b-input id="ac-send-cc" v-model="cc" />
       </b-field>
 
-      <b-field label="Subject" horizontal>
-        <b-input v-model="subject" />
+      <b-field label="Subject" label-for="ac-send-subject" horizontal>
+        <b-input id="ac-send-subject" v-model="subject" />
       </b-field>
 
-      <b-field label="Mail text">
-        <b-input type="textarea" v-model="body" />
+      <b-field label="Mail text" label-for="ac-send-body">
+        <b-input type="textarea" id="ac-send-body" v-model="body" />
       </b-field>
 
       <hr />
@@ -34,8 +38,8 @@
     </section>
 
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="send()">Send</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="send()">Send</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -43,14 +47,16 @@
 <script>
 export default {
   name: 'AntennaCriteriaMailSend',
-  props: ['local', 'agora', 'mailComponents', 'antennaCriteriaMapping', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['local', 'agora', 'mailComponents', 'antennaCriteriaMapping', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       from: 'network@aegee.eu',
       to: '',
       cc: '',
       subject: '',
-      body: ''
+      body: '',
+      // Parts of the mail that the Agora has no text for.
+      missingParts: []
     }
   },
   methods: {
@@ -64,13 +70,11 @@ export default {
         'body': this.$options.filters.markdown(this.mail)
       }
 
-      console.log(data)
-
       this.axios.post(
         this.services['network'] + '/antennaCriteria/sendFulfilmentMail',
         data
       ).then(() => {
-        this.showSuccess('Mail sent succesfully.')
+        this.showSuccess('Mail sent successfully.')
         this.$parent.close()
       }).catch((err) => {
         // showError lists the field messages of a 422.
@@ -87,27 +91,33 @@ export default {
   },
   mounted () {
     this.to = this.local.email
-    this.cc = this.local.netcom.email // TODO: See how we can set this to always be an @aegee.eu account
+    // A Local has no NetCom data when it could not be loaded.
+    this.cc = this.local.netcom?.email ?? '' // TODO: See how we can set this to always be an @aegee.eu account
     this.subject = 'Preliminary Antenna Criteria check ' + this.agora.name
 
-    // Add all parts of the mail template that the Local is not fulfilling and should fulfil
-    let rawMail = this.mailComponents.find(c => c.mail_component === 'introduction').text + '\n<br><br>\n'
+    const textOf = (part) => {
+      const component = this.mailComponents.find(c => c.mail_component === part)
+      if (!component) this.missingParts.push(part)
+      return component?.text
+    }
 
+    // Add all parts of the mail template that the Local is not fulfilling and should fulfil
+    const parts = [textOf('introduction')]
     for (const criterion of this.antennaCriteriaMapping[this.local.type]) {
       const part = criterion.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
       const criterionFulfilment = this.local.antennaCriteria[criterion]
       if (criterionFulfilment !== 'true' && criterionFulfilment !== 'exception') {
-        rawMail += this.mailComponents.find(c => c.mail_component === part).text
-        rawMail += '\n<br><br>\n'
+        parts.push(textOf(part))
       }
     }
-    rawMail += this.mailComponents.find(c => c.mail_component === 'closing').text
+    parts.push(textOf('closing'))
+    const rawMail = parts.filter(text => text !== undefined).join('\n<br><br>\n')
 
     // Replace the variables of the template with actual values
     this.body = rawMail
       .replaceAll('{body_name}', this.local.name)
       .replaceAll('{agora_name}', this.agora.name)
-      .replaceAll('{netcom_name}', this.local.netcom.first_name)
+      .replaceAll('{netcom_name}', this.local.netcom?.first_name ?? '')
       .replaceAll('{local_type}', this.local.type.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
       .replaceAll('{antenna_criteria_amount}', this.antennaCriteriaMapping[this.local.type].length)
   }

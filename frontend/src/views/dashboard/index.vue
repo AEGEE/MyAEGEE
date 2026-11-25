@@ -4,13 +4,13 @@
       <div class="tile is-vertical is-12">
         <div class="tile">
           <div class="tile is-4 is-parent">
-            <article class="tile is-child box">
-              <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-member">
+              <h2 id="dashboard-member" class="title">{{ user.first_name }} {{ user.last_name }}</h2>
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
-                  <li v-for="body in addStyle" v-bind:key="body.id">
-                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }" :class="body.class">{{ body.name }}</router-link>
+                  <li v-for="body in user.bodies" v-bind:key="body.id">
+                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }" :class="bodyClass(body)">{{ body.name }}</router-link>
                   </li>
                 </ul>
                 <p v-if="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
@@ -22,15 +22,13 @@
                   </li>
                 </ul>
                 <p v-show="user.circles.length === 0"><i>You are currently not a member of any circle.</i></p>
-
-                <b-loading :is-full-page="false" :active.sync="isLoading.user" />
               </div>
             </article>
           </div>
 
           <div class="tile is-4 is-parent is-vertical">
-            <article class="tile is-child box">
-              <p class="title">Upcoming events you’ve applied to</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-upcoming" :aria-busy="isLoading.events">
+              <h2 id="dashboard-upcoming" class="title">Upcoming events you've applied to</h2>
               <div class="content" v-show="events.future.length > 0">
                 <ul>
                   <li v-for="event in events.future" v-bind:key="event.id">
@@ -51,8 +49,8 @@
               </div>
             </article>
 
-            <article class="tile is-child box">
-              <p class="title">Past events you've applied to</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-past" :aria-busy="isLoading.events">
+              <h2 id="dashboard-past" class="title">Past events you've applied to</h2>
               <div class="content" v-show="events.past.length > 0">
                 <ul>
                   <li v-for="event in events.past" v-bind:key="event.id">
@@ -76,8 +74,8 @@
           </div>
 
           <div class="tile is-4 is-parent">
-            <article class="tile is-child box">
-              <p class="title">Statutory events</p>
+            <article class="tile is-child box" aria-labelledby="dashboard-statutory" :aria-busy="isLoading.statutory">
+              <h2 id="dashboard-statutory" class="title">Statutory events</h2>
               <div class="content">
                 <strong>Latest statutory event</strong>
                 <ul v-if="!statutory">
@@ -102,7 +100,7 @@
                   <li v-show="statutory.can_apply && new Date() > new Date(statutory.application_period_starts)">
                     <strong>
                       <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: statutory.url || statutory.id, application_id: 'me' } }">
-                        {{ statutory.can_apply ? 'Manage my application' : 'Update my application' }}
+                        Manage my application
                       </router-link>
                     </strong>
                   </li>
@@ -135,67 +133,44 @@ export default {
   data () {
     return {
       constants,
-      user: {
-        first_name: '',
-        last_name: '',
-        primary_body: null,
-        bodies: [],
-        circles: []
-      },
       events: {
         past: [],
         future: []
       },
       statutory: null,
       isLoading: {
-        user: false,
         events: false,
         statutory: false
       }
     }
   },
   mounted () {
-    this.isLoading.user = true
     this.isLoading.events = true
     this.isLoading.statutory = true
 
-    this.axios.get(this.services['core'] + '/members/me').then((response) => {
-      this.user = response.data.data
-      this.user.bodies = sortBodies(this.user.bodies, this.user.primary_body_id)
-      this.user.circles.sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
-      this.isLoading.user = false
-    }).catch((err) => {
-      this.isLoading.user = false
-      this.$root.showError('Could not fetch user', err)
-    })
-
-    this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
-      this.axios.get(this.services['statutory'] + '/mine').then((statutoryResponse) => {
-        this.axios.get(this.services['summeruniversity'] + '/mine/participating').then((summeruniversityResponse) => {
-          const input = eventsResponse.data.data.concat(statutoryResponse.data.data, summeruniversityResponse.data.data)
-          for (const event of input) {
-            if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
-              if (moment().isSameOrBefore(event.starts)) {
-                this.events.future.push(event)
-              } else {
-                this.events.past.push(event)
-              }
-            }
+    // The three lists are fetched side by side; one that fails leaves the others shown.
+    const lists = [
+      { url: this.services['events'] + '/mine/participating', error: 'Could not fetch events list' },
+      { url: this.services['statutory'] + '/mine', error: 'Could not fetch statutory events list' },
+      { url: this.services['summeruniversity'] + '/mine/participating', error: 'Could not fetch summer university events list' }
+    ]
+    Promise.all(lists.map(({ url, error }) => this.axios.get(url).then((response) => response.data.data).catch((err) => {
+      this.$root.showError(error, err)
+      return []
+    }))).then((results) => {
+      for (const event of [].concat(...results)) {
+        if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
+          // An event that has started counts as upcoming until it ends.
+          if (moment().isSameOrBefore(event.ends)) {
+            this.events.future.push(event)
+          } else {
+            this.events.past.push(event)
           }
-          this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
-          this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
-          this.isLoading.events = false
-        }).catch((err) => {
-          this.isLoading.events = false
-          this.$root.showError('Could not fetch summer university events list', err)
-        })
-      }).catch((err) => {
-        this.isLoading.events = false
-        this.$root.showError('Could not fetch statutory events list', err)
-      })
-    }).catch((err) => {
+        }
+      }
+      this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
+      this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
       this.isLoading.events = false
-      this.$root.showError('Could not fetch events list', err)
     })
 
     this.axios.get(this.services['statutory'] + '/events/latest').then((response) => {
@@ -213,23 +188,28 @@ export default {
       loginUser: 'user',
       services: 'services'
     }),
-    isAnythingLoading () {
-      return Object.keys(this.isLoading).some(key => this.isLoading[key])
+    // The member as the app fetched them when it started, with their bodies and circles sorted.
+    // Nobody while the page is left after logging out.
+    user () {
+      if (!this.loginUser) {
+        return { first_name: '', last_name: '', bodies: [], circles: [], primary_body: null }
+      }
+      return {
+        ...this.loginUser,
+        bodies: sortBodies(this.loginUser.bodies, this.loginUser.primary_body_id),
+        circles: [...this.loginUser.circles].sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
+      }
     },
     hasAnyBodies () {
       return this.user.primary_body || this.user.bodies.length > 0
-    },
-    addStyle () {
-      for (const item of this.user.bodies) {
-        item.class = []
-        if (this.user.primary_body && item.name === this.user.primary_body.name) {
-          item.class.push('bold')
-        }
-        if (item.name === 'Information Technology Committee') {
-          item.class.push('rainbow-text')
-        }
+    }
+  },
+  methods: {
+    bodyClass (body) {
+      return {
+        bold: Boolean(this.user.primary_body) && body.name === this.user.primary_body.name,
+        'rainbow-text': body.name === 'Information Technology Committee'
       }
-      return this.user.bodies
     }
   }
 }

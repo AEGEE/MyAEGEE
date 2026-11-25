@@ -2,10 +2,10 @@
   <aside class="menu app-sidebar" :class="{ 'is-visible': show, 'is-hidden': !show, 'is-menu-opened': navbar.menuOpened }">
     <nav aria-label="Main menu">
       <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
-        <p class="menu-label">
+        <h2 class="menu-label" :id="`menu-category-${category.index}`">
           {{ category.categoryName }}
-        </p>
-        <ul class="menu-list">
+        </h2>
+        <ul class="menu-list" :aria-labelledby="`menu-category-${category.index}`">
           <li v-for="item in category.components" v-bind:key="item.name">
             <router-link :to="{ name: item.name, params: item.params }" exact v-if="item.name && !item.link">
               <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
@@ -14,7 +14,7 @@
             <button type="button" class="menu-toggle" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-else-if="!item.link" @click="toggle(item.index, category.index, item)">
               <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
               {{ item.label }}
-              <span class="icon is-small is-angle" v-if="item.children && item.children.length">
+              <span class="icon is-small is-angle">
                 <font-awesome-icon :icon="['fa', 'angle-down']" />
               </span>
             </button>
@@ -43,18 +43,6 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   props: {
     show: Boolean
-  },
-  data () {
-    return {
-      isReady: false
-    }
-  },
-  mounted () {
-    const route = this.$route
-    if (route.name) {
-      this.isReady = true
-      this.shouldExpandMatchItem(route)
-    }
   },
   computed: {
     ...mapGetters({
@@ -140,49 +128,21 @@ export default {
         expanded: !item.expanded
       })
     },
-    shouldExpandMatchItem (route) {
-      const matched = route.matched
-      if (matched.length === 0) {
-        return
-      }
-
-      const lastMatched = matched[matched.length - 1]
-      let parent = lastMatched.parent || lastMatched
-      const isParent = parent === lastMatched
-
-      if (isParent) {
-        const p = this.findParentFromMenu(route)
-        if (p) {
-          parent = p
-        }
-      }
-
-      if ('expanded' in parent && !isParent) {
-        this.expandMenu({
-          item: parent,
-          expanded: true
-        })
-      }
-    },
-    findParentFromMenu (route) {
-      const menu = this.menu
-      for (let i = 0, l = menu.length; i < l; i++) {
-        const item = menu[i]
-        const k = item.children && item.children.length
-        if (k) {
-          for (let j = 0; j < k; j++) {
-            if (item.children[j].name === route.name) {
-              return item
-            }
+    // Opens the group of the menu that holds the page that is shown, so its link can be seen.
+    // (The first page counts too: the router only gets to it after the sidebar is mounted.)
+    expandGroupOf (route) {
+      this.menu.forEach((category, categoryIndex) => {
+        category.components.forEach((component, index) => {
+          if (!component.expanded && (component.children || []).some(child => child.name === route.name)) {
+            this.expandMenu({ index, categoryIndex, expanded: true })
           }
-        }
-      }
+        })
+      })
     }
   },
   watch: {
     $route (route) {
-      this.isReady = true
-      this.shouldExpandMatchItem(route)
+      this.expandGroupOf(route)
       if (this.device.isMobile) {
         this.toggleSidebar({ opened: false })
         this.toggleNavbarMenu({ opened: false })

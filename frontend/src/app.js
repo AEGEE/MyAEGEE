@@ -43,6 +43,7 @@ import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
 import EmptyTableStub from './components/EmptyTableStub'
 import Tooltip from './components/Tooltip'
+import { afterLogin, ignoreNavigationFailure } from './methods/navigation'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -81,13 +82,10 @@ Vue.use(Toast)
 // Buefy has no global default for the role of the dialogs and modals opened from code, so
 // they all get it here. Call sites only add what names them: `title` for dialogs, `ariaLabel`
 // for modals.
-const withDefaults = (programmatic, method, defaults, textOption, afterOpen) => {
+const withDefaults = (programmatic, method, defaults, afterOpen) => {
   const original = programmatic[method]
   programmatic[method] = params => {
-    const opened = original.call(programmatic, {
-      ...defaults,
-      ...(typeof params === 'string' ? { [textOption]: params } : params)
-    })
+    const opened = original.call(programmatic, { ...defaults, ...params })
     if (afterOpen) afterOpen(opened)
     return opened
   }
@@ -98,10 +96,8 @@ const withDefaults = (programmatic, method, defaults, textOption, afterOpen) => 
 // its title and described by its message; a dialog without a title is labelled by its message.
 let dialogCount = 0
 const nameDialog = (dialog) => {
-  if (!dialog || typeof dialog.$nextTick !== 'function') return
   dialog.$nextTick(() => {
     const root = dialog.$el
-    if (!root || typeof root.querySelector !== 'function') return
     const id = `dialog-${++dialogCount}`
     const title = root.querySelector('.modal-card-title')
     const message = root.querySelector('.media-content > p')
@@ -117,9 +113,9 @@ const nameDialog = (dialog) => {
 }
 
 for (const method of ['alert', 'confirm', 'prompt']) {
-  withDefaults(Vue.prototype.$buefy.dialog, method, { ariaRole: 'alertdialog', ariaModal: true }, 'message', nameDialog)
+  withDefaults(Vue.prototype.$buefy.dialog, method, { ariaRole: 'alertdialog', ariaModal: true }, nameDialog)
 }
-withDefaults(Vue.prototype.$buefy.modal, 'open', { ariaRole: 'dialog', ariaModal: true }, 'content')
+withDefaults(Vue.prototype.$buefy.modal, 'open', { ariaRole: 'dialog', ariaModal: true })
 Vue.use(Vue2TouchEvents)
 Vue.use(VTooltip)
 Vue.component('select-or-custom', SelectOrCustom)
@@ -138,9 +134,12 @@ const nprogress = new NProgress({ parent: '.nprogress-container' })
 
 const { state } = store
 
+// The login page, with the page to go on to after logging in. vue-router encodes the target,
+// so its own query string and hash survive the round trip.
+const loginFor = (route) => ({ path: '/login', query: { to: route.fullPath } })
+
 router.beforeEach((to, from, next) => {
-  const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
-  const loggedInRedirectPath = to.query.to ? decodeURI(to.query.to) : '/dashboard'
+  const loggedInRedirectPath = afterLogin(to.query)
 
   // Fuck my life.
   if (state.login.user) {
@@ -158,7 +157,6 @@ router.beforeEach((to, from, next) => {
     // First, checking if the user is fetched, if so, not fetching it again.
     // For auth-only requests we'll catch it later in .catch() block
     console.debug('User is fetched, skipping.')
-    document.title = 'MyAEGEE | ' + to.meta.label
     return next()
   }
 
@@ -183,16 +181,11 @@ router.beforeEach((to, from, next) => {
       return next(loggedInRedirectPath)
     }
 
-    if (!state.login.isLoggedIn && to.meta.auth) {
-      throw new Error('Trying to access the auth-only page while being unauthorized.')
-    }
-
     if (!state.login.isValid && to.meta.auth) {
       console.debug('User is invalid (user not fetched):', state.login.validationErrors)
       return next('/profile/update')
     }
 
-    document.title = 'MyAEGEE | ' + to.meta.label
     return next()
   }).catch((err) => {
     // Allow unauthorized users to access if allowed.
@@ -202,17 +195,58 @@ router.beforeEach((to, from, next) => {
     }
 
     console.debug('Error fetching user, redirect to /login. Error: ' + err)
-    return next('/login' + prefix)
+    return next(loginFor(to))
   })
+})
+
+// Every page names itself in the window title, for members and visitors alike.
+router.afterEach((to) => {
+  document.title = 'MyAEGEE | ' + to.meta.label
 })
 
 axios.interceptors.request.use(config => {
   const token = window.localStorage.getItem('access-token')
   config.headers['X-Auth-Token'] = token
+  // The page the request belongs to, for when its session turns out to be over.
+  config.sentFrom = router.currentRoute.name
   return config
 })
 
 let renewalPromise = null
+
+// The session is over: there is no refresh token, or core refused to renew it. The member is
+// forgotten, so the login page doesn't send them straight back as someone still logged in.
+// Returns whether the page the request was sent from is left for the login page: not for the
+// guard's own request (`X-For-Auth`), which decides itself where to go, and not for a request
+// of the login page, where there is nowhere else to go. The app goes to the login page once,
+// however many requests of the page are refused, also when one arrives after the login page is
+// shown.
+let leaving = null
+const endSession = (request) => {
+  store.dispatch('logout')
+  if (request.headers['X-For-Auth'] || request.sentFrom === 'oms.login') {
+    return false
+  }
+  if (!leaving && app.$route.name !== 'oms.login') {
+    // The toast stays over the login page: the member didn't choose to log out.
+    app.showWarning('Your session has ended. Please log in again. Changes that were not saved are lost.')
+    leaving = router.push(loginFor(app.$route)).catch(ignoreNavigationFailure).finally(() => { leaving = null })
+  }
+  return true
+}
+
+// What a request whose session ended gives the page that sent it. A page that is being left
+// for the login page gets no answer at all: its own error handling would only show an error
+// over the login page, or navigate away from it. The progress bar counts the request as ended
+// here, because its own interceptor never sees an answer that never comes (and it can't be
+// registered before this one: the guard's first request is made while the app starts).
+const sessionEnded = (request, error, leftPage) => {
+  if (leftPage && !request.headers['X-For-Auth']) {
+    if (request.showProgressBar) nprogress.requestEnded()
+    return new Promise(() => {})
+  }
+  return Promise.reject(error)
+}
 
 axios.interceptors.response.use(
   response => response, // success handler
@@ -228,13 +262,7 @@ axios.interceptors.response.use(
     const refreshToken = window.localStorage.getItem('refresh-token')
     if (!refreshToken) {
       console.debug('No refresh token provided')
-
-      // Workaround indicating that we don't need to redirect (it's an auth request)
-      if (!originalRequest.headers['X-For-Auth']) {
-        const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
-        router.push('/login' + prefix)
-      }
-      return Promise.reject(error)
+      return sessionEnded(originalRequest, error, endSession(originalRequest))
     }
 
     if (!renewalPromise) {
@@ -251,10 +279,7 @@ axios.interceptors.response.use(
           console.debug('Token renewal failed:', renewError)
           window.localStorage.removeItem('access-token')
           window.localStorage.removeItem('refresh-token')
-          if (!originalRequest.headers['X-For-Auth']) {
-            const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
-            router.push('/login' + prefix)
-          }
+          renewError.leftPage = endSession(originalRequest)
           throw renewError
         })
         .finally(() => { renewalPromise = null })
@@ -263,7 +288,7 @@ axios.interceptors.response.use(
     return renewalPromise.then((newToken) => {
       originalRequest.headers['X-Auth-Token'] = newToken
       return axios(originalRequest)
-    })
+    }, (renewError) => sessionEnded(originalRequest, renewError, renewError.leftPage))
   }
 )
 

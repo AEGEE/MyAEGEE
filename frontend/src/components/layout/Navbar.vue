@@ -12,7 +12,7 @@
         :aria-expanded="sidebar.opened ? 'true' : 'false'"
         @click="toggleSidebar({ opened: !sidebar.opened })"
       >
-        <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
+        <font-awesome-icon icon="bars" aria-hidden="true" />
       </button>
       <a href="/" class="logo" aria-label="MyAEGEE home">
         <img src="../../images/AEGEE_logo.png" class="image" alt="" />
@@ -82,12 +82,10 @@ export default {
     }
   },
   computed: mapGetters({
-    pkginfo: 'pkg',
     sidebar: 'sidebar',
     navbar: 'navbar',
     loggedIn: 'loggedIn',
-    user: 'user',
-    permissions: 'permissions'
+    user: 'user'
   }),
   methods: {
     ...mapActions(['toggleSidebar', 'toggleNavbarMenu']),
@@ -153,6 +151,7 @@ export default {
     document.addEventListener('click', this.closeOnClickOutside)
     document.addEventListener('keydown', this.closeOnEscape)
   },
+  /* istanbul ignore next -- the top bar lives as long as the app, so it is never destroyed in a test */
   beforeDestroy () {
     document.removeEventListener('click', this.closeOnClickOutside)
     document.removeEventListener('keydown', this.closeOnEscape)

@@ -1,18 +1,26 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-child">
-      <h1 class="title">{{ $route.params.id ? 'Edit section' : 'Add section' }}</h1>
+      <h1 id="resource-category-title" class="title">{{ $route.params.id ? 'Edit section' : 'Add section' }}</h1>
 
-      <form @submit.prevent="save()">
+      <form aria-labelledby="resource-category-title" :aria-busy="isLoading" @submit.prevent="save()">
         <div class="field">
           <label class="label" for="resource-category-name">Name</label>
           <div class="control">
-            <input id="resource-category-name" class="input" type="text" required maxlength="100" v-model="category.name" />
+            <input
+              id="resource-category-name"
+              class="input"
+              type="text"
+              required
+              maxlength="100"
+              :aria-describedby="errors.name ? 'resource-category-name-error' : null"
+              v-model="category.name"
+            />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
+          <p id="resource-category-name-error" class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
-        <fieldset class="field">
+        <fieldset class="field" :aria-describedby="errors.theme ? 'resource-category-theme-error' : null">
           <legend class="label">Colour</legend>
           <div class="theme-options">
             <label v-for="theme in themes" :key="theme.key" class="theme-option">
@@ -20,7 +28,7 @@
               <span class="theme-option-swatch" :style="{ background: theme.background, color: theme.color }">{{ theme.label }}</span>
             </label>
           </div>
-          <p class="help is-danger" v-if="errors.theme">{{ errors.theme.join(', ') }}</p>
+          <p id="resource-category-theme-error" class="help is-danger" v-if="errors.theme">{{ errors.theme.join(', ') }}</p>
         </fieldset>
 
         <b-loading :is-full-page="false" :active="isLoading" />

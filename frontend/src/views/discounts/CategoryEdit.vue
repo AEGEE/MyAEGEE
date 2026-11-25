@@ -1,62 +1,68 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <form @submit.prevent="saveCategory()">
+      <h1 class="title" id="category-edit-title">{{ $route.params.id ? 'Edit category' : 'Create category' }}</h1>
+
+      <form class="is-relative" @submit.prevent="saveCategory()" aria-labelledby="category-edit-title" :aria-busy="isLoading">
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label" for="category-name">Category name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="category.name" />
+            <input class="input" id="category-name" type="text" required v-model="category.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
-        <div class="title">Discounts</div>
+        <h2 class="title">Discounts</h2>
+        <p class="help is-danger" v-if="errors.discounts">{{ errors.discounts.join(', ') }}</p>
 
         <div class="subtitle" v-if="category.discounts.length === 0">You didn't add any discounts.</div>
 
-        <div v-for="(discount, index) in category.discounts" v-bind:key="index">
+        <fieldset v-for="(discount, index) in category.discounts" v-bind:key="index">
+          <legend class="label">Discount {{ index + 1 }}</legend>
+
           <div class="field">
-            <label class="label">Name</label>
+            <label class="label" :for="'discount-' + index + '-name'">Name</label>
             <div class="control">
-              <input class="input" type="text" required v-model="discount.name" />
+              <input class="input" :id="'discount-' + index + '-name'" type="text" required v-model="discount.name" />
             </div>
           </div>
 
           <div class="field">
-            <label class="label">Icon (fa-something without the fa- prefix, check out <a href="https://fontawesome.com/v5/icons">this list</a> for icons)</label>
+            <label class="label" :for="'discount-' + index + '-icon'">Icon</label>
             <div class="control">
-              <input class="input" type="text" required v-model="discount.icon" />
+              <input class="input" :id="'discount-' + index + '-icon'" :aria-describedby="'discount-' + index + '-icon-help'" type="text" required v-model="discount.icon" />
+            </div>
+            <p class="help" :id="'discount-' + index + '-icon-help'">fa-something without the fa- prefix, check out <a class="is-underlined" href="https://fontawesome.com/v5/icons">this list</a> for icons</p>
+          </div>
+
+          <div class="field">
+            <label class="label" :for="'discount-' + index + '-short'">Description (short)</label>
+            <div class="control">
+              <input class="input" :id="'discount-' + index + '-short'" type="text" required v-model="discount.shortDescription" />
             </div>
           </div>
 
           <div class="field">
-            <label class="label">Description (short)</label>
+            <label class="label" :for="'discount-' + index + '-long'">Description (long)</label>
             <div class="control">
-              <input class="input" type="text" required v-model="discount.shortDescription" />
+              <textarea class="textarea" :id="'discount-' + index + '-long'" placeholder="e.g. Hello world" required v-model="discount.longDescription" />
             </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Description (long)</label>
-            <div class="control">
-              <textarea class="textarea" placeholder="e.g. Hello world" required v-model="discount.longDescription" />
-            </div>
-            <label class="label">Preview <MarkdownTooltip /></label>
-            <div class="content">
+            <p class="label"><span :id="'discount-' + index + '-preview'">Preview</span> <MarkdownTooltip /></p>
+            <div class="content" role="region" :aria-labelledby="'discount-' + index + '-preview'">
               <span v-html="$options.filters.markdown(discount.longDescription)" />
             </div>
           </div>
 
           <div class="control">
-            <button class="button is-danger is-fullwidth" @click="deleteDiscount(index)">Delete discount</button>
+            <button type="button" class="button is-danger is-fullwidth" @click="deleteDiscount(index)">Delete discount</button>
           </div>
           <hr />
-        </div>
+        </fieldset>
 
-        <b-loading is-full-page="false" :active.sync="isLoading" />
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="buttons">
-          <button class="button is-primary" @click="addDiscount()">Add new discount</button>
+          <button type="button" class="button is-primary" @click="addDiscount()">Add new discount</button>
           <input type="submit" value="Save category" :disabled="isSaving" class="button is-primary" />
         </div>
       </form>
@@ -79,7 +85,6 @@ export default {
         name: '',
         discounts: []
       },
-      permissions: [],
       errors: {},
       isLoading: false,
       isSaving: false

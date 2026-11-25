@@ -4,7 +4,7 @@
       <div class="column is-6 is-offset-3">
         <div class="box">
           <div class="field" v-if="campaign.autojoin_body">
-            <label class="label">Register on MyAEGEE for {{ campaign.autojoin_body.name }}</label>
+            <h1 class="label">Register on MyAEGEE for {{ campaign.autojoin_body.name }}</h1>
             <p>
               With this form you will be registering on MyAEGEE and automatically become a member of
               {{ campaign.autojoin_body.name }} after you have confirmed your email.
@@ -16,7 +16,7 @@
             </p>
           </div>
           <div class="field" v-if="!campaign.autojoin_body">
-            <label class="label">Register on MyAEGEE</label>
+            <h1 class="label">Register on MyAEGEE</h1>
             <p>
               With this form you will be registering on MyAEGEE. You will not become a member of a
               local yet, but you can make a join request after you have confirmed your email.
@@ -24,16 +24,21 @@
           </div>
 
           <hr />
-          <form v-on:submit.prevent="register">
+          <div v-if="campaign.active === false">
+            <p class="notification is-warning">This registration campaign is closed.</p>
+            <router-link :to="{ name: 'oms.login' }" class="button">Login</router-link>
+          </div>
+          <form v-else v-on:submit.prevent="register">
             <div class="field">
-              <label class="label">Username <span class="has-text-danger">*</span></label>
+              <label class="label" for="register-username">Username <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
                 <input
+                  id="register-username"
                   v-model="user.username"
                   required
                   class="input"
                   type="text"
-                  pattern="^(?![0-9._-]*$)[a-zA-Z0-9._-]+$"
+                  pattern="^(?![0-9._\-]*$)[a-zA-Z0-9._\-]+$"
                   title="Username can only contain English letters, numbers, dots and dashes and should contain at least 1 letter."
                   placeholder="You will be able to login with it."
                 />
@@ -42,9 +47,10 @@
             </div>
 
             <div class="field">
-              <label class="label">Email <span class="has-text-danger">*</span></label>
+              <label class="label" for="register-email">Email <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
                 <input
+                  id="register-email"
                   v-model="user.email"
                   required
                   class="input"
@@ -56,9 +62,10 @@
             </div>
 
             <div class="field">
-              <label class="label">Password <span class="has-text-danger">*</span></label>
+              <label class="label" for="register-password">Password <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
                 <input
+                  id="register-password"
                   v-model="user.password"
                   required
                   class="input"
@@ -71,11 +78,14 @@
             </div>
 
             <div class="field">
-              <label class="label"
-              >Password confirmation <span class="has-text-danger">*</span></label
+              <label
+                class="label"
+                for="register-password-copy"
+              >Password confirmation <span class="has-text-danger" aria-hidden="true">*</span></label
               >
               <div class="control">
                 <input
+                  id="register-password-copy"
                   v-model="user.password_copy"
                   required
                   class="input"
@@ -84,17 +94,15 @@
                   placeholder="Repeat your password."
                 />
               </div>
-              <p class="help is-danger" v-if="errors.password_copy">
-                {{ errors.password_copy.join(', ') }}
-              </p>
             </div>
 
             <hr />
 
             <div class="field">
-              <label class="label">First name <span class="has-text-danger">*</span></label>
+              <label class="label" for="register-first-name">First name <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
                 <input
+                  id="register-first-name"
                   v-model="user.first_name"
                   required
                   class="input"
@@ -108,9 +116,10 @@
             </div>
 
             <div class="field">
-              <label class="label">Last name <span class="has-text-danger">*</span></label>
+              <label class="label" for="register-last-name">Last name <span class="has-text-danger" aria-hidden="true">*</span></label>
               <div class="control">
                 <input
+                  id="register-last-name"
                   v-model="user.last_name"
                   required
                   class="input"
@@ -124,26 +133,29 @@
             </div>
 
             <div class="field">
-              <label class="label">Phone</label>
+              <label class="label" for="register-phone">Phone</label>
               <div class="control has-icons-left">
                 <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-                <input class="input" type="text" v-model="user.phone" />
+                <input id="register-phone" class="input" type="text" v-model="user.phone" />
               </div>
               <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ') }}</p>
             </div>
 
-            <div class="field">
-              <label class="label">Birthday</label>
+            <b-field label="Birthday" label-for="register-birthday">
               <b-datepicker
+                id="register-birthday"
+                editable
+                :mobile-native="false"
+                placeholder="YYYY-MM-DD"
                 :date-formatter="formatDate"
                 :date-parser="parseDate"
                 v-model="birthday"
                 @input="transformBirthday()"
               />
-              <p class="help is-danger" v-if="errors.date_of_birth">
-                {{ errors.date_of_birth.join(', ') }}
-              </p>
-            </div>
+            </b-field>
+            <p class="help is-danger" v-if="errors.date_of_birth">
+              {{ errors.date_of_birth.join(', ') }}
+            </p>
 
             <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
               <template slot="errors-slot">
@@ -152,19 +164,17 @@
             </select-or-custom>
 
             <div class="field">
-              <label class="label">Address</label>
+              <label class="label" for="register-address">Address</label>
               <div class="control">
-                <input class="input" type="text" v-model="user.address" />
+                <input id="register-address" class="input" type="text" v-model="user.address" />
               </div>
-              <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ') }}</p>
             </div>
 
             <div class="field">
-              <label class="label">About me</label>
+              <label class="label" for="register-about-me">About me</label>
               <div class="control">
-                <input class="input" type="text" v-model="user.about_me" />
+                <input id="register-about-me" class="input" type="text" v-model="user.about_me" />
               </div>
-              <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ') }}</p>
             </div>
 
             <div class="field">
@@ -172,13 +182,10 @@
                 I agree to the
                 <router-link
                   :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }"
-                >Privacy Policy <span class="has-text-danger">*</span>
+                >Privacy Policy <span class="has-text-danger" aria-hidden="true">*</span>
                 </router-link>
                 <input type="checkbox" required v-model="agreedToPrivacyPolicy" />
               </label>
-              <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">
-                {{ errors.agreedToPrivacyPolicy.join(', ') }}
-              </p>
             </div>
 
             <hr />
@@ -236,14 +243,15 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
+      // A birthday that was removed again is none, not "Invalid date".
+      this.user.date_of_birth = this.birthday ? moment(this.birthday).format('YYYY-MM-DD') : null
     },
     register () {
       this.errors = {}
 
+      /* istanbul ignore if -- the checkbox is required: the browser doesn't send the form without it */
       if (!this.agreedToPrivacyPolicy) {
-        this.errors.agreedToPrivacyPolicy = ['You need to agree with our Privacy Policy.']
-        return
+        return this.$root.showError('You need to agree with our Privacy Policy.')
       }
 
       if (this.user.password !== this.user.password_copy) {
@@ -289,13 +297,11 @@ export default {
     }
   },
   mounted () {
-    this.isLoading = true
     this.axios
       .get(this.services['core'] + '/campaigns/' + this.$route.params.id)
       .then((response) => {
         this.campaign = response.data.data
       })
-      .then((this.isLoading = false))
       .catch((err) => {
         if (err.response && err.response.status === 404) {
           this.$root.showError('Campaign is not found')

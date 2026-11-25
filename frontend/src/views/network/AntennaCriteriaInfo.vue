@@ -27,7 +27,7 @@
 <script>
 export default {
   name: 'AntennaCriteriaInfo',
-  props: ['local', 'agora', 'services', 'showError', 'showSuccess', 'router'],
+  props: ['local'],
   computed: {
     noComments () {
       if (!this.local.comments) return true

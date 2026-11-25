@@ -2,7 +2,7 @@
   <div class="modal-card" style="height: 75vh">
     <header class="modal-card-head">
       <p class="modal-card-title">Change fulfilment email text</p>
-      <button class="delete" aria-label="close" @click="$parent.close()" />
+      <button type="button" class="delete" aria-label="close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
@@ -25,44 +25,44 @@
         </ul>
       </div>
 
-      <b-field label="Introduction text">
-        <b-input type="textarea" v-model="parts.introduction" />
+      <b-field label="Introduction text" label-for="ac-mail-introduction">
+        <b-input type="textarea" id="ac-mail-introduction" v-model="parts.introduction" />
       </b-field>
 
-      <b-field label="Communication">
-        <b-input type="textarea" v-model="parts.communication" />
+      <b-field label="Communication" label-for="ac-mail-communication">
+        <b-input type="textarea" id="ac-mail-communication" v-model="parts.communication" />
       </b-field>
 
-      <b-field label="Board election">
-        <b-input type="textarea" v-model="parts.boardElection" />
+      <b-field label="Board election" label-for="ac-mail-board-election">
+        <b-input type="textarea" id="ac-mail-board-election" v-model="parts.boardElection" />
       </b-field>
 
-      <b-field label="Members list">
-        <b-input type="textarea" v-model="parts.membersList" />
+      <b-field label="Members list" label-for="ac-mail-members-list">
+        <b-input type="textarea" id="ac-mail-members-list" v-model="parts.membersList" />
       </b-field>
 
-      <b-field label="Membership fee">
-        <b-input type="textarea" v-model="parts.membershipFee" />
+      <b-field label="Membership fee" label-for="ac-mail-membership-fee">
+        <b-input type="textarea" id="ac-mail-membership-fee" v-model="parts.membershipFee" />
       </b-field>
 
-      <b-field label="Events">
-        <b-input type="textarea" v-model="parts.events" />
+      <b-field label="Events" label-for="ac-mail-events">
+        <b-input type="textarea" id="ac-mail-events" v-model="parts.events" />
       </b-field>
 
-      <b-field label="Agora attendance">
-        <b-input type="textarea" v-model="parts.agoraAttendance" />
+      <b-field label="Agora attendance" label-for="ac-mail-agora-attendance">
+        <b-input type="textarea" id="ac-mail-agora-attendance" v-model="parts.agoraAttendance" />
       </b-field>
 
-      <b-field label="Development plan">
-        <b-input type="textarea" v-model="parts.developmentPlan" />
+      <b-field label="Development plan" label-for="ac-mail-development-plan">
+        <b-input type="textarea" id="ac-mail-development-plan" v-model="parts.developmentPlan" />
       </b-field>
 
-      <b-field label="Fulfilment Report">
-        <b-input type="textarea" v-model="parts.fulfilmentReport" />
+      <b-field label="Fulfilment Report" label-for="ac-mail-fulfilment-report">
+        <b-input type="textarea" id="ac-mail-fulfilment-report" v-model="parts.fulfilmentReport" />
       </b-field>
 
-      <b-field label="Closing">
-        <b-input type="textarea" v-model="parts.closing" />
+      <b-field label="Closing" label-for="ac-mail-closing">
+        <b-input type="textarea" id="ac-mail-closing" v-model="parts.closing" />
       </b-field>
 
       <hr />
@@ -73,8 +73,8 @@
     </section>
 
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="save()">Save</button>
-      <button class="button" @click="$parent.close()">Cancel</button>
+      <button type="button" class="button is-primary" @click="save()">Save</button>
+      <button type="button" class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
 </template>
@@ -82,7 +82,8 @@
 <script>
 export default {
   name: 'AntennaCriteriaMail',
-  props: ['agora', 'mailComponents', 'permissions', 'services', 'showError', 'showSuccess', 'router'],
+  // onSaved: called after the texts were saved, so the page takes the new ones.
+  props: ['agora', 'mailComponents', 'services', 'showError', 'showSuccess', 'onSaved'],
   data () {
     return {
       parts: {
@@ -100,18 +101,19 @@ export default {
     }
   },
   methods: {
-    async setMailComponent (component, text) {
+    setMailComponent (component, text) {
       const data = {
         'agora_id': this.agora.id,
         'mail_component': component,
         'text': text
       }
 
-      await this.axios.put(
+      return this.axios.put(
         this.services['network'] + '/mailComponent',
         data
       ).catch((err) => {
         this.showError('Error saving mail component', err)
+        throw err
       })
     },
     async save () {
@@ -120,17 +122,18 @@ export default {
       for (const part in this.parts) {
         const component = part.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
         const original = this.mailComponents.find(c => c.mail_component === component)
-        if (original !== this.parts[part]) {
+        if ((original?.text ?? '') !== this.parts[part]) {
           promises.push(this.setMailComponent(component, this.parts[part]))
         }
       }
 
-      await Promise.all(promises).then(() => {
-        this.showSuccess('Mail components updated.')
-        this.router.go(0)
-      }).catch((err) => {
-        this.showError('Something went wrong', err)
-      })
+      // Each part that failed showed its error; the dialog stays open for another try.
+      const results = await Promise.allSettled(promises)
+      if (results.some(result => result.status === 'rejected')) return
+
+      this.showSuccess('Mail components updated.')
+      this.onSaved()
+      this.$parent.close()
     }
   },
   computed: {

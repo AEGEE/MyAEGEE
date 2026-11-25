@@ -1,26 +1,28 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-      <article class="tile is-child">
-        <h4 class="title">View current boards and election dates</h4>
+      <article class="tile is-child" aria-labelledby="boards-title" :aria-busy="isLoading">
+        <h1 class="title" id="boards-title">View current boards and election dates</h1>
         <div class="field">
-          <label class="label">Search by name, body code or abbreviation</label>
+          <label class="label" for="boards-search">Search by name, body code or abbreviation</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
+              <input class="input" id="boards-search" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
             </div>
             <div class="control" v-if="can.viewDeleted">
-              <a class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</a>
-              <a class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</a>
+              <button type="button" class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</button>
+              <button type="button" class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</button>
             </div>
           </div>
         </div>
 
         <div class="field">
-          <label class="label">Filter on body type</label>
+          <span class="label" id="boards-types-label">Filter on body type</span>
           <div class="control">
             <multiselect
               v-model="selectedTypes"
+              aria-labelledby="boards-types-label"
+              :aria-expanded="String(typesOpen)"
               :multiple="true"
               :searchable="false"
               :close-on-select="false"
@@ -30,14 +32,25 @@
               placeholder="Select body types"
               track-by="value"
               label="name"
-              @input="refetch" />
+              @open="typesOpen = true"
+              @close="typesOpen = false"
+              @input="refetch">
+              <template #tag="{ option, remove }">
+                <span class="multiselect__tag" :key="option.value">
+                  <span>{{ option.name }}</span>
+                  <button type="button" class="multiselect__tag-icon boards-type-remove" :aria-label="'Remove ' + option.name" @mousedown.prevent @click="remove(option)" />
+                </span>
+              </template>
+            </multiselect>
           </div>
         </div>
 
         <div class="field">
-          <label class="label">Other filters</label>
-          <input class="checkbox" type="checkbox" v-model="filters.noCurrentBoard" />
-          Only display bodies without a current board
+          <span class="label">Other filters</span>
+          <label class="checkbox">
+            <input type="checkbox" v-model="filters.noCurrentBoard" />
+            Only display bodies without a current board
+          </label>
         </div>
 
         <b-table :data="filteredBodies" :loading="isLoading" narrowed>
@@ -120,9 +133,7 @@ export default {
       ],
       query: '',
       includeDeleted: false,
-      can: {
-        viewDeleted: false
-      }
+      typesOpen: false
     }
   },
   computed: {
@@ -141,10 +152,14 @@ export default {
       const today = moment().format('YYYY-MM-DD')
       return this.bodies.filter(x => !x.board || moment(x.board.end_date).isBefore(today, 'date'))
     },
-    ...mapGetters({
-      services: 'services',
-      loginUser: 'user'
-    })
+    // Whether the member may list deleted bodies, from the permissions the app got when it
+    // started.
+    can () {
+      return {
+        viewDeleted: this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
+      }
+    },
+    ...mapGetters(['services', 'permissions'])
   },
   methods: {
     toggleIncludeDeleted () {
@@ -177,23 +192,18 @@ export default {
             if (recentBoard) this.$set(body, 'board', recentBoard)
           }
 
-          if (this.loginUser) {
-            return this.axios.get(this.services['core'] + '/my_permissions').then((permissionsResponse) => {
-              this.permissions = permissionsResponse.data.data
-
-              this.can.viewDeleted = this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
-              this.isLoading = false
-            })
-          }
           this.isLoading = false
         }).catch((err) => {
+          this.isLoading = false
           this.$root.showError('Could not fetch boards list', err)
         })
       }).catch((err) => {
+        // A newer search replaced this one and is still loading.
         if (this.axios.isCancel(err)) {
           return
         }
 
+        this.isLoading = false
         this.$root.showError('Could not fetch bodies list', err)
       })
     }
@@ -204,3 +214,15 @@ export default {
 }
 
 </script>
+
+<style scoped>
+/* A button, so the keyboard reaches it, that looks like the library's icon; at least 24
+   pixels, so it is easy to hit. */
+.boards-type-remove {
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  width: 24px;
+  min-height: 24px;
+}
+</style>

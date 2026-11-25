@@ -19,9 +19,11 @@
 
     <hr />
 
-    <FullCalendar
-      :options="calendarOptions"
-    />
+    <div role="region" aria-label="Events calendar" :aria-busy="isLoading">
+      <FullCalendar
+        :options="calendarOptions"
+      />
+    </div>
 
     <b-loading :is-full-page="true" :active.sync="isLoading" />
   </div>
@@ -78,7 +80,7 @@ export default {
           canCancel: '[escape, button, outside]',
           confirmText: 'Event page',
           type: 'is-info',
-          onConfirm: () => window.open(info.event.url, '_self')
+          onConfirm: () => this.$router.push(info.event.url)
         })
       } else { // If there is no link
         this.$buefy.dialog.alert({
@@ -104,7 +106,7 @@ export default {
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
-          backgroundColor: this.colors[event.type] || '#1468C5',
+          backgroundColor: this.colors[event.type],
           borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           url: '/events/' + (event.url || event.id),
@@ -127,7 +129,7 @@ export default {
           description: event.description
         }))
       }).catch((err) => {
-        this.$root.showError('Could not load events list', err)
+        this.$root.showError('Could not load Summer Universities list', err)
         return []
       })
 
@@ -139,7 +141,7 @@ export default {
           backgroundColor: '#1468C5',
           borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
-          url: '/statutory/' + (event.url || event.id),
+          url: '/statutory/' + event.url,
           description: event.description
         }))
       }).catch((err) => {
@@ -147,10 +149,13 @@ export default {
         return []
       })
 
-      const onlinePromise = fetch(onlineEventsUrl).then(res => res.text()).then((result) => {
+      const onlinePromise = fetch(onlineEventsUrl).then((res) => {
+        if (!res.ok) throw new Error(`the calendar answered ${res.status} ${res.statusText}`.trim())
+        return res.text()
+      }).then((result) => {
         /* Loading the online events Google calendar */
-        const onlineEventsData = Object.values(ical.parseICS(result))
-        onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
+        // The calendar also holds its time zones; only its events are shown.
+        const onlineEventsData = Object.values(ical.parseICS(result)).filter((item) => item.type === 'VEVENT')
         return onlineEventsData.map((event) => ({
           title: event.summary,
           start: new Date(event.start),
