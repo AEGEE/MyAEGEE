@@ -45,7 +45,7 @@ services:
 
 ### show api docs Container #######################################
   swagger:
-    image: swaggerapi/swagger-ui:v5.35.1
+    image: swaggerapi/swagger-ui:v5.36.0
     # Reads each service's openapi.yaml from the checkout (docs/testing/backend-openapi.md).
     # The pull request that writes a service's spec adds its two lines, in alphabetical order:
     #   volumes:  - ./<service>/openapi.yaml:/usr/share/nginx/html/specs/<service>.yaml:ro
